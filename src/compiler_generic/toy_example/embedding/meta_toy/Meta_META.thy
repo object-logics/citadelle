@@ -201,7 +201,7 @@ definition "datatype = i Theory_datatype"
 definition "type_synonym = i Theory_type_synonym"
 definition "type_notation = i Theory_type_notation"
 definition "instantiation = i Theory_instantiation"
-definition "defs = i Theory_defs"
+definition "overloading = i Theory_overloading"
 definition "consts = i Theory_consts"
 definition "definition = i Theory_definition"
 definition "lemmas = i Theory_lemmas"
@@ -222,7 +222,7 @@ lemmas [code] =
   O.type_synonym_def
   O.type_notation_def
   O.instantiation_def
-  O.defs_def
+  O.overloading_def
   O.consts_def
   O.definition_def
   O.lemmas_def
@@ -241,7 +241,7 @@ definition "datatype = Theory_datatype"
 definition "type_synonym = Theory_type_synonym"
 definition "type_notation = Theory_type_notation"
 definition "instantiation = Theory_instantiation"
-definition "defs = Theory_defs"
+definition "overloading = Theory_overloading"
 definition "consts = Theory_consts"
 definition "definition = Theory_definition"
 definition "lemmas = Theory_lemmas"
@@ -261,7 +261,7 @@ lemmas [code] =
   O'.type_synonym_def
   O'.type_notation_def
   O'.instantiation_def
-  O'.defs_def
+  O'.overloading_def
   O'.consts_def
   O'.definition_def
   O'.lemmas_def

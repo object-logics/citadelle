@@ -53,10 +53,13 @@ text{*
   the strict extension of the logical
   equality:
 *}
-defs (overloaded)   StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[code_unfold] :
-      "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y)\<tau>
-                                    else invalid \<tau>"
+overloading StrictRefEq \<equiv> "StrictRefEq :: [('\<AA>)Boolean,('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"
+begin
+  definition StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[code_unfold] :
+    "(x::('\<AA>)Boolean) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                  then (x \<triangleq> y)\<tau>
+                                  else invalid \<tau>"
+end
 
 text{* which implies elementary properties like: *}
 lemma [simp,code_unfold] : "(true \<doteq> false) = false"
@@ -66,7 +69,7 @@ by(simp add:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
 
 lemma null_non_false [simp,code_unfold]:"(null \<doteq> false) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
- by (metis drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
+ by (metis drop.simps cp_valid false_def is_none_code(2) Option.is_none_def valid4
            bot_option_def null_fun_def null_option_def)
 
 lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
@@ -75,7 +78,7 @@ lemma null_non_true [simp,code_unfold]:"(null \<doteq> true) = false"
 
 lemma false_non_null [simp,code_unfold]:"(false \<doteq> null) = false"
  apply(rule ext, simp add: StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def false_def)
- by(metis drop.simps cp_valid false_def is_none_code(2) is_none_def valid4
+ by(metis drop.simps cp_valid false_def is_none_code(2) Option.is_none_def valid4
           bot_option_def null_fun_def null_option_def )
 
 lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"

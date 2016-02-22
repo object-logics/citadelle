@@ -58,10 +58,12 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
   [ [ O.datatype (Datatype (pref_ty_enum name_ty) (L.map (\<lambda>constr. (pref_constr_enum constr, [])) l))
     , O.type_synonym (Type_synonym' name_ty_base (option (option (Typ_base (pref_ty_enum name_ty)))))
     , O.type_synonym (Type_synonym'' name_ty_base' [uu] (\<lambda> [u] \<Rightarrow> Typ_apply (Typ_base \<open>val\<close>) [Typ_base u, Typ_base name_ty_base]))
-    , O.defs
-        (Defs_overloaded
+    , O.overloading
+        (Overloading'
+          (\<open>StrictRefEq\<close>)
+          (Ty_arrow' (Ty_paren (Typ_base (wrap_oclty name_ty))))
           (\<open>StrictRefEq\<close> @@ String.isub name_ty)
-          (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
+          (let var_x = \<open>x\<close>
              ; var_y = \<open>y\<close> in
            Term_rewrite
             (Term_rewrite (Term_annot (b var_x) (Typ_apply (Typ_base name_ty_base') [Typ_base uu])) \<open>\<doteq>\<close> (b var_y))
@@ -69,7 +71,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
             (Term_lam \<open>\<tau>\<close>
               (\<lambda>var_tau.
                 Term_if_then_else
-                  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>v. Term_rewrite (Term_applys (a \<open>\<upsilon>\<close> (b v)) [b var_tau]) \<open>=\<close> (a \<open>true\<close> (b var_tau)) in
+                  (let f = \<lambda>v. Term_rewrite (Term_applys (a \<open>\<upsilon>\<close> (b v)) [b var_tau]) \<open>=\<close> (a \<open>true\<close> (b var_tau)) in
                    Term_binop (f var_x) \<open>\<and>\<close> (f var_y))
                   (Term_applys (Term_rewrite (b var_x) \<open>\<triangleq>\<close> (b var_y)) [b var_tau])
                   (a \<open>invalid\<close> (b var_tau)))))) ]

@@ -52,10 +52,13 @@ subsection{* Fundamental Predicates on Integers: Strict Equality \label{sec:inte
 text{* The last basic operation belonging to the fundamental infrastructure
 of a value-type in OCL is the weak equality, which is defined similar
 to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs (overloaded)   StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
-      "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
+overloading StrictRefEq \<equiv> "StrictRefEq :: [('\<AA>)Integer,('\<AA>)Integer] \<Rightarrow> ('\<AA>)Boolean"
+begin
+  definition StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[code_unfold] :
+    "(x::('\<AA>)Integer) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                  then (x \<triangleq> y) \<tau>
+                                  else invalid \<tau>"
+end
 
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
 interpretation  StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Integer) \<doteq> y" 
@@ -187,7 +190,6 @@ lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,
               (x +\<^sub>i\<^sub>n\<^sub>t \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
    apply(subst OclIf_true', simp add: OclValid_def)
   by (metis OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def OclNot_defargs OclValid_def foundation5 foundation9)
-  apply_end assumption
  next fix \<tau>
   have A: "\<And>\<tau>. (\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))) = (x \<tau> = invalid \<tau> \<or> \<tau> \<Turnstile> \<delta> x)"
   by (metis OclNot_not OclOr_def defined5 defined6 defined_not_I foundation11 foundation18'
@@ -196,9 +198,9 @@ lemma OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_zero1[simp,
    apply(cases "x \<tau>", metis bot_option_def foundation16)
    apply(rename_tac x', case_tac x', metis bot_option_def foundation16 null_option_def)
   by(simp)
-  show "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x)) \<Longrightarrow>
-              (x +\<^sub>i\<^sub>n\<^sub>t \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
-   apply(subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def OclInt0_def)
+  show "(x +\<^sub>i\<^sub>n\<^sub>t \<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+    when "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))"
+   apply(insert that, subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def OclInt0_def)
      (* *)
      apply(simp add: foundation16'[simplified OclValid_def])
     apply(simp add: B)

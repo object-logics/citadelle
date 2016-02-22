@@ -68,7 +68,7 @@ definition "write_file env = (
     (\<lambda>fprintf1.
       List_iterM (fprintf1 \<open>%s
 \<close>                             )
-        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (env, l) =
+        (let (env, l) =
            fold_thy'
              comp_env_save_deep
              (\<lambda>f. f ())

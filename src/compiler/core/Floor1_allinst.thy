@@ -98,7 +98,7 @@ definition "print_allinst_exec = start_map O.lemma o map_class_top (\<lambda>isu
         lem_tit
         []
         lem_spec
-        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_S1 = \<open>S1\<close>
+        (let var_S1 = \<open>S1\<close>
            ; var_S2 = \<open>S2\<close> in
          [ C.let' (Term_pat var_S1) (Term_lam \<open>\<tau>\<close> (ran_heap var_pre_post))
          , C.let' (Term_pat var_S2) (Term_lam \<open>\<tau>\<close> (\<lambda>var_tau. Term_binop (Term_applys (Term_pat var_S1) [b var_tau]) \<open>-\<close> (Term_paren \<open>{\<close> \<open>}\<close> (b \<open>None\<close>))))
@@ -113,7 +113,7 @@ definition "print_allinst_istypeof_pre_name2 = \<open>ex_def\<close>"
 definition "print_allinst_istypeof_pre = start_map O.lemma o (\<lambda>_.
   [ Lemma
       print_allinst_istypeof_pre_name1
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
+      (let var_x = \<open>x\<close>
          ; var_B = \<open>B\<close>
          ; var_s = \<open>s\<close>
          ; var_t = \<open>t\<close>
@@ -128,7 +128,7 @@ definition "print_allinst_istypeof_pre = start_map O.lemma o (\<lambda>_.
       (C.by [M.simp])
   , Lemma
       print_allinst_istypeof_pre_name2
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
+      (let var_x = \<open>x\<close>
          ; var_X = \<open>X\<close>
          ; var_y = \<open>y\<close>
          ; b = \<lambda>s. Term_basic [s]
@@ -191,7 +191,7 @@ definition "print_allinst_istypeof = start_map'' O.lemma o (\<lambda>expr base_a
            [(\<open>\<close>, True, Term_And \<open>x\<close> (\<lambda>var_x. Term_rewrite (Term_app var_pre_post [Term_parenthesis (Term_binop (b var_x) \<open>,\<close> (b var_x))]) \<open>=\<close> (b var_x)) )]
            lem_spec
            (L.map C.apply
-              [ let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_tau0 = var_tau @@ String.isub \<open>0\<close> in
+              [ let var_tau0 = var_tau @@ String.isub \<open>0\<close> in
                 [M.rule (T.where (T.thm \<open>exI\<close>) [(\<open>x\<close>, b var_tau0)]), M.simp_add_del (L.map d [var_tau0, \<open>OclValid\<close>]) [d \<open>OclAllInstances_generic\<close>]]
               , [M.simp_only (L.flatten [L.map T.thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [T.simplified (T.thm \<open>OclAllInstances_generic_defined\<close>) (T.thm (d \<open>OclValid\<close>))]])]
               , [M.simp_only [T.thm (d \<open>OclAllInstances_generic\<close>)]]
@@ -208,7 +208,7 @@ definition "print_allinst_istypeof = start_map'' O.lemma o (\<lambda>expr base_a
            lem_tit
            [(\<open>\<close>, True, Term_And \<open>x\<close> (\<lambda>var_x. Term_rewrite (Term_app var_pre_post [Term_parenthesis (Term_binop (b var_x) \<open>,\<close> (b var_x))]) \<open>=\<close> (b var_x)) )]
            lem_spec
-           (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid = \<open>oid\<close>
+           (let var_oid = \<open>oid\<close>
               ; var_a = \<open>a\<close>
               ; var_t0 = \<open>t0\<close>
               ; s_empty = \<open>Map.empty\<close> in

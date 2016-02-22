@@ -124,7 +124,7 @@ definition "print_examp_def_st_locale_sort env l =
 definition "filter_locale_interp =
     L.split
   o map_tail
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Term_app f [x]
+      (let a = \<lambda>f x. Term_app f [x]
        ; b = \<lambda>s. Term_basic [s]
        ; c = Term_paren \<open>\<lceil>\<close> \<open>\<rceil>\<close>
        ; var_tau = \<open>\<tau>\<close> in

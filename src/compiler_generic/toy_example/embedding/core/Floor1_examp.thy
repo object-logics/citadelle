@@ -132,7 +132,7 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
          Term_pair
            (Term_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ String.isub name) name_attr])
            (Term_app \<open>List.map\<close>
-             [ Term_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
+             [ Term_binop (let var_x = \<open>x\<close>
                              ; var_y = \<open>y\<close> in
                            Term_lambdas0
                              (Term_pair (b var_x) (b var_y))
@@ -177,7 +177,7 @@ definition "print_examp_instance_defassoc_gen name l_toyi env =
   [Definition
      (Term_rewrite name
      \<open>=\<close>
-     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid_class = \<open>oid_class\<close>
+     (let var_oid_class = \<open>oid_class\<close>
         ; var_to_from = \<open>to_from\<close>
         ; var_oid = \<open>oid\<close>
         ; a_l = \<lambda>s. Typ_apply (Typ_base var_ty_list) [s] in
@@ -235,12 +235,12 @@ definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lamb
        , (map_self, map_username)) = init_map_class env l
      ; a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s] in
-   ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
+   ( let var_inst_ass = \<open>inst_assoc\<close> in
      map_prod
        (L.map (\<lambda> _. []))
        id
        (mk_instance_single_cpt0 map_username l env)
-   , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l_id = L.mapi (\<lambda>i toyi. (i, inst_name toyi)) l in 
+   , let l_id = L.mapi (\<lambda>i toyi. (i, inst_name toyi)) l in 
      List.fold
        (\<lambda>toyi instance_rbt.
          let n = inst_name toyi in
@@ -256,7 +256,7 @@ definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lamb
        (D_input_instance env))))"
 
 definition "print_examp_def_st0 name l =
- (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
+ (let (l, _) = List.fold (\<lambda> (pos, core) (l, n).
                                       ((pos, pos - n, core) # l, 
                                         case core of ToyDefCoreAdd _ \<Rightarrow> n
                                         | ToyDefCoreBinding _ \<Rightarrow> Succ n))
@@ -287,7 +287,7 @@ definition "bootstrap_floor' f_x l env =
 
 definition "print_examp_def_st1_gen = (\<lambda> ToyDefSt name l \<Rightarrow> bootstrap_floor'
   (\<lambda>(l, accu) _. (L.flatten [L.map META_all_meta_embedding l], accu))
-  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l_inst, l_defst) = print_examp_def_st0 name l
+  (let (l_inst, l_defst) = print_examp_def_st0 name l
      ; l = [ META_def_state Floor2 (ToyDefSt name l_defst) ] in
    if l_inst = [] then
      (l, id)
@@ -318,7 +318,7 @@ definition "print_transition_gen = (\<lambda> ToyDefPP name s_pre s_post \<Right
       ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
     ( (f_comp o_pre o f_comp o_post)
        [ META_def_transition Floor2 (ToyDefPP name
-                                           (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l o_pre of Some (n, _) \<Rightarrow> n)
+                                           (case o_pre of Some (n, _) \<Rightarrow> n)
                                            (map_option fst o_post)) ]
     , f_comp_env o_pre o f_comp_env o_post )))"
 

@@ -51,9 +51,11 @@ definition "print_astype_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.
     Consts' (isub_name const_oclastype) (Typ_base (wrap_oclty name)) (const_mixfix dot_oclastype name))"
 
-definition "print_astype_class = start_m' O.defs
+definition "print_astype_class = start_m' O.overloading
   (\<lambda> compare (isub_name, name, nl_attr). \<lambda> OclClass h_name hl_attr _ \<Rightarrow>
-    Defs_overloaded
+    Overloading'
+          (isub_name const_oclastype)
+          (Ty_arrow' (Ty_paren (Typ_base (wrap_oclty h_name))))
           (S.flatten [isub_name const_oclastype, \<open>_\<close>, h_name])
           (let var_x = \<open>x\<close> in
            Term_rewrite
@@ -156,7 +158,7 @@ definition "print_astype_lemma_cp expr = (start_map O.lemma o get_hierarchy_map 
   (\<lambda>name1 name2 name3.
     Lemma
       (S.flatten [\<open>cp_\<close>, const_oclastype, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = \<open>p\<close> in
+      (let var_p = \<open>p\<close> in
        L.map
          (\<lambda>x. Term_app \<open>cp\<close> [x])
          [ Term_basic [var_p]
@@ -233,7 +235,7 @@ definition "print_astype_up_d_cast0 = start_map O.lemma o
         (print_astype_up_d_cast0_name name_any name_pers)
         [(var_isdef, False, f (Term_app \<open>\<delta>\<close> [Term_basic [var_X]]))]
         (f (Term_binop
-             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Term_warning_parenthesis (Term_postunary x (Term_basic [dot_astype ty])) in
+             (let asty = \<lambda>x ty. Term_warning_parenthesis (Term_postunary x (Term_basic [dot_astype ty])) in
               asty (asty (Term_annot_ocl (Term_basic [var_X]) name_pers) name_any) name_pers)
              \<open>\<triangleq>\<close> (Term_basic [var_X])))
         [C.using [T.thm var_isdef]]
@@ -255,7 +257,7 @@ definition "print_astype_up_d_cast = start_map O.lemma o
         (S.flatten [\<open>up\<close>, String.isub name_any, \<open>_down\<close>, String.isub name_pers, \<open>_cast\<close>])
         []
         (Term_binop
-             (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l asty = \<lambda>x ty. Term_warning_parenthesis (Term_postunary x (Term_basic [dot_astype ty])) in
+             (let asty = \<lambda>x ty. Term_warning_parenthesis (Term_postunary x (Term_basic [dot_astype ty])) in
               asty (asty (Term_annot_ocl (Term_basic [var_X]) name_pers) name_any) name_pers)
              \<open>=\<close> (Term_basic [var_X]))
         (L.map C.apply

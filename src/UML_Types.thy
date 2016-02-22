@@ -384,7 +384,7 @@ text{* The core of an own type construction is done via a type
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. *}
 
-typedef ('\<alpha>, '\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::('\<alpha>::null \<times> '\<beta>::null) option option.
+typedef (overloaded) ('\<alpha>, '\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e = "{X::('\<alpha>::null \<times> '\<beta>::null) option option.
                                        X = bot \<or> X = null \<or> (fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot \<and> snd\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot)}"
                             by (rule_tac x="bot" in exI, simp)
 
@@ -430,7 +430,7 @@ text{* The core of an own type construction is done via a type
   there is the possibility to define in fact infinite 
   type constructors in \FOCL (c.f. \autoref{sec:set-type-extensions}). *}
 
-typedef '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null) set option option. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
+typedef (overloaded) '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null) set option option. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by (rule_tac x="bot" in exI, simp)
 
 instantiation   Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)bot
@@ -473,7 +473,7 @@ text{* The core of an own type construction is done via a type
   can't be no bottom (invalid) element in them.
 *}
 
-typedef '\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null \<Rightarrow> nat) option option. X = bot \<or> X = null \<or> \<lceil>\<lceil>X\<rceil>\<rceil> bot = 0 }"
+typedef (overloaded) '\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null \<Rightarrow> nat) option option. X = bot \<or> X = null \<or> \<lceil>\<lceil>X\<rceil>\<rceil> bot = 0 }"
           by (rule_tac x="bot" in exI, simp)
 
 instantiation   Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (null)bot
@@ -510,7 +510,7 @@ text{* The core of an own type construction is done via a type
   is shown that this type ``fits'' indeed into the abstract type
   interface discussed in the previous section. *}
 
-typedef '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null) list option option.
+typedef (overloaded) '\<alpha> Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null) list option option.
                               X = bot \<or> X = null \<or> (\<forall>x\<in>set \<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
           by (rule_tac x="bot" in exI, simp)
 
@@ -605,7 +605,7 @@ fun disp_msg title msg status = title ^ ": '" ^ msg ^ "' " ^ status
 fun lemma msg specification_theorem concl in_local thy =
   SOME
     (in_local (fn lthy =>
-           specification_theorem Thm.lemmaK NONE (K I) (@{binding ""}, []) [] [] 
+           specification_theorem Thm.theoremK NONE (K I) (@{binding ""}, []) [] [] 
              (Element.Shows [((@{binding ""}, []),[(concl lthy, [])])])
              false lthy
         |> Proof.global_terminal_proof

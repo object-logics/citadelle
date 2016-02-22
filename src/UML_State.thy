@@ -1175,8 +1175,9 @@ lemma select_object_any_exec0\<^sub>S\<^sub>e\<^sub>q:
  shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f e))"
 proof -
  fix z
- show " \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>q f s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
-  apply(insert def_sel[simplified foundation16],
+ show ?thesis
+  when " \<lceil>\<lceil>Rep_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>q f s_set \<tau>)\<rceil>\<rceil> = z"
+  apply(insert that def_sel[simplified foundation16],
         simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>q_def foundation22 UML_Sequence.OclANY_def null_fun_def split: split_if_asm)
 
   apply(simp add: select_object\<^sub>S\<^sub>e\<^sub>q_def select_object_def)
@@ -1191,7 +1192,7 @@ proof -
         \<exists>e. List.member (a # l) e \<and> hd z = f e \<tau>"
    apply(rule exI[where x = a], case_tac z, simp+)
   by(simp add: member_rec)
- qed blast
+ qed
 qed blast
 
 lemma select_object_any_exec\<^sub>S\<^sub>e\<^sub>q:
@@ -1231,8 +1232,9 @@ proof -
  by(induct_tac l, simp_all)
 
  fix z
- show " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>t f s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
-  apply(insert def_sel[simplified foundation16],
+ show ?thesis
+  when " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>t f s_set \<tau>)\<rceil>\<rceil> = z"
+  apply(insert that def_sel[simplified foundation16],
         simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>t_def foundation22 UML_Set.OclANY_def null_fun_def split: split_if_asm)
 
   apply(simp add: select_object\<^sub>S\<^sub>e\<^sub>t_def select_object_def)
@@ -1253,7 +1255,6 @@ proof -
         apply (metis (mono_tags) insertI1)
        apply (metis (mono_tags) empty_iff insert_iff)
      by(simp)
-     apply_end simp
     apply_end(intro allI impI, simp)
     fix x list xa xb
     show " \<forall>x. \<exists>e. List.member (x # list) e \<and> (SOME y. y = f x \<tau> \<or> y \<in> (\<lambda>x. f x \<tau>) ` set list) = f e \<tau> \<Longrightarrow>
@@ -1268,7 +1269,6 @@ proof -
          \<exists>e. List.member (xb # xb # list) e \<and> (SOME y. y \<in> xa) = f e \<tau>"
       apply(rule exI[where x = e], auto)
       by (metis member_rec(1))
-        apply_end(blast)+
      apply_end(case_tac "List.member list x")
       apply_end(erule allE[where x = xb])
       apply_end(erule exE)
@@ -1303,8 +1303,9 @@ proof -
  by (metis (full_types) empty_iff imageI in_set_member insert_iff)
 
  fix z
- show " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>t f s_set \<tau>)\<rceil>\<rceil> = z \<Longrightarrow> ?thesis"
-  apply(insert def_sel[simplified foundation16],
+ show ?thesis
+  when " \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (select_object\<^sub>S\<^sub>e\<^sub>t f s_set \<tau>)\<rceil>\<rceil> = z"
+  apply(insert that def_sel[simplified foundation16],
         simp add: select_object_any\<^sub>S\<^sub>e\<^sub>t_def foundation22
                   Let_def null_fun_def bot_fun_def OclIf_def
              split: split_if_asm)
@@ -1327,7 +1328,7 @@ proof -
     apply(drule list_same[where x1 = a])
      apply (metis member_rec(1))
    by (metis (hide_lams, mono_tags) ListMem_iff elem in_set_member)
-  qed blast+
+  qed
 qed blast+
 
 end

@@ -72,7 +72,7 @@ lemmas substs4 = StrongEq_L_subst4_rev
 lemmas substs = substs1 substs2 substs4 [THEN iffD2] substs4
 thm substs
 ML{*
-fun ocl_subst_asm_tac ctxt  = FIRST'(map (fn C => (etac C) THEN' (simp_tac ctxt)) 
+fun ocl_subst_asm_tac ctxt  = FIRST'(map (fn C => (eresolve0_tac [C]) THEN' (simp_tac ctxt)) 
                                          @{thms "substs"})
 
 val ocl_subst_asm = fn ctxt => SIMPLE_METHOD (ocl_subst_asm_tac ctxt 1); 

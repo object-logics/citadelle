@@ -290,10 +290,14 @@ Strong equality is inherited from the OCL core, but we have to consider
 the case of the strict equality. We decide to overload strict equality in the
 same way we do for other value's in OCL:*}
 
-defs (overloaded)   StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
-      "(x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                         then (x \<triangleq> y)\<tau>
-                                         else invalid \<tau>"
+overloading
+  StrictRefEq \<equiv> "StrictRefEq :: [('\<AA>,'\<alpha>::null)Set,('\<AA>,'\<alpha>::null)Set] \<Rightarrow> ('\<AA>)Boolean"
+begin
+  definition StrictRefEq\<^sub>S\<^sub>e\<^sub>t :
+    "(x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                       then (x \<triangleq> y)\<tau>
+                                       else invalid \<tau>"
+end
 
 text{* One might object here that for the case of objects, this is an empty definition.
 The answer is no, we will restrain later on states and objects such that any object
@@ -382,8 +386,9 @@ notation   OclExcluding   ("_->excluding\<^sub>S\<^sub>e\<^sub>t'(_')")
 lemma OclExcluding_inv: "(x:: Set('b::{null})) \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow>  y \<noteq> \<bottom>  \<Longrightarrow>
            \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> - {y}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
   proof - fix X :: "'a state \<times> 'a state \<Rightarrow> Set('b)" fix \<tau>
-          show "x = X \<tau> \<Longrightarrow> x \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow> y \<noteq> \<bottom> \<Longrightarrow> ?thesis"
-  by(simp add: Set_inv_lemma[simplified OclValid_def 
+          show "x \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow> y \<noteq> \<bottom> \<Longrightarrow> ?thesis"
+            when "x = X \<tau>"
+  by(simp add: that Set_inv_lemma[simplified OclValid_def 
                                           defined_def null_fun_def bot_fun_def, of X \<tau>])
 qed simp_all
 
@@ -595,8 +600,9 @@ notation   OclUnion       ("_->union\<^sub>S\<^sub>e\<^sub>t'(_')"          (*[6
 lemma OclUnion_inv: "(x:: Set('b::{null})) \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow>  y \<noteq> \<bottom>  \<Longrightarrow> y \<noteq> null \<Longrightarrow>
            \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil> \<union> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
   proof - fix X Y :: "'a state \<times> 'a state \<Rightarrow> Set('b)" fix \<tau>
-          show "x = X \<tau> \<Longrightarrow> y = Y \<tau> \<Longrightarrow> x \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow> y \<noteq> \<bottom> \<Longrightarrow> y \<noteq> null \<Longrightarrow> ?thesis"
-  by(auto,
+          show "x \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow> y \<noteq> \<bottom> \<Longrightarrow> y \<noteq> null \<Longrightarrow> ?thesis"
+            when "x = X \<tau>" "y = Y \<tau>"
+  by(auto simp: that,
      insert
        Set_inv_lemma[simplified OclValid_def 
                                           defined_def null_fun_def bot_fun_def, of Y \<tau>]
@@ -634,8 +640,9 @@ notation   OclIntersection("_->intersection\<^sub>S\<^sub>e\<^sub>t'(_')"   (*[7
 lemma OclIntersection_inv: "(x:: Set('b::{null})) \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow>  y \<noteq> \<bottom>  \<Longrightarrow> y \<noteq> null \<Longrightarrow>
            \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil> \<inter> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
   proof - fix X Y :: "'a state \<times> 'a state \<Rightarrow> Set('b)" fix \<tau>
-          show "x = X \<tau> \<Longrightarrow> y = Y \<tau> \<Longrightarrow> x \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow> y \<noteq> \<bottom> \<Longrightarrow> y \<noteq> null \<Longrightarrow> ?thesis"
-  by(auto,
+          show "x \<noteq> \<bottom> \<Longrightarrow> x \<noteq> null \<Longrightarrow> y \<noteq> \<bottom> \<Longrightarrow> y \<noteq> null \<Longrightarrow> ?thesis"
+            when "x = X \<tau>" "y = Y \<tau>"
+  by(auto simp: that,
      insert
        Set_inv_lemma[simplified OclValid_def 
                                           defined_def null_fun_def bot_fun_def, of Y \<tau>]
@@ -1663,18 +1670,18 @@ qed
 
 
 (* Hack to work around OF-Bug *)
-schematic_lemma OclExcluding_charn_exec\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[simp,code_unfold]: "?X"
+schematic_goal OclExcluding_charn_exec\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[simp,code_unfold]: "?X"
 by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict1 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict2
                                 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.defined_args_valid
                                 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.StrictRefEq_vs_StrongEq], simp_all)
 
-schematic_lemma OclExcluding_charn_exec\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[simp,code_unfold]: "?X"
+schematic_goal OclExcluding_charn_exec\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[simp,code_unfold]: "?X"
 by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.strict1 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.strict2
                                 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.defined_args_valid
                              StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.cp0 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.StrictRefEq_vs_StrongEq], simp_all)
 
 
-schematic_lemma OclExcluding_charn_exec\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
+schematic_goal OclExcluding_charn_exec\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
 by(rule OclExcluding_charn_exec[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict2
                                 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.defined_args_valid
                                 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.cp0 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq], simp_all)
@@ -1812,19 +1819,19 @@ qed
 
 
 (* Hack to work around OF-Bug *)
-schematic_lemma OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[simp,code_unfold]: "?X"
+schematic_goal OclIncludes_execute\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r[simp,code_unfold]: "?X"
 by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict1 StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.strict2
                                     StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0
                                     StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.StrictRefEq_vs_StrongEq], simp_all)
 
 
-schematic_lemma OclIncludes_execute\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[simp,code_unfold]: "?X"
+schematic_goal OclIncludes_execute\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n[simp,code_unfold]: "?X"
 by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.strict1 StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.strict2
                                     StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.cp0
                                     StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n.StrictRefEq_vs_StrongEq], simp_all)
 
 
-schematic_lemma OclIncludes_execute\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
+schematic_goal OclIncludes_execute\<^sub>S\<^sub>e\<^sub>t[simp,code_unfold]: "?X"
 by(rule OclIncludes_execute_generic[OF StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict1 StrictRefEq\<^sub>S\<^sub>e\<^sub>t.strict2
                                     StrictRefEq\<^sub>S\<^sub>e\<^sub>t.cp0
                                     StrictRefEq\<^sub>S\<^sub>e\<^sub>t.StrictRefEq_vs_StrongEq], simp_all)

@@ -52,9 +52,11 @@ definition "print_iskindof_consts = start_map O.consts o
     Consts' (isub_name const_ocliskindof) (Typ_base ty_boolean) (const_mixfix dot_ocliskindof name))"
 
 definition "print_iskindof_class_name isub_name h_name = S.flatten [isub_name const_ocliskindof, \<open>_\<close>, h_name]"
-definition "print_iskindof_class = start_m_gen O.defs m_class_default
+definition "print_iskindof_class = start_m_gen O.overloading m_class_default
   (\<lambda> _ _ next_dataty _ (isub_name, name, _). \<lambda> OclClass h_name _ _ \<Rightarrow>
-    [ Defs_overloaded
+    [ Overloading'
+          (isub_name const_ocliskindof)
+          (Ty_arrow' (Ty_paren (Typ_base (wrap_oclty h_name))))
           (print_iskindof_class_name isub_name h_name)
           (let var_x = \<open>x\<close> in
            Term_rewrite
@@ -217,7 +219,7 @@ definition "print_iskindof_up_eq_asty = start_map O.lemma o map_class_gen_h'''''
                         , accu))
                       (OclClass name l_attr next_dataty # rev l_subtree) (1, [])))
         , [ M.auto_simp_add_split
-              (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = L.map T.thm (L.flatten ( [\<open>foundation16\<close>, hol_definition \<open>bot_option\<close>]
+              (let l = L.map T.thm (L.flatten ( [\<open>foundation16\<close>, hol_definition \<open>bot_option\<close>]
                                                      # L.map
                                                          (\<lambda> OclClass n _ _ \<Rightarrow> [S.flatten [const_oclistypeof, String.isub n, \<open>_\<close>, name]])
                                                          l_subtree)) in

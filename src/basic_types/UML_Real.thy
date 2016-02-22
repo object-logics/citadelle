@@ -52,10 +52,13 @@ subsection{* Fundamental Predicates on Reals: Strict Equality \label{sec:real-st
 text{* The last basic operation belonging to the fundamental infrastructure
 of a value-type in OCL is the weak equality, which is defined similar
 to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs (overloaded)   StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
-      "(x::('\<AA>)Real) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then (x \<triangleq> y) \<tau>
-                                    else invalid \<tau>"
+overloading StrictRefEq \<equiv> "StrictRefEq :: [('\<AA>)Real,('\<AA>)Real] \<Rightarrow> ('\<AA>)Boolean"
+begin
+  definition StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l [code_unfold] :
+    "(x::('\<AA>)Real) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
+                                  then (x \<triangleq> y) \<tau>
+                                  else invalid \<tau>"
+end
 
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
 interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y" 
@@ -150,7 +153,7 @@ where "x div\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
 
-definition "mod_float a b = a - real (floor (a / b)) * b"
+definition "mod_float a b = a - real_of_int (floor (a / b)) * b"
 definition OclModulus\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 45)
 where "x mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>mod_float \<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
@@ -188,7 +191,6 @@ lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_zero1[simp,code_unfold] :
               (x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
    apply(subst OclIf_true', simp add: OclValid_def)
   by (metis OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def OclNot_defargs OclValid_def foundation5 foundation9)
-  apply_end assumption
  next fix \<tau>
   have A: "\<And>\<tau>. (\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))) = (x \<tau> = invalid \<tau> \<or> \<tau> \<Turnstile> \<delta> x)"
   by (metis OclNot_not OclOr_def defined5 defined6 defined_not_I foundation11 foundation18'
@@ -197,9 +199,9 @@ lemma OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_zero1[simp,code_unfold] :
    apply(cases "x \<tau>", metis bot_option_def foundation16)
    apply(rename_tac x', case_tac x', metis bot_option_def foundation16 null_option_def)
   by(simp)
-  show "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x)) \<Longrightarrow>
-              (x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
-   apply(subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def OclReal0_def)
+  show "(x +\<^sub>r\<^sub>e\<^sub>a\<^sub>l \<zero>.\<zero>) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+    when "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))"
+   apply(insert that, subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def OclReal0_def)
      (* *)
      apply(simp add: foundation16'[simplified OclValid_def])
     apply(simp add: B)

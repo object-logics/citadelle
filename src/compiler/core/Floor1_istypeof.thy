@@ -51,9 +51,11 @@ definition "print_istypeof_consts = start_map O.consts o
   map_class (\<lambda>isub_name name _ _ _ _.
     Consts' (isub_name const_oclistypeof) (Typ_base ty_boolean) (const_mixfix dot_oclistypeof name))"
 
-definition "print_istypeof_class = start_m_gen O.defs m_class_default
+definition "print_istypeof_class = start_m_gen O.overloading m_class_default
   (\<lambda> l_inh _ _ compare (isub_name, name, _). \<lambda> OclClass h_name hl_attr h_last \<Rightarrow>
-   [Defs_overloaded
+   [Overloading'
+          (isub_name const_oclistypeof)
+          (Ty_arrow' (Ty_paren (Typ_base (wrap_oclty h_name))))
           (S.flatten [isub_name const_oclistypeof, \<open>_\<close>, h_name])
           (let var_x = \<open>x\<close> in
            Term_rewrite
@@ -110,7 +112,7 @@ definition "print_istypeof_lemma_cp expr = (start_map O.lemma o
   (\<lambda>name1 name2 name3.
     Lemma
       (S.flatten [\<open>cp_\<close>, const_oclistypeof, String.isub name1, \<open>_\<close>, name3, \<open>_\<close>, name2])
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_p = \<open>p\<close> in
+      (let var_p = \<open>p\<close> in
        L.map
          (\<lambda>x. Term_app \<open>cp\<close> [x])
          [ Term_basic [var_p]

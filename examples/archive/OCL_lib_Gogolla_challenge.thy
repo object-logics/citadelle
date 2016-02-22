@@ -599,7 +599,7 @@ locale EQ_comp_fun_commute =
   assumes cp_S : "\<And>x. cp (f x)"
   assumes cp_x : "\<And>S. cp (\<lambda>x. f x S)"
   assumes cp_gen : "\<And>x S \<tau>1 \<tau>2. is_int x \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow> S \<tau>1 = S \<tau>2 \<Longrightarrow> f x S \<tau>1 = f x S \<tau>2"
-  assumes notempty : "\<And>x S \<tau>. (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
+  assumes notempty : "\<And>x S \<tau>. (\<And>\<tau>. all_defined \<tau> S) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<lceil>\<lceil>@{text "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e"} (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>@{text "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e"} (f x S \<tau>)\<rceil>\<rceil> \<noteq> {}"
   assumes all_def: "\<And>(x:: 'a state \<times> 'a state \<Rightarrow> int option option) y. all_defined \<tau> (f x y) = (\<tau> \<Turnstile> \<upsilon> x \<and> all_defined \<tau> y)"
   assumes commute: "
                              \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow>
@@ -830,8 +830,8 @@ begin
  proof (induct set: EQG_fold_graph)
    case (EQG_insertI x A y)
    assume "\<And>\<tau>. all_defined \<tau> (f (f000 x) y)"
-   then show "\<forall>\<tau>. is_i' \<tau> (f000 x) \<Longrightarrow> (\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case"
-   proof (cases "x = a") assume "x = a" with EQG_insertI show "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" by (metis Diff_insert_absorb all_def)
+   then show "?case" when "\<forall>\<tau>. is_i' \<tau> (f000 x)" "(\<And>\<tau>. all_defined \<tau> y)"
+   proof (insert that, cases "x = a") assume "x = a" with EQG_insertI show "(\<And>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" by (metis Diff_insert_absorb all_def)
    next apply_end(simp)
 
      assume "f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y)"
@@ -850,20 +850,20 @@ begin
        apply (simp add: insert_Diff_if OCL_lib_Gogolla_challenge.EQG_insertI)
      done
      apply_end(subgoal_tac "f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> \<exists>y'. f (f000 x) y = f (f000 a) y' \<and> (\<forall>\<tau>. all_defined \<tau> y') \<and> EQG_fold_graph f000 f z (insert (f000 x) A - {(f000 a)}) y'")
-     ultimately show "(\<forall>\<tau>. is_i' \<tau> (f000 x)) \<and> f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y) \<Longrightarrow> ?case" apply(auto simp: a_valid)
+     ultimately show "?case" when "(\<forall>\<tau>. is_i' \<tau> (f000 x)) \<and> f000 x \<noteq> f000 a \<and> (\<forall>\<tau>. all_defined \<tau> y)" apply(auto simp: a_valid)
      by (metis (mono_tags) `\<And>\<tau>. all_defined \<tau> (f (f000 x) y)` all_def)
     apply_end(drule f000_inj, blast)+
-   qed
+   qed simp
   apply_end simp
 
   fix x y
   show "(\<And>\<tau>. all_defined \<tau> (f (f000 x) y)) \<Longrightarrow> \<forall>\<tau>. is_i' \<tau> (f000 x)"
    apply(rule all_def[where x = x and y = y, THEN iffD1, THEN conjunct1], simp) done
-  apply_end blast
+  
   fix x y \<tau>
   show "(\<And>\<tau>. all_defined \<tau> (f (f000 x) y)) \<Longrightarrow> all_defined \<tau> y"
    apply(rule all_def[where x = x, THEN iffD1, THEN conjunct2, THEN spec], simp) done
-  apply_end blast
+  
  qed
 
  lemma fold_graph_insertE:
@@ -1740,7 +1740,7 @@ proof -
    apply(rule cp_gen, simp, blast, simp)
    apply(simp)
   done
-  apply_end(simp) apply_end(simp) apply_end(simp) apply_end(rule conjI)
+  apply_end(rule conjI)
   apply_end(rule allI)+ apply_end(rule impI)+
 
   apply_end(rule including_notempty)
@@ -1777,7 +1777,6 @@ proof -
    apply(simp add: int_is_valid[OF a_int])
    apply(simp)
   done
-  apply_end(simp)+
  qed
 qed
 
@@ -2446,7 +2445,6 @@ lemma iterate_commute' :
         is_int (\<lambda>_. \<lfloor>x\<rfloor>) \<Longrightarrow> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (UML_Set.OclIterate S S (F x) \<tau>)\<rceil>\<rceil> \<noteq> {}"
  by(rule iterate_notempty'[OF f_comm], simp_all)
 
- apply_end(simp) apply_end(simp) apply_end(simp)
  apply_end(rule conjI)+ apply_end(rule allI)+
  fix x y \<tau>
  show "(\<forall>\<tau>. all_defined \<tau> (UML_Set.OclIterate y y (F x))) = (is_int (\<lambda>(_:: '\<AA> st). \<lfloor>x\<rfloor>) \<and> (\<forall>\<tau>. all_defined \<tau> y))"
@@ -2701,8 +2699,7 @@ proof -
    apply(simp add: S_all_int)
    apply(simp add: S_incl)
    apply(rule rec)
-   apply(simp) apply(simp) apply(simp) apply(simp)
-   apply (metis pair_collapse)
+   apply(simp) apply(simp) apply(simp) apply(simp) apply(simp)
    apply(blast)
 
    apply(simp add: Let_def)
@@ -3237,7 +3234,7 @@ proof -
   apply(case_tac "F = {}", simp)
   apply(simp add: all_int_set_def)
   done
- qed simp
+ qed
 
  show "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> ?thesis"
   apply(simp add: UML_Set.OclIterate_def)
@@ -3417,7 +3414,7 @@ proof -
   apply(case_tac "F = {}", simp)
   apply(simp add: all_int_set_def)
   done
- qed simp
+ qed
 
  show "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> \<noteq> {} \<Longrightarrow> ?thesis"
   apply(simp only: init_out1, subst init_out2, simp del: OclIncluding_commute)
@@ -3489,7 +3486,6 @@ proof -
   apply(rule cons_all_def, simp_all add: S_all_def int_is_valid[OF a_int])
   apply(simp add: Sa_include)
  done
- apply_end simp_all
 qed
 
 subsection{* Execution OclIncluding out of OclIterate (corollary) *}
@@ -4072,8 +4068,6 @@ proof -
    prefer 2
    proof - fix x show "(\<upsilon> P (\<lambda>_. x)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor> \<Longrightarrow> (\<upsilon> (\<lambda>_. x)) \<tau> = \<lfloor>\<lfloor>True\<rfloor>\<rfloor>"
    by (metis bot_fun_def P_strict true_def valid_def)
-   apply_end(simp)
-  apply_end(simp)
   apply_end(subgoal_tac "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None \<and> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>", simp)
   apply_end(subgoal_tac "{xa. (xa = x \<or> xa \<in> F) \<and> P (\<lambda>_. xa) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>} = insert x {x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}", simp)
   apply_end(rule equalityI)
@@ -4082,15 +4076,15 @@ proof -
 
 
   fix F
-  show "\<forall>x\<in>F. P (\<lambda>_. x) \<tau> \<noteq> \<bottom> \<Longrightarrow> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None \<and> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
-   apply(subst (1 2) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, simp_all add: bot_option_def null_option_def)
+  show "Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e None \<and> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>{x \<in> F. P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>}\<rfloor>\<rfloor> \<noteq> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>"
+    when "\<forall>x\<in>F. P (\<lambda>_. x) \<tau> \<noteq> \<bottom>"
+   apply(insert that, subst (1 2) Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, simp_all add: bot_option_def null_option_def)
    apply(rule allI, rule impI)
    proof - fix x show "\<forall>x\<in>F. \<exists>y. P (\<lambda>_. x) \<tau> = \<lfloor>y\<rfloor> \<Longrightarrow> x \<in> F \<and> P (\<lambda>_. x) \<tau> \<noteq> \<lfloor>\<lfloor>False\<rfloor>\<rfloor> \<Longrightarrow> \<exists>y. x = \<lfloor>y\<rfloor>"
     apply(case_tac "x = \<bottom>", drule P_strict[where x = "\<lambda>_. x"])
     apply(drule_tac x = x in ballE) prefer 3 apply assumption
     apply(simp add: bot_option_def)+
    done
-   apply_end(simp)+
   qed
   apply_end(simp add: OclValid_def invalid_def)+
  qed

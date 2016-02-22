@@ -102,8 +102,11 @@ end\<close>
     name
     (of_semi__term expr))"
 
-definition "of_defs _ = (\<lambda> Defs_overloaded n e \<Rightarrow>
-  \<open>defs(overloaded) %s : \"%s\"\<close> (To_string n) (of_semi__term e))"
+definition "of_overloading _ = (\<lambda> Overloading n_c e_c n e \<Rightarrow>
+  \<open>overloading %s \<equiv> \"%s\"
+begin
+  definition %s : \"%s\"
+end\<close> (To_string n_c) (of_semi__term e_c) (To_string n) (of_semi__term e))"
 
 definition "of_consts _ = (\<lambda> Consts n ty symb \<Rightarrow>
   \<open>consts %s :: \"%s\" (\"%s %s\")\<close> (To_string n) (of_semi__typ ty) (To_string Consts_value) (To_string symb))"
@@ -260,9 +263,14 @@ definition "of_semi__command_state = (
 
 definition' \<open>of_semi__command_proof = (
   let thesis = \<open>?thesis\<close>
-    ; scope_thesis_gen = \<open>  proof - %s show %s
-\<close>
-    ; scope_thesis = \<lambda>s. scope_thesis_gen s thesis in
+    ; scope_thesis_gen = \<lambda>proof show when. \<open>  proof - %s show %s%s
+\<close> proof
+  show
+  (if when = [] then
+     \<open>\<close>
+   else
+     \<open> when %s\<close> (String_concat \<open> \<close> (L.map (\<lambda>t. \<open>"%s"\<close> (of_semi__term t)) when)))
+    ; scope_thesis = \<lambda>s. scope_thesis_gen s thesis [] in
   \<lambda> Command_apply [] \<Rightarrow> \<open>\<close>
   | Command_apply l_apply \<Rightarrow> \<open>  apply(%s)
 \<close> (String_concat \<open>, \<close> (L.map of_semi__method l_apply))
@@ -281,7 +289,8 @@ definition' \<open>of_semi__command_proof = (
                                        \<open>          let %s = "%s"\<close> (of_semi__term e_name) (of_semi__term e_body))
                                      l_let)))
         (case o_show of None \<Rightarrow> thesis
-                      | Some l_show \<Rightarrow> \<open>"%s"\<close> (String_concat \<open> \<Longrightarrow> \<close> (L.map of_semi__term l_show))))\<close>
+                      | Some (l_show, _) \<Rightarrow> \<open>"%s"\<close> (String_concat \<open> \<Longrightarrow> \<close> (L.map of_semi__term l_show)))
+        (case o_show of None \<Rightarrow> [] | Some (_, l_when) \<Rightarrow> l_when))\<close>
 
 definition "of_lemma _ =
  (\<lambda> Lemma n l_spec l_apply tactic_last \<Rightarrow>
@@ -356,7 +365,7 @@ definition "of_semi__theory env =
   | Theory_type_synonym ty_synonym \<Rightarrow> of_type_synonym env ty_synonym
   | Theory_type_notation ty_notation \<Rightarrow> of_type_notation env ty_notation
   | Theory_instantiation instantiation_class \<Rightarrow> of_instantiation env instantiation_class
-  | Theory_defs defs_overloaded \<Rightarrow> of_defs env defs_overloaded
+  | Theory_overloading overloading \<Rightarrow> of_overloading env overloading
   | Theory_consts consts_class \<Rightarrow> of_consts env consts_class
   | Theory_definition definition_hol \<Rightarrow> of_definition env definition_hol
   | Theory_lemmas lemmas_simp \<Rightarrow> of_lemmas env lemmas_simp
@@ -404,7 +413,7 @@ lemmas [code] =
   Print.of_type_synonym_def
   Print.of_type_notation_def
   Print.of_instantiation_def
-  Print.of_defs_def
+  Print.of_overloading_def
   Print.of_consts_def
   Print.of_definition_def
   Print.of_semi__thm_attribute_aux_gen_def

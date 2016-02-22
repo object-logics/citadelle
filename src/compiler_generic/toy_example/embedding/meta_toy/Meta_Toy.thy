@@ -260,19 +260,19 @@ function (sequential) class_unflat_aux where
       map_option
         (OclClass
           r
-          (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l))
+          (case lookup rbt r of Some l \<Rightarrow> l))
         (L.bind (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))
                 id
-                (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt_inv r of None \<Rightarrow> [] | Some l \<Rightarrow> l))
+                (case lookup rbt_inv r of None \<Rightarrow> [] | Some l \<Rightarrow> l))
     | _ \<Rightarrow> None)"
 *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
-   (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt_inv r of None \<Rightarrow> 
+   (case lookup rbt_inv r of None \<Rightarrow> 
       (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
             map_option
               (ToyClass
                 r
-                (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l))
+                (case lookup rbt r of Some l \<Rightarrow> l))
               ((\<lambda>f0 f l.
           let l = List.map f0 l in
             if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
@@ -287,7 +287,7 @@ function (sequential) class_unflat_aux where
             map_option
               (ToyClass
                 r
-                (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l lookup rbt r of Some l \<Rightarrow> l))
+                (case lookup rbt r of Some l \<Rightarrow> l))
               ((\<lambda>f0 f l.
           let l = List.map f0 l in
             if list_ex (\<lambda> None \<Rightarrow> True | _ \<Rightarrow> False) l then
@@ -373,7 +373,7 @@ qed
 definition "ty_obj_to_string = (\<lambda>ToyTyObj (ToyTyCore_pre s) _ \<Rightarrow> s)"
 definition "cl_name_to_string = ty_obj_to_string o ClassRaw_name"
 
-definition "normalize f l =
+definition "normalize0 f l =
   rev (snd (List.fold (\<lambda>x (rbt, l).
                         let x0 = f x in
                         case RBT.lookup rbt x0 of
@@ -399,12 +399,12 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
        add remaining 'object' attributes *)
     L.map snd (entries (List.fold (\<lambda> (ass_oid, ass) \<Rightarrow>
       case let (l_none, l_some) = List.partition (\<lambda>(_, m). TyRole m = None) (ToyAss_relation' ass ) in
-           L.flatten [l_none, normalize (\<lambda>(_, m). case TyRole m of Some s \<Rightarrow> String.to_list s) l_some] of
+           L.flatten [l_none, normalize0 (\<lambda>(_, m). case TyRole m of Some s \<Rightarrow> String.to_list s) l_some] of
         [] \<Rightarrow> id
       | [_] \<Rightarrow> id
       | l_rel \<Rightarrow>
         fold_max
-          (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l n_rel = natural_of_nat (List.length l_rel) in
+          (let n_rel = natural_of_nat (List.length l_rel) in
            (\<lambda> (cpt_to, (name_to, category_to)).
              case TyRole category_to of
                Some role_to \<Rightarrow>
@@ -419,7 +419,7 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
         l_rel) (L.mapi Pair l_ass) rbt)) in
   class_unflat_aux
     (List.fold (\<lambda> cflat. insert (cl_name_to_string cflat)
-                                (normalize (String.to_list o fst) (L.map (map_prod id remove_binding) (ClassRaw_own cflat))))
+                                (normalize0 (String.to_list o fst) (L.map (map_prod id remove_binding) (ClassRaw_own cflat))))
                l
                RBT.empty)
     (List.fold

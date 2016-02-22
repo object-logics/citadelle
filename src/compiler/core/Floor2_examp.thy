@@ -130,7 +130,7 @@ definition "print_examp_def_st_locale_sort env l =
 definition "filter_locale_interp =
     L.split
   o map_tail
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Term_app f [x]
+      (let a = \<lambda>f x. Term_app f [x]
        ; b = \<lambda>s. Term_basic [s]
        ; c = Term_paren \<open>\<lceil>\<close> \<open>\<rceil>\<close>
        ; var_tau = \<open>\<tau>\<close> in
@@ -333,7 +333,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ env.
                         ( \<open>state_update_vs_allInstances_generic_tc\<close>
                         , tl l_spec
                         , ( M.blast None
-                          # f (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>l.  M.option [M.simp_only [T.symmetric (T.thms \<open>assms\<close>)]]
+                          # f (let f = \<lambda>l.  M.option [M.simp_only [T.symmetric (T.thms \<open>assms\<close>)]]
                                               # M.simp_add (L.map d [\<open>valid\<close>, \<open>OclValid\<close>, \<open>bot_fun\<close>, \<open>bot_option\<close>])
                                               # l in
                                mk_StrictRefEq_including (M.rule (T.thm \<open>OclIncluding_cong\<close>) # f (f []))))) in
@@ -347,7 +347,7 @@ definition "print_examp_def_st_allinst = (\<lambda> _ env.
             , [[M.rule (T.thm \<open>state_update_vs_allInstances_generic_empty\<close>)]] ]))
          (C.by (if l_spec = [] then [ M.simp ]
                    else only_assms [ M.option [M.simp_all_add [d (S.flatten [isub_name const_oclastype, \<open>_\<AA>\<close>])]]])) )
-       (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ M.simp_all ] in if l_assum = [] then l else only_assms l))
+       (let l = [ M.simp_all ] in if l_assum = [] then l else only_assms l))
      (case D_input_class env of Some class_spec \<Rightarrow> class_spec)))"
 
 definition "print_examp_def_st_def_interp = (\<lambda> OclDefSt n l \<Rightarrow> \<lambda> env.
@@ -397,7 +397,7 @@ definition "print_transition_interp = get_state (\<lambda> _ _.
 definition "print_transition_def_state = get_state (\<lambda> pre post _.
  (Pair o L.map O'.definition)
  (L.map
-  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l a = \<lambda>f x. Term_app f [x]
+  (let a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s] in
    (\<lambda>(s, _).
     Definition (Term_rewrite (b s) \<open>=\<close> (b (print_examp_def_st_locale_name s @@ \<open>.\<close> @@ s)))))
@@ -420,7 +420,7 @@ definition "print_transition_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, 
                                      \<open>=\<close>
                                      (Term_oid var_oid_uniq (oidGetInh cpt)))))
                 (merge_unique'' [l_pre, l_post])))
-       (a \<open>WFF\<close> (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l mk_n = b o mk_n in Term_pair (mk_n s_pre) (mk_n s_post)))
+       (a \<open>WFF\<close> (let mk_n = b o mk_n in Term_pair (mk_n s_pre) (mk_n s_post)))
        (L.map snd
          (merge_unique (\<lambda> [oid_b, oid_a] \<Rightarrow>
                           if oid_a = oid_b then
@@ -459,10 +459,10 @@ definition "print_transition_where = get_state (\<lambda> (s_pre, l_pre) (s_post
              [(\<open>\<close>, True, Term_rewrite (a \<open>oid_of\<close> (b (print_examp_instance_name (\<lambda>s. s @@ String.isub (inst_ty ocli)) (inst_name ocli))))
                                       \<open>=\<close>
                                       (Term_oid var_oid_uniq x_pers_oid))]
-             (Term_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l mk_n = b o mk_n in Term_pair (mk_n s_pre) (mk_n s_post))
+             (Term_binop (let mk_n = b o mk_n in Term_pair (mk_n s_pre) (mk_n s_post))
                          \<open>\<Turnstile>\<close>
                          (a x_where (b name)))
-             [C.apply [M.simp_add (L.map d (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = [ mk_n s_post, name, x_where, \<open>OclValid\<close>, const_oid_of \<open>option\<close> ] in
+             [C.apply [M.simp_add (L.map d (let l = [ mk_n s_post, name, x_where, \<open>OclValid\<close>, const_oid_of \<open>option\<close> ] in
                                              case l_pre_post of [_] \<Rightarrow> l | _ \<Rightarrow> mk_n s_pre # l))]]
              (C.by [M.option [print_examp_def_st_locale_metis]]))
          l_ocore)
@@ -482,7 +482,7 @@ definition "print_transition_def_interp = get_state (\<lambda> (s_pre, l_pre) (s
 definition "print_transition_lemmas_oid = get_state (\<lambda> (s_pre, l_pre) (s_post, l_post) _.
  (Pair o L.map O.lemmas)
   (let b = \<lambda>s. Term_basic [s] in
-   L.map (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l_pp = merge_unique'' [l_pre, l_post] in
+   L.map (let l_pp = merge_unique'' [l_pre, l_post] in
           (\<lambda>(tit, f). Lemmas_nosimp (tit @@ s_pre @@ \<open>_\<close> @@ s_post)
                                     (L.flatten (L.map (L.map (T.thm o hol_definition) o f) l_pp))))
          [ (\<open>pp_oid_\<close>, (\<lambda>(cpt, _) # _ \<Rightarrow>

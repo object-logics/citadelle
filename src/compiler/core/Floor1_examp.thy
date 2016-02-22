@@ -246,7 +246,7 @@ fun print_examp_instance_app_constr2_notmp where
     OclAttrNoCast [(OptOwn, l_own), (OptInh, l_inh)] \<Rightarrow>
     bind\<^sub>e\<^sub>r\<^sub>r
       (map\<^sub>e\<^sub>r\<^sub>r
-        (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid = Term_oid var_oid_uniq (oidGetInh cpt) in
+        (let var_oid = Term_oid var_oid_uniq (oidGetInh cpt) in
          (\<lambda>l. (Term_app (isub_name datatype_ext_constr_name) (var_oid # l), l_own)))
         (print_examp_instance_draw_list_attr (f_oid isub_name cpt) l_inh))
       (\<lambda>(l_inh, l_own).
@@ -402,7 +402,7 @@ definition "print_examp_def_st_assoc rbt map_self map_username l_assoc =
          Term_pair
            (Term_basic [print_access_oid_uniq_name cpt_from (\<lambda>s. s @@ String.isub name) name_attr])
            (Term_app \<open>List.map\<close>
-             [ Term_binop (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_x = \<open>x\<close>
+             [ Term_binop (let var_x = \<open>x\<close>
                              ; var_y = \<open>y\<close> in
                            Term_lambdas0
                              (Term_pair (b var_x) (b var_y))
@@ -443,7 +443,7 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
                                              , \<open> \<close>
                                              , case name_attr of None \<Rightarrow> \<open>/* unnamed attribute */\<close> | Some s \<Rightarrow> \<open>.\<close> @@ s
                                              , \<open> \<cong> Set{\<close> (* '\<cong>' instead of '=' because the lhs can be 'invalid' or 'null'! *)
-                                             , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l = L.map assoc l in
+                                             , let l = L.map assoc l in
                                                if l = [] then \<open>\<close> else \<open> \<close> @@ String_concatWith \<open> , \<close> l @@ \<open> \<close>
                                              , \<open>}\<close>
                                              , if b then \<open>\<close> else f msg ]))
@@ -484,7 +484,7 @@ definition "print_examp_instance_defassoc_gen name l_ocli env =
   [Definition
      (Term_rewrite name
      \<open>=\<close>
-     (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_oid_class = \<open>oid_class\<close>
+     (let var_oid_class = \<open>oid_class\<close>
         ; var_to_from = \<open>to_from\<close>
         ; var_oid = \<open>oid\<close>
         ; a_l = \<lambda>s. Typ_apply (Typ_base var_ty_list) [s] in
@@ -529,7 +529,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
               | None \<Rightarrow> f (\<lambda>_. (ty1, role2, id)) role1)
         of
           Some (ty_obj, (f_from, f_to)) \<Rightarrow>
-            let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (o_from, o_to) = (f_from ty_obj, f_to ty_obj) in
+            let (o_from, o_to) = (f_from ty_obj, f_to ty_obj) in
             ( case (TyObjN_role_name o_from, TyObjN_role_name o_to) of
                 (name_from, name_to) \<Rightarrow> [name_from, name_to]
             , (TyObjN_role_multip o_from, TyObjN_role_multip o_to)
@@ -609,11 +609,11 @@ definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_
       cpt
       (\<lambda>isub_name oid.
         ( \<lambda> ty_obj.
-            let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l b = \<lambda>s. Term_basic [s] in
+            let b = \<lambda>s. Term_basic [s] in
             Return_val
               (Term_applys
                 cpt_start
-                (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l ty_objfrom = TyObj_from ty_obj
+                (let ty_objfrom = TyObj_from ty_obj
                    ; ty_objto = TyObj_to ty_obj in
                  [ b (print_access_oid_uniq_name (TyObjN_ass_switch ty_objfrom) isub_name (case TyObjN_role_name ty_objto of Some s \<Rightarrow> s))
                  , b (print_access_choose_name (TyObj_ass_arity ty_obj) (TyObjN_ass_switch ty_objfrom) (TyObjN_ass_switch ty_objto))
@@ -760,7 +760,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
   (let (rbt, (map_self, map_username)) = init_map_class env l
      ; a = \<lambda>f x. Term_app f [x]
      ; b = \<lambda>s. Term_basic [s] in
-   ( let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l var_inst_ass = \<open>inst_assoc\<close> in
+   ( let var_inst_ass = \<open>inst_assoc\<close> in
      map_prod
        (L.map
          (\<lambda> (ocli, cpt).
@@ -773,7 +773,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
                  | None \<Rightarrow> (id, (Return_err Return_err_ty_auto, id))
              ; l =
                [ Definition
-                   (Term_rewrite (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l e = b (inst_name ocli) in
+                   (Term_rewrite (let e = b (inst_name ocli) in
                                   case Inst_ty ocli of 
                                     None \<Rightarrow> e
                                   | Some ty \<Rightarrow> Term_annot_ocl e ty)
@@ -794,7 +794,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
                                              # l))
        id
        (mk_instance_single_cpt0 map_username l env)
-   , let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l l_id = L.mapi (\<lambda>i ocli. (i, inst_name ocli)) l in 
+   , let l_id = L.mapi (\<lambda>i ocli. (i, inst_name ocli)) l in 
      List.fold
        (\<lambda>ocli instance_rbt.
          let n = inst_name ocli in
@@ -831,7 +831,7 @@ definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name l \<Righ
                                    []))))]))"
 
 definition "print_examp_def_st0 name l =
- (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l, _) = List.fold (\<lambda> (pos, core) (l, n).
+ (let (l, _) = List.fold (\<lambda> (pos, core) (l, n).
                                       ((pos, pos - n, core) # l, 
                                         case core of OclDefCoreAdd _ \<Rightarrow> n
                                         | OclDefCoreBinding _ \<Rightarrow> Succ n))
@@ -862,7 +862,7 @@ definition "bootstrap_floor' f_x l env =
 
 definition "print_examp_def_st1_gen = (\<lambda> OclDefSt name l \<Rightarrow> bootstrap_floor'
   (\<lambda>(l, accu) _. (L.flatten [L.map META_all_meta_embedding l], accu))
-  (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l (l_inst, l_defst) = print_examp_def_st0 name l
+  (let (l_inst, l_defst) = print_examp_def_st0 name l
      ; l = [ META_def_state Floor2 (OclDefSt name l_defst) ] in
    if l_inst = [] then
      (l, id)
@@ -896,7 +896,7 @@ definition "print_transition_gen = (\<lambda> OclDefPP name s_pre s_post \<Right
       ; o_post = map_option (f_conv \<open>_post\<close>) s_post in
     ( (f_comp o_pre o f_comp o_post)
        [ META_def_transition Floor2 (OclDefPP name
-                                           (case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l o_pre of Some (n, _) \<Rightarrow> n)
+                                           (case o_pre of Some (n, _) \<Rightarrow> n)
                                            (map_option fst o_post)) ]
     , f_comp_env o_pre o f_comp_env o_post )))"
 

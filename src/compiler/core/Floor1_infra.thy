@@ -178,13 +178,15 @@ definition "print_infra_instantiation_universe expr = start_map O.instantiation
 
 
 definition "print_instantia_def_strictrefeq_name mk_strict name = mk_strict [\<open>_\<close>, String.isub name]"
-definition "print_instantia_def_strictrefeq = start_map O.defs o
+definition "print_instantia_def_strictrefeq = start_map O.overloading o
   map_class (\<lambda>isub_name name _ _ _ _.
     let mk_strict = (\<lambda>l. S.flatten (\<open>StrictRefEq\<close> # String.isub \<open>Object\<close> # l))
       ; s_strict = mk_strict [\<open>_\<close>, String.isub name]
       ; var_x = \<open>x\<close>
       ; var_y = \<open>y\<close> in
-    Defs_overloaded
+    Overloading'
+      \<open>StrictRefEq\<close>
+      (Ty_arrow' (Ty_arrow' (Ty_paren (Typ_base (wrap_oclty name)))))
       (print_instantia_def_strictrefeq_name mk_strict name)
       (Term_rewrite (Term_binop (Term_annot_ocl (Term_basic [var_x]) name)
                                 \<open>\<doteq>\<close>

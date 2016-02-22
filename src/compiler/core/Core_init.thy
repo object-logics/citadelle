@@ -148,18 +148,18 @@ definition "Term_basety = (let var_x = \<open>x\<close> in
 
 definition "find_class_ass env =
  (let (l_class, l_all_meta) =
-    partition (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. ClassRaw_clause class = [] in
+    partition (let f = \<lambda>class. ClassRaw_clause class = [] in
                \<lambda> META_class_raw Floor1 class \<Rightarrow> f class
                | META_association _ \<Rightarrow> True
                | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
                | META_class_synonym _ \<Rightarrow> True
                | _ \<Rightarrow> False) (rev (D_input_meta env)) in
-  ( L.flatten [l_class, List.map_filter (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
+  ( L.flatten [l_class, List.map_filter (let f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
                                        \<lambda> META_class_raw Floor1 c \<Rightarrow> Some (META_class_raw Floor1 (f c))
                                        | META_ass_class Floor1 (OclAssClass ass class) \<Rightarrow> Some (META_ass_class Floor1 (OclAssClass ass (f class)))
                                        | _ \<Rightarrow> None) l_all_meta]
   , L.flatten (L.map
-      (let\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l f = \<lambda>class. [ META_ctxt Floor1 (ocl_ctxt_ext [] (ClassRaw_name class) (ClassRaw_clause class) ()) ] in
+      (let f = \<lambda>class. [ META_ctxt Floor1 (ocl_ctxt_ext [] (ClassRaw_name class) (ClassRaw_clause class) ()) ] in
        \<lambda> META_class_raw Floor1 class \<Rightarrow> f class
        | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
        | x \<Rightarrow> [x]) l_all_meta)))"
@@ -464,7 +464,7 @@ definition "raise_ml l_out s = SML (SML.app \<open>Ty'.check\<close>
         l_out
     , SML.string s ])"
 
-definition "print_examp_def_st_inst_var_name ocli name = S.flatten [case\<^sub>O\<^sub>C\<^sub>a\<^sub>m\<^sub>l Inst_name ocli of Some n \<Rightarrow> n, name]"
+definition "print_examp_def_st_inst_var_name ocli name = S.flatten [case Inst_name ocli of Some n \<Rightarrow> n, name]"
 
 subsection\<open>Preliminaries on: Example (Floor 2)\<close>
 

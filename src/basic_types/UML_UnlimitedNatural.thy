@@ -117,10 +117,13 @@ subsection{* Fundamental Predicates on UnlimitedNaturals: Strict Equality *}
 text{* The last basic operation belonging to the fundamental infrastructure
 of a value-type in OCL is the weak equality, which is defined similar
 to the @{typ "('\<AA>)Boolean"}-case as strict extension of the strong equality:*}
-defs (overloaded)   StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l[code_unfold] :
+overloading StrictRefEq \<equiv> "StrictRefEq :: [('\<AA>)UnlimitedNatural,('\<AA>)UnlimitedNatural] \<Rightarrow> ('\<AA>)Boolean"
+begin
+  definition StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l[code_unfold] :
       "(x::('\<AA>)UnlimitedNatural) \<doteq> y \<equiv> \<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
+end
                                     
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
 interpretation  StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)UnlimitedNatural) \<doteq> y" 
@@ -309,7 +312,6 @@ lemma OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^s
               (x +\<^sub>n\<^sub>a\<^sub>t OclNat0) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
    apply(subst OclIf_true', simp add: OclValid_def)
   sorry
-  apply_end assumption
  next fix \<tau>
   have A: "\<And>\<tau>. (\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))) = (x \<tau> = invalid \<tau> \<or> \<tau> \<Turnstile> \<delta> x)"
   by (metis OclNot_not OclOr_def defined5 defined6 defined_not_I foundation11 foundation18'
@@ -318,9 +320,9 @@ lemma OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^s
    apply(cases "x \<tau>", metis bot_option_def foundation16)
    apply(rename_tac x', case_tac x', metis bot_option_def foundation16 null_option_def)
   by(simp)
-  show "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x)) \<Longrightarrow>
-              (x +\<^sub>n\<^sub>a\<^sub>t OclNat0) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
-   apply(subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def OclNat0_def)
+  show "(x +\<^sub>n\<^sub>a\<^sub>t OclNat0) \<tau> = (if \<upsilon> x and not (\<delta> x) then invalid else x endif) \<tau>"
+    when "\<tau> \<Turnstile> not (\<upsilon> x and not (\<delta> x))"
+   apply(insert that, subst OclIf_false', simp, simp add: A, auto simp: OclAdd\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def OclNat0_def)
      (* *)
   sorry
   apply_end(metis OclValid_def defined5 defined6 defined_and_I defined_not_I foundation9)
