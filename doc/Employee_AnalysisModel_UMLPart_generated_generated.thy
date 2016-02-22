@@ -7,7 +7,7 @@ text \<open>\<close>
 
 (* 3 ************************************ 1 + 1 *)
 text \<open>
-   \label{ex:employee-analysis:uml} \<close>
+   \label{ex:Employee-AnalysisModel-UMLPart-generated-generatedemployee-analysis:uml} \<close>
 
 (* 4 ************************************ 2 + 1 *)
 section \<open>Introduction\<close>
@@ -17,7 +17,7 @@ text \<open>
 
   For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
-  there is a function outside HOL that ``compiles'' a concrete,
+  there is a function outside \HOL that ``compiles'' a concrete,
   closed-world class diagram into a ``theory'' of this data model,
   consisting of a bunch of definitions for classes, accessors, method,
   casts, and tests for actual types, as well as proofs for the
@@ -27,12 +27,12 @@ text \<open>
 (* 6 ************************************ 4 + 1 *)
 text \<open>
    Such generic function or ``compiler'' can be implemented in
-  Isabelle on the ML level.  This has been done, for a semantics
-  following the open-world assumption, for UML 2.0
+  Isabelle on the \ML level.  This has been done, for a semantics
+  following the open-world assumption, for \UML 2.0
   in~\cite{brucker.ea:extensible:2008-b, brucker:interactive:2007}. In
-  this paper, we follow another approach for UML 2.4: we define the
+  this paper, we follow another approach for \UML 2.4: we define the
   concepts of the compilation informally, and present a concrete
-  example which is verified in Isabelle/HOL. \<close>
+  example which is verified in Isabelle/\HOL. \<close>
 
 (* 7 ************************************ 5 + 1 *)
 subsection \<open>Outlining the Example\<close>
@@ -44,24 +44,24 @@ text \<open>\<close>
 text \<open>
    We are presenting here an ``analysis-model'' of the (slightly
 modified) example Figure 7.3, page 20 of
-the OCL standard~\cite{omg:ocl:2012}.
+the \OCL standard~\cite{omg:ocl:2012}.
 Here, analysis model means that associations
 were really represented as relation on objects on the state---as is
 intended by the standard---rather by pointers between objects as is
-done in our ``design model'' (see \autoref{ex:employee-design:uml}).
+done in our ``design model''.
 To be precise, this theory contains the formalization of the data-part
-covered by the UML class model (see \autoref{fig:person-ana}):\<close>
+covered by the \UML class model (see \autoref{fig:Employee-AnalysisModel-UMLPart-generated-generatedperson-ana}):\<close>
 
 (* 10 ************************************ 8 + 1 *)
-text \<open>\<close>
+text_raw \<open>\<close>
 
 (* 11 ************************************ 9 + 1 *)
-text \<open>
+text_raw \<open>
 
 \begin{figure}
   \centering\scalebox{.3}{\includegraphics{figures/person.png}}%
-  \caption{A simple UML class model drawn from Figure 7.3,
-  page 20 of~\cite{omg:ocl:2012}. \label{fig:person-ana}}
+  \caption{A simple \UML class model drawn from Figure 7.3,
+  page 20 of~\cite{omg:ocl:2012}. \label{fig:Employee-AnalysisModel-UMLPart-generated-generatedperson-ana}}
 \end{figure}
 \<close>
 
@@ -69,7 +69,7 @@ text \<open>
 text \<open>
    This means that the association (attached to the association class
 \inlineocl{EmployeeRanking}) with the association ends \inlineocl+boss+ and \inlineocl+employees+ is implemented
-by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the OCL part
+by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the \OCL part
 captured by the subsequent theory).
 \<close>
 
@@ -113,8 +113,8 @@ datatype \<AA> = in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\
 (* 18 ************************************ 23 + 1 *)
 text \<open>
    Having fixed the object universe, we can introduce type synonyms that exactly correspond
-to OCL types. Again, we exploit that our representation of OCL is a ``shallow embedding'' with a
-one-to-one correspondance of OCL-types to types of the meta-language HOL. \<close>
+to \OCL types. Again, we exploit that our representation of \OCL is a ``shallow embedding'' with a
+one-to-one correspondance of \OCL-types to types of the meta-language \HOL. \<close>
 
 (* 19 ************************************ 24 + 7 *)
 type_synonym Void = "\<AA> Void"
@@ -142,7 +142,7 @@ type_synonym Set_Sequence_Planet = "(\<AA>, ty\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<
 text \<open>
    To reuse key-elements of the library like referential equality, we have
 to show that the object universe belongs to the type class ``oclany,'' \ie,
- each class type has to provide a function @{term oid_of} yielding the object id (oid) of the object. \<close>
+ each class type has to provide a function @{term oid_of} yielding the Object ID (oid) of the object. \<close>
 
 (* 24 ************************************ 39 + 4 *)
 instantiation ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: object
@@ -191,10 +191,22 @@ text \<open>
 on @{text "Person"} and @{text "OclAny"} \<close>
 
 (* 28 ************************************ 46 + 4 *)
-defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "(x::\<cdot>Person) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
-defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t : "(x::\<cdot>Planet) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
-defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y : "(x::\<cdot>Galaxy) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
-defs(overloaded) StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y : "(x::\<cdot>OclAny) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
+overloading StrictRefEq \<equiv> "(StrictRefEq::(\<cdot>Person) \<Rightarrow> _ \<Rightarrow> _)"
+begin
+  definition StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "(x::\<cdot>Person) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
+end
+overloading StrictRefEq \<equiv> "(StrictRefEq::(\<cdot>Planet) \<Rightarrow> _ \<Rightarrow> _)"
+begin
+  definition StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t : "(x::\<cdot>Planet) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
+end
+overloading StrictRefEq \<equiv> "(StrictRefEq::(\<cdot>Galaxy) \<Rightarrow> _ \<Rightarrow> _)"
+begin
+  definition StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y : "(x::\<cdot>Galaxy) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
+end
+overloading StrictRefEq \<equiv> "(StrictRefEq::(\<cdot>OclAny) \<Rightarrow> _ \<Rightarrow> _)"
+begin
+  definition StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y : "(x::\<cdot>OclAny) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
+end
 
 (* 29 ************************************ 50 + 1 *)
 lemmas[simp,code_unfold] = StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n
@@ -228,52 +240,100 @@ consts OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y :: "'\<alpha> \
 consts OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> \<cdot>OclAny" ("(_) .oclAsType'(OclAny')")
 
 (* 35 ************************************ 59 + 16 *)
-defs(overloaded) OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclAsType(Person) \<equiv> x"
-defs(overloaded) OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet : "(x::\<cdot>Planet) .oclAsType(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+overloading OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclAsType(Person) \<equiv> x"
+end
+overloading OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet : "(x::\<cdot>Planet) .oclAsType(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person))) (_) (_))\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Person\<rfloor>\<rfloor>
     | _ \<Rightarrow> (invalid (\<tau>))))"
-defs(overloaded) OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy : "(x::\<cdot>Galaxy) .oclAsType(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy : "(x::\<cdot>Galaxy) .oclAsType(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person))) (_) (_) (_))\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Person\<rfloor>\<rfloor>
     | _ \<Rightarrow> (invalid (\<tau>))))"
-defs(overloaded) OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny : "(x::\<cdot>OclAny) .oclAsType(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny : "(x::\<cdot>OclAny) .oclAsType(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person))))\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Person\<rfloor>\<rfloor>
     | _ \<Rightarrow> (invalid (\<tau>))))"
-defs(overloaded) OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet : "(x::\<cdot>Planet) .oclAsType(Planet) \<equiv> x"
-defs(overloaded) OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Galaxy : "(x::\<cdot>Galaxy) .oclAsType(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet : "(x::\<cdot>Planet) .oclAsType(Planet) \<equiv> x"
+end
+overloading OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Galaxy : "(x::\<cdot>Galaxy) .oclAsType(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet))) (_) (_) (_))\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Planet\<rfloor>\<rfloor>
     | _ \<Rightarrow> (invalid (\<tau>))))"
-defs(overloaded) OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_OclAny : "(x::\<cdot>OclAny) .oclAsType(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_OclAny : "(x::\<cdot>OclAny) .oclAsType(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet))))\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Planet\<rfloor>\<rfloor>
     | _ \<Rightarrow> (invalid (\<tau>))))"
-defs(overloaded) OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person : "(x::\<cdot>Person) .oclAsType(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person : "(x::\<cdot>Person) .oclAsType(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>Person\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>(mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person))) (None) (None))\<rfloor>\<rfloor>))"
-defs(overloaded) OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclAsType(Galaxy) \<equiv> x"
-defs(overloaded) OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclAsType(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclAsType(Galaxy) \<equiv> x"
+end
+overloading OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclAsType(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy))))\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>Galaxy\<rfloor>\<rfloor>
     | _ \<Rightarrow> (invalid (\<tau>))))"
-defs(overloaded) OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Person : "(x::\<cdot>Person) .oclAsType(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Person : "(x::\<cdot>Person) .oclAsType(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>Person\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>(mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person))) (None) (None) (None))\<rfloor>\<rfloor>))"
-defs(overloaded) OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Planet : "(x::\<cdot>Planet) .oclAsType(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Planet : "(x::\<cdot>Planet) .oclAsType(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>Planet\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>(mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet))) (None) (None) (None))\<rfloor>\<rfloor>))"
-defs(overloaded) OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclAsType(OclAny) \<equiv> x"
-defs(overloaded) OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person : "(x::\<cdot>Person) .oclAsType(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclAsType(OclAny) \<equiv> x"
+end
+overloading OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person : "(x::\<cdot>Person) .oclAsType(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>Person\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person))))\<rfloor>\<rfloor>))"
-defs(overloaded) OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet : "(x::\<cdot>Planet) .oclAsType(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet : "(x::\<cdot>Planet) .oclAsType(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>Planet\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet))))\<rfloor>\<rfloor>))"
-defs(overloaded) OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclAsType(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclAsType(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (null (\<tau>))
     | \<lfloor>\<lfloor>Galaxy\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy))))\<rfloor>\<rfloor>))"
+end
 
 (* 36 ************************************ 75 + 4 *)
 definition "OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> = (\<lambda> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person)) \<Rightarrow> \<lfloor>Person\<rfloor>
@@ -824,63 +884,111 @@ consts OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y :: "'\<alpha>
 consts OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(OclAny')")
 
 (* 56 ************************************ 230 + 16 *)
-defs(overloaded) OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+overloading OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (_) (_) (_) (_))) (_))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet : "(x::\<cdot>Planet) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet : "(x::\<cdot>Planet) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_))) (_) (_))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy : "(x::\<cdot>Galaxy) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy : "(x::\<cdot>Galaxy) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_))) (_) (_) (_))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny : "(x::\<cdot>OclAny) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny : "(x::\<cdot>OclAny) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_))))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet : "(x::\<cdot>Planet) .oclIsTypeOf(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet : "(x::\<cdot>Planet) .oclIsTypeOf(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (_) (_))) (_) (_))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Galaxy : "(x::\<cdot>Galaxy) .oclIsTypeOf(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Galaxy : "(x::\<cdot>Galaxy) .oclIsTypeOf(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_))) (_) (_) (_))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_OclAny : "(x::\<cdot>OclAny) .oclIsTypeOf(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_OclAny : "(x::\<cdot>OclAny) .oclIsTypeOf(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_))))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person : "(x::\<cdot>Person) .oclIsTypeOf(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person : "(x::\<cdot>Person) .oclIsTypeOf(Planet) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsTypeOf(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsTypeOf(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_))) (_) (_) (_))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclIsTypeOf(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclIsTypeOf(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (_))))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Person : "(x::\<cdot>Person) .oclIsTypeOf(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Person : "(x::\<cdot>Person) .oclIsTypeOf(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Planet : "(x::\<cdot>Planet) .oclIsTypeOf(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Planet : "(x::\<cdot>Planet) .oclIsTypeOf(Galaxy) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclIsTypeOf(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclIsTypeOf(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (_))))\<rfloor>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person : "(x::\<cdot>Person) .oclIsTypeOf(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person : "(x::\<cdot>Person) .oclIsTypeOf(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet : "(x::\<cdot>Planet) .oclIsTypeOf(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet : "(x::\<cdot>Planet) .oclIsTypeOf(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
-defs(overloaded) OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsTypeOf(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
+end
+overloading OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsTypeOf(OclAny) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
     | \<lfloor>\<bottom>\<rfloor> \<Rightarrow> (true (\<tau>))
     | _ \<Rightarrow> (false (\<tau>))))"
+end
 
 (* 57 ************************************ 246 + 4 *)
 definition "OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> = (\<lambda> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Person))::\<cdot>Person) .oclIsTypeOf(Person))
@@ -1482,22 +1590,70 @@ consts OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y :: "'\<alpha>
 consts OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(OclAny')")
 
 (* 75 ************************************ 408 + 16 *)
-defs(overloaded) OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
-defs(overloaded) OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet : "(x::\<cdot>Planet) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
-defs(overloaded) OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
-defs(overloaded) OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
-defs(overloaded) OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet : "(x::\<cdot>Planet) .oclIsKindOf(Planet) \<equiv> (x .oclIsTypeOf(Planet)) or (x .oclIsKindOf(Person))"
-defs(overloaded) OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(Planet) \<equiv> (x .oclIsTypeOf(Planet)) or (x .oclIsKindOf(Person))"
-defs(overloaded) OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(Planet) \<equiv> (x .oclIsTypeOf(Planet)) or (x .oclIsKindOf(Person))"
-defs(overloaded) OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person : "(x::\<cdot>Person) .oclIsKindOf(Planet) \<equiv> (x .oclIsTypeOf(Planet)) or (x .oclIsKindOf(Person))"
-defs(overloaded) OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(Galaxy) \<equiv> (x .oclIsTypeOf(Galaxy)) or (x .oclIsKindOf(Planet))"
-defs(overloaded) OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(Galaxy) \<equiv> (x .oclIsTypeOf(Galaxy)) or (x .oclIsKindOf(Planet))"
-defs(overloaded) OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Person : "(x::\<cdot>Person) .oclIsKindOf(Galaxy) \<equiv> (x .oclIsTypeOf(Galaxy)) or (x .oclIsKindOf(Planet))"
-defs(overloaded) OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Planet : "(x::\<cdot>Planet) .oclIsKindOf(Galaxy) \<equiv> (x .oclIsTypeOf(Galaxy)) or (x .oclIsKindOf(Planet))"
-defs(overloaded) OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
-defs(overloaded) OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person : "(x::\<cdot>Person) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
-defs(overloaded) OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet : "(x::\<cdot>Planet) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
-defs(overloaded) OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
+overloading OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
+end
+overloading OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet : "(x::\<cdot>Planet) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
+end
+overloading OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
+end
+overloading OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
+end
+overloading OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet : "(x::\<cdot>Planet) .oclIsKindOf(Planet) \<equiv> (x .oclIsTypeOf(Planet)) or (x .oclIsKindOf(Person))"
+end
+overloading OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(Planet) \<equiv> (x .oclIsTypeOf(Planet)) or (x .oclIsKindOf(Person))"
+end
+overloading OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(Planet) \<equiv> (x .oclIsTypeOf(Planet)) or (x .oclIsKindOf(Person))"
+end
+overloading OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t \<equiv> "(OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person : "(x::\<cdot>Person) .oclIsKindOf(Planet) \<equiv> (x .oclIsTypeOf(Planet)) or (x .oclIsKindOf(Person))"
+end
+overloading OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(Galaxy) \<equiv> (x .oclIsTypeOf(Galaxy)) or (x .oclIsKindOf(Planet))"
+end
+overloading OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(Galaxy) \<equiv> (x .oclIsTypeOf(Galaxy)) or (x .oclIsKindOf(Planet))"
+end
+overloading OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Person : "(x::\<cdot>Person) .oclIsKindOf(Galaxy) \<equiv> (x .oclIsTypeOf(Galaxy)) or (x .oclIsKindOf(Planet))"
+end
+overloading OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y \<equiv> "(OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Planet : "(x::\<cdot>Planet) .oclIsKindOf(Galaxy) \<equiv> (x .oclIsTypeOf(Galaxy)) or (x .oclIsKindOf(Planet))"
+end
+overloading OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny : "(x::\<cdot>OclAny) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
+end
+overloading OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Person : "(x::\<cdot>Person) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
+end
+overloading OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet : "(x::\<cdot>Planet) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
+end
+overloading OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "(OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
+end
 
 (* 76 ************************************ 424 + 4 *)
 definition "OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> = (\<lambda> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Person))::\<cdot>Person) .oclIsKindOf(Person))
@@ -2381,7 +2537,7 @@ section \<open>OclAllInstances\<close>
 
 (* 95 ************************************ 597 + 1 *)
 text \<open>
-   To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
+   To denote \OCL-types occuring in \OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.'' \<close>
 
@@ -2734,7 +2890,7 @@ text \<open>\<close>
 
 (* 108 ************************************ 664 + 1 *)
 text \<open>
-  \label{sec:eam-accessors}\<close>
+  \label{sec:Employee-AnalysisModel-UMLPart-generated-generatedeam-accessors}\<close>
 
 (* 109 ************************************ 665 + 1 *)
 subsection \<open>Definition\<close>
@@ -2852,36 +3008,126 @@ consts dot__outer_world :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Sequence_Pl
 consts dot__outer_worldat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Sequence_Planet" ("(_) .outer'_world@pre")
 
 (* 124 ************************************ 716 + 30 *)
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "(x::\<cdot>Person) .boss \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary : "(x::\<cdot>Person) .salary \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre : "(x::\<cdot>Person) .boss@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre : "(x::\<cdot>Person) .salary@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole : "(x::\<cdot>Planet) .wormhole \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight : "(x::\<cdot>Planet) .weight \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre : "(x::\<cdot>Planet) .wormhole@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre : "(x::\<cdot>Planet) .weight@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound : "(x::\<cdot>Galaxy) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving : "(x::\<cdot>Galaxy) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer_world : "(x::\<cdot>Galaxy) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre : "(x::\<cdot>Galaxy) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre : "(x::\<cdot>Galaxy) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer_worldat_pre : "(x::\<cdot>Galaxy) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole : "(x::\<cdot>Person) .wormhole \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight : "(x::\<cdot>Person) .weight \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound : "(x::\<cdot>Person) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving : "(x::\<cdot>Person) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_world : "(x::\<cdot>Person) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre : "(x::\<cdot>Person) .wormhole@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre : "(x::\<cdot>Person) .weight@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre : "(x::\<cdot>Person) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre : "(x::\<cdot>Person) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_worldat_pre : "(x::\<cdot>Person) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound : "(x::\<cdot>Planet) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving : "(x::\<cdot>Planet) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_world : "(x::\<cdot>Planet) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre : "(x::\<cdot>Planet) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre : "(x::\<cdot>Planet) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving (reconst_basetype))))))"
-defs(overloaded) dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre : "(x::\<cdot>Planet) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
+overloading dot_0___boss \<equiv> "(dot_0___boss::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "(x::\<cdot>Person) .boss \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))))))))"
+end
+overloading dot__salary \<equiv> "(dot__salary::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary : "(x::\<cdot>Person) .salary \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary (reconst_basetype))))))"
+end
+overloading dot_0___bossat_pre \<equiv> "(dot_0___bossat_pre::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre : "(x::\<cdot>Person) .boss@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype))))))))))"
+end
+overloading dot__salaryat_pre \<equiv> "(dot__salaryat_pre::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salaryat_pre : "(x::\<cdot>Person) .salary@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary (reconst_basetype))))))"
+end
+overloading dot__wormhole \<equiv> "(dot__wormhole::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole : "(x::\<cdot>Planet) .wormhole \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole (reconst_basetype))))))"
+end
+overloading dot__weight \<equiv> "(dot__weight::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight : "(x::\<cdot>Planet) .weight \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight (reconst_basetype))))))"
+end
+overloading dot__wormholeat_pre \<equiv> "(dot__wormholeat_pre::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormholeat_pre : "(x::\<cdot>Planet) .wormhole@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__wormhole (reconst_basetype))))))"
+end
+overloading dot__weightat_pre \<equiv> "(dot__weightat_pre::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weightat_pre : "(x::\<cdot>Planet) .weight@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__weight (reconst_basetype))))))"
+end
+overloading dot__sound \<equiv> "(dot__sound::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound : "(x::\<cdot>Galaxy) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+end
+overloading dot__moving \<equiv> "(dot__moving::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving : "(x::\<cdot>Galaxy) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving (reconst_basetype))))))"
+end
+overloading dot__outer_world \<equiv> "(dot__outer_world::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer_world : "(x::\<cdot>Galaxy) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_post_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
+end
+overloading dot__soundat_pre \<equiv> "(dot__soundat_pre::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__soundat_pre : "(x::\<cdot>Galaxy) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+end
+overloading dot__movingat_pre \<equiv> "(dot__movingat_pre::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__movingat_pre : "(x::\<cdot>Galaxy) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__moving (reconst_basetype))))))"
+end
+overloading dot__outer_worldat_pre \<equiv> "(dot__outer_worldat_pre::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer_worldat_pre : "(x::\<cdot>Galaxy) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (in_pre_state) ((select\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
+end
+overloading dot__wormhole \<equiv> "(dot__wormhole::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole : "(x::\<cdot>Person) .wormhole \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole (reconst_basetype))))))"
+end
+overloading dot__weight \<equiv> "(dot__weight::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight : "(x::\<cdot>Person) .weight \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight (reconst_basetype))))))"
+end
+overloading dot__sound \<equiv> "(dot__sound::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound : "(x::\<cdot>Person) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+end
+overloading dot__moving \<equiv> "(dot__moving::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving : "(x::\<cdot>Person) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving (reconst_basetype))))))"
+end
+overloading dot__outer_world \<equiv> "(dot__outer_world::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_world : "(x::\<cdot>Person) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
+end
+overloading dot__wormholeat_pre \<equiv> "(dot__wormholeat_pre::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormholeat_pre : "(x::\<cdot>Person) .wormhole@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__wormhole (reconst_basetype))))))"
+end
+overloading dot__weightat_pre \<equiv> "(dot__weightat_pre::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weightat_pre : "(x::\<cdot>Person) .weight@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__weight (reconst_basetype))))))"
+end
+overloading dot__soundat_pre \<equiv> "(dot__soundat_pre::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__soundat_pre : "(x::\<cdot>Person) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+end
+overloading dot__movingat_pre \<equiv> "(dot__movingat_pre::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__movingat_pre : "(x::\<cdot>Person) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__moving (reconst_basetype))))))"
+end
+overloading dot__outer_worldat_pre \<equiv> "(dot__outer_worldat_pre::(\<cdot>Person) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_worldat_pre : "(x::\<cdot>Person) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
+end
+overloading dot__sound \<equiv> "(dot__sound::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound : "(x::\<cdot>Planet) .sound \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+end
+overloading dot__moving \<equiv> "(dot__moving::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving : "(x::\<cdot>Planet) .moving \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving (reconst_basetype))))))"
+end
+overloading dot__outer_world \<equiv> "(dot__outer_world::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_world : "(x::\<cdot>Planet) .outer_world \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_post_state) (reconst_basetype))))))))))))"
+end
+overloading dot__soundat_pre \<equiv> "(dot__soundat_pre::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__soundat_pre : "(x::\<cdot>Planet) .sound@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__sound (reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d))))))"
+end
+overloading dot__movingat_pre \<equiv> "(dot__movingat_pre::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__movingat_pre : "(x::\<cdot>Planet) .moving@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__moving (reconst_basetype))))))"
+end
+overloading dot__outer_worldat_pre \<equiv> "(dot__outer_worldat_pre::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre : "(x::\<cdot>Planet) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
+end
 
 (* 125 ************************************ 746 + 1 *)
 lemmas dot_accessor = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss
@@ -3271,8 +3517,8 @@ assumes def_dot: "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss))"
 shows "(is_represented_in_state (in_post_state) (X .boss) (Person) (\<tau>))"
   apply(insert defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss[OF def_dot, simplified foundation16])
   apply(case_tac "(X (\<tau>))", simp add: bot_option_def)
-  proof - fix a0 show "(X (\<tau>)) \<noteq> null \<Longrightarrow> (X (\<tau>)) = (Some (a0)) \<Longrightarrow> ?thesis"
-  apply(case_tac "a0", simp add: null_option_def bot_option_def, clarify)
+  proof - fix a0 show "(X (\<tau>)) = (Some (a0)) \<Longrightarrow> ?thesis" when "(X (\<tau>)) \<noteq> null"
+  apply(insert that, case_tac "a0", simp add: null_option_def bot_option_def, clarify)
   proof - fix a show "(X (\<tau>)) = (Some ((Some (a)))) \<Longrightarrow> ?thesis"
   apply(case_tac "(heap ((in_post_state (\<tau>))) ((oid_of (a))))", simp add: invalid_def bot_option_def)
   apply(insert def_dot, simp add: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss is_represented_in_state_def select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def in_post_state_def defined_def OclValid_def false_def true_def invalid_def bot_fun_def split: split_if_asm)
@@ -3283,10 +3529,10 @@ shows "(is_represented_in_state (in_post_state) (X .boss) (Person) (\<tau>))"
   apply(case_tac "(assocs ((in_post_state (\<tau>))) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss))", simp add: invalid_def bot_option_def, simp add: select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def)
   proof - fix r typeoid          let ?t = "(Some ((Some (r)))) \<in> (Some o OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>) ` (ran ((heap ((in_post_state (\<tau>))))))"
           let ?sel_any = "(select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))" show "((?sel_any) (typeoid) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
-  proof - fix aa show "\<tau> \<Turnstile> (\<delta> (((?sel_any) (aa)))) \<Longrightarrow> ((?sel_any) (aa) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
-  apply(drule select_object_any_exec\<^sub>S\<^sub>e\<^sub>t[simplified foundation22], erule exE)
-  proof - fix e show "((?sel_any) (aa) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ((?sel_any) (aa) (\<tau>)) = (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype) (e) (\<tau>)) \<Longrightarrow> ?t"
-  apply(simp add: deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
+  proof - fix aa show "((?sel_any) (aa) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t" when "\<tau> \<Turnstile> (\<delta> (((?sel_any) (aa))))"
+  apply(insert that, drule select_object_any_exec\<^sub>S\<^sub>e\<^sub>t[simplified foundation22], erule exE)
+  proof - fix e show "?t" when "((?sel_any) (aa) (\<tau>)) = (Some ((Some (r))))" "((?sel_any) (aa) (\<tau>)) = (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype) (e) (\<tau>))"
+  apply(insert that, simp add: deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
   apply(case_tac "(heap ((in_post_state (\<tau>))) (e))", simp add: invalid_def bot_option_def, simp)
   proof - fix aaa show "(case aaa of (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (obj)) \<Rightarrow> (reconst_basetype (obj) (\<tau>))
     | _ \<Rightarrow> (invalid (\<tau>))) = (Some ((Some (r)))) \<Longrightarrow> (heap ((in_post_state (\<tau>))) (e)) = (Some (aaa)) \<Longrightarrow> ?t"
@@ -3295,7 +3541,6 @@ shows "(is_represented_in_state (in_post_state) (X .boss) (Person) (\<tau>))"
 by(rule) qed 
   apply_end((blast)+)
  qed 
-  apply_end(simp_all only: )
   apply_end(simp add: foundation16 bot_option_def null_option_def)
  qed qed qed qed 
   apply_end(simp_all)
@@ -3305,8 +3550,8 @@ assumes def_dot: "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss@pre))"
 shows "(is_represented_in_state (in_pre_state) (X .boss@pre) (Person) (\<tau>))"
   apply(insert defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre[OF def_dot, simplified foundation16])
   apply(case_tac "(X (\<tau>))", simp add: bot_option_def)
-  proof - fix a0 show "(X (\<tau>)) \<noteq> null \<Longrightarrow> (X (\<tau>)) = (Some (a0)) \<Longrightarrow> ?thesis"
-  apply(case_tac "a0", simp add: null_option_def bot_option_def, clarify)
+  proof - fix a0 show "(X (\<tau>)) = (Some (a0)) \<Longrightarrow> ?thesis" when "(X (\<tau>)) \<noteq> null"
+  apply(insert that, case_tac "a0", simp add: null_option_def bot_option_def, clarify)
   proof - fix a show "(X (\<tau>)) = (Some ((Some (a)))) \<Longrightarrow> ?thesis"
   apply(case_tac "(heap ((in_pre_state (\<tau>))) ((oid_of (a))))", simp add: invalid_def bot_option_def)
   apply(insert def_dot, simp add: dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre is_represented_in_state_def select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def in_pre_state_def defined_def OclValid_def false_def true_def invalid_def bot_fun_def split: split_if_asm)
@@ -3317,10 +3562,10 @@ shows "(is_represented_in_state (in_pre_state) (X .boss@pre) (Person) (\<tau>))"
   apply(case_tac "(assocs ((in_pre_state (\<tau>))) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss))", simp add: invalid_def bot_option_def, simp add: select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def)
   proof - fix r typeoid          let ?t = "(Some ((Some (r)))) \<in> (Some o OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>) ` (ran ((heap ((in_pre_state (\<tau>))))))"
           let ?sel_any = "(select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype))))" show "((?sel_any) (typeoid) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
-  proof - fix aa show "\<tau> \<Turnstile> (\<delta> (((?sel_any) (aa)))) \<Longrightarrow> ((?sel_any) (aa) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
-  apply(drule select_object_any_exec\<^sub>S\<^sub>e\<^sub>t[simplified foundation22], erule exE)
-  proof - fix e show "((?sel_any) (aa) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ((?sel_any) (aa) (\<tau>)) = (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype) (e) (\<tau>)) \<Longrightarrow> ?t"
-  apply(simp add: deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
+  proof - fix aa show "((?sel_any) (aa) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t" when "\<tau> \<Turnstile> (\<delta> (((?sel_any) (aa))))"
+  apply(insert that, drule select_object_any_exec\<^sub>S\<^sub>e\<^sub>t[simplified foundation22], erule exE)
+  proof - fix e show "?t" when "((?sel_any) (aa) (\<tau>)) = (Some ((Some (r))))" "((?sel_any) (aa) (\<tau>)) = (deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype) (e) (\<tau>))"
+  apply(insert that, simp add: deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def)
   apply(case_tac "(heap ((in_pre_state (\<tau>))) (e))", simp add: invalid_def bot_option_def, simp)
   proof - fix aaa show "(case aaa of (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (obj)) \<Rightarrow> (reconst_basetype (obj) (\<tau>))
     | _ \<Rightarrow> (invalid (\<tau>))) = (Some ((Some (r)))) \<Longrightarrow> (heap ((in_pre_state (\<tau>))) (e)) = (Some (aaa)) \<Longrightarrow> ?t"
@@ -3329,7 +3574,6 @@ shows "(is_represented_in_state (in_pre_state) (X .boss@pre) (Person) (\<tau>))"
 by(rule) qed 
   apply_end((blast)+)
  qed 
-  apply_end(simp_all only: )
   apply_end(simp add: foundation16 bot_option_def null_option_def)
  qed qed qed qed 
   apply_end(simp_all)
@@ -3344,22 +3588,29 @@ section \<open>A Little Infra-structure on Example States\<close>
 text \<open>\<close>
 
 (* 138 ************************************ 876 + 1 *)
+text_raw \<open>\<close>
+
+(* 139 ************************************ 877 + 1 *)
 text \<open>
 
-The example we are defining in this section comes from the figure~\ref{fig:eam1_system-states}.
+The example we are defining in this section comes from the \autoref{fig:Employee-AnalysisModel-UMLPart-generated-generatedeam1_system-states}.
+\<close>
+
+(* 140 ************************************ 878 + 1 *)
+text_raw \<open>
 \begin{figure}
 \includegraphics[width=\textwidth]{figures/pre-post.pdf}
 \caption{(a) pre-state $\sigma_1$ and
   (b) post-state $\sigma_1'$.}
-\label{fig:eam1_system-states}
+\label{fig:Employee-AnalysisModel-UMLPart-generated-generatedeam1_system-states}
 \end{figure}
 \<close>
 
-(* 139 ************************************ 877 + 1 *)
+(* 141 ************************************ 879 + 1 *)
 lemmas [simp,code_unfold] = state.defs
                             const_ss
 
-(* 140 ************************************ 878 + 1 *)
+(* 142 ************************************ 880 + 1 *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny
@@ -3373,11 +3624,11 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^s
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy
 
-(* 141 ************************************ 879 + 2 *)
+(* 143 ************************************ 881 + 2 *)
 definition "(typecheck_instance_bad_head_on_lhs_P1_X0_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (P1) (X0) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1)) = ()"
 definition "typecheck_instance_extra_variables_on_rhs_P1_X0_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 = (\<lambda>P1 X0 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1. (P1 , P1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2))"
 
-(* 142 ************************************ 881 + 11 *)
+(* 144 ************************************ 883 + 11 *)
 definition "oid1 = 1"
 definition "oid2 = 2"
 definition "oid3 = 3"
@@ -3390,7 +3641,7 @@ definition "oid9 = 9"
 definition "oid10 = 10"
 definition "oid11 = 11"
 
-(* 143 ************************************ 892 + 22 *)
+(* 145 ************************************ 894 + 22 *)
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None) (None))) (\<lfloor>1300\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None) (None))) (\<lfloor>1800\<rfloor>))"
@@ -3414,16 +3665,16 @@ definition "(X0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>X0\<^sub>P\<^s
 definition "P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t = (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (oid11) (None) (None) (\<lfloor>[[oid11] , [oid11]]\<rfloor>))) (None) (None))"
 definition "(P1::\<cdot>Planet) = ((\<lambda>_. \<lfloor>\<lfloor>P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<rfloor>\<rfloor>))"
 
-(* 144 ************************************ 914 + 1 *)
+(* 146 ************************************ 916 + 1 *)
 ML \<open>(Ty'.check ([(META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X0 .boss \<cong> Set{}") , (META.Writeln , "X0 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)"))\<close>
 
-(* 145 ************************************ 915 + 2 *)
+(* 147 ************************************ 917 + 2 *)
 definition "(typecheck_instance_bad_head_on_lhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 (\<sigma>\<^sub>1_object4) (\<sigma>\<^sub>1_object2) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object0)) = ()"
 definition "typecheck_instance_extra_variables_on_rhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 = (\<lambda>\<sigma>\<^sub>1_object4 \<sigma>\<^sub>1_object2 \<sigma>\<^sub>1_object1 \<sigma>\<^sub>1_object0. (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1))"
 
-(* 146 ************************************ 917 + 0 *)
+(* 148 ************************************ 919 + 0 *)
 
-(* 147 ************************************ 917 + 8 *)
+(* 149 ************************************ 919 + 8 *)
 definition "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None) (None))) (\<lfloor>1000\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>))"
 definition "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None) (None))) (\<lfloor>1200\<rfloor>))"
@@ -3433,10 +3684,10 @@ definition "(\<sigma>\<^sub>1_object2::\<cdot>Person) = ((\<lambda>_. \<lfloor>\
 definition "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None) (None) (None))) (\<lfloor>2300\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object4::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rfloor>\<rfloor>))"
 
-(* 148 ************************************ 925 + 1 *)
+(* 150 ************************************ 927 + 1 *)
 ML \<open>(Ty'.check ([(META.Writeln , "\<sigma>\<^sub>1_object0 .boss \<cong> Set{ \<sigma>\<^sub>1_object1 }") , (META.Writeln , "\<sigma>\<^sub>1_object0 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "\<sigma>\<^sub>1_object1 .boss \<cong> Set{}") , (META.Writeln , "\<sigma>\<^sub>1_object1 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object0 }") , (META.Writeln , "\<sigma>\<^sub>1_object2 .boss \<cong> Set{ /*5*/ }") , (META.Writeln , "\<sigma>\<^sub>1_object2 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object4 }") , (META.Writeln , "\<sigma>\<^sub>1_object4 .boss \<cong> Set{ \<sigma>\<^sub>1_object2 }") , (META.Writeln , "\<sigma>\<^sub>1_object4 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)"))\<close>
 
-(* 149 ************************************ 926 + 1 *)
+(* 151 ************************************ 928 + 1 *)
 locale state_\<sigma>\<^sub>1 =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -3715,10 +3966,10 @@ by(rule \<sigma>\<^sub>1_OclAllInstances_generic_exec_OclAny, simp_all only: ass
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 end
 
-(* 150 ************************************ 927 + 1 *)
+(* 152 ************************************ 929 + 1 *)
 definition "(state_interpretation_\<sigma>\<^sub>1 (\<tau>)) = (state_\<sigma>\<^sub>1 (oid1) (oid2) (oid4) (oid5) (oid6) (oid9) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object0 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object0) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object1 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object1) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object2 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object4 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 151 ************************************ 928 + 1 *)
+(* 153 ************************************ 930 + 1 *)
 locale state_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -4053,10 +4304,10 @@ by(rule \<sigma>\<^sub>1'_OclAllInstances_generic_exec_OclAny, simp_all only: as
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 end
 
-(* 152 ************************************ 929 + 1 *)
+(* 154 ************************************ 931 + 1 *)
 definition "(state_interpretation_\<sigma>\<^sub>1' (\<tau>)) = (state_\<sigma>\<^sub>1' (oid1) (oid2) (oid3) (oid4) (oid6) (oid7) (oid8) (oid9) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 153 ************************************ 930 + 1 *)
+(* 155 ************************************ 932 + 1 *)
 locale transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -4296,10 +4547,10 @@ shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigm
 by((metis distinct_oid distinct_length_2_or_more)?) 
 end
 
-(* 154 ************************************ 931 + 1 *)
+(* 156 ************************************ 933 + 1 *)
 definition "(pp_\<sigma>\<^sub>1_\<sigma>\<^sub>1' (\<tau>)) = (transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' (oid1) (oid2) (oid3) (oid4) (oid5) (oid6) (oid7) (oid8) (oid9) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object0 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object0) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object1 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object1) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object2 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object4 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 155 ************************************ 932 + 3 *)
+(* 157 ************************************ 934 + 3 *)
 lemmas pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = oid1_def
                             oid2_def
                             oid3_def
@@ -4336,37 +4587,46 @@ lemmas pp_object_ty_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = \<sigma>\<^sub>1_object
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
 
-(* 156 ************************************ 935 + 6 *)
+(* 158 ************************************ 937 + 6 *)
 axiomatization where dot__contents_Person_def:
 "(self::\<cdot>Person) .contents() \<equiv> (\<lambda>\<tau>. (Eps ((\<lambda>result. (Let ((\<lambda>_. result)) ((\<lambda>result. (if ((\<tau> \<Turnstile> ((\<delta> (self))))) then (\<tau> \<Turnstile> ((((UML_Logic.false :: (((_, Product_Type.unit) UML_Types.state.state_ext \<times> (_, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))))) \<and> (\<tau> \<Turnstile> ((((((UML_Logic.StrongEq :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (result)) (((((UML_Logic.OclIf :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))))) ((((UML_Logic.StrictRefEq :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_AnalysisModel_UMLPart_generated.dot_0___boss :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option))))) ((((UML_Set.OclIncluding :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e))))) ((UML_Set.mtSet :: (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))) (((Employee_AnalysisModel_UMLPart_generated.dot__salary :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self)))) ((((UML_Set.OclIncluding :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e))))) (((Employee_AnalysisModel_UMLPart_generated.dot__contents :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))) (((Employee_AnalysisModel_UMLPart_generated.dot_0___boss :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))) (((Employee_AnalysisModel_UMLPart_generated.dot__salary :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self)))) and (UML_Logic.true :: (((_, Product_Type.unit) UML_Types.state.state_ext \<times> (_, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))))) else (\<tau> \<Turnstile> (result \<triangleq> invalid))))))))))"
 thm dot__contents_Person_def
-defs(overloaded) dot__contents_Planet : "(x::\<cdot>Planet) .contents() \<equiv> x .oclAsType(Person) .contents()"
-defs(overloaded) dot__contents_Galaxy : "(x::\<cdot>Galaxy) .contents() \<equiv> x .oclAsType(Person) .contents()"
-defs(overloaded) dot__contents_OclAny : "(x::\<cdot>OclAny) .contents() \<equiv> x .oclAsType(Person) .contents()"
+overloading dot__contents \<equiv> "(dot__contents::(\<cdot>Planet) \<Rightarrow> _)"
+begin
+  definition dot__contents_Planet : "(x::\<cdot>Planet) .contents() \<equiv> x .oclAsType(Person) .contents()"
+end
+overloading dot__contents \<equiv> "(dot__contents::(\<cdot>Galaxy) \<Rightarrow> _)"
+begin
+  definition dot__contents_Galaxy : "(x::\<cdot>Galaxy) .contents() \<equiv> x .oclAsType(Person) .contents()"
+end
+overloading dot__contents \<equiv> "(dot__contents::(\<cdot>OclAny) \<Rightarrow> _)"
+begin
+  definition dot__contents_OclAny : "(x::\<cdot>OclAny) .contents() \<equiv> x .oclAsType(Person) .contents()"
+end
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 157 ************************************ 941 + 0 *)
+(* 159 ************************************ 943 + 0 *)
 
-(* 158 ************************************ 941 + 0 *)
+(* 160 ************************************ 943 + 0 *)
 
-(* 159 ************************************ 941 + 0 *)
+(* 161 ************************************ 943 + 0 *)
 
-(* 160 ************************************ 941 + 3 *)
+(* 162 ************************************ 943 + 3 *)
 definition "Person_aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Person))) ((\<lambda>self. (((UML_Logic.OclImplies :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((UML_Logic.OclNot :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Logic.StrictRefEq :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_AnalysisModel_UMLPart_generated.dot_0___bossat_pre :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))))) ((((UML_Logic.StrongEq :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_AnalysisModel_UMLPart_generated.dot__salaryat_pre :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) (((Employee_AnalysisModel_UMLPart_generated.dot__salaryat_pre :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (((Employee_AnalysisModel_UMLPart_generated.dot_0___bossat_pre :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))))))))"
 definition "Person_a = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Person))) ((\<lambda>self. (((UML_Logic.OclImplies :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((UML_Logic.OclNot :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Logic.StrictRefEq :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_AnalysisModel_UMLPart_generated.dot_0___boss :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))))) ((((UML_Logic.StrongEq :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_AnalysisModel_UMLPart_generated.dot__salary :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) (((Employee_AnalysisModel_UMLPart_generated.dot__salary :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (((Employee_AnalysisModel_UMLPart_generated.dot_0___boss :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_AnalysisModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))))))))"
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 161 ************************************ 944 + 1 *)
+(* 163 ************************************ 946 + 1 *)
 thm Person_aat_pre_def Person_a_def
 
-(* 162 ************************************ 945 + 0 *)
+(* 164 ************************************ 947 + 0 *)
 
-(* 163 ************************************ 945 + 3 *)
+(* 165 ************************************ 947 + 3 *)
 definition "Planet_Aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Planet))) ((\<lambda>self. (((UML_Logic.OclAnd :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) ((UML_Logic.true :: (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_AnalysisModel_UMLPart_generated.dot__weightat_pre :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) ((UML_Integer.OclInt0 :: (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))))))))"
 definition "Planet_A = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Planet))) ((\<lambda>self. (((UML_Logic.OclAnd :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) ((UML_Logic.true :: (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_AnalysisModel_UMLPart_generated.dot__weight :: ((((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) ((UML_Integer.OclInt0 :: (((Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_AnalysisModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))))))))"
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 164 ************************************ 948 + 1 *)
+(* 166 ************************************ 950 + 1 *)
 thm Planet_Aat_pre_def Planet_A_def
 
 end
