@@ -61,7 +61,7 @@ definition "print_enum = (\<lambda> OclEnum name_ty l \<Rightarrow> Pair
     , O.overloading
         (Overloading'
           (\<open>StrictRefEq\<close>)
-          (Ty_arrow' (Ty_paren (Typ_base (wrap_oclty name_ty))))
+          (Ty_arrow' (Typ_apply (Typ_base name_ty_base') [Typ_base uu]))
           (\<open>StrictRefEq\<close> @@ String.isub name_ty)
           (let var_x = \<open>x\<close>
              ; var_y = \<open>y\<close> in
