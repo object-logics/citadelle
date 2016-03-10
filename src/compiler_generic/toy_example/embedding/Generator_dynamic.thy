@@ -490,7 +490,10 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
    (#2 o Specification.axiomatization_cmd
                                      []
                                      [((To_sbinding n, []), [of_semi__term e])])
-| Theory_section _ => in_theory I
+| Theory_section (Section (n, s)) => 
+  let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1)
+      val _ = Output.state (mk (Markup.markup Markup.keyword3 (To_string0 s)) (To_nat n)) in
+    in_theory I end
 | Theory_text _ => in_theory I
 | Theory_ML (SML ml) =>
     in_theory (Code_printing.reflect_ml (Input.source false (of_semi__term' ml)
