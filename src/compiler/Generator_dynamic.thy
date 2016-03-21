@@ -174,7 +174,8 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 \<close>
 
-ML\<open>fun List_mapi f = META.mapi (f o To_nat)\<close>
+ML\<open>fun List_mapi f = META.mapi (f o To_nat)
+   fun out_intensify s1 s2 = Output.state ((s1 |> Markup.markup Markup.intensify) ^ s2)\<close>
 
 ML\<open>
 structure Ty' = struct
@@ -498,7 +499,7 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
                                      [((To_sbinding n, []), [of_semi__term e])])
 | Theory_section (Section (n, s)) => 
   let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1)
-      val _ = Output.state (mk (Markup.markup Markup.keyword3 (To_string0 s)) (To_nat n)) in
+      val () = out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) (To_nat n)) "" in
     in_theory I end
 | Theory_text _ => in_theory I
 | Theory_text_raw _ => in_theory I
@@ -1218,6 +1219,18 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed
                 end)
            | Gen_shallow (env, thy0) => fn thy =>
              let fun aux (env, thy) x =
+               let val disp_time =
+                    let val tps = Timing.start () in
+                    fn NONE => () | SOME msg =>
+                       let val msg = To_string0 msg in
+                       out_intensify
+                         (Timing.message (Timing.result tps) |> Markup.markup Markup.antiquote)
+                         (" " ^
+                          Pretty.string_of
+                            (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
+                                         (Pretty.str msg)))
+                       end
+                   end in
                   META.fold_thy_shallow
                    (fn f => f () handle ERROR e =>
                      ( warning "Shallow Backtracking: (true) Isabelle declarations occuring among the META-simulated ones are ignored (if any)"
@@ -1225,11 +1238,23 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed
                                for raising earlier a specific error message *)
                      ; error e))
                    (fn _ => fn _ => thy0)
-                   (fn l => fn (env, thy) =>
-                     Bind_META.all_meta (fn x => fn thy => aux (env, thy) [x]) (pair env) l thy)
+                   (fn msg =>
+                     let val () = disp_time msg in
+                     fn l => fn (env, thy) =>
+                     Bind_META.all_meta (fn x => fn thy => aux (env, thy) [x]) (pair env) l thy
+                     end)
                    x
                    (env, thy)
-                 val (env, thy) = aux (env, thy) (get_all_meta_embed thy) in
+               end
+                 val (env, thy) = 
+                   let
+                     fun disp_time f x = 
+                     let val (s, r) = Timing.timing f x
+                         val () = out_intensify (Timing.message s |> Markup.markup Markup.operator) "" in
+                       r
+                     end in
+                    disp_time (aux (env, thy)) (get_all_meta_embed thy)
+                   end in
              (Gen_shallow (env, thy0), thy)
              end
           end

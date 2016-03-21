@@ -59,21 +59,169 @@ begin
 
 subsection\<open>Preliminaries\<close>
 
-datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
+datatype 'a embedding_fun = Embedding_fun_info string 'a
+                          | Embedding_fun_simple 'a
+
+datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) embedding_fun list"
                             | Embed_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
                                            "('a \<Rightarrow> 'b \<Rightarrow> semi__theory list \<times> 'b) list"
-                                           "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
+                                           "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) embedding_fun list"
 
 type_synonym 'a embedding' = "('a, compiler_env_config) embedding" (* polymorphism weakening needed by code_reflect *)
 
 definition "L_fold f =
  (let f_locale = \<lambda>loc_data l.
-    f (\<lambda>a b.
+    f (Embedding_fun_simple (\<lambda>a b.
           let (loc_data, b) = loc_data a b
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
-          ([META_semi__theories (Theories_locale loc_data (rev l))], b)) in
+          ([META_semi__theories (Theories_locale loc_data (rev l))], b))) in
   \<lambda> Embed_theories l \<Rightarrow> List.fold f l
   | Embed_locale loc_data l_loc l_th \<Rightarrow> List.fold f l_th o f_locale loc_data l_loc)"
+
+subsection\<open>Preliminaries: Setting Up Aliases Names\<close>
+
+ML\<open>
+local
+fun definition s = (#2 oo Specification.definition_cmd (NONE, ((@{binding ""}, []), s))) true
+fun def_info lhs rhs = definition (lhs ^ " = " ^
+                                     @{const_name Embedding_fun_info} ^
+                                       " (\<open>" ^ rhs ^ "\<close>) " ^
+                                       rhs)
+fun name_print x = String.implode (case String.explode (Long_Name.base_name x) of
+      #"p" :: #"r" :: #"i" :: #"n" :: #"t" :: #"_" :: l => l
+    | _ => error "'print' expected")
+fun name x = "PRINT_" ^ name_print x
+fun name1 x = "floor1_PRINT_" ^ name_print x
+fun name2 x = "floor2_PRINT_" ^ name_print x
+in
+fun embedding_fun_info rhs = def_info (name rhs) rhs
+fun embedding_fun_simple rhs = definition (name rhs ^ " = " ^
+                                            @{const_name Embedding_fun_simple} ^ " (" ^ rhs ^ ")")
+fun embedding_fun_info_f1 rhs = def_info (name1 rhs) rhs
+fun embedding_fun_simple_f1 rhs = definition (name1 rhs ^ " = " ^
+                                            @{const_name Embedding_fun_simple} ^ " (" ^ rhs ^ ")")
+fun embedding_fun_info_f2 rhs = def_info (name2 rhs) rhs
+fun embedding_fun_simple_f2 rhs = definition (name2 rhs ^ " = " ^
+                                            @{const_name Embedding_fun_simple} ^ " (" ^ rhs ^ ")")
+fun emb_info rhs = def_info (Long_Name.base_name rhs ^ "\<^sub>i\<^sub>n\<^sub>f\<^sub>o") rhs
+fun emb_simple rhs = definition (Long_Name.base_name rhs ^ "\<^sub>s\<^sub>i\<^sub>m\<^sub>p\<^sub>l\<^sub>e" ^ " = " ^
+                                            @{const_name Embedding_fun_simple} ^ " (" ^ rhs ^ ")")
+end
+\<close>
+
+(* TODO use antiquotations in cartouches *)
+local_setup \<open>embedding_fun_info @{const_name print_infra_enum_synonym}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_latex_infra_datatype_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_universe}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_type_synonym_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_type_synonym_class_higher}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_type_synonym_class_rec}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_enum_syn}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_instantiation_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_instantiation_universe}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_instantia_def_strictrefeq}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_instantia_lemmas_strictrefeq}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_consts}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_from_universe}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_lemmas_id}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_lemma_cp}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_lemmas_cp}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_lemma_strict}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_lemmas_strict}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_defined}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_up_d_cast0}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_up_d_cast}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_d_up_cast}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_lemma_const}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_lemmas_const}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_consts}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_from_universe}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_lemmas_id}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_lemma_cp}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_lemmas_cp}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_lemma_strict}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_lemmas_strict}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_defined}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_defined'}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_up_larger}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_istypeof_up_d_cast}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_consts}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_from_universe}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_lemmas_id}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_lemma_cp}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_lemmas_cp}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_lemma_strict}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_lemmas_strict}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_defined}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_defined'}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_up_eq_asty}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_up_larger}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_up_istypeof_unfold}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_up_istypeof}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_iskindof_up_d_cast}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_allinst_def_id}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_allinst_lemmas_id}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_allinst_astype}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_allinst_exec}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_allinst_istypeof_pre}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_allinst_istypeof}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_allinst_iskindof_eq}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_allinst_iskindof_larger}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_oid_uniq_ml}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_oid_uniq}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_eval_extract}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_choose_ml}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_choose}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_deref_oid}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_deref_assocs}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_select}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_select_obj}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_dot_consts}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_dot}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_dot_lemmas_id}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_dot_cp_lemmas}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_dot_lemma_cp}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_dot_lemmas_cp}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_lemma_strict}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_def_mono}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_is_repr}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_repr_allinst}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_examp_def_st_defs}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_astype_lemmas_id2}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_enum}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_examp_instance_defassoc_typecheck_var}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_examp_instance_defassoc}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_examp_instance}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_examp_instance_defassoc_typecheck}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_examp_oclbase}\<close>
+local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_examp.print_examp_def_st_typecheck_var}\<close>
+local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_examp.print_examp_def_st1}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_locale}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st2}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_dom}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_dom_lemmas}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_perm}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_allinst}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_defassoc_typecheck}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_def_interp}\<close>
+local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_examp.print_transition}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_locale}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_interp}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_def_state}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_wff}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_where}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_def_interp}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_lemmas_oid}\<close>
+local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_ctxt.print_ctxt}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_ctxt.print_ctxt_pre_post}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_ctxt.print_ctxt_inv}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_ctxt.print_ctxt_thm}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_meta_setup_def_state}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_meta_setup_def_transition}\<close>
 
 subsection\<open>Assembling Translations\<close>
 
@@ -81,8 +229,8 @@ definition "section_aux n s = start_map' (\<lambda>_. [ O.section (Section n s) 
 definition "section = section_aux 0"
 definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
-definition "txt f = start_map'''''' O.text o (\<lambda>_ n_thy design_analysis. [Text (f n_thy design_analysis)])"
-definition "txt_raw f = start_map'''''' O.text_raw o (\<lambda>_ n_thy design_analysis. [Text_raw (f n_thy design_analysis)])"
+definition "txt f = Embedding_fun_simple (start_map'''''' O.text o (\<lambda>_ n_thy design_analysis. [Text (f n_thy design_analysis)]))"
+definition "txt_raw f = Embedding_fun_simple (start_map'''''' O.text_raw o (\<lambda>_ n_thy design_analysis. [Text_raw (f n_thy design_analysis)]))"
 definition "txt' s = txt (\<lambda>_ _. s)"
 definition "txt'' = txt' o S.flatten"
 definition "txt''d s = txt (\<lambda> _. \<lambda> Gen_only_design \<Rightarrow> S.flatten (s) | _ \<Rightarrow> \<open>\<close>)"
@@ -95,14 +243,16 @@ definition "txt_raw''a' s = txt_raw (\<lambda> n_thy. \<lambda> Gen_only_design 
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "_ embedding'" where \<open>thy_class =
-  (let subsection_def = subsection \<open>Definition\<close>
+  (let section = Embedding_fun_simple o section
+     ; subsection = Embedding_fun_simple o subsection
+     ; subsection_def = subsection \<open>Definition\<close>
      ; subsection_cp = subsection \<open>Context Passing\<close>
      ; subsection_exec = subsection \<open>Execution with Invalid or Null as Argument\<close>
      ; subsection_defined = subsection \<open>Validity and Definedness Properties\<close>
      ; subsection_up = subsection \<open>Up Down Casting\<close>
      ; subsection_const = subsection \<open>Const\<close> in
   (Embed_theories o L.flatten)
-          [ [ print_infra_enum_synonym ]
+          [ [ PRINT_infra_enum_synonym ]
             , [ txt''d' (\<lambda>n_thy. [ \<open>
    \label{ex:\<close> @@ n_thy \<open>employee-design:uml\<close> @@ \<open>} \<close> ])
             , txt''a' (\<lambda>n_thy. [ \<open>
@@ -172,36 +322,36 @@ captured by the subsequent theory).
    Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: \<close> ]
-            (*, print_latex_infra_datatype_class*)
-            , print_infra_datatype_class
+            (*, PRINT_latex_infra_datatype_class*)
+            , PRINT_infra_datatype_class
             , txt'' [ \<open>
    Now, we construct a concrete ``universe of OclAny types'' by injection into a
 sum type containing the class types. This type of OclAny will be used as instance
 for all respective type-variables. \<close> ]
-            , print_infra_datatype_universe
+            , PRINT_infra_datatype_universe
             , txt'' [ \<open>
    Having fixed the object universe, we can introduce type synonyms that exactly correspond
 to \OCL types. Again, we exploit that our representation of \OCL is a ``shallow embedding'' with a
 one-to-one correspondance of \OCL-types to types of the meta-language \HOL. \<close> ]
-            , print_infra_type_synonym_class
-            , print_infra_type_synonym_class_higher
-            , print_infra_type_synonym_class_rec
-            , print_infra_enum_syn
+            , PRINT_infra_type_synonym_class
+            , PRINT_infra_type_synonym_class_higher
+            , PRINT_infra_type_synonym_class_rec
+            , PRINT_infra_enum_syn
             (*, txt'' [ \<open>
    Just a little check: \<close> ]
             *), txt'' [ \<open>
    To reuse key-elements of the library like referential equality, we have
 to show that the object universe belongs to the type class ``oclany,'' \ie,
  each class type has to provide a function @{term oid_of} yielding the Object ID (oid) of the object. \<close> ]
-            , print_infra_instantiation_class
-            , print_infra_instantiation_universe
+            , PRINT_infra_instantiation_class
+            , PRINT_infra_instantiation_universe
 
             , section \<open>Instantiation of the Generic Strict Equality\<close>
             , txt'' [ \<open>
    We instantiate the referential equality
 on @{text "Person"} and @{text "OclAny"} \<close> ]
-            , print_instantia_def_strictrefeq
-            , print_instantia_lemmas_strictrefeq
+            , PRINT_instantia_def_strictrefeq
+            , PRINT_instantia_lemmas_strictrefeq
             , txt'' [ \<open>
    For each Class \emph{C}, we will have a casting operation \inlineocl{.oclAsType($C$)},
    a test on the actual type \inlineocl{.oclIsTypeOf($C$)} as well as its relaxed form
@@ -220,52 +370,52 @@ two operations to declare and to provide two overloading definitions for the two
                                       , subsection_up # body_up
                                       , subsection_const # body_const ])
           [ (\<open>OclAsType\<close>,
-            [ print_astype_consts
-            , print_astype_class
-            , print_astype_from_universe
-            , print_astype_lemmas_id ]
-            , [ print_astype_lemma_cp
-            , print_astype_lemmas_cp ]
-            , [ print_astype_lemma_strict
-            , print_astype_lemmas_strict ]
-            , [ print_astype_defined ]
-            , [ print_astype_up_d_cast0
-            , print_astype_up_d_cast
-            , print_astype_d_up_cast ]
-            , [ print_astype_lemma_const
-              , print_astype_lemmas_const ])
+            [ PRINT_astype_consts
+            , PRINT_astype_class
+            , PRINT_astype_from_universe
+            , PRINT_astype_lemmas_id ]
+            , [ PRINT_astype_lemma_cp
+            , PRINT_astype_lemmas_cp ]
+            , [ PRINT_astype_lemma_strict
+            , PRINT_astype_lemmas_strict ]
+            , [ PRINT_astype_defined ]
+            , [ PRINT_astype_up_d_cast0
+            , PRINT_astype_up_d_cast
+            , PRINT_astype_d_up_cast ]
+            , [ PRINT_astype_lemma_const
+              , PRINT_astype_lemmas_const ])
 
           , (\<open>OclIsTypeOf\<close>,
-            [ print_istypeof_consts
-            , print_istypeof_class
-            , print_istypeof_from_universe
-            , print_istypeof_lemmas_id ]
-            , [ print_istypeof_lemma_cp
-            , print_istypeof_lemmas_cp ]
-            , [ print_istypeof_lemma_strict
-            , print_istypeof_lemmas_strict ]
-            , [ print_istypeof_defined
-            , print_istypeof_defined' ]
-            , [ print_istypeof_up_larger
-            , print_istypeof_up_d_cast ]
+            [ PRINT_istypeof_consts
+            , PRINT_istypeof_class
+            , PRINT_istypeof_from_universe
+            , PRINT_istypeof_lemmas_id ]
+            , [ PRINT_istypeof_lemma_cp
+            , PRINT_istypeof_lemmas_cp ]
+            , [ PRINT_istypeof_lemma_strict
+            , PRINT_istypeof_lemmas_strict ]
+            , [ PRINT_istypeof_defined
+            , PRINT_istypeof_defined' ]
+            , [ PRINT_istypeof_up_larger
+            , PRINT_istypeof_up_d_cast ]
             , [])
 
           , (\<open>OclIsKindOf\<close>,
-            [ print_iskindof_consts
-            , print_iskindof_class
-            , print_iskindof_from_universe
-            , print_iskindof_lemmas_id ]
-            , [ print_iskindof_lemma_cp
-            , print_iskindof_lemmas_cp ]
-            , [ print_iskindof_lemma_strict
-            , print_iskindof_lemmas_strict ]
-            , [ print_iskindof_defined
-            , print_iskindof_defined' ]
-            , [ print_iskindof_up_eq_asty
-            , print_iskindof_up_larger
-            , print_iskindof_up_istypeof_unfold
-            , print_iskindof_up_istypeof
-            , print_iskindof_up_d_cast ]
+            [ PRINT_iskindof_consts
+            , PRINT_iskindof_class
+            , PRINT_iskindof_from_universe
+            , PRINT_iskindof_lemmas_id ]
+            , [ PRINT_iskindof_lemma_cp
+            , PRINT_iskindof_lemmas_cp ]
+            , [ PRINT_iskindof_lemma_strict
+            , PRINT_iskindof_lemmas_strict ]
+            , [ PRINT_iskindof_defined
+            , PRINT_iskindof_defined' ]
+            , [ PRINT_iskindof_up_eq_asty
+            , PRINT_iskindof_up_larger
+            , PRINT_iskindof_up_istypeof_unfold
+            , PRINT_iskindof_up_istypeof
+            , PRINT_iskindof_up_d_cast ]
             , []) ])
 
           , [ section \<open>OclAllInstances\<close>
@@ -273,16 +423,16 @@ two operations to declare and to provide two overloading definitions for the two
    To denote \OCL-types occuring in \OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.'' \<close> ]
-            , print_allinst_def_id
-            , print_allinst_lemmas_id
-            , print_allinst_astype
-            , print_allinst_exec
+            , PRINT_allinst_def_id
+            , PRINT_allinst_lemmas_id
+            , PRINT_allinst_astype
+            , PRINT_allinst_exec
             , subsection \<open>OclIsTypeOf\<close>
-            , print_allinst_istypeof_pre
-            , print_allinst_istypeof
+            , PRINT_allinst_istypeof_pre
+            , PRINT_allinst_istypeof
             , subsection \<open>OclIsKindOf\<close>
-            , print_allinst_iskindof_eq
-            , print_allinst_iskindof_larger
+            , PRINT_allinst_iskindof_eq
+            , PRINT_allinst_iskindof_larger
 
             , section \<open>The Accessors\<close>
             , txt''d' (\<lambda>n_thy. [ \<open>
@@ -297,38 +447,38 @@ functions into the object universes; we show that this is sufficient ``character
 in presence of association classes to represent the association inside an object,
 pretty much similar to the \inlineisar+Employee_DesignModel_UMLPart+, where we stored
 an \verb+oid+ inside the class as ``pointer.'' \<close> ]
-            , print_access_oid_uniq_ml
-            , print_access_oid_uniq
+            , PRINT_access_oid_uniq_ml
+            , PRINT_access_oid_uniq
             , txt''a [ \<open>
    From there on, we can already define an empty state which must contain
 for $\mathit{oid}_{Person}\mathcal{BOSS}$ the empty relation (encoded as association list, since there are
 associations with a Sequence-like structure).\<close> ]
-            , print_access_eval_extract
+            , PRINT_access_eval_extract
             , txt''a [ \<open>
    The @{text pre_post}-parameter is configured with @{text fst} or
 @{text snd}, the @{text to_from}-parameter either with the identity @{term id} or
 the following combinator @{text switch}: \<close> ]
-            , print_access_choose_ml
-            , print_access_choose
-            , print_access_deref_oid
-            , print_access_deref_assocs
+            , PRINT_access_choose_ml
+            , PRINT_access_choose
+            , PRINT_access_deref_oid
+            , PRINT_access_deref_assocs
             , txt'' [ \<open>
    pointer undefined in state or not referencing a type conform object representation \<close> ]
-            , print_access_select
-            , print_access_select_obj
-            , print_access_dot_consts
-            , print_access_dot
-            , print_access_dot_lemmas_id
+            , PRINT_access_select
+            , PRINT_access_select_obj
+            , PRINT_access_dot_consts
+            , PRINT_access_dot
+            , PRINT_access_dot_lemmas_id
             , subsection_cp
-            , print_access_dot_cp_lemmas
-            , print_access_dot_lemma_cp
-            , print_access_dot_lemmas_cp
+            , PRINT_access_dot_cp_lemmas
+            , PRINT_access_dot_lemma_cp
+            , PRINT_access_dot_lemmas_cp
             , subsection_exec
-            , print_access_lemma_strict
+            , PRINT_access_lemma_strict
             , subsection \<open>Representation in States\<close>
-            , print_access_def_mono
-            , print_access_is_repr
-            , print_access_repr_allinst
+            , PRINT_access_def_mono
+            , PRINT_access_is_repr
+            , PRINT_access_repr_allinst
 
             , section \<open>A Little Infra-structure on Example States\<close>
             , txt''d' (\<lambda>n_thy. [ \<open>
@@ -355,23 +505,23 @@ The example we are defining in this section comes from the \autoref{fig:\<close>
 \label{fig:\<close> @@ n_thy \<open>eam1_system-states\<close> @@ \<open>}
 \end{figure}
 \<close> ])
-            , print_examp_def_st_defs
-            , print_astype_lemmas_id2 ] ])\<close>
+            , PRINT_examp_def_st_defs
+            , PRINT_astype_lemmas_id2 ] ])\<close>
 
 definition "thy_enum_flat = Embed_theories []"
-definition "thy_enum = Embed_theories [ print_enum ]"
+definition "thy_enum = Embed_theories [ PRINT_enum ]"
 definition "thy_class_synonym = Embed_theories []"
 definition "thy_class_flat = Embed_theories []"
 definition "thy_association = Embed_theories []"
 definition "thy_instance = Embed_theories 
-                             [ print_examp_instance_defassoc_typecheck_var
-                             , print_examp_instance_defassoc
-                             , print_examp_instance
-                             , print_examp_instance_defassoc_typecheck ]"
-definition "thy_def_base_l = Embed_theories [ print_examp_oclbase ]"
+                             [ PRINT_examp_instance_defassoc_typecheck_var
+                             , PRINT_examp_instance_defassoc
+                             , PRINT_examp_instance
+                             , PRINT_examp_instance_defassoc_typecheck ]"
+definition "thy_def_base_l = Embed_theories [ PRINT_examp_oclbase ]"
 definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                           [ Floor1_examp.print_examp_def_st_typecheck_var
-                                           , Floor1_examp.print_examp_def_st1 ]
+                                           [ floor1_PRINT_examp_def_st_typecheck_var
+                                           , floor1_PRINT_examp_def_st1 ]
                              | Floor2 \<Rightarrow> Embed_locale
                                            Floor2_examp.print_examp_def_st_locale
                                            [ Floor2_examp.print_examp_def_st2
@@ -380,23 +530,23 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                            , Floor2_examp.print_examp_def_st_perm
                                            , Floor2_examp.print_examp_def_st_allinst
                                            , Floor2_examp.print_examp_def_st_defassoc_typecheck ]
-                                           [ Floor2_examp.print_examp_def_st_def_interp ])"
+                                           [ floor2_PRINT_examp_def_st_def_interp ])"
 definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                              [ Floor1_examp.print_transition ]
+                                              [ floor1_PRINT_transition ]
                                 | Floor2 \<Rightarrow> Embed_locale
                                               Floor2_examp.print_transition_locale
                                               [ Floor2_examp.print_transition_interp
                                               , Floor2_examp.print_transition_def_state
                                               , Floor2_examp.print_transition_wff
                                               , Floor2_examp.print_transition_where ]
-                                              [ Floor2_examp.print_transition_def_interp
-                                              , Floor2_examp.print_transition_lemmas_oid ])"
+                                              [ floor2_PRINT_transition_def_interp
+                                              , floor2_PRINT_transition_lemmas_oid ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                      [ Floor1_ctxt.print_ctxt ]
+                                      [ floor1_PRINT_ctxt ]
                         | Floor2 \<Rightarrow> Embed_theories 
-                                      [ Floor2_ctxt.print_ctxt_pre_post
-                                      , Floor2_ctxt.print_ctxt_inv
-                                      , Floor2_ctxt.print_ctxt_thm ])"
+                                      [ floor2_PRINT_ctxt_pre_post
+                                      , floor2_PRINT_ctxt_inv
+                                      , floor2_PRINT_ctxt_thm ])"
 definition "thy_flush_all = Embed_theories []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
 
@@ -414,8 +564,11 @@ definition "compiler_env_config_reset_all env =
 definition "fold_thy0 meta thy_object0 f =
   L_fold (\<lambda>x (acc1, acc2).
     let (sorry, dirty) = D_output_sorry_dirty acc1
+      ; (msg, x) = case x of Embedding_fun_info msg x \<Rightarrow> (Some msg, x)
+                           | Embedding_fun_simple x \<Rightarrow> (None, x)
       ; (l, acc1) = x meta acc1 in
-    (f (if sorry = Some Gen_sorry | sorry = None & dirty then
+    (f msg
+       (if sorry = Some Gen_sorry | sorry = None & dirty then
           L.map (map_semi__theory (map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] C.sorry
                                                 | Lemma_assumes n spec1 spec2 _ _ \<Rightarrow> Lemma_assumes n spec1 spec2 [] C.sorry))) l
         else
@@ -512,7 +665,7 @@ definition "compiler_env_config_update f env =
            comp_env_save_deep
            (\<lambda>f. f ())
            (\<lambda>_. id)
-           (\<lambda>_. Pair)
+           (\<lambda>_ _. Pair)
            (D_input_meta env')
            (env, ())))"
 
@@ -521,9 +674,9 @@ definition "fold_thy_shallow f_try f_accu_reset x =
     comp_env_save
     f_try
     f_accu_reset
-    (\<lambda>l acc1.
+    (\<lambda>name l acc1.
       map_prod (\<lambda> env. env \<lparr> D_input_meta := D_input_meta acc1 \<rparr>) id
-      o List.fold x l
+      o List.fold (x name) l
       o Pair acc1)"
 
 definition "fold_thy_deep obj env =
@@ -531,7 +684,7 @@ definition "fold_thy_deep obj env =
           comp_env_save_deep
           (\<lambda>f. f ())
           (\<lambda>env _. D_output_position env)
-          (\<lambda>l acc1 (i, cpt). (acc1, (Succ i, natural_of_nat (List.length l) + cpt)))
+          (\<lambda>_ l acc1 (i, cpt). (acc1, (Succ i, natural_of_nat (List.length l) + cpt)))
           obj
           (env, D_output_position env) of
     (env, output_position) \<Rightarrow> env \<lparr> D_output_position := output_position \<rparr>)"

@@ -47,7 +47,10 @@ begin
 
 subsection\<open>Preliminaries\<close>
 
-datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) list"
+datatype 'a embedding_fun = Embedding_fun_info string 'a
+                          | Embedding_fun_simple 'a
+
+datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) embedding_fun list"
                             | Embed_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
                                            "('a \<Rightarrow> 'b \<Rightarrow> semi__theory list \<times> 'b) list"
 
@@ -56,14 +59,64 @@ type_synonym 'a embedding' = "('a, compiler_env_config) embedding" (* polymorphi
 definition "L_fold f =
  (\<lambda> Embed_theories l \<Rightarrow> List.fold f l
   | Embed_locale loc_data l \<Rightarrow>
-      f (\<lambda>a b.
+      f (Embedding_fun_simple (\<lambda>a b.
           let (loc_data, b) = loc_data a b
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
-          ([META_semi__theories (Theories_locale loc_data (rev l))], b)))"
+          ([META_semi__theories (Theories_locale loc_data (rev l))], b))))"
+
+subsection\<open>Preliminaries: Setting Up Aliases Names\<close>
+
+ML\<open>
+local
+fun definition s = (#2 oo Specification.definition_cmd (NONE, ((@{binding ""}, []), s))) true
+fun def_info lhs rhs = definition (lhs ^ " = " ^
+                                     @{const_name Embedding_fun_info} ^
+                                       " (\<open>" ^ rhs ^ "\<close>) " ^
+                                       rhs)
+fun name_print x = String.implode (case String.explode (Long_Name.base_name x) of
+      #"p" :: #"r" :: #"i" :: #"n" :: #"t" :: #"_" :: l => l
+    | _ => error "'print' expected")
+fun name x = "PRINT_" ^ name_print x
+fun name1 x = "floor1_PRINT_" ^ name_print x
+fun name2 x = "floor2_PRINT_" ^ name_print x
+in
+fun embedding_fun_info rhs = def_info (name rhs) rhs
+fun embedding_fun_simple rhs = definition (name rhs ^ " = " ^
+                                            @{const_name Embedding_fun_simple} ^ " (" ^ rhs ^ ")")
+fun embedding_fun_info_f1 rhs = def_info (name1 rhs) rhs
+fun embedding_fun_simple_f1 rhs = definition (name1 rhs ^ " = " ^
+                                            @{const_name Embedding_fun_simple} ^ " (" ^ rhs ^ ")")
+fun embedding_fun_info_f2 rhs = def_info (name2 rhs) rhs
+fun embedding_fun_simple_f2 rhs = definition (name2 rhs ^ " = " ^
+                                            @{const_name Embedding_fun_simple} ^ " (" ^ rhs ^ ")")
+fun emb_info rhs = def_info (Long_Name.base_name rhs ^ "\<^sub>i\<^sub>n\<^sub>f\<^sub>o") rhs
+fun emb_simple rhs = definition (Long_Name.base_name rhs ^ "\<^sub>s\<^sub>i\<^sub>m\<^sub>p\<^sub>l\<^sub>e" ^ " = " ^
+                                            @{const_name Embedding_fun_simple} ^ " (" ^ rhs ^ ")")
+end
+\<close>
+
+(* TODO use antiquotations in cartouches *)
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_universe}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_type_synonym_class_higher}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_oid_uniq}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_access_choose}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_examp_instance_defassoc}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_examp_instance}\<close>
+local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_examp.print_examp_def_st1}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_locale}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st2}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_def_st_perm}\<close>
+local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_examp.print_transition}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_locale}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_interp}\<close>
+local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_ctxt.print_ctxt}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_meta_setup_def_state}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_meta_setup_def_transition}\<close>
 
 subsection\<open>Assembling Translations\<close>
 
-definition "txt f = start_map'''' O.text o (\<lambda>_ design_analysis. [Text (f design_analysis)])"
+definition "txt f = Embedding_fun_simple (start_map'''' O.text o (\<lambda>_ design_analysis. [Text (f design_analysis)]))"
 definition "txt' s = txt (\<lambda>_. s)"
 definition "txt'' = txt' o S.flatten"
 
@@ -84,19 +137,19 @@ definition' thy_class ::
    Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: \<close> ]
-          , print_infra_datatype_class
+          , PRINT_infra_datatype_class
           , txt'' [ \<open>
    Now, we construct a concrete ``universe of ToyAny types'' by injection into a
 sum type containing the class types. This type of ToyAny will be used as instance
 for all respective type-variables. \<close> ]
-          , print_infra_datatype_universe
+          , PRINT_infra_datatype_universe
           , txt'' [ \<open>
    Having fixed the object universe, we can introduce type synonyms that exactly correspond
 to Toy types. Again, we exploit that our representation of Toy is a ``shallow embedding'' with a
 one-to-one correspondance of Toy-types to types of the meta-language HOL. \<close> ]
-          , print_infra_type_synonym_class_higher
-          , print_access_oid_uniq
-          , print_access_choose ]\<close>
+          , PRINT_infra_type_synonym_class_higher
+          , PRINT_access_oid_uniq
+          , PRINT_access_choose ]\<close>
 
 definition "thy_enum_flat = Embed_theories []"
 definition "thy_enum = Embed_theories []"
@@ -104,22 +157,22 @@ definition "thy_class_synonym = Embed_theories []"
 definition "thy_class_flat = Embed_theories []"
 definition "thy_association = Embed_theories []"
 definition "thy_instance = Embed_theories 
-                             [ print_examp_instance_defassoc
-                             , print_examp_instance ]"
+                             [ PRINT_examp_instance_defassoc
+                             , PRINT_examp_instance ]"
 definition "thy_def_base_l = Embed_theories []"
 definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                           [ Floor1_examp.print_examp_def_st1 ]
+                                           [ floor1_PRINT_examp_def_st1 ]
                              | Floor2 \<Rightarrow> Embed_locale
                                            Floor2_examp.print_examp_def_st_locale
                                            [ Floor2_examp.print_examp_def_st2
                                            , Floor2_examp.print_examp_def_st_perm ])"
 definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                              [ Floor1_examp.print_transition ]
+                                              [ floor1_PRINT_transition ]
                                 | Floor2 \<Rightarrow> Embed_locale
                                               Floor2_examp.print_transition_locale
                                               [ Floor2_examp.print_transition_interp ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                      [ Floor1_ctxt.print_ctxt ]
+                                      [ floor1_PRINT_ctxt ]
                         | Floor2 \<Rightarrow> Embed_theories 
                                       [])"
 definition "thy_flush_all = Embed_theories []"
@@ -139,8 +192,11 @@ definition "compiler_env_config_reset_all env =
 definition "fold_thy0 meta thy_object0 f =
   L_fold (\<lambda>x (acc1, acc2).
     let (sorry, dirty) = D_output_sorry_dirty acc1
+      ; (msg, x) = case x of Embedding_fun_info msg x \<Rightarrow> (Some msg, x)
+                           | Embedding_fun_simple x \<Rightarrow> (None, x)
       ; (l, acc1) = x meta acc1 in
-    (f (if sorry = Some Gen_sorry | sorry = None & dirty then
+    (f msg
+       (if sorry = Some Gen_sorry | sorry = None & dirty then
           L.map (map_semi__theory (map_lemma (\<lambda> Lemma n spec _ _ \<Rightarrow> Lemma n spec [] C.sorry
                                                 | Lemma_assumes n spec1 spec2 _ _ \<Rightarrow> Lemma_assumes n spec1 spec2 [] C.sorry))) l
         else
@@ -237,7 +293,7 @@ definition "compiler_env_config_update f env =
            comp_env_save_deep
            (\<lambda>f. f ())
            (\<lambda>_. id)
-           (\<lambda>_. Pair)
+           (\<lambda>_ _. Pair)
            (D_input_meta env')
            (env, ())))"
 
@@ -246,9 +302,9 @@ definition "fold_thy_shallow f_try f_accu_reset x =
     comp_env_save
     f_try
     f_accu_reset
-    (\<lambda>l acc1.
+    (\<lambda>name l acc1.
       map_prod (\<lambda> env. env \<lparr> D_input_meta := D_input_meta acc1 \<rparr>) id
-      o List.fold x l
+      o List.fold (x name) l
       o Pair acc1)"
 
 definition "fold_thy_deep obj env =
@@ -256,7 +312,7 @@ definition "fold_thy_deep obj env =
           comp_env_save_deep
           (\<lambda>f. f ())
           (\<lambda>env _. D_output_position env)
-          (\<lambda>l acc1 (i, cpt). (acc1, (Succ i, natural_of_nat (List.length l) + cpt)))
+          (\<lambda>_ l acc1 (i, cpt). (acc1, (Succ i, natural_of_nat (List.length l) + cpt)))
           obj
           (env, D_output_position env) of
     (env, output_position) \<Rightarrow> env \<lparr> D_output_position := output_position \<rparr>)"

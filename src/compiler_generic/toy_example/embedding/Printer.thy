@@ -67,7 +67,7 @@ definition "write_file env = (
              comp_env_save_deep
              (\<lambda>f. f ())
              (\<lambda>_ _. [])
-             (\<lambda>x acc1 acc2. (acc1, Cons x acc2))
+             (\<lambda>_ x acc1 acc2. (acc1, Cons x acc2))
              l_thy
              (compiler_env_config.truncate env, []) in
          of_all_meta_lists (compiler_env_config_more_map (\<lambda>_. is_file) env) (rev l))))"
