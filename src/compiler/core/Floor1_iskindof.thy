@@ -261,39 +261,36 @@ definition "print_iskindof_up_larger = start_map O.lemma o
                       , [ T.thm disjI2]
                       , [ T.OF (T.thm meth_last) (T.thm var_isdef)] ]))))"
 
-locale M'
-begin
 datatype ('a, 'b) print_iskindof_up_istypeof_output
-  = simp_only 'a
-  | erule 'b
-  | simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>1 (* simp add: iskin *)
-  | simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>2
-  | simp\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h
+  = M_simp_only 'a
+  | M_erule 'b
+  | M_simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>1 (* simp add: iskin *)
+  | M_simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>2
+  | M_simp\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h
 
 fun aux\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h
 and aux\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h where
    "aux\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h =
      (\<lambda> [] \<Rightarrow> []
       | (class, l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h) # l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h \<Rightarrow>
-         M'.simp_only class
+         M_simp_only class
          # aux\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h class [] l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h (rev l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h))
       l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h"
  | "aux\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h class tactic l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h =
      (\<lambda> [] \<Rightarrow> tactic
       | (class0, class0_path_inh) # l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h \<Rightarrow>
-         M'.erule (class, class0 # map fst l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h)
-         # (if l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h = [] then op # M'.simp\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h else id)
+         M_erule (class, class0 # map fst l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h)
+         # (if l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h = [] then op # M_simp\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h else id)
            (aux\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h
               class
               ( (if class0_path_inh then
-                   (if l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h = [] then op # M'.simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>1 else id)
+                   (if l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h = [] then op # M_simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>1 else id)
                    (aux\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h)
-                 else [M'.simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>2])
+                 else [M_simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>2])
                @ tactic)
               l\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h
               l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h))
       l\<^sub>b\<^sub>r\<^sub>e\<^sub>a\<^sub>d\<^sub>t\<^sub>h"
-end
 
 definition "print_iskindof_up_istypeof_erule var_isdef next_dataty name_pers name_any =
  (let mk_OF = \<lambda>f. T.OF (T.thm (f name_any)) (T.thm var_isdef)
@@ -370,14 +367,14 @@ definition "print_iskindof_up_istypeof = start_map O.lemma o
       (C.using [T.OF (T.thm (print_iskindof_up_eq_asty_name name_any)) (T.thm var_isdef)]
        # L.map (\<lambda>x. C.apply [x])
          (L.map
-           (\<lambda> M'.simp_only name_pred \<Rightarrow> M.simp_only [T.thm (print_iskindof_class_name (\<lambda>s. s @@ String.isub name_pred) name_any)]
-            | M'.erule (name_pred, next_dataty) \<Rightarrow>
+           (\<lambda> M_simp_only name_pred \<Rightarrow> M.simp_only [T.thm (print_iskindof_class_name (\<lambda>s. s @@ String.isub name_pred) name_any)]
+            | M_erule (name_pred, next_dataty) \<Rightarrow>
                 print_iskindof_up_istypeof_erule var_isdef next_dataty name_pred name_any
-            | M'.simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>1 \<Rightarrow> M.simp_add [var_iskin]
-            | M'.simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>2 \<Rightarrow> M.simp
+            | M_simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>1 \<Rightarrow> M.simp_add [var_iskin]
+            | M_simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>2 \<Rightarrow> M.simp
             | _ \<Rightarrow> M.blast None)
-           (M'.aux\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h (L.map (map_prod (\<lambda>class. case Inh class of OclClass class _ _ \<Rightarrow> class) id)
-                              name_pred0))))
+           (aux\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h (L.map (map_prod (\<lambda>class. case Inh class of OclClass class _ _ \<Rightarrow> class) id)
+                           name_pred0))))
         C.done)"
 
 definition "print_iskindof_up_d_cast = start_map O.lemma o
