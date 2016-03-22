@@ -143,11 +143,15 @@ definition "of_all_meta_lists env l_thy =
        , [ \<open>\<close>, \<open>end\<close> ]) in
   L.flatten
         [ th_beg
-        , L.flatten (fst (L.mapM (\<lambda>l (i, cpt).
+        , L.flatten (fst (L.mapM (\<lambda>(msg, l) (i, cpt).
             let (l_thy, lg) = L.mapM (\<lambda>l n. (of_all_meta env l, Succ n)) l 0 in
             (( \<open>\<close>
-             # \<open>%s(* %d ************************************ %d + %d *)\<close>
-                 (To_string (if compiler_env_config.more env then \<langle>''''\<rangle> else \<degree>char_escape\<degree>)) (To_nat (Succ i)) (To_nat cpt) (To_nat lg)
+             # \<open>%s(* %d ************************************ %d + %d *)%s\<close>
+                 (To_string (if compiler_env_config.more env then \<langle>''''\<rangle> else \<degree>char_escape\<degree>))
+                 (To_nat (Succ i))
+                 (To_nat cpt)
+                 (To_nat lg)
+                 (case msg of None \<Rightarrow> \<open>\<close> | Some msg \<Rightarrow> \<open>  (* term %s *)\<close> (To_string msg))
              # l_thy), Succ i, cpt + lg)) l_thy (D_output_position env)))
         , th_end ])"
 end
