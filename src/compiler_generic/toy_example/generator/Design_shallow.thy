@@ -124,9 +124,10 @@ Transition \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<close>
 
 text{*
-Here in @{keyword "shallow"} mode, the following expression is directly rejected: \\
-\verb|(* Context Person :: content ()| \\
-\verb|     Post "|@{verbatim "\<close>\<open>"}\verb|" *)|
+Here in @{keyword "shallow"} mode, the following expression is directly rejected: 
+\<^verbatim>\<open>
+(* Context Person :: content ()
+  Post "\<close>@{text "\<close>"}@{text "\<open>"}\<^verbatim>\<open>" *)\<close>
 *}
 
 Context[shallow] Person :: content () 

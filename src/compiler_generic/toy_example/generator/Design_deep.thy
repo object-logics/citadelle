@@ -46,8 +46,8 @@ begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 
 text\<open>
-In this example, we configure our package to generate a \verb|.thy| file,
-without executing the associated generated code contained in this \verb|.thy| file
+In this example, we configure our package to generate a \<^verbatim>\<open>.thy\<close> file,
+without executing the associated generated code contained in this \<^verbatim>\<open>.thy\<close> file
 (c.f. @{file "Design_shallow.thy"} for a direct evaluation).
 This mode is particularly relevant for debugging purposes:
 while by default no evaluation occurs, 
@@ -79,7 +79,7 @@ generation_syntax [ (*deep
                   (*, syntax_print*)*) ]
 
 text\<open>
-\begin{verbatim}
+\<^verbatim>\<open>
 generation_syntax
   [ deep
       (generation_semantics [ design ])
@@ -94,10 +94,10 @@ generation_syntax
         in SML module_name M ]
       (output_directory "../document_generated")
   (*, syntax_print*) ]
-\end{verbatim}
+\<close>
 While in theory it is possible to set the @{keyword "deep"} mode
 for generating in all target languages, i.e. by writing 
-@{text "[ in Haskell, in OCaml module_name M, in Scala module_name M, in SML module_name M ]"},
+\<^theory_text>\<open>[ in Haskell, in OCaml module_name M, in Scala module_name M, in SML module_name M ]\<close>,
 usually using only one target is enough,
 since the task of all target is to generate the same Isabelle content.
 However in case one language takes too much time to setup,
@@ -117,8 +117,8 @@ So globally the universe describing all classes is partial, it
 will only be fully constructed when all classes will be finished to be defined.
 
 This allows to define classes without having to follow a particular order of definitions.
-Here @{text Atom} is defined before the one of @{text Molecule}
-(@{text Molecule} will come after):
+Here \<open>Atom\<close> is defined before the one of \<open>Molecule\<close>
+(\<open>Molecule\<close> will come after):
 \<close>
 
 Class Atom < Molecule
@@ -152,17 +152,15 @@ Class Molecule < Person
 text\<open>As example, here no @{command End} is written.\<close>
 
 text\<open>
-The semantics of @{command End} is further precised here. 
+The semantics of @{command End} is further made precise here. 
 We earlier mentioned that the universe of classes is partially constructed, but one can still
 examine what is partially constructed, and one possibility is to use @{command End} for doing so.
 
 @{command End} can be seen as a lazy meta-command: 
-\begin{itemize}
-\item without parameters, no code is generated,
-\item with some parameters (e.g., the symbol \verb|!|), it forces the generation of the computation
+  \<^item> without parameters, no code is generated,
+  \<^item> with some parameters (e.g., the symbol \<^verbatim>\<open>!\<close>), it forces the generation of the computation
 of the universe, by considering all already encountered classes. 
 Then a partial representation of the universe can be interactively inspected.
-\end{itemize}
 \<close>
 
 Class Galaxy
@@ -174,8 +172,8 @@ text\<open>At this position, in the output window,
 we can observe for the first time some generated Isabelle code,
 corresponding to the partial universe of classes being constructed.
 
-Note: By default, @{text "Atom"} and @{text "Molecule"} are not (yet) present in the shown universe
-because @{text "Person"} has not been defined in a separate line (unlike @{text "Galaxy"} above).\<close>
+Note: By default, \<open>Atom\<close> and \<open>Molecule\<close> are not (yet) present in the shown universe
+because \<open>Person\<close> has not been defined in a separate line (unlike \<open>Galaxy\<close> above).\<close>
 
 Class Person < Galaxy
   Attributes salary : Integer
@@ -202,12 +200,12 @@ Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = [ salary
 text\<open>However at any time, the universe can (or will) automatically be recomputed,
 whenever we are adding meanwhile another class:
 
-@{verbatim "(* Class Big_Bang < Atom (* This will force the creation of a new universe. *) *)"}
+\<^verbatim>\<open>(*\<close>~\<^theory_text>\<open>Class Big_Bang < Atom\<close>~\<^verbatim>\<open>(* This will force the creation of a new universe. *) *)\<close>
 
 As remark, not only the universe is recomputed, but 
 the recomputation takes also into account all meta-commands already encountered. 
-So in the new setting, @{text "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1"}, @{text "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2"} and @{text "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3"} 
-will be resurrected... after the @{text Big_Bang}.
+So in the new setting, \<open>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<close>, \<open>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<close> and \<open>X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3\<close>
+will be resurrected... after the \<open>Big_Bang\<close>.
 \<close>
 
 subsection\<open>Designing Class Models (II): Jumping to Another Semantic Floor\<close>
@@ -278,29 +276,33 @@ Transition \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 
 text\<open>
 @{command Transition} usually only takes ``bound variables'' as parameters
-(not arbitrary @{text "\<lambda>"}-terms), however the semantics of @{command Transition} was extended
+(not arbitrary \<open>\<lambda>\<close>-terms), however the semantics of @{command Transition} was extended
 to mimic the support of some particular terms not restricted to variables.
-This extension was implemented by executing some steps of ``@{text "\<zeta>"}-reductions rewriting rules''
+This extension was implemented by executing some steps of ``\<open>\<zeta>\<close>-reductions rewriting rules''
 operating on the meta-level of commands.
 First, it is at least needed to extend the syntax of expressions accepted by @{command Transition}, 
-we then modify the parsing so that a larger subset of @{text "\<lambda>"}-terms
+we then modify the parsing so that a larger subset of \<open>\<lambda>\<close>-terms
 can be given as parameters.
-Starting from this expression: \\
-@{verbatim "(* Transition \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ] *)"}
+Starting from this expression:
+\<^verbatim>\<open>
+(*\<close>~\<^theory_text>\<open>Transition \<sigma>\<^sub>1 [ ([ salary = 1000 , boss = self 1 ] :: Person) ]\<close>~\<^verbatim>\<open>*)\<close>
 
 the rewriting begins with a first call to the next semantic floor, we obtain 
-the following meta-commands (where @{command Transition} @{text "[shallow]"} is an expression 
-in normal form): \\
-@{verbatim \<open>(* State WFF_10_post = [ ([ "salary" = 1000, "boss" = self 1 ] :: Person) ]\<close>} \\
-@{verbatim "   Transition[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
-(@{text "WFF_10_post"} is an automatically generated name).
+the following meta-commands (where \<^theory_text>\<open>Transition [shallow]\<close> is an expression 
+in normal form): 
+\<^verbatim>\<open>
+(*\<close>~\<^theory_text>\<open>State WFF_10_post = [ ([ "salary" = 1000, "boss" = self 1 ] :: Person) ]\<close>\<^verbatim>\<open>
+  \<close>~\<^theory_text>\<open>Transition[shallow] \<sigma>\<^sub>1 WFF_10_post\<close>~\<^verbatim>\<open>*)\<close>
+
+(\<open>WFF_10_post\<close> is an automatically generated name).
 
 The rewriting of the above @{command State} is performed in its turn.
 Finally the overall ultimately terminates when reaching @{command Instance} being already 
-in normal form: \\
-@{verbatim \<open>(* Instance WFF_10_post_object0 :: Person = [ "salary" = 1000, "boss" = [  ] ]\<close>} \\
-@{verbatim "   State[shallow] WFF_10_post = [ WFF_10_post_object0 ]"} \\
-@{verbatim "   Transition[shallow] \<sigma>\<^sub>1 WFF_10_post *)"}
+in normal form:
+\<^verbatim>\<open>
+(*\<close>~\<^theory_text>\<open>Instance WFF_10_post_object0 :: Person = [ "salary" = 1000, "boss" = [  ] ]\<close>\<^verbatim>\<open>
+  \<close>~\<^theory_text>\<open>State[shallow] WFF_10_post = [ WFF_10_post_object0 ]\<close>\<^verbatim>\<open>
+  \<close>~\<^theory_text>\<open>Transition[shallow] \<sigma>\<^sub>1 WFF_10_post\<close>~\<^verbatim>\<open>*)\<close>
 \<close>
 
 subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<close>
@@ -320,24 +322,26 @@ This is what is implemented here:
 \<close>
 
 text{*
-\verb|Context Person :: content ()| \\
-\verb|  Post "|@{verbatim "\<close>\<open>"}\verb|"|
+\<^verbatim>\<open>Context Person :: content ()
+  Post "\<close>@{text "\<close>"}@{text "\<open>"}\<^verbatim>\<open>"\<close>
 *}
 
 text{*
-Here the expression @{verbatim "\<close>\<open>"} is not well-typed in Isabelle, but an error is not raised
+Here the expression ``@{text "\<close>"}@{text "\<open>"}'' is not well-typed in Isabelle, but an error is not raised
 because the above expression is not (yet) parsed as an Inner Syntax element\footnote{
 In any case an error will not be raised, because the above code 
-is written in verbatim in the real @{verbatim ".thy"} file,
+is written in verbatim in the real \<^verbatim>\<open>.thy\<close> file,
 however one can copy-paste this code out of the verbatim scope to see that
 no errors are really raised.
 For presentation purposes, it was embedded in verbatim because we will later discuss about
 meta-commands generating Isabelle code,
 and then what is generated by this meta-command is of course not well-typed!}.
 
-However, this is not the same for the resulting generated meta-command: \\
-\verb|(* Context [shallow] Person :: content ()| \\
-\verb|   Post : "(\<lambda> result self. (|@{verbatim "\<close>\<open>"}\verb|))" *)| \\
+However, this is not the same for the resulting generated meta-command: 
+\<^verbatim>\<open>
+(* Context [shallow] Person :: content ()
+   Post : "(\<lambda> result self. (\<close>@{text "\<close>"}@{text "\<open>"}\<^verbatim>\<open>))" *)\<close>
+
 and an error is immediately raised because the parsing of Inner Syntax expressions
 is activated in this case.
 *}
@@ -353,8 +357,9 @@ subsection\<open>Designing Class Models (IV): Saving the Generated to File\<clos
 
 text\<open>
 The experimentations usually finish by saving all the universe 
-and generated Isabelle theory to the hard disk: \\
-@{verbatim "(* generation_syntax deep flush_all *)"}
+and generated Isabelle theory to the hard disk: 
+\<^verbatim>\<open>
+(*\<close>~\<^theory_text>\<open>generation_syntax deep flush_all\<close>~\<^verbatim>\<open>*)\<close>
 \<close>
 
 text\<open>
