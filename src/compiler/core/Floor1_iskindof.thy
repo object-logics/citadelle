@@ -371,8 +371,7 @@ definition "print_iskindof_up_istypeof = start_map O.lemma o
             | M_erule (name_pred, next_dataty) \<Rightarrow>
                 print_iskindof_up_istypeof_erule var_isdef next_dataty name_pred name_any
             | M_simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>1 \<Rightarrow> M.simp_add [var_iskin]
-            | M_simp\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h\<^sub>_\<^sub>2 \<Rightarrow> M.simp
-            | _ \<Rightarrow> M.blast None)
+            | _ \<Rightarrow> M.simp)
            (aux\<^sub>d\<^sub>e\<^sub>p\<^sub>t\<^sub>h (L.map (map_prod (\<lambda>class. case Inh class of OclClass class _ _ \<Rightarrow> class) id)
                            name_pred0))))
         C.done)"
