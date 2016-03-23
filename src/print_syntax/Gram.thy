@@ -129,7 +129,10 @@ fun show_text l =
                               ^ "\<close>\n" ] in
         case doc of SOME Gen_remove => []
                   | SOME Gen_add_raw => output_text (fn "\<^bsub>" => "\\rotatebox[origin=c]{315}{$\\Rightarrow$}"
-                                                      | "\<^esub>" => "\\rotatebox[origin=c]{45}{$\\Leftarrow$}")
+                                                      | "\<^esub>" => "\\rotatebox[origin=c]{45}{$\\Leftarrow$}"
+                                                      | "op" => "\\isa{op}"
+                                                      | "\<longlongrightarrow>" => "$\\xrightarrow{\\hphantom{AAA}}$"
+                                                      | "\<longlonglongrightarrow>" => "$\\xrightarrow{\\hphantom{AAAA}}$")
                   | _ => List.concat [ output_text (fn s => "@{text \"" ^ s ^ "\"}")
                                      , case doc of SOME (Gen_add s) => [ "(* *) text\<open>" ^ Input.source_content s ^ "\<close>\n" ]
                                                  | _ => []]
