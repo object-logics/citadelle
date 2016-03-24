@@ -90,6 +90,9 @@ datatype toy_def_transition = ToyDefPP
                               toy_def_pp_core (* pre *)
                               "toy_def_pp_core option" (* post *) (* None: same as pre *)
 
+datatype toy_class_tree = ToyClassTree nat (* nb child *)
+                                       nat (* depth *)
+
 subsection\<open>Object ID Management\<close>
 
 definition "oidInit = (\<lambda> Oid n \<Rightarrow> Oids n n n)"

@@ -297,6 +297,17 @@ text \<open>
   ;
 \<close>}
 \<close>
+
+text \<open>
+\begin{matharray}{rcl}
+  @{command_def Tree} & : & @{text "theory \<rightarrow> theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command Tree} nat nat
+  ;
+\<close>}
+\<close>
 (*
 subsection\<open>.......................................................................................................................................\<close>
 text \<open>

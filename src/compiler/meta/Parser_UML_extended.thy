@@ -139,6 +139,11 @@ definition "of_ocl_def_transition a b = rec_ocl_def_transition
     (of_ocl_def_pp_core a b)
     (of_option a b (of_ocl_def_pp_core a b)))"
 
+definition "of_ocl_class_tree a b = rec_ocl_class_tree
+  (ap2 a (b \<open>OclClassTree\<close>)
+    (of_nat a b)
+    (of_nat a b))"
+
 end
 
 lemmas [code] =
@@ -154,5 +159,6 @@ lemmas [code] =
   Parse.of_ocl_def_state_def
   Parse.of_ocl_def_pp_core_def
   Parse.of_ocl_def_transition_def
+  Parse.of_ocl_class_tree_def
 
 end

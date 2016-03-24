@@ -258,7 +258,7 @@ function (sequential) class_unflat_aux where
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
    (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
       map_option
-        (OclClass
+        (ToyClass
           r
           (case lookup rbt r of Some l \<Rightarrow> l))
         (L.bind (class_unflat_aux rbt rbt_inv (insert r () rbt_cycle))

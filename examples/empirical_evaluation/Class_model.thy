@@ -44,133 +44,60 @@
 header{* Part ... *}
 
 theory  Class_model
-imports "../../src/compiler/Init_rbt"
+imports "../../src/compiler/core/Core_init"
 begin
 
-datatype 'a tree = T 'a "'a tree list"
-
-fun make_tree
-and make_tree' where
-   "make_tree l_pos nb_child deep =
-      T l_pos (case deep of 0 \<Rightarrow> []
-               | Suc deep \<Rightarrow> make_tree' l_pos nb_child nb_child deep [])"
-
- | "make_tree' l_pos nb_child i deep l =
-     (case i of 0 \<Rightarrow> l
-      | Suc i \<Rightarrow> make_tree' l_pos nb_child i deep (make_tree (i # l_pos) nb_child deep # l))"
-
-definition "mk_tree = make_tree []"
-
-definition "ident_fresh = (\<lambda>l (map, ident).
-  case RBT.lookup map l of None \<Rightarrow> (ident, (RBT.insert l ident map, Suc ident))
-  | Some i \<Rightarrow> (i, (map, ident)))"
-
-definition "ident_empty = (RBT.empty, 0)"
-
-fun fold_tree where
-   "fold_tree f t accu =
-     (case t of T _ [] \<Rightarrow> accu
-      | T x l \<Rightarrow>
-          List.fold
-            (fold_tree f)
-            l
-            (List.fold
-              (\<lambda>t accu. case t of T x' _ \<Rightarrow> f x x' accu)
-              l
-              accu))"
-
-datatype 'a class_output = OclAny | Class 'a
-
-definition "nat_raw_of_str26 = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble6 Nibble1) + i))"
-definition "nat_raw_of_str10 = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble3 Nibble0) + i))"
-
-fun str_of_nat26_aux where (* FIXME merge polymorphically *)
-   "str_of_nat26_aux l (n :: Nat.nat) =
-     (if n < 26 then
-        n # l
-      else
-        str_of_nat26_aux (n mod 26 # l) (n div 26))"
-fun str_of_nat10_aux where (* FIXME merge polymorphically *)
-   "str_of_nat10_aux l (n :: Nat.nat) =
-     (if n < 10 then
-        n # l
-      else
-        str_of_nat10_aux (n mod 10 # l) (n div 10))"
-
-definition "str26_of_nat n = \<lless>nat_raw_of_str26 (str_of_nat26_aux [] n)\<ggreater>"
-definition "str10_of_nat n = \<lless>nat_raw_of_str10 (str_of_nat10_aux [] n)\<ggreater>"
-
-definition "string26_of_nat n =
- (let n = n - 1
-    ; s1 = str26_of_nat n in
-  case String.to_list
-         (if n < 26 then
-            let s2 = str26_of_nat (26 - n - 1) in
-            S.flatten [s1, s1, s2, s2]
-          else
-            S.flatten [s1, s1])
-  of
-  x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>])"
-
 definition "print_class =
- (\<lambda> (OclAny, s) \<Rightarrow> S.flatten [\<langle>''Class ''\<rangle>, s, \<langle>'' End''\<rangle>]
-  | (Class s1, s2) \<Rightarrow> S.flatten [\<langle>''Class ''\<rangle>, s2, \<langle>'' < ''\<rangle>, s1, \<langle>'' End''\<rangle>]  )"
+ (\<lambda> (C_out_OclAny, s) \<Rightarrow> S.flatten [\<open>Class \<close>, s, \<open> End\<close>]
+  | (C_out_simple s1, s2) \<Rightarrow> S.flatten [\<open>Class \<close>, s2, \<open> < \<close>, s1, \<open> End\<close>])"
 
-definition "print_abr sprintf_int write_file =
+definition' \<open>print_abr sprintf_int write_file =
   (let sprintf_int = sprintf_int o natural_of_nat
      ; S_flatten_n = S.flatten o L.map (\<lambda>s. S.flatten [s, \<lless>[Char Nibble0 NibbleA]\<ggreater>]) in
   L.flatten o L.flatten o L.map (\<lambda> (nb_child, deep).
-    let body = (rev o fst)
-      (fold_tree
-        (\<lambda> l1 l2 (l, map).
-          let (n1, map) = ident_fresh l1 map
-          ; (n2, map) = ident_fresh l2 map in
-          (print_class (case n1 of 0 \<Rightarrow> OclAny | n \<Rightarrow> Class (string26_of_nat n), string26_of_nat n2) # l, map))
-        (mk_tree nb_child deep)
-        ([], ident_empty))
-      ; tree_name = S.flatten [\<langle>''Tree_''\<rangle>, sprintf_int nb_child, \<langle>''_''\<rangle>, sprintf_int deep]
-      ; g = \<lless>[Char Nibble2 Nibble2]\<ggreater> in
+    let body = L.map print_class (fst (mk_tree nb_child deep 0))
+      ; tree_name = S.flatten [\<open>Tree_\<close>, sprintf_int nb_child, \<open>_\<close>, sprintf_int deep] in
 
     L.map
       (\<lambda> ((gen_mode, gen_comp), gen_import, gen_init, gen_flush).
         L.map
           (\<lambda>(comp, comp2).
-            let filename = S.flatten [tree_name, \<langle>''_''\<rangle>, gen_mode, if String.to_list comp = [] then \<langle>''''\<rangle> else S.flatten [\<langle>''_''\<rangle>, comp]] in
+            let filename = S.flatten [tree_name, \<open>_\<close>, gen_mode, if String.to_list comp = [] then \<open>\<close> else S.flatten [\<open>_\<close>, comp]] in
             write_file
-              (S.flatten [filename, \<langle>''.thy''\<rangle>])
+              (S.flatten [filename, \<open>.thy\<close>])
               (L.flatten
-                [ [ S.flatten [\<langle>''theory ''\<rangle>, filename, \<langle>'' imports ''\<rangle>, gen_import, \<langle>'' ''\<rangle>, 
-                             g,\<langle>''../../src/compiler/Generator_dynamic''\<rangle>,g,
-                             \<langle>'' begin''\<rangle>]
+                [ [ S.flatten [\<open>theory \<close>, filename, \<open> imports \<close>, gen_import, \<open> \<close>, 
+                               \<open>"../../src/compiler/Generator_dynamic"\<close>,
+                               \<open> begin\<close>]
                   , gen_init comp comp2]
                 , body
-                , [ \<langle>''''\<rangle>
-                  , S.flatten [\<langle>''(* ''\<rangle>, str10_of_nat (length body), \<langle>'' *)''\<rangle> ]
-                  , \<langle>''''\<rangle>
+                , [ \<open>\<close>
+                  , S.flatten [\<open>(* \<close>, String.of_nat (length body), \<open> *)\<close> ]
+                  , \<open>\<close>
                   , gen_flush
-                  , \<langle>''''\<rangle>
-                  , \<langle>''end''\<rangle> ] ])) gen_comp)
-      [ ( (\<langle>''deep''\<rangle>, [ (\<langle>''Haskell''\<rangle>, \<langle>''''\<rangle>)
-                     , (\<langle>''OCaml''\<rangle>, \<langle>''module_name M''\<rangle>)
-                     , (\<langle>''Scala''\<rangle>, \<langle>''module_name M''\<rangle>)
-                     , (\<langle>''SML''\<rangle>, \<langle>''module_name M''\<rangle>)])
-        , \<langle>''''\<rangle>
+                  , \<open>\<close>
+                  , \<open>end\<close> ] ])) gen_comp)
+      [ ( (\<open>deep\<close>, [ (\<open>Haskell\<close>, \<open>\<close>)
+                   , (\<open>OCaml\<close>, \<open>module_name M\<close>)
+                   , (\<open>Scala\<close>, \<open>module_name M\<close>)
+                   , (\<open>SML\<close>, \<open>module_name M\<close>)])
+        , \<open>\<close>
         , \<lambda> comp comp2.
-            S_flatten_n [          \<langle>''generation_syntax [ deep''\<rangle>
-                      ,          \<langle>''                      (generation_semantics [ analysis (*, oid_start 10*) ])''\<rangle>
-                      ,          \<langle>''                      skip_export''\<rangle>
-                      , S.flatten [\<langle>''                      (THEORY ''\<rangle>, tree_name, \<langle>''_generated''\<rangle>, \<langle>''_''\<rangle>, comp, \<langle>'')''\<rangle>]
-                      , S.flatten [\<langle>''                      (IMPORTS [''\<rangle>,g,\<langle>''../../../src/UML_Main''\<rangle>,g,\<langle>'', ''\<rangle>,g,\<langle>''../../../src/compiler/Static''\<rangle>,g,\<langle>'']''\<rangle>]
-                      , S.flatten [\<langle>''                               ''\<rangle>,g,\<langle>''../../../src/compiler/Generator_dynamic''\<rangle>,g,\<langle>'')''\<rangle>]
-                      ,          \<langle>''                      SECTION''\<rangle>
-                      , S.flatten [\<langle>''                      [ in ''\<rangle>, comp, \<langle>'' ''\<rangle>, comp2, \<langle>'' ]''\<rangle>]
-                      , S.flatten [\<langle>''                      (output_directory ''\<rangle>,g,\<langle>''./doc''\<rangle>,g,\<langle>'') ]''\<rangle>] ]
-        , S_flatten_n [ \<langle>''generation_syntax deep flush_all''\<rangle> ])
-      , ( (\<langle>''shallow''\<rangle>, [(\<langle>''''\<rangle>, \<langle>''''\<rangle>)])
-        , S.flatten [ g,\<langle>''../../src/UML_Main''\<rangle>,g, \<langle>'' ''\<rangle>
-                  , g,\<langle>''../../src/compiler/Static''\<rangle>,g  ]
-        , \<lambda>_ _. S_flatten_n [ \<langle>''generation_syntax [ shallow (generation_semantics [ analysis ]) ]''\<rangle> ]
-        , \<langle>''End!''\<rangle>) ]))"
+            S_flatten_n [            \<open>generation_syntax [ deep\<close>
+                        ,            \<open>                      (generation_semantics [ analysis (*, oid_start 10*) ])\<close>
+                        ,            \<open>                      skip_export\<close>
+                        , S.flatten [\<open>                      (THEORY \<close>, tree_name, \<open>_generated\<close>, \<open>_\<close>, comp, \<open>)\<close>]
+                        , S.flatten [\<open>                      (IMPORTS ["../../../src/UML_Main", "../../../src/compiler/Static"]\<close>]
+                        , S.flatten [\<open>                               "../../../src/compiler/Generator_dynamic")\<close>]
+                        ,            \<open>                      SECTION\<close>
+                        , S.flatten [\<open>                      [ in \<close>, comp, \<open> \<close>, comp2, \<open> ]\<close>]
+                        , S.flatten [\<open>                      (output_directory "./doc") ]\<close>] ]
+        , S_flatten_n [ \<open>generation_syntax deep flush_all\<close> ])
+      , ( (\<open>shallow\<close>, [(\<open>\<close>, \<open>\<close>)])
+        , S.flatten [ \<open>"../../src/UML_Main"\<close>, \<open> \<close>
+                    , \<open>"../../src/compiler/Static"\<close>  ]
+        , \<lambda>_ _. S_flatten_n [ \<open>generation_syntax [ shallow (generation_semantics [ analysis ]) ]\<close> ]
+        , \<open>End!\<close>) ]))\<close>
 
 definition "main sprintf_int write_file = print_abr (\<lambda>n. \<lless>sprintf_int n\<ggreater>) (\<lambda>f l. write_file (String.to_list f) (L.map String.to_list l))
   [ (1, 0)

@@ -67,7 +67,7 @@ imports Printer
            "Association" "Composition" "Aggregation"
            "Abstract_associationclass" "Associationclass"
            "Context"
-           "End" "Instance" "BaseType" "State" "Transition"
+           "End" "Instance" "BaseType" "State" "Transition" "Tree"
 
            (* Isabelle syntax *)
            "generation_syntax"
@@ -1327,13 +1327,16 @@ structure TOY_parse = struct
 
   (* *)
 
+  fun natural0 s = case Int.fromString s of SOME i => From.nat i
+                                          | NONE => Scan.fail "Syntax error"
+
+  val natural = Parse.number >> natural0
+
   val unlimited_natural =  ident_star >> (fn "*" => META.Mult_star
                                            | "\<infinity>" => META.Mult_infinity
                                            | _ => Scan.fail "Syntax error")
-                        || Parse.number >> (fn s => META.Mult_nat
-                                                      (case Int.fromString s of
-                                                         SOME i => From.nat i
-                                                       | NONE => Scan.fail "Syntax error"))
+                        || Parse.number >> (META.Mult_nat o natural0)
+
   val term_base =
        Parse.number >> (META.ToyDefInteger o From.string)
     || Parse.float_number >> (META.ToyDefReal o (From.pair From.string From.string o
@@ -1760,6 +1763,19 @@ val () =
         , META.ToyDefPP ( From.option From.binding n
                        , mk_pp_state thy s_pre
                        , From.option (mk_pp_state thy) s_post)))
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for Toy: Tree\<close>
+
+ML\<open>
+local
+  open TOY_parse
+in
+val () =
+  outer_syntax_command @{mk_string} @{command_keyword Tree} ""
+    (natural -- natural)
+    (fn (n_w, n_h) => K (META.META_class_tree (META.ToyClassTree (n_w, n_h))))
 end
 (*val _ = print_depth 100*)
 \<close>

@@ -145,19 +145,85 @@ definition "update_D_ocl_accessor_post f = (\<lambda>(l_pre, l_post). (l_pre, f 
 definition "Term_basety = (let var_x = \<open>x\<close> in
                            Term_lambdas [var_x, wildcard] (Term_some (Term_some (Term_basic [var_x]))))"
 
+datatype 'a tree = Tree 'a "'a tree list"
+
+fun make_tree
+and make_tree' where
+   "make_tree l_pos nb_child deep =
+      Tree l_pos (case deep of 0 \<Rightarrow> []
+                  | Suc deep \<Rightarrow> make_tree' l_pos nb_child nb_child deep [])"
+
+ | "make_tree' l_pos nb_child i deep l =
+     (case i of 0 \<Rightarrow> l
+      | Suc i \<Rightarrow> make_tree' l_pos nb_child i deep (make_tree (i # l_pos) nb_child deep # l))"
+
+definition "ident_fresh = (\<lambda>l (map, ident).
+  case RBT.lookup map l of None \<Rightarrow> (ident, (RBT.insert l ident map, Suc ident))
+  | Some i \<Rightarrow> (i, (map, ident)))"
+
+definition "ident_empty = (RBT.empty, 0)"
+
+definition "ident_current = snd"
+
+fun fold_tree where
+   "fold_tree f t accu =
+     (case t of Tree _ [] \<Rightarrow> accu
+      | Tree x l \<Rightarrow>
+          List.fold
+            (fold_tree f)
+            l
+            (List.fold
+              (\<lambda>t accu. case t of Tree x' _ \<Rightarrow> f x x' accu)
+              l
+              accu))"
+
+datatype 'a class_output = C_out_OclAny | C_out_simple 'a
+
+definition "mk_tree nb_child deep n_init = 
+ (let (l, map) = 
+    fold_tree
+      (\<lambda> l1 l2 (l, map).
+          let (n1, map) = ident_fresh l1 map
+          ; (n2, map) = ident_fresh l2 map in
+          ((if n1 = 0 then
+              C_out_OclAny
+            else
+              C_out_simple (String.nat_to_digit26 (n1 + n_init)), String.nat_to_digit26 (n2 + n_init)) # l, map))
+      (make_tree [] nb_child deep)
+      ([], ident_empty) in
+  (rev l, n_init + ident_current map - 1))"
 
 definition "find_class_ass env =
- (let (l_class, l_all_meta) =
+ (let (l_tree, l_all_meta) =
+    partition (\<lambda> META_class_tree _ \<Rightarrow> True
+               | _ \<Rightarrow> False) (rev (D_input_meta env))
+  ; (l_class, l_all_meta) =
     partition (let f = \<lambda>class. ClassRaw_clause class = [] in
                \<lambda> META_class_raw Floor1 class \<Rightarrow> f class
                | META_association _ \<Rightarrow> True
                | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
                | META_class_synonym _ \<Rightarrow> True
-               | _ \<Rightarrow> False) (rev (D_input_meta env)) in
-  ( L.flatten [l_class, List.map_filter (let f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
-                                       \<lambda> META_class_raw Floor1 c \<Rightarrow> Some (META_class_raw Floor1 (f c))
-                                       | META_ass_class Floor1 (OclAssClass ass class) \<Rightarrow> Some (META_ass_class Floor1 (OclAssClass ass (f class)))
-                                       | _ \<Rightarrow> None) l_all_meta]
+               | _ \<Rightarrow> False) (l_all_meta) in
+  ( L.flatten [ (* generate a set of 'Class' from 'Tree _ _' *)
+                L.map (let mk = \<lambda>n1 n2.
+                         META_class_raw Floor1 (ocl_class_raw.make
+                           (OclTyObj (OclTyCore_pre n1)
+                                     (case n2 of None \<Rightarrow> []
+                                               | Some n2 \<Rightarrow> [[OclTyCore_pre n2]]))
+                           []
+                           []
+                           False) in
+                       \<lambda> (C_out_OclAny, s) \<Rightarrow> mk s None
+                       | (C_out_simple s1, s2) \<Rightarrow> mk s2 (Some s1))
+                      (concat (fst (L.mapM (\<lambda> META_class_tree (OclClassTree n1 n2) \<Rightarrow>
+                                                mk_tree (nat_of_natural n1) (nat_of_natural n2))
+                                           l_tree
+                                           0)))
+              , l_class
+              , List.map_filter (let f = \<lambda>class. class \<lparr> ClassRaw_clause := [] \<rparr> in
+                                 \<lambda> META_class_raw Floor1 c \<Rightarrow> Some (META_class_raw Floor1 (f c))
+                                 | META_ass_class Floor1 (OclAssClass ass class) \<Rightarrow> Some (META_ass_class Floor1 (OclAssClass ass (f class)))
+                                 | _ \<Rightarrow> None) l_all_meta ]
   , L.flatten (L.map
       (let f = \<lambda>class. [ META_ctxt Floor1 (ocl_ctxt_ext [] (ClassRaw_name class) (ClassRaw_clause class) ()) ] in
        \<lambda> META_class_raw Floor1 class \<Rightarrow> f class

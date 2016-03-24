@@ -87,6 +87,7 @@ datatype all_meta_embedding = META_enum toy_enum
                             | META_def_base_l toy_def_base_l
                             | META_def_state floor toy_def_state
                             | META_def_transition floor toy_def_transition
+                            | META_class_tree toy_class_tree
                             | META_flush_all toy_flush_all
 
 subsection\<open>Main Compiling Environment\<close>

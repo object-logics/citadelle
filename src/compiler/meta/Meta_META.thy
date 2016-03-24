@@ -99,6 +99,7 @@ datatype all_meta_embedding =
                             | META_def_base_l ocl_def_base_l
                             | META_def_state floor ocl_def_state
                             | META_def_transition floor ocl_def_transition
+                            | META_class_tree ocl_class_tree
                             | META_flush_all ocl_flush_all
 
 subsection\<open>Main Compiling Environment\<close>

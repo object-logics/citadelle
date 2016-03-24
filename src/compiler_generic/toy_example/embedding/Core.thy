@@ -154,6 +154,7 @@ one-to-one correspondance of Toy-types to types of the meta-language HOL. \<clos
 definition "thy_enum_flat = Embed_theories []"
 definition "thy_enum = Embed_theories []"
 definition "thy_class_synonym = Embed_theories []"
+definition "thy_class_tree = Embed_theories []"
 definition "thy_class_flat = Embed_theories []"
 definition "thy_association = Embed_theories []"
 definition "thy_instance = Embed_theories 
@@ -262,6 +263,7 @@ definition "fold_thy' f_env_save f_try f_accu_reset f =
        comp_env_input_class_rm (comp_env_input_class_bind [ fold_thy0 meta_ass thy_association
                                                       , fold_thy0 meta_class thy_class_flat ])
    | META_class_synonym meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_synonym)
+   | META_class_tree meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_tree)
    | META_instance meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_instance)
    | META_def_base_l meta \<Rightarrow> fold_thy0 meta thy_def_base_l
    | META_def_state floor meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta (thy_def_state floor))

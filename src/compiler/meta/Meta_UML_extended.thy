@@ -96,6 +96,9 @@ datatype ocl_def_transition = OclDefPP
                               ocl_def_pp_core (* pre *)
                               "ocl_def_pp_core option" (* post *) (* None: same as pre *)
 
+datatype ocl_class_tree = OclClassTree nat (* nb child *)
+                                       nat (* depth *)
+
 subsection\<open>Object ID Management\<close>
 
 definition "oidInit = (\<lambda> Oid n \<Rightarrow> Oids n n n)"

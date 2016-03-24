@@ -304,6 +304,29 @@ fun of_nat_aux where
    "of_nat_aux l (n :: Nat.nat) = (if n < 10 then n # l else of_nat_aux (n mod 10 # l) (n div 10))"
 definition of_nat where "of_nat n = \<lless>nat_raw_to_str (of_nat_aux [] n)\<ggreater>"
 definition "of_natural = of_nat o nat_of_natural"
+
+fun nat_to_digit26_aux where
+   "nat_to_digit26_aux l (n :: Nat.nat) =
+     (if n < 26 then
+        n # l
+      else
+        nat_to_digit26_aux (n mod 26 # l) (n div 26))"
+
+definition "nat_to_digit26 =
+ (let str26_of_nat =
+    let nat_raw_of_str26 = L.map (\<lambda>i. char_of_nat (nat_of_char (Char Nibble6 Nibble1) + i)) in
+    (\<lambda> n. \<lless>nat_raw_of_str26 (nat_to_digit26_aux [] n)\<ggreater>) in
+  (\<lambda>n.
+    let n = n - 1
+      ; s1 = str26_of_nat n in
+    case String.to_list
+           (if n < 26 then
+              let s2 = str26_of_nat (26 - n - 1) in
+              S.flatten [s1, s1, s2, s2]
+            else
+              S.flatten [s1, s1])
+    of
+    x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]))"
 end
 lemmas [code] =
   (*def*)
@@ -312,9 +335,11 @@ lemmas [code] =
   String.to_bold_number_def
   String.of_nat_def
   String.of_natural_def
+  String.nat_to_digit26_def
 
   (*fun*)
   String.of_nat_aux.simps
+  String.nat_to_digit26_aux.simps
 
 definition "add_0 n =
  (let n = nat_of_char n in

@@ -133,6 +133,11 @@ definition "of_toy_def_transition a b = rec_toy_def_transition
     (of_toy_def_pp_core a b)
     (of_option a b (of_toy_def_pp_core a b)))"
 
+definition "of_toy_class_tree a b = rec_toy_class_tree
+  (ap2 a (b \<open>ToyClassTree\<close>)
+    (of_nat a b)
+    (of_nat a b))"
+
 end
 
 lemmas [code] =
@@ -148,5 +153,6 @@ lemmas [code] =
   Parse.of_toy_def_state_def
   Parse.of_toy_def_pp_core_def
   Parse.of_toy_def_transition_def
+  Parse.of_toy_class_tree_def
 
 end
