@@ -56,33 +56,39 @@ begin
 
 declare[[cartouche_type' = "String.literal"]]
 
-definition "write_file env = (
-  let (l_thy, Sys_argv) = compiler_env_config.more env
+definition "(write_file0 :: _ \<Rightarrow> (((_ \<Rightarrow> String.literal \<Rightarrow> _) \<Rightarrow> _) \<Rightarrow> _) \<times> _) env =
+ (let (l_thy, Sys_argv) = compiler_env_config.more env
     ; (is_file, f_output) = case (D_output_header_thy env, Sys_argv)
      of (Some (file_out, _), Some dir) \<Rightarrow>
           let dir = To_string dir in
           (True, \<lambda>f. bind (Sys_is_directory2 dir) (\<lambda> Sys_is_directory2_dir.
                      out_file1 f (if Sys_is_directory2_dir then sprint2 \<open>%s/%s.thy\<close>\<acute> dir (To_string file_out) else dir)))
-      | _ \<Rightarrow> (False, out_stand1) in
-  f_output
-    (\<lambda>fprintf1.
-      List_iterM (fprintf1 \<open>%s
-\<close>                             )
-        (let (env, l) =
+      | _ \<Rightarrow> (False, out_stand1)
+    ; (env, l) =
            fold_thy'
              comp_env_save_deep
              (\<lambda>f. f ())
              (\<lambda>_ _. [])
              (\<lambda>msg x acc1 acc2. (acc1, Cons (msg, x) acc2))
-             l_thy
+             (fst (compiler_env_config.more env))
              (compiler_env_config.truncate env, []) in
-         of_all_meta_lists (compiler_env_config_more_map (\<lambda>_. is_file) env) (rev l))))"
+  (f_output, of_all_meta_lists (compiler_env_config_more_map (\<lambda>_. is_file) env) (rev l)))"
+
+definition "write_file env =
+ (let (f_output, l) = write_file0 env in
+  f_output
+    (\<lambda>fprintf1.
+      List_iterM (fprintf1 \<open>%s
+\<close>                             )
+                 l))"
 end
 
+definition "write_file0 = Print.write_file0 (String.implode o String.to_list) (ToNat integer_of_natural)"
 definition "write_file = Print.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"
 
 lemmas [code] =
   (* def *)
+  Print.write_file0_def
   Print.write_file_def
 
   (* fun *)

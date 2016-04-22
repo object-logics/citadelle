@@ -74,7 +74,8 @@ generation_syntax [ (*deep
                       [ (* in Haskell *)
                         (* in OCaml module_name M *)
                         (* in Scala module_name M *)
-                        in SML module_name M ]
+                        (* in SML module_name M *)
+                        in self ]
                       (output_directory "../document_generated")
                   (*, syntax_print*)*) ]
 
@@ -91,13 +92,14 @@ generation_syntax
       [ (* in Haskell *)
         (* in OCaml module_name M *)
         (* in Scala module_name M *)
-        in SML module_name M ]
+        (* in SML module_name M *)
+        in self ]
       (output_directory "../document_generated")
   (*, syntax_print*) ]
 \<close>
 While in theory it is possible to set the @{keyword "deep"} mode
 for generating in all target languages, i.e. by writing 
-\<^theory_text>\<open>[ in Haskell, in OCaml module_name M, in Scala module_name M, in SML module_name M ]\<close>,
+\<^theory_text>\<open>[ in Haskell, in OCaml module_name M, in Scala module_name M, in SML module_name M, in self ]\<close>,
 usually using only one target is enough,
 since the task of all target is to generate the same Isabelle content.
 However in case one language takes too much time to setup,

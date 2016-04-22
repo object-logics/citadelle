@@ -66,7 +66,8 @@ generation_syntax [ (*deep
                                "../src/compiler/Generator_dynamic")
                       SECTION
                       (*SORRY*)
-                      [ in SML module_name M ]
+                      [ (*in OCaml module_name M*)
+                        in self ]
                       (output_directory "../doc")
                   ,*) shallow (*SORRY*) ]
 

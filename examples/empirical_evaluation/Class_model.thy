@@ -80,7 +80,8 @@ definition' \<open>print_abr sprintf_int write_file =
       [ ( (\<open>deep\<close>, [ (\<open>Haskell\<close>, \<open>\<close>)
                    , (\<open>OCaml\<close>, \<open>module_name M\<close>)
                    , (\<open>Scala\<close>, \<open>module_name M\<close>)
-                   , (\<open>SML\<close>, \<open>module_name M\<close>)])
+                   , (\<open>SML\<close>, \<open>module_name M\<close>)
+                   , (\<open>self\<close>, \<open>\<close>) ])
         , \<open>\<close>
         , \<lambda> comp comp2.
             S_flatten_n [            \<open>generation_syntax [ deep\<close>

@@ -82,7 +82,8 @@ text \<open>
                ('(' @'output_directory' name ')')?
   ;
   @{syntax_def export_code}:
-               @'in' (  'Haskell'
+               @'in' ( @'self'
+                      | 'Haskell'
                       | ((  'OCaml'
                           | 'Scala'
                           | 'SML') @'module_name' name)) ( '(' args ')' ) ?
@@ -150,6 +151,8 @@ This is the current implemented behavior for Scala.
 For Haskell, OCaml and SML, it was also the default behavior in a prototyping version of the compiler,
 as a consequence one can restore that functionality for future versions.
 \end{itemize}
+The keyword @{keyword "self"} is another option to call the own reflected meta-compiler,
+and execute the full generation without leaving the own Isabelle process being executed.
 
 Concerning the semantics of generated contents, if lemmas and proofs are generated,
 @{keyword "SORRY"} allows to explicitly skip the evaluation of all proofs,

@@ -110,7 +110,7 @@ code_reflect' open META
              fold_thy_deep fold_thy_shallow
 
              (* printing the HOL AST to (shallow Isabelle) string *)
-             write_file
+             write_file0 write_file
 
              (* manipulating the compiling environment *)
              compiler_env_config_reset_all
@@ -1002,7 +1002,7 @@ val parse_deep =
                    --| Parse.$$$ ")") >> SOME) NONE
   -- Scan.optional (@{keyword "SECTION"} >> K true) false
   -- parse_sorry_mode
-  -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- (Parse.name
+  -- (* code_expr_inP *) parse_l1' (@{keyword "in"} |-- ((@{keyword "self"} || Parse.name)
         -- Scan.optional (@{keyword "module_name"} |-- Parse.name) ""
         -- code_expr_argsP))
   -- Scan.optional
@@ -1071,28 +1071,34 @@ fun f_command l_mode =
                                    , filename_thy
                                    , tmp_export_code
                                    , skip_exportation)) => fn thy =>
-        let val _ =
-              warning ("After closing Isabelle/jEdit, we may still need to remove this directory (by hand): " ^
-                       Path.implode (Path.expand tmp_export_code))
-            val seri_args' = List_mapi (fn i => fn ((ml_compiler, ml_module), export_arg) =>
-              let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
-                  fun mk_fic s = Path.append tmp_export_code (Path.make [s])
-                  val () = Deep0.Find.check_compil ml_compiler ()
-                  val () = Isabelle_System.mkdirs tmp_export_code in
-              ((( (ml_compiler, ml_module)
-                , Path.implode (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
-                                  tmp_export_code
-                                else
-                                  mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler))))
-                , export_arg), mk_fic)
-              end) seri_args
-            val _ = Isabelle_Code_Target.export_code_cmd
+        let val seri_args' =
+              List_mapi
+                (fn i => fn ((ml_compiler, ml_module), export_arg) =>
+                  let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
+                      fun mk_fic s = Path.append tmp_export_code (Path.make [s])
+                      val () = Deep0.Find.check_compil ml_compiler ()
+                      val () = Isabelle_System.mkdirs tmp_export_code in
+                  ((( (ml_compiler, ml_module)
+                    , Path.implode (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
+                                      tmp_export_code
+                                    else
+                                      mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler))))
+                    , export_arg), mk_fic)
+                  end)
+                (List.filter (fn (("self", _), _) => false | _ => true) seri_args)
+            val _ =
+              case seri_args' of [] => () | _ => 
+                let val _ =
+                  warning ("After closing Isabelle/jEdit, we may still need to remove this directory (by hand): " ^
+                           Path.implode (Path.expand tmp_export_code)) in
+                Isabelle_Code_Target.export_code_cmd
                       (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
                       [Deep0.Export_code_env.Isabelle.function]
                       (List.map fst seri_args')
                       (Proof_Context.init_global
                         (Code_printing.apply_code_printing
                           (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
+                end
             val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
               Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
         (Gen_deep (env, Internal_deep ( output_header_thy
@@ -1128,31 +1134,43 @@ ML\<open>
 
 fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
   let open Generation_mode in
-  let val of_arg = META.isabelle_of_compiler_env_config META.isabelle_apply I in
-  let fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false) in
-  let val name_main = Deep.mk_free (Proof_Context.init_global thy0)
-                                   Deep0.Export_code_env.Isabelle.argument_main [] in
-  thy0
-  |> def (String.concatWith " "
-          (  "(" (* polymorphism weakening needed by export_code *)
-              ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
-          :: "="
-          :: To_string0
-               (of_arg (META.compiler_env_config_more_map
+  let
+    val of_arg = META.isabelle_of_compiler_env_config META.isabelle_apply I
+    fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false)
+    val name_main = Deep.mk_free (Proof_Context.init_global thy0)
+                                 Deep0.Export_code_env.Isabelle.argument_main []
+    val (seri_args0, seri_args) = List.partition (fn ((s,_),_) => s = "self") seri_args 
+    val env = META.compiler_env_config_more_map
                          (fn () => (l_obj, From.option
                                              From.string
                                              (Option.map (fn filename_thy =>
                                                             Deep.absolute_path filename_thy thy0)
                                                          filename_thy)))
-                         env))
-          :: []))
-  |> Deep.export_code_cmd' seri_args
-                           tmp_export_code
-                           (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ())
-                           filename_thy
-                           [name_main]
-  |> (fn l =>
-       let val (l_warn, l) = (map fst l, map snd l) in
+                         env
+    val l = case seri_args of [] => [] | _ =>
+      thy0
+      |> def (String.concatWith " "
+              (  "(" (* polymorphism weakening needed by export_code *)
+                  ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
+              :: "="
+              :: To_string0 (of_arg env)
+              :: []))
+      |> Deep.export_code_cmd' seri_args
+                               tmp_export_code
+                               (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ())
+                               filename_thy
+                               [name_main]
+  in
+    case seri_args0 of [] => l
+    | _ => ([], case (output_header_thy, filename_thy) of
+                  (SOME _, SOME _) => let val _ = META.write_file env in "" end
+                | _ => String.concat (map (fn s => s ^ "\n") (snd (META.write_file0 env)))
+                       (* TODO: further optimize "string" as "string list" *))
+           :: l
+  end
+  |> (fn l => 
+       let 
+           val (l_warn, l) = (map fst l, map snd l) in
        if Deep.list_all_eq l then
          (List.concat l_warn, hd l)
        else
@@ -1173,7 +1191,7 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
             l_warn
             () end)
 
-  end end end end
+  end
 
 fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed =
   let open Generation_mode in

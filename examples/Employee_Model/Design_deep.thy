@@ -59,7 +59,8 @@ generation_syntax [ deep
                       [ (* in Haskell *)
                         (* in OCaml module_name M *)
                         (* in Scala module_name M *)
-                        in SML module_name M ]
+                        (* in SML module_name M *)
+                        in self ]
                       (output_directory "../../doc")
                   (*, syntax_print*) ]
 
