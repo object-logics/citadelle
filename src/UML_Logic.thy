@@ -877,9 +877,14 @@ by(auto simp: OclNot_def  OclValid_def invalid_def false_def true_def null_def S
 
 lemma foundation15:"(\<tau> \<Turnstile> A \<triangleq> invalid) = (\<tau> \<Turnstile> not(\<upsilon> A))"
 by(auto simp: OclNot_def OclValid_def valid_def invalid_def false_def true_def null_def
-              StrongEq_def bot_option_def null_fun_def null_option_def bot_option_def bot_fun_def
+              StrongEq_def null_fun_def null_option_def bot_option_def bot_fun_def
         split:bool.split_asm bool.split option.split)
 
+lemma foundation15':"(\<tau> \<Turnstile> A \<triangleq> null) = (\<tau> \<Turnstile> (\<upsilon> A) and not (\<delta> A))"
+by(auto simp: OclAnd_def OclNot_def OclValid_def valid_def defined_def false_def true_def
+              StrongEq_def bot_option_def null_fun_def bot_fun_def
+              null_is_valid
+        split:bool.split_asm bool.split option.split)
 
 (* ... and the usual rules on strictness, definedness propoagation, and cp ... *)
 lemma foundation16: "\<tau> \<Turnstile> (\<delta> X) = (X \<tau> \<noteq> bot \<and> X \<tau> \<noteq> null)"
