@@ -303,18 +303,6 @@ text \<open>
 
 text \<open>
 \begin{matharray}{rcl}
-  @{command_def Tree} & : & @{text "theory \<rightarrow> theory"}
-\end{matharray}
-
-@{rail \<open>
-  @@{command Tree} nat nat
-  ;
-\<close>}
-\<close>
-(*
-subsection\<open>.......................................................................................................................................\<close>
-text \<open>
-\begin{matharray}{rcl}
   @{command_def Enum} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
@@ -323,7 +311,31 @@ text \<open>
   ;
 \<close>}
 \<close>
-*)
+
+text \<open>
+\begin{matharray}{rcl}
+  @{command_def Tree} & : & @{text "theory \<rightarrow> theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command Tree} nat nat
+  ;
+\<close>}
+\<close>
+
+subsection\<open>Miscellaneous\<close>
+
+text \<open>
+\begin{matharray}{rcl}
+  @{command_def BaseType} & : & @{text "theory \<rightarrow> theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command BaseType} '[' (@{syntax term_base} * ',') ']'
+  ;
+\<close>}
+\<close>
+
 section\<open>UML/OCL: Type System\<close>
 text \<open>
 @{rail \<open>
@@ -408,17 +420,6 @@ text \<open>
 
 @{rail \<open>
   @@{command End} ('[' 'forced' ']' | '!')?
-\<close>}
-\<close>
-
-text \<open>
-\begin{matharray}{rcl}
-  @{command_def BaseType} & : & @{text "theory \<rightarrow> theory"}
-\end{matharray}
-
-@{rail \<open>
-  @@{command BaseType} '[' (@{syntax term_base} * ',') ']'
-  ;
 \<close>}
 \<close>
 

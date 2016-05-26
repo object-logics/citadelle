@@ -63,7 +63,8 @@ datatype 'a embedding_fun = Embedding_fun_info string 'a
                           | Embedding_fun_simple 'a
 
 datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) embedding_fun list"
-                            | Embed_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
+                            | Embed_locale "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) embedding_fun list"
+                                           "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
                                            "('a \<Rightarrow> 'b \<Rightarrow> semi__theory list \<times> 'b) list"
                                            "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) embedding_fun list"
 
@@ -76,7 +77,7 @@ definition "L_fold f =
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
           ([META_semi__theories (Theories_locale loc_data (rev l))], b))) in
   \<lambda> Embed_theories l \<Rightarrow> List.fold f l
-  | Embed_locale loc_data l_loc l_th \<Rightarrow> List.fold f l_th o f_locale loc_data l_loc)"
+  | Embed_locale l_th1 loc_data l_loc l_th2 \<Rightarrow> List.fold f l_th2 o f_locale loc_data l_loc o List.fold f l_th1)"
 
 subsection\<open>Preliminaries: Setting Up Aliases Names\<close>
 
@@ -229,6 +230,8 @@ definition "section_aux n s = start_map' (\<lambda>_. [ O.section (Section n s) 
 definition "section = section_aux 0"
 definition "subsection = section_aux 1"
 definition "subsubsection = section_aux 2"
+definition "section' = Embedding_fun_simple o section"
+definition "subsection' = Embedding_fun_simple o subsection"
 definition "txt f = Embedding_fun_simple (start_map'''''' O.text o (\<lambda>_ n_thy design_analysis. [Text (f n_thy design_analysis)]))"
 definition "txt_raw f = Embedding_fun_simple (start_map'''''' O.text_raw o (\<lambda>_ n_thy design_analysis. [Text_raw (f n_thy design_analysis)]))"
 definition "txt' s = txt (\<lambda>_ _. s)"
@@ -243,8 +246,8 @@ definition "txt_raw''a' s = txt_raw (\<lambda> n_thy. \<lambda> Gen_only_design 
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "_ embedding'" where \<open>thy_class =
-  (let section = Embedding_fun_simple o section
-     ; subsection = Embedding_fun_simple o subsection
+  (let section = section' o (\<lambda>s. \<open>Class Model: \<close> @@ s)
+     ; subsection = subsection'
      ; subsection_def = subsection \<open>Definition\<close>
      ; subsection_cp = subsection \<open>Context Passing\<close>
      ; subsection_exec = subsection \<open>Execution with Invalid or Null as Argument\<close>
@@ -253,7 +256,7 @@ definition' thy_class ::
      ; subsection_const = subsection \<open>Const\<close> in
   (Embed_theories o L.flatten)
           [ [ PRINT_infra_enum_synonym ]
-            , [ txt''d' (\<lambda>n_thy. [ \<open>
+          , [ txt''d' (\<lambda>n_thy. [ \<open>
    \label{ex:\<close> @@ n_thy \<open>employee-design:uml\<close> @@ \<open>} \<close> ])
             , txt''a' (\<lambda>n_thy. [ \<open>
    \label{ex:\<close> @@ n_thy \<open>employee-analysis:uml\<close> @@ \<open>} \<close> ])
@@ -315,7 +318,7 @@ covered by the \UML class model (see \autoref{fig:\<close> @@ n_thy \<open>perso
 by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to be discussed in the \OCL part
 captured by the subsequent theory).
 \<close> ]
-            , section \<open>Example Data-Universe and its Infrastructure\<close>
+            , section \<open>The Construction of the Object Universe\<close>
             (*, txt'' [ \<open>
    Ideally, the following is generated automatically from a \UML class model.  \<close> ]
             *), txt'' [ \<open>
@@ -480,7 +483,7 @@ the following combinator @{text switch}: \<close> ]
             , PRINT_access_is_repr
             , PRINT_access_repr_allinst
 
-            , section \<open>A Little Infra-structure on Example States\<close>
+            , section \<open>Towards the Object Instances\<close>
             , txt''d' (\<lambda>n_thy. [ \<open>
 
 The example we are defining in this section comes from the \autoref{fig:\<close> @@ n_thy \<open>edm1_system-states\<close> @@ \<open>}.
@@ -509,21 +512,29 @@ The example we are defining in this section comes from the \autoref{fig:\<close>
             , PRINT_astype_lemmas_id2 ] ])\<close>
 
 definition "thy_enum_flat = Embed_theories []"
-definition "thy_enum = Embed_theories [ PRINT_enum ]"
+definition  thy_enum :: (* polymorphism weakening needed by code_reflect *) "_ embedding'" where
+           "thy_enum = Embed_theories [ section' \<open>Enum\<close>
+                                      , PRINT_enum ]"
 definition "thy_class_synonym = Embed_theories []"
 definition "thy_class_tree = Embed_theories []"
 definition "thy_class_flat = Embed_theories []"
 definition "thy_association = Embed_theories []"
-definition "thy_instance = Embed_theories 
-                             [ PRINT_examp_instance_defassoc_typecheck_var
+definition  thy_instance :: (* polymorphism weakening needed by code_reflect *) "_ embedding'" where
+           "thy_instance = Embed_theories 
+                             [ section' \<open>Instance\<close>
+                             , PRINT_examp_instance_defassoc_typecheck_var
                              , PRINT_examp_instance_defassoc
                              , PRINT_examp_instance
                              , PRINT_examp_instance_defassoc_typecheck ]"
-definition "thy_def_base_l = Embed_theories [ PRINT_examp_oclbase ]"
+definition  thy_def_base_l :: (* polymorphism weakening needed by code_reflect *) "_ embedding'" where
+           "thy_def_base_l = Embed_theories [ section' \<open>BaseType\<close>
+                                            , PRINT_examp_oclbase ]"
 definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                           [ floor1_PRINT_examp_def_st_typecheck_var
+                                           [ section' \<open>State (Floor 1)\<close>
+                                           , floor1_PRINT_examp_def_st_typecheck_var
                                            , floor1_PRINT_examp_def_st1 ]
                              | Floor2 \<Rightarrow> Embed_locale
+                                           [ section' \<open>State (Floor 2)\<close> ]
                                            Floor2_examp.print_examp_def_st_locale
                                            [ Floor2_examp.print_examp_def_st2
                                            , Floor2_examp.print_examp_def_st_dom
@@ -533,8 +544,10 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                            , Floor2_examp.print_examp_def_st_defassoc_typecheck ]
                                            [ floor2_PRINT_examp_def_st_def_interp ])"
 definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                              [ floor1_PRINT_transition ]
+                                              [ section' \<open>Transition (Floor 1)\<close>
+                                              , floor1_PRINT_transition ]
                                 | Floor2 \<Rightarrow> Embed_locale
+                                              [ section' \<open>Transition (Floor 2)\<close> ]
                                               Floor2_examp.print_transition_locale
                                               [ Floor2_examp.print_transition_interp
                                               , Floor2_examp.print_transition_def_state
@@ -543,9 +556,11 @@ definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                               [ floor2_PRINT_transition_def_interp
                                               , floor2_PRINT_transition_lemmas_oid ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                      [ floor1_PRINT_ctxt ]
+                                      [ section' \<open>Context (Floor 1)\<close>
+                                      , floor1_PRINT_ctxt ]
                         | Floor2 \<Rightarrow> Embed_theories 
-                                      [ floor2_PRINT_ctxt_pre_post
+                                      [ section' \<open>Context (Floor 2)\<close>
+                                      , floor2_PRINT_ctxt_pre_post
                                       , floor2_PRINT_ctxt_inv
                                       , floor2_PRINT_ctxt_thm ])"
 definition "thy_flush_all = Embed_theories []"

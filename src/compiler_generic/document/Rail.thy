@@ -295,6 +295,17 @@ text \<open>
 
 text \<open>
 \begin{matharray}{rcl}
+  @{command_def Enum} & : & @{text "theory \<rightarrow> theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command Enum} binding '[' (binding * ',') ']'
+  ;
+\<close>}
+\<close>
+
+text \<open>
+\begin{matharray}{rcl}
   @{command_def Tree} & : & @{text "theory \<rightarrow> theory"}
 \end{matharray}
 
@@ -304,15 +315,7 @@ text \<open>
 \<close>}
 \<close>
 
-text \<open>
-\begin{matharray}{rcl}
-  @{command_def End} & : & @{text "theory \<rightarrow> theory"}
-\end{matharray}
-
-@{rail \<open>
-  @@{command End} ('[' 'forced' ']' | '!')?
-\<close>}
-\<close>
+subsection\<open>Miscellaneous\<close>
 
 text \<open>
 \begin{matharray}{rcl}
@@ -324,6 +327,18 @@ text \<open>
   ;
 \<close>}
 \<close>
+
+section\<open>Toy: Lazy Identity Combinator\<close>
+text \<open>
+\begin{matharray}{rcl}
+  @{command_def End} & : & @{text "theory \<rightarrow> theory"}
+\end{matharray}
+
+@{rail \<open>
+  @@{command End} ('[' 'forced' ']' | '!')?
+\<close>}
+\<close>
+
 
 section\<open>Extensions of Isabelle Commands\<close>
 

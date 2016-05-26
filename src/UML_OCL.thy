@@ -57,6 +57,34 @@ notation "k" ("\<guillemotleft>_\<guillemotright>")
 lemma "K \<lfloor>\<lfloor>x\<rfloor>\<rfloor> = \<guillemotleft>x\<guillemotright>"
 by(rule ext, simp add: K_def k_def)
 
+(* Junk : TO BE DONE IN LIBRARY -- bu *)
+(*<*)
+lemma [simp]: "(\<guillemotleft>x\<guillemotright> <\<^sub>i\<^sub>n\<^sub>t \<guillemotleft>y\<guillemotright>) = \<guillemotleft>x < y\<guillemotright>"
+by(rule ext, simp add: OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def k_def defined_def UML_Types.bot_fun_def 
+                       bot_option_def null_fun_def null_option_def)
+
+lemma [simp]: "(\<guillemotleft>x\<guillemotright> \<le>\<^sub>i\<^sub>n\<^sub>t \<guillemotleft>y\<guillemotright>) = \<guillemotleft>x \<le> y\<guillemotright>"
+by(rule ext, simp add: OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def k_def defined_def UML_Types.bot_fun_def 
+                       bot_option_def null_fun_def null_option_def)
+
+
+lemma OclInt0' : "\<zero> = \<guillemotleft>0\<guillemotright>" by(rule ext, simp add: OclInt0_def k_def)
+lemma OclInt1' : "\<one> = \<guillemotleft>1\<guillemotright>" by(rule ext, simp add: OclInt1_def k_def)
+lemma OclInt2' : "\<two> = \<guillemotleft>2\<guillemotright>" by(rule ext, simp add: OclInt2_def k_def)
+lemma OclInt3' : "\<three> = \<guillemotleft>3\<guillemotright>" by(rule ext, simp add: OclInt3_def k_def)
+lemma OclInt4' : "\<four> = \<guillemotleft>4\<guillemotright>" by(rule ext, simp add: OclInt4_def k_def)
+lemma OclInt5' : "\<five> = \<guillemotleft>5\<guillemotright>" by(rule ext, simp add: OclInt5_def k_def)
+lemma OclInt6' : "\<six> = \<guillemotleft>6\<guillemotright>" by(rule ext, simp add: OclInt6_def k_def)
+lemma OclInt7' : "\<seven> = \<guillemotleft>7\<guillemotright>" by(rule ext, simp add: OclInt7_def k_def)
+lemma OclInt8' : "\<eight> = \<guillemotleft>8\<guillemotright>" by(rule ext, simp add: OclInt8_def k_def)
+lemma OclInt9' : "\<nine> = \<guillemotleft>9\<guillemotright>" by(rule ext, simp add: OclInt9_def k_def)
+lemma OclInt10': "\<one>\<zero>= \<guillemotleft>10\<guillemotright>"by(rule ext, simp add: OclInt10_def k_def) 
+
+lemma [simp]: "\<tau> \<Turnstile> \<guillemotleft>True\<guillemotright>"
+              "\<tau> |\<noteq> \<guillemotleft>False\<guillemotright>"
+by(simp add: OclValid_def true_def k_def)+
+(*>*)
+
 (*declare [[quick_and_dirty = true]]  shut up fully conservative mode *)
 
 generation_syntax [ (*deep

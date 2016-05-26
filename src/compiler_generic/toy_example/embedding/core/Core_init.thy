@@ -262,6 +262,7 @@ supporting the use of Isabelle syntax in cartouches,
 then we could obtain at the end a parsed Isabelle Meta-Model in Isabelle.\<close>
 
 definition "start_map f = L.mapM (\<lambda>x acc. (f x, acc))"
+definition "start_map' f x accu = (f x, accu)"
 definition "start_map''' f fl = (\<lambda> env.
   let design_analysis = D_toy_semantics env
     ; base_attr = (if design_analysis = Gen_only_design then id else L.filter (\<lambda> (_, ToyTy_object (ToyTyObj (ToyTyCore _) _)) \<Rightarrow> False | _ \<Rightarrow> True))

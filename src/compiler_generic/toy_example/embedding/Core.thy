@@ -51,18 +51,19 @@ datatype 'a embedding_fun = Embedding_fun_info string 'a
                           | Embedding_fun_simple 'a
 
 datatype ('a, 'b) embedding = Embed_theories "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) embedding_fun list"
-                            | Embed_locale "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
+                            | Embed_locale "('a \<Rightarrow> 'b \<Rightarrow> all_meta list \<times> 'b) embedding_fun list"
+                                           "'a \<Rightarrow> 'b \<Rightarrow> semi__locale \<times> 'b"
                                            "('a \<Rightarrow> 'b \<Rightarrow> semi__theory list \<times> 'b) list"
 
 type_synonym 'a embedding' = "('a, compiler_env_config) embedding" (* polymorphism weakening needed by code_reflect *)
 
 definition "L_fold f =
  (\<lambda> Embed_theories l \<Rightarrow> List.fold f l
-  | Embed_locale loc_data l \<Rightarrow>
+  | Embed_locale l_th1 loc_data l \<Rightarrow>
       f (Embedding_fun_simple (\<lambda>a b.
           let (loc_data, b) = loc_data a b
             ; (l, b) = List.fold (\<lambda>f0. \<lambda>(l, b) \<Rightarrow> let (x, b) = f0 a b in (x # l, b)) l ([], b) in
-          ([META_semi__theories (Theories_locale loc_data (rev l))], b))))"
+          ([META_semi__theories (Theories_locale loc_data (rev l))], b))) o List.fold f l_th1)"
 
 subsection\<open>Preliminaries: Setting Up Aliases Names\<close>
 
@@ -116,6 +117,9 @@ local_setup \<open>embedding_fun_info @{const_name print_meta_setup_def_transiti
 
 subsection\<open>Assembling Translations\<close>
 
+definition "section_aux n s = start_map' (\<lambda>_. [ O.section (Section n s) ])"
+definition "section = section_aux 0"
+definition "section' = Embedding_fun_simple o section"
 definition "txt f = Embedding_fun_simple (start_map'''' O.text o (\<lambda>_ design_analysis. [Text (f design_analysis)]))"
 definition "txt' s = txt (\<lambda>_. s)"
 definition "txt'' = txt' o S.flatten"
@@ -123,8 +127,10 @@ definition "txt'' = txt' o S.flatten"
 definition' thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "_ embedding'" where \<open>thy_class =
+ (let section = section' o (\<lambda>s. \<open>Class Model: \<close> @@ s) in
   Embed_theories
-          [ txt'' [ \<open>
+          [ section \<open>Introduction\<close>
+          , txt'' [ \<open>
   For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
   there is a function outside HOL that ``compiles'' a concrete,
@@ -133,6 +139,7 @@ definition' thy_class ::
   casts, and tests for actual types, as well as proofs for the
   fundamental properties of these operations in this concrete data
   model. \<close> ]
+          , section \<open>The Construction of the Object Universe\<close>
           , txt'' [ \<open>
    Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
@@ -148,8 +155,9 @@ for all respective type-variables. \<close> ]
 to Toy types. Again, we exploit that our representation of Toy is a ``shallow embedding'' with a
 one-to-one correspondance of Toy-types to types of the meta-language HOL. \<close> ]
           , PRINT_infra_type_synonym_class_higher
+          , section \<open>The Accessors\<close>
           , PRINT_access_oid_uniq
-          , PRINT_access_choose ]\<close>
+          , PRINT_access_choose ])\<close>
 
 definition "thy_enum_flat = Embed_theories []"
 definition "thy_enum = Embed_theories []"
@@ -157,23 +165,30 @@ definition "thy_class_synonym = Embed_theories []"
 definition "thy_class_tree = Embed_theories []"
 definition "thy_class_flat = Embed_theories []"
 definition "thy_association = Embed_theories []"
-definition "thy_instance = Embed_theories 
-                             [ PRINT_examp_instance_defassoc
+definition  thy_instance :: (* polymorphism weakening needed by code_reflect *) "_ embedding'" where
+           "thy_instance = Embed_theories 
+                             [ section' \<open>Instance\<close>
+                             , PRINT_examp_instance_defassoc
                              , PRINT_examp_instance ]"
 definition "thy_def_base_l = Embed_theories []"
 definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                           [ floor1_PRINT_examp_def_st1 ]
+                                           [ section' \<open>State (Floor 1)\<close>
+                                           , floor1_PRINT_examp_def_st1 ]
                              | Floor2 \<Rightarrow> Embed_locale
+                                           [ section' \<open>State (Floor 2)\<close> ]
                                            Floor2_examp.print_examp_def_st_locale
                                            [ Floor2_examp.print_examp_def_st2
                                            , Floor2_examp.print_examp_def_st_perm ])"
 definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                              [ floor1_PRINT_transition ]
+                                              [ section' \<open>Transition (Floor 1)\<close>
+                                              , floor1_PRINT_transition ]
                                 | Floor2 \<Rightarrow> Embed_locale
+                                              [ section' \<open>Transition (Floor 2)\<close> ]
                                               Floor2_examp.print_transition_locale
                                               [ Floor2_examp.print_transition_interp ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
-                                      [ floor1_PRINT_ctxt ]
+                                      [ section' \<open>Context (Floor 1)\<close>
+                                      , floor1_PRINT_ctxt ]
                         | Floor2 \<Rightarrow> Embed_theories 
                                       [])"
 definition "thy_flush_all = Embed_theories []"
