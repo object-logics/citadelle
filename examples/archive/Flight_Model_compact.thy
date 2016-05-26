@@ -178,17 +178,17 @@ term "S1 ::\<cdot> Staff"
 text{* In the following command, we place the object instances into a state @{text "\<sigma>\<^sub>1"}. This generates a definition
 for the latter as well as a number of theorems resulting from it, for example:
 \begin{isar}
-(\<sigma>\<^sub>1, \<sigma>) \<Turnstile> Staff .allInstancesOf@pre() \<triangleq> Set{S1}
-(\<sigma>\<^sub>1, \<sigma>) \<Turnstile> Client .allInstancesOf@pre() \<triangleq> Set{C1,C2}
-(\<sigma>\<^sub>1, \<sigma>) \<Turnstile> Reservation .allInstancesOf@pre() \<triangleq> Set{R11,R12}
-(\<sigma>\<^sub>1, \<sigma>) \<Turnstile> Flight .allInstancesOf@pre() \<triangleq> Set{F1,F2}
+(\<sigma>1, \<sigma>) \<Turnstile> Staff .allInstancesOf@pre() \<triangleq> Set{S1}
+(\<sigma>1, \<sigma>) \<Turnstile> Client .allInstancesOf@pre() \<triangleq> Set{C1,C2}
+(\<sigma>1, \<sigma>) \<Turnstile> Reservation .allInstancesOf@pre() \<triangleq> Set{R11,R12}
+(\<sigma>1, \<sigma>) \<Turnstile> Flight .allInstancesOf@pre() \<triangleq> Set{F1,F2}
 \end{isar}
 as well as:
 \begin{isar}
-(\<sigma>, \<sigma>\<^sub>1) \<Turnstile> Staff .allInstancesOf() \<triangleq> Set{S1}
-(\<sigma>, \<sigma>\<^sub>1) \<Turnstile> Client .allInstancesOf() \<triangleq> Set{C1,C2}
-(\<sigma>, \<sigma>\<^sub>1) \<Turnstile> Reservation .allInstancesOf() \<triangleq> Set{R11,R12}
-(\<sigma>, \<sigma>\<^sub>1) \<Turnstile> Flight .allInstancesOf() \<triangleq> Set{F1,F2}
+(\<sigma>, \<sigma>1) \<Turnstile> Staff .allInstancesOf() \<triangleq> Set{S1}
+(\<sigma>, \<sigma>1) \<Turnstile> Client .allInstancesOf() \<triangleq> Set{C1,C2}
+(\<sigma>, \<sigma>1) \<Turnstile> Reservation .allInstancesOf() \<triangleq> Set{R11,R12}
+(\<sigma>, \<sigma>1) \<Turnstile> Flight .allInstancesOf() \<triangleq> Set{F1,F2}
 \end{isar}
 All these lemmas were stated under the precondition that the object instances are actually 
 defined entities.
@@ -206,18 +206,18 @@ constant names like $\sigma_1\_object1$, etc.
 
 Thus, the resulting object instances look like:
 \begin{isar}
-\<sigma>\<^sub>2_object1 .flights \<cong> Set{ /*8*/ } 
-\<sigma>\<^sub>2_object1 .cl_res \<cong> Set{ /*6*/ } 
-\<sigma>\<^sub>2_object2 .flights \<cong> Set{ /*8*/ , /*9*/ } 
-\<sigma>\<^sub>2_object2 .cl_res \<cong> Set{ \<sigma>\<^sub>2_object4 , \<sigma>\<^sub>2_object7 } 
-\<sigma>\<^sub>2_object4 .flight \<cong> Set{ /*8*/ } 
-\<sigma>\<^sub>2_object4 .client \<cong> Set{ \<sigma>\<^sub>2_object2 } 
-\<sigma>\<^sub>2_object4 .prev \<cong> Set{} 
-\<sigma>\<^sub>2_object4 .next \<cong> Set{ \<sigma>\<^sub>2_object7 } 
-\<sigma>\<^sub>2_object7 .flight \<cong> Set{ /*9*/ } 
-\<sigma>\<^sub>2_object7 .client \<cong> Set{ \<sigma>\<^sub>2_object2 } 
-\<sigma>\<^sub>2_object7 .prev \<cong> Set{ \<sigma>\<^sub>2_object4 } 
-\<sigma>\<^sub>2_object7 .next \<cong> Set{} 
+\<sigma>2_object1 .flights \<cong> Set{ /*8*/ } 
+\<sigma>2_object1 .cl_res \<cong> Set{ /*6*/ } 
+\<sigma>2_object2 .flights \<cong> Set{ /*8*/ , /*9*/ } 
+\<sigma>2_object2 .cl_res \<cong> Set{ \<sigma>2_object4 , \<sigma>2_object7 } 
+\<sigma>2_object4 .flight \<cong> Set{ /*8*/ } 
+\<sigma>2_object4 .client \<cong> Set{ \<sigma>2_object2 } 
+\<sigma>2_object4 .prev \<cong> Set{} 
+\<sigma>2_object4 .next \<cong> Set{ \<sigma>2_object7 } 
+\<sigma>2_object7 .flight \<cong> Set{ /*9*/ } 
+\<sigma>2_object7 .client \<cong> Set{ \<sigma>2_object2 } 
+\<sigma>2_object7 .prev \<cong> Set{ \<sigma>2_object4 } 
+\<sigma>2_object7 .next \<cong> Set{} 
 \end{isar}
 
 Note that there is a mechanism to reference objects via the key-word \verb$self$
@@ -242,15 +242,15 @@ For instance, the well-formedness of the two states is proven:
 \end{isar}
 Furthermore, for each object $X$ either a lemma of the form:
 \begin{isar}
-  (\<sigma>\<^sub>1,\<sigma>\<^sub>2) \<Turnstile> X .oclIsNew() 
+  (\<sigma>1,\<sigma>2) \<Turnstile> X .oclIsNew() 
 \end{isar}
 or 
 \begin{isar}
-  (\<sigma>\<^sub>1,\<sigma>\<^sub>2) \<Turnstile> X .oclIsDeleted() 
+  (\<sigma>1,\<sigma>2) \<Turnstile> X .oclIsDeleted() 
 \end{isar}
 or 
 \begin{isar}
-  (\<sigma>\<^sub>1,\<sigma>\<^sub>2) \<Turnstile> X .oclIsMaintained() 
+  (\<sigma>1,\<sigma>2) \<Turnstile> X .oclIsMaintained() 
 \end{isar}
 where the latter only means that $X$'s object id exists both in $\sigma_1$ and
 $\sigma_2$, not that its content has not been changed.
