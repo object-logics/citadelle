@@ -78,6 +78,8 @@
   }
 }
 
+\definecolor{IsaGreen}{HTML}{009966}
+
 \newcommand{\nc@colorlet}[2]{
 \ifthenelse{\boolean{holocl@nocolor}}{%
   \colorlet{#1}{Black}
@@ -125,6 +127,8 @@
 \nc@colorlet{HolOclThyColor} {SectionColor}
 \newcommand{\HolOclThyColorName}{\SectionColorName}
 
+\nc@colorlet{HolOclGreenColor} {IsaGreen}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 3) Defining environments and commands
 %% =====================================
@@ -159,11 +163,13 @@
   \newcommand{\javakeywordstyle}{\bfseries}
   \newcommand{\smlkeywordstyle}{\bfseries}
   \newcommand{\holoclthykeywordstyle}{\bfseries}
+  \newcommand{\greenkeywordstyle}{\bfseries}
 }{%
   \newcommand{\oclkeywordstyle}{\color{OclKeywordColor}\relax}
   \newcommand{\javakeywordstyle}{\color{JavaKeywordColor}\relax}
   \newcommand{\smlkeywordstyle}{\color{SmlKeywordColor}\relax}
   \newcommand{\holoclthykeywordstyle}{\color{HolOclThyColor}\relax}
+  \newcommand{\greenkeywordstyle}{\color{HolOclGreenColor}\relax}
 }
 
 \lstloadlanguages{OCL,ML,Java}
