@@ -1,6 +1,6 @@
 theory Employee_DesignModel_UMLPart_generated_generated imports "../src/UML_Main"   "../src/compiler/Static"   "../src/compiler/Generator_dynamic" begin
 
-(* 1 ************************************ 0 + 0 *)
+(* 1 ************************************ 0 + 0 *)  (* term Floor1_infra.print_infra_enum_synonym *)
 
 (* 2 ************************************ 0 + 1 *)
 text \<open>
@@ -10,7 +10,7 @@ text \<open>
 text \<open>\<close>
 
 (* 4 ************************************ 2 + 1 *)
-section \<open>Introduction\<close>
+section \<open>Class Model: Introduction\<close>
 
 (* 5 ************************************ 3 + 1 *)
 text \<open>
@@ -69,7 +69,7 @@ captured by the subsequent theory).
 \<close>
 
 (* 13 ************************************ 11 + 1 *)
-section \<open>Example Data-Universe and its Infrastructure\<close>
+section \<open>Class Model: The Construction of the Object Universe\<close>
 
 (* 14 ************************************ 12 + 1 *)
 text \<open>
@@ -77,7 +77,7 @@ text \<open>
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: \<close>
 
-(* 15 ************************************ 13 + 8 *)
+(* 15 ************************************ 13 + 8 *)  (* term Floor1_infra.print_infra_datatype_class *)
 datatype ty\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "oid" "nat option" "int option" "unit option" "bool option" "oid list list option"
 datatype ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n = mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n" "oid list option" "int option"
 datatype ty\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t = mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
@@ -99,7 +99,7 @@ text \<open>
 sum type containing the class types. This type of OclAny will be used as instance
 for all respective type-variables. \<close>
 
-(* 17 ************************************ 22 + 1 *)
+(* 17 ************************************ 22 + 1 *)  (* term Floor1_infra.print_infra_datatype_universe *)
 datatype \<AA> = in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
                         | in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t "ty\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t"
                         | in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y "ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y"
@@ -111,7 +111,7 @@ text \<open>
 to \OCL types. Again, we exploit that our representation of \OCL is a ``shallow embedding'' with a
 one-to-one correspondance of \OCL-types to types of the meta-language \HOL. \<close>
 
-(* 19 ************************************ 24 + 7 *)
+(* 19 ************************************ 24 + 7 *)  (* term Floor1_infra.print_infra_type_synonym_class *)
 type_synonym Void = "\<AA> Void"
 type_synonym Boolean = "\<AA> Boolean"
 type_synonym Integer = "\<AA> Integer"
@@ -120,18 +120,18 @@ type_synonym String = "\<AA> String"
 type_synonym '\<alpha> val' = "(\<AA>, '\<alpha>) val"
 type_notation val' ("\<cdot>(_)")
 
-(* 20 ************************************ 31 + 4 *)
+(* 20 ************************************ 31 + 4 *)  (* term Floor1_infra.print_infra_type_synonym_class_higher *)
 type_synonym Person = "\<langle>\<langle>ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym Planet = "\<langle>\<langle>ty\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym Galaxy = "\<langle>\<langle>ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym OclAny = "\<langle>\<langle>ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 
-(* 21 ************************************ 35 + 3 *)
+(* 21 ************************************ 35 + 3 *)  (* term Floor1_infra.print_infra_type_synonym_class_rec *)
 type_synonym Sequence_Person = "(\<AA>, ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 type_synonym Set_Person = "(\<AA>, ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n option option Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 type_synonym Set_Sequence_Planet = "(\<AA>, ty\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t option option Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) val"
 
-(* 22 ************************************ 38 + 0 *)
+(* 22 ************************************ 38 + 0 *)  (* term Floor1_infra.print_infra_enum_syn *)
 
 (* 23 ************************************ 38 + 1 *)
 text \<open>
@@ -139,7 +139,7 @@ text \<open>
 to show that the object universe belongs to the type class ``oclany,'' \ie,
  each class type has to provide a function @{term oid_of} yielding the Object ID (oid) of the object. \<close>
 
-(* 24 ************************************ 39 + 4 *)
+(* 24 ************************************ 39 + 4 *)  (* term Floor1_infra.print_infra_instantiation_class *)
 instantiation ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: object
 begin
   definition oid_of_ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def : "oid_of = (\<lambda> mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n t _ _ \<Rightarrow> (case t of (mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (t) (_) (_) (_) (_) (_)) \<Rightarrow> t))"
@@ -167,7 +167,7 @@ begin
   instance ..
 end
 
-(* 25 ************************************ 43 + 1 *)
+(* 25 ************************************ 43 + 1 *)  (* term Floor1_infra.print_infra_instantiation_universe *)
 instantiation \<AA> :: object
 begin
   definition oid_of_\<AA>_def : "oid_of = (\<lambda> in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n Person \<Rightarrow> oid_of Person
@@ -178,14 +178,14 @@ begin
 end
 
 (* 26 ************************************ 44 + 1 *)
-section \<open>Instantiation of the Generic Strict Equality\<close>
+section \<open>Class Model: Instantiation of the Generic Strict Equality\<close>
 
 (* 27 ************************************ 45 + 1 *)
 text \<open>
    We instantiate the referential equality
 on @{text "Person"} and @{text "OclAny"} \<close>
 
-(* 28 ************************************ 46 + 4 *)
+(* 28 ************************************ 46 + 4 *)  (* term Floor1_infra.print_instantia_def_strictrefeq *)
 overloading StrictRefEq \<equiv> "(StrictRefEq::(\<cdot>Person) \<Rightarrow> _ \<Rightarrow> _)"
 begin
   definition StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "(x::\<cdot>Person) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
@@ -203,7 +203,7 @@ begin
   definition StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y : "(x::\<cdot>OclAny) \<doteq> y \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
 end
 
-(* 29 ************************************ 50 + 1 *)
+(* 29 ************************************ 50 + 1 *)  (* term Floor1_infra.print_instantia_lemmas_strictrefeq *)
 lemmas[simp,code_unfold] = StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n
                             StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t
                             StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y
@@ -223,18 +223,18 @@ two operations to declare and to provide two overloading definitions for the two
 \<close>
 
 (* 32 ************************************ 53 + 1 *)
-section \<open>OclAsType\<close>
+section \<open>Class Model: OclAsType\<close>
 
 (* 33 ************************************ 54 + 1 *)
 subsection \<open>Definition\<close>
 
-(* 34 ************************************ 55 + 4 *)
+(* 34 ************************************ 55 + 4 *)  (* term Floor1_astype.print_astype_consts *)
 consts OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> \<cdot>Person" ("(_) .oclAsType'(Person')")
 consts OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t :: "'\<alpha> \<Rightarrow> \<cdot>Planet" ("(_) .oclAsType'(Planet')")
 consts OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y :: "'\<alpha> \<Rightarrow> \<cdot>Galaxy" ("(_) .oclAsType'(Galaxy')")
 consts OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> \<cdot>OclAny" ("(_) .oclAsType'(OclAny')")
 
-(* 35 ************************************ 59 + 16 *)
+(* 35 ************************************ 59 + 16 *)  (* term Floor1_astype.print_astype_class *)
 overloading OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Person) \<Rightarrow> _)"
 begin
   definition OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclAsType(Person) \<equiv> x"
@@ -330,7 +330,7 @@ begin
     | \<lfloor>\<lfloor>Galaxy\<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>(mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy))))\<rfloor>\<rfloor>))"
 end
 
-(* 36 ************************************ 75 + 4 *)
+(* 36 ************************************ 75 + 4 *)  (* term Floor1_astype.print_astype_from_universe *)
 definition "OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> = (\<lambda> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person)) \<Rightarrow> \<lfloor>Person\<rfloor>
     | (in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person))) (_) (_)))) \<Rightarrow> \<lfloor>Person\<rfloor>
     | (in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y ((mk\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person))) (_) (_) (_)))) \<Rightarrow> \<lfloor>Person\<rfloor>
@@ -351,7 +351,7 @@ definition "OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA> = So
     | (in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet)) \<Rightarrow> (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet))))
     | (in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy)) \<Rightarrow> (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy)))))"
 
-(* 37 ************************************ 79 + 1 *)
+(* 37 ************************************ 79 + 1 *)  (* term Floor1_astype.print_astype_lemmas_id *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person
                             OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet
                             OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy
@@ -360,7 +360,7 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^s
 (* 38 ************************************ 80 + 1 *)
 subsection \<open>Context Passing\<close>
 
-(* 39 ************************************ 81 + 64 *)
+(* 39 ************************************ 81 + 64 *)  (* term Floor1_astype.print_astype_lemma_cp *)
 lemma cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>OclAny)))::\<cdot>OclAny) .oclAsType(OclAny)))))"
 by(rule cpI1, simp)
 lemma cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_OclAny : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Galaxy)))::\<cdot>OclAny) .oclAsType(OclAny)))))"
@@ -490,7 +490,7 @@ by(rule cpI1, simp)
 lemma cp_OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Person)))::\<cdot>Person) .oclAsType(Person)))))"
 by(rule cpI1, simp)
 
-(* 40 ************************************ 145 + 1 *)
+(* 40 ************************************ 145 + 1 *)  (* term Floor1_astype.print_astype_lemmas_cp *)
 lemmas[simp,code_unfold] = cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny
                             cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_OclAny
                             cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet_OclAny
@@ -559,7 +559,7 @@ lemmas[simp,code_unfold] = cp_OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\
 (* 41 ************************************ 146 + 1 *)
 subsection \<open>Execution with Invalid or Null as Argument\<close>
 
-(* 42 ************************************ 147 + 32 *)
+(* 42 ************************************ 147 + 32 *)  (* term Floor1_astype.print_astype_lemma_strict *)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid : "((invalid::\<cdot>OclAny) .oclAsType(OclAny)) = invalid"
 by(simp)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_invalid : "((invalid::\<cdot>Galaxy) .oclAsType(OclAny)) = invalid"
@@ -625,7 +625,7 @@ by(rule ext, simp add: OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n
 lemma OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null : "((null::\<cdot>Person) .oclAsType(Person)) = null"
 by(simp)
 
-(* 43 ************************************ 179 + 1 *)
+(* 43 ************************************ 179 + 1 *)  (* term Floor1_astype.print_astype_lemmas_strict *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_invalid
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet_invalid
@@ -662,7 +662,7 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^s
 (* 44 ************************************ 180 + 1 *)
 subsection \<open>Validity and Definedness Properties\<close>
 
-(* 45 ************************************ 181 + 6 *)
+(* 45 ************************************ 181 + 6 *)  (* term Floor1_astype.print_astype_defined *)
 lemma OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person_defined : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .oclAsType(Planet)))"
@@ -697,7 +697,7 @@ by(auto simp: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy f
 (* 46 ************************************ 187 + 1 *)
 subsection \<open>Up Down Casting\<close>
 
-(* 47 ************************************ 188 + 6 *)
+(* 47 ************************************ 188 + 6 *)  (* term Floor1_astype.print_astype_up_d_cast0 *)
 lemma up\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast0 : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (((X::\<cdot>Person) .oclAsType(Planet)) .oclAsType(Person)) \<triangleq> X"
@@ -729,7 +729,7 @@ shows "\<tau> \<Turnstile> (((X::\<cdot>Galaxy) .oclAsType(OclAny)) .oclAsType(G
   using isdef
 by(auto simp: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_OclAny foundation22 foundation16 null_option_def bot_option_def split: ty\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y.split ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y.split) 
 
-(* 48 ************************************ 194 + 6 *)
+(* 48 ************************************ 194 + 6 *)  (* term Floor1_astype.print_astype_up_d_cast *)
 lemma up\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_cast : 
 shows "(((X::\<cdot>Person) .oclAsType(Planet)) .oclAsType(Person)) = X"
   apply(rule ext, rename_tac \<tau>)
@@ -779,7 +779,7 @@ shows "(((X::\<cdot>Galaxy) .oclAsType(OclAny)) .oclAsType(Galaxy)) = X"
   apply((erule StrongEq_L_subst2_rev, simp, simp)+)
 done 
 
-(* 49 ************************************ 200 + 6 *)
+(* 49 ************************************ 200 + 6 *)  (* term Floor1_astype.print_astype_d_up_cast *)
 lemma down\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_up\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_cast : 
 assumes def_X: "X = ((Y::\<cdot>Person) .oclAsType(Planet))"
 shows "(\<tau> \<Turnstile> ((not ((\<upsilon> (X)))) or ((X .oclAsType(Person)) .oclAsType(Planet)) \<doteq> X))"
@@ -814,7 +814,7 @@ by(rule foundation25', simp add: def_X up\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>
 (* 50 ************************************ 206 + 1 *)
 subsection \<open>Const\<close>
 
-(* 51 ************************************ 207 + 16 *)
+(* 51 ************************************ 207 + 16 *)  (* term Floor1_astype.print_astype_lemma_const *)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_const : "(const ((X::\<cdot>OclAny))) \<Longrightarrow> (const (X .oclAsType(OclAny)))"
 by(simp add: const_def, (metis (no_types) OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny prod.collapse bot_option_def invalid_def null_fun_def null_option_def)?)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_const : "(const ((X::\<cdot>Galaxy))) \<Longrightarrow> (const (X .oclAsType(OclAny)))"
@@ -848,7 +848,7 @@ by(simp add: const_def, (metis (no_types) OclAsType\<^sub>P\<^sub>e\<^sub>r\<^su
 lemma OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_const : "(const ((X::\<cdot>Person))) \<Longrightarrow> (const (X .oclAsType(Person)))"
 by(simp add: const_def, (metis (no_types) OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person prod.collapse bot_option_def invalid_def null_fun_def null_option_def)?)
 
-(* 52 ************************************ 223 + 1 *)
+(* 52 ************************************ 223 + 1 *)  (* term Floor1_astype.print_astype_lemmas_const *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_const
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_const
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet_const
@@ -867,18 +867,18 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^s
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_const
 
 (* 53 ************************************ 224 + 1 *)
-section \<open>OclIsTypeOf\<close>
+section \<open>Class Model: OclIsTypeOf\<close>
 
 (* 54 ************************************ 225 + 1 *)
 subsection \<open>Definition\<close>
 
-(* 55 ************************************ 226 + 4 *)
+(* 55 ************************************ 226 + 4 *)  (* term Floor1_istypeof.print_istypeof_consts *)
 consts OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Person')")
 consts OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Planet')")
 consts OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(Galaxy')")
 consts OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsTypeOf'(OclAny')")
 
-(* 56 ************************************ 230 + 16 *)
+(* 56 ************************************ 230 + 16 *)  (* term Floor1_istypeof.print_istypeof_class *)
 overloading OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Person) \<Rightarrow> _)"
 begin
   definition OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclIsTypeOf(Person) \<equiv> (\<lambda>\<tau>. (case (x (\<tau>)) of \<bottom> \<Rightarrow> (invalid (\<tau>))
@@ -985,7 +985,7 @@ begin
     | _ \<Rightarrow> (false (\<tau>))))"
 end
 
-(* 57 ************************************ 246 + 4 *)
+(* 57 ************************************ 246 + 4 *)  (* term Floor1_istypeof.print_istypeof_from_universe *)
 definition "OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> = (\<lambda> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Person))::\<cdot>Person) .oclIsTypeOf(Person))
     | (in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Planet))::\<cdot>Planet) .oclIsTypeOf(Person))
     | (in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Galaxy))::\<cdot>Galaxy) .oclIsTypeOf(Person))
@@ -1003,7 +1003,7 @@ definition "OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA> = 
     | (in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Planet))::\<cdot>Planet) .oclIsTypeOf(OclAny))
     | (in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Galaxy))::\<cdot>Galaxy) .oclIsTypeOf(OclAny)))"
 
-(* 58 ************************************ 250 + 1 *)
+(* 58 ************************************ 250 + 1 *)  (* term Floor1_istypeof.print_istypeof_lemmas_id *)
 lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person
                             OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet
                             OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy
@@ -1012,7 +1012,7 @@ lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<
 (* 59 ************************************ 251 + 1 *)
 subsection \<open>Context Passing\<close>
 
-(* 60 ************************************ 252 + 64 *)
+(* 60 ************************************ 252 + 64 *)  (* term Floor1_istypeof.print_istypeof_lemma_cp *)
 lemma cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>OclAny)))::\<cdot>OclAny) .oclIsTypeOf(OclAny)))))"
 by(rule cpI1, simp)
 lemma cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_OclAny : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Galaxy)))::\<cdot>OclAny) .oclIsTypeOf(OclAny)))))"
@@ -1142,7 +1142,7 @@ by(rule cpI1, simp)
 lemma cp_OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Person)))::\<cdot>Person) .oclIsTypeOf(Person)))))"
 by(rule cpI1, simp)
 
-(* 61 ************************************ 316 + 1 *)
+(* 61 ************************************ 316 + 1 *)  (* term Floor1_istypeof.print_istypeof_lemmas_cp *)
 lemmas[simp,code_unfold] = cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny
                             cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_OclAny
                             cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet_OclAny
@@ -1211,7 +1211,7 @@ lemmas[simp,code_unfold] = cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>
 (* 62 ************************************ 317 + 1 *)
 subsection \<open>Execution with Invalid or Null as Argument\<close>
 
-(* 63 ************************************ 318 + 32 *)
+(* 63 ************************************ 318 + 32 *)  (* term Floor1_istypeof.print_istypeof_lemma_strict *)
 lemma OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid : "((invalid::\<cdot>OclAny) .oclIsTypeOf(OclAny)) = invalid"
 by(rule ext, simp add: bot_option_def invalid_def)
 lemma OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_invalid : "((invalid::\<cdot>Galaxy) .oclIsTypeOf(OclAny)) = invalid"
@@ -1277,7 +1277,7 @@ by(rule ext, simp add: OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub
 lemma OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null : "((null::\<cdot>Person) .oclIsTypeOf(Person)) = true"
 by(rule ext, simp add: bot_option_def null_fun_def null_option_def)
 
-(* 64 ************************************ 350 + 1 *)
+(* 64 ************************************ 350 + 1 *)  (* term Floor1_istypeof.print_istypeof_lemmas_strict *)
 lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid
                             OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_invalid
                             OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet_invalid
@@ -1314,7 +1314,7 @@ lemmas[simp,code_unfold] = OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<
 (* 65 ************************************ 351 + 1 *)
 subsection \<open>Validity and Definedness Properties\<close>
 
-(* 66 ************************************ 352 + 16 *)
+(* 66 ************************************ 352 + 16 *)  (* term Floor1_istypeof.print_istypeof_defined *)
 lemma OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_defined : 
 assumes isdef: "\<tau> \<Turnstile> (\<upsilon> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .oclIsTypeOf(Person)))"
@@ -1396,7 +1396,7 @@ shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .oclIsTypeOf(OclAny)))"
   apply(insert isdef[simplified foundation18'], simp only: OclValid_def, subst cp_defined)
 by(auto simp: cp_defined[symmetric ] bot_option_def OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy split: option.split ty\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y.split ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y.split) 
 
-(* 67 ************************************ 368 + 16 *)
+(* 67 ************************************ 368 + 16 *)  (* term Floor1_istypeof.print_istypeof_defined' *)
 lemma OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_defined' : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .oclIsTypeOf(Person)))"
@@ -1465,7 +1465,7 @@ by(rule OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_defin
 (* 68 ************************************ 384 + 1 *)
 subsection \<open>Up Down Casting\<close>
 
-(* 69 ************************************ 385 + 6 *)
+(* 69 ************************************ 385 + 6 *)  (* term Floor1_istypeof.print_istypeof_up_larger *)
 lemma actualType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_larger_staticType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> ((X::\<cdot>Person) .oclIsTypeOf(Planet)) \<triangleq> false"
@@ -1497,7 +1497,7 @@ shows "\<tau> \<Turnstile> ((X::\<cdot>Galaxy) .oclIsTypeOf(OclAny)) \<triangleq
   using isdef
 by(auto simp: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy foundation22 foundation16 null_option_def bot_option_def) 
 
-(* 70 ************************************ 391 + 10 *)
+(* 70 ************************************ 391 + 10 *)  (* term Floor1_istypeof.print_istypeof_up_d_cast *)
 lemma down_cast_type\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_from_Planet_to_Person : 
 assumes istyp: "\<tau> \<Turnstile> ((X::\<cdot>Planet) .oclIsTypeOf(Planet))"
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
@@ -1573,18 +1573,18 @@ by(simp add: OclValid_def false_def true_def)
 subsection \<open>Const\<close>
 
 (* 72 ************************************ 402 + 1 *)
-section \<open>OclIsKindOf\<close>
+section \<open>Class Model: OclIsKindOf\<close>
 
 (* 73 ************************************ 403 + 1 *)
 subsection \<open>Definition\<close>
 
-(* 74 ************************************ 404 + 4 *)
+(* 74 ************************************ 404 + 4 *)  (* term Floor1_iskindof.print_iskindof_consts *)
 consts OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Person')")
 consts OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Planet')")
 consts OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(Galaxy')")
 consts OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: "'\<alpha> \<Rightarrow> Boolean" ("(_) .oclIsKindOf'(OclAny')")
 
-(* 75 ************************************ 408 + 16 *)
+(* 75 ************************************ 408 + 16 *)  (* term Floor1_iskindof.print_iskindof_class *)
 overloading OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n \<equiv> "(OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n::(\<cdot>Person) \<Rightarrow> _)"
 begin
   definition OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person : "(x::\<cdot>Person) .oclIsKindOf(Person) \<equiv> (x .oclIsTypeOf(Person))"
@@ -1650,7 +1650,7 @@ begin
   definition OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy : "(x::\<cdot>Galaxy) .oclIsKindOf(OclAny) \<equiv> (x .oclIsTypeOf(OclAny)) or (x .oclIsKindOf(Galaxy))"
 end
 
-(* 76 ************************************ 424 + 4 *)
+(* 76 ************************************ 424 + 4 *)  (* term Floor1_iskindof.print_iskindof_from_universe *)
 definition "OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> = (\<lambda> (in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (Person)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Person))::\<cdot>Person) .oclIsKindOf(Person))
     | (in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Planet))::\<cdot>Planet) .oclIsKindOf(Person))
     | (in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Galaxy))::\<cdot>Galaxy) .oclIsKindOf(Person))
@@ -1668,7 +1668,7 @@ definition "OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA> = 
     | (in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (Planet)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Planet))::\<cdot>Planet) .oclIsKindOf(OclAny))
     | (in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y (Galaxy)) \<Rightarrow> (((((\<lambda>x _. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>)) (Galaxy))::\<cdot>Galaxy) .oclIsKindOf(OclAny)))"
 
-(* 77 ************************************ 428 + 1 *)
+(* 77 ************************************ 428 + 1 *)  (* term Floor1_iskindof.print_iskindof_lemmas_id *)
 lemmas[simp,code_unfold] = OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person
                             OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Planet
                             OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy
@@ -1677,7 +1677,7 @@ lemmas[simp,code_unfold] = OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<
 (* 78 ************************************ 429 + 1 *)
 subsection \<open>Context Passing\<close>
 
-(* 79 ************************************ 430 + 64 *)
+(* 79 ************************************ 430 + 64 *)  (* term Floor1_iskindof.print_iskindof_lemma_cp *)
 lemma cp_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Person)))::\<cdot>Person) .oclIsKindOf(Person)))))"
 by(simp only: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person, simp only: cp_OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_Person)
 lemma cp_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet_Person : "(cp (p)) \<Longrightarrow> (cp ((\<lambda>x. (((p ((x::\<cdot>Planet)))::\<cdot>Person) .oclIsKindOf(Person)))))"
@@ -1951,7 +1951,7 @@ lemma cp_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_Gala
   apply(simp only: cp_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_Galaxy)
 by(simp only: cp_OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy_Galaxy)
 
-(* 80 ************************************ 494 + 1 *)
+(* 80 ************************************ 494 + 1 *)  (* term Floor1_iskindof.print_iskindof_lemmas_cp *)
 lemmas[simp,code_unfold] = cp_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_OclAny
                             cp_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_OclAny
                             cp_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet_OclAny
@@ -2020,7 +2020,7 @@ lemmas[simp,code_unfold] = cp_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>
 (* 81 ************************************ 495 + 1 *)
 subsection \<open>Execution with Invalid or Null as Argument\<close>
 
-(* 82 ************************************ 496 + 32 *)
+(* 82 ************************************ 496 + 32 *)  (* term Floor1_iskindof.print_iskindof_lemma_strict *)
 lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_invalid : "((invalid::\<cdot>Person) .oclIsKindOf(Person)) = invalid"
 by(simp only: OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_invalid)
 lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_null : "((null::\<cdot>Person) .oclIsKindOf(Person)) = true"
@@ -2086,7 +2086,7 @@ by(simp only: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy
 lemma OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_null : "((null::\<cdot>Galaxy) .oclIsKindOf(OclAny)) = true"
 by(simp only: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_null OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy_null, simp)
 
-(* 83 ************************************ 528 + 1 *)
+(* 83 ************************************ 528 + 1 *)  (* term Floor1_iskindof.print_iskindof_lemmas_strict *)
 lemmas[simp,code_unfold] = OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny_invalid
                             OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_invalid
                             OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet_invalid
@@ -2123,7 +2123,7 @@ lemmas[simp,code_unfold] = OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<
 (* 84 ************************************ 529 + 1 *)
 subsection \<open>Validity and Definedness Properties\<close>
 
-(* 85 ************************************ 530 + 16 *)
+(* 85 ************************************ 530 + 16 *)  (* term Floor1_iskindof.print_iskindof_defined *)
 lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_defined : 
 assumes isdef: "\<tau> \<Turnstile> (\<upsilon> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .oclIsKindOf(Person)))"
@@ -2189,7 +2189,7 @@ assumes isdef: "\<tau> \<Turnstile> (\<upsilon> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Galaxy) .oclIsKindOf(OclAny)))"
 by(simp only: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy, rule defined_or_I[OF OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_defined[OF isdef], OF OclIsKindOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_Galaxy_defined[OF isdef]]) 
 
-(* 86 ************************************ 546 + 16 *)
+(* 86 ************************************ 546 + 16 *)  (* term Floor1_iskindof.print_iskindof_defined' *)
 lemma OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person_defined' : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .oclIsKindOf(Person)))"
@@ -2258,7 +2258,7 @@ by(rule OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy_defin
 (* 87 ************************************ 562 + 1 *)
 subsection \<open>Up Down Casting\<close>
 
-(* 88 ************************************ 563 + 4 *)
+(* 88 ************************************ 563 + 4 *)  (* term Floor1_iskindof.print_iskindof_up_eq_asty *)
 lemma actual_eq_static\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> ((X::\<cdot>Person) .oclIsKindOf(Person))"
@@ -2288,7 +2288,7 @@ shows "\<tau> \<Turnstile> ((X::\<cdot>OclAny) .oclIsKindOf(OclAny))"
   apply(auto simp: cp_OclOr[symmetric ] foundation16 bot_option_def OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny OclIsTypeOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_OclAny OclIsTypeOf\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_OclAny split: option.split ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split ty\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n.split ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n.split ty\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t.split ty\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t.split ty\<E>\<X>\<T>\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y.split ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y.split)
 by((simp_all add: false_def true_def OclOr_def OclAnd_def OclNot_def)?) 
 
-(* 89 ************************************ 567 + 6 *)
+(* 89 ************************************ 567 + 6 *)  (* term Floor1_iskindof.print_iskindof_up_larger *)
 lemma actualKind\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_larger_staticKind\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t : 
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
 shows "\<tau> \<Turnstile> ((X::\<cdot>Person) .oclIsKindOf(Planet))"
@@ -2320,7 +2320,7 @@ shows "\<tau> \<Turnstile> ((X::\<cdot>Galaxy) .oclIsKindOf(OclAny))"
   apply(simp only: OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy)
 by(rule foundation25', rule actual_eq_static\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y[OF isdef]) 
 
-(* 90 ************************************ 573 + 6 *)
+(* 90 ************************************ 573 + 6 *)  (* term Floor1_iskindof.print_iskindof_up_istypeof_unfold *)
 lemma not_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_then_Planet_OclIsTypeOf_others_unfold : 
 assumes isdef: "(\<tau> \<Turnstile> (\<delta> (X)))"
 assumes iskin: "(\<tau> \<Turnstile> ((X::\<cdot>Planet) .oclIsKindOf(Person)))"
@@ -2373,7 +2373,7 @@ shows "((\<tau> \<Turnstile> ((X::\<cdot>OclAny) .oclIsTypeOf(Galaxy))) \<or> ((
   apply(drule not_OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_then_OclAny_OclIsTypeOf_others_unfold[OF isdef], blast)
 done 
 
-(* 91 ************************************ 579 + 6 *)
+(* 91 ************************************ 579 + 6 *)  (* term Floor1_iskindof.print_iskindof_up_istypeof *)
 lemma not_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_then_Planet_OclIsTypeOf_others : 
 assumes iskin: "\<not> \<tau> \<Turnstile> ((X::\<cdot>Planet) .oclIsKindOf(Person))"
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
@@ -2447,7 +2447,7 @@ shows "\<tau> \<Turnstile> ((X::\<cdot>OclAny) .oclIsTypeOf(OclAny))"
   apply(simp add: iskin)
 done 
 
-(* 92 ************************************ 585 + 10 *)
+(* 92 ************************************ 585 + 10 *)  (* term Floor1_iskindof.print_iskindof_up_d_cast *)
 lemma down_cast_kind\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_from_Planet_to_Person : 
 assumes iskin: "\<not> \<tau> \<Turnstile> ((X::\<cdot>Planet) .oclIsKindOf(Person))"
 assumes isdef: "\<tau> \<Turnstile> (\<delta> (X))"
@@ -2528,7 +2528,7 @@ done
 subsection \<open>Const\<close>
 
 (* 94 ************************************ 596 + 1 *)
-section \<open>OclAllInstances\<close>
+section \<open>Class Model: OclAllInstances\<close>
 
 (* 95 ************************************ 597 + 1 *)
 text \<open>
@@ -2536,23 +2536,23 @@ text \<open>
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.'' \<close>
 
-(* 96 ************************************ 598 + 4 *)
+(* 96 ************************************ 598 + 4 *)  (* term Floor1_allinst.print_allinst_def_id *)
 definition "Person = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>"
 definition "Planet = OclAsType\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<AA>"
 definition "Galaxy = OclAsType\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y_\<AA>"
 definition "OclAny = OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>"
 
-(* 97 ************************************ 602 + 1 *)
+(* 97 ************************************ 602 + 1 *)  (* term Floor1_allinst.print_allinst_lemmas_id *)
 lemmas[simp,code_unfold] = Person_def
                             Planet_def
                             Galaxy_def
                             OclAny_def
 
-(* 98 ************************************ 603 + 1 *)
+(* 98 ************************************ 603 + 1 *)  (* term Floor1_allinst.print_allinst_astype *)
 lemma OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_some : "(OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA> (x)) \<noteq> None"
 by(simp add: OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_\<AA>_def)
 
-(* 99 ************************************ 604 + 3 *)
+(* 99 ************************************ 604 + 3 *)  (* term Floor1_allinst.print_allinst_exec *)
 lemma OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_exec : 
 shows "(OclAllInstances_generic (pre_post) (OclAny)) = (\<lambda>\<tau>. (Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (\<lfloor>\<lfloor>Some ` OclAny ` (ran ((heap ((pre_post (\<tau>))))))\<rfloor>\<rfloor>)))"
   proof - let ?S1 = "(\<lambda>\<tau>. OclAny ` (ran ((heap ((pre_post (\<tau>)))))))" show ?thesis
@@ -2573,13 +2573,13 @@ by(rule OclAllInstances_generic\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_
 (* 100 ************************************ 607 + 1 *)
 subsection \<open>OclIsTypeOf\<close>
 
-(* 101 ************************************ 608 + 2 *)
+(* 101 ************************************ 608 + 2 *)  (* term Floor1_allinst.print_allinst_istypeof_pre *)
 lemma ex_ssubst : "(\<forall>x \<in> B. (s (x)) = (t (x))) \<Longrightarrow> (\<exists>x \<in> B. (P ((s (x))))) = (\<exists>x \<in> B. (P ((t (x)))))"
 by(simp)
 lemma ex_def : "x \<in> \<lceil>\<lceil>\<lfloor>\<lfloor>Some ` (X - {None})\<rfloor>\<rfloor>\<rceil>\<rceil> \<Longrightarrow> (\<exists>y. x = \<lfloor>\<lfloor>y\<rfloor>\<rfloor>)"
 by(auto)
 
-(* 102 ************************************ 610 + 21 *)
+(* 102 ************************************ 610 + 21 *)  (* term Floor1_allinst.print_allinst_istypeof *)
 lemma Person_OclAllInstances_generic_OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_generic (pre_post) (Person))) (OclIsTypeOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))"
   apply(simp add: OclValid_def del: OclAllInstances_generic_def)
   apply(simp only: UML_Set.OclForall_def refl if_True OclAllInstances_generic_defined[simplified OclValid_def])
@@ -2703,7 +2703,7 @@ by(rule OclAny_OclAllInstances_generic_OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub
 (* 103 ************************************ 631 + 1 *)
 subsection \<open>OclIsKindOf\<close>
 
-(* 104 ************************************ 632 + 12 *)
+(* 104 ************************************ 632 + 12 *)  (* term Floor1_allinst.print_allinst_iskindof_eq *)
 lemma Person_OclAllInstances_generic_OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n : "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_generic (pre_post) (Person))) (OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n))"
   apply(simp add: OclValid_def del: OclAllInstances_generic_def OclIsKindOf\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Person)
   apply(simp only: UML_Set.OclForall_def refl if_True OclAllInstances_generic_defined[simplified OclValid_def])
@@ -2773,7 +2773,7 @@ shows "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (OclAny))
   unfolding OclAllInstances_at_pre_def
 by(rule OclAny_OclAllInstances_generic_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y) 
 
-(* 105 ************************************ 644 + 18 *)
+(* 105 ************************************ 644 + 18 *)  (* term Floor1_allinst.print_allinst_iskindof_larger *)
 lemma Person_OclAllInstances_generic_OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t : "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_generic (pre_post) (Person))) (OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t))"
   apply(simp add: OclValid_def del: OclAllInstances_generic_def OclIsKindOf\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_Person)
   apply(simp only: UML_Set.OclForall_def refl if_True OclAllInstances_generic_defined[simplified OclValid_def])
@@ -2878,7 +2878,7 @@ shows "\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Galaxy))
 by(rule Galaxy_OclAllInstances_generic_OclIsKindOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y) 
 
 (* 106 ************************************ 662 + 1 *)
-section \<open>The Accessors\<close>
+section \<open>Class Model: The Accessors\<close>
 
 (* 107 ************************************ 663 + 1 *)
 text \<open>
@@ -2893,16 +2893,16 @@ subsection \<open>Definition\<close>
 (* 110 ************************************ 666 + 1 *)
 text \<open>\<close>
 
-(* 111 ************************************ 667 + 1 *)
+(* 111 ************************************ 667 + 1 *)  (* term Floor1_access.print_access_oid_uniq_ml *)
 ML \<open>val oidPerson_0_boss = 0\<close>
 
-(* 112 ************************************ 668 + 1 *)
+(* 112 ************************************ 668 + 1 *)  (* term Floor1_access.print_access_oid_uniq *)
 definition "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss = 0"
 
 (* 113 ************************************ 669 + 1 *)
 text \<open>\<close>
 
-(* 114 ************************************ 670 + 5 *)
+(* 114 ************************************ 670 + 5 *)  (* term Floor1_access.print_access_eval_extract *)
 definition "eval_extract x f = (\<lambda>\<tau>. (case x \<tau> of \<lfloor>\<lfloor>obj\<rfloor>\<rfloor> \<Rightarrow> (f ((oid_of (obj))) (\<tau>))
     | _ \<Rightarrow> invalid \<tau>))"
 definition "in_pre_state = fst"
@@ -2913,17 +2913,17 @@ definition "reconst_basetype\<^sub>V\<^sub>o\<^sub>i\<^sub>d x = Abs_Void\<^sub>
 (* 115 ************************************ 675 + 1 *)
 text \<open>\<close>
 
-(* 116 ************************************ 676 + 2 *)
+(* 116 ************************************ 676 + 2 *)  (* term Floor1_access.print_access_choose_ml *)
 ML \<open>val switch2_01 = (fn [x0 , x1] => (x0 , x1))\<close>
 ML \<open>val switch2_10 = (fn [x0 , x1] => (x1 , x0))\<close>
 
-(* 117 ************************************ 678 + 3 *)
+(* 117 ************************************ 678 + 3 *)  (* term Floor1_access.print_access_choose *)
 definition "switch\<^sub>2_01 = (\<lambda> [x0 , x1] \<Rightarrow> (x0 , x1))"
 definition "switch\<^sub>2_10 = (\<lambda> [x0 , x1] \<Rightarrow> (x1 , x0))"
 definition "deref_assocs pre_post to_from assoc_oid f oid = (\<lambda>\<tau>. (case (assocs ((pre_post (\<tau>))) (assoc_oid)) of \<lfloor>S\<rfloor> \<Rightarrow> (f ((deref_assocs_list (to_from) (oid) (S))) (\<tau>))
     | _ \<Rightarrow> (invalid (\<tau>))))"
 
-(* 118 ************************************ 681 + 4 *)
+(* 118 ************************************ 681 + 4 *)  (* term Floor1_access.print_access_deref_oid *)
 definition "deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n obj\<rfloor> \<Rightarrow> f obj \<tau>
     | _ \<Rightarrow> invalid \<tau>))"
 definition "deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t obj\<rfloor> \<Rightarrow> f obj \<tau>
@@ -2933,13 +2933,13 @@ definition "deref_oid\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y fst_snd f 
 definition "deref_oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y fst_snd f oid = (\<lambda>\<tau>. (case (heap (fst_snd \<tau>) (oid)) of \<lfloor>in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y obj\<rfloor> \<Rightarrow> f obj \<tau>
     | _ \<Rightarrow> invalid \<tau>))"
 
-(* 119 ************************************ 685 + 0 *)
+(* 119 ************************************ 685 + 0 *)  (* term Floor1_access.print_access_deref_assocs *)
 
 (* 120 ************************************ 685 + 1 *)
 text \<open>
    pointer undefined in state or not referencing a type conform object representation \<close>
 
-(* 121 ************************************ 686 + 15 *)
+(* 121 ************************************ 686 + 15 *)  (* term Floor1_access.print_access_select *)
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<bottom>) (_)) \<Rightarrow> null
     | (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (\<lfloor>x___boss\<rfloor>) (_)) \<Rightarrow> (f (x___boss)))"
 definition "select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary f = (\<lambda> (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (_) (_) (\<bottom>)) \<Rightarrow> null
@@ -2974,9 +2974,9 @@ definition "select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_world 
     | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (_) (_) (_) (\<lfloor>x___outer_world\<rfloor>))) (_) (_)) \<Rightarrow> (f (x___outer_world))
     | (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (person))) (_) (_)) \<Rightarrow> (select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__outer_world (f) (person)))"
 
-(* 122 ************************************ 701 + 0 *)
+(* 122 ************************************ 701 + 0 *)  (* term Floor1_access.print_access_select_obj *)
 
-(* 123 ************************************ 701 + 14 *)
+(* 123 ************************************ 701 + 14 *)  (* term Floor1_access.print_access_dot_consts *)
 consts dot_0___boss :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Person" ("(_) .boss")
 consts dot_0___bossat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> \<cdot>Person" ("(_) .boss@pre")
 consts dot__salary :: "(\<AA>, '\<alpha>) val \<Rightarrow> Integer" ("(_) .salary")
@@ -2992,7 +2992,7 @@ consts dot__movingat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Boolean" ("(_)
 consts dot__outer_world :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Sequence_Planet" ("(_) .outer'_world")
 consts dot__outer_worldat_pre :: "(\<AA>, '\<alpha>) val \<Rightarrow> Set_Sequence_Planet" ("(_) .outer'_world@pre")
 
-(* 124 ************************************ 715 + 30 *)
+(* 124 ************************************ 715 + 30 *)  (* term Floor1_access.print_access_dot *)
 overloading dot_0___boss \<equiv> "(dot_0___boss::(\<cdot>Person) \<Rightarrow> _)"
 begin
   definition dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "(x::\<cdot>Person) .boss \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) ((select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss ((select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))))))))"
@@ -3114,7 +3114,7 @@ begin
   definition dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre : "(x::\<cdot>Planet) .outer_world@pre \<equiv> (eval_extract (x) ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) ((select\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_world ((select_object\<^sub>S\<^sub>e\<^sub>t ((select_object\<^sub>S\<^sub>e\<^sub>q ((deref_oid\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (in_pre_state) (reconst_basetype))))))))))))"
 end
 
-(* 125 ************************************ 745 + 1 *)
+(* 125 ************************************ 745 + 1 *)  (* term Floor1_access.print_access_dot_lemmas_id *)
 lemmas dot_accessor = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss
                             dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary
                             dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre
@@ -3149,10 +3149,10 @@ lemmas dot_accessor = dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bo
 (* 126 ************************************ 746 + 1 *)
 subsection \<open>Context Passing\<close>
 
-(* 127 ************************************ 747 + 1 *)
+(* 127 ************************************ 747 + 1 *)  (* term Floor1_access.print_access_dot_cp_lemmas *)
 lemmas[simp,code_unfold] = eval_extract_def
 
-(* 128 ************************************ 748 + 30 *)
+(* 128 ************************************ 748 + 30 *)  (* term Floor1_access.print_access_dot_lemma_cp *)
 lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "(cp ((\<lambda>X. (X::\<cdot>Person) .boss)))"
 by(auto simp: dot_accessor cp_def)
 lemma cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary : "(cp ((\<lambda>X. (X::\<cdot>Person) .salary)))"
@@ -3214,7 +3214,7 @@ by(auto simp: dot_accessor cp_def)
 lemma cp_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre : "(cp ((\<lambda>X. (X::\<cdot>Planet) .outer_world@pre)))"
 by(auto simp: dot_accessor cp_def)
 
-(* 129 ************************************ 778 + 1 *)
+(* 129 ************************************ 778 + 1 *)  (* term Floor1_access.print_access_dot_lemmas_cp *)
 lemmas[simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss
                             cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__salary
                             cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___bossat_pre
@@ -3249,7 +3249,7 @@ lemmas[simp,code_unfold] = cp_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>
 (* 130 ************************************ 779 + 1 *)
 subsection \<open>Execution with Invalid or Null as Argument\<close>
 
-(* 131 ************************************ 780 + 60 *)
+(* 131 ************************************ 780 + 60 *)  (* term Floor1_access.print_access_lemma_strict *)
 lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_invalid : "(invalid::\<cdot>Person) .boss = invalid"
 by(rule ext, simp add: dot_accessor bot_option_def invalid_def)
 lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_null : "(null::\<cdot>Person) .boss = invalid"
@@ -3374,7 +3374,7 @@ by(rule ext, simp add: dot_accessor bot_option_def null_fun_def null_option_def)
 (* 132 ************************************ 840 + 1 *)
 subsection \<open>Representation in States\<close>
 
-(* 133 ************************************ 841 + 30 *)
+(* 133 ************************************ 841 + 30 *)  (* term Floor1_access.print_access_def_mono *)
 lemma defined_mono_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss)) \<Longrightarrow> \<tau> \<Turnstile> (\<delta> (X))"
   apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> invalid)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "invalid"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_invalid)
   apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_null)
@@ -3496,7 +3496,7 @@ lemma defined_mono_dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_wo
   apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .outer_world@pre)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16' dot\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t__outer_worldat_pre_null)
 by(simp add: defined_split)
 
-(* 134 ************************************ 871 + 2 *)
+(* 134 ************************************ 871 + 2 *)  (* term Floor1_access.print_access_is_repr *)
 lemma is_repr_dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss : 
 assumes def_dot: "\<tau> \<Turnstile> (\<delta> ((X::\<cdot>Person) .boss))"
 shows "(is_represented_in_state (in_post_state) (X .boss) (Person) (\<tau>))"
@@ -3568,10 +3568,10 @@ by(rule) qed
   apply_end(simp_all)
  qed
 
-(* 135 ************************************ 873 + 0 *)
+(* 135 ************************************ 873 + 0 *)  (* term Floor1_access.print_access_repr_allinst *)
 
 (* 136 ************************************ 873 + 1 *)
-section \<open>A Little Infra-structure on Example States\<close>
+section \<open>Class Model: Towards the Object Instances\<close>
 
 (* 137 ************************************ 874 + 1 *)
 text \<open>
@@ -3595,11 +3595,11 @@ text \<open>\<close>
 (* 140 ************************************ 877 + 1 *)
 text_raw \<open>\<close>
 
-(* 141 ************************************ 878 + 1 *)
+(* 141 ************************************ 878 + 1 *)  (* term Floor1_examp.print_examp_def_st_defs *)
 lemmas [simp,code_unfold] = state.defs
                             const_ss
 
-(* 142 ************************************ 879 + 1 *)
+(* 142 ************************************ 879 + 1 *)  (* term Floor1_astype.print_astype_lemmas_id2 *)
 lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Planet
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_Galaxy
                             OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_OclAny
@@ -3613,11 +3613,14 @@ lemmas[simp,code_unfold] = OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^s
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Planet
                             OclAsType\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_Galaxy
 
-(* 143 ************************************ 880 + 2 *)
+(* 143 ************************************ 880 + 1 *)
+section \<open>Instance\<close>
+
+(* 144 ************************************ 881 + 2 *)  (* term Floor1_examp.print_examp_instance_defassoc_typecheck_var *)
 definition "(typecheck_instance_bad_head_on_lhs_P1_X0_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (P1) (X0) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1)) = ()"
 definition "typecheck_instance_extra_variables_on_rhs_P1_X0_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2_X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 = (\<lambda>P1 X0 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1. (P1 , P1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2))"
 
-(* 144 ************************************ 882 + 12 *)
+(* 145 ************************************ 883 + 12 *)  (* term Floor1_examp.print_examp_instance_defassoc *)
 definition "oid1 = 1"
 definition "oid2 = 2"
 definition "oid3 = 3"
@@ -3632,7 +3635,7 @@ definition "oid11 = 11"
 definition "inst_assoc1 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid7] , [oid7]] , [[oid6] , [oid7]] , [[oid2] , [oid2]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 145 ************************************ 894 + 22 *)
+(* 146 ************************************ 895 + 22 *)  (* term Floor1_examp.print_examp_instance *)
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid1))) (\<lfloor>1300\<rfloor>))"
 definition "(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc1))\<rfloor>\<rfloor>))"
 definition "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid2))) (\<lfloor>1800\<rfloor>))"
@@ -3656,18 +3659,21 @@ definition "(X0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(X0\<^sub>P\<^
 definition "P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t inst_assoc = (mk\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((mk\<E>\<X>\<T>\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (oid11) (None) (None) (\<lfloor>[[oid11] , [oid11]]\<rfloor>))) (None) (None))"
 definition "(P1::\<cdot>Planet) = ((\<lambda>_. \<lfloor>\<lfloor>(P1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (inst_assoc1))\<rfloor>\<rfloor>))"
 
-(* 146 ************************************ 916 + 1 *)
+(* 147 ************************************ 917 + 1 *)  (* term Floor1_examp.print_examp_instance_defassoc_typecheck *)
 ML \<open>(Ty'.check ([(META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 .boss \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 /* unnamed attribute */ \<cong> Set{ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 }") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 .boss \<cong> Set{}") , (META.Writeln , "X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "X0 .boss \<cong> Set{}") , (META.Writeln , "X0 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)"))\<close>
 
-(* 147 ************************************ 917 + 2 *)
+(* 148 ************************************ 918 + 1 *)
+section \<open>Instance\<close>
+
+(* 149 ************************************ 919 + 2 *)  (* term Floor1_examp.print_examp_instance_defassoc_typecheck_var *)
 definition "(typecheck_instance_bad_head_on_lhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 (\<sigma>\<^sub>1_object4) (\<sigma>\<^sub>1_object2) (\<sigma>\<^sub>1_object1) (\<sigma>\<^sub>1_object0)) = ()"
 definition "typecheck_instance_extra_variables_on_rhs_\<sigma>\<^sub>1_object4_\<sigma>\<^sub>1_object2_\<sigma>\<^sub>1_object1_\<sigma>\<^sub>1_object0 = (\<lambda>\<sigma>\<^sub>1_object4 \<sigma>\<^sub>1_object2 \<sigma>\<^sub>1_object1 \<sigma>\<^sub>1_object0. (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 , X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1))"
 
-(* 148 ************************************ 919 + 1 *)
+(* 150 ************************************ 921 + 1 *)  (* term Floor1_examp.print_examp_instance_defassoc *)
 definition "inst_assoc12 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid6] , [oid4]] , [[oid4] , [oid5]] , [[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 149 ************************************ 920 + 8 *)
+(* 151 ************************************ 922 + 8 *)  (* term Floor1_examp.print_examp_instance *)
 definition "\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid1) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid1))) (\<lfloor>1000\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object0::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object0\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
 definition "\<sigma>\<^sub>1_object1\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid2) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid2))) (\<lfloor>1200\<rfloor>))"
@@ -3677,10 +3683,13 @@ definition "(\<sigma>\<^sub>1_object2::\<cdot>Person) = ((\<lambda>_. \<lfloor>\
 definition "\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n inst_assoc = (mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n ((mk\<E>\<X>\<T>\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (oid6) (None) (None) (None) (None) (None))) (((inst_assoc) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss) (switch\<^sub>2_01) (oid6))) (\<lfloor>2300\<rfloor>))"
 definition "(\<sigma>\<^sub>1_object4::\<cdot>Person) = ((\<lambda>_. \<lfloor>\<lfloor>(\<sigma>\<^sub>1_object4\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (inst_assoc12))\<rfloor>\<rfloor>))"
 
-(* 150 ************************************ 928 + 1 *)
+(* 152 ************************************ 930 + 1 *)  (* term Floor1_examp.print_examp_instance_defassoc_typecheck *)
 ML \<open>(Ty'.check ([(META.Writeln , "\<sigma>\<^sub>1_object0 .boss \<cong> Set{ \<sigma>\<^sub>1_object1 }") , (META.Writeln , "\<sigma>\<^sub>1_object0 /* unnamed attribute */ \<cong> Set{}") , (META.Writeln , "\<sigma>\<^sub>1_object1 .boss \<cong> Set{}") , (META.Writeln , "\<sigma>\<^sub>1_object1 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object0 }") , (META.Writeln , "\<sigma>\<^sub>1_object2 .boss \<cong> Set{ /*5*/ }") , (META.Writeln , "\<sigma>\<^sub>1_object2 /* unnamed attribute */ \<cong> Set{ \<sigma>\<^sub>1_object4 }") , (META.Writeln , "\<sigma>\<^sub>1_object4 .boss \<cong> Set{ \<sigma>\<^sub>1_object2 }") , (META.Writeln , "\<sigma>\<^sub>1_object4 /* unnamed attribute */ \<cong> Set{}")]) (" error(s)"))\<close>
 
-(* 151 ************************************ 929 + 1 *)
+(* 153 ************************************ 931 + 1 *)
+section \<open>State (Floor 2)\<close>
+
+(* 154 ************************************ 932 + 1 *)
 locale state_\<sigma>\<^sub>1 =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -3959,10 +3968,13 @@ by(rule \<sigma>\<^sub>1_OclAllInstances_generic_exec_OclAny, simp_all only: ass
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 end
 
-(* 152 ************************************ 930 + 1 *)
+(* 155 ************************************ 933 + 1 *)  (* term Floor2_examp.print_examp_def_st_def_interp *)
 definition "(state_interpretation_\<sigma>\<^sub>1 (\<tau>)) = (state_\<sigma>\<^sub>1 (oid1) (oid2) (oid4) (oid5) (oid6) (oid9) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object0 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object0) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object1 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object1) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object2 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object4 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 153 ************************************ 931 + 1 *)
+(* 156 ************************************ 934 + 1 *)
+section \<open>State (Floor 2)\<close>
+
+(* 157 ************************************ 935 + 1 *)
 locale state_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -4297,10 +4309,13 @@ by(rule \<sigma>\<^sub>1'_OclAllInstances_generic_exec_OclAny, simp_all only: as
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 end
 
-(* 154 ************************************ 932 + 1 *)
+(* 158 ************************************ 936 + 1 *)  (* term Floor2_examp.print_examp_def_st_def_interp *)
 definition "(state_interpretation_\<sigma>\<^sub>1' (\<tau>)) = (state_\<sigma>\<^sub>1' (oid1) (oid2) (oid3) (oid4) (oid6) (oid7) (oid8) (oid9) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 155 ************************************ 933 + 1 *)
+(* 159 ************************************ 937 + 1 *)
+section \<open>Transition (Floor 2)\<close>
+
+(* 160 ************************************ 938 + 1 *)
 locale transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -4540,10 +4555,10 @@ shows "(state_\<sigma>\<^sub>1.\<sigma>\<^sub>1 , state_\<sigma>\<^sub>1'.\<sigm
 by((metis distinct_oid distinct_length_2_or_more)?) 
 end
 
-(* 156 ************************************ 934 + 1 *)
+(* 161 ************************************ 939 + 1 *)  (* term Floor2_examp.print_transition_def_interp *)
 definition "(pp_\<sigma>\<^sub>1_\<sigma>\<^sub>1' (\<tau>)) = (transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' (oid1) (oid2) (oid3) (oid4) (oid5) (oid6) (oid7) (oid8) (oid9) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object0 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object0) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object1 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object1) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object2 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object2) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5) (\<lceil>\<lceil>(\<sigma>\<^sub>1_object4 (\<tau>))\<rceil>\<rceil>) (\<sigma>\<^sub>1_object4) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8) (\<lceil>\<lceil>(X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 (\<tau>))\<rceil>\<rceil>) (X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9))"
 
-(* 157 ************************************ 935 + 3 *)
+(* 162 ************************************ 940 + 3 *)  (* term Floor2_examp.print_transition_lemmas_oid *)
 lemmas pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = oid1_def
                             oid2_def
                             oid3_def
@@ -4580,7 +4595,10 @@ lemmas pp_object_ty_\<sigma>\<^sub>1_\<sigma>\<^sub>1' = \<sigma>\<^sub>1_object
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_def
                             X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_def
 
-(* 158 ************************************ 938 + 6 *)
+(* 163 ************************************ 943 + 1 *)
+section \<open>Context (Floor 2)\<close>
+
+(* 164 ************************************ 944 + 6 *)  (* term Floor2_ctxt.print_ctxt_pre_post *)
 axiomatization where dot__contents_Person_def:
 "(self::\<cdot>Person) .contents() \<equiv> (\<lambda>\<tau>. (Eps ((\<lambda>result. (Let ((\<lambda>_. result)) ((\<lambda>result. (if ((\<tau> \<Turnstile> ((\<delta> (self))))) then (\<tau> \<Turnstile> ((((UML_Logic.false :: (((_, Product_Type.unit) UML_Types.state.state_ext \<times> (_, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))))) \<and> (\<tau> \<Turnstile> ((((((UML_Logic.StrongEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (result)) (((((UML_Logic.OclIf :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))))) ((((UML_Logic.StrictRefEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot_0___boss :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option))))) ((((UML_Set.OclIncluding :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e))))) ((UML_Set.mtSet :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))) (((Employee_DesignModel_UMLPart_generated.dot__salary :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self)))) ((((UML_Set.OclIncluding :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e))))) (((Employee_DesignModel_UMLPart_generated.dot__contents :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> (((Int.int) Option.option) Option.option) UML_Types.Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e)))) (((Employee_DesignModel_UMLPart_generated.dot_0___boss :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))) (((Employee_DesignModel_UMLPart_generated.dot__salary :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self)))) and (UML_Logic.true :: (((_, Product_Type.unit) UML_Types.state.state_ext \<times> (_, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))))) else (\<tau> \<Turnstile> (result \<triangleq> invalid))))))))))"
 thm dot__contents_Person_def
@@ -4598,28 +4616,34 @@ begin
 end
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 159 ************************************ 944 + 0 *)
+(* 165 ************************************ 950 + 0 *)  (* term Floor2_ctxt.print_ctxt_inv *)
 
-(* 160 ************************************ 944 + 0 *)
+(* 166 ************************************ 950 + 0 *)  (* term Floor2_ctxt.print_ctxt_thm *)
 
-(* 161 ************************************ 944 + 0 *)
+(* 167 ************************************ 950 + 1 *)
+section \<open>Context (Floor 2)\<close>
 
-(* 162 ************************************ 944 + 3 *)
+(* 168 ************************************ 951 + 0 *)  (* term Floor2_ctxt.print_ctxt_pre_post *)
+
+(* 169 ************************************ 951 + 3 *)  (* term Floor2_ctxt.print_ctxt_inv *)
 definition "Person_aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Person))) ((\<lambda>self. (((UML_Logic.OclImplies :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((UML_Logic.OclNot :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Logic.StrictRefEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))))) ((((UML_Logic.StrongEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) (((Employee_DesignModel_UMLPart_generated.dot__salaryat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (((Employee_DesignModel_UMLPart_generated.dot_0___bossat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))))))))"
 definition "Person_a = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Person))) ((\<lambda>self. (((UML_Logic.OclImplies :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((UML_Logic.OclNot :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Logic.StrictRefEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot_0___boss :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self))) ((UML_Types.null_class.null :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))))) ((((UML_Logic.StrongEq :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot__salary :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) (((Employee_DesignModel_UMLPart_generated.dot__salary :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (((Employee_DesignModel_UMLPart_generated.dot_0___boss :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Employee_DesignModel_UMLPart_generated.ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n) Option.option) Option.option)))) (self)))))))))"
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 163 ************************************ 947 + 1 *)
+(* 170 ************************************ 954 + 1 *)  (* term Floor2_ctxt.print_ctxt_thm *)
 thm Person_aat_pre_def Person_a_def
 
-(* 164 ************************************ 948 + 0 *)
+(* 171 ************************************ 955 + 1 *)
+section \<open>Context (Floor 2)\<close>
 
-(* 165 ************************************ 948 + 3 *)
+(* 172 ************************************ 956 + 0 *)  (* term Floor2_ctxt.print_ctxt_pre_post *)
+
+(* 173 ************************************ 956 + 3 *)  (* term Floor2_ctxt.print_ctxt_inv *)
 definition "Planet_Aat_pre = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_pre (Planet))) ((\<lambda>self. (((UML_Logic.OclAnd :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) ((UML_Logic.true :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot__weightat_pre :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) ((UML_Integer.OclInt0 :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))))))))"
 definition "Planet_A = (\<lambda>\<tau>. (\<tau> \<Turnstile> (UML_Set.OclForall ((OclAllInstances_at_post (Planet))) ((\<lambda>self. (((UML_Logic.OclAnd :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) ((UML_Logic.true :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option)))) ((((UML_Integer.OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((HOL.bool) Option.option) Option.option))))) (((Employee_DesignModel_UMLPart_generated.dot__weight :: ((((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> _) \<Rightarrow> (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))) (self))) ((UML_Integer.OclInt0 :: (((Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext \<times> (Employee_DesignModel_UMLPart_generated.\<AA>, Product_Type.unit) UML_Types.state.state_ext) \<Rightarrow> ((Int.int) Option.option) Option.option)))))))))"
 ML \<open>(Ty'.check ([]) (" error(s)"))\<close>
 
-(* 166 ************************************ 951 + 1 *)
+(* 174 ************************************ 959 + 1 *)  (* term Floor2_ctxt.print_ctxt_thm *)
 thm Planet_Aat_pre_def Planet_A_def
 
 end
