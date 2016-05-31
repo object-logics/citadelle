@@ -113,7 +113,11 @@ end
 (* TODO use antiquotations in cartouches *)
 local_setup \<open>embedding_fun_info @{const_name print_infra_enum_synonym}\<close>
 local_setup \<open>embedding_fun_info @{const_name print_latex_infra_datatype_class}\<close>
-local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_class}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_class_1}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_class_2}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_equiv_2of1}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_equiv_1of2}\<close>
+local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_equiv_1_idempo}\<close>
 local_setup \<open>embedding_fun_info @{const_name print_infra_datatype_universe}\<close>
 local_setup \<open>embedding_fun_info @{const_name print_infra_type_synonym_class}\<close>
 local_setup \<open>embedding_fun_info @{const_name print_infra_type_synonym_class_higher}\<close>
@@ -326,7 +330,11 @@ captured by the subsequent theory).
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: \<close> ]
             (*, PRINT_latex_infra_datatype_class*)
-            , PRINT_infra_datatype_class
+            , PRINT_infra_datatype_class_1
+            , PRINT_infra_datatype_class_2
+            , PRINT_infra_datatype_equiv_2of1
+            , PRINT_infra_datatype_equiv_1of2
+            (*, PRINT_infra_datatype_equiv_1_idempo*)
             , txt'' [ \<open>
    Now, we construct a concrete ``universe of OclAny types'' by injection into a
 sum type containing the class types. This type of OclAny will be used as instance

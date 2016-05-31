@@ -318,6 +318,11 @@ definition "datatype_name = \<open>ty\<close>"
 definition "datatype_ext_name = datatype_name @@ \<open>\<E>\<X>\<T>\<close>"
 definition "datatype_constr_name = \<open>mk\<close>"
 definition "datatype_ext_constr_name = datatype_constr_name @@ \<open>\<E>\<X>\<T>\<close>"
+definition "datatype'_ext_name = \<open>ty2\<close>"
+definition "datatype'_ext'_name = datatype'_ext_name @@ \<open>\<E>\<X>\<T>\<close>"
+definition "datatype'_name = datatype'_ext_name @@ const_oid"
+definition "datatype'_ext_constr_name = \<open>mk2\<close>"
+definition "datatype'_constr_name = datatype'_ext_constr_name @@ const_oid"
 definition "datatype_in = \<open>in\<close>"
 
 subsection\<open>Main Combinators for the Translation\<close>
