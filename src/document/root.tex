@@ -232,6 +232,51 @@
     to define and implement OCL tools in a uniform manner.  Overall, this
     document is intended to provide the basis for a machine-checked text
     ``Annex A'' of the OCL standard targeting at tool implementors.
+
+%% Le Langage de Modélisation Unifié (UML) fait partie des quelques
+%% langages de modélisation couramment utilisés dans l'industrie. Alors
+%% qu'UML est bien souvent connu comme langage de modélisation de
+%% diagrammes (par exemple, comme classes de modèles visuels), il est
+%% plus précisément complémenté par un langage textuel, appelé Langage
+%% Contraint d'Objet (OCL). OCL est un langage d'annotation textuel,
+%% originellement basé sur une logique 3-valuée, et fait ainsi apparaître
+%% UML comme un langage plutôt formel. Pourtant la sémantique de ce
+%% langage de spécification, instinctivement décrit dans l'annexe A du
+%% standard d'OCL, mène à différentes interprétations concernant le sens
+%% précis des informations véhiculées. Ces différentes interprétations
+%% sont encore en cours d'élucidation depuis plus de dix ans via
+%% notamment l'emploi d'outils d'analyse formelle.
+%% 
+%% La situation s'est compliquée avec la mise à jour vers la version 2.3
+%% du standard d'OCL. Étant donné qu'OCL dépends de la dernière version
+%% d'UML, il a été nécessaire d'introduire comme extension à la logique
+%% 3-valuée un second élément d'exception, qui est null. Ce qui le
+%% différencie avec le premier élément d'exception invalid, c'est sa
+%% sémantique non-stricte, alors qu'invalid a une sémantique stricte. La
+%% combinaison de ces variétés sémantiques a finalement abouti à divers
+%% confusions lors de l'implémentation de compilateurs OCL.
+%% 
+%% Dans ce papier, nous apportons une formalisation du cœur d'OCL en
+%% HOL. Il contient des définitions dénotationnelles, un système de
+%% calcul logique et des règles opérationnelles permettant l'exécution
+%% des expressions OCL à travers une mixture de règles de réécriture et
+%% de compilation de code. De plus, nous décrivons un schéma de codage
+%% pour les modèles de classes UML pour représenter les invariants et
+%% contrats UML. Une implémentation de ce schéma de codage a été
+%% effectuée : il s'agit d'un genre particulier de compilateur acceptant
+%% en entrée des classes de modèles UML et générant en sortie une famille
+%% de définitions, théorèmes associés sur les propriétés des
+%% constructeurs et sélecteurs, fonctions de tests ainsi que des
+%% mutations de types. Ce compilateur n'est cependant pas inclus dans ce
+%% document.
+%% 
+%% Nos formalisations ont finalement révélés des inconsistances et
+%% contradictions concernant la version courante du standard d'OCL. Par
+%% ailleurs cela représente un challenge de définir et implémenter des
+%% outils pour OCL de manière uniformément cohérente. Ce document a pour
+%% but de fournir des bases vérifiées mécaniquement, et servir comme
+%% support sémantique à l'Annexe A du standard d'OCL ciblant
+%% particulièrement les programmeurs d'outils et compilateurs.
   \end{abstract}
   \tableofcontents
 \endisatagafp
