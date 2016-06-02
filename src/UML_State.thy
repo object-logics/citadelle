@@ -1056,19 +1056,25 @@ definition "select_object\<^sub>S\<^sub>e\<^sub>t = select_object mtSet UML_Set.
 definition "select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set = UML_Set.OclANY (select_object\<^sub>S\<^sub>e\<^sub>t f s_set)"
 definition "select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set = 
  (let s = select_object\<^sub>S\<^sub>e\<^sub>t f s_set in
-  if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<one> then
-    s->any\<^sub>S\<^sub>e\<^sub>t()
-  else
-    \<bottom>
+  if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<zero> then
+    null
+  else if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<one> then
+         s->any\<^sub>S\<^sub>e\<^sub>t()
+       else
+         \<bottom>
+       endif
   endif)"
 definition "select_object\<^sub>S\<^sub>e\<^sub>q = select_object mtSequence UML_Sequence.OclIncluding id"
 definition "select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set = UML_Sequence.OclANY (select_object\<^sub>S\<^sub>e\<^sub>q f s_set)"
 definition "select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set = 
  (let s = select_object\<^sub>S\<^sub>e\<^sub>q f s_set in
-  if s->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<one> then
-    s->any\<^sub>S\<^sub>e\<^sub>q()
-  else
-    \<bottom>
+  if s->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<zero> then
+    null
+  else if s->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<one> then
+         s->any\<^sub>S\<^sub>e\<^sub>q()
+       else
+         \<bottom>
+       endif
   endif)"
 definition "select_object\<^sub>P\<^sub>a\<^sub>i\<^sub>r f1 f2 = (\<lambda>(a,b). OclPair (f1 a) (f2 b))"
 
@@ -1200,20 +1206,30 @@ lemma select_object_any_exec\<^sub>S\<^sub>e\<^sub>q:
  shows "\<exists> e. List.member s_set e \<and> (\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f e))"
 proof -
  have def_sel0: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set)"
-  apply(insert OclIf_defined'[OF def_sel[simplified select_object_any\<^sub>S\<^sub>e\<^sub>q_def select_object_any0\<^sub>S\<^sub>e\<^sub>q_def Let_def]],
-        auto simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>q_def)
+  apply (simp add: select_object_any0\<^sub>S\<^sub>e\<^sub>q_def)
+  apply(insert OclIf_defined'[OF def_sel[simplified select_object_any\<^sub>S\<^sub>e\<^sub>q_def select_object_any0\<^sub>S\<^sub>e\<^sub>q_def Let_def]], auto)
+  apply(drule OclIf_defined', auto)
  by(simp add: defined_def)
+
+ have A00: "\<tau> \<Turnstile> not (select_object\<^sub>S\<^sub>e\<^sub>q f s_set->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<zero>)"
+  apply(insert def_sel)
+  apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def Let_def OclValid_def)
+  apply(subst (asm) cp_defined, subst (asm) cp_OclIf)
+  apply(case_tac "\<tau> \<Turnstile> select_object\<^sub>S\<^sub>e\<^sub>q f s_set->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<zero>", simp add: OclValid_def)
+   apply(simp add: cp_defined[symmetric] false_def true_def)
+ by (metis (no_types) OclIf_defined OclValid_def cp_defined defined_bool_split)
 
  have A0: "\<tau> \<Turnstile> select_object\<^sub>S\<^sub>e\<^sub>q f s_set->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<one>"
   apply(rule contrapos_pp, simp, simp add: StrongEq_def OclValid_def true_def)
   apply(insert def_sel)
   apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def Let_def OclValid_def)
- by(subst (asm) cp_defined, subst (asm) cp_OclIf, subst (asm) StrongEq_def,
+  apply(subst (asm) cp_defined, simp add: OclIf_false'[OF A00])
+ by(subst (asm) cp_OclIf, subst (asm) StrongEq_def,
     simp add: OclIf_def true_def defined_def false_def)
 
  have A: "\<tau> \<Turnstile> (select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set)"
   apply(simp add: OclValid_def StrongEq_def true_def)
-  apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def select_object_any0\<^sub>S\<^sub>e\<^sub>q_def Let_def)
+  apply(simp add: select_object_any\<^sub>S\<^sub>e\<^sub>q_def select_object_any0\<^sub>S\<^sub>e\<^sub>q_def Let_def OclIf_false'[OF A00])
  by(rule OclIf_true', rule A0)
 
  show ?thesis
