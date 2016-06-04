@@ -46,7 +46,7 @@ header{* Gogolla's challenge on Sets *}
 theory
   OCL_lib_Gogolla_challenge_naive
 imports
-  "../../src/UML_Library"
+  Isabelle_Finite_Set
 begin
 
 no_notation None ("\<bottom>")
