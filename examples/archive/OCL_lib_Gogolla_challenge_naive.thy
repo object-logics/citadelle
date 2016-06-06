@@ -261,8 +261,7 @@ proof -
   by (metis bot_fun_def valid_def)
 qed
 
-
-lemma OclIterate\<^sub>S\<^sub>e\<^sub>t_valid_:
+lemma (*OclIterate\<^sub>S\<^sub>e\<^sub>t_valid_:*)
 assumes S_finite: "\<And>\<tau>. finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"
 and F_commute: "comp_fun_commute F"
 and A_defined: "\<delta> A = \<upsilon> A"
@@ -467,5 +466,33 @@ proof -
 
   by (metis bot_fun_def valid_def)
 qed
+
+section \<open>...\<close>
+
+lemma mtSet_eq_exec:
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> Set(\<langle>\<langle>int\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>))"
+   shows "(S = Set{}) = (\<forall>\<tau>. \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> = {})"
+proof -
+ have S_incl : "(\<forall>\<tau>. \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> = {}) \<Longrightarrow> Set{} = S"
+  apply(rule ext, rename_tac \<tau>)
+  proof - fix \<tau> show "\<forall>\<tau>. \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> = {} \<Longrightarrow> Set{} \<tau> = S \<tau>"
+   apply(insert S_all_def[of \<tau>])
+   apply(drule_tac x = \<tau> in allE) prefer 2 apply assumption
+   apply(simp add: mtSet_def)
+  by (metis abs_rep_simp' all_defined_def)
+ qed
+ have B : "\<lfloor>\<lfloor>{}\<rfloor>\<rfloor> \<in> {X. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}" by(simp add: mtSet_def)
+
+ show ?thesis
+  apply(rule iffI)
+   apply(rule allI, simp add: mtSet_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse B)
+  apply(simp add: S_incl)
+ done
+qed
+
+lemma mtSet_neq_exec :
+ assumes S_all_def : "\<And>\<tau>. all_defined \<tau> (S :: 'a state \<times> 'a state \<Rightarrow> Set(\<langle>\<langle>int\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>))"
+   shows "(S \<noteq> Set{}) = (\<exists>\<tau>. \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil> \<noteq> {})"
+by(simp add: mtSet_eq_exec[OF S_all_def])
 
 end
