@@ -74,3 +74,16 @@ anyhow. We only use them to avoid introducing a parallel setup to
 the one that we cannot avoid due to design decisions by the
 Isabelle maintainer) carefully, will result in LaTeX errors that
 are close to not debug-able.
+
+
+List of Isabelle version to use depending on revisions:
+======================================================
+2016/02/22 revision 12439: Isabelle2016   (February 2016)
+2015/06/11 revision 11691: Isabelle2015   (May      2015)
+2015/02/02 revision 11283: Isabelle2014   (August   2014)
+2013/12/05 revision 10054: Isabelle2013-2 (December 2013)
+2013/12/02 revision 10013: Isabelle2013-1 (November 2013)
+2013/11/14 revision  9950: Isabelle2013   (February 2013)
+2013/05/27 revision  9682: Isabelle2012   (May      2012)
+(* 2013/03/27 revision  9616 *)
+           revision     ?: Isabelle2011-1 (October  2011)
