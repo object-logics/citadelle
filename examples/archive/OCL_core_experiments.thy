@@ -1,12 +1,13 @@
 (*****************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5 
+ * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
  * OCL_core_experiments.thy --- 
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2012      Université Paris-Saclay, Univ. Paris-Sud, France
+ * Copyright (c) 2013-2016 Université Paris-Saclay, Univ. Paris-Sud, France
+ *               2013-2016 IRT SystemX, France
  *
  * All rights reserved.
  *
@@ -43,21 +44,22 @@
 theory 
   OCL_core_experiments
 imports
-  OCL_core (* Testing *)
+  "../../src/UML_Logic"
 begin
 
 section{* OCL Core Definitions *}
 
 nitpick_params
- [timeout = 30, tac_timeout = 0.5, show_datatypes,assms=true]
+ [timeout = 30, tac_timeout = 0.5, show_types,assms=true]
 lemma ocl_and_defargs: 
 "\<tau> \<Turnstile> (P and Q) \<Longrightarrow> (\<tau> \<Turnstile> \<delta> P) \<and> (\<tau> \<Turnstile> \<delta> Q)"
 by(auto dest: foundation5 foundation6)
 
-(*
+(* *)
+
 nitpick_params
 nitpick_params
- [timeout = 30, tac_timeout = 0.5, show_datatypes]
+ [timeout = 30, tac_timeout = 0.5, show_types]
 lemma ocl_and_defargs: 
 "\<tau> \<Turnstile> ((P and Q)  \<triangleq>  (P or Q))"
 nitpick[show_all]
@@ -65,7 +67,7 @@ nitpick[show_all]
 oops
 lemma "P & Q = Q"
 nitpick
-*)
+oops
 
 
 end

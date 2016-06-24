@@ -138,6 +138,7 @@ session "OCL-all-dirty" in "src" = HOL +
     "../src/compiler/Aux_text"
     "../src/compiler/Rail"
 
+    "../examples/archive/OCL_core_experiments"
     "../examples/archive/OCL_lib_Gogolla_challenge_naive"
     "../examples/archive/OCL_lib_Gogolla_challenge_integer"
   document_files
