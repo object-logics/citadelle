@@ -74,6 +74,7 @@
 \allowdisplaybreaks[4]
 \raggedbottom
 
+\newcommand{\FOL}{FOL\xspace}
 \newcommand{\HOL}{HOL\xspace}
 \newcommand{\OCL}{OCL\xspace}
 \newcommand{\UML}{UML\xspace}
@@ -81,8 +82,8 @@
 \newcommand{\FOCL}{Featherweight OCL\xspace}
 \newcommand{\ML}{ML\xspace}
 \newcommand{\HOCL}{HOL-OCL 2.0\xspace}
-\renewcommand{\HolTrue}{\mathrm{true}}
-\renewcommand{\HolFalse}{\mathrm{false}}
+\renewcommand{\HolTrue}{\mathrm{True}}
+\renewcommand{\HolFalse}{\mathrm{False}}
 \newcommand{\ptmi}[1]{\using{\mi{#1}}}
 \newcommand{\Lemma}[1]{{\color{BrickRed}%
     \mathbf{\operatorname{lemma}}}~\text{#1:}\quad}
@@ -97,6 +98,8 @@
 \newcommand{\Instance} {{\holoclthykeywordstyle\operatorname{Instance}}}
 \newcommand{\State} {{\holoclthykeywordstyle\operatorname{State}}}
 \newcommand{\Transition} {{\holoclthykeywordstyle\operatorname{Transition}}}
+\newcommand{\record} {{\holoclthykeywordstyle\operatorname{record}}}
+\newcommand{\tysequence} {\text{\ttfamily Sequence}}
 \newcommand{\pglabel}[1]{\text{#1}}
 \renewcommand{\isasymOclUndefined}{\ensuremath{\mathtt{invalid}}}
 \newcommand{\isasymOclNull}{\ensuremath{\mathtt{null}}}
@@ -105,15 +108,13 @@
 \newcommand{\Null}[1]{{\ensuremath{\mathtt{null}_\text{{#1}}}}}
 \newcommand{\testgen}{HOL-TestGen\xspace}
 \newcommand{\HolOption}{\mathrm{option}}
+\renewcommand{\to}{\Rightarrow}
 \newcommand{\ran}{\mathrm{ran}}
 \newcommand{\dom}{\mathrm{dom}}
 \newcommand{\typedef}{\mathrm{typedef}}
 \newcommand{\typesynonym}{\mathrm{type\_synonym}}
 \newcommand{\mi}[1]{\,\text{#1}}
-\newcommand{\state}[1]{\ifthenelse{\equal{}{#1}}%
-  {\operatorname{state}}%
-  {\operatorname{\mathit{state}}(#1)}%
-}
+\newcommand{\state}[1]{(#1) \operatorname{state}}
 \newcommand{\mocl}[1]{\text{\inlineocl|#1|}}
 \DeclareMathOperator{\TCnull}{null}
 \DeclareMathOperator{\HolNull}{null}
@@ -140,6 +141,8 @@
 \renewcommand\thepart{\Alph{part}}
 \renewcommand\partname{Annex}
 \endisatagannexa
+
+\newenvironment{defholsimple}{\textbf{Definition}\xspace}{}
 
 \newenvironment{matharray}[1]{\[\begin{array}{#1}}{\end{array}\]} % from 'iman.sty'
 \newcommand{\indexdef}[3]%
