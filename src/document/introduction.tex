@@ -995,44 +995,132 @@ Aachen~\cite{brucker.ea:summary-aachen:2013}.
 \endisatagafp
 
 
-\section{The Essence of UML-OCL Semantics}\label{sec:focl-semantics}
+\section{The Essence of UML/OCL Semantics}\label{sec:focl-semantics}
 \subsection{The Theory Organization}
-The semantic theory is organized in a quite conventional manner in
-three layers. The first layer, called the \emph{denotational
-  semantics} comprises a set of definitions of the operators of the
-language.  Presented as \emph{definitional axioms} inside
-Isabelle/\HOL, this part assures the logically consistency of the
-overall construction. The denotational definitions of types, constants
-and operations, and \OCL contracts represent the ``gold standard'' of the
-semantics. The second layer, called \emph{logical layer},
-is derived from the former and centered around the notion of validity
-of an \OCL formula $P$. For a state-transition from pre-state $\sigma$
-to post-state $\sigma'$, a validity statement is written $(\sigma,
-\sigma') \isasymMathOclValid P$. Its major purpose is to logically establish facts
-(lemmas and theorems) about the denotational definitions.
-The third layer, called \emph{algebraic layer},
-also derived from the former layers, tries to establish algebraic laws
-of the form $P = P'$; such laws are amenable to equational reasoning
-and also help for automated reasoning and code-generation. For an
-implementor of an \OCL compiler, these consequences are of most interest.
+The semantic theory is organized in several
+\emph{semantic layers}. The following three layers will provide a
+``minimal'' core semantics of built-in data-structures, so to support
+in particular the \OCL type \inlineocl+Boolean+.
+\begin{itemize}
+\item The first layer, called the \emph{denotational semantics}
+  comprises a set of definitions of the operators of the language.
+  Presented as \emph{definitional axioms} inside Isabelle/\HOL, this
+  part assures the logically consistency of the overall
+  construction. The denotational definitions of types, constants and
+  operations, and \OCL contracts represent the ``gold standard'' of
+  the semantics.
+\item The second layer, called \emph{logical layer}, is derived from
+  the former and centered around the notion of validity of an \OCL
+  formula $P$. For a state-transition from pre-state $\sigma$ to
+  post-state $\sigma'$, a validity statement is written $(\sigma,
+  \sigma') \isasymMathOclValid P$. Its major purpose is to logically
+  establish facts (lemmas and theorems) about the denotational
+  definitions.
+\item The third layer, called \emph{algebraic layer}, also derived
+  from the former layers, tries to establish algebraic laws of the
+  form $P = P'$; such laws are amenable to equational reasoning and
+  also help for automated reasoning and code-generation. For an
+  implementor of an \OCL compiler, these consequences are of most
+  interest.
+\end{itemize}
 
-For space reasons, we will restrict ourselves in this document to a few
-operators and make a traversal through all three layers to give a
-high-level description of our formalization.  Especially, the details
-of the semantic construction for sets and the handling of objects and
-object universes were excluded from a presentation here.
+Then come the next semantic layers covering construction of \UML class
+models, composed of:
+\begin{itemize}
+\item the \emph{state layer} describing state-related operations like
+        \mocl{allInstances()}, and
+\item the \emph{object-oriented datatype layers} giving semantics to
+  \UML class models over this, comprising the theory of accessors,
+  type casts and tests.
+\end{itemize}
+
+For space reasons, we will restrict ourselves in this document to a
+few operators and make a traversal through all five layers to give a
+high-level description of our formalization. Especially, the details
+of the semantic construction for sets, sequences, bags are excluded
+from a presentation here, but can all be found in our associated
+formalization~\cite{brucker.ea:featherweight:2014}. Similarly, the
+semantics of \UML/\OCL operations and invariants is further made
+precise in that document.
+
 
 \subsection{Denotational Semantics of Types}
-The syntactic material for type expressions, called $\text{TYPES}(C)$, is 
-inductively defined as follows:
+\begin{defholsimple}[\UML/\OCL types]
+The syntactic material for type expressions, called
+$\operatorname{TYPES}(C,E)$, is inductively defined as follows:
 \begin{itemize}
-\item $C \subseteq \text{TYPES}(C)$
-\item $\text{Boolean}$, $\text{Integer}$, $\text{Real}$, $\text{Void}$, \ldots
-      are elements of $\text{TYPES}(C)$
-\item $\text{Set}(X)$, $\text{Bag}(X)$, $\text{Sequence}(X)$,  and 
-      $\text{Pair}(X,Y)$ (as example for a Tuple-type)
-      are in  $\text{TYPES}(C)$ (if $X, Y \in \text{TYPES}(C)$).
+\item $C \subseteq \operatorname{TYPES}(C,E)$ are object types.
+
+\item $E \subseteq \operatorname{TYPES}(C,E)$ are enumerate
+  types. Enumerate types are basically sum types: a form of Isabelle
+  $\datatype$ without polymorphic parameters.
+
+\item \inlineocl+Void+, \inlineocl+Boolean+, \inlineocl+Integer+,
+  \inlineocl+Real+, \inlineocl+String+ are base types $\text{T}_{base}
+  \subseteq \operatorname{TYPES}(C,E)$.
+
+\item $\tysequence_m\mocl{(}X\mocl{)}$,
+  $\mocl{Set}_m\mocl{(}X\mocl{)}$, and
+  $\mocl{Pair(}X\mocl{,}Y\mocl{)}$ are collection
+  types in $\operatorname{TYPES}(C,E)$ if $X, Y \in
+  \operatorname{TYPES}(C,E)$.
+
+  These collection types are particular dependent
+  types: the multiplicity $m$ is a list of
+  intervals constraining the size of the corresponding sequence or
+  set. An interval $\mocl{[}i_{min} \mocl{..} i_{max}\mocl{]}$ is
+  composed of two lifted naturals $\operatorname{nat}$ of the form
+  $(\up{\operatorname{nat}} \times \up{\operatorname{nat}})$ where the
+  bottom element is conventionally represented as a star
+  ``$\mocl{*}$'', this additional element means an arbitrary allowed
+  number. For a sequence or set to be classified as well-typed, it
+  must exist one interval in the list $m$ such that $i_{min} \le s \le
+  i_{max}$, with $s$ the size of the sequence or set.
+
+  Whenever $m$ evaluates to the interval $\mocl{*}$\footnotemark, the
+  multiplicity information can be omitted and in this case we will
+  just write $\tysequence\mocl{(}X\mocl{)}$ and
+  $\mocl{Set(}X\mocl{)}$.
+
+  A syntactic sugar is provided for building arbitrary
+  tuples: $\mocl{(}X_1\mocl{,}\cdots\mocl{,}X_n\mocl{)}$ is a
+  shorthand for $\mocl{Pair(}X_1\mocl{,}\cdots
+  \mocl{Pair(}X_{n-2}\mocl{,Pair(}X_{n-1}\mocl{,}X_n\mocl{))} \cdots
+  \mocl{)}$ for $n \ge 2$.
+  Types in tuples can be preceded with additional labelling variables
+  $\mocl{(}x_1\mocl{:}X_1\mocl{,}\cdots\mocl{,}x_n\mocl{:}X_n\mocl{)}$
+  where $x_1, \cdots, x_n$ are labels for naming individuals of the
+  respective types $X_1, \cdots, X_n$. These labels are typically used
+  when defining \UML/\OCL contracts.
+
+\item
+  $X\mocl{:}Y$ are functional types in $\operatorname{TYPES}(C,E)$ if
+  $X, Y \in \operatorname{TYPES}(C,E)$.
+
+  Like tuples, $\mocl{(}x\mocl{:}X\mocl{)}\mocl{:}Y$ is an additional
+  syntax for describing functional types, where $x$ is a stamped
+  label.
+  Functional types mainly appear together with tuples when writing
+  \UML/\OCL contracts.
+  Depending on the context, in positions where no ambiguities with
+  tuples occur, functional types can be shorten to
+  $\mocl{(}x_1\mocl{:}X_1\mocl{,}\cdots\mocl{,}x_n\mocl{:}X_n\mocl{)}$
+  (where $n \ge 1$), in this case the absent type $Y$ has
+  the same semantics as $\mocl{Void}$.
+
+  As another notation, we can use $X\mocl{->}Y$ to represent
+  functional types. Thus
+  $\mocl{(}X_1\mocl{,}\cdots\mocl{,}X_n\mocl{)}\mocl{->}Y$ can be used
+  without labelling names (as this does not conflict with tuples).
 \end{itemize}
+We define $\operatorname{TYPES}_0(C,E)$ as the smallest subset of
+$\operatorname{TYPES}(C,E)$ built without using functional types in all
+recursive calls.
+In the following, $\operatorname{TYPES}_0(C,E)$ and $\operatorname{TYPES}(C,E)$ will be respectively shorten to $\operatorname{TYPES}_0$ and $\operatorname{TYPES}$.
+\end{defholsimple}\footnotetext{The
+    interval $\mocl{*}$ is a shortcut for $\mocl{[*..*]}$. We will
+    abbreviate intervals $\mocl{[}i_{min} \mocl{..} i_{max}\mocl{]}$
+    by a single $i_{min}$ if we have $i_{min} = i_{max}$.}
 
 Types were directly represented in \FOCL by types in \HOL; consequently,
 any \FOCL type must provide elements for a bottom element (also denoted $\bot$)
@@ -1071,13 +1159,13 @@ With respect the valuation types for \OCL expression in general and Boolean
 expressions in particular, they depend on the pair $(\sigma, \sigma')$ of 
 pre-and post-state. Thus, we define valuation types by the synonym:
 \begin{gather*}
-\typesynonym \qquad  \V{\isaAA}{\alpha} = \state{\isaAA} \times 
-                                \state{\isaAA} \to \alpha \ofType \TCnull \mi{.}
+\typesynonym \qquad  \V{\isaAA}{\alpha} = (\state{\isaAA} \times 
+                                \state{\isaAA} \to \alpha \ofType \TCnull) \mi{.}
 \end{gather*}
 The valuation type for boolean,integer, etc. \OCL terms is therefore defined as:
 \begin{gather*}
-\typesynonym \qquad \text{Boolean}_{\isaAA} =  \V{\isaAA}{\text{Boolean}_{\text{base}}} \\
-\typesynonym \qquad \text{Integer}_{\isaAA} =  \V{\isaAA}{\text{Integer}_{\text{base}}} \\
+\typesynonym \qquad \text{Boolean}_{\isaAA} = \V{\isaAA}{\text{Boolean}_{\text{base}}} \\
+\typesynonym \qquad \text{Integer}_{\isaAA} = \V{\isaAA}{\text{Integer}_{\text{base}}} \\
 \ldots
 \end{gather*}
 the other cases are analogous. In the subsequent subsections, we will drop the 
@@ -1115,10 +1203,6 @@ I\semantics{X\mocl{.oclIsUndefined()}} \tau =
     (\HolIf I\semantics{X}\tau = \HolBot \HolThen I\semantics{\mocl{true}}\tau \HolElse I\semantics{\mocl{false}}\tau)
 \end{gather*}
 
-For reasons of conciseness, we will write $\delta~X$ for 
-$\mocl{not}(X\mocl{.oclIsUndefined())}$ and $\upsilon~X$ for 
-$\mocl{not}(X\mocl{.oclIsInvalid())}$ throughout this document.
-
 Due to the used style of semantic representation (a shallow embedding) $I$ is 
 in fact superfluous and defined semantically as the identity $\lambda x.~x$; 
 instead of:
@@ -1139,12 +1223,12 @@ a type $\alpha$ which must posses a $\bottom$ and a $\text{null}$-element. Given
 that such constraints can be expressed in Isabelle/HOL via \emph{type classes} 
 (written: $\alpha::\kappa$), all types for OCL-expressions are of a form captured 
 by
-\begin{equation*}
- \V{}{\alpha} = \state{} \times \state{} \to \alpha::\{bot,null\}  \mi{,}
- \end{equation*}
-where $\state{}$ stands for the system state and $\state{} \times
-\state{}$ describes the pair of pre-state and post-state and
-$\_=\_$ denotes the type abbreviation.
+\begin{gather*}
+\V{\isaAA}{\alpha} = (\state{\isaAA} \times 
+                                \state{\isaAA} \to \alpha \ofType \TCnull)  \mi{,}
+\end{gather*}
+where $\state{\isaAA}$ stands for the system state and $\state{\isaAA} \times
+\state{\isaAA}$ describes the pair of pre-state and post-state.
 
 Previous versions of the OCL semantics~\cite[Annex A]{omg:ocl:2003} used different
 interpretation functions for invariants and pre-conditions; we achieve
@@ -1217,81 +1301,119 @@ and $\mocl{and}$ as follows:
                    \end{array}\\
 \end{array}
 \end{gather*}
-These non-strict operations were used to define the other logical connectives in 
-the usual classical way: $X\; \mocl{or}\; Y \equiv (\mocl{not}\; X)\;
-\mocl{and}\; (\mocl{not}\; Y)$ or
-$X\;\mocl{implies}\;Y \equiv (\mocl{not}\; X)\;\mocl{or}\; Y$.
+These non-strict operations are used to define the other logical connectives in 
+the usual classical way:
+\begin{gather*}
+\begin{array}{l}
+X\; \mocl{or}\; Y \equiv \mocl{not} \; ((\mocl{not}\; X)\; \mocl{and}\; (\mocl{not}\; Y))\\
+X\;\mocl{implies}\;Y \equiv (\mocl{not}\; X)\;\mocl{or}\; Y
+\end{array}
+\end{gather*}
+For reasons of conciseness, we will write $\delta~X$ for 
+$\mocl{not} \ap (X\mocl{.oclIsUndefined()})$ and $\upsilon~X$ for 
+$\mocl{not} \ap (X\mocl{.oclIsInvalid()})$ throughout this document.
 
 The default semantics for an \OCL library operator is strict
 semantics; this means that the result of an operation $f$ is
-\inlineisar+invalid+ if one of its arguments is \mocl+invalid+ or \mocl+null+.
+$\mocl{invalid}$ if one of its arguments is $\mocl{invalid}$ or $\mocl{null}$.
 The definition of the addition for integers as default variant reads as follows:
 \begin{gather*}
    \begin{array}{rl}
-   I\semantics{x \;\mocl{+}\; y}\tau  = &\HolIf I\semantics{\delta ~ x}\tau =I\semantics{\mocl{true}}\tau
-                 \land  I\semantics{\delta  ~ y}\tau =I\semantics{\mocl{true}}\tau \\
-                &\HolThen \lfloor \lfloor \lceil \lceil I\semantics{x}\tau \rceil \rceil  + \lceil \lceil I\semantics{y}\tau \rceil \rceil \rfloor \rfloor\\
-                &\HolElse \bottom
+   I\semantics{X \;\mocl{+}\; Y}\tau  = &\HolIf I\semantics{\delta ~ X}\tau =I\semantics{\mocl{true}}\tau
+                 \land  I\semantics{\delta  ~ Y}\tau =I\semantics{\mocl{true}}\tau \\
+                &\HolThen \; \lfloor \lfloor \lceil \lceil I\semantics{X}\tau \rceil \rceil  + \lceil \lceil I\semantics{Y}\tau \rceil \rceil \rfloor \rfloor\\
+                &\HolElse \; \bottom
    \end{array}
 \end{gather*}
 where the operator ``\mocl{+}'' on the left-hand
 side of the equation denotes the \OCL addition of type
-$\mocl{Integer} \Rightarrow \mocl{Integer} \Rightarrow \mocl{Integer}$ while 
+$\mocl{(Integer,Integer)->Integer}$ while 
 the ``$+$'' on the right-hand side of the equation of type 
 $[\HolInteger,\HolInteger]\Rightarrow \HolInteger$ denotes the integer-addition 
-from the HOL library.
+from the \HOL library.
 
 \subsection{Logical Layer}
-The topmost goal of the logic for OCL is to define the \emph{validity statement}:
-\begin{equation*}
-   (\sigma, \sigma') \isasymMathOclValid P\mi{,}
-\end{equation*}
+The topmost goal of the logic for \OCL is to define the \emph{validity statement}:
+\begin{gather*}
+   (\sigma, \sigma') \isasymMathOclValid P
+\end{gather*}
 where $\sigma$ is the pre-state and $\sigma'$ the post-state of the
-underlying system and $P$ is a formula, \ie, and \OCL expression of type \mocl{Boolean}.
+underlying system and $P$ is a formula, \ie, an \OCL expression of type \mocl{Boolean}.
 Informally, a formula $P$ is valid if and only if its evaluation in
-$(\sigma, \sigma')$ (\ie, $\tau$ for short) yields true. Formally this means:
-\begin{equation*}
-\tau \isasymMathOclValid P \equiv \bigl(I\semantics{P} \tau = \lift{\lift{\HolTrue }} \bigr)\mi{.}
-\end{equation*}
+$(\sigma, \sigma')$ (\ie, $\tau$ for short) yields $\mocl{true}$. Formally this means:
+\begin{gather*}
+\tau \models P \equiv (I\semantics{P}\tau =  I\semantics{\mocl{true}}\tau)
+\end{gather*}
 On this basis, classical, two-valued inference rules can be established for
 reasoning over the logical connectives, the different notions of equality,
 definedness and validity. Generally speaking, rules over logical validity can
 relate bits and pieces in various \OCL terms and allow---via strong
 logical equality discussed below---the replacement
-of semantically equivalent sub-expressions. The core inference rules are:
+of semantically equivalent sub-expressions.
+The core inference rules are:
+\begin{itemize}
+
+\item $\mocl{Boolean}$:
 \begin{gather*}
-\begin{array}{lccr}
-  \tau \isasymMathOclValid \mocl{true} &\quad
-  \lnot(\tau \isasymMathOclValid \mocl{false})&\quad
-  \lnot(\tau \isasymMathOclValid \mocl{invalid})&\quad
+  \tau \isasymMathOclValid \mocl{true} \quad
+  \lnot(\tau \isasymMathOclValid \mocl{false}) \quad
+  \lnot(\tau \isasymMathOclValid \mocl{invalid}) \quad
   \lnot(\tau \isasymMathOclValid \mocl{null})
-\end{array}\\
-  \tau \isasymMathOclValid \mocl{not}\; P \Longrightarrow \lnot (\tau \isasymMathOclValid P)\\
-\begin{array}{lcr}
-  \tau \isasymMathOclValid P \;\mocl{and}\; Q \Longrightarrow \tau \isasymMathOclValid P&\qquad&
-  \tau \isasymMathOclValid P \;\mocl{and}\; Q \Longrightarrow \tau \isasymMathOclValid Q \\
-  \tau \isasymMathOclValid P \Longrightarrow \tau \isasymMathOclValid P \;\mocl{or}\; Q  &\qquad&
-   \tau \isasymMathOclValid Q \tau \Longrightarrow \isasymMathOclValid P \;\mocl{or}\; Q  \\
-\end{array}\\
-  \tau \isasymMathOclValid P \Longrightarrow
-     (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_1\ap \tau\\
-  \tau \isasymMathOclValid \mocl{not}\; P \Longrightarrow
-       (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif})\tau = B_2\ap \tau\\
-\begin{array}[lcr]{lcr}
-  \tau \isasymMathOclValid P \Longrightarrow \tau \isasymMathOclValid \delta \ap P &\qquad&
-  \tau \isasymMathOclValid \delta \ap X \Longrightarrow \tau \isasymMathOclValid \upsilon \ap X
+\end{gather*}
+
+\item $\mocl{not}$:
+\begin{gather*}
+  \tau \isasymMathOclValid \mocl{not}\; P \Longrightarrow \lnot (\tau \isasymMathOclValid P)
+\end{gather*}
+
+\item $\mocl{and}$:
+\begin{gather*}
+  \tau \isasymMathOclValid P \;\mocl{and}\; Q \Longrightarrow \tau \isasymMathOclValid P \qquad
+  \tau \isasymMathOclValid P \;\mocl{and}\; Q \Longrightarrow \tau \isasymMathOclValid Q
+\end{gather*}
+
+\item $\mocl{or}$:
+\begin{gather*}
+  \tau \isasymMathOclValid P \Longrightarrow \tau \isasymMathOclValid P \;\mocl{or}\; Q  \phantom{\mocl{r}}\qquad
+   \tau \isasymMathOclValid Q \Longrightarrow \tau \isasymMathOclValid P \;\mocl{or}\; Q 
+\end{gather*}
+
+\item $\mocl{if} \ldots \mocl{then} \ldots \mocl{else} \ldots \mocl{endif}$:
+\begin{gather*}
+\begin{array}{l@{\ap}l}
+  \tau \isasymMathOclValid & P \Longrightarrow
+     I\semantics{\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif}} \tau = I\semantics{B_1}\tau \\
+  \tau \isasymMathOclValid \mocl{not} & P \Longrightarrow
+     I\semantics{\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif}} \tau = I\semantics{B_2}\tau
 \end{array}
 \end{gather*}
 
-By the latter two properties it can be inferred that any valid
-property $P$ (so for example: a valid invariant) is defined, which
+or equivalently:
+\begin{gather*}
+\begin{array}{l@{\ap}l}
+  \tau \isasymMathOclValid & P \Longrightarrow
+     (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif}) \ap \tau = B_1\ap \tau \\
+  \tau \isasymMathOclValid \mocl{not} & P \Longrightarrow
+       (\mocl{if}\; P \;\mocl{then}\; B_1 \;\mocl{else}\; B_2 \;\mocl{endif}) \ap \tau = B_2\ap \tau
+\end{array}
+\end{gather*}
+
+\item $\delta \ap \_$ and $\upsilon \ap \_$:
+\begin{gather*}
+  \tau \isasymMathOclValid P \Longrightarrow \tau \isasymMathOclValid \delta \ap P \qquad
+  \tau \isasymMathOclValid \delta \ap X \Longrightarrow \tau \isasymMathOclValid \upsilon \ap X
+\end{gather*}
+\end{itemize}
+
+By the latter two properties, it can be inferred that any valid
+property $P$ (so for example, a valid invariant) is defined, which
 allows to infer for terms composed by strict operations that their
 arguments and finally the variables occurring in it are valid or
 defined.
 
 The mandatory part of the \OCL standard refers to an equality
-(written \mocl{x = y} or \mocl{x <> y} for its negation), which is
-intended to be a strict operation (thus: \mocl{invalid = y} evaluates
+(written $X \;\mocl{=}\; Y$ or $X \;\mocl{<>}\; Y$ for its negation), which is
+intended to be a strict operation (thus: $\mocl{invalid} \;\mocl{=}\; Y$ evaluates
   to \mocl{invalid}) and which uses the references of objects in a state
 when comparing objects, similarly to C++ or Java. In order to avoid
 confusions, we will use the following notations for equality:
@@ -1304,7 +1426,7 @@ confusions, we will use the following notations for equality:
       and is at the heart of the \OCL logic,
 \item The symbol $\_ \isasymMathOclStrictEq \_$ is used for the
       strict referential equality, \ie, the equality the mandatory part
-      of the \OCL standard refers to by the \mocl{_ = _}- symbol.
+      of the \OCL standard refers to by the ``\_ \;\mocl{=}\; \_'' symbol.
 \end{enumerate}
 
 The strong logical equality is a polymorphic
@@ -1313,71 +1435,71 @@ concept which is defined using polymorphism for all \OCL types by:
   I\semantics{X \triangleq  Y}  \tau  \equiv
   \lift {\lift{I\semantics{X}  \tau = I\semantics{Y} \tau  }}
 \shortintertext{It enjoys nearly the laws of a congruence:}
-\tau \isasymMathOclValid (x \triangleq x)\\
-\tau \isasymMathOclValid (x \triangleq y) \Longrightarrow \tau \isasymMathOclValid (y \triangleq x)\\
-\tau \isasymMathOclValid (x \triangleq y) \Longrightarrow \tau \isasymMathOclValid (y \triangleq z) \Longrightarrow \tau \isasymMathOclValid (x \triangleq z)\\
-\HolOclCp P \Longrightarrow \tau \isasymMathOclValid (x \triangleq y) \Longrightarrow \tau \isasymMathOclValid (P\ap x) \Longrightarrow \tau \isasymMathOclValid (P\ap y)
+\tau \isasymMathOclValid (X \triangleq X)\\
+\tau \isasymMathOclValid (X \triangleq Y) \Longrightarrow \tau \isasymMathOclValid (Y \triangleq X)\\
+\tau \isasymMathOclValid (X \triangleq Y) \Longrightarrow \tau \isasymMathOclValid (Y \triangleq Z) \Longrightarrow \tau \isasymMathOclValid (X \triangleq Z)\\
+\operatorname{cp} P \Longrightarrow \tau \isasymMathOclValid (X \triangleq Y) \Longrightarrow \tau \isasymMathOclValid (P\ap X) \Longrightarrow \tau \isasymMathOclValid (P\ap Y)
 \end{gather*}
-where the predicate $\HolOclCp$ stands for \emph{context-passing}, a
-property that is true for all pure \OCL expressions (but not
-arbitrary mixtures of \OCL and HOL) in \FOCL\@.  The
-necessary side-calculus for establishing $\HolOclCp$ can be fully
-automated; the reader interested in the details is referred to
-\autoref{sec:equality}.
-
-The strong logical equality of \FOCL give rise to a number
-of further rules and derived properties, that clarify the role of strong 
-logical equality and the Boolean constants in \OCL specifications:
+where the predicate $\operatorname{cp}$ stands for
+\emph{context-passing}, a property that is true in \FOCL for all pure \OCL
+expressions (but not arbitrary mixtures of \OCL and \HOL):
 \begin{gather*}
-\tau \isasymMathOclValid \delta \ap x \lor \tau \isasymMathOclValid x \triangleq \mocl{invalid} \lor \tau \isasymMathOclValid x \triangleq \mocl{null} \mi{,}\\
-(\tau \isasymMathOclValid A \triangleq \mocl{invalid}) = (\tau \isasymMathOclValid \mocl{not} (\upsilon A))\\
+\operatorname{cp} P \equiv \exists f. \; \forall X \; \tau. \; I\semantics{P \ap X}\tau = I\semantics{f \ap (I\semantics{X}\tau)}\tau
+\end{gather*}
+The necessary side-calculus for establishing $\operatorname{cp}$ can
+be fully automated; the reader interested in the details is referred
+to \autoref{sec:equality}.
+
+The strong logical equality of \FOCL gives rise to a number
+of further rules and derived properties, that clarify the role of strong 
+logical equality and the $\mocl{Boolean}$ constants in \OCL specifications:
+\begin{gather*}
+\tau \isasymMathOclValid \delta \ap X \lor \tau \isasymMathOclValid X \triangleq \mocl{invalid} \lor \tau \isasymMathOclValid X \triangleq \mocl{null}\\
+\begin{array}{l@{}l@{\ap}l@{\ap}l@{}l}
+(\tau \isasymMathOclValid A \triangleq \mocl{invalid} &) &= (& \tau \isasymMathOclValid \mocl{not} \; (\upsilon \; A) &)\\
 % (*  foundation15 *)
-\begin{multlined}
- (\tau \isasymMathOclValid A \triangleq \mocl{true}) = (\tau \isasymMathOclValid A)  \qquad
- (\tau \isasymMathOclValid A \triangleq \mocl{false}) = (\tau \isasymMathOclValid \mocl{not} A) \\
- (\tau \isasymMathOclValid \mocl{not} (\delta x)) = (\lnot \tau \isasymMathOclValid \delta x) \qquad
- (\tau \isasymMathOclValid \mocl{not} (\upsilon x)) = (\lnot \tau \isasymMathOclValid \upsilon x) % (*  UML_Logic.foundation7':*)
-\end{multlined}
+(\tau \isasymMathOclValid A \triangleq \mocl{null} &) &= (& \tau \isasymMathOclValid \upsilon \; A \; \mocl{and} \; \mocl{not} \; (\delta \; A) &)\\
+ (\tau \isasymMathOclValid A \triangleq \mocl{true} &) &= (& \tau \isasymMathOclValid A &) \\
+ (\tau \isasymMathOclValid A \triangleq \mocl{false} &) &= (& \tau \isasymMathOclValid \mocl{not} \; A &) \\
+ (\tau \isasymMathOclValid \mocl{not} \; (\delta \; X) &) &= (\lnot & \tau \isasymMathOclValid \delta \; X &) \\
+ (\tau \isasymMathOclValid \mocl{not} \; (\upsilon \; X) &) &= (\lnot & \tau \isasymMathOclValid \upsilon \; X &) % (*  UML_Logic.foundation7':*)
+\end{array}
 \end{gather*}
 %   (not A \<triangleq> not B) = (A \<triangleq> B) (*foundation21*)
 
-The logical layer of the  \FOCL rules gives also a means
-to convert an \OCL formula living in its four-valued world into a
-representation that is classically two-valued and can be processed by
-standard SMT solvers such as CVC3~\cite{barrett.ea:cvc3:2007} or
+Thus with these rules, one can convert an \OCL formula represented in
+its four-valued world into a representation that is classically
+two-valued, and let the processing with standard SMT solvers such as
+CVC3~\cite{barrett.ea:cvc3:2007} or
 Z3~\cite{moura.ea:z3:2008}. $\delta$-closure rules for all logical
-connectives have the following format, \eg:
+connectives have the following format (for example):
 \begin{gather*}
-\tau \isasymMathOclValid \delta \ap x \Longrightarrow (\tau \isasymMathOclValid \ap\mocl{not}\ap x) = (\lnot (\tau \isasymMathOclValid x))\\
-\tau \isasymMathOclValid \delta \ap x \Longrightarrow \tau \isasymMathOclValid \delta \ap y \Longrightarrow (\tau \isasymMathOclValid x \ap\mocl{and}\ap y) = ( \tau \isasymMathOclValid x \land \tau \isasymMathOclValid y)\\
-\begin{multlined}
-\tau \isasymMathOclValid \delta \ap x \Longrightarrow  \tau \isasymMathOclValid \delta \ap y \\
-\Longrightarrow (\tau \isasymMathOclValid (x \ap\mocl{implies}\ap y)) = ( (\tau \isasymMathOclValid x) \longrightarrow (\tau \isasymMathOclValid y))
-\end{multlined}
+\begin{array}{l@{\ap}c@{\ap}l@{\ap}c@{\ap}l}
+\multicolumn{5}{l}{\tau \isasymMathOclValid \delta \ap X \Longrightarrow (\tau \isasymMathOclValid \ap\mocl{not}\ap X) = (\lnot (\tau \isasymMathOclValid X))} \\
+\tau \isasymMathOclValid \delta \ap X \Longrightarrow \tau \isasymMathOclValid \delta \ap Y \Longrightarrow (\tau \isasymMathOclValid X & \mocl{and} & Y) = ( (\tau \isasymMathOclValid X) & \land & (\tau \isasymMathOclValid Y)) \\
+\tau \isasymMathOclValid \delta \ap X \Longrightarrow  \tau \isasymMathOclValid \delta \ap Y
+\Longrightarrow (\tau \isasymMathOclValid X & \mocl{implies} & Y) = ( (\tau \isasymMathOclValid X) & \longrightarrow & (\tau \isasymMathOclValid Y))
+\end{array}
 \end{gather*}
-Together with the already mentioned general case-distinction
-\begin{gather*}
-\tau \isasymMathOclValid \delta \ap x \lor \tau \isasymMathOclValid x \triangleq \mocl{invalid} \lor \tau \isasymMathOclValid x \triangleq \mocl{null}
-\end{gather*}
-which is possible for any \OCL type, a case distinction on the
-variables in a formula can be performed; due to strictness rules,
-formulae containing somewhere a variable $x$ that is known to be
-$\mocl{invalid}$ or $\mocl{null}$ reduce usually quickly to
-contradictions.  For example, we can infer from an invariant $\tau
-\isasymMathOclValid x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3}$ 
-that we have 
-$\tau \isasymMathOclValid x \isasymMathOclStrictEq y \;\mocl{-}\; \mocl{3} \land \tau \isasymMathOclValid
-\delta \ap x \land \tau \isasymMathOclValid \delta \ap y$.  
-We call the latter formula the $\delta$-closure of the former.  Now, we  can 
-convert a formula like 
-$\tau \isasymMathOclValid x \;\mocl{>}\; \mocl{0} \ap\mocl{or}\ap \mocl{3} \;\mocl{*}\; y \;\mocl{>}\;
-x \;\mocl{*}\; x$ into the equivalent formula
-$\tau \isasymMathOclValid x \;\mocl{>}\; \mocl{0} \lor \tau
-\isasymMathOclValid \mocl{3} \;\mocl{*}\; y \;\mocl{>}\; x \;\mocl{*}\; x$ and 
-thus internalize the \OCL-logic into a classical (and more tool-conform) logic. 
-This works---for the price of a potential, but due to the usually ``rich''
-$\delta$-closures of invariants rare---exponential blow-up of the
-formula for all \OCL formulas.
+With the conjunction of these rules (comprising the above mentioned
+case distinction: $\tau \isasymMathOclValid \delta \ap X \lor \tau
+\isasymMathOclValid X \triangleq \mocl{invalid} \lor \tau
+\isasymMathOclValid X \triangleq \mocl{null}$), we can automatically
+proceed to the simplification of a formula by case analysis, in order
+to quickly reach a contradiction, whenever we know that a variable $X$
+is $\mocl{invalid}$ or $\mocl{null}$. For example, we can infer from
+an invariant $\tau \isasymMathOclValid X \isasymMathOclStrictEq Y
+\;\mocl{-}\; \mocl{3}$ that we have $\tau \isasymMathOclValid X
+\isasymMathOclStrictEq Y \;\mocl{-}\; \mocl{3} \land \tau
+\isasymMathOclValid \delta \ap X \land \tau \isasymMathOclValid \delta
+\ap Y$.  We call the latter formula the $\delta$-closure of the
+former.  Now, we can convert a formula like $\tau \isasymMathOclValid
+X \;\mocl{>}\; \mocl{0} \ap\mocl{or}\ap \mocl{3} \;\mocl{*}\; Y
+\;\mocl{>}\; X \;\mocl{*}\; X$ into the equivalent formula $\tau
+\isasymMathOclValid X \;\mocl{>}\; \mocl{0} \lor \tau
+\isasymMathOclValid \mocl{3} \;\mocl{*}\; Y \;\mocl{>}\; X
+\;\mocl{*}\; X$ and thus internalize the four-valued logic of \OCL, as
+if we have a classical (and more tool-conform) logic.
 
 \subsection{Algebraic Layer}
 Based on the logical layer, we build a system with simpler rules which
@@ -1386,77 +1508,109 @@ equations on \OCL expressions.
 
 Our denotational definitions on \inlineocl+not+ and \inlineocl+and+
 can be re-formulated in the following ground equations:
+\begin{itemize}
+\item $\upsilon \ap \_$:
 \begin{gather*}
   \begin{aligned}
   \upsilon\; \mocl{invalid} &= \mocl{false}&\qquad
   \upsilon\; \mocl{null} &= \mocl{true}\\
   \upsilon\; \mocl{true} &= \mocl{true}&\qquad
   \upsilon\; \mocl{false} &= \mocl{true}\\
-\end{aligned}\\[.04\baselineskip]
+\end{aligned}
+\end{gather*}
+
+\item $\delta \ap \_$:
+\begin{gather*}
 \begin{aligned}
   %
   \delta\; \mocl{invalid} &= \mocl{false}&\qquad
   \delta\; \mocl{null} &= \mocl{false}\\
   \delta\; \mocl{true} &= \mocl{true}&\qquad
   \delta\; \mocl{false} &= \mocl{true}\\
-\end{aligned}\\[.04\baselineskip]
+\end{aligned}
+\end{gather*}
+
+\item $\mocl{not}$:
+\begin{gather*}
 \begin{aligned}
   %
   \mocl{not}\; \mocl{invalid} &= \mocl{invalid}&\qquad
   \mocl{not}\; \mocl{null} &= \mocl{null}\\
   \mocl{not}\; \mocl{true} &= \mocl{false}&\qquad
   \mocl{not}\; \mocl{false} &= \mocl{true}\\
-\end{aligned}\\[.04\baselineskip]
+\end{aligned}
+\end{gather*}
+
+\item $\mocl{and}$:
+\begin{itemize}
+\item $\mocl{invalid}$:
+\begin{gather*}
+\begin{aligned}
+  (\mocl{invalid} \;\mocl{and}\; \mocl{true}) &= \mocl{invalid}&
+  (\mocl{invalid} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
+  (\mocl{invalid} \;\mocl{and}\; \mocl{null}) &= \mocl{invalid}&
+  (\mocl{invalid} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}\\
+\end{aligned}
+\end{gather*}
+
+\item $\mocl{null}$:
+\begin{gather*}
 \begin{aligned}
   %
   (\mocl{null} \;\mocl{and}\; \mocl{true}) &= \mocl{null}&\qquad
   (\mocl{null} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
   (\mocl{null} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&\qquad
   (\mocl{null} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}\\
-\end{aligned}\\[.04\baselineskip]
-\begin{aligned}
-  %
-  (\mocl{false} \;\mocl{and}\; \mocl{true}) &= \mocl{false}&\qquad
-  (\mocl{false} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
-  (\mocl{false} \;\mocl{and}\; \mocl{null}) &= \mocl{false}&\qquad
-  (\mocl{false} \;\mocl{and}\; \mocl{invalid}) &= \mocl{false}\\
-\end{aligned}\\[.04\baselineskip]
+\end{aligned}
+\end{gather*}
+
+\item $\mocl{true}$:
+\begin{gather*}
 \begin{aligned}
   %
   (\mocl{true} \;\mocl{and}\; \mocl{true}) &= \mocl{true}&\qquad
   (\mocl{true} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
   (\mocl{true} \;\mocl{and}\; \mocl{null}) &= \mocl{null}&\qquad
   (\mocl{true} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}
-\end{aligned}\\[.04\baselineskip]
-\begin{aligned}
-  (\mocl{invalid} \;\mocl{and}\; \mocl{true}) &= \mocl{invalid} &\qquad
-  (\mocl{invalid} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
-  (\mocl{invalid} \;\mocl{and}\; \mocl{null}) &= \mocl{invalid} &\qquad
-  (\mocl{invalid} \;\mocl{and}\; \mocl{invalid}) &= \mocl{invalid}\\
 \end{aligned}
-\shortintertext{On this core, the structure of a conventional lattice arises:}
+\end{gather*}
+
+\item $\mocl{false}$:
+\begin{gather*}
+\begin{aligned}
+  %
+  (\mocl{false} \;\mocl{and}\; \mocl{true}) &= \mocl{false}&\qquad
+  (\mocl{false} \;\mocl{and}\; \mocl{false}) &= \mocl{false}\\
+  (\mocl{false} \;\mocl{and}\; \mocl{null}) &= \mocl{false}&\qquad
+  (\mocl{false} \;\mocl{and}\; \mocl{invalid}) &= \mocl{false}\\
+\end{aligned}
+\end{gather*}
+\end{itemize}
+\end{itemize}
+On this core, the structure of a conventional lattice arises:
+\begin{gather*}
   \begin{aligned}
-    X \;\mocl{and}\; X &= X        &\qquad     X \;\mocl{and}\; Y &= Y \;\mocl{and}\; X
+    X \;\mocl{and}\; X &= X \\
+    X \;\mocl{and}\; Y &= Y \;\mocl{and}\; X \\
+    X \;\mocl{and}\; (Y \;\mocl{and}\; Z) &= X \;\mocl{and}\; Y \;\mocl{and}\; Z
   \end{aligned}\\
   \begin{aligned}
     \mocl{false} \;\mocl{and}\; X &= \mocl{false} &\qquad
     X \;\mocl{and}\; \mocl{false} &= \mocl{false}  \\
     \mocl{true} \;\mocl{and}\; X  &= X &\qquad
     X \;\mocl{and}\; \mocl{true} &= X
-  \end{aligned}\\
-  \begin{aligned}
-             X \;\mocl{and}\; (Y \;\mocl{and}\; Z) &= X \;\mocl{and}\; Y \;\mocl{and}\; Z
   \end{aligned}
 \end{gather*}
-as well as the dual equalities for \inlineocl|_ or _| and the De Morgan
-rules.  This wealth of algebraic properties makes the understanding of
-the logic easier as well as automated analysis possible: for example, it allows
-for computing a DNF of invariant systems (by term-rewriting techniques) 
-which are a prerequisite for $\delta$-closures.
+as well as the dual equalities for $\_ \;\mocl{or}\; \_$ and the De
+Morgan rules.  This wealth of algebraic properties makes the
+understanding of the logic easier, and enables automated analysis: for
+example, by computing the DNF of some invariant systems (by
+term-rewriting techniques) which are a prerequisite for
+$\delta$-closures.
 
-The above equations explain the behavior for the most-important
-non-strict operations. The clarification of the exceptional behaviors
-is of key-importance for a semantic definition of the standard and the
+The above equations explain the behaviour for the most important
+non-strict operations. The clarification of the exceptional behaviours
+is of key importance for a semantic definition of the standard and the
 major deviation point from
 \HOLOCL~\cite{brucker.ea:hol-ocl:2008,brucker.ea:hol-ocl-book:2006}
 to \FOCL as presented here.  Expressed in algebraic equations,
@@ -1472,10 +1626,10 @@ to \FOCL as presented here.  Expressed in algebraic equations,
   \end{aligned}\\
       \mocl{S->including(invalid)}=\mocl{invalid} \\
        X \isasymMathOclStrictEq X =  (\mocl{if}\; \upsilon\; x\; \mocl{then true}
-                                         \mocl{else invalid endif}) \\
+                                         \;\mocl{else invalid endif}) \\
   \begin{aligned}
-    \mocl{1} \;\mocl{/}\; \mocl{0} &= \mocl{invalid} \quad &\quad
-    \mocl{1} \;\mocl{/}\; \mocl{null} &= \mocl{invalid} \\
+    \mocl{1} \;\mocl{div}\; \mocl{0} &= \mocl{invalid} \quad &\quad
+    \mocl{1} \;\mocl{div}\; \mocl{null} &= \mocl{invalid} \\
     \mocl{invalid->isEmpty()}&=\mocl{invalid} \quad &\quad \mocl{null->isEmpty()}&=\mocl{null}\\
   \end{aligned}\\
 \end{gather*}
@@ -1517,7 +1671,7 @@ decidable in  \FOCL by applying these algebraic laws (which can give
 \begin{isar}[mathescape]
 value  "\<tau> \<Turnstile> ($\mathtt{Set\{Set\{2,null\}\}}$ \<doteq> $\;\mathtt{Set\{Set\{null,2\}\}}$)"
 \end{isar}
-make consult \autoref{formal-set}; these test-statements
+may consult \autoref{formal-set}; these test-statements
  have been machine-checked and proven consistent with the denotational and logic
  semantics of \FOCL.
 % It fairly readable information for \OCL tool manufactures and users.
@@ -1526,7 +1680,7 @@ make consult \autoref{formal-set}; these test-statements
 \subsection{Object-oriented Datatype Theories}
 In the following, we will refine the concepts of a user-defined
 data-model implied by a \emph{class-model} (\emph{visualized} by a class-\emph{diagram})
-as well as the notion of $\state{}$ used in the
+as well as the notion of $\state{\isaAA}$ used in the
 previous section to much more detail.  \UML class models represent in a compact
 and visual manner quite complex, object-oriented data-types with a surprisingly rich
 theory. In this section, this theory is made explicit
@@ -1549,7 +1703,7 @@ A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
   class definition $C_i$ (denoted
   $\getAttrib{X}{\text{$a$}}               :: C_i \rightarrow A $ and
   $\getAttrib{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A $ for
-  $A\in TYPES(C)$),
+  $A\in TYPES$),
 \item $Assoc(C_i,C_j)$ is a collection of associations\footnote{Given the fact that there is at present no consensus on the
   semantics of n-ary associations, \FOCL{} restricts itself to binary associations. }.
    An association $(n, rn_{from}, rn_{to})\in Assoc(C_i,C_j)$ between to classes
@@ -1558,7 +1712,7 @@ A class model is a four-tuple $(C, \_ < \_, Attrib, Assoc)$ where:
     families of accessors   denoted
     $\getRole{X}{\text{$a$}}               :: C_i \rightarrow A$ and
     $\getRole{X}{\text{$a$}\isasymOclATpre}:: C_i \rightarrow A$ for
-    $A\in TYPES(C)$),
+    $A\in TYPES$),
 \item for each pair $C_i < C_j$ ($C_i, C_j < C$), there is a
      cast operation of type $C_j \rightarrow C_i$ that can change the static type
      of an object of type $C_i$:
@@ -1596,10 +1750,10 @@ It is natural to construct system states by a set of partial functions
 $f$ that map object identifiers $\oid$ to some representations of
 objects:
 \begin{gather*}
-       \typedef \qquad \mathfrak{A}~\state{} = \{\sigma ::
-        \oid \isasymrightharpoonup \alpha \ap|\ap \inv_\sigma(\sigma) \}
+\begin{array}{lll}
+  \record \ap \state{\isaAA} = & \operatorname{heap} & :: \oid \rightharpoonup {\isaAA}
+\end{array}
 \end{gather*}
-where $\inv_\sigma$ is a to be discussed invariant on states.
 
 The key point is that we need a common type $\mathfrak{A}$ for the set of all
 possible \emph{object representations}.  Object representations model
@@ -1627,14 +1781,15 @@ used an involved construction allowing the latter.
 
 A na\"ive attempt to construct $\mathfrak{A}$ would look like this:
 the class type $C_i$ induced by a class will be the type of such an
-object representation: $C_i \defeq (\oid \times A_{i_1} \times \cdots
-\times A_{i_k} )$ where the types $A_{i_1}$, \ldots, $A_{i_k}$ are the
-attribute types (including inherited attributes) with class types
-substituted by $\oid$. The function $\HolOclOidOf$ projects the first
-component, the $\oid$, out of an object representation. Then the
-object universe will be constructed by the type definition:
+object representation: $C_i \defeq (\oid \times \up{{a_{i_{1}}}}
+\times \cdots \times \up{{a_{i_{n}}}} )$ where the types $a_{i_1}$,
+\ldots, $a_{i_n}$ are the attribute types (including inherited
+attributes) with class types substituted by $\oid$. The function
+$\HolOclOidOf$ projects the first component, the $\oid$, out of an
+object representation. Then the object universe will be constructed by
+the type definition:
 \begin{gather*}
-\mathfrak{A} := C_1 + \cdots +  C_n\mi{.}
+\mathfrak{A} \defeq C_1 + \cdots +  C_m\mi{.}
 \end{gather*}
 It is possible to define constructors, accessors, and the referential
 equality on this object universe. However, the treatment of type casts
@@ -1651,20 +1806,22 @@ To overcome this limitation, we introduce an auxiliary type
 $C_{i\text{ext}}$ for \emph{class type extension}; together, they were
 inductively defined for a given class diagram:
 
-Let $C_i$ be a class with a possibly empty set of subclasses
-$\{C_{j_{1}}, \ldots, C_{j_{m}}\}$.
+Let $C_i$ be a class with a possibly empty set of immediate subclasses
+$C_{j_{1}}, \ldots, C_{j_{m}}$ ($C_{j_l} < C_i$).
 \begin{itemize}
-\item Then the  \emph{class type extension} $C_{i\text{ext}}$
-        associated to $C_i$ is
-        $A_{i_{1}} \times \cdots \times A_{i_{n}} \times \up{(C_{j_{1}\text{ext}} + \cdots + C_{j_{m}\text{ext}})}$
-        where $A_{i_{k}}$ ranges over the local
-        attribute types of $C_i$ and $C_{j_{l}\text{ext}}$
-        ranges over all class type extensions of the subclass $C_{j}$ of $C_i$.
-\item Then the \emph{class type} for $C_i$ is
-        $oid \times A_{i_{1}} \times \cdots \times A_{i_{n}} \times \up{(C_{j_{1}\text{ext}} + \cdots + C_{j_{m}\text{ext}})}$
-        where $A_{i_{k}}$ ranges over the inherited \emph{and} local
-        attribute types of $C_i$ and $C_{j_{l}\text{ext}}$
-        ranges over all class type extensions of the subclass $C_{j}$ of $C_i$.
+\item Then the \emph{class type extension} $C_{i\textup{ext}}$
+  associated to $C_i$ is $\up{{a_{i_{1}}}} \times \cdots \times
+  \up{{a_{i_{h}}}} \times \up{(C_{j_{1}\textup{ext}} + \cdots +
+    C_{j_{m}\textup{ext}})}$ where $a_{i_{k}}$ ranges over the local
+  attribute types of $C_i$ (not inherited ones) and
+  $C_{j_{l}\textup{ext}}$ ranges over all class type extensions of
+  immediate subclasses $C_{j_{l}}$ of $C_i$.
+\item Then the \emph{class type} $C_{i\textup{ty}}$ for $C_i$ is $\oid
+  \times \up{{a_{i_{1}}}} \times \cdots \times \up{{a_{i_{n}}}} \times
+  \up{(C_{j_{1}\textup{ext}} + \cdots + C_{j_{m}\textup{ext}})}$ where
+  $a_{i_{k}}$ ranges over the inherited \emph{and} local attribute
+  types of $C_i$ and $C_{j_{l}\textup{ext}}$ ranges over all class
+  type extensions of immediate subclasses $C_{j_{l}}$ of $C_i$.
 \end{itemize}
 
 \isatagafp
@@ -1739,35 +1896,34 @@ This implies the following scheme for an accessor:
 \end{itemize}
 
 The first phase directly translates into the following formalization:
-\begin{multline}
-  \shoveleft{\isardef}\quad\\
-  \begin{array}{rllr}
- \operatorname{eval\_extract} X\ap f = (\lambda \tau\spot \HolCase
- X\ap
- \tau \HolOf & \bottom &\Rightarrow
- \mocl{invalid}\ap\tau&\text{exception}\\
+\begin{gather*}
+  \begin{array}{r@{\ap}l@{\ap}l}
+ \isardef \ap \operatorname{eval\_extract} X\ap f = (\lambda \tau\spot \HolCase
+ X\ap \tau \HolOf & \bottom &\Rightarrow
+ \mocl{invalid}\ap\tau\\
+ &\multicolumn{2}{r}{\text{propagating the exception}}\\
  |& \lift{\bottom} &\Rightarrow
- \mocl{invalid}\ap\tau&\text{deref. null}\\
- |& \lift{\lift{\mathit{obj}}} &\Rightarrow f\ap (\operatorname{oid\_of} \ap \mathit{obj})\ap\tau)&
+ \mocl{invalid}\ap\tau\\
+ &\multicolumn{2}{r}{\text{dereferencing a null value}}\\
+ |& \lift{\lift{\mathit{obj}}} &\Rightarrow f\ap (\HolOclOidOf \ap \mathit{obj})\ap\tau)
   \end{array}
-\end{multline}
+\end{gather*}
 
 For each class $C$, we introduce the de-referentiation phase of this
 form:
-\begin{multline}
+\begin{multline*}
   \isardef \ap
-  \operatorname{deref\_oid}_C \ap \mathit{fst\_snd}\ap f\ap \mathit{oid} =
-                     (\lambda \tau\spot \HolCase\ap (\operatorname{heap}\ap
-                     (\mathit{fst\_snd}\ap \tau))\ap \mathit{oid}\ap
+  \operatorname{deref\_oid}_{C_i} \ap \mathit{fst\_snd}\ap f\ap \mathit{oid} =
+                     (\lambda \tau\spot \HolCase\ap \operatorname{heap}\ap
+                     (\mathit{fst\_snd}\ap \tau)\ap \mathit{oid}\ap
                      \HolOf\\
   \begin{array}{ll}
-           \phantom{|}\ap \lift{\operatorname{in}_C obj} &\Rightarrow f\ap
+           \phantom{|}\ap \lift{\operatorname{in}_{C_i} obj} &\Rightarrow f\ap
                      \mathit{obj} \ap \tau\\
                      |\ap \_ &\Rightarrow \mocl{invalid}\ap \tau)
       \end{array}
-   \end{multline}
-
-The operation yields undefined if the $\oid$ is uninterpretable in the
+   \end{multline*}
+The operation yields undefined if $\mathit{oid}$ is not interpretable in the
 state or referencing an object representation not conforming to the
 expected type.
 
@@ -1775,16 +1931,38 @@ We turn to the selection phase: for each class $C$ in the class model
 with at least one attribute,
 and each attribute $a$ in this class,
 we introduce the selection phase of this form:
+\begin{itemize}
+\item  for inherited attributes $a$ returning a base type:
 \begin{gather*}
-  \begin{array}{rlcll}
+  \begin{array}{r@{\ap}l@{\ap}c@{\ap}l}
   \isardef \ap
-    \operatorname{select}_a \ap f = (\lambda &
-                  \operatorname{mk}_C \ap oid & \cdots \bottom \cdots & C_{X\text{ext}} & \Rightarrow \mocl{null}\\
-                  |& \operatorname{mk}_C \ap oid & \cdots \lift{a} \cdots & C_{X\text{ext}}
-                    &\Rightarrow f\ap (\lambda \ap x \ap \_\spot
+    \operatorname{select}_{C_i\_a} \ap f = (\lambda &
+                  \operatorname{mk'}_{C_i} \ap oid & \cdots \bottom \cdots & \_ \Rightarrow \mocl{null}\\
+                  |& \operatorname{mk'}_{C_i} \ap oid & \cdots \lift{a} \cdots & \_
+                    \Rightarrow f\ap (\lambda \ap x \ap \_\spot
                    \lift{\lift{x}})\ap a)
   \end{array}
 \end{gather*}
+\item  for owned attributes $a$ returning a base type:
+\begin{gather*}
+  \begin{array}{r@{\ap}l@{\ap}c@{\ap}l@{\quad\quad\ap\ap\ap}}
+  \isardef \ap
+    \operatorname{select}_{C_i\_a} \ap f = (\lambda &
+                  \operatorname{mk'}_{C_i} \ap \_ \cdots (\operatorname{mk}_{C_i} & \cdots \bottom \cdots & ) \Rightarrow \mocl{null}\\
+                  |& \operatorname{mk'}_{C_i} \ap \_ \cdots (\operatorname{mk}_{C_i} & \cdots \lift{a} \cdots & )
+                    \Rightarrow \\
+    & \multicolumn{3}{r}{f\ap (\lambda \ap x \ap \_\spot
+                   \lift{\lift{x}})\ap a)}
+  \end{array}
+\end{gather*}
+\item  for attributes $a$ returning a ``set'' of object type (for ``sequence'' it is similar):
+\begin{multline*}
+  \isardef \ap
+    \operatorname{select}_{a}^{\operatorname{set}} \ap f = \\
+    X_a \circ \ap \operatorname{foldl} \ap \operatorname{OclIncluding^{set}} \operatorname{mt^{set}} \circ \ap \operatorname{map} \ap (f \ap (\lambda \ap x \ap \_\spot
+                   \lift{\lift{x}}))
+\end{multline*}
+\end{itemize}
 
 This works for definitions of basic values as well as for object
 references in which the $a$ is of type $\oid$.  To increase
@@ -1798,32 +1976,37 @@ readability, we introduce the functions:
 \end{gather*}
 
 
-Let \_\inlineocl{.getBase} be an accessor of class $C$ yielding a
-value of base-type $A_{base}$. Then its definition is of the form:
+Let \_\inlineocl{.getB} be an owned accessor of class $C_j$ yielding a
+value of base type $A\in \text{T}_{base}$. Then its definition for every class $C_i <^* C_j$ is of the form\footnote{We use an ad-hoc overloading mechanism for defining a family of functions, parameterised over $C_i$.}:
 \begin{gather*}
-\begin{array}{lll}
-\isardef&\_\mocl{.getBase} &\ofType \ap C \Rightarrow A_{base}\\
-\where\enspace&X\mocl{.getBase} &= \operatorname{eval\_extract}\ap X\ap
-                       (\operatorname{deref\_oid}_C\ap \operatorname{in\_post\_state}\ap\\
-              &          &\quad   (\operatorname{select}_\text{getBase}\ap \operatorname{reconst\_basetype}))
-\end{array}
+  \begin{array}{l@{\ap}l@{\ap}l}
+\overloading&\_\mocl{.getB} &\ofType \ap C_i \Rightarrow A\\
+\IIbegin\\
+\isardef&X\mocl{.getB} &= \operatorname{eval\_extract}\ap X\ap
+                       (\operatorname{deref\_oid}_{C_i}\ap \operatorname{in\_post\_state} \\
+              &          &\qquad\qquad   (\operatorname{select}_{C_i\_\text{getB}}\ap \operatorname{reconst\_basetype}))\\
+\IIend
+                           \end{array}
 \end{gather*}
 
-Let \_\inlineocl{.getObject} be an accessor of class $C$ yielding a
-value of object-type $A_{object}$. Then its definition is of the form:
+Let \_\inlineocl{.getO} be an owned accessor of class $C_j$ yielding a
+value of object type $C_k$ (or $\mocl{Set(}C_k\mocl{)}$ depending on the returned type of $\operatorname{select}_\text{getO}^{\operatorname{set}}$). Then its definition for every class $C_i <^* C_j$ is of the form:
 \begin{gather*}
-\begin{array}{lll}
-\isardef&\_\mocl{.getObject} &\ofType \ap C \Rightarrow A_{object}\\
-\where\enspace&X\mocl{.getObject} &= \operatorname{eval\_extract}\ap X\ap
-                        (\operatorname{deref\_oid}_C\ap \operatorname{in\_post\_state}\ap\\
-     &                    &\quad (\operatorname{select}_\text{getObject}\ap
-                          (\operatorname{deref\_oid}_C\ap\operatorname{in\_post\_state})))
-\end{array}
+  \begin{array}{l@{\ap}l@{\ap}l}
+\overloading&\_\mocl{.getO} &\ofType \ap C_i \Rightarrow C_k \enskip \text{(or $\mocl{Set(}C_k\mocl{)}$ depending on $\operatorname{select}_\text{getO}^{\operatorname{set}}$)}\\
+\IIbegin\\
+\isardef&X\mocl{.getO} &= \operatorname{eval\_extract}\ap X\ap
+                        (\operatorname{deref\_oid}_{C_i}\ap \operatorname{in\_post\_state} \\
+     &                    &\qquad\qquad (\operatorname{deref\_assocs}_\text{getO} \ap \operatorname{in\_post\_state} \\
+     &                    &\qquad\qquad (\operatorname{select}_\text{getO}^{\operatorname{set}}\ap
+                          (\operatorname{deref\_oid}_{C_k}\ap\operatorname{in\_post\_state}))))\\
+\IIend
+                           \end{array}
 \end{gather*}
-The variant for an accessor yielding a collection is omitted here; its
-construction follows by the application of the principles of the
-former two.  The respective variants
-$\getAttrib{\_}{\text{$a$}\isasymOclATpre}$ were produced when
+The variant for an accessor yielding a $\operatorname{TYPES}_0$ is
+omitted here; its construction follows by the application of the
+principles of the former two.  The respective variants
+$\getAttrib{\_}{\text{$a$}\isasymOclATpre}$ are produced when
 \inlineisar+in_post_state+ is replaced by
 $\operatorname{in\_pre\_state}$.
 
@@ -1939,50 +2122,47 @@ non-existent objects, she can make use of the possibility described above to
 omit the multiplicity.
 
 \subsubsection{Logic Properties of Class-Models}\label{sec:logicprop-datamodel}
-In this section, we assume to be $C_z,C_i,C_j \in C$ and  $C_i < C_j$.
+In this section, we assume to have $C_z,C_i,C_j \in C$ and  $C_i < C_j$.
 Let $C_z$ be a smallest element with respect to the class hierarchy $\_ < \_$.
 The operations induced from a class-model have the following properties:
 \begin{gather*}
-  \tau \isasymMathOclValid X \mocl{.oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X   \\
+ \tau \isasymMathOclValid (X :: C_i)\mocl{.oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X \\
  \tau \isasymMathOclValid \mocl{invalid .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{invalid} \\
  \tau \isasymMathOclValid \mocl{null .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{null} \\
- \tau \isasymMathOclValid \mocl{((}X::C_i) \mocl{.oclAsType(C_j) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X\mocl{)}  \\
- \tau \isasymMathOclValid X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i) \isasymMathOclStrongEq X  \\
- \tau \isasymMathOclValid \mocl{(}X::OclAny\mocl{) .oclAsType(}OclAny\mocl{)} \isasymMathOclStrongEq X \\
- \tau \isasymMathOclValid \upsilon (X :: C_i)  \Longrightarrow %\qquad \qquad \qquad \qquad \\
-    \tau \isasymMathOclValid (X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{).oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X) \\
- \tau \isasymMathOclValid \upsilon (X :: C_i) \Longrightarrow  %\qquad \qquad \qquad \qquad \\
-    \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{) implies (}X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{))} \isasymMathOclStrictEq X \\
- \tau \isasymMathOclValid \delta X \Longrightarrow \tau \isasymMathOclValid X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X \\
- \tau \isasymMathOclValid \upsilon X \Longrightarrow \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{) implies} X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrictEq X \\
- \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid \delta X \Longrightarrow \tau \isasymMathOclValid \mocl{not} (\upsilon X \mocl{.oclAsType(}C_i\mocl{))} \\
- \tau \isasymMathOclValid \mocl{invalid} \mocl{.oclIsTypeOf(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{invalid} \\
+ \tau \isasymMathOclValid (X::C_i)\mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X  \\
+ \tau \isasymMathOclValid (X::\mocl{OclAny})\mocl{.oclAsType(OclAny)} \isasymMathOclStrongEq X \\
+ \tau \isasymMathOclValid \upsilon \ap (X :: C_i) \Longrightarrow
+    \tau \isasymMathOclValid X \mocl{.oclIsTypeOf(}C_i\mocl{)} \ap \mocl{implies} \ap (X \mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)}) \isasymMathOclStrictEq X \\
+ \tau \isasymMathOclValid \delta \ap X \Longrightarrow \tau \isasymMathOclValid (X::C_i)\mocl{.oclAsType(}C_j\mocl{) .oclAsType(}C_i\mocl{)} \isasymMathOclStrongEq X \\
+ \tau \isasymMathOclValid (X::C_j)\mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid \delta \ap X \Longrightarrow \tau \isasymMathOclValid \mocl{not} \ap (\upsilon \ap X \mocl{.oclAsType(}C_i\mocl{)}) \\
+ \tau \isasymMathOclValid \mocl{invalid .oclIsTypeOf(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{invalid} \\
  \tau \isasymMathOclValid \mocl{null .oclIsTypeOf(}C_i\mocl{)} \isasymMathOclStrongEq \mocl{true} \\
- \tau \isasymMathOclValid Person \mocl{.allInstances()->forAll(}X\mocl{|}X \mocl{.oclIsTypeOf(}C_z\mocl{))} \\
- \tau \isasymMathOclValid Person \mocl{.allInstances@pre()->forAll(}X\mocl{|}X \mocl{.oclIsTypeOf(}C_z\mocl{))} \\
- \tau \isasymMathOclValid Person \mocl{.allInstances()->forAll(}X\mocl{|}X \mocl{.oclIsKindOf(}C_i\mocl{))} \\
- \tau \isasymMathOclValid Person \mocl{.allInstances@pre()->forAll(}X\mocl{|}X \mocl{.oclIsKindOf(}C_i\mocl{))} \\
- \tau \isasymMathOclValid (X::C_i)\mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid \mocl{(}X::C_i\mocl{).oclIsKindOf(}C_i\mocl{)} \\
-(\tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq X) = (\tau \isasymMathOclValid \mocl{if } \upsilon X \mocl{then true else invalid endif}) \\
+ \tau \isasymMathOclValid C_z \mocl{.allInstances()->forAll(}X\mocl{|}X \mocl{.oclIsTypeOf(}C_z\mocl{))} \\
+ \tau \isasymMathOclValid C_z \mocl{.allInstances@pre()->forAll(}X\mocl{|}X \mocl{.oclIsTypeOf(}C_z\mocl{))} \\
+ \tau \isasymMathOclValid C_i \mocl{.allInstances()->forAll(}X\mocl{|}X \mocl{.oclIsKindOf(}C_j\mocl{))} \\
+ \tau \isasymMathOclValid C_i \mocl{.allInstances@pre()->forAll(}X\mocl{|}X \mocl{.oclIsKindOf(}C_j\mocl{))} \\
+ \tau \isasymMathOclValid (X::C_i)\mocl{.oclIsTypeOf(}C_j\mocl{)} \Longrightarrow \tau \isasymMathOclValid (X::C_i)\mocl{.oclIsKindOf(}C_j\mocl{)} \\
+(\tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq X) = (\tau \isasymMathOclValid \mocl{if} \ap \upsilon \ap X \ap \mocl{then true else invalid endif}) \\
  \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq X \\
- \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq Z  \Longrightarrow   \tau \isasymMathOclValid X \isasymMathOclStrictEq Z
+ \tau \isasymMathOclValid (X::C_j) \isasymMathOclStrictEq Y \Longrightarrow  \tau \isasymMathOclValid Y \isasymMathOclStrictEq Z  \Longrightarrow   \tau \isasymMathOclValid X \isasymMathOclStrictEq Z \\
+\vdots
 \end{gather*}
 
 \subsubsection{Algebraic Properties of the Class-Models}\label{sec:algprop-datamodel}
-In this section, we assume to be $C_i,C_j \in C$ and  $C_i < C_j$.
+In this section, we assume to have $C_i,C_j \in C$ and  $C_i < C_j$.
 The operations induced from a class-model have the following  properties:
 \begin{gather*}
 \begin{array}{ll}
- \mocl{invalid} \mocl{.oclIsTypeOf(}C_i\mocl{)} = \mocl{invalid}  \qquad
- \mocl{null}  \mocl{.oclIsTypeOf(}C_i\mocl{)} = \mocl{true}     \\
- \mocl{invalid} \mocl{.oclIsKindOf(}C_i\mocl{)} = \mocl{invalid}   \qquad
- \mocl{null} \mocl{.oclIsKindOf(}C_i\mocl{)} = \mocl{true}       \\
- (X::C_i) \mocl{.oclAsType(}C_i\mocl{)} = X                    \qquad
- \mocl{invalid} \mocl{.oclAsType(}C_i\mocl{)} = \mocl{invalid}     \\
- \mocl{null} \mocl{.oclAsType(}C_i\mocl{)} = \mocl{null}         \qquad
- (X::C_i) \mocl{.oclAsType(}C_j\mocl{).oclAsType(}C_i\mocl{)} = X
+ \mocl{invalid .oclIsTypeOf(}C_i\mocl{)} = \mocl{invalid}  \qquad
+ \mocl{null .oclIsTypeOf(}C_i\mocl{)} = \mocl{true}        \\
+ \mocl{invalid .oclIsKindOf(}C_i\mocl{)} = \mocl{invalid}  \qquad
+ \mocl{null .oclIsKindOf(}C_i\mocl{)} = \mocl{true}        \\
+ \mocl{invalid .oclAsType(}C_i\mocl{)} = \mocl{invalid}    \qquad
+ \mocl{null .oclAsType(}C_i\mocl{)} = \mocl{null}          \\
+ (X::C_i)\mocl{.oclAsType(}C_i\mocl{)} = X                 \qquad
+ (X::C_i)\mocl{.oclAsType(}C_j\mocl{).oclAsType(}C_i\mocl{)} = X
 \end{array} \\
- (X::C_i) \isasymMathOclStrictEq X = \mocl{if } \upsilon ~ X \mocl{ then true els invalid endif} \\
+ ((X::C_i) \isasymMathOclStrictEq X) = (\mocl{if} \ap \upsilon ~ X \ap \mocl{then true else invalid endif}) \\
 \end{gather*}
 With respect to attributes $\getAttrib{\_}{\text{a}}$ or $\getAttrib{\_}{\text{a}\isasymOclATpre}$
 and role-ends $\getAttrib{\_}{\text{r}}$ or $\getAttrib{\_}{\text{r}\isasymOclATpre}$ we have
@@ -2000,7 +2180,7 @@ and role-ends $\getAttrib{\_}{\text{r}}$ or $\getAttrib{\_}{\text{r}\isasymOclAT
 \subsubsection{Other Operations on States}\label{sec:otherStateOperations}
 Defining $\_\isasymOclAllInstances$
 is straight-forward; the only difference is the property
-$T\isasymOclAllInstances\isasymOclExcludes(\isasymOclNull)$ which is a
+$T\isasymOclAllInstances\isasymOclExcludes\mocl{(}\isasymOclNull\mocl{)}$ which is a
 consequence of the fact that $\Null{}$'s are values and do not ``live'' in the
 state.  \OCL semantics admits states with ``dangling references,''; it is
 the semantics of accessors or roles which maps these references to \mocl{invalid},
@@ -2026,7 +2206,7 @@ in the state transition. A simplified presentation is as follows:
 \begin{gather*}
 I\semantics{X\isasymMathOclIsModifiedOnly} (\sigma, \sigma')  \equiv
   \begin{cases}
-    \isasymbottom & \text{if $X' = \bottom \lor \text{null}\in X'$}    \\
+    \isasymbottom & \text{if $X' = \bottom \lor \mocl{null}\in X'$}    \\
      \lift{\isasymforall i \isasymin M\spot
         \sigma~i = \sigma'~i} & \text{otherwise}\mi{.}
    \end{cases}
@@ -2037,13 +2217,12 @@ we require in a postcondition \inlineocl|Set{}->oclIsModifiedOnly()| and exclude
 \inlineocl+_.oclIsNew()+ and \inlineocl+_.oclIsDeleted()+ the existence of new
 or deleted objects, the operation is a query in the sense of the \OCL standard, \ie,
 the \inlineocl|isQuery| property is true. So, whenever we have $ \tau
-\isasymMathOclValid X\isasymOclExcluding(s.a)\isasymMathOclIsModifiedOnly$ and $ \tau
-\isasymMathOclValid X\mocl{->forAll(}x\mocl{|not}(x \doteq s.a) \mocl{)}$, we can infer that $\tau
+\isasymMathOclValid X\isasymOclExcluding\mocl{(}s.a\mocl{)}\isasymMathOclIsModifiedOnly$ and $ \tau
+\isasymMathOclValid X\mocl{->forAll(}x\mocl{|}\mocl{not}(x \doteq s.a) \mocl{)}$, we can infer that $\tau
 \isasymMathOclValid s.a \triangleq s.a\isasymOclATpre$.
 
 
-\subsection{Data Invariants}
-\label{sec:invlogic}
+\subsection{Data Invariants}\label{sec:invlogic}
 Since the present \OCL semantics uses one interpretation function\footnote{This has been handled
 differently in previous versions of the Annex A.}, we express the effect of \OCL terms
 occurring in preconditions and invariants by a syntactic transformation $\__\text{pre}$ which
@@ -2061,7 +2240,7 @@ counterparts $\getAttrib{\_}{i\isasymOclATpre}$. For example, $(\getAttrib{\self
 $\isasymOclATpre$ counterpart.
 \end{itemize}
 Thus, we formulate the semantics of the invariant specification  as follows:
-\begin{gather*}\label{eq:inv}
+\begin{gather*}
 \begin{aligned}
 & I\semantics{\mathtt{context}~c:C_i~\mathtt{inv}~n: \phi(c)} \tau \equiv  \\
 &\qquad \tau  \isasymMathOclValid  (C_i\isasymOclAllInstances\isasymOclForAll(x
@@ -2080,7 +2259,7 @@ two cases where all arguments are valid and additionally, $\self$ is non-null (\
 In former case, a method call can be replaced by a $\mathit{result}$
 that satisfies the contract, in the latter case the result is
 \mocl{invalid}. This is reflected by the following definition of the contract semantics:
-\begin{gather*}\label{eq:contract}
+\begin{gather*}
 \begin{aligned}
  I\semantics{& \mathtt{context}~C~:: \mathit{op}(a_1, \ldots, a_n) : T \\
                      & \qquad\mathtt{pre}~ \phi(\self, a_1, \ldots, a_n)  \\
@@ -2100,7 +2279,7 @@ chooses an arbitrary element satisfying $P$; if such an element does not exist, 
 an arbitrary one\footnote{In \HOL, the Hilbert-Choice operator is a first-class element of
 the logical language.}. Thus, using the Hilbert-Choice Operator, a contract can be associated
 to a function definition:
-\begin{gather*}\label{eq:contractdef}
+\begin{gather*}
     f_{op}  \equiv I\semantics{ \mathtt{context}~C~:: \mathit{op}(a_1, \ldots, a_n) : T \ldots }
 \end{gather*}
 provided that neither $\phi$  nor $\psi$ contain recursive method calls of $\mathit{op}$.
