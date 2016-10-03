@@ -480,7 +480,13 @@ lemma R11_val_clientATpre: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>') \<Turnstile> R
           by(simp add: reconst_basetype_def C1_def)
       qed
     qed
-  
+
+  have C1_val: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>') \<Turnstile> \<upsilon> deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype 4"
+   apply(simp add: OclValid_def)
+   apply(subst cp_valid)
+   using C1_deref_val[simplified OclValid_def StrongEq_def true_def]
+  by(simp, subst cp_valid[symmetric], simp add: C1_valid[simplified OclValid_def])
+      
   show "R11 .client@pre (\<sigma>\<^sub>s\<^sub>1, \<sigma>') = C1 (\<sigma>\<^sub>s\<^sub>1, \<sigma>')"
   proof -  note S1 = \<sigma>\<^sub>1[simplified state_interpretation_\<sigma>\<^sub>1_def, of "(\<sigma>\<^sub>0, \<sigma>\<^sub>0)"]
   show ?thesis
@@ -494,16 +500,15 @@ lemma R11_val_clientATpre: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>') \<Turnstile> R
                     pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2 R11_def R11\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_def oid_of_ty\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n_def List.member_def)
     apply(simp add: select\<^sub>R\<^sub>e\<^sub>s\<^sub>e\<^sub>r\<^sub>v\<^sub>a\<^sub>t\<^sub>i\<^sub>o\<^sub>n__client_def select_object_any\<^sub>S\<^sub>e\<^sub>t_def select_object\<^sub>S\<^sub>e\<^sub>t_def)
     apply(subgoal_tac "(let s = Set{deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype 4} in
-                        if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<one> then s->any\<^sub>S\<^sub>e\<^sub>t() else \<bottom> endif) (\<sigma>\<^sub>s\<^sub>1, \<sigma>') = C1 (\<sigma>\<^sub>s\<^sub>1, \<sigma>')")
+                        if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<zero> then null else if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<one> then s->any\<^sub>S\<^sub>e\<^sub>t() else \<bottom> endif endif) (\<sigma>\<^sub>s\<^sub>1, \<sigma>') = C1 (\<sigma>\<^sub>s\<^sub>1, \<sigma>')")
      apply(subgoal_tac "Set{deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype 4} =
              select_object Set{} UML_Set.OclIncluding id (deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype) [4]")
       apply(simp only: Let_def)
      apply(simp add: select_object_def)
     apply(simp only: Let_def)
-    apply(subst cp_OclIf, subst OclSize_singleton[simplified OclValid_def])
-     apply(subst cp_valid)
-     using C1_deref_val[simplified OclValid_def StrongEq_def true_def]
-     apply(simp, subst cp_valid[symmetric], simp add: C1_valid[simplified OclValid_def])
+    apply(subst OclIf_false')
+     apply(rule StrongEq_L_trans_not[OF OclSize_singleton[OF C1_val]], normalization)
+    apply(subst cp_OclIf, subst OclSize_singleton[OF C1_val, simplified OclValid_def])
     using C1_deref_val[simplified OclValid_def StrongEq_def true_def]
     by(subst cp_OclIf[symmetric], simp)
   qed

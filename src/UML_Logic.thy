@@ -994,6 +994,8 @@ by(simp add: StrongEq_sym)
 lemma StrongEq_L_trans: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> (x \<triangleq> z)"
 by(simp add: OclValid_def StrongEq_def true_def)
 
+lemma StrongEq_L_trans_not: "\<tau> \<Turnstile> (x \<triangleq> y) \<Longrightarrow> \<tau> \<Turnstile> not (y \<triangleq> z) \<Longrightarrow> \<tau> \<Turnstile> not (x \<triangleq> z)"
+by(simp add: OclValid_def StrongEq_def true_def OclNot_def)
 
 
 text{* In order to establish substitutivity (which does not
