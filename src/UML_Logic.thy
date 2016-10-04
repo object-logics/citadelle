@@ -953,6 +953,14 @@ by(insert H, subst (asm) foundation11[OF defP defQ], erule disjE, simp_all add: 
 lemma foundation27: "\<tau> \<Turnstile> A \<Longrightarrow> (\<tau> \<Turnstile> A implies B) = (\<tau> \<Turnstile> B)" 
 by (simp add: foundation12 foundation6)
 
+lemma foundation28:"(X=Y) = (\<forall>\<tau>. \<tau> \<Turnstile> X \<triangleq> Y)"
+apply(auto)
+apply(rule ext, auto)
+apply(erule_tac x=a in allE)
+apply(erule_tac x=b in allE)
+using foundation22 by blast
+
+
 lemma defined_not_I : "\<tau> \<Turnstile> \<delta> (x) \<Longrightarrow> \<tau> \<Turnstile> \<delta> (not x)"
   by(auto simp: OclNot_def null_def invalid_def defined_def valid_def OclValid_def
                   true_def false_def bot_option_def null_option_def null_fun_def bot_fun_def
