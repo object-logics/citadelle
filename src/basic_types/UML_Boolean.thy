@@ -100,6 +100,18 @@ lemma "(true \<doteq> invalid) = invalid"  by(simp)
 lemma "((invalid::('\<AA>)Boolean) \<doteq> invalid) = invalid" by(simp)
 text{* Thus, the weak equality is \emph{not} reflexive. *}
 
+subsection{* Boolean xor. *}
+
+text{* Our Proposal. CHECK THIS WITH ED. *}
+
+definition OclXor :: "[('\<AA>)Boolean, ('\<AA>)Boolean] \<Rightarrow> ('\<AA>)Boolean"      (infixl "xor" 27)
+where    "(X xor Y) \<equiv> (not(X \<doteq> Y))"
+
+interpretation xor\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n : profile_bin\<^sub>v_\<^sub>v "\<lambda> x y. ((x::('\<AA>)Boolean) xor y)"  "\<lambda>x y. \<lfloor>\<lfloor>x \<noteq> y\<rfloor>\<rfloor>"
+apply unfold_locales apply simp
+apply (auto simp:OclXor_def  StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n StrongEq_def null_option_def bot_option_def)
+apply (rule ext)
+by    (auto simp:OclNot_def StrongEq_def valid_def invalid_def bot_option_def)
 
 
 subsection{* Test Statements on Boolean Operations. *}
@@ -122,6 +134,9 @@ Assert "\<tau> \<Turnstile> ((invalid \<triangleq> false) \<triangleq> false)"
 Assert "\<tau> \<Turnstile> ((invalid \<doteq> false) \<triangleq> invalid)"
 Assert "\<tau> \<Turnstile> (true <> false)"
 Assert "\<tau> \<Turnstile> (false <> true)"
+
+
+
 
 
 end
