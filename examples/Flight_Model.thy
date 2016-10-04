@@ -508,14 +508,13 @@ lemma R11_val_clientATpre: "(\<sigma>\<^sub>s\<^sub>1, \<sigma>') \<Turnstile> R
      apply(subgoal_tac "Set{deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype 4} =
              select_object Set{} UML_Set.OclIncluding id (deref_oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t fst reconst_basetype) [4]")
       apply(simp only: Let_def)
-    sorry (*
      apply(simp add: select_object_def)
     apply(simp only: Let_def)
     apply(subst OclIf_false')
      apply(rule StrongEq_L_trans_not[OF OclSize_singleton[OF C1_val]], normalization)
     apply(subst cp_OclIf, subst OclSize_singleton[OF C1_val, simplified OclValid_def])
     using C1_deref_val[simplified OclValid_def StrongEq_def true_def]
-    by(subst cp_OclIf[symmetric], simp) *)
+    by(subst cp_OclIf[symmetric], simp)
   qed
 qed
 
