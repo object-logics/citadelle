@@ -1,4 +1,4 @@
-(*****************************************************************************
+(******************************************************************************
  * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5 
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
