@@ -42,7 +42,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
-(* $Id:$ *)
 
 session "OCL-dirty" in "src" = HOL +
   description {* Featherweight OCL (Quick and Dirty) *}
