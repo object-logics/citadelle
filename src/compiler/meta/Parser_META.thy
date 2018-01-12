@@ -6,8 +6,12 @@
  * Parser_META.thy ---
  * This file is part of HOL-TestGen.
  *
- * Copyright (c) 2013-2016 Université Paris-Saclay, Univ. Paris-Sud, France
- *               2013-2016 IRT SystemX, France
+ * Copyright (c) 2011-2018 Université Paris-Saclay, Univ. Paris-Sud, France
+ *               2013-2017 IRT SystemX, France
+ *               2011-2015 Achim D. Brucker, Germany
+ *               2016-2018 The University of Sheffield, UK
+ *               2016-2017 Nanyang Technological University, Singapore
+ *               2017-2018 Virginia Tech, USA
  *
  * All rights reserved.
  *
