@@ -214,6 +214,7 @@ definition "lemma = i Theory_lemma"
 definition "axiomatization = i Theory_axiomatization"
 definition "section = i Theory_section"
 definition "text = i Theory_text"
+definition "text_raw = i Theory_text_raw"
 definition "ML = i Theory_ML"
 definition "setup = i Theory_setup"
 definition "thm = i Theory_thm"
@@ -235,6 +236,7 @@ lemmas [code] =
   O.axiomatization_def
   O.section_def
   O.text_def
+  O.text_raw_def
   O.ML_def
   O.setup_def
   O.thm_def

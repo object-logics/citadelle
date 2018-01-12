@@ -500,6 +500,7 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
       val () = out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) (To_nat n)) "" in
     in_theory I end
 | Theory_text _ => in_theory I
+| Theory_text_raw _ => in_theory I
 | Theory_ML (SML ml) =>
     in_theory (Code_printing.reflect_ml (Input.source false (of_semi__term' ml)
                                                             (Position.none, Position.none)))
