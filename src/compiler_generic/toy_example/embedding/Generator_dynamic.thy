@@ -205,6 +205,13 @@ end
 \<close>
 
 ML\<open>
+
+type ('a, 'state) toplevel = 
+  { theory : (theory -> theory) -> 'a
+  , local_theory : (local_theory -> local_theory) -> 'a
+  , keep : ('state -> unit) -> 'a
+  , context_of : 'state -> local_theory }
+
 structure Bind_Isabelle = struct
 fun To_binding s = Binding.make (s, Position.none)
 val To_sbinding = To_binding o To_string0
@@ -384,8 +391,8 @@ val semi__command_proof = let open META_overload
                       , case o_exp of NONE => [] | SOME (_, l_when) => List.map of_semi__term l_when)
 end
 
-fun semi__theory in_theory in_local = let open META open META_overload in (*let val f = *)fn
-  Theory_datatype (Datatype (n, l)) => (*Toplevel.local_theory*) in_local
+fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overload in (*let val f = *)fn
+  Theory_datatype (Datatype (n, l)) => (*Toplevel.local_theory*) #local_theory top
    (BNF_FP_Def_Sugar.co_datatype_cmd
       BNF_Util.Least_FP
       BNF_LFP.construct_lfp
@@ -396,16 +403,16 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
                                      , NoSyn)) l)
           , (To_binding "", To_binding ""))
         , [])]))
-| Theory_type_synonym (Type_synonym (n, v, l)) => (*Toplevel.local_theory*) in_theory
+| Theory_type_synonym (Type_synonym (n, v, l)) => (*Toplevel.local_theory*) #theory top
    (fn thy =>
      let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global
               (s_bind, map To_string0 v, NoSyn)
               (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (of_semi__typ l))) thy
      end)
-| Theory_type_notation (Type_notation (n, e)) => (*Toplevel.local_theory*) in_local
+| Theory_type_notation (Type_notation (n, e)) => (*Toplevel.local_theory*) #local_theory top
    (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
-| Theory_instantiation (Instantiation (n, n_def, expr)) => (*Toplevel.begin_local_theory*) in_theory
+| Theory_instantiation (Instantiation (n, n_def, expr)) => (*Toplevel.begin_local_theory*) #theory top
    (fn thy =>
      let val name = To_string0 n
          val tycos =
@@ -423,16 +430,16 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
          Class.intro_classes_tac ctxt [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
     |-> K I
      end)
-| Theory_overloading (Overloading (n_c, e_c, n, e)) => (*Toplevel.begin_local_theory*) in_theory
+| Theory_overloading (Overloading (n_c, e_c, n, e)) => (*Toplevel.begin_local_theory*) #theory top
    (fn thy => thy
     |> Overloading.overloading_cmd [(To_string0 n_c, of_semi__term e_c, true)]
     |> snd o Specification.definition_cmd (NONE, ((To_sbinding n, []), of_semi__term e)) false
     |> Local_Theory.exit_global)
-| Theory_consts (Consts (n, ty, symb)) => (*Toplevel.theory*) in_theory
+| Theory_consts (Consts (n, ty, symb)) => (*Toplevel.theory*) #theory top
    (Sign.add_consts_cmd [( To_sbinding n
                         , of_semi__typ ty
                         , Mixfix ("(_) " ^ To_string0 symb, [], 1000))])
-| Theory_definition def => (*Toplevel.local_theory'*) in_local
+| Theory_definition def => (*Toplevel.local_theory'*) #local_theory top
     let val (def, e) = case def of
         Definition e => (NONE, e)
       | Definition_where1 (name, (abbrev, prio), e) =>
@@ -445,21 +452,21 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
                 , Mixfix ("(" ^ of_semi__term abbrev ^ ")", [], 1000)), e) in
     (snd o Specification.definition_cmd (def, ((@{binding ""}, []), of_semi__term e)) false)
     end
-| Theory_lemmas (Lemmas_simp_thm (simp, s, l)) => (*Toplevel.local_theory'*) in_local
+| Theory_lemmas (Lemmas_simp_thm (simp, s, l)) => (*Toplevel.local_theory'*) #local_theory top
    (fn lthy => (snd o Specification.theorems Thm.theoremK
       [((To_sbinding s, List.map (fn s => Attrib.check_src lthy [Token.make_string (s, Position.none)])
                           (if simp then ["simp", "code_unfold"] else [])),
         List.map (fn x => ([semi__thm_attribute_single lthy x], [])) l)]
       []
       false) lthy)
-| Theory_lemmas (Lemmas_simp_thms (s, l)) => (*Toplevel.local_theory'*) in_local
+| Theory_lemmas (Lemmas_simp_thms (s, l)) => (*Toplevel.local_theory'*) #local_theory top
    (fn lthy => (snd o Specification.theorems Thm.theoremK
       [((To_sbinding s, List.map (fn s => Attrib.check_src lthy [Token.make_string (s, Position.none)])
                           ["simp", "code_unfold"]),
         List.map (fn x => (Proof_Context.get_thms lthy (To_string0 x), [])) l)]
       []
       false) lthy)
-| Theory_lemma (Lemma (n, l_spec, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) in_local
+| Theory_lemma (Lemma (n, l_spec, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) #local_theory top
    (fn lthy =>
            Specification.theorem_cmd Thm.theoremK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
@@ -468,7 +475,7 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
              false lthy
         |> fold (semi__command_proof o META.Command_apply) l_apply
         |> global_terminal_proof o_by)
-| Theory_lemma (Lemma_assumes (n, l_spec, concl, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) in_local
+| Theory_lemma (Lemma_assumes (n, l_spec, concl, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) #local_theory top
    (fn lthy => lthy
         |> Specification.theorem_cmd Thm.theoremK NONE (K I)
              (To_sbinding n, [])
@@ -491,31 +498,31 @@ fun semi__theory in_theory in_local = let open META open META_overload in (*let 
               |> local_terminal_proof o_by
               |> fold (fn l => fold semi__command_state l o Proof.local_qed arg) l
               |> Proof.global_qed arg end))
-| Theory_axiomatization (Axiomatization (n, e)) => (*Toplevel.theory*) in_theory
+| Theory_axiomatization (Axiomatization (n, e)) => (*Toplevel.theory*) #theory top
    (#2 o Specification.axiomatization_cmd
                                      []
                                      [((To_sbinding n, []), [of_semi__term e])])
-| Theory_section (Section (n, s)) => (*Toplevel.keep*)
-  let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1)
-      val () = out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) (To_nat n)) "" in
-    in_theory I end
-| Theory_text _ => (*Toplevel.keep*) in_theory I
-| Theory_text_raw _ => (*Toplevel.keep*) in_theory I
-| Theory_ML (SML ml) => (*Toplevel.generic_theory*)
-    in_theory (Code_printing.reflect_ml (Input.source false (of_semi__term' ml)
-                                                            (Position.none, Position.none)))
-| Theory_setup (Setup ml) => (*Toplevel.theory*)
-    in_theory (Isar_Cmd.setup (Input.source false (of_semi__term' ml)
-                                                  (Position.none, Position.none)))
-| Theory_thm (Thm thm) => (*Toplevel.keep*) in_local
-   (fn lthy =>
-    let val () =
+| Theory_section (Section (n, s)) => (*Toplevel.keep*) #keep top
+   (fn _ =>
+    let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1) in
+      out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) (To_nat n)) ""
+    end)
+| Theory_text _ => (*Toplevel.keep*) #keep top (K ())
+| Theory_text_raw _ => (*Toplevel.keep*) #keep top (K ())
+| Theory_ML (SML ml) => (*Toplevel.generic_theory*) #theory top
+   (Code_printing.reflect_ml (Input.source false (of_semi__term' ml)
+                                                 (Position.none, Position.none)))
+| Theory_setup (Setup ml) => (*Toplevel.theory*) #theory top
+   (Isar_Cmd.setup (Input.source false (of_semi__term' ml)
+                                       (Position.none, Position.none)))
+| Theory_thm (Thm thm) => (*Toplevel.keep*) #keep top
+   (fn state =>
+    let val lthy = #context_of top state in
       writeln
         (Pretty.string_of
-          (Proof_Context.pretty_fact lthy ("", List.map (semi__thm_attribute_single lthy) thm))) in
-    lthy
+          (Proof_Context.pretty_fact lthy ("", List.map (semi__thm_attribute_single lthy) thm)))
     end)
-| Theory_interpretation (Interpretation (n, loc_n, loc_param, o_by)) => (*Toplevel.local_theory_to_proof*) in_local
+| Theory_interpretation (Interpretation (n, loc_n, loc_param, o_by)) => (*Toplevel.local_theory_to_proof*) #local_theory top
    (fn lthy => lthy
     |> Interpretation.interpretation_cmd ( [ ( (To_string0 loc_n, Position.none)
                                          , ( (To_string0 n, true)
@@ -535,10 +542,10 @@ end
 
 structure Bind_META = struct open Bind_Isabelle
 
-fun all_meta aux ret = let open META open META_overload in fn
+fun all_meta top_theory top_local_theory aux ret = let open META open META_overload in fn
   META_semi_theories thy =>
     ret o (case thy of
-       Theories_one thy => semi__theory I in_local thy
+       Theories_one thy => semi__theory top_theory thy
      | Theories_locale (data, l) => (*Toplevel.begin_local_theory*) fn thy => thy
        |> (   Expression.add_locale_cmd
                 (To_sbinding (META.holThyLocale_name data))
@@ -555,12 +562,7 @@ fun all_meta aux ret = let open META open META_overload in fn
                                                                          , [(of_semi__term e, [])])]]])
                     (META.holThyLocale_header data)))
            #> snd)
-       |> fold (fold (semi__theory Local_Theory.background_theory
-                                   (fn f => fn lthy => lthy
-                                     |> Local_Theory.new_group
-                                     |> f
-                                     |> Local_Theory.reset_group
-                                     |> Local_Theory.restore))) l
+       |> fold (fold (semi__theory top_local_theory)) l
        |> Local_Theory.exit_global)
 | META_boot_generation_syntax _ => ret o I
 | META_boot_setup_env _ => ret o I
@@ -1257,7 +1259,24 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed
                    (fn msg =>
                      let val () = disp_time msg in
                      fn l => fn (env, thy) =>
-                     Bind_META.all_meta (fn x => fn thy => aux (env, thy) [x]) (pair env) l thy
+                     Bind_META.all_meta { theory = I
+                                        , local_theory = in_local
+                                        , keep = fn f => in_local (fn lthy => (f lthy ; lthy))
+                                        , context_of = I }
+                                        let val local_theory = (fn f => fn lthy => lthy
+                                                  |> Local_Theory.new_group
+                                                  |> f
+                                                  |> Local_Theory.reset_group
+                                                  |> Local_Theory.restore) in
+                                          { theory = Local_Theory.background_theory
+                                          , local_theory = local_theory
+                                          , keep = fn f => local_theory (fn lthy => (f lthy ; lthy))
+                                          , context_of = I }
+                                        end
+                                        (fn x => fn thy => aux (env, thy) [x])
+                                        (pair env)
+                                        l
+                                        thy
                      end)
                    x
                    (env, thy)
