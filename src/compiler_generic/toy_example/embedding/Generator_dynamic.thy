@@ -118,7 +118,7 @@ code_reflect' open META
              map2_ctxt_term
              check_export_code
 
-             (* printing the TOY AST to (deep Isabelle) string *)
+             (* printing the input AST to (deep Isabelle) string *)
              isabelle_apply isabelle_of_compiler_env_config
 
 subsection\<open>Interface Between the Reflected and the Native\<close>
@@ -159,7 +159,7 @@ structure From = struct
   ) e
  end
 
- fun toy_ctxt_term thy expr =
+ fun read_term thy expr =
    META.T_pure (Pure.term (Syntax.read_term (Proof_Context.init_global thy) expr), SOME (string expr))
 end
 \<close>
@@ -1339,7 +1339,7 @@ structure TOY_parse = struct
                                      , xml_unescape s)
               , v_true)
             else
-              (From.toy_ctxt_term thy, v_false))
+              (From.read_term thy, v_false))
            use)
 
   (* *)
