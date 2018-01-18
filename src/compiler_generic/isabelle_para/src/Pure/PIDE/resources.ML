@@ -17,7 +17,7 @@ sig
   val provide_parse_files: string -> (theory -> Token.file list * theory) parser
   val loaded_files_current: theory -> bool
   val begin_theory: Path.T -> Thy_Header.header -> theory list -> theory
-  val load_thy: bool -> HTML.symbols -> (Toplevel.transition -> Time.time option) -> int ->
+  val load_thy: bool -> HTML.symbols -> (Toplevel.transitions -> Time.time option) -> int ->
     Path.T -> Thy_Header.header -> Position.T -> string -> theory list ->
     theory * (unit -> unit) * int
 end;
@@ -126,7 +126,7 @@ fun begin_theory master_dir {name, imports, keywords} parents =
   |> put_deps master_dir imports
   |> Thy_Header.add_keywords keywords;
 
-fun excursion keywords master_dir last_timing init elements =
+fun excursion keywords master_dir last_timing init spans =
   let
     fun prepare_span st span =
       Command_Span.content span
@@ -135,16 +135,19 @@ fun excursion keywords master_dir last_timing init elements =
 
     fun element_result span_elem (st, _) =
       let
-        val elem = Thy_Syntax.map_element (prepare_span st) span_elem;
-        val (results, st') = Toplevel.element_result keywords elem st;
-        val pos' = Toplevel.pos_of (Thy_Syntax.last_element elem);
+        val elems = Thy_Syntax.parse_elements keywords
+                                              (K Toplevel.empty)
+                                              (fn tr => Command_Span.Command_Span (Toplevel.name_of tr, Toplevel.pos_of tr))
+                                              (prepare_span st span_elem);
+        val (results, st') = fold_map (Toplevel.element_result keywords) elems st;
+        val pos' = Toplevel.pos_of (Thy_Syntax.last_element (List.last elems));
       in (results, (st', pos')) end;
 
     val (results, (end_state, end_pos)) =
-      fold_map element_result elements (Toplevel.toplevel, Position.none);
+      fold_map element_result spans (Toplevel.toplevel, Position.none);
 
     val thy = Toplevel.end_theory end_pos end_state;
-  in (results, thy) end;
+  in (List.concat results, thy) end;
 
 fun load_thy document symbols last_timing update_time master_dir header text_pos text parents =
   let
@@ -155,7 +158,6 @@ fun load_thy document symbols last_timing update_time master_dir header text_pos
 
     val toks = Token.explode keywords text_pos text;
     val spans = Outer_Syntax.parse_spans toks;
-    val elements = Thy_Syntax.parse_elements keywords spans;
 
     fun init () =
       begin_theory master_dir header parents
@@ -164,7 +166,7 @@ fun load_thy document symbols last_timing update_time master_dir header text_pos
 
     val (results, thy) =
       cond_timeit true ("theory " ^ quote name)
-        (fn () => excursion keywords master_dir last_timing init elements);
+        (fn () => excursion keywords master_dir last_timing init spans);
 
     fun present () =
       let

@@ -16,7 +16,7 @@ sig
   val use_theories:
     {document: bool,
      symbols: HTML.symbols,
-     last_timing: Toplevel.transition -> Time.time option,
+     last_timing: Toplevel.transitions -> Time.time option,
      master_dir: Path.T} -> (string * Position.T) list -> unit
   val use_thys: (string * Position.T) list -> unit
   val use_thy: string * Position.T -> unit
@@ -362,8 +362,8 @@ fun script_thy pos txt thy =
     val trs =
       Outer_Syntax.parse thy pos txt
       |> map (Toplevel.modify_init (K thy));
-    val end_pos = if null trs then pos else Toplevel.pos_of (List.last trs);
-    val end_state = fold (Toplevel.command_exception true) trs Toplevel.toplevel;
+    val end_pos = if null trs then pos else Toplevel.pos_of (List.last (List.last trs));
+    val end_state = fold (fold (Toplevel.command_exception true)) trs Toplevel.toplevel;
   in Toplevel.end_theory end_pos end_state end;
 
 

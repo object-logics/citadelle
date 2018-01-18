@@ -27,6 +27,7 @@ sig
   val string_of_state: state -> string
   val pretty_abstract: state -> Pretty.T
   type transition
+  type transitions = transition list
   val empty: transition
   val name_of: transition -> string
   val pos_of: transition -> Position.T
@@ -35,14 +36,14 @@ sig
   val position: Position.T -> transition -> transition
   val init_theory: (unit -> theory) -> transition -> transition
   val is_init: transition -> bool
-  val modify_init: (unit -> theory) -> transition -> transition
+  val modify_init: (unit -> theory) -> transitions -> transitions
   val exit: transition -> transition
   val keep: (state -> unit) -> transition -> transition
   val keep': (bool -> state -> unit) -> transition -> transition
   val keep_proof: (state -> unit) -> transition -> transition
-  val ignored: Position.T -> transition
+  val ignored: Position.T -> transitions
   val is_ignored: transition -> bool
-  val malformed: Position.T -> string -> transition
+  val malformed: Position.T -> string -> transitions
   val generic_theory: (generic_theory -> generic_theory) -> transition -> transition
   val theory': (bool -> theory -> theory) -> transition -> transition
   val theory: (theory -> theory) -> transition -> transition
@@ -71,11 +72,11 @@ sig
   val skip_proof: (unit -> unit) -> transition -> transition
   val skip_proof_open: transition -> transition
   val skip_proof_close: transition -> transition
-  val exec_id: Document_ID.exec -> transition -> transition
+  val exec_id: Document_ID.exec -> transitions -> transitions
   val setmp_thread_position: transition -> ('a -> 'b) -> 'a -> 'b
   val add_hook: (transition -> state -> state -> unit) -> unit
   val get_timing: transition -> Time.time option
-  val put_timing: Time.time option -> transition -> transition
+  val put_timing: Time.time option -> transitions -> transitions
   val transition: bool -> transition -> state -> state * (exn * string) option
   val command_errors: bool -> transition -> state -> Runtime.error list * state option
   val command_exception: bool -> transition -> state -> state
@@ -284,6 +285,8 @@ datatype transition = Transition of
   timing: Time.time option,  (*prescient timing information*)
   trans: trans list};        (*primitive transitions (union)*)
 
+type transitions = transition list
+
 fun make_transition (name, pos, timing, trans) =
   Transition {name = name, pos = pos, timing = timing, trans = trans};
 
@@ -328,7 +331,8 @@ fun init_theory f = add_trans (Init f);
 fun is_init (Transition {trans = [Init _], ...}) = true
   | is_init _ = false;
 
-fun modify_init f tr = if is_init tr then init_theory f (reset_trans tr) else tr;
+fun modify_init' f tr = if is_init tr then init_theory f (reset_trans tr) else tr;
+val modify_init = map o modify_init'
 
 val exit = add_trans Exit;
 val keep' = add_trans o Keep;
@@ -344,11 +348,13 @@ fun keep_proof f =
     else if is_skipped_proof st then ()
     else warning "No proof state");
 
-fun ignored pos = empty |> name "<ignored>" |> position pos |> keep (fn _ => ());
+fun ignored' pos = empty |> name "<ignored>" |> position pos |> keep (fn _ => ());
+fun ignored pos = [ignored' pos];
 fun is_ignored tr = name_of tr = "<ignored>";
 
-fun malformed pos msg =
+fun malformed' pos msg =
   empty |> name "<malformed>" |> position pos |> keep (fn _ => error msg);
+fun malformed pos msg = [malformed' pos msg];
 
 
 (* theory transitions *)
@@ -529,8 +535,9 @@ val skip_proof_close = transaction (fn _ =>
 
 (* runtime position *)
 
-fun exec_id id (tr as Transition {pos, ...}) =
+fun exec_id' id (tr as Transition {pos, ...}) =
   position (Position.put_id (Document_ID.print id) pos) tr;
+val exec_id = map o exec_id';
 
 fun setmp_thread_position (Transition {pos, ...}) f x =
   Position.setmp_thread_data pos f x;
@@ -552,7 +559,8 @@ end;
 (* apply transitions *)
 
 fun get_timing (Transition {timing, ...}) = timing;
-fun put_timing timing = map_transition (fn (name, pos, _, trans) => (name, pos, timing, trans));
+fun put_timing' timing = map_transition (fn (name, pos, _, trans) => (name, pos, timing, trans));
+val put_timing = map o put_timing';
 
 local
 

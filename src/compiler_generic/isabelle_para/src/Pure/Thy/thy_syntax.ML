@@ -11,7 +11,7 @@ sig
   val map_element: ('a -> 'b) -> 'a element -> 'b element
   val flat_element: 'a element -> 'a list
   val last_element: 'a element -> 'a
-  val parse_elements: Keyword.keywords -> Command_Span.span list -> Command_Span.span element list
+  val parse_elements: Keyword.keywords -> (Command_Span.kind -> 'a) -> ('a -> Command_Span.kind) -> 'a list -> 'a element list
 end;
 
 structure Thy_Syntax: THY_SYNTAX =
@@ -37,45 +37,44 @@ fun last_element (Element (a, NONE)) = a
 
 (* scanning spans *)
 
-val eof = Command_Span.Span (Command_Span.Command_Span ("", Position.none), []);
+fun eof f_mk = f_mk (Command_Span.Command_Span ("", Position.none));
 
-fun is_eof (Command_Span.Span (Command_Span.Command_Span ("", _), _)) = true
-  | is_eof _ = false;
+fun is_eof f name = (case f name of Command_Span.Command_Span ("", _) => true | _ => false);
 
-val not_eof = not o is_eof;
+fun not_eof f = not o is_eof f;
 
-val stopper = Scan.stopper (K eof) is_eof;
+fun stopper f_mk f = Scan.stopper (K (eof f_mk)) (is_eof f);
 
 
 (* parse *)
 
 local
 
-fun command_with pred =
+fun command_with f pred =
   Scan.one
-    (fn (Command_Span.Span (Command_Span.Command_Span (name, _), _)) => pred name | _ => false);
+    (fn name => case f name of Command_Span.Command_Span (name, _) => pred name | _ => false);
 
-fun parse_element keywords =
+fun parse_element keywords f =
   let
     val proof_atom =
       Scan.one
-        (fn (Command_Span.Span (Command_Span.Command_Span (name, _), _)) =>
-              Keyword.is_proof_body keywords name
+        (fn name =>
+          case f name of Command_Span.Command_Span (name, _) => Keyword.is_proof_body keywords name
           | _ => true) >> atom;
     fun proof_element x =
-      (command_with (Keyword.is_proof_goal keywords) -- proof_rest >> element || proof_atom) x
+      (command_with f (Keyword.is_proof_goal keywords) -- proof_rest >> element || proof_atom) x
     and proof_rest x =
-      (Scan.repeat proof_element -- command_with (Keyword.is_qed keywords)) x;
+      (Scan.repeat proof_element -- command_with f (Keyword.is_qed keywords)) x;
   in
-    command_with (Keyword.is_theory_goal keywords) -- proof_rest >> element ||
-    Scan.one not_eof >> atom
+    command_with f (Keyword.is_theory_goal keywords) -- proof_rest >> element ||
+    Scan.one (not_eof f) >> atom
   end;
 
 in
 
-fun parse_elements keywords =
+fun parse_elements keywords f_mk f =
   Source.of_list #>
-  Source.source stopper (Scan.bulk (parse_element keywords)) #>
+  Source.source (stopper f_mk f) (Scan.bulk (parse_element keywords f)) #>
   Source.exhaust;
 
 end;
