@@ -47,7 +47,7 @@ theory
 imports
   "../../src/UML_Main"
   "../../src/compiler/Static"
-  "../../src/compiler/Generator_dynamic"
+  "../../src/compiler/Generator_dynamic_sequential"
 begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 
@@ -56,7 +56,7 @@ In this example, we configure our package to execute tactic SML code
 (corresponding to some generated \verb|.thy| file, @{file "Toy_deep.thy"}
 details how to obtain such generated \verb|.thy| file).
 Since SML code are already compiled (or reflected) and bound with the native Isabelle API in
-@{theory Generator_dynamic}, nothing is generated in this theory.
+@{theory Generator_dynamic_sequential}, nothing is generated in this theory.
 The system only parses arguments given to meta-commands and immediately calls the corresponding 
 compiled functions.
 

@@ -49,7 +49,7 @@ imports  "UML_Main"
          "../examples/archive/Monads" (* NOTE: perform lazily the extraction of generation_syntax 
                                          so that dependencies can alternate among theories *)
          "compiler/Static"
-         "compiler/Generator_dynamic"
+         "compiler/Generator_dynamic_sequential"
 begin
 
 no_notation valid_SE (infix "\<Turnstile>" 15)
@@ -94,7 +94,7 @@ generation_syntax [ (*deep
                       (*(generation_semantics [ analysis (*, oid_start 10*) ])*)
                       (THEORY Model_generated)
                       (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
-                               "../src/compiler/Generator_dynamic")
+                               "../src/compiler/Generator_dynamic_sequential")
                       SECTION
                       (*SORRY*)
                       [ (*in OCaml module_name M*)

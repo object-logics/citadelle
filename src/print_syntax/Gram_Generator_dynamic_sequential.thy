@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Gram_Generator_dynamic.thy ---
+ * Gram_Generator_dynamic_sequential.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2011-2018 Université Paris-Saclay, Univ. Paris-Sud, France
@@ -46,11 +46,11 @@
 
 header{* Part ... *}
 
-theory Gram_Generator_dynamic
+theory Gram_Generator_dynamic_sequential
 imports Gram_Main
 begin
 
-print_syntax' remove Main (*Generator_dynamic*)
+print_syntax' remove Main (*Generator_dynamic_sequential*)
 prods:
   Fun.updbind = any[0] ":=" any[0] => "_updbind" (1000)
   Fun.updbinds = Fun.updbind[0] "," Fun.updbinds[0] => "_updbinds" (1000)

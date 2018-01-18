@@ -62,7 +62,7 @@ There are various options for keeping specific lines or discarding them:
   defines at the position where it is written the name of this grammar to be \<open>Main\<close>.
   Later, we can use this name to
   discard all lines appearing in \<open>Main\<close>: this is what is done in
-  @{file "Gram_Generator_dynamic.thy"}, when we used the option
+  @{file "Gram_Generator_dynamic_sequential.thy"}, when we used the option
   \<^theory_text>\<open>remove Main\<close>.
 
 \<^item> @{keyword "add"}: Unlike @{keyword "remove"}, it is possible to explicitly add specific

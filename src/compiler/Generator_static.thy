@@ -82,7 +82,7 @@ definition "main =
         \<lparr> D_output_disable_thy := False
         , D_output_header_thy := Some (\<langle>''Employee_DesignModel_UMLPart_generated''\<rangle>
                                       ,[\<langle>''../src/OCL_main''\<rangle>]
-                                      ,\<langle>''../src/compiler/Generator_dynamic''\<rangle>) \<rparr>)
+                                      ,\<langle>''../src/compiler/Generator_dynamic_sequential''\<rangle>) \<rparr>)
      ( L.map (META_class_raw Floor1) Design
        @@@@ [ META_association (ocl_association.make
                                   OclAssTy_association

@@ -70,7 +70,7 @@ definition' \<open>print_abr sprintf_int write_file =
               (S.flatten [filename, \<open>.thy\<close>])
               (L.flatten
                 [ [ S.flatten [\<open>theory \<close>, filename, \<open> imports \<close>, gen_import, \<open> \<close>, 
-                               \<open>"../../src/compiler/Generator_dynamic"\<close>,
+                               \<open>"../../src/compiler/Generator_dynamic_sequential"\<close>,
                                \<open> begin\<close>]
                   , gen_init comp comp2]
                 , body
@@ -92,7 +92,7 @@ definition' \<open>print_abr sprintf_int write_file =
                         ,            \<open>                      skip_export\<close>
                         , S.flatten [\<open>                      (THEORY \<close>, tree_name, \<open>_generated\<close>, \<open>_\<close>, comp, \<open>)\<close>]
                         , S.flatten [\<open>                      (IMPORTS ["../../../src/UML_Main", "../../../src/compiler/Static"]\<close>]
-                        , S.flatten [\<open>                               "../../../src/compiler/Generator_dynamic")\<close>]
+                        , S.flatten [\<open>                               "../../../src/compiler/Generator_dynamic_sequential")\<close>]
                         ,            \<open>                      SECTION\<close>
                         , S.flatten [\<open>                      [ in \<close>, comp, \<open> \<close>, comp2, \<open> ]\<close>]
                         , S.flatten [\<open>                      (output_directory "./doc") ]\<close>] ]

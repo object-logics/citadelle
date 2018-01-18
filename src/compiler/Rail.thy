@@ -48,7 +48,7 @@
 theory Rail
 imports "../UML_Types"
         Aux_text
-        Generator_dynamic
+        Generator_dynamic_sequential
 begin
 ML_file "~~/src/Doc/antiquote_setup.ML"
 (*>*)

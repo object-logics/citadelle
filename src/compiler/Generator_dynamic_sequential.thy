@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * Generator_dynamic.thy ---
+ * Generator_dynamic_sequential.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2011-2018 Université Paris-Saclay, Univ. Paris-Sud, France
@@ -46,7 +46,7 @@
 
 section\<open>Dynamic Meta Embedding with Reflection\<close>
 
-theory Generator_dynamic
+theory Generator_dynamic_sequential
 imports Printer
         "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main2"
   keywords (* OCL (USE tool) *)

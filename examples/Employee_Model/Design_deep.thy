@@ -49,14 +49,14 @@ header{* Part ... *}
 theory
   Design_deep
 imports
-  "../../src/compiler/Generator_dynamic"
+  "../../src/compiler/Generator_dynamic_sequential"
 begin
 
 generation_syntax [ deep
                       (generation_semantics [ design (*, oid_start 10*) ])
                       (THEORY Employee_DesignModel_UMLPart_generated)
                       (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
-                               "../src/compiler/Generator_dynamic")
+                               "../src/compiler/Generator_dynamic_sequential")
                       SECTION
                       (*SORRY*) (*no_dirty*)
                       [ (* in Haskell *)
