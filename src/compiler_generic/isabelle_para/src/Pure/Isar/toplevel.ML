@@ -26,6 +26,8 @@ sig
   val pretty_state: state -> Pretty.T list
   val string_of_state: state -> string
   val pretty_abstract: state -> Pretty.T
+  datatype state_read = Load_backup | Load_previous
+  datatype state_write = Store_backup | Store_default
   type transition
   type transitions = transition list
   val empty: transition
@@ -34,6 +36,7 @@ sig
   val type_error: transition -> string
   val name: string -> transition -> transition
   val position: Position.T -> transition -> transition
+  val read_write: state_read * state_write -> transition -> transition
   val init_theory: (unit -> theory) -> transition -> transition
   val is_init: transition -> bool
   val modify_init: (unit -> theory) -> transitions -> transitions
@@ -118,31 +121,32 @@ val context_node = cases_node Context.proof_of Proof.context_of;
 
 (* datatype state *)
 
-datatype state = State of node option * node option;  (*current, previous*)
+datatype state = State of node option * node option *
+                          (node option * node option);  (*current, previous, backup*)
 
-val toplevel = State (NONE, NONE);
+val toplevel = State (NONE, NONE, (NONE, NONE));
 
-fun is_toplevel (State (NONE, _)) = true
+fun is_toplevel (State (NONE, _, _)) = true
   | is_toplevel _ = false;
 
-fun level (State (NONE, _)) = 0
-  | level (State (SOME (Theory _), _)) = 0
-  | level (State (SOME (Proof (prf, _)), _)) = Proof.level (Proof_Node.current prf)
-  | level (State (SOME (Skipped_Proof (d, _)), _)) = d + 1;   (*different notion of proof depth!*)
+fun level (State (NONE, _, _)) = 0
+  | level (State (SOME (Theory _), _, _)) = 0
+  | level (State (SOME (Proof (prf, _)), _, _)) = Proof.level (Proof_Node.current prf)
+  | level (State (SOME (Skipped_Proof (d, _)), _, _)) = d + 1;   (*different notion of proof depth!*)
 
-fun str_of_state (State (NONE, SOME (Theory (Context.Theory thy, _)))) =
+fun str_of_state (State (NONE, SOME (Theory (Context.Theory thy, _)), _)) =
       "at top level, result theory " ^ quote (Context.theory_name thy)
-  | str_of_state (State (NONE, _)) = "at top level"
-  | str_of_state (State (SOME (Theory (Context.Theory _, _)), _)) = "in theory mode"
-  | str_of_state (State (SOME (Theory (Context.Proof _, _)), _)) = "in local theory mode"
-  | str_of_state (State (SOME (Proof _), _)) = "in proof mode"
-  | str_of_state (State (SOME (Skipped_Proof _), _)) = "in skipped proof mode";
+  | str_of_state (State (NONE, _, _)) = "at top level"
+  | str_of_state (State (SOME (Theory (Context.Theory _, _)), _, _)) = "in theory mode"
+  | str_of_state (State (SOME (Theory (Context.Proof _, _)), _, _)) = "in local theory mode"
+  | str_of_state (State (SOME (Proof _), _, _)) = "in proof mode"
+  | str_of_state (State (SOME (Skipped_Proof _), _, _)) = "in skipped proof mode";
 
 
 (* current node *)
 
-fun node_of (State (NONE, _)) = raise UNDEF
-  | node_of (State (SOME node, _)) = node;
+fun node_of (State (NONE, _, _)) = raise UNDEF
+  | node_of (State (SOME node, _, _)) = node;
 
 fun is_theory state = not (is_toplevel state) andalso is_some (theory_node (node_of state));
 fun is_proof state = not (is_toplevel state) andalso is_some (proof_node (node_of state));
@@ -156,8 +160,8 @@ fun presentation_context_of state =
   | SOME node => context_node node
   | NONE => raise UNDEF);
 
-fun previous_context_of (State (_, NONE)) = NONE
-  | previous_context_of (State (_, SOME prev)) = SOME (context_node prev);
+fun previous_context_of (State (_, NONE, _)) = NONE
+  | previous_context_of (State (_, SOME prev, _)) = SOME (context_node prev);
 
 val context_of = node_case Context.proof_of Proof.context_of;
 val generic_theory_of = node_case I (Context.Proof o Proof.context_of);
@@ -169,9 +173,9 @@ fun proof_position_of state =
     Proof (prf, _) => Proof_Node.position prf
   | _ => ~1);
 
-fun end_theory _ (State (NONE, SOME (Theory (Context.Theory thy, _)))) = thy
-  | end_theory pos (State (NONE, _)) = error ("Bad theory" ^ Position.here pos)
-  | end_theory pos (State (SOME _, _)) = error ("Unfinished theory" ^ Position.here pos);
+fun end_theory _ (State (NONE, SOME (Theory (Context.Theory thy, _)), _)) = thy
+  | end_theory pos (State (NONE, _, _)) = error ("Bad theory" ^ Position.here pos)
+  | end_theory pos (State (SOME _, _, _)) = error ("Unfinished theory" ^ Position.here pos);
 
 
 (* print state *)
@@ -215,11 +219,11 @@ fun reset_presentation (Theory (gthy, _)) = Theory (gthy, NONE)
 
 in
 
-fun apply_transaction f g node =
+fun apply_transaction gthy f g node =
   let
     val cont_node = reset_presentation node;
     val context = cases_node I (Context.Proof o Proof.context_of) cont_node;
-    fun state_error e nd = (State (SOME nd, SOME node), e);
+    fun state_error e nd = (State (SOME nd, SOME node, gthy), e);
 
     val (result, err) =
       cont_node
@@ -232,11 +236,11 @@ fun apply_transaction f g node =
     | SOME exn => raise FAILURE (result, exn))
   end;
 
-val exit_transaction =
-  apply_transaction
+fun exit_transaction gthy =
+  apply_transaction gthy
     (fn Theory (Context.Theory thy, _) => Theory (Context.Theory (Theory.end_theory thy), NONE)
       | node => node) (K ())
-  #> (fn State (node', _) => State (NONE, node'));
+  #> (fn State (node', _, gthy) => State (NONE, node', gthy));
 
 end;
 
@@ -251,14 +255,14 @@ datatype trans =
 
 local
 
-fun apply_tr _ (Init f) (State (NONE, _)) =
-      State (SOME (Theory (Context.Theory (Runtime.controlled_execution NONE f ()), NONE)), NONE)
-  | apply_tr _ Exit (State (SOME (state as Theory (Context.Theory _, _)), _)) =
-      exit_transaction state
+fun apply_tr _ (Init f) (State (NONE, _, gthy)) =
+      State (SOME (Theory (Context.Theory (Runtime.controlled_execution NONE f ()), NONE)), NONE, gthy)
+  | apply_tr _ Exit (State (SOME (state as Theory (Context.Theory _, _)), _, gthy)) =
+      exit_transaction gthy state
   | apply_tr int (Keep f) state =
       Runtime.controlled_execution (try generic_theory_of state) (fn x => tap (f int) x) state
-  | apply_tr int (Transaction (f, g)) (State (SOME state, _)) =
-      apply_transaction (fn x => f int x) g state
+  | apply_tr int (Transaction (f, g)) (State (SOME state, _, gthy)) =
+      apply_transaction gthy (fn x => f int x) g state
   | apply_tr _ _ _ = raise UNDEF;
 
 fun apply_union _ [] state = raise FAILURE (state, UNDEF)
@@ -279,21 +283,25 @@ end;
 
 (* datatype transition *)
 
+datatype state_read = Load_backup | Load_previous
+datatype state_write = Store_backup | Store_default
+
 datatype transition = Transition of
- {name: string,              (*command name*)
-  pos: Position.T,           (*source position*)
-  timing: Time.time option,  (*prescient timing information*)
-  trans: trans list};        (*primitive transitions (union)*)
+ {name: string,                           (*command name*)
+  pos: Position.T,                        (*source position*)
+  timing: Time.time option,               (*prescient timing information*)
+  trans: trans list,                      (*primitive transitions (union)*)
+  read_write: state_read * state_write};  (*state update status*)
 
 type transitions = transition list
 
-fun make_transition (name, pos, timing, trans) =
-  Transition {name = name, pos = pos, timing = timing, trans = trans};
+fun make_transition (name, pos, timing, trans, read_write) =
+  Transition {name = name, pos = pos, timing = timing, trans = trans, read_write = read_write};
 
-fun map_transition f (Transition {name, pos, timing, trans}) =
-  make_transition (f (name, pos, timing, trans));
+fun map_transition f (Transition {name, pos, timing, trans, read_write}) =
+  make_transition (f (name, pos, timing, trans, read_write));
 
-val empty = make_transition ("", Position.none, NONE, []);
+val empty = make_transition ("", Position.none, NONE, [], (Load_previous, Store_default));
 
 
 (* diagnostics *)
@@ -311,17 +319,20 @@ fun type_error tr = command_msg "Bad context for " tr;
 
 (* modify transitions *)
 
-fun name name = map_transition (fn (_, pos, timing, trans) =>
-  (name, pos, timing, trans));
+fun name name = map_transition (fn (_, pos, timing, trans, read_write) =>
+  (name, pos, timing, trans, read_write));
 
-fun position pos = map_transition (fn (name, _, timing, trans) =>
-  (name, pos, timing, trans));
+fun position pos = map_transition (fn (name, _, timing, trans, read_write) =>
+  (name, pos, timing, trans, read_write));
 
-fun add_trans tr = map_transition (fn (name, pos, timing, trans) =>
-  (name, pos, timing, tr :: trans));
+fun read_write read_write = map_transition (fn (name, pos, timing, trans, _) =>
+  (name, pos, timing, trans, read_write));
 
-val reset_trans = map_transition (fn (name, pos, timing, _) =>
-  (name, pos, timing, []));
+fun add_trans tr = map_transition (fn (name, pos, timing, trans, read_write) =>
+  (name, pos, timing, tr :: trans, read_write));
+
+val reset_trans = map_transition (fn (name, pos, timing, _, read_write) =>
+  (name, pos, timing, [], read_write));
 
 
 (* basic transitions *)
@@ -559,7 +570,7 @@ end;
 (* apply transitions *)
 
 fun get_timing (Transition {timing, ...}) = timing;
-fun put_timing' timing = map_transition (fn (name, pos, _, trans) => (name, pos, timing, trans));
+fun put_timing' timing = map_transition (fn (name, pos, _, trans, read_write) => (name, pos, timing, trans, read_write));
 val put_timing = map o put_timing';
 
 local
@@ -575,10 +586,19 @@ fun app int (tr as Transition {name, trans, ...}) =
       val _ = Timing.protocol_message timing_props timing_result;
     in (result, Option.map (fn UNDEF => ERROR (type_error tr) | exn => exn) opt_err) end);
 
+fun state_load (Transition {read_write = (read, _), ...}) (st as State (_, _, (nd1, nd0))) =
+  case read of Load_backup => State (nd1, nd0, (nd1, nd0))
+             | Load_previous => st
+
+fun state_store (Transition {read_write = (_, write), ...}) (st as State (nd1, nd0, _)) =
+  case write of Store_backup => State (nd1, nd0, (nd1, nd0))
+              | Store_default => st
+
 in
 
 fun transition int tr st =
   let
+    val st = state_load tr st
     val (st', opt_err) =
       Context.setmp_thread_data (try (Context.Proof o presentation_context_of) st)
         (fn () => app int tr st) ();
@@ -586,7 +606,7 @@ fun transition int tr st =
       (fn Runtime.EXCURSION_FAIL exn_info => exn_info
         | exn => (Runtime.exn_context (try context_of st) exn, at_command tr));
     val _ = get_hooks () |> List.app (fn f => (try (fn () => f tr st st') (); ()));
-  in (st', opt_err') end;
+  in (state_store tr st', opt_err') end;
 
 end;
 
@@ -713,10 +733,10 @@ fun element_result keywords (Thy_Syntax.Element (tr, NONE)) st = atom_result key
                   {name = "Toplevel.future_proof", pos = pos_of head_tr, pri = priority estimate}
                   (fn () =>
                     let
-                      val State (SOME (Proof (prf, (_, orig_gthy))), prev) = st';
+                      val State (SOME (Proof (prf, (_, orig_gthy))), prev, backup) = st';
                       val prf' = Proof_Node.apply (K state) prf;
                       val (result, result_state) =
-                        State (SOME (Proof (prf', (finish, orig_gthy))), prev)
+                        State (SOME (Proof (prf', (finish, orig_gthy))), prev, backup)
                         |> fold_map (element_result keywords) body_elems ||> command end_tr;
                     in (Result_List result, presentation_context_of result_state) end))
               #> (fn (res, state') => state' |> put_result (Result_Future res));
