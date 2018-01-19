@@ -1332,7 +1332,7 @@ val () = let open Generation_mode in
       || parse_l' mode >> SOME
       || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
     (fn SOME x => f_command x
-         | NONE =>
+      | NONE =>
            (*[*) ((*@{command_keyword export_code},*)
             toplevel_keep_theory (fn thy =>
              List.app
