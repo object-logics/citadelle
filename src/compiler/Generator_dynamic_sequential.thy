@@ -548,6 +548,10 @@ end
 
 end
 
+exception THY_REQUIRED of Position.T
+
+fun get_thy pos f = fn NONE => raise (THY_REQUIRED pos) | SOME thy => f thy
+
 structure Bind_META = struct open Bind_Isabelle
 
 fun all_meta_thy top_theory top_local_theory aux ret = let open META open META_overload in fn
@@ -1203,10 +1207,8 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
 
   end
 
-fun outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
   let open Generation_mode in
-  Outer_Syntax.command cmd_spec cmd_descr
-    (parser >> (fn name =>
       Toplevel.theory (fn thy =>
         let val (env, thy) =
         META.mapM
@@ -1228,7 +1230,7 @@ fun outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser get_all_meta_e
                                           , tmp_export_code
                                           , skip_exportation)) =>
               (fn thy0 =>
-                let val l_obj = get_all_meta_embed thy0 in
+                let val l_obj = get_all_meta_embed (SOME thy0) in
                 thy0 |> (if skip_exportation then
                            K ()
                          else
@@ -1298,7 +1300,7 @@ fun outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser get_all_meta_e
                          val () = out_intensify (Timing.message s |> Markup.markup Markup.operator) "" in
                        r
                      end in
-                    disp_time (aux (env, thy)) (get_all_meta_embed thy)
+                    disp_time (aux (env, thy)) (get_all_meta_embed (SOME thy))
                    end in
              (Gen_shallow (env, thy0), thy)
              end
@@ -1308,15 +1310,19 @@ fun outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser get_all_meta_e
                                                                     | _ => [Gen_syntax_print NONE])
           thy
         in
-        Data_gen.map (Symtab.update (Deep0.default_key, env)) thy end)))
+        Data_gen.map (Symtab.update (Deep0.default_key, env)) thy end)
   end
 
+fun outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+  Outer_Syntax.command cmd_spec cmd_descr
+    (parser >> outer_syntax_command0_thy0 mk_string get_all_meta_embed)
+
 fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
- outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (K o get_all_meta_embed)
+ outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => K (get_all_meta_embed a ()))
 
 fun outer_syntax_command_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
-(* outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser (fn a => [get_all_meta_embed a])*)
- outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => K [get_all_meta_embed a])
+(* outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])*)
+ outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => K [get_all_meta_embed a ()])
 
 fun outer_syntax_command_thy mk_string cmd_spec cmd_descr parser get_all_meta_embed =
  outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
@@ -1364,7 +1370,7 @@ structure USE_parse = struct
   fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
     outer_syntax_command_thy mk_string cmd_spec cmd_descr
       (optional (paren @{keyword "shallow"}) -- parser)
-      (fn (is_shallow, use) => fn thy =>
+      (fn (is_shallow, use) => get_thy @{here} (fn thy =>
          get_all_meta_embed
            (if is_shallow = NONE then
               ( fn s =>
@@ -1373,7 +1379,7 @@ structure USE_parse = struct
               , v_true)
             else
               (From.read_term thy, v_false))
-           use)
+           use))
 
   (* *)
 
@@ -1644,7 +1650,7 @@ val () =
   outer_syntax_command_tr @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
-      META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2)))
+      K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
 \<close>
 
 subsection\<open>Setup of Meta Commands for OCL: (abstract) Class\<close>
@@ -1687,7 +1693,7 @@ local
       (   repeat2 association_end
        ||     optional Parse.binding
           |-- association)
-      (META.META_association o Outer_syntax_Association.make ass_ty)
+      (K o META.META_association o Outer_syntax_Association.make ass_ty)
 in
 val () = mk_associationDefinition META.OclAssTy_association @{command_keyword Association}
 val () = mk_associationDefinition META.OclAssTy_composition @{command_keyword Composition}
@@ -1764,11 +1770,11 @@ val () =
   outer_syntax_command0_tr @{mk_string} @{command_keyword End} "Class generation"
     (Scan.optional ( Parse.$$$ "[" -- Parse.reserved "forced" -- Parse.$$$ "]" >> K true
                     || Parse.$$$ "!" >> K true) false)
-    (fn b =>
-       if b then
-         [META.META_flush_all META.OclFlushAll]
-       else
-         [])
+    (fn b => 
+      K (if b then
+           [META.META_flush_all META.OclFlushAll]
+         else
+           []))
 \<close>
 
 subsection\<open>Setup of Meta Commands for OCL: BaseType, Instance, State\<close>
@@ -1777,7 +1783,7 @@ ML\<open>
 val () =
   outer_syntax_command_tr @{mk_string} @{command_keyword BaseType} ""
     (parse_l' USE_parse.term_base)
-    (META.META_def_base_l o META.OclDefBase)
+    (K o META.META_def_base_l o META.OclDefBase)
 
 local
   open USE_parse
@@ -1786,14 +1792,14 @@ val () =
   outer_syntax_command_tr @{mk_string} @{command_keyword Instance} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >>
                                                                         (fn (x, xs) => x :: xs)) [])
-    (META.META_instance o get_oclinst)
+    (K o META.META_instance o get_oclinst)
 
 val () =
   outer_syntax_command_tr @{mk_string} @{command_keyword State} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => 
-      META.META_def_state
+      (K o META.META_def_state)
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
         , META.OclDefSt (From.binding name, mk_state l)))
 end
@@ -1812,7 +1818,7 @@ val () =
      -- state_pp_parse
      -- USE_parse.optional state_pp_parse)
     (fn (((is_shallow, n), s_pre), s_post) =>
-      META.META_def_transition
+      (K o META.META_def_transition)
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
         , META.OclDefPP ( From.option From.binding n
                        , mk_pp_state s_pre
@@ -1829,7 +1835,7 @@ in
 val () =
   outer_syntax_command_tr @{mk_string} @{command_keyword Tree} ""
     (natural -- natural)
-    (META.META_class_tree o META.OclClassTree)
+    (K o META.META_class_tree o META.OclClassTree)
 end
 (*val _ = print_depth 100*)
 \<close>
