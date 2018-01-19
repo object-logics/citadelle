@@ -16,7 +16,7 @@ sig
   val use_theories:
     {document: bool,
      symbols: HTML.symbols,
-     last_timing: Toplevel.transitions -> Time.time option,
+     last_timing: Toplevel.transition -> Time.time option,
      master_dir: Path.T} -> (string * Position.T) list -> unit
   val use_thys: (string * Position.T) list -> unit
   val use_thy: string * Position.T -> unit

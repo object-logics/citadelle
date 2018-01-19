@@ -9,6 +9,7 @@ sig
   datatype 'a element = Element of 'a * ('a element list * 'a) option
   val atom: 'a -> 'a element
   val map_element: ('a -> 'b) -> 'a element -> 'b element
+  val exists_element: ('a -> bool) -> 'a element -> bool
   val flat_element: 'a element -> 'a list
   val last_element: 'a element -> 'a
   val parse_elements: Keyword.keywords -> (Command_Span.kind -> 'a) -> ('a -> Command_Span.kind) -> 'a list -> 'a element list
@@ -27,6 +28,10 @@ fun atom a = Element (a, NONE);
 fun map_element f (Element (a, NONE)) = Element (f a, NONE)
   | map_element f (Element (a, SOME (elems, b))) =
       Element (f a, SOME ((map o map_element) f elems, f b));
+
+fun exists_element f (Element (a, NONE)) = f a
+  | exists_element f (Element (a, SOME (elems, b))) =
+      f a orelse (exists o exists_element) f elems orelse f b;
 
 fun flat_element (Element (a, NONE)) = [a]
   | flat_element (Element (a, SOME (elems, b))) = a :: maps flat_element elems @ [b];

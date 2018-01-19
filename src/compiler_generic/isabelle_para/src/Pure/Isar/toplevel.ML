@@ -79,7 +79,7 @@ sig
   val setmp_thread_position: transition -> ('a -> 'b) -> 'a -> 'b
   val add_hook: (transition -> state -> state -> unit) -> unit
   val get_timing: transition -> Time.time option
-  val put_timing: Time.time option -> transitions -> transitions
+  val put_timing: Time.time option -> transition -> transition
   val transition: bool -> transition -> state -> state * (exn * string) option
   val command_errors: bool -> transition -> state -> Runtime.error list * state option
   val command_exception: bool -> transition -> state -> state
@@ -570,8 +570,7 @@ end;
 (* apply transitions *)
 
 fun get_timing (Transition {timing, ...}) = timing;
-fun put_timing' timing = map_transition (fn (name, pos, _, trans, read_write) => (name, pos, timing, trans, read_write));
-val put_timing = map o put_timing';
+fun put_timing timing = map_transition (fn (name, pos, _, trans, read_write) => (name, pos, timing, trans, read_write));
 
 local
 

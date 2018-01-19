@@ -32,17 +32,15 @@ fun approximative_id name pos =
   | _ => NONE);
 
 fun lookup_timings timings tr =
-  (case rev tr of (tr :: _) =>
-    (case approximative_id (Toplevel.name_of tr) (Toplevel.pos_of tr) of
-      SOME {file, offset, name} =>
-        (case Symtab.lookup timings file of
-          SOME offsets =>
-            (case Inttab.lookup offsets offset of
-              SOME (name', time) => if name = name' then SOME time else NONE
-            | NONE => NONE)
-        | NONE => NONE)
-    | NONE => NONE)
-  | _ => NONE);
+  (case approximative_id (Toplevel.name_of tr) (Toplevel.pos_of tr) of
+    SOME {file, offset, name} =>
+      (case Symtab.lookup timings file of
+        SOME offsets =>
+          (case Inttab.lookup offsets offset of
+            SOME (name', time) => if name = name' then SOME time else NONE
+          | NONE => NONE)
+      | NONE => NONE)
+  | NONE => NONE);
 
 
 (* session timing *)

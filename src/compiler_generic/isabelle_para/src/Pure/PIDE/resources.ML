@@ -17,7 +17,7 @@ sig
   val provide_parse_files: string -> (theory -> Token.file list * theory) parser
   val loaded_files_current: theory -> bool
   val begin_theory: Path.T -> Thy_Header.header -> theory list -> theory
-  val load_thy: bool -> HTML.symbols -> (Toplevel.transitions -> Time.time option) -> int ->
+  val load_thy: bool -> HTML.symbols -> (Toplevel.transition -> Time.time option) -> int ->
     Path.T -> Thy_Header.header -> Position.T -> string -> theory list ->
     theory * (unit -> unit) * int
 end;
@@ -126,28 +126,67 @@ fun begin_theory master_dir {name, imports, keywords} parents =
   |> put_deps master_dir imports
   |> Thy_Header.add_keywords keywords;
 
-fun excursion keywords master_dir last_timing init spans =
-  let
-    fun prepare_span st span =
-      Command_Span.content span
-      |> Command.read keywords (Command.read_thy st) master_dir init ([], ~1)
-      |> (fn tr => Toplevel.put_timing (last_timing tr) tr);
+datatype span_raw = 
+    Span_cmd of Command_Span.span
+  | Span_tr of Toplevel.transition
 
-    fun element_result span_elem (st, _) =
+fun excursion keywords master_dir last_timing init elements =
+  let
+    fun prepare_span st = fn
+      Span_cmd span =>
+        Command_Span.content span
+        |> Command.read keywords (Command.read_thy st) master_dir init ([], ~1)
+        |> map (fn tr => Toplevel.put_timing (last_timing tr) tr)
+    | Span_tr tr => [tr];
+
+    fun element_result elem (st, _) =
       let
-        val elems = Thy_Syntax.parse_elements keywords
-                                              (K Toplevel.empty)
-                                              (fn tr => Command_Span.Command_Span (Toplevel.name_of tr, Toplevel.pos_of tr))
-                                              (prepare_span st span_elem);
-        val (results, st') = fold_map (Toplevel.element_result keywords) elems st;
-        val pos' = Toplevel.pos_of (Thy_Syntax.last_element (List.last elems));
+        val (results, st') = Toplevel.element_result keywords elem st;
+        val pos' = Toplevel.pos_of (Thy_Syntax.last_element elem);
       in (results, (st', pos')) end;
 
+    val meta_cmd = fn [_] => false | _ => true
     val (results, (end_state, end_pos)) =
-      fold_map element_result spans (Toplevel.toplevel, Position.none);
-
+      let fun aux _ ([], acc) = ([], acc)
+        | aux prev_xs ((x :: xs), acc) =
+          let
+            val x0 = Thy_Syntax.map_element (prepare_span (#1 acc)) x
+          in
+            if Thy_Syntax.exists_element meta_cmd x0 then
+              let val (l_reparse, prev_xs) =
+                if case x0 of Thy_Syntax.Element (a0, _) => meta_cmd a0 then
+                   prev_xs |>
+                        (Scan.permissive (Scan.one (fn (Thy_Syntax.Element (_, NONE), _) => true | _ => false) >> (fn l => [l]))
+                         || Scan.succeed [])
+                else ([], prev_xs)
+              in
+                aux
+                  prev_xs
+                  (apfst
+                    (fn l => 
+                       Thy_Syntax.parse_elements keywords
+                          (fn x => Span_cmd (Command_Span.Span (x, [])))
+                          (fn Span_cmd (Command_Span.Span (x, _)) => x
+                            | Span_tr tr => Command_Span.Command_Span (Toplevel.name_of tr, Toplevel.pos_of tr))
+                          (List.concat (List.concat [ l,
+                                                      map (map Span_tr) (Thy_Syntax.flat_element x0),
+                                                      map Thy_Syntax.flat_element xs])))
+                    (case map (apfst Thy_Syntax.flat_element) (rev l_reparse) of
+                       [] => ([], acc)
+                     | (x, acc) :: xs => (x :: map #1 xs, acc)))
+              end
+            else
+              let
+                val x0 = Thy_Syntax.map_element hd x0
+                val (x', acc') = element_result x0 acc;
+                val (xs', acc'') = aux ((Thy_Syntax.map_element Span_tr x0, acc) :: prev_xs) (xs, acc');
+              in (x' :: xs', acc'') end
+          end
+      in
+      aux [] (elements, (Toplevel.toplevel, Position.none))
+      end;
     val thy = Toplevel.end_theory end_pos end_state;
-  in (List.concat results, thy) end;
+  in (results, thy) end;
 
 fun load_thy document symbols last_timing update_time master_dir header text_pos text parents =
   let
@@ -158,6 +197,11 @@ fun load_thy document symbols last_timing update_time master_dir header text_pos
 
     val toks = Token.explode keywords text_pos text;
     val spans = Outer_Syntax.parse_spans toks;
+    val elements = map (Thy_Syntax.map_element Span_cmd)
+                       (Thy_Syntax.parse_elements keywords
+                                                  (fn x => Command_Span.Span (x, []))
+                                                  (fn Command_Span.Span (x, _) => x)
+                                                  spans)
 
     fun init () =
       begin_theory master_dir header parents
@@ -166,7 +210,7 @@ fun load_thy document symbols last_timing update_time master_dir header text_pos
 
     val (results, thy) =
       cond_timeit true ("theory " ^ quote name)
-        (fn () => excursion keywords master_dir last_timing init spans);
+        (fn () => excursion keywords master_dir last_timing init elements);
 
     fun present () =
       let
@@ -175,8 +219,7 @@ fun load_thy document symbols last_timing update_time master_dir header text_pos
         if exists (Toplevel.is_skipped_proof o #2) res then
           warning ("Cannot present theory with skipped proofs: " ^ quote name)
         else
-          let val tex_source = Thy_Output.present_thy thy res toks |> Buffer.content;
-          in if document then Present.theory_output name tex_source else () end
+          if document then let val tex_source = Thy_Output.present_thy thy res toks |> Buffer.content in Present.theory_output name tex_source end else ()
       end;
 
   in (thy, present, size text) end;
