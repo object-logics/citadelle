@@ -1313,25 +1313,30 @@ val mode =
 
 fun toplevel_keep_theory f = Toplevel.keep (f o Toplevel.theory_of)
 fun toplevel_read_write_keep rw = (@{command_keyword print_syntax}, fn tr => tr |> Toplevel.read_write rw |> Toplevel.keep (K ()))
+fun toplevel_setup_theory (res, tr) f = rev ((@{command_keyword setup}, Toplevel.theory (f res)) :: tr)
+fun toplevel_keep_output tps fmt msg =
+  cons (@{command_keyword print_syntax},
+        Toplevel.keep (fn _ => out_intensify (Timing.message (Timing.result tps) |> Markup.markup fmt) msg))
 
 fun f_command l_mode =
-  let val (l_mode, trs) =
-    META.mapM
-      (fn Gen_shallow (env, ()) => (fn acc =>
-           ((fn thy => Gen_shallow (env (Proof_Context.init_global thy), thy)),
-            toplevel_read_write_keep (Toplevel.Load_previous, Toplevel.Store_backup) :: acc))
+  toplevel_setup_theory
+    (META.mapM
+      (fn Gen_shallow (env, ()) => 
+           pair (fn thy => Gen_shallow (env (Proof_Context.init_global thy), thy))
+                o cons (toplevel_read_write_keep (Toplevel.Load_previous, Toplevel.Store_backup))
         | Gen_syntax_print n => pair (K (Gen_syntax_print n))
         | Gen_deep (env, Internal_deep ( output_header_thy
                                        , seri_args
                                        , filename_thy
                                        , tmp_export_code
-                                       , skip_exportation)) => (fn acc =>
-           (fn thy => Gen_deep (env (Proof_Context.init_global thy),
+                                       , skip_exportation)) =>
+           pair (fn thy => Gen_deep (env (Proof_Context.init_global thy),
                                 Internal_deep ( output_header_thy
                                               , seri_args
                                               , filename_thy
                                               , tmp_export_code
-                                              , skip_exportation)),
+                                              , skip_exportation)))
+                o cons
             (@{command_keyword export_code}, toplevel_keep_theory (fn thy =>
               let val seri_args' =
                     List_mapi
@@ -1353,23 +1358,24 @@ fun f_command l_mode =
                       let val _ =
                         warning ("After closing Isabelle/jEdit, we may still need to remove this directory (by hand): " ^
                                  Path.implode (Path.expand tmp_export_code)) in
+                      thy
+                      |> Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function
+                      |> Code_printing.apply_code_printing
+                      |> Proof_Context.init_global
+                      |> 
                       Isabelle_Code_Target.export_code_cmd
                             (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
                             [Deep0.Export_code_env.Isabelle.function]
                             (List.map fst seri_args')
-                            (Proof_Context.init_global
-                              (Code_printing.apply_code_printing
-                                (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
                       end in
-                  fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
-                    Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () end)) :: acc)))
+                  List.app (fn ((((ml_compiler, ml_module), _), _), mk_fic) => 
+                    Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' end)))
       l_mode
-      [] in
-  rev ((@{command_keyword setup}, Toplevel.theory (fn thy =>
-        let val l_mode = map (fn f => f thy) l_mode in
-          Data_gen.map (Symtab.map_default (Deep0.default_key, l_mode) (fn _ => l_mode)) thy
-        end)) :: trs)
-  end
+      [])
+    (fn l_mode => fn thy =>
+      let val l_mode = map (fn f => f thy) l_mode in
+        Data_gen.map (Symtab.map_default (Deep0.default_key, l_mode) (K l_mode)) thy
+      end)
 
 fun update_compiler_config f =
   Data_gen.map
@@ -1451,6 +1457,15 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
 
   end
 
+fun fold_thy_shallow f = 
+  META.fold_thy_shallow
+    (fn f => f () handle ERROR e =>
+      ( warning "Shallow Backtracking: (true) Isabelle declarations occuring among the META-simulated ones are ignored (if any)"
+        (* TODO automatically determine if there is such Isabelle declarations,
+                for raising earlier a specific error message *)
+      ; error e))
+    f
+
 fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
   let open Generation_mode in
       Toplevel.theory (fn thy =>
@@ -1505,13 +1520,8 @@ fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
                        end
                    end
                  fun aux (env, thy) x =
-                  META.fold_thy_shallow
-                   (fn f => f () handle ERROR e =>
-                     ( warning "Shallow Backtracking: (true) Isabelle declarations occuring among the META-simulated ones are ignored (if any)"
-                       (* TODO automatically determine if there is such Isabelle declarations,
-                               for raising earlier a specific error message *)
-                     ; error e))
-                   (fn _ => fn _ => thy0)
+                  fold_thy_shallow
+                   (K o K thy0)
                    (fn msg =>
                      let val () = disp_time msg in
                      fn l => fn (env, thy) =>
@@ -1563,63 +1573,53 @@ fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_em
       (* WARNING: Whenever there would be errors raised by functions taking "thy" as input, 
                   they will not be shown.
                   So the use of this "thy" can be considered as safe, as long as errors do not happen. *)
-      let val (env, acc) =
-        META.mapM
+      toplevel_setup_theory
+        (META.mapM
           let val l_obj = get_all_meta_embed name NONE in
           fn Gen_syntax_print n =>
-            (fn acc =>
-              (Gen_syntax_print n,
-               (@{command_keyword print_syntax},
-                toplevel_keep_theory (fn thy =>
-                  writeln (mk_string
-                            (Proof_Context.init_global
-                              (case n of NONE => thy
-                                       | SOME n => Config.put_global ML_Options.print_depth n thy))
-                            name))) :: acc))
+             pair (Gen_syntax_print n)
+                  o cons
+                     (@{command_keyword print_syntax},
+                      toplevel_keep_theory (fn thy =>
+                        writeln (mk_string
+                                  (Proof_Context.init_global
+                                    (case n of NONE => thy
+                                             | SOME n => Config.put_global ML_Options.print_depth n thy))
+                                  name)))
            | Gen_deep (env, Internal_deep ( output_header_thy
                                           , seri_args
                                           , filename_thy
                                           , tmp_export_code
                                           , skip_exportation)) =>
-            (fn acc =>
-              (Gen_deep ( META.fold_thy_deep l_obj env
-                        , Internal_deep ( output_header_thy
-                                        , seri_args
-                                        , filename_thy
-                                        , tmp_export_code
-                                        , skip_exportation)),
-               if skip_exportation then
-                 acc
-               else
-                 (@{command_keyword export_code},
-                  toplevel_keep_theory
-                   (exec_deep ( META.d_output_header_thy_update (K NONE) env
-                              , output_header_thy
-                              , seri_args
-                              , NONE
-                              , tmp_export_code
-                              , l_obj)))
-                 :: acc))
+             pair (Gen_deep ( META.fold_thy_deep l_obj env
+                            , Internal_deep ( output_header_thy
+                                            , seri_args
+                                            , filename_thy
+                                            , tmp_export_code
+                                            , skip_exportation)))
+                  o (if skip_exportation then
+                       I
+                     else
+                       cons (@{command_keyword export_code},
+                             toplevel_keep_theory
+                              (exec_deep ( META.d_output_header_thy_update (K NONE) env
+                                         , output_header_thy
+                                         , seri_args
+                                         , NONE
+                                         , tmp_export_code
+                                         , l_obj))))
+
            | Gen_shallow (env, thy_init) => (fn acc =>
             let val tps = Timing.start ()
                 val disp_time = fn NONE => I | SOME msg =>
-                      fn acc => (@{command_keyword print_syntax}, Toplevel.keep (fn _ =>
-                      let val msg = To_string0 msg in
-                      out_intensify
-                        (Timing.message (Timing.result tps) |> Markup.markup Markup.antiquote)
-                        (" " ^
-                         Pretty.string_of
-                           (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
-                                        (Pretty.str msg)))
-                      end)) :: acc
+                  toplevel_keep_output tps Markup.antiquote
+                    let val msg = To_string0 msg
+                    in " " ^ Pretty.string_of
+                         (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
+                                      (Pretty.str msg)) end
               fun aux (env, acc) x =
-                META.fold_thy_shallow
-                  (fn f => f () handle ERROR e =>
-                    ( warning "Shallow Backtracking: (true) Isabelle declarations occuring among the META-simulated ones are ignored (if any)"
-                      (* TODO automatically determine if there is such Isabelle declarations,
-                              for raising earlier a specific error message *)
-                    ; error e))
-                  (fn _ => fn acc => toplevel_read_write_keep (Toplevel.Load_backup, Toplevel.Store_default) :: acc)
+                fold_thy_shallow
+                  (K (cons (toplevel_read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
                   (fn msg => fn l => fn (env, acc) =>
                     Bind_META.all_meta_tr (fn x => fn acc => aux (env, acc) [x])
                                           (pair env)
@@ -1629,18 +1629,15 @@ fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_em
                   (env, acc) in
             META.map_prod
               (fn env => Gen_shallow (env, thy_init))
-              (fn acc => (@{command_keyword print_syntax}, Toplevel.keep (fn _ =>
-                                         out_intensify
-                                           (Timing.message (Timing.result tps) |> Markup.markup Markup.operator)
-                                           "")) :: acc)
+              (toplevel_keep_output tps Markup.operator "")
               (aux (env, acc) l_obj)
             end)
 
           end
           (case Symtab.lookup (Data_gen.get thy) Deep0.default_key of SOME l => l
                                                                     | _ => [Gen_syntax_print NONE])
-          []
-      in rev ((@{command_keyword setup}, Toplevel.theory (Data_gen.map (Symtab.update (Deep0.default_key, env)))) :: acc) end
+          [])
+        (fn env => Data_gen.map (Symtab.update (Deep0.default_key, env)))
       handle THY_REQUIRED pos =>
         let val _ = Output.information ("Theory required while transitions were being built" ^ Position.here pos ^ ": Commands will not be concurrently considered.")
         in [(cmd_spec, outer_syntax_command0_thy0 mk_string get_all_meta_embed name)] end))
