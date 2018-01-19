@@ -180,8 +180,11 @@ fun in_local decl thy =
   |> Local_Theory.exit_global
 \<close>
 
-ML\<open>fun List_mapi f = META.mapi (f o To_nat)
-   fun out_intensify s1 s2 = Output.state ((s1 |> Markup.markup Markup.intensify) ^ s2)\<close>
+ML\<open>
+fun List_mapi f = META.mapi (f o To_nat)
+fun out_intensify s1 s2 = Output.state ((s1 |> Markup.markup Markup.intensify) ^ s2)
+fun out_intensify' tps fmt = out_intensify (Timing.message (Timing.result tps) |> Markup.markup fmt)
+\<close>
 
 ML\<open>
 structure Ty' = struct
@@ -231,8 +234,7 @@ val semi__method_simp_all = semi__method_simp (CHANGED_PROP o PARALLEL_GOALS o A
 datatype semi__thm' = Thms_single' of thm
                     | Thms_mult' of thm list
 
-fun semi__thm_attribute ctxt = let open META open META_overload val S = fn Thms_single' t => t
-                                                         val M = fn Thms_mult' t => t in
+fun semi__thm_attribute ctxt = let open META open META_overload val S = fn Thms_single' t => t in
  fn Thm_thm s => Thms_single' (Proof_Context.get_thm ctxt (To_string0 s))
   | Thm_thms s => Thms_mult' (Proof_Context.get_thms ctxt (To_string0 s))
   | Thm_THEN (e1, e2) => 
@@ -295,8 +297,7 @@ fun semi__method expr = let open META open Method open META_overload in case exp
   | Method_subst (asm, l, s) => Basic (fn ctxt => 
       SIMPLE_METHOD' ((if asm then EqSubst.eqsubst_asm_tac else EqSubst.eqsubst_tac)
                         ctxt
-                        (map (fn s => case Int.fromString (To_string0 s) of
-                                        SOME i => i) l)
+                        (map (the o Int.fromString o To_string0) l)
                         [semi__thm_attribute_single ctxt s]))
   | Method_insert l => Basic (fn ctxt => insert (semi__thm_mult_l ctxt l))
   | Method_plus t => Combinator ( no_combinator_info
@@ -652,7 +653,7 @@ fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overloa
    (fn thy =>
      let val name = To_string0 n
          val tycos =
-           [ let val Term.Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ] in
+           [ let val Term.Type (s, _) = Isabelle_Typedecl.abbrev_cmd0 NONE thy name in s end ] in
     thy
     |> Class.instantiation (tycos, [], Syntax.read_sort (Proof_Context.init_global thy) "object")
     |> fold_map (fn _ => fn thy =>
@@ -945,7 +946,7 @@ val compiler = let open Export_code_env in
   [ let val ml_ext = "hs" in
     ( "Haskell", ml_ext, Directory, Haskell.Filename.hs_function
     , check [("ghc --version", "ghc is not installed (required for compiling a Haskell project)")]
-    , (fn mk_fic => fn ml_module => fn mk_free => fn thy =>
+    , (fn mk_fic => fn _ => fn mk_free => fn thy =>
         File.write (mk_fic ("Main." ^ ml_ext))
           (String.concatWith "; " [ "import qualified Unsafe.Coerce"
                          , "import qualified " ^ Haskell.function
@@ -1090,16 +1091,11 @@ val compiler = let open Export_code_env in
                   implode (expand (append (variable "ISABELLE_HOME") (make ["bin", "isabelle"]))) ^
                   " console" ]
                 "true"
-            val stdout =
-              case SOME (File.read stdout_file) handle _ => NONE of
-                SOME s => let val () = File.rm stdout_file in s end
-              | NONE => "" in
-            (l, (stdout, if List.exists (fn (err, _) =>
+            val stdout = File.read stdout_file |> (fn s => let val () = File.rm stdout_file in s end)
+        in  (l, (stdout, if List.exists (fn (err, _) =>
                               List.exists (fn "*** Error" => true | _ => false)
                                 (String.tokens (fn #"\n" => true | _ => false) err)) l then
-                           let val () = fold (fn (out, err) => K (warning err; writeln out)) l () in
-                           1
-                           end
+                           List.app (fn (out, err) => (warning err; writeln out)) l |> K 1
                          else exit_st))
         end)
     end ]
@@ -1137,7 +1133,7 @@ end
 ML\<open>
 structure Deep = struct
 
-fun absolute_path filename thy =
+fun absolute_path thy filename =
   Path.implode (Path.append (Resources.master_directory thy) (Path.explode filename))
 
 fun export_code_tmp_file seris g =
@@ -1159,7 +1155,7 @@ fun export_code_tmp_file seris g =
 fun mk_path_export_code tmp_export_code ml_compiler i =
   Path.append tmp_export_code (Path.make [ml_compiler ^ Int.toString i])
 
-fun export_code_cmd' seris tmp_export_code f_err filename_thy raw_cs thy =
+fun export_code_cmd' seris tmp_export_code f_err raw_cs thy =
   export_code_tmp_file seris
     (fn seris =>
       let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
@@ -1222,12 +1218,12 @@ fun annot_ty f = Parse.$$$ "(" |-- f --| Parse.$$$ "::" -- Parse.binding --| Par
 ML\<open>
 structure Generation_mode = struct
 
-datatype internal_deep = Internal_deep of
-    (string * (string list (* imports *) * string (* import optional (bootstrap) *))) option
-  * ((bstring (* compiler *) * bstring (* main module *) ) * Token.T list) list (* seri_args *)
-  * bstring option (* filename_thy *)
-  * Path.T (* tmp dir export_code *)
-  * bool (* true: skip preview of code exportation *)
+type internal_deep = 
+  { output_header_thy : (string * (string list (* imports *) * string (* import optional (bootstrap) *))) option
+  , seri_args : ((bstring (* compiler *) * bstring (* main module *) ) * Token.T list) list
+  , filename_thy : bstring option
+  , tmp_export_code : Path.T (* dir *)
+  , skip_exportation : bool (* true: skip preview of code exportation *) }
 
 datatype ('a, 'b, 'c) generation_mode0 = Gen_deep of 'a | Gen_shallow of 'b | Gen_syntax_print of 'c
 
@@ -1296,11 +1292,11 @@ val mode =
                            oid_start
                            design_analysis
                            sorry_mode
-                  , Internal_deep ( output_header_thy
-                                  , seri_args
-                                  , filename_thy
-                                  , Isabelle_System.create_tmp_path "deep_export_code" ""
-                                  , skip_exportation)))
+                  , { output_header_thy = output_header_thy
+                    , seri_args = seri_args
+                    , filename_thy = filename_thy
+                    , tmp_export_code = Isabelle_System.create_tmp_path "deep_export_code" ""
+                    , skip_exportation = skip_exportation }))
   || @{keyword "shallow"} |-- parse_semantics -- parse_sorry_mode >>
      (fn ((design_analysis, oid_start), sorry_mode) =>
        Gen_shallow (mk_env true
@@ -1316,9 +1312,7 @@ fun toplevel_keep_theory f = Toplevel.keep (f o Toplevel.theory_of)
 fun toplevel_keep f tr = (@{command_keyword print_syntax}, Toplevel.keep f) :: tr
 fun toplevel_read_write_keep rw = (@{command_keyword print_syntax}, fn tr => tr |> Toplevel.read_write rw |> Toplevel.keep (K ()))
 fun toplevel_setup_theory (res, tr) f = rev ((@{command_keyword setup}, Toplevel.theory (f res)) :: tr)
-fun toplevel_keep_output tps fmt msg =
-  cons (@{command_keyword print_syntax},
-        Toplevel.keep (fn _ => out_intensify (Timing.message (Timing.result tps) |> Markup.markup fmt) msg))
+fun toplevel_keep_output tps fmt msg = cons (@{command_keyword print_syntax}, Toplevel.keep (fn _ => out_intensify' tps fmt msg))
 
 fun f_command l_mode =
   toplevel_setup_theory
@@ -1327,23 +1321,14 @@ fun f_command l_mode =
            pair (fn thy => Gen_shallow (env (Proof_Context.init_global thy), thy))
                 o cons (toplevel_read_write_keep (Toplevel.Load_previous, Toplevel.Store_backup))
         | Gen_syntax_print n => pair (K (Gen_syntax_print n))
-        | Gen_deep (env, Internal_deep ( output_header_thy
-                                       , seri_args
-                                       , filename_thy
-                                       , tmp_export_code
-                                       , skip_exportation)) =>
-           pair (fn thy => Gen_deep (env (Proof_Context.init_global thy),
-                                Internal_deep ( output_header_thy
-                                              , seri_args
-                                              , filename_thy
-                                              , tmp_export_code
-                                              , skip_exportation)))
+        | Gen_deep (env, i_deep) =>
+           pair (fn thy => Gen_deep (env (Proof_Context.init_global thy), i_deep))
                 o cons
             (@{command_keyword export_code}, toplevel_keep_theory (fn thy =>
               let val seri_args' =
                     List_mapi
                       (fn i => fn ((ml_compiler, ml_module), export_arg) =>
-                        let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
+                        let val tmp_export_code = Deep.mk_path_export_code (#tmp_export_code i_deep) ml_compiler i
                             fun mk_fic s = Path.append tmp_export_code (Path.make [s])
                             val () = Deep0.Find.check_compil ml_compiler ()
                             val () = Isabelle_System.mkdirs tmp_export_code in
@@ -1354,12 +1339,12 @@ fun f_command l_mode =
                                             mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler))))
                           , export_arg), mk_fic)
                         end)
-                      (List.filter (fn (("self", _), _) => false | _ => true) seri_args)
+                      (List.filter (fn (("self", _), _) => false | _ => true) (#seri_args i_deep))
                   val _ =
                     case seri_args' of [] => () | _ => 
                       let val _ =
                         warning ("After closing Isabelle/jEdit, we may still need to remove this directory (by hand): " ^
-                                 Path.implode (Path.expand tmp_export_code)) in
+                                 Path.implode (Path.expand (#tmp_export_code i_deep))) in
                       thy
                       |> Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function
                       |> Code_printing.apply_code_printing
@@ -1396,23 +1381,26 @@ setup\<open>ML_Antiquotation.inline @{binding mk_string} (Scan.succeed
 
 ML\<open>
 
-fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_obj) thy0 =
-  let open Generation_mode in
-  let
+fun exec_deep {output_header_thy, seri_args, filename_thy, tmp_export_code, ...} (env, l_obj) =
+let open Generation_mode
     val of_arg = META.isabelle_of_compiler_env_config META.isabelle_apply I
     fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false)
-    val name_main = Deep.mk_free (Proof_Context.init_global thy0)
-                                 Deep0.Export_code_env.Isabelle.argument_main []
-    val (seri_args0, seri_args) = List.partition (fn ((s,_),_) => s = "self") seri_args 
+    val (seri_args0, seri_args) = List.partition (fn ((s,_),_) => s = "self") seri_args
+ in
+cons 
+  ( case (seri_args0, seri_args) of ([_], []) => @{command_keyword print_syntax}
+                                  | _ => @{command_keyword export_code}
+  , toplevel_keep_theory (fn thy0 =>
+  let
     val env = META.compiler_env_config_more_map
                          (fn () => (l_obj, From.option
                                              From.string
-                                             (Option.map (fn filename_thy =>
-                                                            Deep.absolute_path filename_thy thy0)
-                                                         filename_thy)))
+                                             (Option.map (Deep.absolute_path thy0) filename_thy)))
                          env
     val l = case seri_args of [] => [] | _ =>
-      thy0
+      let val name_main = Deep.mk_free (Proof_Context.init_global thy0)
+                                       Deep0.Export_code_env.Isabelle.argument_main []
+      in thy0
       |> def (String.concatWith " "
               (  "(" (* polymorphism weakening needed by export_code *)
                   ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
@@ -1422,8 +1410,8 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
       |> Deep.export_code_cmd' seri_args
                                tmp_export_code
                                (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ())
-                               filename_thy
                                [name_main]
+      end
   in
     case seri_args0 of [] => l
     | _ => ([], case (output_header_thy, filename_thy) of
@@ -1432,14 +1420,12 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
                        (* TODO: further optimize "string" as "string list" *))
            :: l
   end
-  |> (fn l => 
-       let 
-           val (l_warn, l) = (map fst l, map snd l) in
-       if Deep.list_all_eq l then
-         (List.concat l_warn, hd l)
-       else
-         error "There is an extracted language which does not produce a similar Isabelle content as the others"
-       end)
+  |> (fn l => let val (l_warn, l) = (map fst l, map snd l) in
+      if Deep.list_all_eq l then
+        (List.concat l_warn, hd l)
+      else
+        error "There is an extracted language which does not produce a similar Isabelle content as the others"
+      end)
   |> (fn (l_warn, s) =>
        let val () = writeln
          (case (output_header_thy, filename_thy) of
@@ -1447,15 +1433,12 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
           | _ => String.concat (map ( (fn s => s ^ "\n")
                                     o Active.sendback_markup [Markup.padding_command]
                                     o trim_line)
-             (String.tokens (fn c => c = META.char_escape) s))) in
-       fold (fn (out, err) => K ( writeln (Markup.markup Markup.keyword2 err)
-                                ; case trim_line out of
-                                    "" => ()
-                                  | out => writeln (Markup.markup Markup.keyword1 out)))
-            l_warn
-            () end)
-
-  end
+                                    (String.tokens (fn c => c = META.char_escape) s)))
+       in List.app (fn (out, err) => ( writeln (Markup.markup Markup.keyword2 err)
+                                     ; case trim_line out of "" => ()
+                                       | out => writeln (Markup.markup Markup.keyword1 out)))
+                   l_warn end)))
+end
 
 local
 
@@ -1468,26 +1451,26 @@ fun fold_thy_shallow f =
       ; error e))
     f
 
+fun disp_time toplevel_keep_output =
+  let
+    val tps = Timing.start ()
+    val disp_time = fn NONE => I | SOME msg =>
+      toplevel_keep_output tps Markup.antiquote
+        let val msg = To_string0 msg
+        in " " ^ Pretty.string_of
+             (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
+                          (Pretty.str msg)) end
+  in (tps, disp_time) end
+
 fun outer_syntax_command0_thy0 get_all_meta_embed mode thy = thy
  |> META.mapM
     (fn (env, thy0) => fn thy =>
-      let val disp_time =
-          let val tps = Timing.start () in
-          fn NONE => () | SOME msg =>
-            let val msg = To_string0 msg in
-            out_intensify
-              (Timing.message (Timing.result tps) |> Markup.markup Markup.antiquote)
-              (" " ^
-               Pretty.string_of
-                 (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
-                              (Pretty.str msg)))
-            end
-          end
+      let val (_, disp_time) = disp_time (tap o K ooo out_intensify')
           fun aux (env, thy) x =
             fold_thy_shallow
               (K o K thy0)
               (fn msg =>
-                let val () = disp_time msg in
+                let val () = disp_time msg () in
                 fn l => fn (env, thy) =>
                 Bind_META.all_meta_thy { theory = I
                                        , local_theory = in_local
@@ -1547,53 +1530,35 @@ fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_em
                                 name))))
              (#syntax_print mode)
         val (deep, tr) = tr
-          |> META.mapM (fn (env, Internal_deep ( output_header_thy
-                                               , seri_args
-                                               , filename_thy
-                                               , tmp_export_code
-                                               , skip_exportation)) =>
-             pair (( META.fold_thy_deep l_obj env
-                   , Internal_deep ( output_header_thy
-                                   , seri_args
-                                   , filename_thy
-                                   , tmp_export_code
-                                   , skip_exportation)))
-                  o (if skip_exportation then
+          |> META.mapM (fn (env, i_deep) =>
+             pair (META.fold_thy_deep l_obj env, i_deep)
+                  o (if #skip_exportation i_deep then
                        I
                      else
-                       cons (@{command_keyword export_code},
-                             toplevel_keep_theory
-                              (exec_deep ( META.d_output_header_thy_update (K NONE) env
-                                         , output_header_thy
-                                         , seri_args
-                                         , NONE
-                                         , tmp_export_code
-                                         , l_obj)))))
+                       exec_deep { output_header_thy = #output_header_thy i_deep
+                                 , seri_args = #seri_args i_deep
+                                 , filename_thy = NONE
+                                 , tmp_export_code = #tmp_export_code i_deep
+                                 , skip_exportation = #skip_exportation i_deep }
+                                 ( META.d_output_header_thy_update (K NONE) env, l_obj)))
              (#deep mode)
         val ((shallow, tr), put) = (tr
           |> META.mapM (fn (env, thy_init) => fn acc =>
-                let val tps = Timing.start ()
-                    val disp_time = fn NONE => I | SOME msg =>
-                      toplevel_keep_output tps Markup.antiquote
-                        let val msg = To_string0 msg
-                        in " " ^ Pretty.string_of
-                             (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
-                                          (Pretty.str msg)) end
+                let val (tps, disp_time) = disp_time toplevel_keep_output
                     fun aux (env, acc) x =
                       fold_thy_shallow
                         (K (cons (toplevel_read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
-                        (fn msg => fn l => fn (env, acc) =>
-                          Bind_META.all_meta_tr (fn x => fn acc => aux (env, acc) [x])
-                                                (pair env)
-                                                l
-                                                (disp_time msg acc))
+                        (fn msg => fn l => fn (env, acc) => acc
+                          |> disp_time msg
+                          |> Bind_META.all_meta_tr (fn x => fn acc => aux (env, acc) [x])
+                                                   (pair env)
+                                                   l)
                         x
-                        (env, acc) in
-                META.map_prod
-                  (fn env => (env, thy_init))
-                  (toplevel_keep_output tps Markup.operator "")
-                  (aux (env, acc) l_obj)
-                end)
+                        (env, acc)
+                in aux (env, acc) l_obj
+                   |> META.map_prod
+                        (fn env => (env, thy_init))
+                        (toplevel_keep_output tps Markup.operator "") end)
                 (#shallow mode), Data_gen.put)
           handle THY_REQUIRED pos =>
             ( ( #shallow mode
@@ -1617,12 +1582,9 @@ val () = let open Generation_mode in
       || parse_l' mode >> SOME
       || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
     (fn SOME x => K (f_command x)
-      | NONE => fn (thy, _) =>
-          map (fn (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => 
-               let val (env, l_exec) = META.compiler_env_config_reset_all env
-               in (@{command_keyword export_code},
-                   toplevel_keep_theory (exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec))) end)
-              (#deep (Data_gen.get thy))
+      | NONE => fn (thy, _) => []
+          |> fold (fn (env, i_deep) => exec_deep i_deep (META.compiler_env_config_reset_all env))
+                  (#deep (Data_gen.get thy))
           |> (fn [] => toplevel_keep (fn _ => warning "Nothing performed.") []
                | l => l)))
 end
