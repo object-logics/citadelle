@@ -1224,7 +1224,7 @@ fun disp_time toplevel_keep_output =
                           (Pretty.str msg)) end
   in (tps, disp_time) end
 
-fun outer_syntax_command0_thy0 get_all_meta_embed mode thy = thy
+fun thy_shallow get_all_meta_embed mode thy = thy
  |> META.mapM
     (fn (env, thy0) => fn thy =>
       let val (_, disp_time) = disp_time (tap o K ooo out_intensify')
@@ -1271,7 +1271,7 @@ fun outer_syntax_command0_thy0 get_all_meta_embed mode thy = thy
 *)
 in
 
-fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_embed =
  let open Generation_mode in
   Outer_Syntax.command cmd_spec cmd_descr
     (parser >> (fn name => Toplevel.theory (fn thy =>
@@ -1305,13 +1305,13 @@ fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_em
                                  , skip_exportation = #skip_exportation i_deep }
                                  ( META.d_output_header_thy_update (K NONE) env, l_obj))))
              (#deep mode)
-        val ((shallow, thy)(*, put*)) = outer_syntax_command0_thy0 get_all_meta_embed mode thy
+        val ((shallow, thy)(*, put*)) = thy_shallow get_all_meta_embed mode thy
   in Data_gen.put ({syntax_print = #syntax_print mode, deep = deep, shallow = shallow}) thy end)))
  end
 end
 
-fun outer_syntax_command_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
-  outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
+fun outer_syntax_commands' mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+  outer_syntax_commands'' mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
 
 \<close>
 
@@ -1346,8 +1346,8 @@ structure USE_parse = struct
   fun xml_unescape s = (XML.content_of (YXML.parse_body s), Position.none)
                        |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.string
 
-  fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
-    outer_syntax_command_tr mk_string cmd_spec cmd_descr
+  fun outer_syntax_commands2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
+    outer_syntax_commands' mk_string cmd_spec cmd_descr
       (optional (paren @{keyword "shallow"}) -- parser)
       (fn (is_shallow, use) => fn thy =>
          get_all_meta_embed
@@ -1626,7 +1626,7 @@ subsection\<open>Setup of Meta Commands for OCL: Enum\<close>
 
 ML\<open>
 val () =
-  outer_syntax_command_tr @{mk_string} @{command_keyword Enum} ""
+  outer_syntax_commands' @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
       K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
@@ -1639,7 +1639,7 @@ local
   open USE_parse
 
   fun mk_classDefinition abstract cmd_spec =
-    outer_syntax_command2 @{mk_string} cmd_spec "Class generation"
+    outer_syntax_commands2 @{mk_string} cmd_spec "Class generation"
       (   Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base >> USE_class_synonym
        ||    type_object
           -- class >> USE_class_content)
@@ -1668,7 +1668,7 @@ local
   open USE_parse
 
   fun mk_associationDefinition ass_ty cmd_spec =
-    outer_syntax_command_tr @{mk_string} cmd_spec ""
+    outer_syntax_commands' @{mk_string} cmd_spec ""
       (   repeat2 association_end
        ||     optional Parse.binding
           |-- association)
@@ -1690,7 +1690,7 @@ local
   datatype use_associationClassDefinition = USE_associationclass | USE_associationclass_abstract
 
   fun mk_associationClassDefinition abstract cmd_spec =
-    outer_syntax_command2 @{mk_string} cmd_spec ""
+    outer_syntax_commands2 @{mk_string} cmd_spec ""
       (   type_object
        -- association
        -- class
@@ -1725,7 +1725,7 @@ local
  open USE_parse
 in
 val () =
-  outer_syntax_command2 @{mk_string} @{command_keyword Context} ""
+  outer_syntax_commands2 @{mk_string} @{command_keyword Context} ""
     (optional (Parse.list1 Parse.binding --| colon)
      -- Parse.binding
      -- context)
@@ -1746,7 +1746,7 @@ subsection\<open>Setup of Meta Commands for OCL: End\<close>
 
 ML\<open>
 val () =
-  outer_syntax_command0_tr @{mk_string} @{command_keyword End} "Class generation"
+  outer_syntax_commands'' @{mk_string} @{command_keyword End} "Class generation"
     (Scan.optional ( Parse.$$$ "[" -- Parse.reserved "forced" -- Parse.$$$ "]" >> K true
                     || Parse.$$$ "!" >> K true) false)
     (fn b => 
@@ -1760,7 +1760,7 @@ subsection\<open>Setup of Meta Commands for OCL: BaseType, Instance, State\<clos
 
 ML\<open>
 val () =
-  outer_syntax_command_tr @{mk_string} @{command_keyword BaseType} ""
+  outer_syntax_commands' @{mk_string} @{command_keyword BaseType} ""
     (parse_l' USE_parse.term_base)
     (K o META.META_def_base_l o META.OclDefBase)
 
@@ -1768,13 +1768,13 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_command_tr @{mk_string} @{command_keyword Instance} ""
+  outer_syntax_commands' @{mk_string} @{command_keyword Instance} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >>
                                                                         (fn (x, xs) => x :: xs)) [])
     (K o META.META_instance o get_oclinst)
 
 val () =
-  outer_syntax_command_tr @{mk_string} @{command_keyword State} ""
+  outer_syntax_commands' @{mk_string} @{command_keyword State} ""
     (USE_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
      (fn ((is_shallow, name), l) => 
@@ -1791,7 +1791,7 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_command_tr @{mk_string} @{command_keyword Transition} ""
+  outer_syntax_commands' @{mk_string} @{command_keyword Transition} ""
     (USE_parse.optional (paren @{keyword "shallow"})
      -- USE_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse
@@ -1812,7 +1812,7 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_command_tr @{mk_string} @{command_keyword Tree} ""
+  outer_syntax_commands' @{mk_string} @{command_keyword Tree} ""
     (natural -- natural)
     (K o META.META_class_tree o META.OclClassTree)
 end
