@@ -542,7 +542,7 @@ end
 
 structure Bind_META = struct open Bind_Isabelle
 
-fun all_meta top_theory top_local_theory aux ret = let open META open META_overload in fn
+fun all_meta_thy top_theory top_local_theory aux ret = let open META open META_overload in fn
   META_semi_theories thy =>
     ret o (case thy of
        Theories_one thy => semi__theory top_theory thy
@@ -974,14 +974,14 @@ datatype internal_deep = Internal_deep of
   * Path.T (* tmp dir export_code *)
   * bool (* true: skip preview of code exportation *)
 
-datatype 'a generation_mode = Gen_deep of unit META.compiler_env_config_ext
-                                        * internal_deep
-                            | Gen_shallow of unit META.compiler_env_config_ext
-                                           * 'a (* theory init *)
-                            | Gen_syntax_print of int option
+datatype ('compiler_env_config_ext, 'a) generation_mode = Gen_deep of 'compiler_env_config_ext
+                                                                    * internal_deep
+                                                        | Gen_shallow of 'compiler_env_config_ext
+                                                                       * 'a (* theory init *)
+                                                        | Gen_syntax_print of int option
 
 structure Data_gen = Theory_Data
-  (type T = theory generation_mode list Symtab.table
+  (type T = (unit META.compiler_env_config_ext, theory) generation_mode list Symtab.table
    val empty = Symtab.empty
    val extend = I
    val merge = Symtab.merge (K true))
@@ -1020,26 +1020,24 @@ val parse_semantics =
   end
 
 val mode =
-  let fun mk_env output_disable_thy output_header_thy oid_start design_analysis sorry_mode dirty =
+  let fun mk_env output_disable_thy output_header_thy oid_start design_analysis sorry_mode ctxt =
     META.compiler_env_config_empty
     output_disable_thy
     (From.option (From.pair From.string (From.pair (From.list From.string) From.string))
                  output_header_thy)
     (META.oidInit (From.internal_oid oid_start))
     design_analysis
-    (sorry_mode, dirty) in
+    (sorry_mode, Config.get ctxt quick_and_dirty) in
 
      @{keyword "deep"} |-- parse_semantics -- parse_deep >>
      (fn ( (design_analysis, oid_start)
          , ( ((((skip_exportation, output_header_thy), output_disable_thy), sorry_mode), seri_args)
            , filename_thy)) =>
-       fn ctxt =>
          Gen_deep ( mk_env (not output_disable_thy)
                            output_header_thy
                            oid_start
                            design_analysis
                            sorry_mode
-                           (Config.get ctxt quick_and_dirty)
                   , Internal_deep ( output_header_thy
                                   , seri_args
                                   , filename_thy
@@ -1047,71 +1045,75 @@ val mode =
                                   , skip_exportation)))
   || @{keyword "shallow"} |-- parse_semantics -- parse_sorry_mode >>
      (fn ((design_analysis, oid_start), sorry_mode) =>
-       fn ctxt =>
-       Gen_shallow ( mk_env true
-                            NONE 
-                            oid_start
-                            design_analysis
-                            sorry_mode
-                            (Config.get ctxt quick_and_dirty)
-                   , ()))
+       Gen_shallow (mk_env true
+                           NONE 
+                           oid_start
+                           design_analysis
+                           sorry_mode, ()))
   || (@{keyword "syntax_print"} |-- Scan.optional (Parse.number >> SOME) NONE) >>
-     (fn n => K (Gen_syntax_print (case n of NONE => NONE | SOME n => Int.fromString n)))
+     (fn n => Gen_syntax_print (case n of NONE => NONE | SOME n => Int.fromString n))
   end
 
+fun toplevel_keep_theory f = Toplevel.keep (f o Toplevel.theory_of)
+(*fun toplevel_read_write_keep rw tr = tr |> Toplevel.read_write rw |> Toplevel.keep (K ())*)
 
 fun f_command l_mode =
-  Toplevel.theory (fn thy =>
-  let val (l_mode, thy) = META.mapM
-  (fn Gen_shallow (env, ()) => let val thy0 = thy in
-                               fn thy => (Gen_shallow (env, thy0), thy) end
-    | Gen_syntax_print n => (fn thy => (Gen_syntax_print n, thy))
-    | Gen_deep (env, Internal_deep ( output_header_thy
-                                   , seri_args
-                                   , filename_thy
-                                   , tmp_export_code
-                                   , skip_exportation)) => fn thy =>
-        let val seri_args' =
-              List_mapi
-                (fn i => fn ((ml_compiler, ml_module), export_arg) =>
-                  let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
-                      fun mk_fic s = Path.append tmp_export_code (Path.make [s])
-                      val () = Deep0.Find.check_compil ml_compiler ()
-                      val () = Isabelle_System.mkdirs tmp_export_code in
-                  ((( (ml_compiler, ml_module)
-                    , Path.implode (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
-                                      tmp_export_code
-                                    else
-                                      mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler))))
-                    , export_arg), mk_fic)
-                  end)
-                (List.filter (fn (("self", _), _) => false | _ => true) seri_args)
-            val _ =
-              case seri_args' of [] => () | _ => 
-                let val _ =
-                  warning ("After closing Isabelle/jEdit, we may still need to remove this directory (by hand): " ^
-                           Path.implode (Path.expand tmp_export_code)) in
-                Isabelle_Code_Target.export_code_cmd
-                      (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
-                      [Deep0.Export_code_env.Isabelle.function]
-                      (List.map fst seri_args')
-                      (Proof_Context.init_global
-                        (Code_printing.apply_code_printing
-                          (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
-                end
-            val () = fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
-              Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () in
-        (Gen_deep (env, Internal_deep ( output_header_thy
-                                      , seri_args
-                                      , filename_thy
-                                      , tmp_export_code
-                                      , skip_exportation)), thy) end)
-  let val ctxt = Proof_Context.init_global thy in
-      map (fn f => f ctxt) l_mode
+  let val (l_mode, trs) =
+    META.mapM
+      (fn Gen_shallow (env, ()) => (fn acc =>
+           ((fn thy => Gen_shallow (env (Proof_Context.init_global thy), thy)),
+            (*toplevel_read_write_keep (Toplevel.Load_previous, Toplevel.Store_backup) ::*) acc))
+        | Gen_syntax_print n => pair (K (Gen_syntax_print n))
+        | Gen_deep (env, Internal_deep ( output_header_thy
+                                       , seri_args
+                                       , filename_thy
+                                       , tmp_export_code
+                                       , skip_exportation)) => (fn acc =>
+           (fn thy => Gen_deep (env (Proof_Context.init_global thy),
+                                Internal_deep ( output_header_thy
+                                              , seri_args
+                                              , filename_thy
+                                              , tmp_export_code
+                                              , skip_exportation)),
+            (*toplevel_keep_theory*) (fn thy =>
+              let val seri_args' =
+                    List_mapi
+                      (fn i => fn ((ml_compiler, ml_module), export_arg) =>
+                        let val tmp_export_code = Deep.mk_path_export_code tmp_export_code ml_compiler i
+                            fun mk_fic s = Path.append tmp_export_code (Path.make [s])
+                            val () = Deep0.Find.check_compil ml_compiler ()
+                            val () = Isabelle_System.mkdirs tmp_export_code in
+                        ((( (ml_compiler, ml_module)
+                          , Path.implode (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
+                                            tmp_export_code
+                                          else
+                                            mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler))))
+                          , export_arg), mk_fic)
+                        end)
+                      (List.filter (fn (("self", _), _) => false | _ => true) seri_args)
+                  val _ =
+                    case seri_args' of [] => () | _ => 
+                      let val _ =
+                        warning ("After closing Isabelle/jEdit, we may still need to remove this directory (by hand): " ^
+                                 Path.implode (Path.expand tmp_export_code)) in
+                      Isabelle_Code_Target.export_code_cmd
+                            (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
+                            [Deep0.Export_code_env.Isabelle.function]
+                            (List.map fst seri_args')
+                            (Proof_Context.init_global
+                              (Code_printing.apply_code_printing
+                                (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
+                      end in
+                  fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
+                    Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () end) :: acc)))
+      l_mode
+      [] in
+  (*rev*) (Toplevel.theory (fn thy =>
+        let val () = List.app (fn f => f thy) trs
+            val l_mode = map (fn f => f thy) l_mode in
+          Data_gen.map (Symtab.map_default (Deep0.default_key, l_mode) (fn _ => l_mode)) thy
+        end) (*:: trs*))
   end
-  thy in
-  Data_gen.map (Symtab.map_default (Deep0.default_key, l_mode) (fn _ => l_mode)) thy
-  end)
 
 fun update_compiler_config f =
   Data_gen.map
@@ -1193,7 +1195,7 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
 
   end
 
-fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+fun outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser get_all_meta_embed =
   let open Generation_mode in
   Outer_Syntax.command cmd_spec cmd_descr
     (parser >> (fn name =>
@@ -1259,24 +1261,24 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed
                    (fn msg =>
                      let val () = disp_time msg in
                      fn l => fn (env, thy) =>
-                     Bind_META.all_meta { theory = I
-                                        , local_theory = in_local
-                                        , keep = fn f => in_local (fn lthy => (f lthy ; lthy))
-                                        , context_of = I }
-                                        let val local_theory = (fn f => fn lthy => lthy
-                                                  |> Local_Theory.new_group
-                                                  |> f
-                                                  |> Local_Theory.reset_group
-                                                  |> Local_Theory.restore) in
-                                          { theory = Local_Theory.background_theory
-                                          , local_theory = local_theory
-                                          , keep = fn f => local_theory (fn lthy => (f lthy ; lthy))
-                                          , context_of = I }
-                                        end
-                                        (fn x => fn thy => aux (env, thy) [x])
-                                        (pair env)
-                                        l
-                                        thy
+                     Bind_META.all_meta_thy { theory = I
+                                            , local_theory = in_local
+                                            , keep = fn f => in_local (fn lthy => (f lthy ; lthy))
+                                            , context_of = I }
+                                            let val local_theory = (fn f => fn lthy => lthy
+                                                      |> Local_Theory.new_group
+                                                      |> f
+                                                      |> Local_Theory.reset_group
+                                                      |> Local_Theory.restore) in
+                                              { theory = Local_Theory.background_theory
+                                              , local_theory = local_theory
+                                              , keep = fn f => local_theory (fn lthy => (f lthy ; lthy))
+                                              , context_of = I }
+                                            end
+                                            (fn x => fn thy => aux (env, thy) [x])
+                                            (pair env)
+                                            l
+                                            thy
                      end)
                    x
                    (env, thy)
@@ -1301,8 +1303,15 @@ fun outer_syntax_command0 mk_string cmd_spec cmd_descr parser get_all_meta_embed
         Data_gen.map (Symtab.update (Deep0.default_key, env)) thy end)))
   end
 
-fun outer_syntax_command mk_string cmd_spec cmd_descr parser get_all_meta_embed =
- outer_syntax_command0 mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
+fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+ outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (K o get_all_meta_embed)
+
+fun outer_syntax_command_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+(* outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser (fn a => [get_all_meta_embed a])*)
+ outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => K [get_all_meta_embed a])
+
+fun outer_syntax_command_thy mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+ outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
 
 \<close>
 
@@ -1314,22 +1323,20 @@ val () = let open Generation_mode in
     ((   mode >> (fn x => SOME [x])
       || parse_l' mode >> SOME
       || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
-    (fn SOME x => f_command x
-      | NONE =>
-      Toplevel.theory (fn thy =>
-        let val l = case Symtab.lookup (Data_gen.get thy) Deep0.default_key of SOME l => l | _ => []
-            val l = List.concat (List.map (fn Gen_deep x => [x] | _ => []) l)
-            val _ = case l of [] => warning "Nothing to perform." | _ => ()
-            val thy =
-        fold
-          (fn (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => fn thy0 =>
-            thy0 |> let val (env, l_exec) = META.compiler_env_config_reset_all env in
-                    exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) end
-                 |> K thy0)
-          l
-          thy
-        in
-        thy end)))
+    (fn mode => (*fn _ =>
+      map (pair @{command_keyword generation_syntax})*)
+        (case mode of SOME x => f_command x
+         | NONE =>
+           (*[*) toplevel_keep_theory (fn thy =>
+               List.app
+                 (fn (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => 
+                   let val (env, l_exec) = META.compiler_env_config_reset_all env
+                   in exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) thy end)
+                 let val l = case Symtab.lookup (Data_gen.get thy) Deep0.default_key of SOME l => l | _ => []
+                     val l = List.concat (List.map (fn Gen_deep x => [x] | _ => []) l)
+                     val _ = case l of [] => warning "Nothing to perform." | _ => () in
+                   l
+                 end)(*]*))))
 end
 \<close>
 
@@ -1348,7 +1355,7 @@ structure TOY_parse = struct
                        |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.string
 
   fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
-    outer_syntax_command mk_string cmd_spec cmd_descr
+    outer_syntax_command_thy mk_string cmd_spec cmd_descr
       (optional (paren @{keyword "shallow"}) -- parser)
       (fn (is_shallow, use) => fn thy =>
          get_all_meta_embed
@@ -1571,7 +1578,7 @@ structure TOY_parse = struct
                           || Parse.binding)) >> (fn ((res, x), l) => (res, rev (x :: l)))) e
   val object_cast' = object_cast >> (fn (res, l) => (res, rev l))
 
-  fun get_toyinst l _ =
+  fun get_toyinst l =
     META.ToyInstance (map (fn ((name,typ), ((l_attr_with, l_attr), is_cast)) =>
         let val f = map (fn ((pre_post, attr), data) =>
                               ( From.option (From.pair From.binding From.binding) pre_post
@@ -1602,12 +1609,11 @@ structure TOY_parse = struct
   val state_parse = parse_l' (   object_cast >> ST_l_attr
                               || Parse.binding >> ST_binding)
 
-  fun mk_state thy =
+  val mk_state =
     map (fn ST_l_attr l =>
               META.ToyDefCoreAdd
                 (case get_toyinst (map (fn (l_i, l_ty) =>
-                                         ((NONE, SOME (hd l_ty)), (l_i, rev (tl l_ty)))) [l])
-                                  thy of
+                                         ((NONE, SOME (hd l_ty)), (l_i, rev (tl l_ty)))) [l]) of
                    META.ToyInstance [x] => x)
           | ST_binding b => META.ToyDefCoreBinding (From.binding b))
 
@@ -1619,8 +1625,8 @@ structure TOY_parse = struct
   val state_pp_parse = state_parse >> ST_PP_l_attr
                        || Parse.binding >> ST_PP_binding
 
-  fun mk_pp_state thy = fn ST_PP_l_attr l => META.ToyDefPPCoreAdd (mk_state thy l)
-                         | ST_PP_binding s => META.ToyDefPPCoreBinding (From.binding s)
+  val mk_pp_state = fn ST_PP_l_attr l => META.ToyDefPPCoreAdd (mk_state l)
+                     | ST_PP_binding s => META.ToyDefPPCoreBinding (From.binding s)
 end
 \<close>
 
@@ -1628,10 +1634,10 @@ subsection\<open>Setup of Meta Commands for Toy: Enum\<close>
 
 ML\<open>
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword Enum} ""
+  outer_syntax_command_tr @{mk_string} @{command_keyword Enum} ""
     (Parse.binding -- parse_l1' Parse.binding)
     (fn (n1, n2) => 
-      K (META.META_enum (META.ToyEnum (From.binding n1, From.list From.binding n2))))
+      META.META_enum (META.ToyEnum (From.binding n1, From.list From.binding n2)))
 \<close>
 
 subsection\<open>Setup of Meta Commands for Toy: (abstract) Class\<close>
@@ -1670,12 +1676,11 @@ local
   open TOY_parse
 
   fun mk_associationDefinition ass_ty cmd_spec =
-    outer_syntax_command @{mk_string} cmd_spec ""
+    outer_syntax_command_tr @{mk_string} cmd_spec ""
       (   repeat2 association_end
        ||     optional Parse.binding
           |-- association)
-      (fn l => fn _ =>
-        META.META_association (Outer_syntax_Association.make ass_ty l))
+      (META.META_association o Outer_syntax_Association.make ass_ty)
 in
 val () = mk_associationDefinition META.ToyAssTy_association @{command_keyword Association}
 val () = mk_associationDefinition META.ToyAssTy_composition @{command_keyword Composition}
@@ -1749,10 +1754,10 @@ subsection\<open>Setup of Meta Commands for Toy: End\<close>
 
 ML\<open>
 val () =
-  outer_syntax_command0 @{mk_string} @{command_keyword End} "Class generation"
+  outer_syntax_command0_tr @{mk_string} @{command_keyword End} "Class generation"
     (Scan.optional ( Parse.$$$ "[" -- Parse.reserved "forced" -- Parse.$$$ "]" >> K true
                     || Parse.$$$ "!" >> K true) false)
-    (fn b => fn _ =>
+    (fn b =>
        if b then
          [META.META_flush_all META.ToyFlushAll]
        else
@@ -1763,27 +1768,27 @@ subsection\<open>Setup of Meta Commands for Toy: BaseType, Instance, State\<clos
 
 ML\<open>
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword BaseType} ""
+  outer_syntax_command_tr @{mk_string} @{command_keyword BaseType} ""
     (parse_l' TOY_parse.term_base)
-    (K o META.META_def_base_l o META.ToyDefBase)
+    (META.META_def_base_l o META.ToyDefBase)
 
 local
   open TOY_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword Instance} ""
+  outer_syntax_command_tr @{mk_string} @{command_keyword Instance} ""
     (Scan.optional (parse_instance -- Scan.repeat (optional @{keyword "and"} |-- parse_instance) >>
                                                                         (fn (x, xs) => x :: xs)) [])
-    (META.META_instance oo get_toyinst)
+    (META.META_instance o get_toyinst)
 
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword State} ""
+  outer_syntax_command_tr @{mk_string} @{command_keyword State} ""
     (TOY_parse.optional (paren @{keyword "shallow"}) -- Parse.binding --| @{keyword "="}
      -- state_parse)
-     (fn ((is_shallow, name), l) => fn thy =>
+     (fn ((is_shallow, name), l) => 
       META.META_def_state
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
-        , META.ToyDefSt (From.binding name, mk_state thy l)))
+        , META.ToyDefSt (From.binding name, mk_state l)))
 end
 \<close>
 
@@ -1794,17 +1799,17 @@ local
   open TOY_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword Transition} ""
+  outer_syntax_command_tr @{mk_string} @{command_keyword Transition} ""
     (TOY_parse.optional (paren @{keyword "shallow"})
      -- TOY_parse.optional (Parse.binding --| @{keyword "="})
      -- state_pp_parse
      -- TOY_parse.optional state_pp_parse)
-    (fn (((is_shallow, n), s_pre), s_post) => fn thy =>
+    (fn (((is_shallow, n), s_pre), s_post) =>
       META.META_def_transition
         ( if is_shallow = NONE then META.Floor1 else META.Floor2
         , META.ToyDefPP ( From.option From.binding n
-                       , mk_pp_state thy s_pre
-                       , From.option (mk_pp_state thy) s_post)))
+                       , mk_pp_state s_pre
+                       , From.option mk_pp_state s_post)))
 end
 \<close>
 
@@ -1815,9 +1820,9 @@ local
   open TOY_parse
 in
 val () =
-  outer_syntax_command @{mk_string} @{command_keyword Tree} ""
+  outer_syntax_command_tr @{mk_string} @{command_keyword Tree} ""
     (natural -- natural)
-    (fn (n_w, n_h) => K (META.META_class_tree (META.ToyClassTree (n_w, n_h))))
+    (META.META_class_tree o META.ToyClassTree)
 end
 (*val _ = print_depth 100*)
 \<close>
