@@ -129,8 +129,11 @@ code_reflect' open META
 subsection\<open>Interface Between the Reflected and the Native\<close>
 
 ML\<open>
- val To_string0 = String.implode o META.to_list
- fun To_nat (Code_Numeral.Nat i) = i
+val To_string0 = String.implode o META.to_list
+fun To_nat (Code_Numeral.Nat i) = i
+
+exception THY_REQUIRED of Position.T
+fun get_thy pos f = fn NONE => raise (THY_REQUIRED pos) | SOME thy => f thy
 \<close>
 
 ML\<open>
@@ -165,7 +168,7 @@ structure From = struct
  end
 
  fun read_term thy expr =
-   META.T_pure (Pure.term (Syntax.read_term (Proof_Context.init_global thy) expr), SOME (string expr))
+   META.T_pure (Pure.term (Syntax.read_term (get_thy @{here} Proof_Context.init_global thy) expr), SOME (string expr))
 end
 \<close>
 
@@ -774,94 +777,35 @@ end
 
 end
 
-exception THY_REQUIRED of Position.T
-
-fun get_thy pos f = fn NONE => raise (THY_REQUIRED pos) | SOME thy => f thy
-
 structure Bind_META = struct open Bind_Isabelle
 
-fun all_meta_tr aux ret = let open META open META_overload in fn
-  META_semi_theories thy => ret o
-    (case thy of
-       Theories_one thy => Command_Transition.semi__theory thy
-     | Theories_locale (data, l) => fn acc => acc
-       |> cons (@{command_keyword locale}, Toplevel.begin_local_theory true (fn thy => thy
-         |> (   Expression.add_locale_cmd
-                  (To_sbinding (META.holThyLocale_name data))
-                  Binding.empty
-                  ([], [])
-                  (List.concat
-                    (map
-                      (fn (fixes, assumes) => List.concat
-                        [ map (fn (e,ty) => Element.Fixes [( To_binding (of_semi__term e)
-                                                           , SOME (of_semi__typ ty)
-                                                           , NoSyn)]) fixes
-                        , case assumes of NONE => []
-                                        | SOME (n, e) => [Element.Assumes [( (To_sbinding n, [])
-                                                                           , [(of_semi__term e, [])])]]])
-                      (META.holThyLocale_header data)))
-             #> #2)))
-       |> fold (fold Command_Transition.semi__theory) l
-       |> Command_Transition.cons_end)
-| META_boot_generation_syntax _ => ret o I
-| META_boot_setup_env _ => ret o I
-| META_all_meta_embedding meta =>
-  aux
-   (map2_ctxt_term
-      (fn T_pure x => T_pure x
-        | e =>
-          let fun aux e = case e of 
-            T_to_be_parsed (_, _) => raise (THY_REQUIRED @{here})
-          | T_lambda (a, e) =>
-            Option.map
-              (fn (e, s, l_free) => 
-               let val a0 = To_string0 a 
-                   val (t, l_free) = case List.partition (fn (x, _) => x = a0) l_free of
-                                       ([], l_free) => (Term.TFree ("'a", ["HOL.type"]), l_free)
-                                     | ([(_, t)], l_free) => (t, l_free) in
-               (lambda ( Term.Free (a0, t)) e
-                       , META.String_concatWith (From.string "", [From.string "(% ", a, From.string ". ", s, From.string ")"])
-                       , l_free)
-               end)
-              (aux e)
-          | _ => NONE in
-          case aux e of
-            NONE => error "nested pure expression not expected"
-          | SOME (e, s, _) => META.T_pure (From.Pure.term e, SOME s)
-          end) meta)
-end
+local
+  open META
+  open META_overload
 
-fun all_meta_thy top_theory top_local_theory aux ret = let open META open META_overload in fn
-  META_semi_theories thy =>
-    ret o (case thy of
-       Theories_one thy => Command_Theory.semi__theory top_theory thy
-     | Theories_locale (data, l) => (*Toplevel.begin_local_theory*) fn thy => thy
-       |> (   Expression.add_locale_cmd
-                (To_sbinding (META.holThyLocale_name data))
-                Binding.empty
-                ([], [])
-                (List.concat
-                  (map
-                    (fn (fixes, assumes) => List.concat
-                      [ map (fn (e,ty) => Element.Fixes [( To_binding (of_semi__term e)
-                                                         , SOME (of_semi__typ ty)
-                                                         , NoSyn)]) fixes
-                      , case assumes of NONE => []
-                                      | SOME (n, e) => [Element.Assumes [( (To_sbinding n, [])
-                                                                         , [(of_semi__term e, [])])]]])
-                    (META.holThyLocale_header data)))
-           #> snd)
-       |> fold (fold (Command_Theory.semi__theory top_local_theory)) l
-       |> Local_Theory.exit_global)
-| META_boot_generation_syntax _ => ret o I
-| META_boot_setup_env _ => ret o I
-| META_all_meta_embedding meta => fn thy =>
-  aux
-    (map2_ctxt_term
+  fun semi__locale data thy = thy
+           |> (   Expression.add_locale_cmd
+                    (To_sbinding (META.holThyLocale_name data))
+                    Binding.empty
+                    ([], [])
+                    (List.concat
+                      (map
+                        (fn (fixes, assumes) => List.concat
+                          [ map (fn (e,ty) => Element.Fixes [( To_binding (of_semi__term e)
+                                                             , SOME (of_semi__typ ty)
+                                                             , NoSyn)]) fixes
+                          , case assumes of NONE => []
+                                          | SOME (n, e) => [Element.Assumes [( (To_sbinding n, [])
+                                                                             , [(of_semi__term e, [])])]]])
+                        (META.holThyLocale_header data)))
+               #> #2)
+
+  fun semi__aux thy = 
+    map2_ctxt_term
       (fn T_pure x => T_pure x
         | e =>
           let fun aux e = case e of 
-            T_to_be_parsed (s, _) => SOME let val t = Syntax.read_term (Proof_Context.init_global thy)
+            T_to_be_parsed (s, _) => SOME let val t = Syntax.read_term (get_thy @{here} Proof_Context.init_global thy)
                                                                        (To_string0 s) in
                                           (t, s, Term.add_frees t [])
                                           end
@@ -881,9 +825,33 @@ fun all_meta_thy top_theory top_local_theory aux ret = let open META open META_o
           case aux e of
             NONE => error "nested pure expression not expected"
           | SOME (e, s, _) => META.T_pure (From.Pure.term e, SOME s)
-          end) meta) thy
-end
+          end)
+in
 
+fun all_meta_tr aux ret = fn
+  META_semi_theories thy => ret o
+    (case thy of
+       Theories_one thy => Command_Transition.semi__theory thy
+     | Theories_locale (data, l) => fn acc => acc
+       |> cons (@{command_keyword locale}, Toplevel.begin_local_theory true (semi__locale data))
+       |> fold (fold Command_Transition.semi__theory) l
+       |> Command_Transition.cons_end)
+| META_boot_generation_syntax _ => ret o I
+| META_boot_setup_env _ => ret o I
+| META_all_meta_embedding meta => aux (semi__aux NONE meta)
+
+fun all_meta_thy top_theory top_local_theory aux ret = fn
+  META_semi_theories thy => ret o
+    (case thy of
+       Theories_one thy => Command_Theory.semi__theory top_theory thy
+     | Theories_locale (data, l) => (*Toplevel.begin_local_theory*) fn thy => thy
+       |> semi__locale data
+       |> fold (fold (Command_Theory.semi__theory top_local_theory)) l
+       |> Local_Theory.exit_global)
+| META_boot_generation_syntax _ => ret o I
+| META_boot_setup_env _ => ret o I
+| META_all_meta_embedding meta => fn thy => aux (semi__aux (SOME thy) meta) thy
+end
 end
 \<close>
 
@@ -1588,10 +1556,6 @@ fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
         Data_gen.map (Symtab.update (Deep0.default_key, env)) thy end)
   end
 
-fun outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser get_all_meta_embed =
-  Outer_Syntax.command cmd_spec cmd_descr
-    (parser >> outer_syntax_command0_thy0 mk_string get_all_meta_embed)
-
 fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
  let open Generation_mode in
   Outer_Syntax.commands' cmd_spec cmd_descr
@@ -1683,11 +1647,7 @@ fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_em
  end
 
 fun outer_syntax_command_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
- outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
-(* outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => K [get_all_meta_embed a])*)
-
-fun outer_syntax_command_thy mk_string cmd_spec cmd_descr parser get_all_meta_embed =
- outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
+  outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
 
 \<close>
 
@@ -1730,9 +1690,9 @@ structure USE_parse = struct
                        |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.string
 
   fun outer_syntax_command2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
-    outer_syntax_command_thy mk_string cmd_spec cmd_descr
+    outer_syntax_command_tr mk_string cmd_spec cmd_descr
       (optional (paren @{keyword "shallow"}) -- parser)
-      (fn (is_shallow, use) => get_thy @{here} (fn thy =>
+      (fn (is_shallow, use) => fn thy =>
          get_all_meta_embed
            (if is_shallow = NONE then
               ( fn s =>
@@ -1741,7 +1701,7 @@ structure USE_parse = struct
               , v_true)
             else
               (From.read_term thy, v_false))
-           use))
+           use)
 
   (* *)
 
