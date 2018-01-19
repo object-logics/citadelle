@@ -1243,8 +1243,7 @@ fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
                                                     , skip_exportation)), thy0)
                 end)
            | Gen_shallow (env, thy0) => fn thy =>
-             let fun aux (env, thy) x =
-               let val disp_time =
+             let val disp_time =
                     let val tps = Timing.start () in
                     fn NONE => () | SOME msg =>
                        let val msg = To_string0 msg in
@@ -1255,7 +1254,8 @@ fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
                             (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
                                          (Pretty.str msg)))
                        end
-                   end in
+                   end
+                 fun aux (env, thy) x =
                   META.fold_thy_shallow
                    (fn f => f () handle ERROR e =>
                      ( warning "Shallow Backtracking: (true) Isabelle declarations occuring among the META-simulated ones are ignored (if any)"
@@ -1287,7 +1287,6 @@ fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
                      end)
                    x
                    (env, thy)
-               end
                  val (env, thy) = 
                    let
                      fun disp_time f x = 
