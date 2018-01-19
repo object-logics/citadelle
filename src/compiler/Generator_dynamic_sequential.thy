@@ -1360,7 +1360,7 @@ val () = let open Generation_mode in
       || parse_l' mode >> SOME
       || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
     (fn SOME x => (*K*) (f_command x)
-      | NONE => (*fn (thy, _) =>*) toplevel_keep_theory (fn thy => List.app (fn f => f thy)
+      | NONE => (*fn thy =>*) toplevel_keep_theory (fn thy => List.app (fn f => f thy)
          (map (fn (env, i_deep) => exec_deep0 i_deep (META.compiler_env_config_reset_all env))
                   (#deep (Data_gen.get thy))
           |> (fn [] => [(*toplevel_keep*) (fn _ => warning "Nothing performed.")]
