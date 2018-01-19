@@ -330,6 +330,8 @@ fun then_tactic l = let open Method in
   (Combinator (no_combinator_info, Then, map semi__method l), (Position.none, Position.none))
 end
 
+structure Command_Theory = struct
+
 fun local_terminal_proof o_by = let open META in case o_by of
    Command_done => Proof.local_done_proof
  | Command_sorry => Proof.local_skip_proof true
@@ -542,6 +544,7 @@ fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overloa
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
+end
 
 end
 
@@ -550,7 +553,7 @@ structure Bind_META = struct open Bind_Isabelle
 fun all_meta_thy top_theory top_local_theory aux ret = let open META open META_overload in fn
   META_semi_theories thy =>
     ret o (case thy of
-       Theories_one thy => semi__theory top_theory thy
+       Theories_one thy => Command_Theory.semi__theory top_theory thy
      | Theories_locale (data, l) => (*Toplevel.begin_local_theory*) fn thy => thy
        |> (   Expression.add_locale_cmd
                 (To_sbinding (META.holThyLocale_name data))
@@ -567,7 +570,7 @@ fun all_meta_thy top_theory top_local_theory aux ret = let open META open META_o
                                                                          , [(of_semi__term e, [])])]]])
                     (META.holThyLocale_header data)))
            #> snd)
-       |> fold (fold (semi__theory top_local_theory)) l
+       |> fold (fold (Command_Theory.semi__theory top_local_theory)) l
        |> Local_Theory.exit_global)
 | META_boot_generation_syntax _ => ret o I
 | META_boot_setup_env _ => ret o I
