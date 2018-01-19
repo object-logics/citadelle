@@ -12,11 +12,11 @@ sig
   val command: command_keyword -> string ->
     (Toplevel.transition -> Toplevel.transition) parser -> unit
   val command': command_keyword -> string ->
-    (theory * Position.T -> Toplevel.transition -> Toplevel.transition) parser -> unit
+    (theory -> Toplevel.transition -> Toplevel.transition) parser -> unit
   val commands: command_keyword -> string ->
     (command_keyword * (Toplevel.transition -> Toplevel.transition)) list parser -> unit
   val commands': command_keyword -> string ->
-    (theory * Position.T -> (command_keyword * (Toplevel.transition -> Toplevel.transition)) list) parser -> unit
+    (theory -> (command_keyword * (Toplevel.transition -> Toplevel.transition)) list) parser -> unit
   val local_theory': command_keyword -> string ->
     (bool -> local_theory -> local_theory) parser -> unit
   val local_theory: command_keyword -> string ->
@@ -50,7 +50,7 @@ fun err_dup_command name ps =
 
 (* command parsers *)
 
-type command0 = (theory * Position.T -> (string -> Toplevel.transition) -> Toplevel.transitions) parser
+type command0 = (theory -> (string -> Toplevel.transition) -> Toplevel.transitions) parser
 
 datatype command_parser =
   Parser of command0 |
@@ -154,13 +154,13 @@ fun command (name, pos) comment parse =
   raw_command (name, pos) comment (Parser (parse >> (fn f => fn _ => fn tr => [f (tr name)])));
 
 fun command' (name, pos) comment parse =
-  raw_command (name, pos) comment (Parser (parse >> (fn f => fn thy_pos => fn tr => [f thy_pos (tr name)])));
+  raw_command (name, pos) comment (Parser (parse >> (fn f => fn thy => fn tr => [f thy (tr name)])));
 
 fun commands (name, pos) comment parse =
   raw_command (name, pos) comment (Parser (parse >> (fn l => fn _ => fn tr => map (fn ((name, _), f) => f (tr name)) l)));
 
 fun commands' (name, pos) comment parse =
-  raw_command (name, pos) comment (Parser (parse >> (fn l => fn thy_pos => fn tr => map (fn ((name, _), f) => f (tr name)) (l thy_pos))));
+  raw_command (name, pos) comment (Parser (parse >> (fn l => fn thy => fn tr => map (fn ((name, _), f) => f (tr name)) (l thy))));
 
 fun local_theory_command trans command_keyword comment parse =
   raw_command command_keyword comment
@@ -200,10 +200,10 @@ fun parse_command thy =
     in
       (case lookup_commands thy name of
         SOME (Command {command_parser = Parser parse, ...}) =>
-          Parse.!!! (command_tags |-- parse) >> (fn f => f (thy, pos) tr0)
+          Parse.!!! (command_tags |-- parse) >> (fn f => f thy tr0)
       | SOME (Command {command_parser = Restricted_Parser parse, ...}) =>
           before_command :|-- (fn restricted =>
-            Parse.!!! (command_tags |-- parse restricted)) >> (fn f => f (thy, pos) tr0)
+            Parse.!!! (command_tags |-- parse restricted)) >> (fn f => f thy tr0)
       | NONE =>
           Scan.fail_with (fn _ => fn _ =>
             let

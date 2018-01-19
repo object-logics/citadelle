@@ -1568,7 +1568,7 @@ in
 fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_embed =
  let open Generation_mode in
   Outer_Syntax.commands' cmd_spec cmd_descr
-    (parser >> (fn name => fn (thy, _) =>
+    (parser >> (fn name => fn thy =>
       (* WARNING: Whenever there would be errors raised by functions taking "thy" as input, 
                   they will not be shown.
                   So the use of this "thy" can be considered as safe, as long as errors do not happen. *)
@@ -1643,7 +1643,7 @@ val () = let open Generation_mode in
       || parse_l' mode >> SOME
       || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
     (fn SOME x => K (f_command x)
-      | NONE => fn (thy, _) => []
+      | NONE => fn thy => []
           |> fold (fn (env, i_deep) => exec_deep i_deep (META.compiler_env_config_reset_all env))
                   (#deep (Data_gen.get thy))
           |> (fn [] => toplevel_keep (fn _ => warning "Nothing performed.") []
