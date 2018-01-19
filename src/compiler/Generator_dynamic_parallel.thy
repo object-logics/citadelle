@@ -1087,7 +1087,7 @@ val mode =
   end
 
 fun toplevel_keep_theory f = Toplevel.keep (f o Toplevel.theory_of)
-fun toplevel_read_write_keep rw tr = tr |> Toplevel.read_write rw |> Toplevel.keep (K ())
+fun toplevel_read_write_keep rw = (@{command_keyword print_syntax}, fn tr => tr |> Toplevel.read_write rw |> Toplevel.keep (K ()))
 
 fun f_command l_mode =
   let val (l_mode, trs) =
@@ -1107,7 +1107,7 @@ fun f_command l_mode =
                                               , filename_thy
                                               , tmp_export_code
                                               , skip_exportation)),
-            toplevel_keep_theory (fn thy =>
+            (@{command_keyword export_code}, toplevel_keep_theory (fn thy =>
               let val seri_args' =
                     List_mapi
                       (fn i => fn ((ml_compiler, ml_module), export_arg) =>
@@ -1137,13 +1137,13 @@ fun f_command l_mode =
                                 (Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function thy)))
                       end in
                   fold (fn ((((ml_compiler, ml_module), _), _), mk_fic) => fn _ =>
-                    Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () end) :: acc)))
+                    Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' () end)) :: acc)))
       l_mode
       [] in
-  rev (Toplevel.theory (fn thy =>
+  rev ((@{command_keyword setup}, Toplevel.theory (fn thy =>
         let val l_mode = map (fn f => f thy) l_mode in
           Data_gen.map (Symtab.map_default (Deep0.default_key, l_mode) (fn _ => l_mode)) thy
-        end) :: trs)
+        end)) :: trs)
   end
 
 fun update_compiler_config f =
@@ -1289,7 +1289,7 @@ fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_em
                       (* TODO automatically determine if there is such Isabelle declarations,
                               for raising earlier a specific error message *)
                     ; error e))
-                  (fn _ => fn acc => (@{command_keyword print_syntax}, toplevel_read_write_keep (Toplevel.Load_backup, Toplevel.Store_default)) :: acc)
+                  (fn _ => fn acc => toplevel_read_write_keep (Toplevel.Load_backup, Toplevel.Store_default) :: acc)
                   (fn msg => fn l => fn (env, acc) =>
                     Bind_META.all_meta_tr { theory = fn f => fn acc => pair cmd_spec (Toplevel.theory f) :: acc
                                           , local_theory = fn f => fn acc => pair cmd_spec (Toplevel.local_theory NONE NONE f) :: acc
@@ -1448,24 +1448,23 @@ subsection\<open>Parameterizing the Semantics of Embedded Languages\<close>
 
 ML\<open>
 val () = let open Generation_mode in
-  Outer_Syntax.commands' @{command_keyword generation_syntax} "set the generating list"
+  Outer_Syntax.commands @{command_keyword generation_syntax} "set the generating list"
     ((   mode >> (fn x => SOME [x])
       || parse_l' mode >> SOME
       || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
-    (fn mode => fn _ =>
-      map (pair @{command_keyword generation_syntax})
-        (case mode of SOME x => f_command x
-         | NONE =>
-           [ toplevel_keep_theory (fn thy =>
-               List.app
-                 (fn (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => 
-                   let val (env, l_exec) = META.compiler_env_config_reset_all env
-                   in exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) thy end)
-                 let val l = case Symtab.lookup (Data_gen.get thy) Deep0.default_key of SOME l => l | _ => []
-                     val l = List.concat (List.map (fn Gen_deep x => [x] | _ => []) l)
-                     val _ = case l of [] => warning "Nothing to perform." | _ => () in
-                   l
-                 end)])))
+    (fn SOME x => f_command x
+      | NONE =>
+         [ (@{command_keyword export_code},
+            toplevel_keep_theory (fn thy =>
+             List.app
+               (fn (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => 
+                 let val (env, l_exec) = META.compiler_env_config_reset_all env
+                 in exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) thy end)
+               let val l = case Symtab.lookup (Data_gen.get thy) Deep0.default_key of SOME l => l | _ => []
+                   val l = List.concat (List.map (fn Gen_deep x => [x] | _ => []) l)
+                   val _ = case l of [] => warning "Nothing to perform." | _ => () in
+                 l
+               end))]))
 end
 \<close>
 
