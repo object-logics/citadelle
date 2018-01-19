@@ -1742,7 +1742,7 @@ structure USE_parse = struct
               , v_true)
             else
               (From.read_term thy, v_false))
-           use)
+           use))
 
   (* *)
 
