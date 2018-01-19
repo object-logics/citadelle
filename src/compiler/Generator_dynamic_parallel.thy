@@ -330,6 +330,222 @@ fun then_tactic l = let open Method in
   (Combinator (no_combinator_info, Then, map semi__method l), (Position.none, Position.none))
 end
 
+structure Command_Transition = struct
+
+fun local_terminal_proof o_by = let open META in case o_by of
+   Command_done => Proof.local_done_proof
+ | Command_sorry => Proof.local_skip_proof true
+ | Command_by l_apply => Proof.local_terminal_proof (then_tactic l_apply, NONE)
+end
+
+fun global_terminal_proof o_by = let open META in case o_by of
+   Command_done => Proof.global_done_proof
+ | Command_sorry => Proof.global_skip_proof true
+ | Command_by l_apply => Proof.global_terminal_proof (then_tactic l_apply, NONE)
+end
+
+fun proof_show_gen f (thes, thes_when) st = st
+  |> Proof.proof
+       (SOME ( Method.Source [Token.make_string ("-", Position.none)]
+             , (Position.none, Position.none)))
+  |> Seq.the_result ""
+  |> f
+  |> Proof.show_cmd
+       (thes_when = [])
+       NONE
+       (K I)
+       []
+       (if thes_when = [] then [] else [((@{binding ""}, []), map (fn t => (t, [])) thes_when)])
+       [((@{binding ""}, []), [(thes, [])])]
+       true
+  |> snd
+
+val semi__command_state = let open META_overload in
+  fn META.Command_apply_end l => (fn st => st |> Proof.apply_end (then_tactic l)
+                                              |> Seq.the_result "")
+end
+
+val semi__command_proof = let open META_overload
+                        val thesis = "?thesis"
+                        fun proof_show f = proof_show_gen f (thesis, []) in
+  fn META.Command_apply l => (fn st => st |> Proof.apply (then_tactic l)
+                                          |> Seq.the_result "")
+   | META.Command_using l => (fn st =>
+       let val ctxt = Proof.context_of st in
+       Proof.using [map (fn s => ([ s], [])) (semi__thm_mult_l ctxt l)] st
+       end)
+   | META.Command_unfolding l => (fn st =>
+       let val ctxt = Proof.context_of st in
+       Proof.unfolding [map (fn s => ([s], [])) (semi__thm_mult_l ctxt l)] st
+       end)
+   | META.Command_let (e1, e2) =>
+       proof_show (Proof.let_bind_cmd [([of_semi__term e1], of_semi__term e2)])
+   | META.Command_have (n, b, e, e_pr) => proof_show (fn st => st
+       |> Proof.have_cmd true NONE (K I) [] []
+                         [( (To_sbinding n, if b then [[Token.make_string ("simp", Position.none)]] else [])
+                          , [(of_semi__term e, [])])]
+                         true
+       |> snd
+       |> local_terminal_proof e_pr)
+   | META.Command_fix_let (l, l_let, o_exp, _) =>
+       proof_show_gen ( fold (fn (e1, e2) =>
+                                Proof.let_bind_cmd [([of_semi__term e1], of_semi__term e2)])
+                             l_let
+                      o Proof.fix_cmd (List.map (fn i => (To_sbinding i, NONE, NoSyn)) l))
+                      ( case o_exp of NONE => thesis | SOME (l_spec, _) => 
+                         (String.concatWith (" \<Longrightarrow> ")
+                                            (List.map of_semi__term l_spec))
+                      , case o_exp of NONE => [] | SOME (_, l_when) => List.map of_semi__term l_when)
+end
+
+fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overload in (*let val f = *)fn
+  Theory_datatype (Datatype (n, l)) => (*Toplevel.local_theory*) #local_theory top
+   (BNF_FP_Def_Sugar.co_datatype_cmd
+      BNF_Util.Least_FP
+      BNF_LFP.construct_lfp
+      (Ctr_Sugar.default_ctr_options_cmd,
+       [( ( ( (([], To_sbinding n), NoSyn)
+            , List.map (fn (n, l) => ( ( (To_binding "", To_sbinding n)
+                                       , List.map (fn s => (To_binding "", of_semi__typ s)) l)
+                                     , NoSyn)) l)
+          , (To_binding "", To_binding ""))
+        , [])]))
+| Theory_type_synonym (Type_synonym (n, v, l)) => (*Toplevel.local_theory*) #theory top
+   (fn thy =>
+     let val s_bind = To_sbinding n in
+     (snd o Typedecl.abbrev_global
+              (s_bind, map To_string0 v, NoSyn)
+              (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (of_semi__typ l))) thy
+     end)
+| Theory_type_notation (Type_notation (n, e)) => (*Toplevel.local_theory*) #local_theory top
+   (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
+| Theory_instantiation (Instantiation (n, n_def, expr)) => (*Toplevel.begin_local_theory*) #theory top
+   (fn thy =>
+     let val name = To_string0 n
+         val tycos =
+           [ let val Term.Type (s, _) = (Isabelle_Typedecl.abbrev_cmd0 NONE thy name) in s end ] in
+    thy
+    |> Class.instantiation (tycos, [], Syntax.read_sort (Proof_Context.init_global thy) "object")
+    |> fold_map (fn _ => fn thy =>
+        let val ((_, (_, ty)), thy) = Specification.definition_cmd
+                                       ( NONE
+                                       , ( (To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), [])
+                                         , of_semi__term expr)) false thy in
+         (ty, thy)
+        end) tycos
+    |-> Class.prove_instantiation_exit_result (map o Morphism.thm) (fn ctxt => fn thms =>
+         Class.intro_classes_tac ctxt [] THEN ALLGOALS (Proof_Context.fact_tac ctxt thms))
+    |-> K I
+     end)
+| Theory_overloading (Overloading (n_c, e_c, n, e)) => (*Toplevel.begin_local_theory*) #theory top
+   (fn thy => thy
+    |> Overloading.overloading_cmd [(To_string0 n_c, of_semi__term e_c, true)]
+    |> snd o Specification.definition_cmd (NONE, ((To_sbinding n, []), of_semi__term e)) false
+    |> Local_Theory.exit_global)
+| Theory_consts (Consts (n, ty, symb)) => (*Toplevel.theory*) #theory top
+   (Sign.add_consts_cmd [( To_sbinding n
+                        , of_semi__typ ty
+                        , Mixfix ("(_) " ^ To_string0 symb, [], 1000))])
+| Theory_definition def => (*Toplevel.local_theory'*) #local_theory top
+    let val (def, e) = case def of
+        Definition e => (NONE, e)
+      | Definition_where1 (name, (abbrev, prio), e) =>
+          (SOME ( To_sbinding name
+                , NONE
+                , Mixfix ("(1" ^ of_semi__term abbrev ^ ")", [], To_nat prio)), e)
+      | Definition_where2 (name, abbrev, e) =>
+          (SOME ( To_sbinding name
+                , NONE
+                , Mixfix ("(" ^ of_semi__term abbrev ^ ")", [], 1000)), e) in
+    (snd o Specification.definition_cmd (def, ((@{binding ""}, []), of_semi__term e)) false)
+    end
+| Theory_lemmas (Lemmas_simp_thm (simp, s, l)) => (*Toplevel.local_theory'*) #local_theory top
+   (fn lthy => (snd o Specification.theorems Thm.theoremK
+      [((To_sbinding s, List.map (fn s => Attrib.check_src lthy [Token.make_string (s, Position.none)])
+                          (if simp then ["simp", "code_unfold"] else [])),
+        List.map (fn x => ([semi__thm_attribute_single lthy x], [])) l)]
+      []
+      false) lthy)
+| Theory_lemmas (Lemmas_simp_thms (s, l)) => (*Toplevel.local_theory'*) #local_theory top
+   (fn lthy => (snd o Specification.theorems Thm.theoremK
+      [((To_sbinding s, List.map (fn s => Attrib.check_src lthy [Token.make_string (s, Position.none)])
+                          ["simp", "code_unfold"]),
+        List.map (fn x => (Proof_Context.get_thms lthy (To_string0 x), [])) l)]
+      []
+      false) lthy)
+| Theory_lemma (Lemma (n, l_spec, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) #local_theory top
+   (fn lthy =>
+           Specification.theorem_cmd Thm.theoremK NONE (K I)
+             (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
+                                                       ,[((String.concatWith (" \<Longrightarrow> ")
+                                                             (List.map of_semi__term l_spec)), [])])])
+             false lthy
+        |> fold (semi__command_proof o META.Command_apply) l_apply
+        |> global_terminal_proof o_by)
+| Theory_lemma (Lemma_assumes (n, l_spec, concl, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) #local_theory top
+   (fn lthy => lthy
+        |> Specification.theorem_cmd Thm.theoremK NONE (K I)
+             (To_sbinding n, [])
+             []
+             (List.map (fn (n, (b, e)) =>
+                         Element.Assumes [( ( To_sbinding n
+                                            , if b then [[Token.make_string ("simp", Position.none)]] else [])
+                                          , [(of_semi__term e, [])])])
+                       l_spec)
+             (Element.Shows [((@{binding ""}, []),[(of_semi__term concl, [])])])
+             false
+        |> fold semi__command_proof l_apply
+        |> (case map_filter (fn META.Command_let _ => SOME []
+                              | META.Command_have _ => SOME []
+                              | META.Command_fix_let (_, _, _, l) => SOME l
+                              | _ => NONE)
+                            (rev l_apply) of
+              [] => global_terminal_proof o_by
+            | _ :: l => let val arg = (NONE, true) in fn st => st
+              |> local_terminal_proof o_by
+              |> fold (fn l => fold semi__command_state l o Proof.local_qed arg) l
+              |> Proof.global_qed arg end))
+| Theory_axiomatization (Axiomatization (n, e)) => (*Toplevel.theory*) #theory top
+   (#2 o Specification.axiomatization_cmd
+                                     []
+                                     [((To_sbinding n, []), [of_semi__term e])])
+| Theory_section (Section (n, s)) => (*Toplevel.keep*) #keep top
+   (fn _ =>
+    let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1) in
+      out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) (To_nat n)) ""
+    end)
+| Theory_text _ => (*Toplevel.keep*) #keep top (K ())
+| Theory_text_raw _ => (*Toplevel.keep*) #keep top (K ())
+| Theory_ML (SML ml) => (*Toplevel.generic_theory*) #theory top
+   (Code_printing.reflect_ml (Input.source false (of_semi__term' ml)
+                                                 (Position.none, Position.none)))
+| Theory_setup (Setup ml) => (*Toplevel.theory*) #theory top
+   (Isar_Cmd.setup (Input.source false (of_semi__term' ml)
+                                       (Position.none, Position.none)))
+| Theory_thm (Thm thm) => (*Toplevel.keep*) #keep top
+   (fn state =>
+    let val lthy = #context_of top state in
+      writeln
+        (Pretty.string_of
+          (Proof_Context.pretty_fact lthy ("", List.map (semi__thm_attribute_single lthy) thm)))
+    end)
+| Theory_interpretation (Interpretation (n, loc_n, loc_param, o_by)) => (*Toplevel.local_theory_to_proof*) #local_theory top
+   (fn lthy => lthy
+    |> Interpretation.interpretation_cmd ( [ ( (To_string0 loc_n, Position.none)
+                                         , ( (To_string0 n, true)
+                                           , if loc_param = [] then
+                                               Expression.Named []
+                                             else
+                                               Expression.Positional (map (SOME o of_semi__term)
+                                                                          loc_param)))]
+                                     , [])
+                                     []
+    |> global_terminal_proof o_by)
+(*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
+ end*)
+end
+end
+
 structure Command_Theory = struct
 
 fun local_terminal_proof o_by = let open META in case o_by of
@@ -553,7 +769,7 @@ structure Bind_META = struct open Bind_Isabelle
 fun all_meta_tr top_theory top_local_theory aux ret = let open META open META_overload in fn
   META_semi_theories thy =>
     ret o (case thy of
-       Theories_one thy => Command_Theory.semi__theory top_theory thy
+       Theories_one thy => Command_Transition.semi__theory top_theory thy
      | Theories_locale (data, l) => (*Toplevel.begin_local_theory*) #theory top_theory (fn thy => thy
        |> (   Expression.add_locale_cmd
                 (To_sbinding (META.holThyLocale_name data))
@@ -570,7 +786,7 @@ fun all_meta_tr top_theory top_local_theory aux ret = let open META open META_ov
                                                                          , [(of_semi__term e, [])])]]])
                     (META.holThyLocale_header data)))
            #> snd)
-       |> fold (fold (Command_Theory.semi__theory top_local_theory)) l
+       |> fold (fold (Command_Transition.semi__theory top_local_theory)) l
        |> Local_Theory.exit_global))
 | META_boot_generation_syntax _ => ret o I
 | META_boot_setup_env _ => ret o I
