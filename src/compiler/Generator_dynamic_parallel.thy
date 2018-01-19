@@ -869,8 +869,6 @@ fun apply_hs_code_identifiers ml_module thy =
            :: (* we over-approximate the set of compiler files *)
               Context.ancestors_of thy)) thy end
 
-val default_key = ""
-
 structure Export_code_env = struct
   structure Isabelle = struct
     val function = "write_file"
@@ -1238,10 +1236,10 @@ datatype ('compiler_env_config_ext, 'a) generation_mode = Gen_deep of 'compiler_
                                                         | Gen_syntax_print of int option
 
 structure Data_gen = Theory_Data
-  (type T = (unit META.compiler_env_config_ext, theory) generation_mode list Symtab.table
-   val empty = Symtab.empty
+  (type T = (unit META.compiler_env_config_ext, theory) generation_mode list
+   val empty = [Gen_syntax_print NONE]
    val extend = I
-   val merge = Symtab.merge (K true))
+   val merge = op @)
 
 val code_expr_argsP = Scan.optional (@{keyword "("} |-- Parse.args --| @{keyword ")"}) []
 
@@ -1372,19 +1370,14 @@ fun f_command l_mode =
                     Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' end)))
       l_mode
       [])
-    (fn l_mode => fn thy =>
-      let val l_mode = map (fn f => f thy) l_mode in
-        Data_gen.map (Symtab.map_default (Deep0.default_key, l_mode) (K l_mode)) thy
-      end)
+    (fn l_mode => fn thy => Data_gen.put (map (fn f => f thy) l_mode) thy)
 
 fun update_compiler_config f =
   Data_gen.map
-    (Symtab.map_entry
-      Deep0.default_key
-      (fn l_mode =>
-        map (fn Gen_deep (env, d) => Gen_deep (META.compiler_env_config_update f env, d)
-              | Gen_shallow (env, thy) => Gen_shallow (META.compiler_env_config_update f env, thy)
-              | Gen_syntax_print n => Gen_syntax_print n) l_mode))
+    (fn l_mode =>
+      map (fn Gen_deep (env, d) => Gen_deep (META.compiler_env_config_update f env, d)
+            | Gen_shallow (env, thy) => Gen_shallow (META.compiler_env_config_update f env, thy)
+            | Gen_syntax_print n => Gen_syntax_print n) l_mode)
 end
 \<close>
 
@@ -1559,11 +1552,9 @@ fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
              end
           end
 
-          (case Symtab.lookup (Data_gen.get thy) Deep0.default_key of SOME l => l
-                                                                    | _ => [Gen_syntax_print NONE])
+          (Data_gen.get thy)
           thy
-        in
-        Data_gen.map (Symtab.update (Deep0.default_key, env)) thy end)
+        in Data_gen.put env thy end)
   end
 
 fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
@@ -1634,10 +1625,9 @@ fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_em
             end)
 
           end
-          (case Symtab.lookup (Data_gen.get thy) Deep0.default_key of SOME l => l
-                                                                    | _ => [Gen_syntax_print NONE])
+          (Data_gen.get thy)
           [])
-        (fn env => Data_gen.map (Symtab.update (Deep0.default_key, env)))
+        Data_gen.put
       handle THY_REQUIRED pos =>
         let val _ = Output.information ("Theory required while transitions were being built" ^ Position.here pos ^ ": Commands will not be concurrently considered.")
         in [(cmd_spec, outer_syntax_command0_thy0 mk_string get_all_meta_embed name)] end))
@@ -1664,8 +1654,7 @@ val () = let open Generation_mode in
                (fn (env, Internal_deep (output_header_thy, seri_args, filename_thy, tmp_export_code, _)) => 
                  let val (env, l_exec) = META.compiler_env_config_reset_all env
                  in exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code, l_exec) thy end)
-               let val l = case Symtab.lookup (Data_gen.get thy) Deep0.default_key of SOME l => l | _ => []
-                   val l = List.concat (List.map (fn Gen_deep x => [x] | _ => []) l)
+               let val l = List.concat (map (fn Gen_deep x => [x] | _ => []) (Data_gen.get thy))
                    val _ = case l of [] => warning "Nothing to perform." | _ => () in
                  l
                end))]))
