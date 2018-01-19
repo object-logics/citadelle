@@ -1075,6 +1075,7 @@ val mode =
   end
 
 fun toplevel_keep_theory f = Toplevel.keep (f o Toplevel.theory_of)
+fun toplevel_keep f tr = (@{command_keyword print_syntax}, Toplevel.keep f) :: tr
 (*fun toplevel_read_write_keep rw = (@{command_keyword print_syntax}, fn tr => tr |> Toplevel.read_write rw |> Toplevel.keep (K ()))*)
 fun toplevel_setup_theory (res, tr) f = (*rev*) (((*@{command_keyword setup},*) Toplevel.theory (fn thy => let val () = List.app (fn f => f thy) tr in f res thy end)) (*:: tr*))
 fun toplevel_keep_output tps fmt msg =
@@ -1218,6 +1219,8 @@ fun exec_deep (env, output_header_thy, seri_args, filename_thy, tmp_export_code,
 
   end
 
+local
+
 fun fold_thy_shallow f = 
   META.fold_thy_shallow
     (fn f => f () handle ERROR e =>
@@ -1227,110 +1230,116 @@ fun fold_thy_shallow f =
       ; error e))
     f
 
-fun outer_syntax_command0_thy0 mk_string get_all_meta_embed name =
-  Toplevel.theory (fn thy =>
-  let
-    open Generation_mode
-    val get_all_meta_embed = get_all_meta_embed name
-    val mode = Data_gen.get thy
-    val _ =
-      List.app
-        (fn n =>
-          writeln
-            (mk_string
-              (Proof_Context.init_global
-                (case n of NONE => thy
-                         | SOME n => Config.put_global ML_Options.print_depth n thy))
-              name))
-        (#syntax_print mode)
-    val deep =
-      map
-        (fn (env, Internal_deep ( output_header_thy
-                                , seri_args
-                                , filename_thy
-                                , tmp_export_code
-                                , skip_exportation)) =>
-          let val l_obj = get_all_meta_embed (SOME thy)
-              val _ = if skip_exportation then
-                        ()
-                      else
-                        exec_deep ( META.d_output_header_thy_update (fn _ => NONE) env
-                                  , output_header_thy
-                                  , seri_args
-                                  , NONE
-                                  , tmp_export_code
-                                  , l_obj) thy in
-          ( META.fold_thy_deep l_obj env
-          , Internal_deep ( output_header_thy
-                          , seri_args
-                          , filename_thy
-                          , tmp_export_code
-                          , skip_exportation))
-          end)
-        (#deep mode)
-    val (shallow, thy) = thy
-      |> META.mapM
-        (fn (env, thy0) => fn thy =>
-          let val disp_time =
-              let val tps = Timing.start () in
-              fn NONE => () | SOME msg =>
-                let val msg = To_string0 msg in
-                out_intensify
-                  (Timing.message (Timing.result tps) |> Markup.markup Markup.antiquote)
-                  (" " ^
-                   Pretty.string_of
-                     (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
-                                  (Pretty.str msg)))
-                end
+fun outer_syntax_command0_thy0 get_all_meta_embed mode thy = thy
+ |> META.mapM
+    (fn (env, thy0) => fn thy =>
+      let val disp_time =
+          let val tps = Timing.start () in
+          fn NONE => () | SOME msg =>
+            let val msg = To_string0 msg in
+            out_intensify
+              (Timing.message (Timing.result tps) |> Markup.markup Markup.antiquote)
+              (" " ^
+               Pretty.string_of
+                 (Pretty.mark (Name_Space.markup (Proof_Context.const_space @{context}) msg)
+                              (Pretty.str msg)))
+            end
+          end
+          fun aux (env, thy) x =
+            fold_thy_shallow
+              (K o K thy0)
+              (fn msg =>
+                let val () = disp_time msg in
+                fn l => fn (env, thy) =>
+                Bind_META.all_meta_thy { theory = I
+                                       , local_theory = in_local
+                                       , keep = fn f => in_local (fn lthy => (f lthy ; lthy))
+                                       , context_of = I }
+                                       let val local_theory = (fn f => fn lthy => lthy
+                                                 |> Local_Theory.new_group
+                                                 |> f
+                                                 |> Local_Theory.reset_group
+                                                 |> Local_Theory.restore) in
+                                         { theory = Local_Theory.background_theory
+                                         , local_theory = local_theory
+                                         , keep = fn f => local_theory (fn lthy => (f lthy ; lthy))
+                                         , context_of = I }
+                                       end
+                                       (fn x => fn thy => aux (env, thy) [x])
+                                       (pair env)
+                                       l
+                                       thy
+                end)
+              x
+              (env, thy)
+          val (env, thy) = 
+            let
+              fun disp_time f x = 
+              let val (s, r) = Timing.timing f x
+                  val () = out_intensify (Timing.message s |> Markup.markup Markup.operator) "" in
+                r
               end
-              fun aux (env, thy) x =
-                fold_thy_shallow
-                  (K o K thy0)
-                  (fn msg =>
-                    let val () = disp_time msg in
-                    fn l => fn (env, thy) =>
-                    Bind_META.all_meta_thy { theory = I
-                                           , local_theory = in_local
-                                           , keep = fn f => in_local (fn lthy => (f lthy ; lthy))
-                                           , context_of = I }
-                                           let val local_theory = (fn f => fn lthy => lthy
-                                                     |> Local_Theory.new_group
-                                                     |> f
-                                                     |> Local_Theory.reset_group
-                                                     |> Local_Theory.restore) in
-                                             { theory = Local_Theory.background_theory
-                                             , local_theory = local_theory
-                                             , keep = fn f => local_theory (fn lthy => (f lthy ; lthy))
-                                             , context_of = I }
-                                           end
-                                           (fn x => fn thy => aux (env, thy) [x])
-                                           (pair env)
-                                           l
-                                           thy
-                    end)
-                  x
-                  (env, thy)
-              val (env, thy) = 
-                let
-                  fun disp_time f x = 
-                  let val (s, r) = Timing.timing f x
-                      val () = out_intensify (Timing.message s |> Markup.markup Markup.operator) "" in
-                    r
-                  end
-                in disp_time (aux (env, thy)) (get_all_meta_embed (SOME thy)) end
-          in ((env, thy0), thy) end)
-        (#shallow mode)
-  in Data_gen.put {syntax_print = #syntax_print mode, deep = deep, shallow = shallow} thy end)
-
-fun outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser get_all_meta_embed =
-  Outer_Syntax.command cmd_spec cmd_descr
-    (parser >> outer_syntax_command0_thy0 mk_string get_all_meta_embed)
+            in disp_time (aux (env, thy)) (get_all_meta_embed (SOME thy)) end
+      in ((env, thy0), thy) end)
+    (#shallow mode)
+(* |-> (fn shallow => Generation_mode.Data_gen.put { syntax_print = #syntax_print mode
+                                                 , deep = #deep mode
+                                                 , shallow = shallow})
+*)
+in
 
 fun outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
-  outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => fn thy => (get_all_meta_embed a (SOME thy)))
+ let open Generation_mode in
+  Outer_Syntax.command cmd_spec cmd_descr
+    (parser >> (fn name => Toplevel.theory (fn thy =>
+      (* WARNING: Whenever there would be errors raised by functions taking "thy" as input, 
+                  they will not be shown.
+                  So the use of this "thy" can be considered as safe, as long as errors do not happen. *)
+      let
+        val get_all_meta_embed = get_all_meta_embed name
+        val l_obj = get_all_meta_embed (SOME thy)
+        val mode = Data_gen.get thy
+        val tr = []
+          |> fold (fn n =>
+              cons ((*@{command_keyword print_syntax},
+                    toplevel_keep_theory*) ((*fn thy =>*)
+                      writeln (mk_string
+                                (Proof_Context.init_global
+                                  (case n of NONE => thy
+                                           | SOME n => Config.put_global ML_Options.print_depth n thy))
+                                name))))
+             (#syntax_print mode)
+        val (deep, tr) = tr
+          |> META.mapM (fn (env, Internal_deep ( output_header_thy
+                                               , seri_args
+                                               , filename_thy
+                                               , tmp_export_code
+                                               , skip_exportation)) =>
+             pair (( META.fold_thy_deep l_obj env
+                   , Internal_deep ( output_header_thy
+                                   , seri_args
+                                   , filename_thy
+                                   , tmp_export_code
+                                   , skip_exportation)))
+                  o (if skip_exportation then
+                       I
+                     else
+                       cons ((*@{command_keyword export_code},
+                             toplevel_keep_theory*)
+                              (exec_deep ( META.d_output_header_thy_update (K NONE) env
+                                         , output_header_thy
+                                         , seri_args
+                                         , NONE
+                                         , tmp_export_code
+                                         , l_obj)) thy)))
+             (#deep mode)
+        val ((shallow, thy)(*, put*)) = outer_syntax_command0_thy0 get_all_meta_embed mode thy
+  in Data_gen.put ({syntax_print = #syntax_print mode, deep = deep, shallow = shallow}) thy end)))
+ end
+end
 
 fun outer_syntax_command_tr mk_string cmd_spec cmd_descr parser get_all_meta_embed =
-  outer_syntax_command0_thy mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
+  outer_syntax_command0_tr mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
 
 \<close>
 
