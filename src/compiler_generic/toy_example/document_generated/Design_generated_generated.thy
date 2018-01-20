@@ -1,6 +1,9 @@
 theory Design_generated_generated imports "../Toy_Library"   "../Toy_Library_Static" begin
 
 (* 1 ************************************ 0 + 1 *)
+section \<open>Class Model: Introduction\<close>
+
+(* 2 ************************************ 1 + 1 *)
 text \<open>
   For certain concepts like classes and class-types, only a generic
   definition for its resulting semantics can be given. Generic means,
@@ -11,13 +14,16 @@ text \<open>
   fundamental properties of these operations in this concrete data
   model. \<close>
 
-(* 2 ************************************ 1 + 1 *)
+(* 3 ************************************ 2 + 1 *)
+section \<open>Class Model: The Construction of the Object Universe\<close>
+
+(* 4 ************************************ 3 + 1 *)
 text \<open>
    Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: \<close>
 
-(* 3 ************************************ 2 + 10 *)
+(* 5 ************************************ 4 + 10 *)
 datatype ty\<E>\<X>\<T>\<^sub>A\<^sub>t\<^sub>o\<^sub>m = mk\<E>\<X>\<T>\<^sub>A\<^sub>t\<^sub>o\<^sub>m "oid" "oid list option" "int option" "bool option" "nat option" "unit option"
 datatype ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m = mk\<^sub>A\<^sub>t\<^sub>o\<^sub>m "ty\<E>\<X>\<T>\<^sub>A\<^sub>t\<^sub>o\<^sub>m" "int option"
 datatype ty\<E>\<X>\<T>\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e = mk\<E>\<X>\<T>\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e_\<^sub>A\<^sub>t\<^sub>o\<^sub>m "ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m"
@@ -39,57 +45,69 @@ datatype ty\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y = mk\<E>
                         | mk\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y "oid"
 datatype ty\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y "ty\<E>\<X>\<T>\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y"
 
-(* 4 ************************************ 12 + 1 *)
+(* 6 ************************************ 14 + 1 *)
 text \<open>
    Now, we construct a concrete ``universe of ToyAny types'' by injection into a
 sum type containing the class types. This type of ToyAny will be used as instance
 for all respective type-variables. \<close>
 
-(* 5 ************************************ 13 + 1 *)
+(* 7 ************************************ 15 + 1 *)
 datatype \<AA> = in\<^sub>A\<^sub>t\<^sub>o\<^sub>m "ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m"
                         | in\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e "ty\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e"
                         | in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n "ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n"
                         | in\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y "ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y"
                         | in\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y "ty\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y"
 
-(* 6 ************************************ 14 + 1 *)
+(* 8 ************************************ 16 + 1 *)
 text \<open>
    Having fixed the object universe, we can introduce type synonyms that exactly correspond
 to Toy types. Again, we exploit that our representation of Toy is a ``shallow embedding'' with a
 one-to-one correspondance of Toy-types to types of the meta-language HOL. \<close>
 
-(* 7 ************************************ 15 + 5 *)
+(* 9 ************************************ 17 + 5 *)
 type_synonym Atom = "\<langle>\<langle>ty\<^sub>A\<^sub>t\<^sub>o\<^sub>m\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym Molecule = "\<langle>\<langle>ty\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym Person = "\<langle>\<langle>ty\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym Galaxy = "\<langle>\<langle>ty\<^sub>G\<^sub>a\<^sub>l\<^sub>a\<^sub>x\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 type_synonym ToyAny = "\<langle>\<langle>ty\<^sub>T\<^sub>o\<^sub>y\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>"
 
-(* 8 ************************************ 20 + 3 *)
+(* 10 ************************************ 22 + 1 *)
+section \<open>Class Model: The Accessors\<close>
+
+(* 11 ************************************ 23 + 3 *)
 definition "oid\<^sub>A\<^sub>t\<^sub>o\<^sub>m_0___boss = 0"
 definition "oid\<^sub>M\<^sub>o\<^sub>l\<^sub>e\<^sub>c\<^sub>u\<^sub>l\<^sub>e_0___boss = 0"
 definition "oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss = 0"
 
-(* 9 ************************************ 23 + 2 *)
+(* 12 ************************************ 26 + 2 *)
 definition "switch\<^sub>2_01 = (\<lambda> [x0 , x1] \<Rightarrow> (x0 , x1))"
 definition "switch\<^sub>2_10 = (\<lambda> [x0 , x1] \<Rightarrow> (x1 , x0))"
 
-(* 10 ************************************ 25 + 3 *)
+(* 13 ************************************ 28 + 1 *)
+section \<open>Instance\<close>
+
+(* 14 ************************************ 29 + 3 *)
 definition "oid1 = 1"
 definition "oid2 = 2"
 definition "inst_assoc1 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid1] , [oid2]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 11 ************************************ 28 + 0 *)
+(* 15 ************************************ 32 + 0 *)
 
-(* 12 ************************************ 28 + 2 *)
+(* 16 ************************************ 32 + 1 *)
+section \<open>Instance\<close>
+
+(* 17 ************************************ 33 + 2 *)
 definition "oid3 = 3"
 definition "inst_assoc3 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 13 ************************************ 30 + 0 *)
+(* 18 ************************************ 35 + 0 *)
 
-(* 14 ************************************ 30 + 5 *)
+(* 19 ************************************ 35 + 1 *)
+section \<open>Instance\<close>
+
+(* 20 ************************************ 36 + 5 *)
 definition "oid4 = 4"
 definition "oid5 = 5"
 definition "oid6 = 6"
@@ -97,9 +115,12 @@ definition "oid7 = 7"
 definition "inst_assoc4 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([(oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss , (List.map ((\<lambda>(x , y). [x , y]) o switch\<^sub>2_01) ([[[oid7] , [oid6]] , [[oid6] , [oid1]] , [[oid4] , [oid5]]])))]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 15 ************************************ 35 + 0 *)
+(* 21 ************************************ 41 + 0 *)
 
-(* 16 ************************************ 35 + 1 *)
+(* 22 ************************************ 41 + 1 *)
+section \<open>State (Floor 2)\<close>
+
+(* 23 ************************************ 42 + 1 *)
 locale state_\<sigma>\<^sub>1 =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -149,14 +170,20 @@ lemma perm_\<sigma>\<^sub>1 : "\<sigma>\<^sub>1 = (state.make ((Map.empty (oid2 
 by(simp)
 end
 
-(* 17 ************************************ 36 + 2 *)
+(* 24 ************************************ 43 + 1 *)
+section \<open>Instance\<close>
+
+(* 25 ************************************ 44 + 2 *)
 definition "oid8 = 8"
 definition "inst_assoc8 = (\<lambda>oid_class to_from oid. ((case (deref_assocs_list ((to_from::oid list list \<Rightarrow> oid list \<times> oid list)) ((oid::oid)) ((drop ((((map_of_list ([]))) ((oid_class::oid))))))) of Nil \<Rightarrow> None
     | l \<Rightarrow> (Some (l)))::oid list option))"
 
-(* 18 ************************************ 38 + 0 *)
+(* 26 ************************************ 46 + 0 *)
 
-(* 19 ************************************ 38 + 1 *)
+(* 27 ************************************ 46 + 1 *)
+section \<open>State (Floor 2)\<close>
+
+(* 28 ************************************ 47 + 1 *)
 locale state_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
@@ -189,7 +216,10 @@ lemma perm_\<sigma>\<^sub>1' : "\<sigma>\<^sub>1' = (state.make ((Map.empty (oid
 by(simp)
 end
 
-(* 20 ************************************ 39 + 1 *)
+(* 29 ************************************ 48 + 1 *)
+section \<open>Transition (Floor 2)\<close>
+
+(* 30 ************************************ 49 + 1 *)
 locale transition_\<sigma>\<^sub>1_\<sigma>\<^sub>1' =
 fixes "oid1" :: "nat"
 fixes "oid2" :: "nat"
