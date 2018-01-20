@@ -188,11 +188,13 @@ fun List_mapi f = META.mapi (f o To_nat)
 fun out_intensify s1 s2 = Output.state ((s1 |> Markup.markup Markup.intensify) ^ s2)
 fun out_intensify' tps fmt = out_intensify (Timing.message (Timing.result tps) |> Markup.markup fmt)
 
-fun toplevel_keep_theory f = Toplevel.keep (f o Toplevel.theory_of)
-fun toplevel_keep f tr = (@{command_keyword print_syntax}, Toplevel.keep f) :: tr
-fun toplevel_read_write_keep rw = (@{command_keyword print_syntax}, fn tr => tr |> Toplevel.read_write rw |> Toplevel.keep (K ()))
-fun toplevel_setup_theory (res, tr) f = rev ((@{command_keyword setup}, Toplevel.theory (f res)) :: tr)
-fun toplevel_keep_output tps fmt msg = cons (@{command_keyword print_syntax}, Toplevel.keep (fn _ => out_intensify' tps fmt msg))
+structure Toplevel' = struct
+  fun keep_theory f = Toplevel.keep (f o Toplevel.theory_of)
+  fun keep f tr = (@{command_keyword print_syntax}, Toplevel.keep f) :: tr
+  fun read_write_keep rw = (@{command_keyword print_syntax}, fn tr => tr |> Toplevel.read_write rw |> Toplevel.keep (K ()))
+  fun setup_theory (res, tr) f = rev ((@{command_keyword setup}, Toplevel.theory (f res)) :: tr)
+  fun keep_output tps fmt msg = cons (@{command_keyword print_syntax}, Toplevel.keep (fn _ => out_intensify' tps fmt msg))
+end
 \<close>
 
 ML\<open>
@@ -1336,16 +1338,16 @@ val mode =
   end
 
 fun f_command l_mode =
-  toplevel_setup_theory
+  Toplevel'.setup_theory
     (META.mapM
       (fn Gen_shallow env => 
            pair (fn thy => Gen_shallow (env (Proof_Context.init_global thy), thy))
-                o cons (toplevel_read_write_keep (Toplevel.Load_previous, Toplevel.Store_backup))
+                o cons (Toplevel'.read_write_keep (Toplevel.Load_previous, Toplevel.Store_backup))
         | Gen_syntax_print n => pair (K (Gen_syntax_print n))
         | Gen_deep (env, i_deep) =>
            pair (fn thy => Gen_deep (env (Proof_Context.init_global thy), i_deep))
                 o cons
-            (@{command_keyword export_code}, toplevel_keep_theory (fn thy =>
+            (@{command_keyword export_code}, Toplevel'.keep_theory (fn thy =>
               let val seri_args' =
                     List_mapi
                       (fn i => fn ((ml_compiler, ml_module), export_arg) =>
@@ -1467,7 +1469,7 @@ fun exec_deep i_deep e =
   in cons 
       ( case (seri_args0, seri_args) of ([_], []) => @{command_keyword print_syntax}
                                       | _ => @{command_keyword export_code}
-      , toplevel_keep_theory (exec_deep0 i_deep e))
+      , Toplevel'.keep_theory (exec_deep0 i_deep e))
   end
 end
 
@@ -1554,7 +1556,7 @@ fun thy_shallow get_all_meta_embed =
 
 fun thy_switch pos1 pos2 f mode tr =
   ( ( mode
-    , toplevel_keep
+    , Toplevel'.keep
         (fn _ => Output.information ( "Theory required while transitions were being built"
                                     ^ Position.here pos1
                                     ^ ": Commands will not be concurrently considered. "
@@ -1578,7 +1580,7 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
           |-> mapM_syntax_print (META.mapM (fn n =>
                 pair n
                      o cons (@{command_keyword print_syntax},
-                             toplevel_keep_theory (fn thy =>
+                             Toplevel'.keep_theory (fn thy =>
                                writeln (mk_string
                                          (Proof_Context.init_global
                                            (case n of NONE => thy
@@ -1603,10 +1605,10 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                                     ( META.d_output_header_thy_update (K NONE) env, l_obj))))
          in ( m_tr
               |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
-                    let val (tps, disp_time) = disp_time toplevel_keep_output
+                    let val (tps, disp_time) = disp_time Toplevel'.keep_output
                         fun aux (env, acc) x =
                           fold_thy_shallow
-                            (K (cons (toplevel_read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
+                            (K (cons (Toplevel'.read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
                             (fn msg => fn l => fn (env, acc) => acc
                               |> disp_time msg
                               |> Bind_META.all_meta_tr (fn x => fn acc => aux (env, acc) [x])
@@ -1617,7 +1619,7 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                     in aux (env, acc) l_obj
                        |> META.map_prod
                             (fn env => (env, thy_init))
-                            (toplevel_keep_output tps Markup.operator "") end))
+                            (Toplevel'.keep_output tps Markup.operator "") end))
             , Data_gen.put)
             handle THY_REQUIRED pos =>
               m_tr |-> thy_switch pos @{here} (thy_shallow get_all_m)
@@ -1625,7 +1627,7 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
          handle THY_REQUIRED pos =>
            m_tr |-> thy_switch pos @{here} (thy_deep get_all_m #~> thy_shallow get_all_m)
       end
-      |> uncurry toplevel_setup_theory))
+      |> uncurry Toplevel'.setup_theory))
  end
 end
 
@@ -1646,7 +1648,7 @@ val () = let open Generation_mode in
       | NONE => fn thy => []
           |> fold (fn (env, i_deep) => exec_deep i_deep (META.compiler_env_config_reset_all env))
                   (#deep (Data_gen.get thy))
-          |> (fn [] => toplevel_keep (fn _ => warning "Nothing performed.") []
+          |> (fn [] => Toplevel'.keep (fn _ => warning "Nothing performed.") []
                | l => l)))
 end
 \<close>
