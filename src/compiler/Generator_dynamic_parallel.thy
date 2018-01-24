@@ -228,8 +228,8 @@ end
 \<close>
 
 ML\<open>
-type 'a toplevel_dual = { par: 'a, seq: 'a }
-type ('transitionM, 'Proof_stateM, 'state, 'raw) toplevel = 
+type 'a toplevel_dual = { par: Toplevel.transition -> Toplevel.transition, seq: 'a }
+type ('transitionM, 'Proof_stateM, 'state) toplevel = 
   { context_of: 'state -> local_theory
 
   , keep: ('state -> unit) -> 'transitionM
@@ -250,11 +250,10 @@ type ('transitionM, 'Proof_stateM, 'state, 'raw) toplevel =
 
   , tr_report: Method.text_range -> 'transitionM -> 'transitionM
   , tr_report_o: Method.text_range option -> 'transitionM -> 'transitionM
-  , tr_raw: 'raw -> 'transitionM
+  , tr_raw: (Toplevel.transition -> Toplevel.transition) -> 'transitionM
   , pr_report: Method.text_range -> 'Proof_stateM -> 'Proof_stateM
   , pr_report_o: Method.text_range option -> 'Proof_stateM -> 'Proof_stateM
-  , pr_raw: 'raw -> 'Proof_stateM
-  , dual: 'transitionM toplevel_dual -> 'transitionM }
+  , pr_dual: (Proof.state -> Proof.state) toplevel_dual -> 'Proof_stateM }
 
 structure Bind_Isabelle = struct
 fun To_binding s = Binding.make (s, Position.none)
@@ -369,14 +368,19 @@ end
 
 structure Command_Transition = struct
 
-fun terminal_proof top o_by = let open META in case o_by of
-   Command_done =>       (@{command_keyword done}, #pr_raw top Isar_Cmd.done_proof)
- | Command_sorry =>      (@{command_keyword sorry}, #pr_raw top Isar_Cmd.skip_proof)
+fun terminal_proof0 f1 f2 f3 top o_by = let open META in case o_by of
+   Command_done =>       (@{command_keyword done}, #pr_dual top { par = Isar_Cmd.done_proof
+                                                                , seq = f1 })
+ | Command_sorry =>      (@{command_keyword sorry}, #pr_dual top { par = Isar_Cmd.skip_proof
+                                                                 , seq = f2 true } )
  | Command_by l_apply => (@{command_keyword by}, let val (m1, m2) = (then_tactic l_apply, NONE) in
                                                  #pr_report top m1
                                                    (#pr_report_o top m2
-                                                   (#pr_raw top (Isar_Cmd.terminal_proof (m1, m2)))) end)
+                                                     (#pr_dual top { par = Isar_Cmd.terminal_proof (m1, m2)
+                                                                   , seq = f3 (m1, m2) })) end)
 end
+
+fun terminal_proof top = terminal_proof0 Proof.local_done_proof Proof.local_skip_proof Proof.local_terminal_proof top
 
 fun proof_show_gen top f (thes, thes_when) st = st
   |>:: (@{command_keyword proof}, 
@@ -437,7 +441,7 @@ fun end' top =
        (@{command_keyword end}, #tr_raw top (Toplevel.exit o Toplevel.end_local_theory o Toplevel.close_target o
         Toplevel.end_proof (K Proof.end_notepad)))
 
-fun semi__theory (top : ('transitionM, 'transitionM, 'state, Toplevel.transition -> Toplevel.transition) toplevel) = let open META open META_overload
+fun semi__theory (top : ('transitionM, 'transitionM, 'state) toplevel) = let open META open META_overload
   fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
  in (*let val f = *)fn
   Theory_datatype (Datatype (n, l)) =>
@@ -610,7 +614,7 @@ end
 fun semi__command_state top pr = fold snd (rev (Command_Transition.semi__command_state top pr []))
 fun semi__command_proof top pr = fold snd (rev (Command_Transition.semi__command_proof top pr []))
 
-fun semi__theory (top : ('transitionM, Proof.state -> Proof.state, 'state, Toplevel.transition -> Toplevel.transition) toplevel) = let open META open META_overload in (*let val f = *)fn
+fun semi__theory (top : ('transitionM, Proof.state -> Proof.state, 'state) toplevel) = let open META open META_overload in (*let val f = *)fn
   Theory_datatype (Datatype (n, l)) => (*Toplevel.local_theory*) #local_theory top NONE NONE
    (BNF_FP_Def_Sugar.co_datatype_cmd
       BNF_Util.Least_FP
@@ -1504,8 +1508,8 @@ fun thy_shallow get_all_meta_embed =
                                          , generic_theory = not_used "T 0", begin_local_theory = K_not_used "T 1", local_theory' = KK_not_used "T 2", local_theory_to_proof' = KK_not_used "T 3", local_theory_to_proof = KK_not_used "T 4"
                                          , proof' = fn f => f true, proofs = fn f => fn s => s |> f |> Seq.the_result "", proof = I
                                          , tr_report = fn m => fn f => (Method.report m; f), tr_report_o = fn o' => fn f => (Option.map Method.report o'; f), tr_raw = not_used "T 10"
-                                         , pr_report = fn m => fn f => (Method.report m; f), pr_report_o = fn o' => fn f => (Option.map Method.report o'; f), pr_raw = not_used "T 13"
-                                         , dual = not_used "T 14"}
+                                         , pr_report = fn m => fn f => (Method.report m; f), pr_report_o = fn o' => fn f => (Option.map Method.report o'; f)
+                                         , pr_dual = #seq }
                                          let fun local_theory f lthy = lthy
                                                    |> Local_Theory.new_group
                                                    |> f
@@ -1518,8 +1522,8 @@ fun thy_shallow get_all_meta_embed =
                                            , generic_theory = not_used "L 0", begin_local_theory = K_not_used "L 1", local_theory' = KK_not_used "L 2", local_theory_to_proof' = KK_not_used "L 3", local_theory_to_proof = KK_not_used "L 4"
                                            , proof' = fn f => f true, proofs = fn f => fn s => s |> f |> Seq.the_result "", proof = I
                                            , tr_report = fn m => fn f => (Method.report m; f), tr_report_o = fn o' => fn f => (Option.map Method.report o'; f), tr_raw = not_used "L 10"
-                                           , pr_report = fn m => fn f => (Method.report m; f), pr_report_o = fn o' => fn f => (Option.map Method.report o'; f), pr_raw = not_used "L 13"
-                                           , dual = not_used "L 14"}
+                                           , pr_report = fn m => fn f => (Method.report m; f), pr_report_o = fn o' => fn f => (Option.map Method.report o'; f)
+                                           , pr_dual = #seq }
                                          end
                                          (fn x => fn thy => aux (env, thy) [x])
                                          (pair env)
@@ -1613,8 +1617,7 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                                                        , tr_raw = I
                                                        , pr_report = fn m => fn a => (Method.report m; a)
                                                        , pr_report_o = fn m => fn a => (Option.map Method.report m; a)
-                                                       , pr_raw = I
-                                                       , dual = fn d => #par d }
+                                                       , pr_dual = #par }
                                                        (fn x => fn acc => aux (env, acc) [x])
                                                        (pair env)
                                                        l)
