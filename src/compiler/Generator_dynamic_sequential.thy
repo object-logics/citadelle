@@ -135,8 +135,9 @@ fun To_nat (Code_Numeral.Nat i) = i
 exception THY_REQUIRED of Position.T
 fun get_thy pos f = fn NONE => raise (THY_REQUIRED pos) | SOME thy => f thy
 
-infix 1 #~>
+infix 1 #~> |>::
 fun f #~> g = uncurry g oo f
+fun x |>:: f = cons f x
 \<close>
 
 ML\<open>
@@ -251,12 +252,33 @@ end
 \<close>
 
 ML\<open>
+type 'a toplevel_dual = { par: 'a, seq: 'a }
+type ('transitionM, 'Proof_stateM, 'state, 'raw) toplevel = 
+  { context_of: 'state -> local_theory
 
-type ('a, 'state) toplevel = 
-  { theory : (theory -> theory) -> 'a
-  , local_theory : (local_theory -> local_theory) -> 'a
-  , keep : ('state -> unit) -> 'a
-  , context_of : 'state -> local_theory }
+  , keep: ('state -> unit) -> 'transitionM
+  , generic_theory: (generic_theory -> generic_theory) -> 'transitionM
+  , theory: (theory -> theory) -> 'transitionM
+  , begin_local_theory: bool -> (theory -> local_theory) -> 'transitionM
+  , local_theory': (bool * Position.T) option -> (xstring * Position.T) option ->
+      (bool -> local_theory -> local_theory) -> 'transitionM
+  , local_theory: (bool * Position.T) option -> (xstring * Position.T) option ->
+      (local_theory -> local_theory) -> 'transitionM
+  , local_theory_to_proof': (bool * Position.T) option -> (xstring * Position.T) option ->
+      (bool -> local_theory -> Proof.state) -> 'transitionM
+  , local_theory_to_proof: (bool * Position.T) option -> (xstring * Position.T) option ->
+      (local_theory -> Proof.state) -> 'transitionM
+  , proof': (bool -> Proof.state -> Proof.state) -> 'Proof_stateM
+  , proofs: (Proof.state -> Proof.state Seq.result Seq.seq) -> 'Proof_stateM
+  , proof: (Proof.state -> Proof.state) -> 'Proof_stateM
+
+  , tr_report: Method.text_range -> 'transitionM -> 'transitionM
+  , tr_report_o: Method.text_range option -> 'transitionM -> 'transitionM
+  , tr_raw: 'raw -> 'transitionM
+  , pr_report: Method.text_range -> 'Proof_stateM -> 'Proof_stateM
+  , pr_report_o: Method.text_range option -> 'Proof_stateM -> 'Proof_stateM
+  , pr_raw: 'raw -> 'Proof_stateM
+  , dual: 'transitionM toplevel_dual -> 'transitionM }
 
 structure Bind_Isabelle = struct
 fun To_binding s = Binding.make (s, Position.none)
@@ -371,22 +393,22 @@ end
 
 structure Command_Transition = struct
 
-fun terminal_proof o_by = let open META in case o_by of
-   Command_done =>       (@{command_keyword done}, Isar_Cmd.done_proof)
- | Command_sorry =>      (@{command_keyword sorry}, Isar_Cmd.skip_proof)
+fun terminal_proof top o_by = let open META in case o_by of
+   Command_done =>       (@{command_keyword done}, #pr_raw top Isar_Cmd.done_proof)
+ | Command_sorry =>      (@{command_keyword sorry}, #pr_raw top Isar_Cmd.skip_proof)
  | Command_by l_apply => (@{command_keyword by}, let val (m1, m2) = (then_tactic l_apply, NONE) in
-                                                 (Method.report m1;
-                                                  Option.map Method.report m2;
-                                                  Isar_Cmd.terminal_proof (m1, m2)) end)
+                                                 #pr_report top m1
+                                                   (#pr_report_o top m2
+                                                   (#pr_raw top (Isar_Cmd.terminal_proof (m1, m2)))) end)
 end
 
-fun proof_show_gen f (thes, thes_when) st = st
-  |> cons (@{command_keyword proof}, 
+fun proof_show_gen top f (thes, thes_when) st = st
+  |>:: (@{command_keyword proof}, 
       let val m = SOME ( Method.Source [Token.make_string ("-", Position.none)]
                        , (Position.none, Position.none)) in
-      (Option.map Method.report m; Toplevel.proofs (Proof.proof m)) end)
+      (#pr_report_o top m (#proofs top (Proof.proof m))) end)
   |> f
-  |> cons (@{command_keyword show}, Toplevel.proof' (fn int => Proof.show_cmd
+  |>:: (@{command_keyword show}, #proof' top (fn int => Proof.show_cmd
        (thes_when = [])
        NONE
        (K I)
@@ -395,38 +417,38 @@ fun proof_show_gen f (thes, thes_when) st = st
        [((@{binding ""}, []), [(thes, [])])]
        int #> #2))
 
-fun semi__command_state (META.Command_apply_end l) = let open META_overload in
+fun semi__command_state top (META.Command_apply_end l) = let open META_overload in
   cons (@{command_keyword apply_end}, let val m = then_tactic l in
-    (Method.report m; Toplevel.proofs (Proof.apply_end m)) end)
+    #pr_report top m (#proofs top (Proof.apply_end m)) end)
 end
 
-val semi__command_proof = let open META_overload
+fun semi__command_proof top = let open META_overload
   val thesis = "?thesis"
-  fun cons_proof_show f = proof_show_gen f (thesis, [])
+  fun cons_proof_show f = proof_show_gen top f (thesis, [])
   fun cons_let (e1, e2) =
-        cons (@{command_keyword let}, Toplevel.proof
+        cons (@{command_keyword let}, #proof top
           (Proof.let_bind_cmd [([of_semi__term e1], of_semi__term e2)])) in
   fn META.Command_apply l =>
         cons (@{command_keyword apply}, let val m = then_tactic l in
-          (Method.report m; Toplevel.proofs (Proof.apply m)) end)
+          #pr_report top m (#proofs top (Proof.apply m)) end)
    | META.Command_using l =>
-        cons (@{command_keyword using}, Toplevel.proof (fn st =>
+        cons (@{command_keyword using}, #proof top (fn st =>
           Proof.using [map (fn s => ([s], [])) (semi__thm_mult_l (Proof.context_of st) l)] st))
    | META.Command_unfolding l =>
-        cons (@{command_keyword unfolding}, Toplevel.proof (fn st =>
+        cons (@{command_keyword unfolding}, #proof top (fn st =>
           Proof.unfolding [map (fn s => ([s], [])) (semi__thm_mult_l (Proof.context_of st) l)] st))
    | META.Command_let e =>
         cons_proof_show (cons_let e)
    | META.Command_have (n, b, e, e_pr) => (fn st => st
      |> cons_proof_show (fn st => st
-       |> cons (@{command_keyword have}, Toplevel.proof' (fn int =>
+       |>:: (@{command_keyword have}, #proof' top (fn int =>
           Proof.have_cmd true NONE (K I) [] []
             [( (To_sbinding n, if b then [[Token.make_string ("simp", Position.none)]] else [])
              , [(of_semi__term e, [])])] int #> #2))
-       |> cons (terminal_proof e_pr)))
+       |>:: terminal_proof top e_pr))
    | META.Command_fix_let (l, l_let, o_exp, _) => (fn st => st
-     |> proof_show_gen (fn st => st
-       |> cons (@{command_keyword fix}, Toplevel.proof
+     |> proof_show_gen top (fn st => st
+       |>:: (@{command_keyword fix}, #proof top
             (Proof.fix_cmd (List.map (fn i => (To_sbinding i, NONE, NoSyn)) l)))
        |> fold cons_let l_let)
           ( case o_exp of NONE => thesis | SOME (l_spec, _) => 
@@ -435,15 +457,15 @@ val semi__command_proof = let open META_overload
           , case o_exp of NONE => [] | SOME (_, l_when) => List.map of_semi__term l_when))
 end
 
-val cons_end =
-     cons (@{command_keyword end}, Toplevel.exit o Toplevel.end_local_theory o Toplevel.close_target o
-        Toplevel.end_proof (K Proof.end_notepad))
+fun end' top =
+       (@{command_keyword end}, #tr_raw top (Toplevel.exit o Toplevel.end_local_theory o Toplevel.close_target o
+        Toplevel.end_proof (K Proof.end_notepad)))
 
-val semi__theory = let open META open META_overload
+fun semi__theory (top : ('transitionM, 'transitionM, 'state, Toplevel.transition -> Toplevel.transition) toplevel) = let open META open META_overload
   fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
  in (*let val f = *)fn
   Theory_datatype (Datatype (n, l)) =>
-     cons (@{command_keyword datatype}, Toplevel.local_theory NONE NONE
+  cons (@{command_keyword datatype}, #local_theory top NONE NONE
      (BNF_FP_Def_Sugar.co_datatype_cmd
         BNF_Util.Least_FP
         BNF_LFP.construct_lfp
@@ -455,37 +477,37 @@ val semi__theory = let open META open META_overload
             , (To_binding "", To_binding ""))
           , [])])))
 | Theory_type_synonym (Type_synonym (n, v, l)) => (*Toplevel.local_theory*)
-     cons (@{command_keyword type_synonym}, Toplevel.theory (fn thy => let val s_bind = To_sbinding n in
+  cons (@{command_keyword type_synonym}, #theory top (fn thy => let val s_bind = To_sbinding n in
      (snd o Typedecl.abbrev_global
               (s_bind, map To_string0 v, NoSyn)
               (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (of_semi__typ l))) thy end))
 | Theory_type_notation (Type_notation (n, e)) =>
-     cons (@{command_keyword type_notation}, Toplevel.local_theory NONE NONE
+  cons (@{command_keyword type_notation}, #local_theory top NONE NONE
      (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))]))
 | Theory_instantiation (Instantiation (n, n_def, expr)) => let val name = To_string0 n in fn acc => acc
-  |> cons (@{command_keyword instantiation}, Toplevel.begin_local_theory true (fn thy => thy
+  |>:: (@{command_keyword instantiation}, #begin_local_theory top true (fn thy => thy
     |> Class.instantiation ([ let val Term.Type (s, _) = Isabelle_Typedecl.abbrev_cmd0 NONE thy name in s end ],
                             [],
                             Syntax.read_sort (Proof_Context.init_global thy) "object")))
-  |> cons (@{command_keyword definition}, Toplevel.local_theory' NONE NONE (fn ctxt => ctxt
+  |>:: (@{command_keyword definition}, #local_theory' top NONE NONE (fn ctxt => ctxt
     |> #2 oo Specification.definition_cmd ( NONE
                                           , ( (To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), [])
                                             , of_semi__term expr))))
-  |> cons (@{command_keyword instance}, Toplevel.local_theory_to_proof NONE NONE (Class.instantiation_instance I))
-  |> cons (@{command_keyword ".."}, Isar_Cmd.default_proof)
-  |> cons_end end
+  |>:: (@{command_keyword instance}, #local_theory_to_proof top NONE NONE (Class.instantiation_instance I))
+  |>:: (@{command_keyword ".."}, #tr_raw top Isar_Cmd.default_proof)
+  |>:: end' top end
 | Theory_overloading (Overloading (n_c, e_c, n, e)) => (fn acc => acc
-  |> cons (@{command_keyword overloading}, Toplevel.begin_local_theory true (Overloading.overloading_cmd [(To_string0 n_c, of_semi__term e_c, true)]))
-  |> cons (@{command_keyword definition}, Toplevel.local_theory' NONE NONE (fn ctxt => ctxt
+  |>:: (@{command_keyword overloading}, #begin_local_theory top true (Overloading.overloading_cmd [(To_string0 n_c, of_semi__term e_c, true)]))
+  |>:: (@{command_keyword definition}, #local_theory' top NONE NONE (fn ctxt => ctxt
     |> #2 oo Specification.definition_cmd (NONE, ((To_sbinding n, []), of_semi__term e))))
-  |> cons_end)
+  |>:: end' top)
 | Theory_consts (Consts (n, ty, symb)) => 
-     cons (@{command_keyword consts}, Toplevel.theory 
+  cons (@{command_keyword consts}, #theory top 
      (Sign.add_consts_cmd [( To_sbinding n
                           , of_semi__typ ty
                           , Mixfix ("(_) " ^ To_string0 symb, [], 1000))]))
 | Theory_definition def =>
-     cons (@{command_keyword definition}, Toplevel.local_theory' NONE NONE
+  cons (@{command_keyword definition}, #local_theory' top NONE NONE
      let val (def, e) = case def of
         Definition e => (NONE, e)
       | Definition_where1 (name, (abbrev, prio), e) =>
@@ -498,7 +520,7 @@ val semi__theory = let open META open META_overload
                 , Mixfix ("(" ^ of_semi__term abbrev ^ ")", [], 1000)), e) in fn ctxt => ctxt
     |> #2 oo Specification.definition_cmd (def, ((@{binding ""}, []), of_semi__term e)) end)
 | Theory_lemmas lemmas =>
-     cons (@{command_keyword lemmas}, Toplevel.local_theory' NONE NONE (fn disp => fn lthy =>
+  cons (@{command_keyword lemmas}, #local_theory' top NONE NONE (fn disp => fn lthy =>
      let val (simp, s, l) =
        case lemmas of Lemmas_simp_thm (simp, s, l) =>
                         (simp, s, map (fn x => ([semi__thm_attribute_single lthy x], [])) l)
@@ -511,15 +533,15 @@ val semi__theory = let open META open META_overload
        []
        disp) lthy end))
 | Theory_lemma (Lemma (n, l_spec, l_apply, o_by)) => (fn acc => acc 
-  |> cons (@{command_keyword lemma}, Toplevel.local_theory_to_proof' NONE NONE
+  |>:: (@{command_keyword lemma}, #local_theory_to_proof' top NONE NONE
        (Specification.theorem_cmd Thm.theoremK NONE (K I)
          (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
                                                    ,[((String.concatWith (" \<Longrightarrow> ")
                                                          (List.map of_semi__term l_spec)), [])])])))
-  |> fold (semi__command_proof o META.Command_apply) l_apply
-  |> cons (terminal_proof o_by))
+  |> fold (semi__command_proof top o META.Command_apply) l_apply
+  |>:: terminal_proof top o_by)
 | Theory_lemma (Lemma_assumes (n, l_spec, concl, l_apply, o_by)) => (fn acc => acc 
-  |> cons (@{command_keyword lemma}, Toplevel.local_theory_to_proof' NONE NONE
+  |>:: (@{command_keyword lemma}, #local_theory_to_proof' top NONE NONE
        (Specification.theorem_cmd Thm.theoremK NONE (K I)
          (To_sbinding n, [])
              []
@@ -529,9 +551,9 @@ val semi__theory = let open META open META_overload
                                           , [(of_semi__term e, [])])])
                        l_spec)
              (Element.Shows [((@{binding ""}, []),[(of_semi__term concl, [])])])))
-  |> fold semi__command_proof l_apply
+  |> fold (semi__command_proof top) l_apply
   |> (fn st => st
-    |> cons (terminal_proof o_by) 
+    |>:: terminal_proof top o_by
     |> (case map_filter (fn META.Command_let _ => SOME []
                           | META.Command_have _ => SOME []
                           | META.Command_fix_let (_, _, _, l) => SOME l
@@ -540,46 +562,46 @@ val semi__theory = let open META open META_overload
         [] => I
       | _ :: l =>
         let fun cons_qed m =
-     cons (@{command_keyword qed}, (Option.map Method.report m; Isar_Cmd.qed m)) in fn st => st
-        |> fold (fn l => fold semi__command_state l o cons_qed NONE) l
+  cons (@{command_keyword qed}, #tr_report_o top m (#tr_raw top (Isar_Cmd.qed m))) in fn st => st
+        |> fold (fn l => fold (semi__command_state top) l o cons_qed NONE) l
         |> cons_qed NONE end)))
 | Theory_axiomatization (Axiomatization (n, e)) =>
-     cons (@{command_keyword axiomatization}, Toplevel.theory 
+  cons (@{command_keyword axiomatization}, #theory top 
      (#2 o Specification.axiomatization_cmd []
                                             [((To_sbinding n, []), [of_semi__term e])]))
 | Theory_section (Section (n, s)) => let val n = To_nat n in fn st => st
-  |> cons (case n of 0 =>
-           @{command_keyword section} | 1 =>
-           @{command_keyword subsection} | _ =>
-           @{command_keyword subsubsection},
-     Thy_Output.document_command {markdown = false} (NONE, Input.string (To_string0 s)))
-  |> cons (@{command_keyword print_syntax}, Toplevel.keep
+  |>:: (case n of 0 =>
+        @{command_keyword section} | 1 =>
+        @{command_keyword subsection} | _ =>
+        @{command_keyword subsubsection},
+     #tr_raw top (Thy_Output.document_command {markdown = false} (NONE, Input.string (To_string0 s))))
+  |>:: (@{command_keyword print_syntax}, #keep top
      (fn _ =>
       let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1) in
         out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) n) ""
       end)) end
 | Theory_text (Text s) =>
-     cons (@{command_keyword text},
-     Thy_Output.document_command {markdown = true} (NONE, Input.string (To_string0 s)))
+  cons (@{command_keyword text},
+     #tr_raw top (Thy_Output.document_command {markdown = true} (NONE, Input.string (To_string0 s))))
 | Theory_text_raw (Text_raw s) =>
-     cons (@{command_keyword text_raw},
-     Thy_Output.document_command {markdown = true} (NONE, Input.string (To_string0 s)))
+  cons (@{command_keyword text_raw},
+     #tr_raw top (Thy_Output.document_command {markdown = true} (NONE, Input.string (To_string0 s))))
 | Theory_ML (SML ml) => 
-     cons (@{command_keyword ML}, Toplevel.generic_theory
+  cons (@{command_keyword ML}, #generic_theory top
        (ML_Context.exec let val source = input_source ml in
          fn () => ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source end #>
          Local_Theory.propagate_ml_env))
 | Theory_setup (Setup ml) =>
-     cons (@{command_keyword setup}, Toplevel.theory (Isar_Cmd.setup (input_source ml)))
+  cons (@{command_keyword setup}, #theory top (Isar_Cmd.setup (input_source ml)))
 | Theory_thm (Thm thm) => (fn st => st
-  |> cons (@{command_keyword thm}, Toplevel.keep (fn state =>
-    let val lthy = Toplevel.context_of state in
+  |>:: (@{command_keyword thm}, #keep top (fn state =>
+    let val lthy = #context_of top state in
       Print_Mode.with_modes [] (fn () => writeln
         (Pretty.string_of
           (Proof_Context.pretty_fact lthy ("", List.map (semi__thm_attribute_single lthy) thm)))) ()
     end)))
 | Theory_interpretation (Interpretation (n, loc_n, loc_param, o_by)) => (fn st => st
-  |> cons (@{command_keyword interpretation}, Toplevel.local_theory_to_proof NONE NONE
+  |>:: (@{command_keyword interpretation}, #local_theory_to_proof top NONE NONE
      (Interpretation.interpretation_cmd ( [ ( (To_string0 loc_n, Position.none)
                                             , ( (To_string0 n, true)
                                               , if loc_param = [] then
@@ -589,7 +611,7 @@ val semi__theory = let open META open META_overload
                                                                              loc_param)))]
                                         , [])
                                         []))
-  |> cons (terminal_proof o_by))
+  |>:: terminal_proof top o_by)
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
@@ -663,8 +685,8 @@ val semi__command_proof = let open META_overload
                       , case o_exp of NONE => [] | SOME (_, l_when) => List.map of_semi__term l_when)
 end
 
-fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overload in (*let val f = *)fn
-  Theory_datatype (Datatype (n, l)) => (*Toplevel.local_theory*) #local_theory top
+fun semi__theory (top : ('transitionM, 'transitionM, 'state, 'raw) toplevel) = let open META open META_overload in (*let val f = *)fn
+  Theory_datatype (Datatype (n, l)) => (*Toplevel.local_theory*) #local_theory top NONE NONE
    (BNF_FP_Def_Sugar.co_datatype_cmd
       BNF_Util.Least_FP
       BNF_LFP.construct_lfp
@@ -682,7 +704,7 @@ fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overloa
               (s_bind, map To_string0 v, NoSyn)
               (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (of_semi__typ l))) thy
      end)
-| Theory_type_notation (Type_notation (n, e)) => (*Toplevel.local_theory*) #local_theory top
+| Theory_type_notation (Type_notation (n, e)) => (*Toplevel.local_theory*) #local_theory top NONE NONE
    (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
 | Theory_instantiation (Instantiation (n, n_def, expr)) => (*Toplevel.begin_local_theory*) #theory top
    (fn thy =>
@@ -711,7 +733,7 @@ fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overloa
    (Sign.add_consts_cmd [( To_sbinding n
                         , of_semi__typ ty
                         , Mixfix ("(_) " ^ To_string0 symb, [], 1000))])
-| Theory_definition def => (*Toplevel.local_theory'*) #local_theory top
+| Theory_definition def => (*Toplevel.local_theory'*) #local_theory top NONE NONE
     let val (def, e) = case def of
         Definition e => (NONE, e)
       | Definition_where1 (name, (abbrev, prio), e) =>
@@ -724,21 +746,21 @@ fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overloa
                 , Mixfix ("(" ^ of_semi__term abbrev ^ ")", [], 1000)), e) in
     (snd o Specification.definition_cmd (def, ((@{binding ""}, []), of_semi__term e)) false)
     end
-| Theory_lemmas (Lemmas_simp_thm (simp, s, l)) => (*Toplevel.local_theory'*) #local_theory top
+| Theory_lemmas (Lemmas_simp_thm (simp, s, l)) => (*Toplevel.local_theory'*) #local_theory top NONE NONE
    (fn lthy => (snd o Specification.theorems Thm.theoremK
       [((To_sbinding s, List.map (fn s => Attrib.check_src lthy [Token.make_string (s, Position.none)])
                           (if simp then ["simp", "code_unfold"] else [])),
         List.map (fn x => ([semi__thm_attribute_single lthy x], [])) l)]
       []
       false) lthy)
-| Theory_lemmas (Lemmas_simp_thms (s, l)) => (*Toplevel.local_theory'*) #local_theory top
+| Theory_lemmas (Lemmas_simp_thms (s, l)) => (*Toplevel.local_theory'*) #local_theory top NONE NONE
    (fn lthy => (snd o Specification.theorems Thm.theoremK
       [((To_sbinding s, List.map (fn s => Attrib.check_src lthy [Token.make_string (s, Position.none)])
                           ["simp", "code_unfold"]),
         List.map (fn x => (Proof_Context.get_thms lthy (To_string0 x), [])) l)]
       []
       false) lthy)
-| Theory_lemma (Lemma (n, l_spec, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) #local_theory top
+| Theory_lemma (Lemma (n, l_spec, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) #local_theory top NONE NONE
    (fn lthy =>
            Specification.theorem_cmd Thm.theoremK NONE (K I)
              (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
@@ -747,7 +769,7 @@ fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overloa
              false lthy
         |> fold (semi__command_proof o META.Command_apply) l_apply
         |> global_terminal_proof o_by)
-| Theory_lemma (Lemma_assumes (n, l_spec, concl, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) #local_theory top
+| Theory_lemma (Lemma_assumes (n, l_spec, concl, l_apply, o_by)) => (*Toplevel.local_theory_to_proof'*) #local_theory top NONE NONE
    (fn lthy => lthy
         |> Specification.theorem_cmd Thm.theoremK NONE (K I)
              (To_sbinding n, [])
@@ -794,7 +816,7 @@ fun semi__theory (top : ('a, 'state) toplevel) = let open META open META_overloa
         (Pretty.string_of
           (Proof_Context.pretty_fact lthy ("", List.map (semi__thm_attribute_single lthy) thm)))
     end)
-| Theory_interpretation (Interpretation (n, loc_n, loc_param, o_by)) => (*Toplevel.local_theory_to_proof*) #local_theory top
+| Theory_interpretation (Interpretation (n, loc_n, loc_param, o_by)) => (*Toplevel.local_theory_to_proof*) #local_theory top NONE NONE
    (fn lthy => lthy
     |> Interpretation.interpretation_cmd ( [ ( (To_string0 loc_n, Position.none)
                                          , ( (To_string0 n, true)
@@ -864,14 +886,14 @@ local
           end)
 in
 
-fun all_meta_tr aux ret = fn
+fun all_meta_tr top aux ret = fn
   META_semi_theories thy => ret o
     (case thy of
-       Theories_one thy => Command_Transition.semi__theory thy
+       Theories_one thy => Command_Transition.semi__theory top thy
      | Theories_locale (data, l) => fn acc => acc
-       |> cons (@{command_keyword locale}, Toplevel.begin_local_theory true (semi__locale data))
-       |> fold (fold Command_Transition.semi__theory) l
-       |> Command_Transition.cons_end)
+       |>:: (@{command_keyword locale}, #begin_local_theory top true (semi__locale data))
+       |> fold (fold (Command_Transition.semi__theory top)) l
+       |>:: Command_Transition.end' top)
 | META_boot_generation_syntax _ => ret o I
 | META_boot_setup_env _ => ret o I
 | META_all_meta_embedding meta => aux (semi__aux NONE meta)
@@ -1545,21 +1567,26 @@ fun thy_shallow get_all_meta_embed =
               fold_thy_shallow
                 (K o K thy0)
                 (fn msg =>
-                  let val () = disp_time msg () in
+                  let val () = disp_time msg ()
+                      fun not_used _ = error "not used"
+                      fun K_not_used _ _ = error "not used"
+                      fun KK_not_used _ _ _ = error "not used" in
                   fn l => fn (env, thy) =>
                   Bind_META.all_meta_thy { theory = I
-                                         , local_theory = in_local
+                                         , local_theory = (K o K) in_local
                                          , keep = fn f => in_local (fn lthy => (f lthy ; lthy))
-                                         , context_of = I }
-                                         let val local_theory = (fn f => fn lthy => lthy
+                                         , context_of = I
+                                         , generic_theory = not_used, begin_local_theory = K_not_used, local_theory' = KK_not_used, local_theory_to_proof' = KK_not_used, local_theory_to_proof = KK_not_used, proof' = not_used, proofs = not_used, proof = not_used, tr_report = K_not_used, tr_report_o = K_not_used, tr_raw = not_used, pr_report = K_not_used, pr_report_o = K_not_used, pr_raw = not_used, dual = not_used }
+                                         let fun local_theory f lthy = lthy
                                                    |> Local_Theory.new_group
                                                    |> f
                                                    |> Local_Theory.reset_group
-                                                   |> Local_Theory.restore) in
+                                                   |> Local_Theory.restore in
                                            { theory = Local_Theory.background_theory
-                                           , local_theory = local_theory
+                                           , local_theory = (K o K) local_theory
                                            , keep = fn f => local_theory (fn lthy => (f lthy ; lthy))
-                                           , context_of = I }
+                                           , context_of = I
+                                           , generic_theory = not_used, begin_local_theory = K_not_used, local_theory' = KK_not_used, local_theory_to_proof' = KK_not_used, local_theory_to_proof = KK_not_used, proof' = not_used, proofs = not_used, proof = not_used, tr_report = K_not_used, tr_report_o = K_not_used, tr_raw = not_used, pr_report = K_not_used, pr_report_o = K_not_used, pr_raw = not_used, dual = not_used }
                                          end
                                          (fn x => fn thy => aux (env, thy) [x])
                                          (pair env)
@@ -1635,7 +1662,27 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                             (K (cons (Toplevel'.read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
                             (fn msg => fn l => fn (env, acc) => acc
                               |> disp_time msg
-                              |> Bind_META.all_meta_tr (fn x => fn acc => aux (env, acc) [x])
+                              |> Bind_META.all_meta_tr { context_of = Toplevel.context_of
+                                                       , keep = Toplevel.keep
+                                                       , generic_theory = Toplevel.generic_theory
+                                                       , theory = Toplevel.theory
+                                                       , begin_local_theory = Toplevel.begin_local_theory
+                                                       , local_theory' = Toplevel.local_theory'
+                                                       , local_theory = Toplevel.local_theory
+                                                       , local_theory_to_proof' = Toplevel.local_theory_to_proof'
+                                                       , local_theory_to_proof = Toplevel.local_theory_to_proof
+                                                       , proof' = Toplevel.proof'
+                                                       , proofs = Toplevel.proofs
+                                                       , proof = Toplevel.proof
+
+                                                       , tr_report = fn m => fn a => (Method.report m; a)
+                                                       , tr_report_o = fn m => fn a => (Option.map Method.report m; a)
+                                                       , tr_raw = I
+                                                       , pr_report = fn m => fn a => (Method.report m; a)
+                                                       , pr_report_o = fn m => fn a => (Option.map Method.report m; a)
+                                                       , pr_raw = I
+                                                       , dual = fn d => #par d }
+                                                       (fn x => fn acc => aux (env, acc) [x])
                                                        (pair env)
                                                        l)
                             x
