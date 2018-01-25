@@ -1449,8 +1449,6 @@ fun thy_shallow get_all_meta_embed =
                                          |> Local_Theory.reset_group
                                          |> Local_Theory.restore
                       fun not_used p _ = error ("not used " ^ Position.here p)
-                      fun K_not_used p _ _ = error ("not used " ^ Position.here p)
-                      fun KK_not_used p _ _ _ = error ("not used " ^ Position.here p)
                       val context_of = I
                       fun proof' f = f true
                       fun proofs f s = s |> f |> Seq.the_result ""
@@ -1459,8 +1457,8 @@ fun thy_shallow get_all_meta_embed =
                   fn l => fn (env, thy) =>
                   Bind_META.all_meta_thy { (* specialized part *)
                                            theory = I
-                                         , local_theory = (K o K) in_local
-                                         , local_theory' = (K o K) (fn f => in_local (f false))
+                                         , local_theory = K o K in_local
+                                         , local_theory' = K o K (fn f => in_local (f false))
                                          , keep = fn f => in_local (fn lthy => (f lthy ; lthy))
                                          , generic_theory = Context.theory_map
                                            (* generic part *)
@@ -1469,15 +1467,15 @@ fun thy_shallow get_all_meta_embed =
                                          , tr_report = report, tr_report_o = report_o
                                          , pr_report = report, pr_report_o = report_o
                                            (* irrelevant part *)
-                                         , begin_local_theory = K_not_used @{here}
-                                         , local_theory_to_proof' = KK_not_used @{here}
-                                         , local_theory_to_proof = KK_not_used @{here}
+                                         , begin_local_theory = K o not_used @{here}
+                                         , local_theory_to_proof' = K o K not_used @{here}
+                                         , local_theory_to_proof = K o K not_used @{here}
                                          , tr_raw = not_used @{here} }
 
                                          { (* specialized part *)
                                            theory = Local_Theory.background_theory
-                                         , local_theory = (K o K) in_self
-                                         , local_theory' = (K o K) (fn f => in_self (f false))
+                                         , local_theory = K o K in_self
+                                         , local_theory' = K o K (fn f => in_self (f false))
                                          , keep = fn f => in_self (fn lthy => (f lthy ; lthy))
                                          , generic_theory = Context.proof_map
                                            (* generic part *)
@@ -1486,9 +1484,9 @@ fun thy_shallow get_all_meta_embed =
                                          , tr_report = report, tr_report_o = report_o
                                          , pr_report = report, pr_report_o = report_o
                                            (* irrelevant part *)
-                                         , begin_local_theory = K_not_used @{here}
-                                         , local_theory_to_proof' = KK_not_used @{here}
-                                         , local_theory_to_proof = KK_not_used @{here}
+                                         , begin_local_theory = K o not_used @{here}
+                                         , local_theory_to_proof' = K o K not_used @{here}
+                                         , local_theory_to_proof = K o K not_used @{here}
                                          , tr_raw = not_used @{here} }
 
                                          (fn x => fn thy => aux (env, thy) [x])
