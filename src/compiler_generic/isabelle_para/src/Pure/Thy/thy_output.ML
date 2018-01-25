@@ -400,6 +400,13 @@ in
 
 fun present_thy thy command_results toks =
   let
+    fun split_trans [] acc = rev acc
+      | split_trans (x :: xs) acc =
+          case take_prefix let val pos_of = Toplevel.pos_of o fst
+                               val p = pos_of x in fn t => p = pos_of t end
+                           xs of
+               (xs1, xs2) => split_trans xs2 ((x :: xs1) :: acc);
+    val command_results = split_trans command_results [];
     val keywords = Thy_Header.get_keywords thy;
 
 
@@ -484,7 +491,7 @@ fun present_thy thy command_results toks =
   in
     if length command_results = length spans then
       ((NONE, []), NONE, true, Buffer.empty, (I, I))
-      |> present Toplevel.toplevel (command_results ~~ spans)
+      |> present Toplevel.toplevel (map (apfst List.last) (command_results ~~ spans))
       |> present_trailer
     else error "Messed-up outer syntax for presentation"
   end;
