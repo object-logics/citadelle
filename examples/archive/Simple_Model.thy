@@ -44,7 +44,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-header{* Part ... *}
+chapter{* Part ... *}
 
 theory Simple_Model
   imports "../../src/UML_OCL"

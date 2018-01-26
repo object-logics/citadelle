@@ -44,7 +44,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-header{* Gogolla's challenge on Sets *}
+chapter{* Gogolla's challenge on Sets *}
 
 theory
   Isabelle_Finite_Set

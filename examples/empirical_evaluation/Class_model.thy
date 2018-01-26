@@ -44,7 +44,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-header{* Part ... *}
+chapter{* Part ... *}
 
 theory  Class_model
 imports "../../src/compiler/core/Core_init"

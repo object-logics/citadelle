@@ -44,7 +44,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-header\<open>Part ...\<close>
+chapter\<open>Part ...\<close>
 
 theory Aux_proof
 imports Main

@@ -45,7 +45,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-header{* Example: Abstract List *}
+chapter{* Example: Abstract List *}
 
 theory
   AbstractList

@@ -47,7 +47,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-header{* Example: Linked List *}
+chapter{* Example: Linked List *}
 
 theory
   LinkedList

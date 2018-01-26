@@ -42,7 +42,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-header {* Basic Monad Theory for Sequential Computations *}
+chapter {* Basic Monad Theory for Sequential Computations *}
 
 theory Monads imports Main
 begin 
