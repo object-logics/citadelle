@@ -170,7 +170,7 @@ definition "Of_Cons = \<open>Cons\<close>"
 definition "Of_None = \<open>None\<close>"
 definition "Of_Some = \<open>Some\<close>"
 
-(* *)
+(* recursor types *)
 
 definition "of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
   (ap2 a (b Of_Pair) f1 f2)"
@@ -183,7 +183,7 @@ definition "of_option a b f = rec_option
   (b Of_None)
   (ap1 a (b Of_Some) f)"
 
-(* *)
+(* ground types *)
 
 definition "of_unit b = case_unit
   (b \<open>()\<close>)"
@@ -192,31 +192,10 @@ definition of_bool where "of_bool b = case_bool
   (b \<open>True\<close>)
   (b \<open>False\<close>)"
 
-definition "of_nibble b = rec_nibble
-  (b \<open>Nibble0\<close>)
-  (b \<open>Nibble1\<close>)
-  (b \<open>Nibble2\<close>)
-  (b \<open>Nibble3\<close>)
-  (b \<open>Nibble4\<close>)
-  (b \<open>Nibble5\<close>)
-  (b \<open>Nibble6\<close>)
-  (b \<open>Nibble7\<close>)
-  (b \<open>Nibble8\<close>)
-  (b \<open>Nibble9\<close>)
-  (b \<open>NibbleA\<close>)
-  (b \<open>NibbleB\<close>)
-  (b \<open>NibbleC\<close>)
-  (b \<open>NibbleD\<close>)
-  (b \<open>NibbleE\<close>)
-  (b \<open>NibbleF\<close>)"
-
-definition "of_char a b = rec_char
-  (ap2 a (b \<open>Char\<close>) (of_nibble b) (of_nibble b))"
-
 definition "of_string_gen s_flatten s_st0 s_st a b s = 
   b (let s = textstr_of_str (\<lambda>c. \<open>(\<close> @@ s_flatten @@ \<open> \<close> @@ c @@ \<open>)\<close>)
-                            (\<lambda>Char n1 n2 \<Rightarrow>
-                                 s_st0 (S.flatten [\<open> (\<close>, \<open>Char \<close>, of_nibble id n1, \<open> \<close>, of_nibble id n2, \<open>)\<close>]))
+                            (\<lambda>c \<Rightarrow>
+                                 s_st0 (S.flatten [\<open> (\<close>, \<open>CHR 0x\<close>, String.char_to_digit16 c, \<open>)\<close>]))
                             (\<lambda>c. s_st (S.flatten [\<open> (\<close>, c, \<open>)\<close>]))
                             s in
      S.flatten [ \<open>(\<close>, s, \<open>)\<close> ])"
@@ -231,7 +210,7 @@ definition "of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b s = of_string_gen \<op
                                                    b
                                                    (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String s)"
 
-definition of_nat where "of_nat a b = b o String.of_natural"
+definition of_nat where "of_nat a b = b o String.natural_to_digit10"
 
 end
 
@@ -270,8 +249,6 @@ lemmas [code] =
   Parse_Isabelle.of_option_def
   Parse_Isabelle.of_unit_def
   Parse_Isabelle.of_bool_def
-  Parse_Isabelle.of_nibble_def
-  Parse_Isabelle.of_char_def
   Parse_Isabelle.of_string_gen_def
   Parse_Isabelle.of_string_def
   Parse_Isabelle.of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
@@ -316,27 +293,24 @@ definition of_bool where "of_bool b = case_bool
   (b \<open>true\<close>)
   (b \<open>false\<close>)"
 
-definition' \<open>sml_escape =
-  String.replace_chars (\<lambda>x. if x = Char Nibble0 NibbleA then \<open>\n\<close>
-                            else if x = Char Nibble0 Nibble5 then \<open>\005\<close>
-                            else if x = Char Nibble0 Nibble6 then \<open>\006\<close>
-                            else if x = Char Nibble7 NibbleF then \<open>\127\<close>
+definition \<open>sml_escape =
+  String.replace_chars (\<lambda>x. if x = CHR 0x0A then \<open>\n\<close>
+                            else if x = CHR 0x05 then \<open>\005\<close>
+                            else if x = CHR 0x06 then \<open>\006\<close>
+                            else if x = CHR 0x7F then \<open>\127\<close>
                             else \<degree>x\<degree>)\<close>
-text \<open>Because of @{theory "Code_Char"}, it is not possible of extracting
-@{term "\<lambda> Char Nibble0 NibbleA \<Rightarrow> \<open>\<close>
-        | x \<Rightarrow> \<degree>x\<degree>"}.\<close>
 
-definition' \<open>of_string a b =
+definition \<open>of_string a b =
  (\<lambda>x. b (S.flatten [ \<open>(META.SS_base (META.ST "\<close>
                   , sml_escape x
                   , \<open>"))\<close>]))\<close>
 
-definition' \<open>of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
+definition \<open>of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b =
  (\<lambda>x. b (S.flatten [ \<open>(META.ST "\<close>
                   , sml_escape (String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_String x)
                   , \<open>")\<close>]))\<close>
 
-definition of_nat where "of_nat a b = (\<lambda>x. b (S.flatten [\<open>(Code_Numeral.Nat \<close>, String.of_natural x, \<open>)\<close>]))"
+definition of_nat where "of_nat a b = (\<lambda>x. b (S.flatten [\<open>(Code_Numeral.natural_of_integer \<close>, String.natural_to_digit10 x, \<open>)\<close>]))"
 
 end
 

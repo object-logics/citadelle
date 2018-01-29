@@ -128,7 +128,7 @@ definition "txt f = Embedding_fun_simple (start_map'''' O.text o (\<lambda>_ des
 definition "txt' s = txt (\<lambda>_. s)"
 definition "txt'' = txt' o S.flatten"
 
-definition' thy_class ::
+definition thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "_ embedding'" where \<open>thy_class =
  (let section = section' o (\<lambda>s. \<open>Class Model: \<close> @@ s) in
