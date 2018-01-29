@@ -299,15 +299,11 @@ subsection{* ... *}
 
 ML {*
   local
-    val mk_nib =
-      Syntax.const o Lexicon.mark_const o
-        fst o Term.dest_Const o HOLogic.mk_nibble;
-
     fun mk_char (s, _) accu =
         fold
           (fn c => fn l =>
                Syntax.const @{const_syntax Cons}
-             $ (Syntax.const @{const_syntax Char} $ mk_nib (c div 16) $ mk_nib (c mod 16))
+             $ (Syntax.const @{const_syntax Char} $ HOLogic.mk_numeral c)
              $ l)
           (rev (map Char.ord (String.explode s)))
           accu;

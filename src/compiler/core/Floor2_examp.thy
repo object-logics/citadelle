@@ -246,7 +246,7 @@ definition "print_examp_def_st_perm = (\<lambda> _ env.
          | [_] \<Rightarrow> ([], C.by [M.simp_add [d name]])
          | _ \<Rightarrow>
            ( [ M.simp_add [d name]]
-             # L.flatten (L.map (\<lambda>i_max. L.map (\<lambda>i. [M.subst_l (L.map String.of_nat [i_max - i]) (T.thm \<open>fun_upd_twist\<close>), print_examp_def_st_locale_metis]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
+             # L.flatten (L.map (\<lambda>i_max. L.map (\<lambda>i. [M.subst_l (L.map String.nat_to_digit10 [i_max - i]) (T.thm \<open>fun_upd_twist\<close>), print_examp_def_st_locale_metis]) (List.upt 0 i_max)) (List.upt 1 (List.length l_st)))
            , C.by [M.simp]) in
    case expr_app of None \<Rightarrow> [] | Some expr_app \<Rightarrow>
    [ Lemma
@@ -458,7 +458,7 @@ definition "print_transition_where = get_state (\<lambda> (s_pre, l_pre) (s_post
        L.map
          (\<lambda> (OclDefCoreBinding (name, ocli), name_st) \<Rightarrow>
            Lemma_assumes
-             (S.flatten [var_oid_uniq, String.of_natural (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, \<open>_\<close>, name_st, \<open>_\<close>, x_where])
+             (S.flatten [var_oid_uniq, String.natural_to_digit10 (case x_pers_oid of Oid i \<Rightarrow> i), s_pre, s_post, \<open>_\<close>, name_st, \<open>_\<close>, x_where])
              [(\<open>\<close>, True, Term_rewrite (a \<open>oid_of\<close> (b (print_examp_instance_name (\<lambda>s. s @@ String.isub (inst_ty ocli)) (inst_name ocli))))
                                       \<open>=\<close>
                                       (Term_oid var_oid_uniq x_pers_oid))]
@@ -490,7 +490,7 @@ definition "print_transition_lemmas_oid = get_state (\<lambda> (s_pre, l_pre) (s
                                     (L.flatten (L.map (L.map (T.thm o hol_definition) o f) l_pp))))
          [ (\<open>pp_oid_\<close>, (\<lambda>(cpt, _) # _ \<Rightarrow>
                          [ S.flatten [ var_oid_uniq
-                                     , String.of_natural (case oidGetInh cpt of Oid i \<Rightarrow> i) ]]))
+                                     , String.natural_to_digit10 (case oidGetInh cpt of Oid i \<Rightarrow> i) ]]))
          , (\<open>pp_object_\<close>, L.map (\<lambda>(_, ocli) \<Rightarrow> inst_name ocli))
          , (\<open>pp_object_ty_\<close>, L.map (\<lambda>(_, ocli) \<Rightarrow>
                                print_examp_instance_name

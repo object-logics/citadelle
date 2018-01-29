@@ -148,11 +148,11 @@ definition "str_of_def_base = (\<lambda> OclDefInteger _ \<Rightarrow> \<open>In
                                | OclDefReal _ \<Rightarrow> \<open>Real\<close>
                                | OclDefString _ \<Rightarrow> \<open>String\<close>)"
 
-fun' str_of_data_shallow where
-    \<open>str_of_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> str_of_def_base b
-                              | ShallB_str s \<Rightarrow> \<open>"\<close> @@ s @@ \<open>"\<close>
-                              | ShallB_self _ \<Rightarrow> \<open>(*object_oid*)\<close>
-                              | ShallB_list l \<Rightarrow> \<open>[ \<close> @@ String_concatWith \<open>, \<close> (List.map str_of_data_shallow l) @@ \<open> ]\<close>) e\<close>
+fun str_of_data_shallow where
+   \<open>str_of_data_shallow e = (\<lambda> ShallB_term b \<Rightarrow> str_of_def_base b
+                             | ShallB_str s \<Rightarrow> \<open>"\<close> @@ s @@ \<open>"\<close>
+                             | ShallB_self _ \<Rightarrow> \<open>(*object_oid*)\<close>
+                             | ShallB_list l \<Rightarrow> \<open>[ \<close> @@ String_concatWith \<open>, \<close> (List.map str_of_data_shallow l) @@ \<open> ]\<close>) e\<close>
 
 definition "map_inst_single_self f =
   map_instance_single

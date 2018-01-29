@@ -226,7 +226,7 @@ proof
       by(simp add: cont_def)
     also have "\<dots> = (f^^0){} \<union> \<dots>" by simp
     also have "\<dots> = ?U"
-      by(auto simp del: funpow.simps) (metis not0_implies_Suc)
+      by(auto simp del: funpow.simps) (metis empty_iff funpow_0 old.nat.exhaust)
     finally show "f ?U \<subseteq> ?U" by simp
   qed
 next
@@ -828,10 +828,10 @@ lemma assert_disch3 :" \<not> P \<sigma> \<Longrightarrow> \<not> (\<sigma> \<Tu
 by(auto simp: bind_SE_def assert_SE_def valid_SE_def)
 
 lemma assert_D : "(\<sigma> \<Turnstile> (x \<leftarrow> assert\<^sub>S\<^sub>E P; M x)) \<Longrightarrow> P \<sigma> \<and> (\<sigma> \<Turnstile> (M True))"
-by(auto simp: bind_SE_def assert_SE_def valid_SE_def split: HOL.split_if_asm)
+by(auto simp: bind_SE_def assert_SE_def valid_SE_def split: HOL.if_split_asm)
 
 lemma assume_D : "(\<sigma> \<Turnstile> (x \<leftarrow> assume\<^sub>S\<^sub>E P; M x)) \<Longrightarrow> \<exists> \<sigma>. (P \<sigma> \<and>  \<sigma> \<Turnstile> (M ()))"
-apply(auto simp: bind_SE_def assume_SE_def valid_SE_def split: HOL.split_if_asm)
+apply(auto simp: bind_SE_def assume_SE_def valid_SE_def split: HOL.if_split_asm)
 apply(rule_tac x="Eps P" in exI, auto)
 apply(rule_tac x="True" in exI, rule_tac x="b" in exI)
 apply(subst Hilbert_Choice.someI,assumption,simp)

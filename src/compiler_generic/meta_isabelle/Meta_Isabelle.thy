@@ -268,7 +268,7 @@ definition "Term_list' f l = Term_list (L.map f l)"
 definition "Term_pair e1 e2 = Term_parenthesis (Term_binop e1 \<open>,\<close> e2)"
 definition "Term_pair' l = (case l of [] \<Rightarrow> Term_basic [\<open>()\<close>] | _ \<Rightarrow> Term_paren \<open>(\<close> \<open>)\<close> (term_binop \<open>,\<close> l))"
 definition "Term_pairs' f l = Term_pair' (L.map f l)"
-definition' \<open>Term_string s = Term_basic [S.flatten [\<open>"\<close>, s, \<open>"\<close>]]\<close>
+definition \<open>Term_string s = Term_basic [S.flatten [\<open>"\<close>, s, \<open>"\<close>]]\<close>
 definition "Term_applys0 e l = Term_parenthesis (Term_apply e (L.map Term_parenthesis l))"
 definition "Term_applys e l = Term_applys0 (Term_parenthesis e) l"
 definition "Term_app e = Term_applys0 (Term_basic [e])"
@@ -280,7 +280,8 @@ definition "Term_term' = Term_term []"
 definition "Lemmas_simp = Lemmas_simp_thm True"
 definition "Lemmas_nosimp = Lemmas_simp_thm False"
 definition "Consts_value = \<open>(_)\<close>"
-definition "Consts_raw0 s l e o_arg = Consts s l (String.replace_chars (\<lambda>c. if c = Char Nibble5 NibbleF then \<open>'_\<close> else \<degree>c\<degree>) e @@ (case o_arg of
+definition "Consts_raw0 s l e o_arg =
+       Consts s l (String.replace_chars (\<lambda>c. if c = CHR 0x5F then \<open>'_\<close> else \<degree>c\<degree>) e @@ (case o_arg of
          None \<Rightarrow> \<open>\<close>
        | Some arg \<Rightarrow>
            let ap = \<lambda>s. \<open>'(\<close> @@ s @@ \<open>')\<close> in

@@ -88,7 +88,7 @@ definition "print_ctxt_is_name_at_post = (case String.to_list var_at_when_hol_po
                                         | _ \<Rightarrow> None)"
 
 definition "print_ctxt_to_ocl_gen_split s = 
- (case L.split_at (\<lambda> s. s = Char Nibble2 NibbleE) (String.to_list s) of
+ (case L.split_at (\<lambda> s. s = CHR 0x2E) (String.to_list s) of
     (_, Some _, s) \<Rightarrow> Some s
   | _ \<Rightarrow> None)"
 definition "print_ctxt_to_ocl_gen l_access f var =
@@ -130,7 +130,7 @@ definition "print_ctxt_pre_post_interp = (\<lambda>(sorry, dirty) name ctxt e_na
     Some (O.interpretation
       (Interpretation
         name
-        (\<open>contract\<close> @@ String.of_nat lg)
+        (\<open>contract\<close> @@ String.nat_to_digit10 lg)
         [ e_name
         , f e_pre
         , f e_post ]
@@ -229,7 +229,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                   ()
                   (case D_input_class env of Some class_spec \<Rightarrow> class_spec))))
         # raise_ml_unbound
-          (\<lambda>n pref. S.flatten [\<open>(\<close>, String.of_natural (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
+          (\<lambda>n pref. S.flatten [\<open>(\<close>, String.natural_to_digit10 (n + 1), \<open>) \<close>, if pref = OclCtxtPre then \<open>pre\<close> else \<open>post\<close>])
           l_ctxt in
   f (var_at_when_hol_post, var_at_when_ocl_post))
   (rev (fold_pre_post (\<lambda> l c. Cons (L.map (map_prod id snd) l, c)) ctxt []))))"

@@ -626,7 +626,7 @@ begin
  proof -
   have s_not_fin : "\<And>x S. \<not> (\<forall>\<tau>. finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>) \<Longrightarrow> f x S = \<bottom>" by (metis s_not_fin)
   show ?thesis
-   apply(default, simp add: comp_def)
+   apply(standard, simp add: comp_def)
    apply(rule ext, rename_tac S)
    apply(rule ext, rename_tac \<tau>)
    apply(case_tac "\<not> (\<forall>\<tau>. (\<tau> \<Turnstile> \<delta> S))", simp add: s_not_def s_bot)
@@ -651,7 +651,7 @@ lemma (*comp_to_EQ_comp_fun_commute0_gen0_bis'' :*)
 
  shows "EQ_comp_fun_commute0_gen0_bis'' f000 is_i is_i' all_i_set f"
 proof - interpret comp_fun_commute f by (rule f_comm) show ?thesis
-  apply(default)
+  apply(standard)
   apply(rule i_set, blast+)
   apply(rule i_set', blast+)
   apply(rule i_set'', blast+)
@@ -670,8 +670,8 @@ locale EQ_comp_fun_commute0_gen0_bis' = EQ_comp_fun_commute0_gen0_bis'' +
 
 context EQ_comp_fun_commute0_gen0_bis'
 begin
- lemma downgrade_up : "EQ_comp_fun_commute0_gen0_bis'' f000 is_i is_i' all_i_set f" by default
- lemma downgrade : "EQ_comp_fun_commute0_gen0_bis' f000 is_i is_i' all_i_set f" by default
+ lemma downgrade_up : "EQ_comp_fun_commute0_gen0_bis'' f000 is_i is_i' all_i_set f" by standard
+ lemma downgrade : "EQ_comp_fun_commute0_gen0_bis' f000 is_i is_i' all_i_set f" by standard
 end
 
  lemma fold_cong''' :
@@ -818,7 +818,7 @@ lemma (*comp_to_EQ_comp_fun_commute :*)
 
  shows "EQ_comp_fun_commute f"
  proof - interpret comp_fun_commute f by (rule f_comm) show ?thesis
-  apply(default)
+  apply(standard)
   apply(rule cp_x)
   apply(rule cp_set)
   apply(rule cp_gen, assumption+)
@@ -828,7 +828,7 @@ lemma (*comp_to_EQ_comp_fun_commute :*)
 qed
 
 sublocale EQ_comp_fun_commute < EQ_comp_fun_commute0_gen0_bis' "\<lambda>x. x" "\<lambda>_. is_int" "\<lambda>\<tau> x. \<tau> \<Turnstile> \<upsilon> x" all_int_set
- apply(default)
+ apply(standard)
  apply(simp add: all_int_set_def) apply(simp add: all_int_set_def) apply(simp add: all_int_set_def is_int_def)
  apply(simp add: all_int_set_def)
  apply(simp add: int_is_valid, simp)
@@ -868,7 +868,7 @@ locale EQ_comp_fun_commute0_gen0 =
                              f y (f x S) = f x (f y S)"
 
 sublocale EQ_comp_fun_commute0_gen0 < EQ_comp_fun_commute0_gen0_bis' "\<lambda>x. x" "\<lambda>_ x. is_int (f000 x)" "\<lambda>_ x. is_int (f000 x)" "\<lambda>x. \<forall>\<tau>. all_def_set \<tau> x"
- apply default
+ apply standard
  apply(drule def_set[THEN iffD1], blast)
  apply(simp add: def_set[THEN iffD2])
  apply(simp add: def_set')
@@ -897,7 +897,7 @@ locale EQ_comp_fun_commute0 =
                              f y (f x S) = f x (f y S)"
 
 sublocale EQ_comp_fun_commute0 < EQ_comp_fun_commute0_gen0 "\<lambda>x (_::'\<AA> st). x" all_defined_set
- apply default
+ apply standard
  apply(rule iffI)
   apply(simp add: all_defined_set_def is_int_def)
   apply(simp add: all_defined_set_def is_int_def)
@@ -926,7 +926,7 @@ locale EQ_comp_fun_commute000 =
                              f (\<lambda>(_::'\<AA> st). y) (f (\<lambda>(_::'\<AA> st). x) S) = f (\<lambda>(_::'\<AA> st). x) (f (\<lambda>(_::'\<AA> st). y) S)"
 
 sublocale EQ_comp_fun_commute000 < EQ_comp_fun_commute0_gen0_bis'' "\<lambda>x (_::'\<AA> st). x" "\<lambda>_. is_int" "\<lambda>_. is_int" all_int_set
- apply default
+ apply standard
   apply(simp add: all_int_set_def is_int_def)
   apply(simp add: all_int_set_def is_int_def)
  apply(simp add: all_int_set_def)
@@ -942,7 +942,7 @@ lemma c0_of_c :
  assumes f_comm : "EQ_comp_fun_commute f"
    shows "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
 proof - interpret EQ_comp_fun_commute f by (rule f_comm) show ?thesis
- apply default
+ apply standard
  apply(rule cp_set)
  apply(subst cp_gen, simp, blast, simp, simp)
  apply(rule notempty, blast, simp add: int_is_valid, simp)
@@ -958,7 +958,7 @@ lemma c000_of_c0 :
  assumes f_comm : "EQ_comp_fun_commute0 (\<lambda>x. f (\<lambda>_. x))"
    shows "EQ_comp_fun_commute000 f"
 proof - interpret EQ_comp_fun_commute0 "\<lambda>x. f (\<lambda>_. x)" by (rule f_comm) show ?thesis
- apply default
+ apply standard
  apply(rule cp_set, simp)
  apply(rule all_def)
  apply(rule commute)
@@ -981,7 +981,7 @@ locale EQ_comp_fun_commute0' =
                              f y (f x S) = f x (f y S)"
 
 sublocale EQ_comp_fun_commute0' < EQ_comp_fun_commute0_gen0 "\<lambda>x (_::'\<AA> st). \<lfloor>x\<rfloor>" all_defined_set'
- apply default
+ apply standard
  apply(rule iffI)
   apply(simp add: all_defined_set'_def is_int_def, metis bot_option_def foundation18' option.distinct(1))
   apply(simp add: all_defined_set'_def is_int_def)
@@ -1010,7 +1010,7 @@ locale EQ_comp_fun_commute000' =
                              f (\<lambda>_. \<lfloor>y\<rfloor>) (f (\<lambda>_. \<lfloor>x\<rfloor>) S) = f (\<lambda>_. \<lfloor>x\<rfloor>) (f (\<lambda>_. \<lfloor>y\<rfloor>) S)"
 
 sublocale EQ_comp_fun_commute000' < EQ_comp_fun_commute0_gen0_bis'' "\<lambda>x (_::'\<AA> st). \<lfloor>x\<rfloor>" "\<lambda>\<tau> x. \<tau> \<Turnstile> \<upsilon> x" "\<lambda>\<tau> x. \<tau> \<Turnstile> \<upsilon> x" all_int_set
- apply default
+ apply standard
  apply(simp add: all_int_set_def is_int_def)
  apply(simp add: all_int_set_def is_int_def)
  apply(simp add: all_int_set_def)
@@ -1031,7 +1031,7 @@ lemma c0'_of_c0 :
    shows "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
 proof -
  interpret EQ_comp_fun_commute0 "\<lambda>x. f (\<lambda>_. x)" by (rule assms) show ?thesis
- apply default
+ apply standard
  apply(rule cp_set, simp)
  apply(rule cp_gen', simp, simp, simp)
  apply(rule notempty', simp, simp, simp)
@@ -1044,7 +1044,7 @@ lemma c000'_of_c0' :
  assumes f_comm : "EQ_comp_fun_commute0' (\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>))"
    shows "EQ_comp_fun_commute000' f"
 proof - interpret EQ_comp_fun_commute0' "\<lambda>x. f (\<lambda>_. \<lfloor>x\<rfloor>)" by (rule f_comm) show ?thesis
- apply default
+ apply standard
  apply(rule cp_set, simp)
  apply(subst all_def, simp only: is_int_def valid_def OclValid_def bot_fun_def false_def true_def, blast)
  apply(rule commute)
@@ -1165,7 +1165,7 @@ proof -
  done
 qed
 
-context EQ_comp_fun_commute0_gen0 begin lemma downgrade' : "EQ_comp_fun_commute0_gen0 f000 all_def_set f" by default end
+context EQ_comp_fun_commute0_gen0 begin lemma downgrade' : "EQ_comp_fun_commute0_gen0 f000 all_def_set f" by standard end
 context EQ_comp_fun_commute0 begin lemmas downgrade' = downgrade' end
 context EQ_comp_fun_commute0' begin lemmas downgrade' = downgrade' end
 

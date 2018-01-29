@@ -17,6 +17,8 @@ sig
     (command_keyword * (Toplevel.transition -> Toplevel.transition)) list parser -> unit
   val commands': command_keyword -> string ->
     (theory -> (command_keyword * (Toplevel.transition -> Toplevel.transition)) list) parser -> unit
+  val maybe_begin_local_theory: command_keyword -> string ->
+    (local_theory -> local_theory) parser -> (theory -> local_theory) parser -> unit
   val local_theory': command_keyword -> string ->
     (bool -> local_theory -> local_theory) parser -> unit
   val local_theory: command_keyword -> string ->
@@ -31,7 +33,7 @@ sig
   val parse_spans: Token.T list -> Command_Span.span list
   val side_comments: Token.T list -> Token.T list
   val command_reports: theory -> Token.T -> Position.report_text list
-  val check_command: Proof.context -> string * Position.T -> string
+  val check_command: Proof.context -> command_keyword -> string
 end;
 
 structure Outer_Syntax: OUTER_SYNTAX =
@@ -118,18 +120,20 @@ fun print_commands thy =
 (* maintain commands *)
 
 fun add_command name cmd thy =
-  let
-    val _ =
-      Keyword.is_command (Thy_Header.get_keywords thy) name orelse
-        err_command "Undeclared outer syntax command " name [command_pos cmd];
-    val _ =
-      (case lookup_commands thy name of
-        NONE => ()
-      | SOME cmd' => err_dup_command name [command_pos cmd, command_pos cmd']);
-    val _ =
-      Context_Position.report_generic (ML_Context.the_generic_context ())
-        (command_pos cmd) (command_markup true (name, cmd));
-  in Data.map (Symtab.update (name, cmd)) thy end;
+  if member (op =) Thy_Header.bootstrap_thys (Context.theory_name thy) then thy
+  else
+    let
+      val _ =
+        Keyword.is_command (Thy_Header.get_keywords thy) name orelse
+          err_command "Undeclared outer syntax command " name [command_pos cmd];
+      val _ =
+        (case lookup_commands thy name of
+          NONE => ()
+        | SOME cmd' => err_dup_command name [command_pos cmd, command_pos cmd']);
+      val _ =
+        Context_Position.report_generic (Context.the_generic_context ())
+          (command_pos cmd) (command_markup true (name, cmd));
+    in Data.map (Symtab.update (name, cmd)) thy end;
 
 val _ = Theory.setup (Theory.at_end (fn thy =>
   let
@@ -162,10 +166,20 @@ fun commands (name, pos) comment parse =
 fun commands' (name, pos) comment parse =
   raw_command (name, pos) comment (Parser (parse >> (fn l => fn thy => fn tr => map (fn ((name, _), f) => f (tr name)) (l thy))));
 
+fun toplevel_return command_keyword f _ tr = [ f (tr (#1 command_keyword))]
+
+fun maybe_begin_local_theory command_keyword comment parse_local parse_global =
+  raw_command command_keyword comment
+    (Restricted_Parser (fn restricted =>
+      Parse.opt_target -- parse_local
+        >> (fn (target, f) => toplevel_return command_keyword (Toplevel.local_theory restricted target f)) ||
+      (if is_some restricted then Scan.fail
+       else parse_global >> (toplevel_return command_keyword o Toplevel.begin_local_theory true))));
+
 fun local_theory_command trans command_keyword comment parse =
   raw_command command_keyword comment
     (Restricted_Parser (fn restricted =>
-      Parse.opt_target -- parse >> (fn (target, f) => fn _ => fn tr => [trans restricted target f (tr (#1 command_keyword))])));
+      Parse.opt_target -- parse >> (fn (target, f) => toplevel_return command_keyword (trans restricted target f))));
 
 val local_theory' = local_theory_command Toplevel.local_theory';
 val local_theory = local_theory_command Toplevel.local_theory;
@@ -224,17 +238,17 @@ fun commands_source thy =
 
 in
 
-fun parse thy pos str =
-  Source.of_string str
-  |> Symbol.source
-  |> Token.source (Thy_Header.get_keywords thy) pos
-  |> commands_source thy
-  |> Source.exhaust;
+fun parse thy pos =
+  Symbol.explode
+  #> Source.of_list
+  #> Token.source (Thy_Header.get_keywords thy) pos
+  #> commands_source thy
+  #> Source.exhaust;
 
-fun parse_tokens thy toks =
-  Source.of_list toks
-  |> commands_source thy
-  |> Source.exhaust;
+fun parse_tokens thy =
+  Source.of_list
+  #> commands_source thy
+  #> Source.exhaust;
 
 end;
 
@@ -321,5 +335,16 @@ fun check_command ctxt (name, pos) =
         val report = Markup.markup_report (Completion.reported_text completion);
       in error ("Bad command " ^ quote name ^ Position.here pos ^ report) end
   end;
+
+
+(* 'ML' command -- required for bootstrapping Isar *)
+
+val _ =
+  command ("ML", @{here}) "ML text within theory or local theory"
+    (Parse.ML_source >> (fn source =>
+      Toplevel.generic_theory
+        (ML_Context.exec (fn () =>
+            ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
+          Local_Theory.propagate_ml_env)));
 
 end;

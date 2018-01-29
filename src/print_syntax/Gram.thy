@@ -140,7 +140,7 @@ fun show_text l =
                                      , case doc of SOME (Gen_add s) => [ "(* *) text\<open>" ^ Input.source_content s ^ "\<close>\n" ]
                                                  | _ => []]
         end) l)) in
-  writeln (Active.sendback_markup [Markup.padding_command] s) 
+  writeln (Active.sendback_markup_command s)
   end
 
 fun msg_err msg = "The previous counter is already " ^ msg ^ " (this particular overlapping is not yet implemented)."

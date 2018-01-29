@@ -322,7 +322,7 @@ locale TRANSITION_\<sigma>\<^sub>1_\<sigma>\<^sub>2
 begin
 lemma \<sigma>\<^sub>1: "state_interpretation_\<sigma>\<^sub>1 \<tau>"
 by(simp add: state_interpretation_\<sigma>\<^sub>1_def,
-   default,
+   standard,
    simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
@@ -330,7 +330,7 @@ text\<open> This instance proof goes analogously. \<close>
 
 lemma \<sigma>\<^sub>2: "state_interpretation_\<sigma>\<^sub>2 \<tau>"
 by(simp add: state_interpretation_\<sigma>\<^sub>2_def,
-   default,
+   standard,
    simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
@@ -338,7 +338,7 @@ text\<open> The latter proof gives access to the locale \<open>transition_\<sigm
 
 lemma \<sigma>\<^sub>1_\<sigma>\<^sub>2: "pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2 \<tau>"
 by(simp add: pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def,
-   default,
+   standard,
    simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+,
    (simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)

@@ -330,21 +330,21 @@ text\<open> The following lemma establishes that the generated object presentati
        locale. \<close>
 lemma \<sigma>\<^sub>1: "state_interpretation_\<sigma>\<^sub>1 \<tau>"
 by(simp add: state_interpretation_\<sigma>\<^sub>1_def,
-   default, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
+   standard, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
 text\<open> This instance proof goes analogously. \<close>
 
 lemma \<sigma>\<^sub>2: "state_interpretation_\<sigma>\<^sub>2 \<tau>"
 by(simp add: state_interpretation_\<sigma>\<^sub>2_def,
-   default, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
+   standard, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
 text\<open> The latter proof gives access to the locale \<open>transition_\<sigma>\<^sub>1_\<sigma>\<^sub>2\<close>. \<close>
 
 lemma \<sigma>\<^sub>1_\<sigma>\<^sub>2: "pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2 \<tau>"
 by(simp add: pp_\<sigma>\<^sub>1_\<sigma>\<^sub>2_def,
-   default, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
+   standard, simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2,
    (simp add: pp_object_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+,
    (simp add: pp_oid_\<sigma>\<^sub>1_\<sigma>\<^sub>2)+)
 
@@ -742,7 +742,7 @@ proof -
             , assocs = Map.empty (oid\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t_0___cl_res \<mapsto> []) \<rparr>"
 
  have self_definition: "\<And>\<tau>. \<tau> \<Turnstile> \<delta> self \<Longrightarrow> \<exists>ta xa x. self \<tau> = \<lfloor>\<lfloor>mk\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t ta xa) x\<rfloor>\<rfloor>"
-  apply(simp add:OclValid_def defined_def true_def false_def split: split_if_asm)
+  apply(simp add:OclValid_def defined_def true_def false_def split: if_split_asm)
   proof - fix \<tau> show "self \<tau> \<noteq> \<bottom> \<tau> \<and> self \<tau> \<noteq> null \<tau> \<Longrightarrow>
          \<exists>ta xa x. self \<tau> = \<lfloor>\<lfloor>mk\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t ta xa) x\<rfloor>\<rfloor>"
   apply(case_tac "self \<tau>", simp add: bot_option_def bot_fun_def, simp)  

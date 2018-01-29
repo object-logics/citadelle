@@ -211,7 +211,7 @@ definition "print_iskindof_up_eq_asty = start_map O.lemma o map_class_gen_h'''''
         , L.flatten (fst (L.mapM
                       (\<lambda> OclClass n _ next \<Rightarrow> \<lambda>accu.
                         let (l_subst, accu) = L.mapM (\<lambda> _ (cpt, l_sub).
-                          let l_sub = String.of_natural cpt # l_sub in
+                          let l_sub = String.natural_to_digit10 cpt # l_sub in
                           ( M.subst_l
                               l_sub (* subst could fail without the list of integers *)
                               (T.thm \<open>cp_OclOr\<close>)

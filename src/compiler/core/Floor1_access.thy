@@ -130,7 +130,7 @@ definition "print_access_choose_ml = start_map'''' O.ML o (\<lambda>expr _.
   (let a = \<lambda>f x. SML.app f [x]
      ; b = \<lambda>s. SML.basic [s]
      ; lets = \<lambda>var exp. SML (SML.rewrite_val (SML.basic [var]) \<open>=\<close> exp)
-     ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, String.of_natural i]) in
+     ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, String.natural_to_digit10 i]) in
    L.flatten
    [ print_access_choose_switch
        lets mk_var expr
@@ -165,7 +165,7 @@ definition "print_access_choose = start_map'''' O.definition o (\<lambda>expr _.
   [ let a = \<lambda>f x. Term_app f [x]
       ; b = \<lambda>s. Term_basic [s]
       ; lets = \<lambda>var exp. Definition (Term_rewrite (Term_basic [var]) \<open>=\<close> exp)
-      ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, String.of_natural i]) in
+      ; mk_var = \<lambda>i. b (S.flatten [\<open>x\<close>, String.natural_to_digit10 i]) in
     print_access_choose_switch
       lets mk_var expr
       print_access_choose_name
@@ -206,7 +206,7 @@ definition "print_access_deref_oid = start_map O.definition o
                      , (Term_basic [wildcard], Term_basic [\<open>invalid\<close>, var_tau]) ]))))"
 
 definition "print_access_deref_assocs_name' name_from isub_name isup_attr =
-  S.flatten [var_deref, \<open>_\<close>, isub_name var_assocs, \<open>_\<close>, String.of_natural name_from, isup_attr \<open>_\<close>]"
+  S.flatten [var_deref, \<open>_\<close>, isub_name var_assocs, \<open>_\<close>, String.natural_to_digit10 name_from, isup_attr \<open>_\<close>]"
 definition "print_access_deref_assocs_name name_from isub_name attr =
   print_access_deref_assocs_name' name_from isub_name (\<lambda>s. s @@ String.isup attr)"
 definition "print_access_deref_assocs = start_map'''' O.definition o (\<lambda>expr design_analysis.
@@ -330,7 +330,7 @@ definition "print_access_dot_consts =
           let name =
              S.flatten [ \<open>dot\<close>
                      , case attr_ty of
-                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [\<open>_\<close>, String.of_natural (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
+                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [\<open>_\<close>, String.natural_to_digit10 (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
                        | _ \<Rightarrow> \<open>\<close>
                      , String.isup attr_n, var_at_when_hol] in
           ( f_update_ocl (\<lambda> l. String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e name # l)
@@ -348,7 +348,7 @@ definition "print_access_dot_consts =
                           dot_name
                           (let ty_obj = TyObj_from ty_obj in
                            case TyObjN_role_name ty_obj of
-                                None => String.of_natural (TyObjN_ass_switch ty_obj)
+                                None => String.natural_to_digit10 (TyObjN_ass_switch ty_obj)
                               | Some s => s)) of
                   None \<Rightarrow> dot_name
                 | Some dot_name \<Rightarrow> dot_name)
@@ -360,7 +360,7 @@ definition "print_access_dot_consts =
 definition "print_access_dot_name isub_name dot_at_when attr_ty isup_attr =
   S.flatten [ isup_attr (let dot_name = isub_name \<open>dot\<close> in
                        case attr_ty of
-                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [dot_name, \<open>_\<close>, String.of_natural (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
+                         OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow> S.flatten [dot_name, \<open>_\<close>, String.natural_to_digit10 (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>]
                        | _ \<Rightarrow> dot_name)
           , dot_at_when]"
 
@@ -594,7 +594,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
                                      , print_access_deref_oid_name isub_name
                                      , var_in_when_state
                                      , \<open>defined\<close>, \<open>OclValid\<close>, \<open>false\<close>, \<open>true\<close>, \<open>invalid\<close>, \<open>bot_fun\<close>])
-                            [T.thm \<open>split_if_asm\<close>]]
+                            [T.thm \<open>if_split_asm\<close>]]
  (* *)
  , App_f [v_b] (l_thes [ Term_binop (a var_X (b var_tau)) \<open>=\<close> (f_ss v_a)
                        , Term_rewrite (Term_app \<open>heap\<close> [ a var_in_when_state (b var_tau)
@@ -694,7 +694,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
  , C.apply [ M.case_tac (b v_aaa), M.auto_simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>, \<open>image\<close>, \<open>ran\<close>]) ]
  , C.apply [ M.rule (T.where (T.thm \<open>exI\<close>) [(\<open>x\<close>, a (isub_name_to datatype_in) (b v_r))])
        , M.simp_add_split (thol_d [print_astype_from_universe_name name_to, \<open>Let\<close>, var_reconst_basetype])
-                            [T.thm \<open>split_if_asm\<close>] ] ])
+                            [T.thm \<open>if_split_asm\<close>] ] ])
                 (C.by [ M.rule' ]) ] else [] (* TODO *))
       | _ \<Rightarrow> [] (* TODO *))) expr)"
 
@@ -709,7 +709,7 @@ definition "print_access_repr_allinst = start_map''''' O.lemma o (\<lambda>expr 
           ; b = \<lambda>s. Term_basic [s]
           ; var_x = \<open>x\<close> in
             [ Lemma
-                (S.flatten [ isup_attr (S.flatten [isub_name \<open>dot_repr\<close>, \<open>_\<close>, String.of_natural (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>])
+                (S.flatten [ isup_attr (S.flatten [isub_name \<open>dot_repr\<close>, \<open>_\<close>, String.natural_to_digit10 (TyObjN_ass_switch (TyObj_from ty_obj)), \<open>_\<close>])
                          , dot_at_when])
                 ([ f (a \<open>\<delta>\<close> (dot_attr (Term_annot_ocl (Term_basic [var_x]) name)))
                  , let all_inst = if var_in_when_state \<triangleq> var_in_pre_state then

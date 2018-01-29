@@ -224,7 +224,7 @@ definition "fold_invariant f_inv ctxt =
 
 definition "fold_invariant' inva =
   rev (fst (fold_invariant (\<lambda>(T_inv _ (OclProp_ctxt tit inva)) \<Rightarrow> \<lambda> (accu, n).
-                               ( (let tit = case tit of None \<Rightarrow> String.of_nat n
+                               ( (let tit = case tit of None \<Rightarrow> String.nat_to_digit10 n
                                                           | Some tit \<Rightarrow> tit in
                                   (tit, inva))
                                  # accu
@@ -683,7 +683,7 @@ definition "map_class_arg_only_var0 = (\<lambda>f_expr f_app f_lattr isub_name n
                        apply_optim_ass_arity ty_obj
                        (let ty_obj = TyObj_from ty_obj in
                        case TyObjN_role_name ty_obj of
-                          None => String.of_natural (TyObjN_ass_switch ty_obj)
+                          None => String.natural_to_digit10 (TyObjN_ass_switch ty_obj)
                         | Some s => s)
                    | _ \<Rightarrow> None of
                 None \<Rightarrow> mk_dot attr_name attr_when

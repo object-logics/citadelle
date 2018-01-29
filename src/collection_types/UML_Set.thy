@@ -164,7 +164,7 @@ show "?thesis"
   
   apply_end(erule ballE[where x = y], simp_all)
   apply_end(case_tac y,
-            simp add: bot_option_def null_option_def OclValid_def defined_def split: split_if_asm,
+            simp add: bot_option_def null_option_def OclValid_def defined_def split: if_split_asm,
             simp add: false_def true_def)
   qed (erule disjE, simp add: bot_Void_def, simp)
 qed qed qed qed qed
@@ -225,7 +225,7 @@ lemma Set_inv_lemma: "\<tau> \<Turnstile> (\<delta> X) \<Longrightarrow> \<foral
 apply(insert Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e [of "X \<tau>"], simp)
 apply(auto simp: OclValid_def defined_def false_def true_def cp_def
                  bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_fun_def
-           split:split_if_asm)
+           split:if_split_asm)
  apply(erule contrapos_pp [of "Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>) = bot"])
  apply(subst Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], rule Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e, simp)
  apply(simp add: Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_option_def)
@@ -730,7 +730,7 @@ text{* OclSize *}
 lemma OclSize_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->size\<^sub>S\<^sub>e\<^sub>t()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
 by(auto simp: OclSize_def OclValid_def true_def valid_def false_def StrongEq_def
               defined_def invalid_def bot_fun_def null_fun_def
-        split: bool.split_asm HOL.split_if_asm option.split)
+        split: bool.split_asm HOL.if_split_asm option.split)
 
 lemma OclSize_infinite:
 assumes non_finite:"\<tau> \<Turnstile> not(\<delta>(S->size\<^sub>S\<^sub>e\<^sub>t()))"
@@ -764,7 +764,7 @@ text{* OclIsEmpty *}
 lemma OclIsEmpty_defined_args_valid:"\<tau> \<Turnstile> \<delta> (X->isEmpty\<^sub>S\<^sub>e\<^sub>t()) \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> X"
   apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def
                    bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def
-             split: split_if_asm)
+             split: if_split_asm)
   apply(case_tac "(X->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp, rename_tac x)
   apply(case_tac x, simp add: null_option_def bot_option_def, simp)
   apply(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def)
@@ -774,12 +774,12 @@ by (metis (hide_lams, no_types)
 lemma "\<tau> \<Turnstile> \<delta> (null->isEmpty\<^sub>S\<^sub>e\<^sub>t())"
 by(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def
               bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def null_is_valid
-        split: split_if_asm)
+        split: if_split_asm)
 
 lemma OclIsEmpty_infinite: "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<not> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->isEmpty\<^sub>S\<^sub>e\<^sub>t())"
   apply(auto simp: OclIsEmpty_def OclValid_def defined_def valid_def false_def true_def
                    bot_fun_def null_fun_def OclAnd_def OclOr_def OclNot_def
-             split: split_if_asm)
+             split: if_split_asm)
   apply(case_tac "(X->size\<^sub>S\<^sub>e\<^sub>t() \<doteq> \<zero>) \<tau>", simp add: bot_option_def, simp, rename_tac x)
   apply(case_tac x, simp add: null_option_def bot_option_def, simp)
 by(simp add: OclSize_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r valid_def bot_fun_def false_def true_def invalid_def)
@@ -805,10 +805,10 @@ lemma OclNotEmpty_has_elt : "\<tau> \<Turnstile> \<delta> X \<Longrightarrow>
  apply(simp add: OclNotEmpty_def OclIsEmpty_def deMorgan1 deMorgan2, drule foundation5)
  apply(subst (asm) (2) OclNot_def,
        simp add: OclValid_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrongEq_def
-            split: split_if_asm)
+            split: if_split_asm)
   prefer 2
   apply(simp add: invalid_def bot_option_def true_def)
- apply(simp add: OclSize_def valid_def split: split_if_asm,
+ apply(simp add: OclSize_def valid_def split: if_split_asm,
        simp_all add: false_def true_def bot_option_def bot_fun_def OclInt0_def)
 by (metis equals0I)
 
@@ -817,7 +817,7 @@ text{* OclANY *}
 lemma OclANY_defined_args_valid: "\<tau> \<Turnstile> \<delta> (X->any\<^sub>S\<^sub>e\<^sub>t()) \<Longrightarrow> \<tau> \<Turnstile> \<delta> X"
 by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
               defined_def invalid_def bot_fun_def null_fun_def OclAnd_def
-        split: bool.split_asm HOL.split_if_asm option.split)
+        split: bool.split_asm HOL.if_split_asm option.split)
 
 lemma "\<tau> \<Turnstile> \<delta> X \<Longrightarrow> \<tau> \<Turnstile> X->isEmpty\<^sub>S\<^sub>e\<^sub>t() \<Longrightarrow> \<not> \<tau> \<Turnstile> \<delta> (X->any\<^sub>S\<^sub>e\<^sub>t())"
  apply(simp add: OclANY_def OclValid_def)
@@ -832,13 +832,13 @@ proof -
  have A: "(\<tau> \<Turnstile> \<upsilon>(X->any\<^sub>S\<^sub>e\<^sub>t())) \<Longrightarrow> ((\<tau> \<Turnstile>(\<upsilon> X)))"
           by(auto simp: OclANY_def OclValid_def true_def valid_def false_def StrongEq_def
                         defined_def invalid_def bot_fun_def null_fun_def
-                  split: bool.split_asm HOL.split_if_asm option.split)
+                  split: bool.split_asm HOL.if_split_asm option.split)
  have B: "(\<tau> \<Turnstile>(\<upsilon> X)) \<Longrightarrow> (\<tau> \<Turnstile> \<upsilon>(X->any\<^sub>S\<^sub>e\<^sub>t()))"
            apply(auto simp: OclANY_def OclValid_def true_def false_def StrongEq_def
                             defined_def invalid_def valid_def bot_fun_def null_fun_def
                             bot_option_def null_option_def null_is_valid
                             OclAnd_def
-                      split: bool.split_asm HOL.split_if_asm option.split)
+                      split: bool.split_asm HOL.if_split_asm option.split)
            apply(frule Set_inv_lemma[OF foundation16[THEN iffD2], OF conjI], simp)
            apply(subgoal_tac "(\<delta> X) \<tau> = true \<tau>")
             prefer 2
@@ -1524,7 +1524,7 @@ proof -
             apply(simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse[OF C])
            apply(simp_all add: false_def true_def defined_def valid_def
                                null_fun_def bot_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def
-                          split: bool.split_asm HOL.split_if_asm option.split)
+                          split: bool.split_asm HOL.if_split_asm option.split)
    apply(auto simp: G1 G2)
   done
 qed
@@ -1969,7 +1969,7 @@ proof -
      apply(rule impI)
      apply(drule Finite_Set.card.insert[where x = "x \<tau>"])
      apply(rule includes_notin, simp, simp)
-     apply (metis Suc_eq_plus1 int_1 of_nat_add)
+     apply (metis Suc_eq_plus1 of_nat_1 of_nat_add)
 
     apply(subst (1 2) m[of \<tau>], simp only:   OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.cp0[symmetric],simp, simp add:invalid_def)
     apply(subst OclIncluding_finite_rep_set, fast+, simp add: OclValid_def)
@@ -2082,7 +2082,7 @@ lemma OclANY_singleton_exec[simp,code_unfold]:
  (* *)
  apply(subgoal_tac "a \<tau> = \<bottom>")
   prefer 2
-  apply(simp add: OclValid_def valid_def bot_fun_def split: split_if_asm)
+  apply(simp add: OclValid_def valid_def bot_fun_def split: if_split_asm)
  apply(simp)
  apply(subst (1 2 3 4) cp_OclAnd,
        simp add: mtSet_defined[simplified mtSet_def] valid_def bot_fun_def)
@@ -2305,11 +2305,11 @@ lemma OclForall_body_trivial0:
  apply(insert S_not_emp, simp add: OclValid_def StrongEq_def mtSet_def true_def)
  proof - fix y show "\<lceil>\<lceil>y\<rceil>\<rceil> = {} \<Longrightarrow> S \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e y \<Longrightarrow> B = A"
   apply(case_tac y, simp)
-   apply(insert S_defined, simp add: defined_def OclValid_def false_def true_def bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def split: split_if_asm)
+   apply(insert S_defined, simp add: defined_def OclValid_def false_def true_def bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def split: if_split_asm)
   apply(simp)
   proof - fix a show "\<lceil>a\<rceil> = {} \<Longrightarrow> S \<tau> = Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>a\<rfloor> \<Longrightarrow> y = \<lfloor>a\<rfloor> \<Longrightarrow> B = A"
    apply(case_tac a, simp)
-    apply(insert S_defined, simp add: defined_def OclValid_def false_def true_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def split: split_if_asm)
+    apply(insert S_defined, simp add: defined_def OclValid_def false_def true_def null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def split: if_split_asm)
    apply(simp)
   by(insert S_not_emp, simp add: OclValid_def StrongEq_def mtSet_def true_def)
  qed
@@ -2814,7 +2814,7 @@ proof -
         subst (asm) cp_OclAnd, subst (asm) cp_OclNot)
   apply(simp only: OclValid_def foundation20[simplified OclValid_def]
                    cp_OclNot[symmetric] cp_OclAnd[symmetric] cp_OclOr[symmetric])
-  apply(simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse split: split_if_asm)
+  apply(simp add: Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse split: if_split_asm)
  by(simp add: true_def OclInt0_def OclNot_def StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r StrongEq_def)
 
  have B: "\<And>X \<tau>. \<not> finite \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil> \<Longrightarrow> (\<delta> (X->size\<^sub>S\<^sub>e\<^sub>t())) \<tau> = false \<tau>"
@@ -2924,7 +2924,7 @@ proof -
         simp only: cp_OclAnd[THEN sym],
         simp add: defined_def bot_fun_def)
 
-  apply(split split_if_asm)
+  apply(split if_split_asm)
    apply(simp add: OclIncluding_finite_rep_set[simplified OclValid_def] card_including_exec)+
   apply(simp only: cp_OclAnd[THEN sym], simp, rule impI, erule conjE)
   apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp add: cp_OclAnd[of "\<delta> X" "\<upsilon> x"])
@@ -2978,7 +2978,7 @@ proof -
         simp only: cp_OclAnd[THEN sym],
         simp add: defined_def bot_fun_def)
 
-  apply(split split_if_asm)
+  apply(split if_split_asm)
    apply(simp add: OclExcluding_finite_rep_set[simplified OclValid_def] card_excluding_exec)+
   apply(simp only: cp_OclAnd[THEN sym], simp, rule impI, erule conjE)
   apply(case_tac "(\<upsilon> x) \<tau> = true \<tau>", simp add: cp_OclAnd[of "\<delta> X" "\<upsilon> x"])
@@ -3014,7 +3014,7 @@ proof -
  by metis
  show ?thesis
   apply(simp add: OclForall_def OclValid_def true_def false_def invalid_def
-                  bot_fun_def bot_option_def null_fun_def null_option_def split: split_if_asm)
+                  bot_fun_def bot_option_def null_fun_def null_option_def split: if_split_asm)
   apply(rule conjI, rule impI) apply (metis drop.simps option.distinct(1) invalid_def)
   apply(rule impI, rule conjI, rule impI) apply (metis option.distinct(1))
   apply(rule impI, rule conjI, rule impI) apply (metis drop.simps)
@@ -3113,7 +3113,7 @@ lemma OclForall_cong:
  shows "\<tau> \<Turnstile> OclForall X Q"
 proof -
  have def_X: "\<tau> \<Turnstile> \<delta> X"
- by(insert P, simp add: OclForall_def OclValid_def bot_option_def true_def split: split_if_asm)
+ by(insert P, simp add: OclForall_def OclValid_def bot_option_def true_def split: if_split_asm)
  show ?thesis
   apply(insert P)
   apply(subst (asm) OclForall_rep_set_true[OF def_X], subst OclForall_rep_set_true[OF def_X])
@@ -3127,7 +3127,7 @@ lemma OclForall_cong':
  shows "\<tau> \<Turnstile> OclForall X R"
 proof -
  have def_X: "\<tau> \<Turnstile> \<delta> X"
- by(insert P, simp add: OclForall_def OclValid_def bot_option_def true_def split: split_if_asm)
+ by(insert P, simp add: OclForall_def OclValid_def bot_option_def true_def split: if_split_asm)
  show ?thesis
   apply(insert P Q)
   apply(subst (asm) (1 2) OclForall_rep_set_true[OF def_X], subst OclForall_rep_set_true[OF def_X])
@@ -3147,7 +3147,7 @@ proof -
                           x \<tau> \<noteq> y \<tau> \<Longrightarrow>
                           \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> \<noteq> \<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil>"
   apply(simp add: defined_def)
-  apply(split split_if_asm, simp add: false_def true_def)+
+  apply(split if_split_asm, simp add: false_def true_def)+
   apply(simp add: null_fun_def null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_fun_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
 
   apply(case_tac "x \<tau>", rename_tac x')
@@ -3225,7 +3225,7 @@ qed
 lemma StrictRefEq\<^sub>S\<^sub>e\<^sub>t_L_subst1 : "cp P \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> y \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P x \<Longrightarrow> \<tau> \<Turnstile> \<upsilon> P y \<Longrightarrow>
     \<tau> \<Turnstile> (x::('\<AA>,'\<alpha>::null)Set) \<doteq> y \<Longrightarrow> \<tau> \<Turnstile> (P x ::('\<AA>,'\<alpha>::null)Set) \<doteq> P y"
  apply(simp only: StrictRefEq\<^sub>S\<^sub>e\<^sub>t OclValid_def)
- apply(split split_if_asm)
+ apply(split if_split_asm)
   apply(simp add: StrongEq_L_subst1[simplified OclValid_def])
 by (simp add: invalid_def bot_option_def true_def)
 
@@ -3249,7 +3249,7 @@ lemma OclIncluding_cong : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> 
                              \<tau> \<Turnstile> s \<doteq> t \<Longrightarrow> x = y \<Longrightarrow> \<tau> \<Turnstile> s->including\<^sub>S\<^sub>e\<^sub>t(x) \<doteq> (t->including\<^sub>S\<^sub>e\<^sub>t(y))"
  apply(simp only:)
  apply(rule OclIncluding_cong', simp_all only:)
-by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : split_if_asm)
+by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : if_split_asm)
 
 (* < *)
 lemma const_StrictRefEq\<^sub>S\<^sub>e\<^sub>t_empty : "const X \<Longrightarrow>  const (X \<doteq> Set{})" 
@@ -3296,7 +3296,7 @@ lemma equal_int_code [code]:
 instantiation Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (equal)equal
 begin
   definition "HOL.equal k l \<longleftrightarrow>  (k::('a::equal)Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) =  l"
-  instance   by default (rule equal_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
+  instance   by standard (rule equal_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
 end
 
 lemma equal_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_code [code]:

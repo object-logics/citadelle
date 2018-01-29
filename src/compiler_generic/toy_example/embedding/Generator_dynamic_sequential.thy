@@ -125,7 +125,7 @@ subsection\<open>Interface Between the Reflected and the Native\<close>
 
 ML\<open>
 val To_string0 = String.implode o META.to_list
-fun To_nat (Code_Numeral.Nat i) = i
+val To_nat = Code_Numeral.integer_of_natural
 
 exception THY_REQUIRED of Position.T
 fun get_thy pos f = fn NONE => raise (THY_REQUIRED pos) | SOME thy => f thy
@@ -140,7 +140,7 @@ structure From = struct
  val string = META.SS_base o META.ST
  val binding = string o Binding.name_of
  (*fun term ctxt s = string (XML.content_of (YXML.parse_body (Syntax.string_of_term ctxt s)))*)
- val nat = Code_Numeral.Nat
+ val nat = Code_Numeral.natural_of_integer
  val internal_oid = META.Oid o nat
  val option = Option.map
  val list = List.map
@@ -169,14 +169,6 @@ structure From = struct
  fun read_term thy expr =
    META.T_pure (Pure.term (Syntax.read_term (get_thy @{here} Proof_Context.init_global thy) expr), SOME (string expr))
 end
-\<close>
-
-ML\<open>
-fun in_local decl thy =
-  thy
-  |> Named_Target.theory_init
-  |> decl
-  |> Local_Theory.exit_global
 \<close>
 
 ML\<open>
@@ -411,8 +403,8 @@ fun proof_show_gen top f (thes, thes_when) st = st
        NONE
        (K I)
        []
-       (if thes_when = [] then [] else [((@{binding ""}, []), map (fn t => (t, [])) thes_when)])
-       [((@{binding ""}, []), [(thes, [])])]
+       (if thes_when = [] then [] else [(Binding.empty_atts, map (fn t => (t, [])) thes_when)])
+       [(Binding.empty_atts, [(thes, [])])]
        int #> #2))
 
 fun semi__command_state top (META.Command_apply_end l) = let open META_overload in
@@ -463,49 +455,48 @@ structure Cmd = struct open META open META_overload
 fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
 
 fun datatype' top (Datatype (n, l)) = #local_theory top NONE NONE
-   (BNF_FP_Def_Sugar.co_datatype_cmd
-      BNF_Util.Least_FP
-      BNF_LFP.construct_lfp
-      (Ctr_Sugar.default_ctr_options_cmd,
-       [( ( ( (([], To_sbinding n), NoSyn)
-            , List.map (fn (n, l) => ( ( (To_binding "", To_sbinding n)
-                                       , List.map (fn s => (To_binding "", of_semi__typ s)) l)
-                                     , NoSyn)) l)
-          , (To_binding "", To_binding ""))
-        , [])]))
+  (BNF_FP_Def_Sugar.co_datatype_cmd
+    BNF_Util.Least_FP
+    BNF_LFP.construct_lfp
+    (Ctr_Sugar.default_ctr_options_cmd,
+     [( ( ( (([], To_sbinding n), NoSyn)
+          , List.map (fn (n, l) => ( ( (To_binding "", To_sbinding n)
+                                     , List.map (fn s => (To_binding "", of_semi__typ s)) l)
+                                   , NoSyn)) l)
+        , (To_binding "", To_binding "", To_binding ""))
+      , [])]))
 fun type_synonym top (Type_synonym (n, v, l)) = #theory top (fn thy => let val s_bind = To_sbinding n in
-   (snd o Typedecl.abbrev_global
-            (s_bind, map To_string0 v, NoSyn)
-            (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (of_semi__typ l))) thy end)
+  (snd o Typedecl.abbrev_global
+           (s_bind, map To_string0 v, NoSyn)
+           (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (of_semi__typ l))) thy end)
 fun type_notation top (Type_notation (n, e)) = #local_theory top NONE NONE
-   (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (To_string0 e, [], 1000))])
+  (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (Input.string (To_string0 e), [], 1000, Position.no_range))])
 fun instantiation1 name thy = thy
   |> Class.instantiation ([ let val Term.Type (s, _) = Isabelle_Typedecl.abbrev_cmd0 NONE thy name in s end ],
                           [],
                           Syntax.read_sort (Proof_Context.init_global thy) "object")
-fun instantiation2 name n_def expr int = int
-  |> Specification.definition_cmd ( NONE
-                                        , ( (To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), [])
-                                          , of_semi__term expr))
+fun instantiation2 name n_def expr =
+  Specification.definition_cmd NONE [] [] ( (To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), [])
+                                          , of_semi__term expr)
 fun overloading1 n_c e_c = Overloading.overloading_cmd [(To_string0 n_c, of_semi__term e_c, true)]
-fun overloading2 n e int = int
-  |> #2 oo Specification.definition_cmd (NONE, ((To_sbinding n, []), of_semi__term e))
+fun overloading2 n e =
+  #2 oo Specification.definition_cmd NONE [] [] ((To_sbinding n, []), of_semi__term e)
 fun consts top (Consts (n, ty, symb)) = #theory top 
-   (Sign.add_consts_cmd [( To_sbinding n
+  (Sign.add_consts_cmd [( To_sbinding n
                         , of_semi__typ ty
-                        , Mixfix ("(_) " ^ To_string0 symb, [], 1000))])
+                        , Mixfix (Input.string ("(_) " ^ To_string0 symb), [], 1000, Position.no_range))])
 fun definition top def = #local_theory' top NONE NONE
-   let val (def, e) = case def of
+  let val (def, e) = case def of
       Definition e => (NONE, e)
     | Definition_where1 (name, (abbrev, prio), e) =>
         (SOME ( To_sbinding name
               , NONE
-              , Mixfix ("(1" ^ of_semi__term abbrev ^ ")", [], To_nat prio)), e)
+              , Mixfix (Input.string ("(1" ^ of_semi__term abbrev ^ ")"), [], To_nat prio, Position.no_range)), e)
     | Definition_where2 (name, abbrev, e) =>
         (SOME ( To_sbinding name
               , NONE
-              , Mixfix ("(" ^ of_semi__term abbrev ^ ")", [], 1000)), e) in fn ctxt => ctxt
-  |> #2 oo Specification.definition_cmd (def, ((@{binding ""}, []), of_semi__term e)) end
+              , Mixfix (Input.string ("(" ^ of_semi__term abbrev ^ ")"), [], 1000, Position.no_range)), e) in fn ctxt => ctxt
+  |> #2 oo Specification.definition_cmd def [] [] (Binding.empty_atts, of_semi__term e) end
 fun lemmas top lemmas = #local_theory' top NONE NONE (fn disp => fn lthy =>
   let val (simp, s, l) =
     case lemmas of Lemmas_simp_thm (simp, s, l) =>
@@ -518,35 +509,35 @@ fun lemmas top lemmas = #local_theory' top NONE NONE (fn disp => fn lthy =>
       l)]
     []
     disp) lthy end)
-fun lemma1 n l_spec = Specification.theorem_cmd Thm.theoremK NONE (K I)
-   (@{binding ""}, []) [] [] (Element.Shows [((To_sbinding n, [])
-                                             ,[((String.concatWith (" \<Longrightarrow> ")
-                                                   (List.map of_semi__term l_spec)), [])])])
-fun lemma1' n l_spec concl = Specification.theorem_cmd Thm.theoremK NONE (K I)
-   (To_sbinding n, [])
-   []
-   (List.map (fn (n, (b, e)) =>
-               Element.Assumes [( ( To_sbinding n
-                                  , if b then [[Token.make_string ("simp", Position.none)]] else [])
-                                , [(of_semi__term e, [])])])
-             l_spec)
-   (Element.Shows [((@{binding ""}, []),[(of_semi__term concl, [])])])
+fun lemma1 n l_spec = Specification.theorem_cmd true Thm.theoremK NONE (K I)
+  Binding.empty_atts [] [] (Element.Shows [((To_sbinding n, [])
+                                            ,[((String.concatWith (" \<Longrightarrow> ")
+                                                  (List.map of_semi__term l_spec)), [])])])
+fun lemma1' n l_spec concl = Specification.theorem_cmd true Thm.theoremK NONE (K I)
+  (To_sbinding n, [])
+  []
+  (List.map (fn (n, (b, e)) =>
+              Element.Assumes [( ( To_sbinding n
+                                 , if b then [[Token.make_string ("simp", Position.none)]] else [])
+                               , [(of_semi__term e, [])])])
+            l_spec)
+  (Element.Shows [(Binding.empty_atts,[(of_semi__term concl, [])])])
 fun lemma3 l_apply = map_filter (fn META.Command_let _ => SOME []
                                   | META.Command_have _ => SOME []
                                   | META.Command_fix_let (_, _, _, l) => SOME l
                                   | _ => NONE)
                                 (rev l_apply)
 fun axiomatization top (Axiomatization (n, e)) = #theory top 
-   (#2 o Specification.axiomatization_cmd []
-                                          [((To_sbinding n, []), [of_semi__term e])])
+  (#2 o Specification.axiomatization_cmd [] [] [] [((To_sbinding n, []), of_semi__term e)])
 fun section n s _ =
-    let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1) in
-      out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) n) ""
-    end
+  let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1) in
+    out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) n) ""
+  end
 fun ml top (SML ml) = #generic_theory top
-     (ML_Context.exec let val source = input_source ml in
-       fn () => ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source end #>
-       Local_Theory.propagate_ml_env)
+  (ML_Context.exec let val source = input_source ml in
+                   fn () => ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source
+                   end #>
+    Local_Theory.propagate_ml_env)
 fun setup top (Setup ml) = #theory top (Isar_Cmd.setup (input_source ml))
 fun thm top (Thm thm) = #keep top (fn state =>
   let val lthy = #context_of top state in
@@ -1103,8 +1094,8 @@ fun export_code_cmd' seris tmp_export_code f_err raw_cs thy =
       end)
 
 fun scan thy pos str =
-  Source.of_string str
-  |> Symbol.source
+  Symbol.explode str
+  |> Source.of_list
   |> Token.source (Thy_Header.get_keywords' thy) pos
   |> Source.exhaust;
 
@@ -1312,7 +1303,7 @@ end
 subsection\<open>Factoring All Meta Commands Together\<close>
 
 setup\<open>ML_Antiquotation.inline @{binding mk_string} (Scan.succeed
-"(fn ctxt => fn x => Pretty.string_of (Pretty.from_ML (pretty_ml (PolyML.prettyRepresentation (x, Config.get ctxt ML_Options.print_depth)))))")
+"(fn ctxt => fn x => ML_Pretty.string_of_polyml (ML_system_pretty (x, FixedInt.fromInt (Config.get ctxt ML_Print_Depth.print_depth))))")
 \<close>
 
 ML\<open>
@@ -1324,7 +1315,7 @@ in
 fun exec_deep0 {output_header_thy, seri_args, filename_thy, tmp_export_code, ...} (env, l_obj) =
 let open Generation_mode
     val of_arg = META.isabelle_of_compiler_env_config META.isabelle_apply I
-    fun def s = in_local (snd o Specification.definition_cmd (NONE, ((@{binding ""}, []), s)) false)
+    fun def s = Named_Target.theory_map (snd o Specification.definition_cmd NONE [] [] (Binding.empty_atts, s) false)
     val (seri_args0, seri_args) = partition_self seri_args
  in
   fn thy0 =>
@@ -1368,7 +1359,7 @@ let open Generation_mode
          (case (output_header_thy, filename_thy) of
             (SOME _, SOME _) => s
           | _ => String.concat (map ( (fn s => s ^ "\n")
-                                    o Active.sendback_markup [Markup.padding_command]
+                                    o Active.sendback_markup_command
                                     o trim_line)
                                     (String.tokens (fn c => c = META.char_escape) s)))
        in List.app (fn (out, err) => ( writeln (Markup.markup Markup.keyword2 err)
@@ -1442,7 +1433,7 @@ fun thy_shallow get_all_meta_embed =
                                          |> Local_Theory.new_group
                                          |> f
                                          |> Local_Theory.reset_group
-                                         |> Local_Theory.restore
+                                         |> Local_Theory.reset
                       fun not_used p _ = error ("not used " ^ Position.here p)
                       val context_of = I
                       fun proof' f = f true
@@ -1452,9 +1443,9 @@ fun thy_shallow get_all_meta_embed =
                   fn l => fn (env, thy) =>
                   Bind_META.all_meta_thy { (* specialized part *)
                                            theory = I
-                                         , local_theory = K o K in_local
-                                         , local_theory' = K o K (fn f => in_local (f false))
-                                         , keep = fn f => in_local (fn lthy => (f lthy ; lthy))
+                                         , local_theory = K o K Named_Target.theory_map
+                                         , local_theory' = K o K (fn f => Named_Target.theory_map (f false))
+                                         , keep = fn f => Named_Target.theory_map (fn lthy => (f lthy ; lthy))
                                          , generic_theory = Context.theory_map
                                            (* generic part *)
                                          , context_of = context_of, dual = dual
@@ -1531,7 +1522,7 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                                writeln (mk_string
                                          (Proof_Context.init_global
                                            (case n of NONE => thy
-                                                    | SOME n => Config.put_global ML_Options.print_depth n thy))
+                                                    | SOME n => Config.put_global ML_Print_Depth.print_depth n thy))
                                          name)))))
       in (*let
            val l_obj = get_all_m NONE

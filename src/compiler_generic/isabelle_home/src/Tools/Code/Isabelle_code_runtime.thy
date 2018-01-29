@@ -67,7 +67,7 @@ val trace = Attrib.setup_config_bool @{binding "code_runtime_trace"} (K false);
 fun exec ctxt verbose code =
  (if Config.get ctxt trace then tracing code else ();
   ML_Context.exec (fn () =>
-    Secure.use_text ML_Env.local_context
+    ML_Compiler0.ML ML_Env.context
       {line = 0, file = "generated code", verbose = verbose, debug = false} code));
 
 
@@ -182,7 +182,7 @@ fun gen_code_reflect prep_type prep_const all_public raw_datatypes raw_functions
       |> apsnd flat;
     val functions = map (prep_const thy) raw_functions;
     val consts = constrs @ functions;
-    val program = Code_Thingol.consts_program (Proof_Context.theory_of ctxt) consts;
+    val program = Code_Thingol.consts_program ctxt consts;
     val result = evaluation_code ctxt module_name program tycos consts all_public
       |> (apsnd o apsnd) (chop (length constrs));
   in

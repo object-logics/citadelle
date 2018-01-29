@@ -76,8 +76,9 @@ Isabelle maintainer) carefully, will result in LaTeX errors that
 are close to not debug-able.
 
 
-List of Isabelle version to use depending on revisions:
-======================================================
+List of Isabelle versions to use depending on revisions:
+=========================================================
+2018/01/29 revision 13259: Isabelle2016-1 (December 2016)
 2016/02/22 revision 12439: Isabelle2016   (February 2016)
 2015/06/11 revision 11691: Isabelle2015   (May      2015)
 2015/02/02 revision 11283: Isabelle2014   (August   2014)

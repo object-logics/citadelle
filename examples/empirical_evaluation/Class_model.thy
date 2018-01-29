@@ -54,9 +54,9 @@ definition "print_class =
  (\<lambda> (C_out_OclAny, s) \<Rightarrow> S.flatten [\<open>Class \<close>, s, \<open> End\<close>]
   | (C_out_simple s1, s2) \<Rightarrow> S.flatten [\<open>Class \<close>, s2, \<open> < \<close>, s1, \<open> End\<close>])"
 
-definition' \<open>print_abr sprintf_int write_file =
+definition \<open>print_abr sprintf_int write_file =
   (let sprintf_int = sprintf_int o natural_of_nat
-     ; S_flatten_n = S.flatten o L.map (\<lambda>s. S.flatten [s, \<lless>[Char Nibble0 NibbleA]\<ggreater>]) in
+     ; S_flatten_n = S.flatten o L.map (\<lambda>s. S.flatten [s, \<lless>[CHR 0x0A]\<ggreater>]) in
   L.flatten o L.flatten o L.map (\<lambda> (nb_child, deep).
     let body = L.map print_class (fst (mk_tree nb_child deep 0))
       ; tree_name = S.flatten [\<open>Tree_\<close>, sprintf_int nb_child, \<open>_\<close>, sprintf_int deep] in
@@ -75,7 +75,7 @@ definition' \<open>print_abr sprintf_int write_file =
                   , gen_init comp comp2]
                 , body
                 , [ \<open>\<close>
-                  , S.flatten [\<open>(* \<close>, String.of_nat (length body), \<open> *)\<close> ]
+                  , S.flatten [\<open>(* \<close>, String.nat_to_digit10 (length body), \<open> *)\<close> ]
                   , \<open>\<close>
                   , gen_flush
                   , \<open>\<close>

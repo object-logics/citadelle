@@ -35,7 +35,6 @@ sig
   val string_of_margin: Proof.context -> Pretty.T -> string
   val output: Proof.context -> Pretty.T list -> string
   val verbatim_text: Proof.context -> string -> string
-  val old_header_command: Input.source -> Toplevel.transition -> Toplevel.transition
   val document_command: {markdown: bool} -> (xstring * Position.T) option * Input.source ->
     Toplevel.transition -> Toplevel.transition
 end;
@@ -144,7 +143,7 @@ fun integer s =
 local
 
 val property =
-  Parse.position Parse.xname -- Scan.optional (Parse.$$$ "=" |-- Parse.!!! Parse.xname) "";
+  Parse.position Parse.name -- Scan.optional (Parse.$$$ "=" |-- Parse.!!! Parse.name) "";
 
 val properties =
   Scan.optional (Parse.$$$ "[" |-- Parse.!!! (Parse.enum "," property --| Parse.$$$ "]")) [];
@@ -196,9 +195,18 @@ end;
 
 fun output_text state {markdown} source =
   let
+    val is_reported =
+      (case try Toplevel.context_of state of
+        SOME ctxt => Context_Position.is_visible ctxt
+      | NONE => true);
+
     val pos = Input.pos_of source;
-    val _ = Position.report pos (Markup.language_document (Input.is_delimited source));
     val syms = Input.source_explode source;
+
+    val _ =
+      if is_reported then
+        Position.report pos (Markup.language_document (Input.is_delimited source))
+      else ();
 
     val output_antiquotes = map (eval_antiquote state) #> implode;
 
@@ -207,7 +215,7 @@ fun output_text state {markdown} source =
         output_antiquotes (Markdown.line_content line);
 
     fun output_blocks blocks = space_implode "\n\n" (map output_block blocks)
-    and output_block (Markdown.Paragraph lines) = cat_lines (map output_line lines)
+    and output_block (Markdown.Par lines) = cat_lines (map output_line lines)
       | output_block (Markdown.List {kind, body, ...}) =
           Latex.environment (Markdown.print_kind kind) (output_blocks body);
   in
@@ -215,14 +223,16 @@ fun output_text state {markdown} source =
     else if markdown andalso exists (Markdown.is_control o Symbol_Pos.symbol) syms
     then
       let
-        val ants = Antiquote.read' pos syms;
+        val ants = Antiquote.parse pos syms;
+        val reports = Antiquote.antiq_reports ants;
         val blocks = Markdown.read_antiquotes ants;
-        val _ = Position.reports (Markdown.reports blocks);
+        val _ = if is_reported then Position.reports (reports @ Markdown.reports blocks) else ();
       in output_blocks blocks end
     else
       let
-        val ants = Antiquote.read' pos (Symbol_Pos.trim_blanks syms);
-        val _ = Position.reports (Markdown.text_reports ants);
+        val ants = Antiquote.parse pos (Symbol_Pos.trim_blanks syms);
+        val reports = Antiquote.antiq_reports ants;
+        val _ = if is_reported then Position.reports (reports @ Markdown.text_reports ants) else ();
       in output_antiquotes ants end
   end;
 
@@ -394,7 +404,7 @@ val tag = (improper -- Parse.$$$ "%" -- improper) |-- Parse.!!! (Parse.tag_name 
 
 val locale =
   Scan.option ((Parse.$$$ "(" -- improper -- Parse.$$$ "in") |--
-    Parse.!!! (improper |-- Parse.xname --| (improper -- Parse.$$$ ")")));
+    Parse.!!! (improper |-- Parse.name --| (improper -- Parse.$$$ ")")));
 
 in
 
@@ -569,6 +579,11 @@ fun pretty_abbrev ctxt s =
     val ctxt' = Variable.auto_fixes eq ctxt;
   in Proof_Context.pretty_term_abbrev ctxt' eq end;
 
+fun pretty_locale ctxt (name, pos) =
+  let
+    val thy = Proof_Context.theory_of ctxt
+  in (Pretty.str o Locale.extern thy o Locale.check thy) (name, pos) end;
+
 fun pretty_class ctxt =
   Pretty.str o Proof_Context.extern_class ctxt o Proof_Context.read_class ctxt;
 
@@ -642,10 +657,11 @@ val _ = Theory.setup
   basic_entity @{binding term_type} (Term_Style.parse -- Args.term) pretty_term_typ #>
   basic_entity @{binding typeof} (Term_Style.parse -- Args.term) pretty_term_typeof #>
   basic_entity @{binding const} (Args.const {proper = true, strict = false}) pretty_const #>
-  basic_entity @{binding abbrev} (Scan.lift Args.name_inner_syntax) pretty_abbrev #>
+  basic_entity @{binding abbrev} (Scan.lift Args.embedded_inner_syntax) pretty_abbrev #>
   basic_entity @{binding typ} Args.typ_abbrev Syntax.pretty_typ #>
-  basic_entity @{binding class} (Scan.lift Args.name_inner_syntax) pretty_class #>
-  basic_entity @{binding type} (Scan.lift Args.name) pretty_type #>
+  basic_entity @{binding locale} (Scan.lift (Parse.position Args.name)) pretty_locale #>
+  basic_entity @{binding class} (Scan.lift Args.embedded_inner_syntax) pretty_class #>
+  basic_entity @{binding type} (Scan.lift Args.embedded) pretty_type #>
   basic_entities @{binding prf} Attrib.thms (pretty_prf false) #>
   basic_entities @{binding full_prf} Attrib.thms (pretty_prf true) #>
   basic_entity @{binding theory} (Scan.lift (Parse.position Args.name)) pretty_theory);
@@ -654,14 +670,7 @@ end;
 
 
 
-(** document commands **)
-
-fun old_header_command txt =
-  Toplevel.keep (fn state =>
-    if Toplevel.is_toplevel state then
-     (legacy_feature "Obsolete 'header' command -- use 'chapter', 'section' etc. instead";
-      ignore (output_text state {markdown = false} txt))
-    else raise Toplevel.UNDEF);
+(** document command **)
 
 fun document_command markdown (loc, txt) =
   Toplevel.keep (fn state =>

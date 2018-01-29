@@ -56,7 +56,7 @@ begin
 
 definition "To_oid = (\<lambda>Oid n \<Rightarrow> To_nat n)"
 
-definition' \<open>of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
+definition \<open>of_ocl_def_base = (\<lambda> OclDefInteger i \<Rightarrow> To_string i
                                 | OclDefReal (i1, i2) \<Rightarrow> \<open>%s.%s\<close> (To_string i1) (To_string i2)
                                 | OclDefString s \<Rightarrow> \<open>"%s"\<close> (To_string s))\<close>
 
@@ -71,7 +71,7 @@ fun of_ocl_list_attr where
                             | OclAttrCast ty (OclAttrNoCast x) _ \<Rightarrow> \<open>(%s :: %s)\<close> (f x) (To_string ty)
                             | OclAttrCast ty l _ \<Rightarrow> \<open>%s \<rightarrow> oclAsType( %s )\<close> (of_ocl_list_attr f l) (To_string ty)) e"
 
-definition' \<open>of_ocl_instance_single ocli =
+definition \<open>of_ocl_instance_single ocli =
  (let (s_left, s_right) =
     case Inst_name ocli of
       None \<Rightarrow> (case Inst_ty ocli of Some ty \<Rightarrow> (\<open>(\<close>, \<open> :: %s)\<close> (To_string ty)))

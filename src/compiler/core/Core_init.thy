@@ -63,11 +63,11 @@ begin
  definition "n \<le> m \<longleftrightarrow> n_of_internal_oid n \<le> n_of_internal_oid m"
  definition "n < m \<longleftrightarrow> n_of_internal_oid n < n_of_internal_oid m"
  instance
-   apply(default)
+   apply standard
    apply (metis less_eq_internal_oid_def less_imp_le less_internal_oid_def not_less)
    apply (metis less_eq_internal_oid_def order_refl)
    apply (metis less_eq_internal_oid_def order.trans)
-   apply(simp add: less_eq_internal_oid_def n_of_internal_oid_def, case_tac x, case_tac y, simp)
+   apply (simp add: less_eq_internal_oid_def n_of_internal_oid_def, case_tac x, case_tac y, simp)
  by (metis le_cases less_eq_internal_oid_def)
 end
 
@@ -77,11 +77,11 @@ begin
  definition "n \<le> m \<longleftrightarrow> n_of_opt_ident n \<le> n_of_opt_ident m"
  definition "n < m \<longleftrightarrow> n_of_opt_ident n < n_of_opt_ident m"
  instance
- apply(default)
+ apply standard
  apply (metis less_eq_opt_ident_def less_imp_le less_opt_ident_def not_less)
  apply (metis less_eq_opt_ident_def order_refl)
    apply (metis less_eq_opt_ident_def order.trans)
-   apply(simp add: less_eq_opt_ident_def n_of_opt_ident_def, case_tac x, case_tac y, simp)
+   apply (simp add: less_eq_opt_ident_def n_of_opt_ident_def, case_tac x, case_tac y, simp)
  by (metis le_cases less_eq_opt_ident_def)
 end
 
@@ -360,10 +360,7 @@ definition "start_map''''' f fl = (\<lambda> env. start_map f (fl (D_output_sorr
 definition "start_map'''''' f fl = (\<lambda> env. start_map f (fl (\<lambda>s. (case D_output_header_thy env of
                                                                    Some (n_thy, _, _) \<Rightarrow>
                                                                      String.replace_chars
-                                                                       ((* (* ERROR code_reflect *)
-                                                                        \<lambda> Char Nibble5 NibbleF \<Rightarrow> \<open>-\<close>
-                                                                        | x \<Rightarrow> \<degree>x\<degree>*)
-                                                                        \<lambda> x. if x = Char Nibble5 NibbleF then \<open>-\<close>
+                                                                       (\<lambda> x. if x = CHR 0x5F then \<open>-\<close>
                                                                              else \<degree>x\<degree>)
                                                                        n_thy
                                                                  | None \<Rightarrow> \<open>\<close>) @@ s)
@@ -410,14 +407,14 @@ definition "Term_oclset l = (case l of [] \<Rightarrow> Term_basic [\<open>Set{}
 
 context SML
 begin
-definition "oid s = (\<lambda>Oid n \<Rightarrow> basic [s @@ String.of_natural n])"
+definition "oid s = (\<lambda>Oid n \<Rightarrow> basic [s @@ String.natural_to_digit10 n])"
 end
 
 lemmas [code] =
   (*def*)
   SML.oid_def
 
-definition "Term_oid s = (\<lambda>Oid n \<Rightarrow> Term_basic [s @@ String.of_natural n])"
+definition "Term_oid s = (\<lambda>Oid n \<Rightarrow> Term_basic [s @@ String.natural_to_digit10 n])"
 
 subsection\<open>Preliminaries on: Enumeration\<close>
 
@@ -487,14 +484,14 @@ definition "gen_pre_post f_tit spec f_lemma = gen_pre_post0 f_tit [] spec (\<lam
 
 subsection\<open>Preliminaries on: Accessor\<close>
 
-definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
+definition "print_access_oid_uniq_name' name_from_nat isub_name attr = S.flatten [ isub_name var_oid_uniq, \<open>_\<close>, String.natural_to_digit10 name_from_nat, \<open>_\<close>, attr ]"
 definition "print_access_oid_uniq_name name_from_nat isub_name attr = print_access_oid_uniq_name' name_from_nat isub_name (String.isup attr)"
-definition "print_access_oid_uniq_mlname name_from_nat name attr = S.flatten [ var_oid_uniq, name, \<open>_\<close>, String.of_natural name_from_nat, \<open>_\<close>, attr ]"
+definition "print_access_oid_uniq_mlname name_from_nat name attr = S.flatten [ var_oid_uniq, name, \<open>_\<close>, String.natural_to_digit10 name_from_nat, \<open>_\<close>, attr ]"
 
 definition "print_access_choose_name n i j =
-  S.flatten [var_switch, String.isub (String.of_natural n), \<open>_\<close>, String.of_natural i, String.of_natural j]"
+  S.flatten [var_switch, String.isub (String.natural_to_digit10 n), \<open>_\<close>, String.natural_to_digit10 i, String.natural_to_digit10 j]"
 definition "print_access_choose_mlname n i j =
-  S.flatten [var_switch, String.of_natural n, \<open>_\<close>, String.of_natural i, String.of_natural j]"
+  S.flatten [var_switch, String.natural_to_digit10 n, \<open>_\<close>, String.natural_to_digit10 i, String.natural_to_digit10 j]"
 
 definition "print_access_dot_consts_ty attr_ty =
               (let ty_base = \<lambda>attr_ty.

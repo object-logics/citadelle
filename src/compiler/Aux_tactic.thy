@@ -81,13 +81,13 @@ fun mk_fun quick_dirty cmd_spec tac =
        else
          Function_Fun.fun_config)
       >> (if quick_dirty then
-            fn ((config, fixes), statements) => fn b => fn ctxt =>
+            fn (config, (fixes, statements)) => fn b => fn ctxt =>
             ctxt |> Function.function_cmd fixes statements config b
                  |> tac
                  |> Function.termination_cmd NONE
                  |> proof_by_sorry
           else
-            fn ((config, fixes), statements) => Function_Fun.add_fun_cmd fixes statements config))
+            fn (config, (fixes, statements)) => Function_Fun.add_fun_cmd fixes statements config))
 
 val () = mk_fun quick_dirty @{command_keyword fun_quick} proof_by_sorry
 val () = mk_fun true @{command_keyword fun_sorry} proof_by_patauto

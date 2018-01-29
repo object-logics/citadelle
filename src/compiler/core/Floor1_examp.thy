@@ -319,7 +319,7 @@ fun fold_data_shallow where "fold_data_shallow f_str f_self f x accu =
   | ShallB_list l \<Rightarrow> List.fold (fold_data_shallow f_str f_self f) l accu
   | _ \<Rightarrow> accu) x"
 
-definition' \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_attr_none f_attr map_self map_username l_enum l accu =
+definition \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_attr_none f_attr map_self map_username l_enum l accu =
  (let v_null = \<open>null\<close>
     ; v_invalid = \<open>invalid\<close> in
   fst (
@@ -337,7 +337,7 @@ definition' \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_a
                                                | s \<triangleq> v_invalid
                                                | list_ex (\<lambda>OclEnum _ l \<Rightarrow> list_ex (op \<triangleq> s) l) l_enum then None
                                               else f s (map_username s))
-                                         (\<lambda>s. f (\<open>self \<close> @@ String.of_natural (case s of Oid n \<Rightarrow> n)) (map_self s))
+                                         (\<lambda>s. f (\<open>self \<close> @@ String.natural_to_digit10 (case s of Oid n \<Rightarrow> n)) (map_self s))
                                          (\<lambda> None \<Rightarrow> id | Some x \<Rightarrow> Cons x)
                                          x
                                          []
@@ -430,12 +430,12 @@ definition "print_examp_instance_oid thy_definition_hol l env = (L.map thy_defin
 
 definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
   let l = (RBT.keys o RBT.bulkload o L.map (\<lambda>x. (x, ()))) l
-    ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s | None \<Rightarrow> case x of Oid n \<Rightarrow> S.flatten [\<open>/*\<close>, String.of_natural n, \<open>*/\<close>]
+    ; assoc = \<lambda>x. case map_of l_oid x of Some s \<Rightarrow> s | None \<Rightarrow> case x of Oid n \<Rightarrow> S.flatten [\<open>/*\<close>, String.natural_to_digit10 n, \<open>*/\<close>]
     ; attr_len = natural_of_nat (length l)
     ; l_typed =
        L.map (\<lambda> (mult_min, mult_max0) \<Rightarrow>
          let mult_max = case mult_max0 of None \<Rightarrow> mult_min | Some mult_max \<Rightarrow> mult_max
-           ; s_mult = \<lambda> Mult_nat n \<Rightarrow> String.of_natural n | Mult_star \<Rightarrow> \<open>*\<close> | Mult_infinity \<Rightarrow> \<open>\<infinity>\<close>
+           ; s_mult = \<lambda> Mult_nat n \<Rightarrow> String.natural_to_digit10 n | Mult_star \<Rightarrow> \<open>*\<close> | Mult_infinity \<Rightarrow> \<open>\<infinity>\<close>
            ; f = \<lambda>s. S.flatten [ \<open> // \<close>
                              , s
                              , \<open> constraint [\<close>
@@ -476,7 +476,7 @@ definition "check_export_code f_writeln f_warning f_error f_raise l_report msg_l
   if l_err = [] then
     ()
   else
-    f_raise (String.of_nat (length l_err) @@ msg_last))"
+    f_raise (String.nat_to_digit10 (length l_err) @@ msg_last))"
 
 definition "print_examp_instance_defassoc_gen name l_ocli env =
  (case D_ocl_semantics env of Gen_only_analysis \<Rightarrow> \<lambda>_. [] | Gen_default \<Rightarrow> \<lambda>_. [] | Gen_only_design \<Rightarrow>
@@ -629,7 +629,7 @@ definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_
                        | _ \<Rightarrow> Return_err (Return_err_ty base)))
   , Term_warning_parenthesis o print_examp_instance_app_constr2_notmp' l_attr))"
 
-definition' \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
+definition \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
  (let l_enum = List.map_filter (\<lambda>META_enum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_input_meta env)
     ; (l_spec1, l_spec2) = arrange_ass False True (fst (find_class_ass env)) l_enum in
 
@@ -841,7 +841,7 @@ definition "print_examp_def_st0 name l =
                              (L.mapi Pair l)
                              ([], 0) in
   List.fold (\<lambda> (pos, _, OclDefCoreAdd ocli) \<Rightarrow> \<lambda>(l_inst, l_defst).
-               let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.of_natural pos] in
+               let i_name = case Inst_name ocli of Some x \<Rightarrow> x | None \<Rightarrow> S.flatten [name, \<open>_object\<close>, String.natural_to_digit10 pos] in
                  ( map_inst_single_self (\<lambda>Oid self \<Rightarrow>
                      (case L.assoc self l of
                         Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
@@ -884,7 +884,7 @@ definition "print_transition_gen = (\<lambda> OclDefPP name s_pre s_post \<Right
     (L.flatten [ L.map META_all_meta_embedding l ], accu))
   (\<lambda>env.
     let pref_name = case name of Some n \<Rightarrow> n
-                               | None \<Rightarrow> \<open>WFF_\<close> @@ String.of_nat (length (D_input_meta env))
+                               | None \<Rightarrow> \<open>WFF_\<close> @@ String.nat_to_digit10 (length (D_input_meta env))
       ; f_comp = \<lambda>None \<Rightarrow> id | Some (_, f, _) \<Rightarrow> f
       ; f_comp_env = \<lambda>None \<Rightarrow> id | Some (_, _, f) \<Rightarrow> f
       ; f_conv = \<lambda>msg.

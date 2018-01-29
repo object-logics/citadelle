@@ -8,6 +8,7 @@ signature TOPLEVEL =
 sig
   exception UNDEF
   type state
+  val theory_toplevel: theory -> state
   val toplevel: state
   val is_toplevel: state -> bool
   val is_theory: state -> bool
@@ -124,6 +125,10 @@ val context_node = cases_node Context.proof_of Proof.context_of;
 datatype state = State of node option * node option *
                           (node option * node option);  (*current, previous, backup*)
 
+fun theory_toplevel thy = 
+  let val n = SOME (Theory (Context.Theory thy, NONE))
+  in State (n, NONE, (n, NONE)) end;
+
 val toplevel = State (NONE, NONE, (NONE, NONE));
 
 fun is_toplevel (State (NONE, _, _)) = true
@@ -203,6 +208,8 @@ fun pretty_state state =
 val string_of_state = pretty_state #> Pretty.chunks #> Pretty.string_of;
 
 fun pretty_abstract state = Pretty.str ("<Isar " ^ str_of_state state ^ ">");
+
+val _ = ML_system_pp (fn _ => fn _ => Pretty.to_polyml o pretty_abstract);
 
 
 
@@ -599,7 +606,7 @@ fun transition int tr st =
   let
     val st = state_load tr st
     val (st', opt_err) =
-      Context.setmp_thread_data (try (Context.Proof o presentation_context_of) st)
+      Context.setmp_generic_context (try (Context.Proof o presentation_context_of) st)
         (fn () => app int tr st) ();
     val opt_err' = opt_err |> Option.map
       (fn Runtime.EXCURSION_FAIL exn_info => exn_info
@@ -621,7 +628,7 @@ fun command_exception int tr st =
   (case transition int tr st of
     (st', NONE) => st'
   | (_, SOME (exn, info)) =>
-      if Exn.is_interrupt exn then reraise exn
+      if Exn.is_interrupt exn then Exn.reraise exn
       else raise Runtime.EXCURSION_FAIL (exn, info));
 
 val command = command_exception false;
@@ -676,7 +683,7 @@ fun timing_estimate include_head elem =
     val timings = map get_timing trs;
   in
     if forall is_some timings then
-      SOME (fold (curry Time.+ o the) timings Time.zeroTime)
+      SOME (fold (curry (op +) o the) timings Time.zeroTime)
     else NONE
   end;
 

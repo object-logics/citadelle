@@ -86,7 +86,7 @@ subsection\<open>Preliminaries: Setting Up Aliases Names\<close>
 
 ML\<open>
 local
-fun definition s = (#2 oo Specification.definition_cmd (NONE, ((@{binding ""}, []), s))) true
+fun definition s = (#2 oo Specification.definition_cmd NONE [] [] (Binding.empty_atts, s)) true
 fun def_info lhs rhs = definition (lhs ^ " = " ^
                                      @{const_name Embedding_fun_info} ^
                                        " (\<open>" ^ rhs ^ "\<close>) " ^
@@ -250,7 +250,7 @@ definition "txt''a s = txt (\<lambda> _. \<lambda> Gen_only_design \<Rightarrow>
 definition "txt''a' s = txt (\<lambda> n_thy. \<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten (s n_thy))"
 definition "txt_raw''a' s = txt_raw (\<lambda> n_thy. \<lambda> Gen_only_design \<Rightarrow> \<open>\<close> | _ \<Rightarrow> S.flatten (s n_thy))"
 
-definition' thy_class ::
+definition thy_class ::
   (* polymorphism weakening needed by code_reflect *)
   "_ embedding'" where \<open>thy_class =
   (let section = section' o (\<lambda>s. \<open>Class Model: \<close> @@ s)

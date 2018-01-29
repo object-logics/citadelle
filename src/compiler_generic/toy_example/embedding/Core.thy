@@ -73,7 +73,7 @@ subsection\<open>Preliminaries: Setting Up Aliases Names\<close>
 
 ML\<open>
 local
-fun definition s = (#2 oo Specification.definition_cmd (NONE, ((@{binding ""}, []), s))) true
+fun definition s = (#2 oo Specification.definition_cmd NONE [] [] (Binding.empty_atts, s)) true
 fun def_info lhs rhs = definition (lhs ^ " = " ^
                                      @{const_name Embedding_fun_info} ^
                                        " (\<open>" ^ rhs ^ "\<close>) " ^
