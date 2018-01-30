@@ -3770,4 +3770,10 @@ section \<open>Context (Floor 1)\<close>
 (* 162 ************************************ 968 + 1 *)  (* term Floor1_ctxt.print_ctxt *)
 Context[shallow] Person   Inv a : "(\<lambda> self. (self .boss <> null implies (self .salary  \<triangleq>  ((self .boss) .salary))))"
 
+(* 163 ************************************ 969 + 1 *)
+section \<open>Context (Floor 1)\<close>
+
+(* 164 ************************************ 970 + 1 *)  (* term Floor1_ctxt.print_ctxt *)
+Context[shallow] Planet   Inv A : "(\<lambda> self. (true and (self .weight \<le>\<^sub>i\<^sub>n\<^sub>t \<zero>)))"
+
 end
