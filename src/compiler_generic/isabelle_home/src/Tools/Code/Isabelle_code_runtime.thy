@@ -55,24 +55,24 @@ Runtime services building on code generation into implementation language SML.
 *)
 
 open Basic_Code_Symbol;
-open Basic_Code_Thingol;
 
-(** evaluation **)
+(** computation **)
 
 (* technical prerequisites *)
 
 
 val trace = Attrib.setup_config_bool @{binding "code_runtime_trace"} (K false);
 
-fun exec ctxt verbose code =
- (if Config.get ctxt trace then tracing code else ();
-  ML_Context.exec (fn () =>
-    ML_Compiler0.ML ML_Env.context
-      {line = 0, file = "generated code", verbose = verbose, debug = false} code));
+fun compile_ML verbose code context =
+ (if Config.get_generic context trace then tracing code else ();
+  Code_Preproc.timed "compiling ML" Context.proof_of
+    (ML_Context.exec (fn () => ML_Compiler0.ML ML_Env.context
+    {line = 0, file = "generated code", verbose = verbose,
+       debug = false} code)) context);
 
 
 
-(* evaluation into target language values *)
+(* computation as evaluation into ML language values *)
 
 
 
@@ -112,20 +112,21 @@ fun evaluation_code ctxt module_name program tycos consts all_public =
 
 fun check_datatype thy tyco some_consts =
   let
-    val constrs = (map fst o snd o fst o Code.get_type thy) tyco;
-    val _ = case some_consts
-     of SOME consts =>
+    val declared_constrs = (map fst o snd o fst o Code.get_type thy) tyco;
+    val constrs = case some_consts
+     of SOME [] => []
+      | SOME consts =>
           let
-            val missing_constrs = subtract (op =) consts constrs;
+            val missing_constrs = subtract (op =) consts declared_constrs;
             val _ = if null missing_constrs then []
               else error ("Missing constructor(s) " ^ commas_quote missing_constrs
                 ^ " for datatype " ^ quote tyco);
-            val false_constrs = subtract (op =) constrs consts;
+            val false_constrs = subtract (op =) declared_constrs consts;
             val _ = if null false_constrs then []
               else error ("Non-constructor(s) " ^ commas_quote false_constrs
                 ^ " for datatype " ^ quote tyco)
-          in () end
-      | NONE => ();
+          in consts end
+      | NONE => declared_constrs;
   in (tyco, constrs) end;
 
 fun add_eval_tyco (tyco, tyco') thy =
@@ -158,7 +159,7 @@ fun add_eval_const (const, const') = Code_Target.set_printings (Constant
 fun process_reflection (code, (tyco_map, (constr_map, const_map))) module_name NONE thy =
       thy
       |> Code_Target.add_reserved Code_Runtime.target module_name
-      |> Context.theory_map (exec (Proof_Context.init_global thy (*FIXME*)) true code)
+      |> Context.theory_map (compile_ML true code)
       |> fold (add_eval_tyco o apsnd Code_Printer.str) tyco_map
       |> fold (add_eval_constr o apsnd Code_Printer.str) constr_map
       |> fold (add_eval_const o apsnd Code_Printer.str) const_map
@@ -198,9 +199,9 @@ val code_reflect_cmd = gen_code_reflect Code_Target.read_tyco Code.read_const;
 local
 
 val parse_datatype =
-  Parse.name --| @{keyword "="} --
+  Parse.name -- Scan.optional (@{keyword "="} |--
     (((Parse.sym_ident || Parse.string) >> (fn "_" => NONE | _ => Scan.fail ()))
-    || ((Parse.term ::: (Scan.repeat (@{keyword "|"} |-- Parse.term))) >> SOME));
+    || ((Parse.term ::: (Scan.repeat (@{keyword "|"} |-- Parse.term))) >> SOME))) (SOME []);
 
 in
 
