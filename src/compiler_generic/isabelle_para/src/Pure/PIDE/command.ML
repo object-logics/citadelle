@@ -12,6 +12,7 @@ sig
   val read: Keyword.keywords -> theory -> Path.T-> (unit -> theory) ->
     blob list * int -> Token.T list -> Toplevel.transitions
   type eval
+  val eval_exec_id: eval -> Document_ID.exec
   val eval_eq: eval * eval -> bool
   val eval_running: eval -> bool
   val eval_finished: eval -> bool
@@ -116,7 +117,7 @@ fun reports_of_token keywords tok =
       Input.source_explode (Token.input_of tok)
       |> map_filter (fn (sym, pos) =>
           if Symbol.is_malformed sym
-          then SOME ((pos, Markup.bad), "Malformed symbolic character") else NONE);
+          then SOME ((pos, Markup.bad ()), "Malformed symbolic character") else NONE);
     val is_malformed = Token.is_error tok orelse not (null malformed_symbols);
     val reports = Token.reports keywords tok @ Token.completion_report tok @ malformed_symbols;
   in (is_malformed, reports) end;
@@ -201,7 +202,7 @@ fun check_cmts span tr st' =
         (Thy_Output.output_text st' {markdown = false} (Token.input_of cmt); [])
           handle exn =>
             if Exn.is_interrupt exn then Exn.reraise exn
-            else Runtime.exn_messages_ids exn)) ();
+            else Runtime.exn_messages exn)) ();
 
 fun report tr m =
   Toplevel.setmp_thread_position tr (fn () => Output.report [Markup.markup_only m]) ();
@@ -242,7 +243,7 @@ fun eval_state' keywords span tr state =
         let
           val _ = status tr Markup.failed;
           val _ = status tr Markup.finished;
-          val _ = if null errs then (report tr Markup.bad; Exn.interrupt ()) else ();
+          val _ = if null errs then (report tr (Markup.bad ()); Exn.interrupt ()) else ();
         in {failed = true, command = tr, state = st} end
     | SOME st' =>
         let
@@ -274,7 +275,7 @@ fun eval keywords master_dir init blobs_info span eval0 =
             (fn () =>
               read keywords thy master_dir init blobs_info span |> Toplevel.exec_id exec_id) ();
       in eval_state keywords span tr eval_state0 end;
-  in Eval {exec_id = exec_id, eval_process = Lazy.lazy process} end;
+  in Eval {exec_id = exec_id, eval_process = Lazy.lazy_name "Command.eval" process} end;
 
 end;
 
@@ -303,7 +304,7 @@ fun print_error tr opt_context e =
   (Toplevel.setmp_thread_position tr o Runtime.controlled_execution opt_context) e ()
     handle exn =>
       if Exn.is_interrupt exn then Exn.reraise exn
-      else List.app (Future.error_message (Toplevel.pos_of tr)) (Runtime.exn_messages_ids exn);
+      else List.app (Future.error_message (Toplevel.pos_of tr)) (Runtime.exn_messages exn);
 
 fun print_finished (Print {print_process, ...}) = Lazy.is_finished print_process;
 
@@ -332,7 +333,7 @@ fun print command_visible command_overlays keywords command_name eval old_prints
       in
         Print {
           name = name, args = args, delay = delay, pri = pri, persistent = persistent,
-          exec_id = exec_id, print_process = Lazy.lazy process}
+          exec_id = exec_id, print_process = Lazy.lazy_name "Command.print" process}
       end;
 
     fun bad_print name args exn =

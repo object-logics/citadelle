@@ -157,7 +157,7 @@ lazy_text\<open>For each Class \emph{C}, we will have a casting operation \inlin
 lazy_text\<open>Thus, since we have two class-types in our concrete class hierarchy, we have
 two operations to declare and to provide two overloading definitions for the two static types.
 \<close>
-lazy_text\<open>To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
+lazy_text\<open>To denote OCL-types occurring in OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.''\<close>
 lazy_text\<open>\label{sec:edm-accessors}\<close>
@@ -237,7 +237,7 @@ lazy_text\<open>For each Class \emph{C}, we will have a casting operation \inlin
 lazy_text\<open>Thus, since we have two class-types in our concrete class hierarchy, we have
 two operations to declare and to provide two overloading definitions for the two static types.
 \<close>
-lazy_text\<open>To denote OCL-types occuring in OCL expressions syntactically---as, for example,  as
+lazy_text\<open>To denote OCL-types occurring in OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.''\<close>
 lazy_text\<open>\label{sec:eam-accessors}\<close>

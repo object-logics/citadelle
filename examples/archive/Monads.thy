@@ -409,7 +409,7 @@ lemma mbind_unit [simp]:
 
 text{* The characteristic property of @{term mbind} --- which distinguishes it from 
        @{text mbind'} defined in the sequel --- is that it never fails; it ``swallows'' internal
-       errors occuring during the computation. *}    
+       errors occurring during the computation. *}    
 lemma mbind_nofailure [simp]:
      "mbind S f \<sigma> \<noteq> None"
       apply(rule_tac x=\<sigma> in spec)

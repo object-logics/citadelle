@@ -16,10 +16,10 @@ sig
   val use_theories:
     {document: bool,
      symbols: HTML.symbols,
-     last_timing: Toplevel.transition -> Time.time option,
+     last_timing: Toplevel.transition -> Time.time,
+     qualifier: string,
      master_dir: Path.T} -> (string * Position.T) list -> unit
-  val use_thys: (string * Position.T) list -> unit
-  val use_thy: string * Position.T -> unit
+  val use_thy: string -> unit
   val script_thy: Position.T -> string -> theory -> theory
   val register_thy: theory -> unit
   val finish: unit -> unit
@@ -54,10 +54,8 @@ type deps =
 
 fun make_deps master imports : deps = {master = master, imports = imports};
 
-fun master_dir (d: deps option) =
+fun master_dir_deps (d: deps option) =
   the_default Path.current (Option.map (Path.dir o #1 o #master) d);
-
-fun base_name s = Path.implode (Path.base (Path.explode s));
 
 local
   val global_thys =
@@ -88,7 +86,7 @@ fun get_thy name = get (get_thys ()) name;
 
 val lookup_deps = Option.map #1 o lookup_thy;
 
-val master_directory = master_dir o #1 o get_thy;
+val master_directory = master_dir_deps o #1 o get_thy;
 
 
 (* access theory *)
@@ -130,8 +128,8 @@ val remove_thy = change_thys o remove;
 
 fun update deps theory thys =
   let
-    val name = Context.theory_name theory;
-    val parents = map Context.theory_name (Theory.parents_of theory);
+    val name = Context.theory_long_name theory;
+    val parents = map Context.theory_long_name (Theory.parents_of theory);
 
     val thys' = remove name thys;
     val _ = map (get thys') parents;
@@ -156,11 +154,10 @@ fun result_ord (Result {weight = i, ...}, Result {weight = j, ...}) = int_ord (j
 
 fun join_theory (Result {theory, exec_id, ...}) =
   let
-    (*toplevel proofs and diags*)
-    val _ = Future.join_tasks (maps Future.group_snapshot (Execution.peek exec_id));
-    (*fully nested proofs*)
-    val res = Exn.capture Thm.join_theory_proofs theory;
-  in res :: map Exn.Exn (maps Task_Queue.group_status (Execution.peek exec_id)) end;
+    val _ = Execution.join [exec_id];
+    val res = Exn.capture Thm.consolidate_theory theory;
+    val exns = maps Task_Queue.group_status (Execution.peek exec_id);
+  in res :: map Exn.Exn exns end;
 
 datatype task =
   Task of Path.T * string list * (theory list -> result) |
@@ -170,8 +167,6 @@ fun task_finished (Task _) = false
   | task_finished (Finished _) = true;
 
 fun task_parents deps (parents: string list) = map (the o AList.lookup (op =) deps) parents;
-
-local
 
 val schedule_seq =
   String_Graph.schedule (fn deps => fn (_, task) =>
@@ -224,12 +219,106 @@ val schedule_futures = Thread_Attributes.uninterruptible (fn _ => fn tasks =>
     val _ = Par_Exn.release_all (results1 @ results2 @ results3 @ results4);
   in () end);
 
-in
 
-fun schedule_tasks tasks =
-  if Multithreading.enabled () then schedule_futures tasks else schedule_seq tasks;
+(* eval theory *)
 
-end;
+datatype span_raw = 
+    Span_cmd of Command_Span.span
+  | Span_tr of Toplevel.transition
+
+fun excursion keywords master_dir last_timing init elements =
+  let
+    fun prepare_span st = fn
+      Span_cmd span =>
+        Command_Span.content span
+        |> Command.read keywords (Command.read_thy st) master_dir init ([], ~1)
+        |> map (fn tr => Toplevel.put_timing (last_timing tr) tr)
+    | Span_tr tr => [tr];
+
+    fun element_result elem (st, _) =
+      let
+        val (results, st') = Toplevel.element_result keywords elem st;
+        val pos' = Toplevel.pos_of (Thy_Syntax.last_element elem);
+      in (results, (st', pos')) end;
+
+    val meta_cmd = fn [_] => false | _ => true
+    val (results, (end_state, end_pos)) =
+      let fun aux _ ([], acc) = ([], acc)
+        | aux prev_xs ((x :: xs), acc) =
+          let
+            val x0 = Thy_Syntax.map_element (prepare_span (#1 acc)) x
+          in
+            if Thy_Syntax.exists_element meta_cmd x0 then
+              let val (l_reparse, prev_xs) =
+                if case x0 of Thy_Syntax.Element (a0, _) => meta_cmd a0 then
+                   prev_xs |>
+                        (Scan.permissive (Scan.one (fn (Thy_Syntax.Element (_, NONE), _) => true | _ => false) >> (fn l => [l]))
+                         || Scan.succeed [])
+                else ([], prev_xs)
+              in
+                aux
+                  prev_xs
+                  (apfst
+                    (fn l => 
+                       Thy_Syntax.parse_elements keywords
+                          (fn x => Span_cmd (Command_Span.Span (x, [])))
+                          (fn Span_cmd (Command_Span.Span (x, _)) => x
+                            | Span_tr tr => Command_Span.Command_Span (Toplevel.name_of tr, Toplevel.pos_of tr))
+                          (List.concat (List.concat [ l,
+                                                      map (map Span_tr) (Thy_Syntax.flat_element x0),
+                                                      map Thy_Syntax.flat_element xs])))
+                    (case map (apfst Thy_Syntax.flat_element) (rev l_reparse) of
+                       [] => ([], acc)
+                     | (x, acc) :: xs => (x :: map #1 xs, acc)))
+              end
+            else
+              let
+                val x0 = Thy_Syntax.map_element hd x0
+                val (x', acc') = element_result x0 acc;
+                val (xs', acc'') = aux ((Thy_Syntax.map_element Span_tr x0, acc) :: prev_xs) (xs, acc');
+              in (x' :: xs', acc'') end
+          end
+      in
+      aux [] (elements, (Toplevel.toplevel, Position.none))
+      end;
+    val thy = Toplevel.end_theory end_pos end_state;
+  in (results, thy) end;
+
+fun eval_thy document symbols last_timing update_time master_dir header text_pos text parents =
+  let
+    val (name, _) = #name header;
+    val keywords =
+      fold (curry Keyword.merge_keywords o Thy_Header.get_keywords) parents
+        (Keyword.add_keywords (#keywords header) Keyword.empty_keywords);
+
+    val toks = Token.explode keywords text_pos text;
+    val spans = Outer_Syntax.parse_spans toks;
+    val elements = map (Thy_Syntax.map_element Span_cmd)
+                       (Thy_Syntax.parse_elements keywords
+                                                  (fn x => Command_Span.Span (x, []))
+                                                  (fn Command_Span.Span (x, _) => x)
+                                                  spans)
+
+    fun init () =
+      Resources.begin_theory master_dir header parents
+      |> Present.begin_theory update_time
+        (fn () => implode (map (HTML.present_span symbols keywords) spans));
+
+    val (results, thy) =
+      cond_timeit true ("theory " ^ quote name)
+        (fn () => excursion keywords master_dir last_timing init elements);
+
+    fun present () =
+      let
+        val res = filter_out (Toplevel.is_ignored o #1) (maps Toplevel.join_results results);
+      in
+        if exists (Toplevel.is_skipped_proof o #2) res then
+          warning ("Cannot present theory with skipped proofs: " ^ quote name)
+        else
+          if document then let val tex_source = Thy_Output.present_thy thy res toks |> Buffer.content in Present.theory_output thy tex_source end else ()
+      end;
+
+  in (thy, present, size text) end;
 
 
 (* require_thy -- checking database entries wrt. the file-system *)
@@ -259,7 +348,7 @@ fun load_thy document symbols last_timing
 
     val text_pos = Position.put_id (Document_ID.print exec_id) (Path.position thy_path);
     val (theory, present, weight) =
-      Resources.load_thy document symbols last_timing update_time dir header text_pos text
+      eval_thy document symbols last_timing update_time dir header text_pos text
         (if name = Context.PureN then [Context.the_global_context ()] else parents);
     fun commit () = update_thy deps theory;
   in
@@ -286,44 +375,45 @@ fun check_deps dir name =
 
 in
 
-fun require_thys document symbols last_timing initiators dir strs tasks =
-      fold_map (require_thy document symbols last_timing initiators dir) strs tasks |>> forall I
-and require_thy document symbols last_timing initiators dir (str, require_pos) tasks =
+fun require_thys document symbols last_timing initiators qualifier dir strs tasks =
+      fold_map (require_thy document symbols last_timing initiators qualifier dir) strs tasks
+      |>> forall I
+and require_thy document symbols last_timing initiators qualifier dir (s, require_pos) tasks =
   let
-    val path = Path.expand (Path.explode str);
-    val name = Path.implode (Path.base path);
-    val node_name = File.full_path dir (Resources.thy_path path);
+    val {node_name, master_dir, theory_name} = Resources.import_name qualifier dir s;
     fun check_entry (Task (node_name', _, _)) =
           if op = (apply2 File.platform_path (node_name, node_name'))
           then ()
           else
-            error ("Incoherent imports for theory " ^ quote name ^
+            error ("Incoherent imports for theory " ^ quote theory_name ^
               Position.here require_pos ^ ":\n" ^
               "  " ^ Path.print node_name ^ "\n" ^
               "  " ^ Path.print node_name')
       | check_entry _ = ();
   in
-    (case try (String_Graph.get_node tasks) name of
+    (case try (String_Graph.get_node tasks) theory_name of
       SOME task => (check_entry task; (task_finished task, tasks))
     | NONE =>
         let
-          val dir' = Path.append dir (Path.dir path);
-          val _ = member (op =) initiators name andalso error (cycle_msg initiators);
+          val _ = member (op =) initiators theory_name andalso error (cycle_msg initiators);
 
-          val (current, deps, theory_pos, imports, keywords) = check_deps dir' name
+          val (current, deps, theory_pos, imports, keywords) = check_deps master_dir theory_name
             handle ERROR msg =>
               cat_error msg
-                ("The error(s) above occurred for theory " ^ quote name ^
+                ("The error(s) above occurred for theory " ^ quote theory_name ^
                   Position.here require_pos ^ required_by "\n" initiators);
 
-          val parents = map (base_name o #1) imports;
+          val qualifier' = Resources.theory_qualifier theory_name;
+          val dir' = Path.append dir (master_dir_deps (Option.map #1 deps));
+
+          val parents = map (#theory_name o Resources.import_name qualifier' dir' o #1) imports;
           val (parents_current, tasks') =
-            require_thys document symbols last_timing (name :: initiators)
-              (Path.append dir (master_dir (Option.map #1 deps))) imports tasks;
+            require_thys document symbols last_timing (theory_name :: initiators)
+              qualifier' dir' imports tasks;
 
           val all_current = current andalso parents_current;
           val task =
-            if all_current then Finished (get_theory name)
+            if all_current then Finished (get_theory theory_name)
             else
               (case deps of
                 NONE => raise Fail "Malformed deps"
@@ -332,27 +422,29 @@ and require_thy document symbols last_timing initiators dir (str, require_pos) t
                     val update_time = serial ();
                     val load =
                       load_thy document symbols last_timing initiators update_time dep
-                        text (name, theory_pos) keywords;
+                        text (theory_name, theory_pos) keywords;
                   in Task (node_name, parents, load) end);
 
-          val tasks'' = new_entry name parents task tasks';
+          val tasks'' = new_entry theory_name parents task tasks';
         in (all_current, tasks'') end)
   end;
 
 end;
 
 
-(* use_thy *)
+(* use theories *)
 
-fun use_theories {document, symbols, last_timing, master_dir} imports =
-  schedule_tasks
-    (snd (require_thys document symbols last_timing [] master_dir imports String_Graph.empty));
+fun use_theories {document, symbols, last_timing, qualifier, master_dir} imports =
+  let
+    val (_, tasks) =
+      require_thys document symbols last_timing [] qualifier master_dir imports String_Graph.empty;
+  in if Multithreading.enabled () then schedule_futures tasks else schedule_seq tasks end;
 
-val use_thys =
+fun use_thy name =
   use_theories
-    {document = false, symbols = HTML.no_symbols, last_timing = K NONE, master_dir = Path.current};
-
-val use_thy = use_thys o single;
+    {document = false, symbols = HTML.no_symbols, last_timing = K Time.zeroTime,
+     qualifier = Resources.default_qualifier, master_dir = Path.current}
+    [(name, Position.none)];
 
 
 (* toplevel scripting -- without maintaining database *)
@@ -371,7 +463,7 @@ fun script_thy pos txt thy =
 
 fun register_thy theory =
   let
-    val name = Context.theory_name theory;
+    val name = Context.theory_long_name theory;
     val {master, ...} = Resources.check_thy (Resources.master_directory theory) name;
     val imports = Resources.imports_of theory;
   in
@@ -389,4 +481,4 @@ fun finish () = change_thys (String_Graph.map (fn _ => fn (_, entry) => (NONE, e
 
 end;
 
-fun use_thy name = Runtime.toplevel_program (fn () => Thy_Info.use_thy (name, Position.none));
+fun use_thy name = Runtime.toplevel_program (fn () => Thy_Info.use_thy name);

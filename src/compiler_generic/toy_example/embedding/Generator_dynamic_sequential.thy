@@ -219,7 +219,7 @@ fun check l_oid l =
   META.check_export_code
     (writeln o Mi)
     (warning o Mi)
-    (writeln o Markup.markup Markup.bad o Mi)
+    (fn s => writeln (Markup.markup (Markup.bad ()) (Mi s)))
     (error o To_string0)
     (Ml (Mp I Me) l_oid)
     ((META.SS_base o META.ST) l)
@@ -1061,7 +1061,7 @@ fun export_code_tmp_file seris g =
          else
            Isabelle_System.with_tmp_file tmp_name (Deep0.Find.ext ml_compiler))
           (fn filename =>
-             g (((((ml_compiler, ml_module), Path.implode filename), export_arg) :: accu)))
+             g (((((ml_compiler, ml_module), (Path.implode filename, Position.none)), export_arg) :: accu)))
         end))
     seris
     (fn f => f [])
@@ -1082,7 +1082,7 @@ fun export_code_cmd' seris tmp_export_code f_err raw_cs thy =
            let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
            if mem_scala then Code_printing.apply_code_printing v else v end) in
       List_mapi
-        (fn i => fn seri => case seri of (((ml_compiler, _), filename), _) =>
+        (fn i => fn seri => case seri of (((ml_compiler, _), (filename, _)), _) =>
           let val (l, (out, err)) =
                 Deep0.Find.build
                   ml_compiler
@@ -1259,12 +1259,13 @@ fun f_command l_mode =
                             fun mk_fic s = Path.append tmp_export_code (Path.make [s])
                             val () = Deep0.Find.check_compil ml_compiler ()
                             val () = Isabelle_System.mkdirs tmp_export_code in
-                        ((( (ml_compiler, ml_module)
-                          , Path.implode (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
-                                            tmp_export_code
-                                          else
-                                            mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler))))
-                          , export_arg), mk_fic)
+                        (( ( (ml_compiler, ml_module)
+                           , ( Path.implode (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
+                                               tmp_export_code
+                                             else
+                                               mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler)))
+                             , Position.none))
+                         , export_arg), mk_fic)
                         end)
                       (List.filter (fn (("self", _), _) => false | _ => true) (#seri_args i_deep))
                   val _ =
@@ -1337,7 +1338,7 @@ let open Generation_mode
               :: []))
       |> Deep.export_code_cmd' seri_args
                                tmp_export_code
-                               (fn (((_, _), msg), _) => fn err => if err <> 0 then error msg else ())
+                               (fn (((_, _), (msg, _)), _) => fn err => if err <> 0 then error msg else ())
                                [name_main]
       end
   in
@@ -1382,7 +1383,7 @@ local
 fun fold_thy_shallow f = 
   META.fold_thy_shallow
     (fn f => f () handle ERROR e =>
-      ( warning "Shallow Backtracking: (true) Isabelle declarations occuring among the META-simulated ones are ignored (if any)"
+      ( warning "Shallow Backtracking: (true) Isabelle declarations occurring among the META-simulated ones are ignored (if any)"
         (* TODO automatically determine if there is such Isabelle declarations,
                 for raising earlier a specific error message *)
       ; error e))

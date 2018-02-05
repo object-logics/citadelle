@@ -98,8 +98,14 @@ val parse_inst_ident = Parse.name --| @{keyword "::"} -- Parse.class;
 
 (* code generation *)
 
-fun prep_destination "" = NONE
-  | prep_destination s = SOME (Path.explode s);
+fun prep_destination (s, pos) =
+  if s = "" then NONE
+  else
+    let
+      val _ = Position.report pos Markup.language_path;
+      val path = Path.explode s;
+      val _ = Position.report pos (Markup.path (Path.smart_implode path));
+    in SOME path end;
 
 
 fun export_code_cmd all_public raw_cs seris ctxt =

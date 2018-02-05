@@ -434,7 +434,7 @@ two operations to declare and to provide two overloading definitions for the two
 
           , [ section \<open>OclAllInstances\<close>
             , txt'' [ \<open>
-   To denote \OCL-types occuring in \OCL expressions syntactically---as, for example,  as
+   To denote \OCL-types occurring in \OCL expressions syntactically---as, for example,  as
 ``argument'' of \inlineisar{oclAllInstances()}---we use the inverses of the injection
 functions into the object universes; we show that this is sufficient ``characterization.'' \<close> ]
             , PRINT_allinst_def_id

@@ -44,13 +44,13 @@ struct
 
 (** options **)
 
-val display = Attrib.setup_option_bool ("thy_output_display", @{here});
-val break = Attrib.setup_option_bool ("thy_output_break", @{here});
-val quotes = Attrib.setup_option_bool ("thy_output_quotes", @{here});
-val margin = Attrib.setup_option_int ("thy_output_margin", @{here});
-val indent = Attrib.setup_option_int ("thy_output_indent", @{here});
-val source = Attrib.setup_option_bool ("thy_output_source", @{here});
-val modes = Attrib.setup_option_string ("thy_output_modes", @{here});
+val display = Attrib.setup_option_bool ("thy_output_display", \<^here>);
+val break = Attrib.setup_option_bool ("thy_output_break", \<^here>);
+val quotes = Attrib.setup_option_bool ("thy_output_quotes", \<^here>);
+val margin = Attrib.setup_option_int ("thy_output_margin", \<^here>);
+val indent = Attrib.setup_option_int ("thy_output_indent", \<^here>);
+val source = Attrib.setup_option_bool ("thy_output_source", \<^here>);
+val modes = Attrib.setup_option_string ("thy_output_modes", \<^here>);
 
 
 structure Wrappers = Proof_Data
@@ -169,7 +169,7 @@ fun eval_antiq state (opts, src) =
 
     fun cmd ctxt = wrap ctxt (fn () => command src state ctxt) ();
     val _ = cmd preview_ctxt;
-    val print_modes = space_explode "," (Config.get print_ctxt modes) @ Latex.modes;
+    val print_modes = space_explode "," (Config.get print_ctxt modes) @ [Latex.latexN];
   in Print_Mode.with_modes print_modes (fn () => cmd print_ctxt) () end;
 
 in
@@ -591,7 +591,7 @@ fun pretty_type ctxt s =
   let val Type (name, _) = Proof_Context.read_type_name {proper = true, strict = false} ctxt s
   in Pretty.str (Proof_Context.extern_type ctxt name) end;
 
-fun pretty_prf full ctxt = Proof_Syntax.pretty_proof_of ctxt full;
+fun pretty_prf full ctxt = Proof_Syntax.pretty_clean_proof_of ctxt full;
 
 fun pretty_theory ctxt (name, pos) = (Theory.check ctxt (name, pos); Pretty.str name);
 

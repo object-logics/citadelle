@@ -47,7 +47,7 @@
 chapter{* Formalization I: OCL Types and Core Definitions \label{sec:focl-types}*}
 
 theory    UML_Types
-imports   Transcendental (* Testing *)
+imports   HOL.Transcendental (* Testing *)
 keywords "Assert" :: thy_decl
      and "Assert_local" :: thy_decl
 begin
@@ -624,9 +624,9 @@ fun outer_syntax_command command_spec theory in_local =
   Outer_Syntax.command command_spec "assert that the given specification is true"
     (Parse.term >> (fn elems_concl => theory (fn thy =>
       case
-        lemma "code_unfold" (Specification.theorem true)
+        lemma "nbe" (Specification.theorem true)
           (fn lthy => 
-            let val expr = Value_Command.value lthy (Syntax.read_term lthy elems_concl)
+            let val expr = Nbe.dynamic_value lthy (Syntax.read_term lthy elems_concl)
                 val thy = Proof_Context.theory_of lthy
                 open HOLogic in
             if Sign.typ_equiv thy (fastype_of expr, @{typ "prop"}) then

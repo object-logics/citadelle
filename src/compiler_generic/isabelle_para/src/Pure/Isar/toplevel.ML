@@ -79,8 +79,8 @@ sig
   val exec_id: Document_ID.exec -> transitions -> transitions
   val setmp_thread_position: transition -> ('a -> 'b) -> 'a -> 'b
   val add_hook: (transition -> state -> state -> unit) -> unit
-  val get_timing: transition -> Time.time option
-  val put_timing: Time.time option -> transition -> transition
+  val get_timing: transition -> Time.time
+  val put_timing: Time.time -> transition -> transition
   val transition: bool -> transition -> state -> state * (exn * string) option
   val command_errors: bool -> transition -> state -> Runtime.error list * state option
   val command_exception: bool -> transition -> state -> state
@@ -296,7 +296,7 @@ datatype state_write = Store_backup | Store_default
 datatype transition = Transition of
  {name: string,                           (*command name*)
   pos: Position.T,                        (*source position*)
-  timing: Time.time option,               (*prescient timing information*)
+  timing: Time.time,                      (*prescient timing information*)
   trans: trans list,                      (*primitive transitions (union)*)
   read_write: state_read * state_write};  (*state update status*)
 
@@ -308,7 +308,7 @@ fun make_transition (name, pos, timing, trans, read_write) =
 fun map_transition f (Transition {name, pos, timing, trans, read_write}) =
   make_transition (f (name, pos, timing, trans, read_write));
 
-val empty = make_transition ("", Position.none, NONE, [], (Load_previous, Store_default));
+val empty = make_transition ("", Position.none, Time.zeroTime, [], (Load_previous, Store_default));
 
 
 (* diagnostics *)
@@ -446,7 +446,7 @@ fun local_theory' restricted target f = present_transaction (fn int =>
 
 fun local_theory restricted target f = local_theory' restricted target (K f);
 
-fun present_local_theory target = present_transaction (fn int =>
+fun present_local_theory target = present_transaction (fn _ =>
   (fn Theory (gthy, _) =>
         let val (finish, lthy) = Named_Target.switch target gthy;
         in Theory (finish lthy, SOME lthy) end
@@ -581,7 +581,7 @@ fun put_timing timing = map_transition (fn (name, pos, _, trans, read_write) => 
 
 local
 
-fun app int (tr as Transition {name, trans, ...}) =
+fun app int (tr as Transition {trans, ...}) =
   setmp_thread_position tr (fn state =>
     let
       val timing_start = Timing.start ();
@@ -622,7 +622,7 @@ end;
 fun command_errors int tr st =
   (case transition int tr st of
     (st', NONE) => ([], SOME st')
-  | (_, SOME (exn, _)) => (Runtime.exn_messages_ids exn, NONE));
+  | (_, SOME (exn, _)) => (Runtime.exn_messages exn, NONE));
 
 fun command_exception int tr st =
   (case transition int tr st of
@@ -677,19 +677,9 @@ structure Result = Proof_Data
 val get_result = Result.get o Proof.context_of;
 val put_result = Proof.map_context o Result.put;
 
-fun timing_estimate include_head elem =
-  let
-    val trs = Thy_Syntax.flat_element elem |> not include_head ? tl;
-    val timings = map get_timing trs;
-  in
-    if forall is_some timings then
-      SOME (fold (curry (op +) o the) timings Time.zeroTime)
-    else NONE
-  end;
-
-fun priority NONE = ~1
-  | priority (SOME estimate) =
-      Int.min (Real.floor (Real.max (Math.log10 (Time.toReal estimate), ~3.0)) - 3, ~1);
+fun timing_estimate elem =
+  let val trs = tl (Thy_Syntax.flat_element elem)
+  in fold (fn tr => fn t => get_timing tr + t) trs Time.zeroTime end;
 
 fun proof_future_enabled estimate st =
   (case try proof_of st of
@@ -698,18 +688,14 @@ fun proof_future_enabled estimate st =
       not (Proof.is_relevant state) andalso
        (if can (Proof.assert_bottom true) state
         then Goal.future_enabled 1
-        else
-          (case estimate of
-            NONE => Goal.future_enabled 2
-          | SOME t => Goal.future_enabled_timing t)));
+        else Goal.future_enabled 2 orelse Goal.future_enabled_timing estimate));
 
 fun atom_result keywords tr st =
   let
     val st' =
       if Goal.future_enabled 1 andalso Keyword.is_diag keywords (name_of tr) then
         (Execution.fork
-          {name = "Toplevel.diag", pos = pos_of tr,
-            pri = priority (timing_estimate true (Thy_Syntax.atom tr))}
+          {name = "Toplevel.diag", pos = pos_of tr, pri = ~1}
           (fn () => command tr st); st)
       else command tr st;
   in (Result (tr, st'), st') end;
@@ -721,7 +707,7 @@ fun element_result keywords (Thy_Syntax.Element (tr, NONE)) st = atom_result key
       let
         val (head_result, st') = atom_result keywords head_tr st;
         val (body_elems, end_tr) = element_rest;
-        val estimate = timing_estimate false elem;
+        val estimate = timing_estimate elem;
       in
         if not (proof_future_enabled estimate st')
         then
@@ -736,7 +722,7 @@ fun element_result keywords (Thy_Syntax.Element (tr, NONE)) st = atom_result key
             val future_proof =
               Proof.future_proof (fn state =>
                 Execution.fork
-                  {name = "Toplevel.future_proof", pos = pos_of head_tr, pri = priority estimate}
+                  {name = "Toplevel.future_proof", pos = pos_of head_tr, pri = ~1}
                   (fn () =>
                     let
                       val State (SOME (Proof (prf, (_, orig_gthy))), prev, backup) = st';

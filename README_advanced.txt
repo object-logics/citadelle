@@ -54,7 +54,7 @@ Isabelle (version 3.6) mentions:
    of their own. No starting spaces, nothing after it."
 In particular, it is not advised to put these tags in a single line:
 \isatagafp ... \endisatagafp % wrong
-otherwise as side effects some parts occuring after these tags may be
+otherwise as side effects some parts occurring after these tags may be
 skipped. The recommanded solution is to always write each tag in a
 separate line:
 \isatagafp
@@ -78,6 +78,7 @@ are close to not debug-able.
 
 List of Isabelle versions to use depending on revisions:
 =========================================================
+2018/02/05 revision 13265: Isabelle2017   (October  2017)
 2018/01/29 revision 13259: Isabelle2016-1 (December 2016)
 2016/02/22 revision 12439: Isabelle2016   (February 2016)
 2015/06/11 revision 11691: Isabelle2015   (May      2015)

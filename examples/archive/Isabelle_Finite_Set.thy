@@ -122,7 +122,7 @@ like validity, not emptiness, finiteness...
 Since the first hypothesis of @{text comp_fun_commute.fold_insert} is too general,
 in order to replace it by another weaker locale we have the choice between
 reusing the @{term comp_fun_commute} locale or whether completely defining a new locale.
-Because elements occuring in the type of @{term Finite_Set.fold_graph} are represented in polymorphic form,
+Because elements occurring in the type of @{term Finite_Set.fold_graph} are represented in polymorphic form,
 the folding on a value-proposition couple would be possible in a type system with dependent types.
 But without the dependent typing facility, we choose to give the well-defined properties
 to each functions in a duplicated version of @{term comp_fun_commute}. *}

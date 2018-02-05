@@ -56,7 +56,7 @@ Runtime services building on code generation into implementation language SML.
 
 open Basic_Code_Symbol;
 
-(** computation **)
+(** ML compiler as evaluation environment **)
 
 (* technical prerequisites *)
 
@@ -72,7 +72,7 @@ fun compile_ML verbose code context =
 
 
 
-(* computation as evaluation into ML language values *)
+(* evaluation into ML language values *)
 
 
 
@@ -82,7 +82,43 @@ fun compile_ML verbose code context =
 
 (** full static evaluation -- still with limited coverage! **)
 
-fun evaluation_code ctxt module_name program tycos consts all_public =
+
+
+(** generator for computations -- partial implementations of the universal morphism from Isabelle to ML terms **)
+
+(* auxiliary *)
+
+
+
+(* possible type signatures of constants *)
+
+
+
+(* name mangling *)
+
+
+
+(* checks for input terms *)
+
+
+
+(* code generation for of the universal morphism *)
+
+
+
+(* dedicated preprocessor for computations *)
+
+
+
+(* mounting computations *)
+
+
+
+(** variants of universal runtime code generation **)
+
+(*FIXME consolidate variants*)
+
+fun runtime_code'' ctxt module_name program tycos consts all_public =
   let
     val thy = Proof_Context.theory_of ctxt;
     val (ml_modules, target_names) =
@@ -104,7 +140,7 @@ fun evaluation_code ctxt module_name program tycos consts all_public =
 
 
 
-(** code antiquotation **)
+(** code and computation antiquotations **)
 
 
 
@@ -184,7 +220,7 @@ fun gen_code_reflect prep_type prep_const all_public raw_datatypes raw_functions
     val functions = map (prep_const thy) raw_functions;
     val consts = constrs @ functions;
     val program = Code_Thingol.consts_program ctxt consts;
-    val result = evaluation_code ctxt module_name program tycos consts all_public
+    val result = runtime_code'' ctxt module_name program tycos consts all_public
       |> (apsnd o apsnd) (chop (length constrs));
   in
     thy
@@ -209,12 +245,12 @@ val _ =
   Outer_Syntax.command @{command_keyword code_reflect'}
     "enrich runtime environment with generated code"
     (Scan.optional (@{keyword "open"} |-- Scan.succeed true) false --
-     Parse.name -- Scan.optional (@{keyword "datatypes"} |-- Parse.!!!  (parse_datatype
+     Parse.name -- Scan.optional (@{keyword "datatypes"} |-- Parse.!!! (parse_datatype
       ::: Scan.repeat (@{keyword "and"} |-- parse_datatype))) []
     -- Scan.optional (@{keyword "functions"} |-- Parse.!!!  (Scan.repeat1 Parse.name)) []
     -- Scan.option (@{keyword "file"} |-- Parse.!!! Parse.name)
     >> (fn ((((all_public, module_name), raw_datatypes), raw_functions), some_file) => Toplevel.theory
-      (code_reflect_cmd all_public raw_datatypes raw_functions module_name some_file)))
+      (code_reflect_cmd all_public raw_datatypes raw_functions module_name some_file)));
 
 end; (*local*)
 

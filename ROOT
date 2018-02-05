@@ -101,7 +101,7 @@ session "OCL" in "src" = HOL +
 
 (******************************************************)
 
-session "OCL-all-dirty" in "src" = HOL +
+session "OCL-all-dirty" in "src" = "HOL-Library" +
   description {* Featherweight OCL (Long and Dirty) *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
            document_variants="document=afp,-annexa,-noexample",
@@ -164,7 +164,7 @@ session "OCL-all-dirty" in "src" = HOL +
 
 (******************************************************)
 
-session "FOCL" in "src" = HOL +
+session "FOCL" in "src" = "HOL-Library" +
   description {* Featherweight OCL (Compiler) *}
   options [document=pdf,document_output=document_generated,
            document_variants="document=noexample,-afp,-annexa",
@@ -189,7 +189,7 @@ session "FOCL" in "src" = HOL +
     "root.tex"
     "FOCL_Syntax.tex"
 
-session "FOCL-dirty" in "src" = HOL +
+session "FOCL-dirty" in "src" = "HOL-Library" +
   description {* Featherweight OCL (Compiler) *}
   options [quick_and_dirty,document=pdf,document_output=document_generated,
            document_variants="document=noexample,-afp,-annexa",
