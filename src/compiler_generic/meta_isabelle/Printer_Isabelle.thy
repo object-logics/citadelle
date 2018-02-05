@@ -308,8 +308,8 @@ definition "of_lemma _ =
                                l_apply))
       (of_semi__command_final tactic_last)
   | Lemma_assumes n l_spec concl l_apply tactic_last \<Rightarrow>
-    \<open>lemma %s : %s
-%s%s %s\<close>
+    \<open>lemma %s :%s
+%s%s%s\<close>
       (To_string n)
       (String_concat \<open>\<close> (L.map (\<lambda>(n, b, e).
           \<open>
@@ -322,15 +322,15 @@ assumes %s\"%s\"\<close>
 shows \"%s\"\<close> (of_semi__term concl)]))
       (String_concat \<open>\<close> (L.map of_semi__command_proof l_apply))
       (of_semi__command_final tactic_last)
-      (String_concat \<open> \<close>
+      (String_concat \<open>\<close>
         (L.map
           (\<lambda>l_apply_e.
-            \<open>%sqed\<close>
+            \<open>%s qed\<close>
               (if l_apply_e = [] then
                  \<open>\<close>
                else
                  \<open>
-%s \<close>
+%s\<close>
                    (String_concat \<open>\<close> (L.map of_semi__command_state l_apply_e))))
           (List.map_filter
             (\<lambda> Command_let _ _ \<Rightarrow> Some [] | Command_have _ _ _ _ \<Rightarrow> Some [] | Command_fix_let _ _ _ l \<Rightarrow> Some l | _ \<Rightarrow> None)
