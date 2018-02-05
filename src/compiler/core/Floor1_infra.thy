@@ -195,7 +195,7 @@ definition "print_infra_datatype_equiv_1of2 = start_map'' O.definition o (\<lamb
                Pair ( a (datatype_ext_constr_name @@ mk_constr_name name name_pers)
                         (a' (isub_name_pers datatype_constr_name) (var_t # l_attr_pers))
                     , Term_case (a (isub_name_pers print_infra_datatype_equiv_1of2_name_get_oid_inh) (b var_t))
-                                [ let l_inh = L.flatten [ L.flatten (L.map (\<lambda>OclClass _ l_attr _ \<Rightarrow> 
+                                [ let l_inh = L.flatten [ L.flatten (L.map (\<lambda>OclClass _ l_attr _ \<Rightarrow>
                                                                              L.map f_attr_var (fst (base_attr' (l_attr, [])))) (of_inh l_inh))
                                                         , l_attr'
                                                         , l_inherited' ] in
@@ -223,12 +223,12 @@ definition "print_infra_datatype_equiv_1of2 = start_map'' O.definition o (\<lamb
                                , a (isub_name_pers print_infra_datatype_equiv_1of2_name_get_oid_inh) (b var_t))])
                            [(Term_pairs'
                                b
-                               ( var_oid # (L.flatten [ L.flatten (L.map (\<lambda>OclClass _ l_attr _ \<Rightarrow> 
+                               ( var_oid # (L.flatten [ L.flatten (L.map (\<lambda>OclClass _ l_attr _ \<Rightarrow>
                                                           L.map f_attr_var (fst (base_attr' (l_attr, [])))) (of_inh l_inh))
                                                       , l_attr'
                                                       , l_inherited']))
                                , let f_cons = \<lambda> expr name0 name1. Term_some (a (datatype'_ext_constr_name @@ mk_constr_name name1 name0) expr)
-                                   ; (expr, name0) = 
+                                   ; (expr, name0) =
                                    foldl
                                      (\<lambda> (expr, name0) (name1, l_attr1).
                                        ( Term_app (datatype'_ext_constr_name @@ String.isub name1)
@@ -250,7 +250,7 @@ definition "print_infra_datatype_equiv_1of2 = start_map'' O.definition o (\<lamb
 definition "print_infra_datatype_equiv_1_idempo_name = \<open>class_ty_ext_equiv_1_idempo\<close>"
 definition "print_infra_datatype_equiv_1_idempo = start_map'' O.lemma o (\<lambda>expr _ base_attr' _. map_class_gen_h'''
  (\<lambda>isub_name name _ l_attr l_inherited next_dataty.
-  let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited) 
+  let (l_attr, l_inherited) = base_attr' (l_attr, of_inh l_inherited)
     ; f_attr_own = (\<lambda>s. \<open>own\<close> @@ String.isub s (* fresh variable names *)) o fst
     ; f_attr_inh = (\<lambda>s. \<open>inh\<close> @@ String.isub s (* fresh variable names *)) o fst
     ; f_attr_var = (\<lambda>s. \<open>var\<close> @@ String.isub s (* fresh variable names *)) o fst
@@ -285,7 +285,7 @@ Class Ppp < Planet
 Class Yyy < Zzz
 Class Zzz
 *)
-lemma class_ty_ext_equiv_1_idempo\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t : 
+lemma class_ty_ext_equiv_1_idempo\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t :
 shows "(class_ty_ext_equiv_1of2\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t ((class_ty_ext_equiv_2of1\<^sub>P\<^sub>l\<^sub>a\<^sub>n\<^sub>e\<^sub>t (X)))) = X"
  apply(case_tac "X", simp)
  subgoal for oid (*var\<^sub>w\<^sub>o\<^sub>r\<^sub>m\<^sub>h\<^sub>o\<^sub>l\<^sub>e var\<^sub>w\<^sub>e\<^sub>i\<^sub>g\<^sub>h\<^sub>t*) var\<^sub>s\<^sub>o\<^sub>u\<^sub>n\<^sub>d var\<^sub>m\<^sub>o\<^sub>v\<^sub>i\<^sub>n\<^sub>g t

@@ -84,7 +84,7 @@ definition "init_map_class env l =
   (let (rbt_nat, rbt_str, _, _) =
      List.fold
        (\<lambda> toyi (rbt_nat, rbt_str, oid_start, accu).
-         let f = \<lambda>_. 
+         let f = \<lambda>_.
              ( RBT.insert (Oid accu) oid_start rbt_nat
              , insert (inst_name toyi) oid_start rbt_str
              , oidSucInh oid_start
@@ -244,7 +244,7 @@ definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lamb
        (L.map (\<lambda> _. []))
        id
        (mk_instance_single_cpt0 map_username l env)
-   , let l_id = L.mapi (\<lambda>i toyi. (i, inst_name toyi)) l in 
+   , let l_id = L.mapi (\<lambda>i toyi. (i, inst_name toyi)) l in
      List.fold
        (\<lambda>toyi instance_rbt.
          let n = inst_name toyi in
@@ -261,7 +261,7 @@ definition "print_examp_instance = (\<lambda> ToyInstance l \<Rightarrow> \<lamb
 
 definition "print_examp_def_st0 name l =
  (let (l, _) = List.fold (\<lambda> (pos, core) (l, n).
-                                      ((pos, pos - n, core) # l, 
+                                      ((pos, pos - n, core) # l,
                                         case core of ToyDefCoreAdd _ \<Rightarrow> n
                                         | ToyDefCoreBinding _ \<Rightarrow> Succ n))
                              (L.mapi Pair l)
@@ -272,7 +272,7 @@ definition "print_examp_def_st0 name l =
                      (case L.assoc self l of
                         Some (_, ToyDefCoreBinding name) \<Rightarrow> ShallB_str name
                       | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
-                      | _ \<Rightarrow> ShallB_list [])) toyi 
+                      | _ \<Rightarrow> ShallB_list [])) toyi
                    \<lparr> Inst_name := Some i_name \<rparr>
                  # l_inst
                  , ToyDefCoreBinding i_name # l_defst)
@@ -302,7 +302,7 @@ definition "print_examp_def_st1 s = fst o print_examp_def_st1_gen s"
 definition "print_meta_setup_def_state s env = snd (print_examp_def_st1_gen s env) env"
 
 definition "print_transition_gen = (\<lambda> ToyDefPP name s_pre s_post \<Rightarrow> bootstrap_floor'
-  (\<lambda>f env. 
+  (\<lambda>f env.
     let (l, accu) = f env in
     (L.flatten [ L.map META_all_meta_embedding l ], accu))
   (\<lambda>env.

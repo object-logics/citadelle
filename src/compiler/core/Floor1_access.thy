@@ -142,7 +142,7 @@ definition "print_access_choose = start_map'''' O.definition o (\<lambda>expr _.
      ; lets = \<lambda>var exp. Definition (Term_rewrite (Term_basic [var]) \<open>=\<close> exp)
      ; lets' = \<lambda>var exp. Definition (Term_rewrite (Term_basic [var]) \<open>=\<close> (b exp))
      ; lets'' = \<lambda>var exp. Definition (Term_rewrite (Term_basic [var]) \<open>=\<close> (Term_lam \<open>l\<close> (\<lambda>var_l. Term_binop (b var_l) \<open>!\<close> (b exp))))
-     ; _(* ignored *) = 
+     ; _(* ignored *) =
         let l_flatten = \<open>L.flatten\<close> in
         [ lets l_flatten (let fun_foldl = \<lambda>f base.
                              Term_lam \<open>l\<close> (\<lambda>var_l. Term_app \<open>foldl\<close> [Term_lam \<open>acc\<close> f, base, a \<open>rev\<close> (b var_l)]) in
@@ -699,7 +699,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
       | _ \<Rightarrow> [] (* TODO *))) expr)"
 
 definition "print_access_repr_allinst = start_map''''' O.lemma o (\<lambda>expr (sorry, dirty) design_analysis.
-  if sorry = Some Gen_sorry | sorry = None & dirty then 
+  if sorry = Some Gen_sorry | sorry = None & dirty then
   map_class_arg_only_var'
     (\<lambda>isub_name name (var_in_when_state, dot_at_when) attr_ty isup_attr dot_attr.
       case attr_ty of OclTy_object (OclTyObj (OclTyCore ty_obj) _) \<Rightarrow>

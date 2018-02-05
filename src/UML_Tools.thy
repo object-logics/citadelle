@@ -1,5 +1,5 @@
 (******************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5 
+ * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
@@ -52,39 +52,39 @@ begin
 
 lemmas substs1 = StrongEq_L_subst2_rev
                  foundation15[THEN iffD2, THEN StrongEq_L_subst2_rev]
-                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
-                                       THEN StrongEq_L_subst2_rev]]                
+                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2,
+                                       THEN StrongEq_L_subst2_rev]]
                  foundation14[THEN iffD2, THEN StrongEq_L_subst2_rev]
                  foundation13[THEN iffD2, THEN StrongEq_L_subst2_rev]
-                
+
 lemmas substs2 = StrongEq_L_subst3_rev
                  foundation15[THEN iffD2, THEN StrongEq_L_subst3_rev]
-                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
-                                       THEN StrongEq_L_subst3_rev]]                
+                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2,
+                                       THEN StrongEq_L_subst3_rev]]
                  foundation14[THEN iffD2, THEN StrongEq_L_subst3_rev]
                  foundation13[THEN iffD2, THEN StrongEq_L_subst3_rev]
-                 
+
 lemmas substs4 = StrongEq_L_subst4_rev
                  foundation15[THEN iffD2, THEN StrongEq_L_subst4_rev]
-                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
-                                       THEN StrongEq_L_subst4_rev]]                
+                 foundation7'[THEN iffD2, THEN foundation15[THEN iffD2,
+                                       THEN StrongEq_L_subst4_rev]]
                  foundation14[THEN iffD2, THEN StrongEq_L_subst4_rev]
                  foundation13[THEN iffD2, THEN StrongEq_L_subst4_rev]
 
-                 
+
 lemmas substs = substs1 substs2 substs4 [THEN iffD2] substs4
 thm substs
 ML{*
-fun ocl_subst_asm_tac ctxt  = FIRST'(map (fn C => (eresolve0_tac [C]) THEN' (simp_tac ctxt)) 
+fun ocl_subst_asm_tac ctxt  = FIRST'(map (fn C => (eresolve0_tac [C]) THEN' (simp_tac ctxt))
                                          @{thms "substs"})
 
-val ocl_subst_asm = fn ctxt => SIMPLE_METHOD (ocl_subst_asm_tac ctxt 1); 
+val ocl_subst_asm = fn ctxt => SIMPLE_METHOD (ocl_subst_asm_tac ctxt 1);
 
-val _ = Theory.setup 
-             (Method.setup (Binding.name "ocl_subst_asm") 
-             (Scan.succeed (ocl_subst_asm)) 
-             "ocl substition step") 
- 
+val _ = Theory.setup
+             (Method.setup (Binding.name "ocl_subst_asm")
+             (Scan.succeed (ocl_subst_asm))
+             "ocl substition step")
+
 *}
 
 lemma test1 : "\<tau> \<Turnstile> A \<Longrightarrow> \<tau> \<Turnstile> (A and B \<triangleq> B)"
@@ -110,13 +110,13 @@ by(ocl_subst_asm, simp)
 lemma test7 : "\<not> (\<tau> \<Turnstile> (\<upsilon> A)) \<Longrightarrow> \<tau> \<Turnstile> (not B) \<Longrightarrow> \<not> (\<tau> \<Turnstile> (A and B))"
 by(ocl_subst_asm,ocl_subst_asm,simp)
 
-                  
-    
+
+
 
 
 (* a proof that shows that not everything is humpty dumpty ... *)
 lemma X: "\<not> (\<tau> \<Turnstile> (invalid and B))"
-apply(insert foundation8[of "\<tau>" "B"], elim disjE, 
+apply(insert foundation8[of "\<tau>" "B"], elim disjE,
       simp add:defined_bool_split, elim disjE)
 apply(ocl_subst_asm, simp)
 apply(ocl_subst_asm, simp)
@@ -139,12 +139,12 @@ by(simp)
 
 (* TODO : establish tactic support for ocl_subst thm1 ... thmn
    (argument line version) *)
- 
+
 (* TODO : Implement delta-closure procedure *)
- 
+
 (* TODO : Implement ocl_smt *)
 
- 
+
 end
 
 (* > *)

@@ -54,7 +54,7 @@ begin
 
 no_notation None ("\<bottom>")
 
-text{* As illustration, we present several naive lemmas, that can be proved but will not be used, 
+text{* As illustration, we present several naive lemmas, that can be proved but will not be used,
 since they have @{term "comp_fun_commute F"} as hypothesis: *}
 
 lemma (*OclIterate_valid:*)
@@ -107,10 +107,10 @@ proof -
              (\<delta> S) \<tau> = true \<tau> \<Longrightarrow>
              (\<upsilon> A) \<tau> = true \<tau> \<Longrightarrow>
              (\<forall>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. (\<upsilon> (\<lambda>_. x)) \<tau> = true \<tau>) \<Longrightarrow> ?thesis \<tau>"
-  
+
   apply(case_tac "\<exists>x. x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>", simp_all)
   apply(drule exE) prefer 2 apply(assumption)
-  
+
   apply(subst finite_induct[where P = "\<lambda>set. (\<forall>x\<in>set. (\<upsilon> (\<lambda>_. x)) \<tau> = true \<tau>) -->  (\<upsilon> Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` set)) \<tau> = true \<tau>"
                               and F = "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"])
       apply(simp)
@@ -152,10 +152,10 @@ proof -
             (\<delta> S) \<tau> = true \<tau> \<Longrightarrow>
             (\<upsilon> A) \<tau> = true \<tau> \<Longrightarrow>
             (\<exists>x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>. (\<upsilon> (\<lambda>_. x)) \<tau> = false \<tau>) \<Longrightarrow> ?thesis \<tau>"
-  
+
   apply(case_tac "\<exists>x. x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>", simp_all)
   apply(drule exE) prefer 2 apply(assumption)
-  
+
   apply(subst finite_induct[where P = "\<lambda>set. (\<exists>x\<in>set. (\<upsilon> (\<lambda>_. x)) \<tau> = false \<tau>) -->  (\<upsilon> Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` set)) \<tau> = false \<tau>"
                               and F = "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"])
       apply(simp)
@@ -181,7 +181,7 @@ proof -
    apply(subst F_valid_arg)
    apply(subst cp_OclAnd[where X = "\<upsilon> (\<lambda>\<tau>. xa)"], simp)
    apply(simp add: cp_OclAnd[symmetric])
-  
+
   apply(auto)
   apply(subgoal_tac "\<exists>x. Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa) = x \<and> (\<upsilon> x) \<tau> = false \<tau>")
    prefer 2
@@ -316,7 +316,7 @@ proof -
 
   apply(case_tac "\<exists>x. x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>", simp_all)
   apply(drule exE) prefer 2 apply(assumption)
-  
+
   apply(subst finite_induct[where P = "\<lambda>set. (\<forall>x\<in>set. (\<tau> \<Turnstile> \<upsilon> (\<lambda>_. x))) -->  (\<tau> \<Turnstile> \<upsilon> (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` set)))"
                               and F = "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"])
       apply(simp)
@@ -343,11 +343,11 @@ proof -
    apply(simp)
   apply(simp)
   apply(subst F_valid_arg_true, simp_all)
-  
+
   apply(subgoal_tac "\<upsilon> xb = \<delta> xb", simp)
-  
+
   apply(subgoal_tac "let c = Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa) in \<upsilon> c = \<delta> c", simp)
-  
+
   apply(subst finite_induct[where P = "\<lambda>set. let c = Finite_Set.fold F A set in \<upsilon> c = \<delta> c"
                               and F = "(\<lambda>a \<tau>. a) ` Fa"])
      apply(simp)
@@ -372,7 +372,7 @@ proof -
 
   apply(case_tac "\<exists>x. x\<in>\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>", simp_all)
   apply(drule exE) prefer 2 apply(assumption)
-  
+
   apply(subst finite_induct[where P = "\<lambda>set. (\<exists>x\<in>set. \<not> (\<tau> \<Turnstile> \<upsilon> (\<lambda>_. x))) --> \<not> (\<tau> \<Turnstile> (\<upsilon> Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` set)))"
                               and F = "\<lceil>\<lceil>Rep_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>)\<rceil>\<rceil>"])
       apply(simp)
@@ -381,7 +381,7 @@ proof -
     apply(simp)
    apply(simp)
   apply(rule impI)+
-  
+
   apply(drule_tac A = "insert xa Fa" in bexE) prefer 2 apply(assumption)
   apply(simp, drule disjE) prefer 3 apply(assumption)
    apply(simp)
@@ -397,7 +397,7 @@ proof -
     apply(simp)
    apply(subgoal_tac "\<not> (\<tau> \<Turnstile> (\<upsilon> (F (\<lambda>\<tau>. xa) (Finite_Set.fold F A ((\<lambda>a \<tau>. a) ` Fa)))))") apply(simp)
    apply(rule F_valid_arg_false1, simp)
-  
+
   apply(subst comp_fun_commute.fold_insert[where f = F and z = A and x = "(\<lambda>\<tau>. xa)" and A = "((\<lambda>a \<tau>. a) ` Fa)"])
      apply(rule F_commute)
     apply(simp)

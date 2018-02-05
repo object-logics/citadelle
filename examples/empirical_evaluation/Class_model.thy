@@ -69,7 +69,7 @@ definition \<open>print_abr sprintf_int write_file =
             write_file
               (S.flatten [filename, \<open>.thy\<close>])
               (L.flatten
-                [ [ S.flatten [\<open>theory \<close>, filename, \<open> imports \<close>, gen_import, \<open> \<close>, 
+                [ [ S.flatten [\<open>theory \<close>, filename, \<open> imports \<close>, gen_import, \<open> \<close>,
                                \<open>"../../src/compiler/Generator_dynamic_sequential"\<close>,
                                \<open> begin\<close>]
                   , gen_init comp comp2]
@@ -111,7 +111,7 @@ definition "main sprintf_int write_file = print_abr (\<lambda>n. \<lless>sprintf
   f [ 2, 3, 4, 5, 6, 7(*, 8, 9*) ]
     [ (* 6 *) (2, 2) ]
 
- @@@@ 
+ @@@@
   f [ 12, 14, 20, 30, 39, 42, 56 ]
     [ (* 14 *) (2, 3)
     , (* 30 *) (2, 4)

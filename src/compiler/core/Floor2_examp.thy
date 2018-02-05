@@ -83,7 +83,7 @@ definition "merge_unique' f =
        RBT.empty)
  o merge_unique (\<lambda> ((a, n), b). Some ((oidGetInh a, n), (a, b)))
  o L.map (L.map (\<lambda>(oid, e) \<Rightarrow> ((oid, f e), e)))"
-definition "merge_unique'' l = 
+definition "merge_unique'' l =
   L.map (L.map (map_prod id (\<lambda> OclDefCoreBinding (_, ocli) \<Rightarrow> ocli)))
         (merge_unique' (\<lambda> OclDefCoreBinding (s, _) \<Rightarrow> String.to_list s) l)"
 
@@ -96,7 +96,7 @@ definition "map_tail f =
 
 definition "print_examp_def_st_locale_distinct = \<open>distinct_oid\<close>"
 definition "print_examp_def_st_locale_metis = M.metis (L.map T.thm [print_examp_def_st_locale_distinct, \<open>distinct_length_2_or_more\<close>])"
-definition "print_examp_def_st_locale_aux l = 
+definition "print_examp_def_st_locale_aux l =
  (let b = \<lambda>s. Term_basic [s] in
   map_prod
     id
@@ -199,7 +199,7 @@ definition "print_examp_def_st2 = (\<lambda> OclDefSt name l \<Rightarrow> \<lam
   (let b = \<lambda>s. Term_basic [s]
      ; l = L.map (\<lambda> OclDefCoreBinding name \<Rightarrow> map_option (Pair name) (String.assoc name (D_input_instance env))) l
      ; (rbt, (map_self, map_username)) =
-         (init_map_class2 
+         (init_map_class2
            env
            (L.map (\<lambda> Some (_, ocli, _) \<Rightarrow> ocli | None \<Rightarrow> ocl_instance_single_empty) l)
           :: (_ \<Rightarrow> _ \<times> _ \<times> (_ \<Rightarrow> ((_ \<Rightarrow> nat \<Rightarrow> _ \<Rightarrow> _) \<Rightarrow> _
@@ -364,7 +364,7 @@ definition "print_examp_def_st_def_interp = (\<lambda> OclDefSt n l \<Rightarrow
                              (Term_app (print_examp_def_st_locale_name n)
                                (L.flatten [oid, L.flatten l_fix_assum])))]))"
 
-definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lambda> env. 
+definition "get_state f = (\<lambda> OclDefPP _ s_pre s_post \<Rightarrow> \<lambda> env.
   let get_state = let l_st = D_input_state env in \<lambda>OclDefPPCoreBinding s \<Rightarrow> (s, case String.assoc s l_st of None \<Rightarrow> [] | Some l \<Rightarrow> l)
     ; (s_pre, l_pre) = get_state s_pre
     ; (s_post, l_post) = case s_post of None \<Rightarrow> (s_pre, l_pre) | Some s_post \<Rightarrow> get_state s_post in
@@ -418,7 +418,7 @@ definition "print_transition_wff = get_state (\<lambda> (s_pre, l_pre) (s_post, 
          (L.map (L.map (\<lambda> (cpt, ocli) \<Rightarrow>
                         let ty = \<lambda>s. s @@ String.isub (inst_ty ocli)
                           ; n = inst_name ocli in
-                        (\<open>\<close>, True, Term_rewrite 
+                        (\<open>\<close>, True, Term_rewrite
                                      (a \<open>oid_of\<close> (a (ty datatype_in) (b (print_examp_instance_name ty n))))
                                      \<open>=\<close>
                                      (Term_oid var_oid_uniq (oidGetInh cpt)))))

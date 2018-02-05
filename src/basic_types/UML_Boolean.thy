@@ -91,9 +91,9 @@ lemma true_non_null [simp,code_unfold]:"(true \<doteq> null) = false"
 text{* With respect to strictness properties and miscelleaneous side-calculi,
 strict referential equality behaves on booleans as described in the
 @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}:*}
-interpretation StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Boolean) \<doteq> y" 
+interpretation StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Boolean) \<doteq> y"
          by unfold_locales (auto simp:StrictRefEq\<^sub>B\<^sub>o\<^sub>o\<^sub>l\<^sub>e\<^sub>a\<^sub>n)
-         
+
 text{* In particular, it is strict, cp-preserving and const-preserving. In particular,
 it generates the simplifier rules for terms like:*}
 lemma "(invalid \<doteq> false) = invalid" by(simp)

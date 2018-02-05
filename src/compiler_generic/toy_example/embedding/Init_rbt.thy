@@ -67,11 +67,11 @@ context L
 begin
 definition "unique f l = List.map_filter id (fst
   (mapM
-    (\<lambda> (cpt, v) rbt. 
+    (\<lambda> (cpt, v) rbt.
       let f_cpt = f cpt in
       if RBT.lookup rbt f_cpt = None then
         (Some (cpt, v), RBT.insert f_cpt () rbt)
-      else 
+      else
         (None, rbt))
     l
     RBT.empty))"

@@ -120,7 +120,7 @@ fun map_data_shallow_self where
                                  | x \<Rightarrow> x) e"
 
 fun map_list_attr where
-   "map_list_attr f e = 
+   "map_list_attr f e =
      (\<lambda> ToyAttrNoCast x \<Rightarrow> ToyAttrNoCast (f x)
       | ToyAttrCast c_from l_attr x \<Rightarrow> ToyAttrCast c_from (map_list_attr f l_attr) (f x)) e"
 

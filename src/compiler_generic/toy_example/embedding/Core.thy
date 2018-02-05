@@ -170,12 +170,12 @@ definition "thy_class_tree = Embed_theories []"
 definition "thy_class_flat = Embed_theories []"
 definition "thy_association = Embed_theories []"
 definition  thy_instance :: (* polymorphism weakening needed by code_reflect *) "_ embedding'" where
-           "thy_instance = Embed_theories 
+           "thy_instance = Embed_theories
                              [ section' \<open>Instance\<close>
                              , PRINT_examp_instance_defassoc
                              , PRINT_examp_instance ]"
 definition "thy_def_base_l = Embed_theories []"
-definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
+definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                            [ section' \<open>State (Floor 1)\<close>
                                            , floor1_PRINT_examp_def_st1 ]
                              | Floor2 \<Rightarrow> Embed_locale
@@ -183,17 +183,17 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                            Floor2_examp.print_examp_def_st_locale
                                            [ Floor2_examp.print_examp_def_st2
                                            , Floor2_examp.print_examp_def_st_perm ])"
-definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
+definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                               [ section' \<open>Transition (Floor 1)\<close>
                                               , floor1_PRINT_transition ]
                                 | Floor2 \<Rightarrow> Embed_locale
                                               [ section' \<open>Transition (Floor 2)\<close> ]
                                               Floor2_examp.print_transition_locale
                                               [ Floor2_examp.print_transition_interp ])"
-definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
+definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                       [ section' \<open>Context (Floor 1)\<close>
                                       , floor1_PRINT_ctxt ]
-                        | Floor2 \<Rightarrow> Embed_theories 
+                        | Floor2 \<Rightarrow> Embed_theories
                                       [])"
 definition "thy_flush_all = Embed_theories []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
@@ -318,7 +318,7 @@ definition "compiler_env_config_update f env =
            (D_input_meta env')
            (env, ())))"
 
-definition "fold_thy_shallow f_try f_accu_reset x = 
+definition "fold_thy_shallow f_try f_accu_reset x =
   fold_thy'
     comp_env_save
     f_try

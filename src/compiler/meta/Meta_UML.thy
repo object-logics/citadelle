@@ -167,7 +167,7 @@ fun fold_pair_var where
   | _ \<Rightarrow> Some accu)"
 
 definition "Ctxt_fun_ty_arg ctxt =
- (case 
+ (case
     fold_pair_var
       Cons
       (case Ctxt_fun_ty ctxt of OclTy_arrow t _ \<Rightarrow> t
@@ -179,9 +179,9 @@ definition "Ctxt_fun_ty_out ctxt =
  (case Ctxt_fun_ty ctxt of OclTy_arrow _ t \<Rightarrow> Some t
                          | _ \<Rightarrow> None)"
 
-definition "map_pre_post f = 
+definition "map_pre_post f =
              Ctxt_clause_update
-               (L.map 
+               (L.map
                   (\<lambda> Ctxt_pp ctxt \<Rightarrow>
                      Ctxt_pp (Ctxt_expr_update
                                (L.map
@@ -191,9 +191,9 @@ definition "map_pre_post f =
                                ctxt)
                    | x \<Rightarrow> x))"
 
-definition "fold_pre_post f ctxt = 
-              List.fold 
-                (\<lambda> Ctxt_pp ctxt \<Rightarrow> 
+definition "fold_pre_post f ctxt =
+              List.fold
+                (\<lambda> Ctxt_pp ctxt \<Rightarrow>
                      f (rev (List.fold
                        (\<lambda> T_pp pref (OclProp_ctxt n e) \<Rightarrow> Cons (pref, n, e)
                         | _ \<Rightarrow> id)
@@ -203,7 +203,7 @@ definition "fold_pre_post f ctxt =
 
 definition "map_invariant f_inv =
              Ctxt_clause_update
-               (L.map 
+               (L.map
                   (\<lambda> Ctxt_pp ctxt \<Rightarrow>
                      Ctxt_pp (Ctxt_expr_update
                                (L.map
@@ -246,7 +246,7 @@ definition "var_ty_list = \<open>list\<close>"
 definition "var_ty_prod = \<open>prod\<close>"
 definition "const_oclany = \<open>OclAny\<close>"
 
-definition "single_multip = 
+definition "single_multip =
   List.list_all (\<lambda> (_, Some (Mult_nat n)) \<Rightarrow> n \<le> 1
                  | (Mult_nat n, None) \<Rightarrow> n \<le> 1
                  | _ \<Rightarrow> False) o TyMult"
@@ -306,7 +306,7 @@ function (sequential) class_unflat_aux where
     | _ \<Rightarrow> None)"
 *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
-   (case lookup rbt_inv r of None \<Rightarrow> 
+   (case lookup rbt_inv r of None \<Rightarrow>
       (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
             map_option
               (OclClass
@@ -321,7 +321,7 @@ function (sequential) class_unflat_aux where
                       id
                       ([]))
           | _ \<Rightarrow> None)
-    | Some l \<Rightarrow> 
+    | Some l \<Rightarrow>
       (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
             map_option
               (OclClass
@@ -465,7 +465,7 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
       (\<lambda> cflat.
         case ClassRaw_name cflat of
           OclTyObj n [] \<Rightarrow> id
-        | OclTyObj n l \<Rightarrow> case rev ([n] # l) of x0 # xs \<Rightarrow> \<lambda>rbt. 
+        | OclTyObj n l \<Rightarrow> case rev ([n] # l) of x0 # xs \<Rightarrow> \<lambda>rbt.
             snd (List.fold
                   (\<lambda> x (x0, rbt).
                     (x, List.fold (\<lambda> OclTyCore_pre k \<Rightarrow> modify_def [] k (\<lambda>l. L.flatten [L.map (\<lambda>OclTyCore_pre s \<Rightarrow> s) x, l]))

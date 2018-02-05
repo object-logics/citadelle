@@ -64,7 +64,7 @@ begin
 end
 
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
-interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y" 
+interpretation StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Real) \<doteq> y"
          by unfold_locales (auto simp: StrictRefEq\<^sub>R\<^sub>e\<^sub>a\<^sub>l)
 
 subsection{* Basic Real Constants *}
@@ -80,7 +80,7 @@ text_raw{* \isatagafp *}
 definition OclReal3 ::"('\<AA>)Real" ("\<three>.\<zero>")   where      "\<three>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>3::real\<rfloor>\<rfloor>)"
 definition OclReal4 ::"('\<AA>)Real" ("\<four>.\<zero>")   where      "\<four>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>4::real\<rfloor>\<rfloor>)"
 definition OclReal5 ::"('\<AA>)Real" ("\<five>.\<zero>")   where      "\<five>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>5::real\<rfloor>\<rfloor>)"
-definition OclReal6 ::"('\<AA>)Real" ("\<six>.\<zero>")   where      "\<six>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>6::real\<rfloor>\<rfloor>)" 
+definition OclReal6 ::"('\<AA>)Real" ("\<six>.\<zero>")   where      "\<six>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>6::real\<rfloor>\<rfloor>)"
 definition OclReal7 ::"('\<AA>)Real" ("\<seven>.\<zero>")   where      "\<seven>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>7::real\<rfloor>\<rfloor>)"
 definition OclReal8 ::"('\<AA>)Real" ("\<eight>.\<zero>")   where      "\<eight>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>8::real\<rfloor>\<rfloor>)"
 definition OclReal9 ::"('\<AA>)Real" ("\<nine>.\<zero>")   where      "\<nine>.\<zero> = (\<lambda> _ . \<lfloor>\<lfloor>9::real\<rfloor>\<rfloor>)"
@@ -147,19 +147,19 @@ where "x *\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<de
                        else invalid \<tau>"
 interpretation OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_bin\<^sub>d_\<^sub>d "op *\<^sub>r\<^sub>e\<^sub>a\<^sub>l" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> * \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by   unfold_locales  (auto simp:OclMult\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def bot_option_def null_option_def)
-          
+
 text{* Here is the special case of division, which is defined as invalid for division
 by zero. *}
 definition OclDivision\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "div\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 45)
 where "x div\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> / \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
+                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> / \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau>
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
 
 definition "mod_float a b = a - real_of_int (floor (a / b)) * b"
 definition OclModulus\<^sub>R\<^sub>e\<^sub>a\<^sub>l ::"('\<AA>)Real \<Rightarrow> ('\<AA>)Real \<Rightarrow> ('\<AA>)Real" (infix "mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l" 45)
 where "x mod\<^sub>r\<^sub>e\<^sub>a\<^sub>l y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>mod_float \<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
+                       then if y \<tau> \<noteq> OclReal0 \<tau> then \<lfloor>\<lfloor>mod_float \<lceil>\<lceil>x \<tau>\<rceil>\<rceil> \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau>
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
 

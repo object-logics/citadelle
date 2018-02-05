@@ -13,7 +13,7 @@
  *               2016-2017 Nanyang Technological University, Singapore
  *               2017-2018 Virginia Tech, USA
  *
- * All rights reserved. 
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -69,10 +69,10 @@ notation Some ("\<lfloor>(_)\<rfloor>")
 notation None ("\<bottom>")
 
 text{* These commands introduce an alternative, more compact notation for the type constructor
- @{typ "'\<alpha> option"}, namely @{typ "\<langle>'\<alpha>\<rangle>\<^sub>\<bottom>"}. Furthermore, the constructors @{term "Some X"} and 
+ @{typ "'\<alpha> option"}, namely @{typ "\<langle>'\<alpha>\<rangle>\<^sub>\<bottom>"}. Furthermore, the constructors @{term "Some X"} and
  @{term "None"} of the type @{typ "'\<alpha> option"}, namely @{term "\<lfloor>X\<rfloor>"} and @{term "\<bottom>"}. *}
 
-text{* 
+text{*
   The following function (corresponding to @{term the} in the Isabelle/HOL library)
   is defined as the inverse of the injection @{term Some}.
 *}
@@ -202,7 +202,7 @@ abstract and concrete versions of null are the same on base types
 
 subsection{* The Common Infrastructure of Object Types (Class Types) and States. *}
 
-text{* Recall that OCL is a textual extension of the UML; in particular, we use OCL as means to 
+text{* Recall that OCL is a textual extension of the UML; in particular, we use OCL as means to
 annotate UML class models. Thus, OCL inherits a notion of \emph{data} in the UML: UML class
 models provide classes, inheritance, types of objects, and subtypes connecting them along
 the inheritance hierarchie.
@@ -227,8 +227,8 @@ text{* \emph{States} in UML/OCL are a pair of
       \ie{} the set of all possible object representations.
 \item and an oid-indexed family of \emph{associations}, \ie{} finite relations between
       objects living in a state. These relations can be n-ary which we model by nested lists.
-\end{itemize}      
-For the moment we do not have to describe the concrete structure of the object universe and denote 
+\end{itemize}
+For the moment we do not have to describe the concrete structure of the object universe and denote
 it by the  polymorphic variable @{text "'\<AA>"}.*}
 
 record ('\<AA>)state =
@@ -236,15 +236,15 @@ record ('\<AA>)state =
              assocs :: "oid \<rightharpoonup> ((oid list) list) list"
 
 text{* In general, OCL operations are functions implicitly depending on a pair
-of pre- and post-state, \ie{} \emph{state transitions}. Since this will be reflected in our 
-representation of OCL Types within HOL, we need to introduce the foundational concept of an 
+of pre- and post-state, \ie{} \emph{state transitions}. Since this will be reflected in our
+representation of OCL Types within HOL, we need to introduce the foundational concept of an
 object id (oid), which is just some infinite set, and some abstract notion of state. *}
 
 type_synonym ('\<AA>)st = "'\<AA> state \<times> '\<AA> state"
 
 text{* We will require for all objects that there is a function that
 projects the oid of an object in the state (we will settle the question how to define
-this function later). We will use the Isabelle type class mechanism~\cite{haftmann.ea:constructive:2006} 
+this function later). We will use the Isabelle type class mechanism~\cite{haftmann.ea:constructive:2006}
 to capture this: *}
 
 class object =  fixes oid_of :: "'a \<Rightarrow> oid"
@@ -265,7 +265,7 @@ end
 subsection{* Common Infrastructure for all OCL Types (II): Valuations as OCL Types *}
 text{* Since OCL operations in general depend on pre- and post-states, we will
 represent OCL types as \emph{functions} from pre- and post-state to some
-HOL raw-type that contains exactly the data in the OCL type --- see below. 
+HOL raw-type that contains exactly the data in the OCL type --- see below.
 This gives rise to the idea that we represent OCL types by \emph{Valuations}.
 *}
 text{* Valuations are functions from a state pair (built upon
@@ -391,7 +391,7 @@ typedef (overloaded) ('\<alpha>, '\<beta>) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e 
                                            X = bot \<or> X = null \<or> (fst\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot \<and> snd\<lceil>\<lceil>X\<rceil>\<rceil> \<noteq> bot)}"
                             by (rule_tac x="bot" in exI, simp)
 
-text{* We ``carve'' out from the concrete type @{typ "('\<alpha>::null \<times> '\<beta>::null) option option"} 
+text{* We ``carve'' out from the concrete type @{typ "('\<alpha>::null \<times> '\<beta>::null) option option"}
 the new fully abstract type, which will not contain representations like @{term "\<lfloor>\<lfloor>(\<bottom>,a)\<rfloor>\<rfloor>"}
 or @{term "\<lfloor>\<lfloor>(b,\<bottom>)\<rfloor>\<rfloor>"}. The type constuctor @{text "Pair{x,y}"} to be defined later will
 identify these with @{term "invalid"}.
@@ -412,7 +412,7 @@ begin
    definition null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null,'b::null) Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  by(simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                  by(simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject
                                null_option_def bot_option_def)
             qed
 end
@@ -427,10 +427,10 @@ subsection{* The Construction of the Set Type *}
 text{* The core of an own type construction is done via a type
   definition which provides the raw-type @{text "'\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e"}. It
   is shown that this type ``fits'' indeed into the abstract type
-  interface discussed in the previous section. Note that we make 
-  no restriction whatsoever to \emph{finite} sets; while with 
+  interface discussed in the previous section. Note that we make
+  no restriction whatsoever to \emph{finite} sets; while with
   the standards type-constructors only finite sets can be denoted,
-  there is the possibility to define in fact infinite 
+  there is the possibility to define in fact infinite
   type constructors in \FOCL (c.f. \autoref{sec:set-type-extensions}). *}
 
 typedef (overloaded) '\<alpha> Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e ="{X::('\<alpha>::null) set option option. X = bot \<or> X = null \<or> (\<forall>x\<in>\<lceil>\<lceil>X\<rceil>\<rceil>. x \<noteq> bot)}"
@@ -453,7 +453,7 @@ begin
    definition null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null) Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null) Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  by(simp add:null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                  by(simp add:null_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject
                               null_option_def bot_option_def)
             qed
 end
@@ -467,11 +467,11 @@ text{* The core of an own type construction is done via a type
   definition which provides the raw-type @{text "'\<alpha> Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e"}
   based on multi-sets from the \HOL library. As in Sets, it
   is shown that this type ``fits'' indeed into the abstract type
-  interface discussed in the previous section, and as in sets, we make 
-  no restriction whatsoever to \emph{finite} multi-sets; while with 
+  interface discussed in the previous section, and as in sets, we make
+  no restriction whatsoever to \emph{finite} multi-sets; while with
   the standards type-constructors only finite sets can be denoted,
-  there is the possibility to define in fact infinite 
-  type constructors in \FOCL (c.f. \autoref{sec:bag-type-extensions}). 
+  there is the possibility to define in fact infinite
+  type constructors in \FOCL (c.f. \autoref{sec:bag-type-extensions}).
   However, while several @{text null} elements are possible in a Bag, there
   can't be no bottom (invalid) element in them.
 *}
@@ -486,7 +486,7 @@ begin
 
    instance proof show "\<exists>x::'a Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
-                  by(simp add: bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                  by(simp add: bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject
                                null_option_def bot_option_def)
             qed
 end
@@ -497,7 +497,7 @@ begin
    definition null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null) Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null) Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  by(simp add:null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                  by(simp add:null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject
                               null_option_def bot_option_def)
             qed
 end
@@ -524,7 +524,7 @@ begin
 
    instance proof show "\<exists>x::'a Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e. x \<noteq> bot"
                   apply(rule_tac x="Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>None\<rfloor>" in exI)
-                  by(auto simp:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                  by(auto simp:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject
                                null_option_def bot_option_def)
             qed
 end
@@ -536,7 +536,7 @@ begin
    definition null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def: "(null::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<equiv> Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor> None \<rfloor>"
 
    instance proof show "(null::('a::null) Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<noteq> bot"
-                  by(auto simp:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject 
+                  by(auto simp:bot_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def Abs_Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject
                                null_option_def bot_option_def)
             qed
 end
@@ -548,11 +548,11 @@ type_notation   Sequence\<^sub>b\<^sub>a\<^sub>s\<^sub>e ("Sequence'(_')")
 
 subsection{* Discussion: The Representation of UML/OCL Types in Featherweight OCL *}
 text{* In the introduction, we mentioned that there is an ``injective representation
-mapping'' between the types of OCL and the types of Featherweight OCL (and its 
+mapping'' between the types of OCL and the types of Featherweight OCL (and its
 meta-language: HOL). This injectivity is at the heart of our representation technique
 --- a so-called \emph{shallow embedding} --- and means: OCL types were mapped one-to-one
 to types in HOL, ruling out a resentation where
-everything is mapped on some common HOL-type, say ``OCL-expression'', in which we 
+everything is mapped on some common HOL-type, say ``OCL-expression'', in which we
 would have to sort out the typing of OCL and its impact on the semantic representation
 function in an own, quite heavy side-calculus.
 *}
@@ -564,7 +564,7 @@ text{* After the previous sections, we are now able to exemplify this representa
    \begin{tabu}{lX[,c,]}
       \toprule
       OCL Type & HOL Type \\
-      \midrule 
+      \midrule
       \inlineocl|Boolean|  & @{typ  "('\<AA>)Boolean"} \\
       \inlineocl|Boolean -> Boolean| & @{typ  "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"} \\
       \inlineocl|(Integer,Integer) -> Boolean| & @{typ  "('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean"} \\
@@ -586,7 +586,7 @@ We do not formalize the representation map here; however, its principles are qui
       \inlineocl{T} and  \inlineocl{T'}  were mapped to the valuations for them, and
 \item the arguments of type constructors  \inlineocl{Set(T)} remain corresponding HOL base-types.
 \end{enumerate}
-      
+
 *}
 
 text{* Note, furthermore, that our construction of ``fully abstract types'' (no junk, no confusion)
@@ -598,7 +598,7 @@ section{* Miscelleaneous: ML assertions *}
 text{* \fixme{Can we suppress this form the text ???} *}
 text{* We introduce here a new command \emph{Assert} similar as \emph{value} for proving
  that the given term in argument is a true proposition. The difference with \emph{value} is that
-\emph{Assert} fails if the normal form of the term evaluated is not equal to @{term True}. 
+\emph{Assert} fails if the normal form of the term evaluated is not equal to @{term True}.
 Moreover, in case \emph{value} could not normalize the given term, as another strategy of reduction
  we try to prove it with a single ``simp'' tactic. *}
 
@@ -608,7 +608,7 @@ fun disp_msg title msg status = title ^ ": '" ^ msg ^ "' " ^ status
 fun lemma msg specification_theorem concl in_local thy =
   SOME
     (in_local (fn lthy =>
-           specification_theorem Thm.theoremK NONE (K I) Binding.empty_atts [] [] 
+           specification_theorem Thm.theoremK NONE (K I) Binding.empty_atts [] []
              (Element.Shows [(Binding.empty_atts, [(concl lthy, [])])])
              false lthy
         |> Proof.global_terminal_proof
@@ -625,7 +625,7 @@ fun outer_syntax_command command_spec theory in_local =
     (Parse.term >> (fn elems_concl => theory (fn thy =>
       case
         lemma "nbe" (Specification.theorem true)
-          (fn lthy => 
+          (fn lthy =>
             let val expr = Nbe.dynamic_value lthy (Syntax.read_term lthy elems_concl)
                 val thy = Proof_Context.theory_of lthy
                 open HOLogic in
@@ -635,11 +635,11 @@ fun outer_syntax_command command_spec theory in_local =
             end)
           in_local
           thy
-      of  NONE => 
+      of  NONE =>
             let val attr_simp = "simp" in
             case lemma attr_simp (Specification.theorem_cmd true) (K elems_concl) in_local thy of
                NONE => raise (ERROR "Assertion failed")
-             | SOME thy => 
+             | SOME thy =>
                 (writeln (disp_msg "OK" "simp" "finished the normalization");
 (* TO BE DONE
    why does this not work ? ? ?

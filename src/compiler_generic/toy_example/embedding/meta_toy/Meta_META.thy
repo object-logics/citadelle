@@ -52,7 +52,7 @@ subsection\<open>A Basic Meta-Model\<close>
 text\<open>The following basic Meta-Model is an empty Meta-Model.\<close>
 
 text\<open>Most of the Meta-Model we have defined (in particular those defined in Toy)
-     can be used in exceptional situations 
+     can be used in exceptional situations
      for requiring an eager or lazy interactive evaluation of already encountered Meta-Models.
      This is also the case for this basic Meta-Model.\<close>
 
@@ -138,7 +138,7 @@ definition "ignore_meta_header = (\<lambda> META_ctxt Floor1 _ \<Rightarrow> Tru
 text\<open>
 As remark in @{term ignore_meta_header}, @{term META_class_raw} and @{term META_ass_class} do not occur,
 even if the associated meta-commands will be put at the beginning when generating files during the reordering step.
-This is because some values for which @{term ignore_meta_header} returns @{term False} can exist just before 
+This is because some values for which @{term ignore_meta_header} returns @{term False} can exist just before
 meta-commands associated to @{term META_class_raw} or @{term META_ass_class}.
 \<close>
 
@@ -194,7 +194,7 @@ datatype all_meta = (* pure Isabelle *)
                   | META_all_meta_embedding all_meta_embedding
 
 text\<open>As remark, the Isabelle Meta-Model represented by @{typ semi__theories} can be merged
-with the previous META Meta-Model @{typ all_meta_embedding}. 
+with the previous META Meta-Model @{typ all_meta_embedding}.
 However a corresponding parser and printer would then be required.\<close>
 
 subsubsection\<open>Extending the Meta-Model\<close>

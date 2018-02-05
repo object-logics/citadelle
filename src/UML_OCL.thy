@@ -45,8 +45,8 @@
  ******************************************************************************)
 
 theory   UML_OCL
-imports  "UML_Main" 
-         "../examples/archive/Monads" (* NOTE: perform lazily the extraction of generation_syntax 
+imports  "UML_Main"
+         "../examples/archive/Monads" (* NOTE: perform lazily the extraction of generation_syntax
                                          so that dependencies can alternate among theories *)
          "compiler/Static"
          "compiler/Generator_dynamic_sequential"
@@ -63,11 +63,11 @@ by(rule ext, simp add: K_def k_def)
 (* Junk : TO BE DONE IN LIBRARY -- bu *)
 (*<*)
 lemma [simp]: "(\<guillemotleft>x\<guillemotright> <\<^sub>i\<^sub>n\<^sub>t \<guillemotleft>y\<guillemotright>) = \<guillemotleft>x < y\<guillemotright>"
-by(rule ext, simp add: OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def k_def defined_def UML_Types.bot_fun_def 
+by(rule ext, simp add: OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def k_def defined_def UML_Types.bot_fun_def
                        bot_option_def null_fun_def null_option_def)
 
 lemma [simp]: "(\<guillemotleft>x\<guillemotright> \<le>\<^sub>i\<^sub>n\<^sub>t \<guillemotleft>y\<guillemotright>) = \<guillemotleft>x \<le> y\<guillemotright>"
-by(rule ext, simp add: OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def k_def defined_def UML_Types.bot_fun_def 
+by(rule ext, simp add: OclLe\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def k_def defined_def UML_Types.bot_fun_def
                        bot_option_def null_fun_def null_option_def)
 
 
@@ -81,7 +81,7 @@ lemma OclInt6' : "\<six> = \<guillemotleft>6\<guillemotright>" by(rule ext, simp
 lemma OclInt7' : "\<seven> = \<guillemotleft>7\<guillemotright>" by(rule ext, simp add: OclInt7_def k_def)
 lemma OclInt8' : "\<eight> = \<guillemotleft>8\<guillemotright>" by(rule ext, simp add: OclInt8_def k_def)
 lemma OclInt9' : "\<nine> = \<guillemotleft>9\<guillemotright>" by(rule ext, simp add: OclInt9_def k_def)
-lemma OclInt10': "\<one>\<zero>= \<guillemotleft>10\<guillemotright>"by(rule ext, simp add: OclInt10_def k_def) 
+lemma OclInt10': "\<one>\<zero>= \<guillemotleft>10\<guillemotright>"by(rule ext, simp add: OclInt10_def k_def)
 
 lemma [simp]: "\<tau> \<Turnstile> \<guillemotleft>True\<guillemotright>"
               "\<tau> |\<noteq> \<guillemotleft>False\<guillemotright>"

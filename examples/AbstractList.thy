@@ -66,7 +66,7 @@ End!
 section{* ... and its Annotation by OCL Constraints  *}
 
 Context List
-  Inv asc : "Integer ->forAll\<^sub>S\<^sub>e\<^sub>t(i | (\<zero><\<^sub>i\<^sub>n\<^sub>t i and i <\<^sub>i\<^sub>n\<^sub>t  (self .content ->size\<^sub>S\<^sub>e\<^sub>q())) implies 
+  Inv asc : "Integer ->forAll\<^sub>S\<^sub>e\<^sub>t(i | (\<zero><\<^sub>i\<^sub>n\<^sub>t i and i <\<^sub>i\<^sub>n\<^sub>t  (self .content ->size\<^sub>S\<^sub>e\<^sub>q())) implies
                                      (self .content ->at\<^sub>S\<^sub>e\<^sub>q(i) <\<^sub>i\<^sub>n\<^sub>t self .content ->at\<^sub>S\<^sub>e\<^sub>q(i +\<^sub>i\<^sub>n\<^sub>t \<one>)))"
 
 

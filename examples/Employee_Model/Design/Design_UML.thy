@@ -177,7 +177,7 @@ begin
   definition StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y   : "(x::OclAny) \<doteq> y  \<equiv> StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t x y"
 end
 
-lemmas cps23 = 
+lemmas cps23 =
     cp_StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t[of "x::Person" "y::Person" "\<tau>",
                          simplified StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n[symmetric]]
     cp_intro(9)         [of "P::Person \<Rightarrow>Person""Q::Person \<Rightarrow>Person",
@@ -232,7 +232,7 @@ begin
                             | \<lfloor>\<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid a b \<rfloor>\<rfloor> \<Rightarrow>  \<lfloor>\<lfloor>  (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>(a,b)\<rfloor>) \<rfloor>\<rfloor>)"
 end
 
-definition "OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> = 
+definition "OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> =
                    (\<lambda>u. case u of in\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n p \<Rightarrow> \<lfloor>p\<rfloor>
                             | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>(a,b)\<rfloor>) \<Rightarrow> \<lfloor>mk\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n oid a b\<rfloor>
                             | _ \<Rightarrow> None)"
@@ -325,7 +325,7 @@ begin
 end
 
 lemma OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny':
-         "(X::OclAny) .oclIsTypeOf(OclAny) = 
+         "(X::OclAny) .oclIsTypeOf(OclAny) =
                     (\<lambda> \<tau>. if \<tau> \<Turnstile> \<upsilon> X then (case X \<tau> of
                                               \<lfloor>\<bottom>\<rfloor> \<Rightarrow> true \<tau>  (* invalid ?? *)
                                            | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<bottom> \<rfloor>\<rfloor> \<Rightarrow> true \<tau>
@@ -334,15 +334,15 @@ lemma OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny':
        apply(rule ext, simp add: OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny)
        by(case_tac "\<tau> \<Turnstile> \<upsilon> X", auto simp: foundation18' bot_option_def)
 
-interpretation OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny : 
-       profile_mono_schemeV 
-       "OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::OclAny \<Rightarrow> Boolean" 
+interpretation OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny :
+       profile_mono_schemeV
+       "OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y::OclAny \<Rightarrow> Boolean"
        "\<lambda> X. (case X of
                     \<lfloor>None\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>True\<rfloor>\<rfloor>  (* invalid ?? *)
                   | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid None \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>True\<rfloor>\<rfloor>
-                  | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)"                     
+                  | \<lfloor>\<lfloor>mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y oid \<lfloor>_\<rfloor> \<rfloor>\<rfloor> \<Rightarrow> \<lfloor>\<lfloor>False\<rfloor>\<rfloor>)"
       apply(unfold_locales, simp add: atomize_eq, rule ext)
-      by(auto simp:  OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny' OclValid_def true_def false_def 
+      by(auto simp:  OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y_OclAny' OclValid_def true_def false_def
               split: option.split type\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y.split)
 
 overloading OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y \<equiv> "OclIsTypeOf\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y :: Person \<Rightarrow> Boolean"
@@ -492,7 +492,7 @@ shows   "\<tau> \<Turnstile> (((X :: Person) .oclAsType(OclAny) .oclAsType(Perso
  apply(simp only: up_down_cast_Person_OclAny_Person StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n)
 by(rule StrictRefEq\<^sub>O\<^sub>b\<^sub>j\<^sub>e\<^sub>c\<^sub>t_sym, simp add: assms)
 
-lemma up_down_cast_Person_OclAny_Person'': 
+lemma up_down_cast_Person_OclAny_Person'':
 assumes "\<tau> \<Turnstile> \<upsilon> (X :: Person)"
 shows   "\<tau> \<Turnstile> (X .oclIsTypeOf(Person) implies (X .oclAsType(OclAny) .oclAsType(Person)) \<doteq> X)"
  apply(simp add: OclValid_def)
@@ -950,7 +950,7 @@ lemma dot\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<B>\<O>\<S>\<S>_def_mo
   apply(case_tac "\<tau> \<Turnstile> (X \<triangleq> null)", insert StrongEq_L_subst2[where P = "(\<lambda>x. (\<delta> (x .boss)))" and \<tau> = "\<tau>" and x = "X" and y = "null"], simp add: foundation16')
 by(simp add: defined_split)
 
-lemma repr_boss:  
+lemma repr_boss:
 assumes A : "\<tau> \<Turnstile> \<delta>(x .boss)"
 shows      "is_represented_in_state in_post_state (x .boss) Person \<tau>"
          apply(insert A[simplified foundation16]
@@ -961,7 +961,7 @@ shows      "is_represented_in_state in_post_state (x .boss) Person \<tau>"
                        OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>_def image_def ran_def
                  split: type\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n.split option.split \<AA>.split)
 
-lemma repr_bossX : 
+lemma repr_bossX :
 assumes A: "\<tau> \<Turnstile> \<delta>(x .boss)"
 shows "\<tau> \<Turnstile> ((Person .allInstances()) ->includes\<^sub>S\<^sub>e\<^sub>t(x .boss))"
 proof -

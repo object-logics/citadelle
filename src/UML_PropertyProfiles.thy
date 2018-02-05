@@ -54,9 +54,9 @@ begin
 section{* Property Profiles for OCL Operators via Isabelle Locales *}
 
 text{* We use the Isabelle mechanism of a \emph{Locale} to generate the
-common lemmas for each type and operator; Locales can be seen as a 
+common lemmas for each type and operator; Locales can be seen as a
 functor that takes a local theory and generates a number of theorems.
-In our case, we will instantiate later these locales by the local theory 
+In our case, we will instantiate later these locales by the local theory
 of an operator definition and obtain the common rules for strictness, definedness
 propagation, context-passingness and constance in a systematic way.
 *}
@@ -70,16 +70,16 @@ locale profile_mono_scheme_defined =
 begin
    lemma strict[simp,code_unfold]: " f invalid = invalid"
    by(rule ext, simp add: def_scheme true_def false_def)
- 
+
    lemma null_strict[simp,code_unfold]: " f null = invalid"
    by(rule ext, simp add: def_scheme true_def false_def)
 
    lemma cp0 : "f X \<tau> = f (\<lambda> _. X \<tau>) \<tau>"
    by(simp add: def_scheme  cp_defined[symmetric])
-      
+
    lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
    by(rule cpI1[of "f"], intro allI, rule cp0, simp_all)
-    
+
 end
 
 locale profile_mono_schemeV =
@@ -89,26 +89,26 @@ locale profile_mono_schemeV =
 begin
    lemma strict[simp,code_unfold]: " f invalid = invalid"
    by(rule ext, simp add: def_scheme true_def false_def)
- 
+
    lemma cp0 : "f X \<tau> = f (\<lambda> _. X \<tau>) \<tau>"
    by(simp add: def_scheme  cp_valid[symmetric])
-      
+
    lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp (\<lambda>X. f (P X) )"
    by(rule cpI1[of "f"], intro allI, rule cp0, simp_all)
-    
+
 end
 
 locale profile_mono\<^sub>d = profile_mono_scheme_defined +
    assumes "\<And> x. x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> g x \<noteq> bot"
 begin
-  
-   lemma const[simp,code_unfold] : 
+
+   lemma const[simp,code_unfold] :
           assumes C1 :"const X"
           shows       "const(f X)"
       proof -
         have const_g : "const (\<lambda>\<tau>. g (X \<tau>))"  by(insert C1, auto simp:const_def, metis)
         show ?thesis   by(simp_all add : def_scheme const_ss C1 const_g)
-      qed  
+      qed
 end
 
 locale profile_mono0 = profile_mono_scheme_defined +
@@ -158,7 +158,7 @@ definition "bin' f g d\<^sub>x d\<^sub>y X Y =
                        (f X Y = (\<lambda> \<tau>. if (d\<^sub>x X) \<tau> = true \<tau> \<and> (d\<^sub>y Y) \<tau> = true \<tau>
                                       then g X Y \<tau>
                                       else invalid \<tau> ))"
- 
+
 definition "bin f g = bin' f (\<lambda>X Y \<tau>. g (X \<tau>) (Y \<tau>))"
 
 lemmas [simp,code_unfold] = bin'_def bin_def
@@ -170,8 +170,8 @@ locale profile_bin_scheme =
    fixes g
    assumes d\<^sub>x' : "profile_single d\<^sub>x"
    assumes d\<^sub>y' : "profile_single d\<^sub>y"
-   assumes d\<^sub>x_d\<^sub>y_homo[simp,code_unfold]: "cp (f X) \<Longrightarrow> 
-                          cp (\<lambda>x. f x Y) \<Longrightarrow> 
+   assumes d\<^sub>x_d\<^sub>y_homo[simp,code_unfold]: "cp (f X) \<Longrightarrow>
+                          cp (\<lambda>x. f x Y) \<Longrightarrow>
                           f X invalid = invalid \<Longrightarrow>
                           f invalid Y = invalid \<Longrightarrow>
                           (\<not> (\<tau> \<Turnstile> d\<^sub>x X) \<or> \<not> (\<tau> \<Turnstile> d\<^sub>y Y)) \<Longrightarrow>
@@ -190,7 +190,7 @@ begin
 
       lemma cp0 : "f X Y \<tau> = f (\<lambda> _. X \<tau>) (\<lambda> _. Y \<tau>) \<tau>"
       by(simp add: def_scheme'' d\<^sub>x.d_cp0[symmetric] d\<^sub>y.d_cp0[symmetric] cp_defined[symmetric])
-      
+
       lemma cp[simp,code_unfold] : " cp P \<Longrightarrow> cp Q \<Longrightarrow> cp (\<lambda>X. f (P X) (Q X))"
       by(rule cpI2[of "f"], intro allI, rule cp0, simp_all)
 
@@ -206,20 +206,20 @@ begin
          done
 
       lemma def_valid_then_def: "\<upsilon>(f x y) = (\<delta>(f x y))" (* [simp,code_unfold] ? *)
-         apply(rule ext, rename_tac "\<tau>") 
+         apply(rule ext, rename_tac "\<tau>")
          apply(simp_all add: valid_def defined_def def_scheme''
-                             true_def false_def invalid_def 
+                             true_def false_def invalid_def
                              null_def null_fun_def null_option_def bot_fun_def)
          by (metis "1" OclValid_def def_scheme'' foundation16 true_def)
 
       lemma defined_args_valid: "(\<tau> \<Turnstile> \<delta> (f x y)) = ((\<tau> \<Turnstile> d\<^sub>x x) \<and> (\<tau> \<Turnstile> d\<^sub>y y))"
          by(simp add: foundation10')
 
-      lemma const[simp,code_unfold] : 
+      lemma const[simp,code_unfold] :
           assumes C1 :"const X" and C2 : "const Y"
           shows       "const(f X Y)"
       proof -
-          have const_g : "const (\<lambda>\<tau>. g (X \<tau>) (Y \<tau>))" 
+          have const_g : "const (\<lambda>\<tau>. g (X \<tau>) (Y \<tau>))"
                   by(insert C1 C2, auto simp:const_def, metis)
         show ?thesis
         by(simp_all add : def_scheme'' const_ss C1 C2 const_g)
@@ -242,7 +242,7 @@ locale profile_bin_scheme_defined =
    fixes f::"('\<AA>,'a::null)val \<Rightarrow> ('\<AA>,'b::null)val \<Rightarrow> ('\<AA>,'c::null)val"
    fixes g
    assumes d\<^sub>y : "profile_single d\<^sub>y"
-   assumes d\<^sub>y_homo[simp,code_unfold]: "cp (f X) \<Longrightarrow> 
+   assumes d\<^sub>y_homo[simp,code_unfold]: "cp (f X) \<Longrightarrow>
                           f X invalid = invalid \<Longrightarrow>
                           \<not> \<tau> \<Turnstile> d\<^sub>y Y \<Longrightarrow>
                           \<tau> \<Turnstile> \<delta> f X Y \<triangleq> (\<delta> X and d\<^sub>y Y)"
@@ -254,7 +254,7 @@ begin
 end
 
 sublocale profile_bin_scheme_defined < profile_bin_scheme defined
-proof - 
+proof -
       interpret d\<^sub>y : profile_single d\<^sub>y by (rule d\<^sub>y)
  show "profile_bin_scheme defined d\<^sub>y f g"
  apply(unfold_locales)
@@ -265,7 +265,7 @@ proof -
      apply(erule StrongEq_L_subst2_rev, simp, simp)+
    apply(simp)
   apply(simp add: def_scheme')
- apply(simp add: defined_def OclValid_def false_def true_def 
+ apply(simp add: defined_def OclValid_def false_def true_def
               bot_fun_def null_fun_def def_scheme' split: if_split_asm, rule def_body')
  by(simp add: true_def)+
 qed
@@ -308,7 +308,7 @@ sublocale profile_bin\<^sub>d_\<^sub>v < profile_bin_scheme_defined valid
    apply(erule StrongEq_L_subst2_rev, simp, simp)
   apply(simp add: def_scheme)
  by (metis OclValid_def def_body foundation18')
- 
+
 locale profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>) Boolean"
    assumes def_scheme[simplified]: "bin' f StrongEq valid valid X Y"
@@ -338,31 +338,31 @@ context profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^su
       (* logic and algebraic properties *)
       lemma refl_ext[simp,code_unfold] : "(f x x) = (if (\<upsilon> x) then true else invalid endif)"
          by(rule ext, simp add: def_scheme OclIf_def)
-      
-      lemma sym : "\<tau> \<Turnstile> (f x y) \<Longrightarrow> \<tau> \<Turnstile> (f y x)"  
+
+      lemma sym : "\<tau> \<Turnstile> (f x y) \<Longrightarrow> \<tau> \<Turnstile> (f y x)"
          apply(case_tac "\<tau> \<Turnstile> \<upsilon> x")
           apply(auto simp: def_scheme OclValid_def)
          by(fold OclValid_def, erule StrongEq_L_sym)
 
-      lemma symmetric : "(f x y) = (f y x)"  
+      lemma symmetric : "(f x y) = (f y x)"
          by(rule ext, rename_tac \<tau>, auto simp: def_scheme StrongEq_sym)
-      
-      lemma trans : "\<tau> \<Turnstile> (f x y) \<Longrightarrow> \<tau> \<Turnstile> (f y z) \<Longrightarrow> \<tau> \<Turnstile> (f x z)"  
+
+      lemma trans : "\<tau> \<Turnstile> (f x y) \<Longrightarrow> \<tau> \<Turnstile> (f y z) \<Longrightarrow> \<tau> \<Turnstile> (f x z)"
          apply(case_tac "\<tau> \<Turnstile> \<upsilon> x")
           apply(case_tac "\<tau> \<Turnstile> \<upsilon> y")
            apply(auto simp: def_scheme OclValid_def)
          by(fold OclValid_def, auto elim: StrongEq_L_trans)
-         
+
       lemma StrictRefEq_vs_StrongEq: "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> (\<tau> \<Turnstile> ((f x y) \<triangleq> (x \<triangleq> y)))"
          apply(simp add: def_scheme OclValid_def)
          apply(subst cp_StrongEq[of _ "(x \<triangleq> y)"])
          by simp
-         
+
       lemma StrictRefEq_vs_StrongEq': "\<tau> \<Turnstile>(\<upsilon> x) \<Longrightarrow> \<tau> \<Turnstile>(\<upsilon> y) \<Longrightarrow> ( ((\<tau> \<Turnstile>f x y) = (\<tau> \<Turnstile> (x \<triangleq> y))))"
          by(simp add: def_scheme OclValid_def)
    end
 
-   
+
 locale profile_bin\<^sub>v_\<^sub>v =
    fixes f :: "('\<AA>,'\<alpha>::null)val \<Rightarrow> ('\<AA>,'\<beta>::null)val \<Rightarrow> ('\<AA>,'\<gamma>::null)val"
    fixes g
@@ -372,10 +372,10 @@ locale profile_bin\<^sub>v_\<^sub>v =
 sublocale profile_bin\<^sub>v_\<^sub>v < profile_bin_scheme valid valid
  apply(unfold_locales)
          apply(simp, subst cp_valid, simp, rule const_valid, simp)+
-   apply (metis (hide_lams, mono_tags) OclValid_def def_scheme defined5 defined6 defined_and_I 
+   apply (metis (hide_lams, mono_tags) OclValid_def def_scheme defined5 defined6 defined_and_I
          foundation1 foundation10' foundation16' foundation18 foundation21 foundation22 foundation9)
   apply(simp add: def_scheme)
- apply(simp add: defined_def OclValid_def false_def true_def 
+ apply(simp add: defined_def OclValid_def false_def true_def
               bot_fun_def null_fun_def def_scheme split: if_split_asm, rule def_body)
  by (metis OclValid_def foundation18' true_def)+
 

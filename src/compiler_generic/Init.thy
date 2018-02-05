@@ -83,7 +83,7 @@ section\<open>Basic Extension of the Standard Library\<close>
 subsection\<open>Polymorphic Cartouches\<close>
 
 text\<open>We generalize the construction of cartouches for them to be used ``polymorphically'',
-     however the type inference is not automatic: 
+     however the type inference is not automatic:
      types of all cartouche expressions will need to be specified
      earlier before their use (we will however provide a default type).\<close>
 
@@ -98,7 +98,7 @@ val cartouche_grammar =
 \<close>
 
 ML\<open>
-fun parse_translation_cartouche binding l f_char accu = 
+fun parse_translation_cartouche binding l f_char accu =
   let val cartouche_type = Attrib.setup_config_string binding (K (fst (hd l)))
       (* if there is no type specified, by default we set the first element
          to be the default type of cartouches *) in
@@ -307,7 +307,7 @@ fun nat_to_digit10_aux where
    "nat_to_digit10_aux l (n :: Nat.nat) = (if n < 10 then n # l else nat_to_digit10_aux (n mod 10 # l) (n div 10))"
 fun nat_to_digit26_aux where
    "nat_to_digit26_aux l (n :: Nat.nat) = (if n < 26 then n # l else nat_to_digit26_aux (n mod 26 # l) (n div 26))"
-definition "nat_to_digit10 n = 
+definition "nat_to_digit10 n =
  (let nat_raw_to_str = L.map (\<lambda>i. char_of_nat (nat_of_char (CHR 0x30) + i)) in
   \<lless>nat_raw_to_str (nat_to_digit10_aux [] n)\<ggreater>)"
 definition "natural_to_digit10 = nat_to_digit10 o nat_of_natural"
@@ -326,7 +326,7 @@ definition "nat_to_digit26 =
               S.flatten [s1, s1])
     of
     x # xs \<Rightarrow> S.flatten [String.uppercase \<lless>[x]\<ggreater>, \<lless>xs\<ggreater>]))"
-definition "char_to_digit16 c = 
+definition "char_to_digit16 c =
   (let n = nat_of_char c
    ; f = nth [CHR ''0'', CHR ''1'', CHR ''2'', CHR ''3'', CHR ''4'', CHR ''5'', CHR ''6'', CHR ''7'',
               CHR ''8'', CHR ''9'', CHR ''A'', CHR ''B'', CHR ''C'', CHR ''D'', CHR ''E'', CHR ''F''] in

@@ -64,9 +64,9 @@ begin
 end
 
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
-interpretation  StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)String) \<doteq> y" 
+interpretation  StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)String) \<doteq> y"
          by unfold_locales (auto simp: StrictRefEq\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g)
- 
+
 subsection{* Basic String Constants *}
 
 text{* Although the remaining part of this library reasons about
@@ -112,7 +112,7 @@ where "x +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g y \<equiv> \<lambda> 
                        else invalid \<tau> "
 interpretation OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g : profile_bin\<^sub>d_\<^sub>d "op +\<^sub>s\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g" "\<lambda> x y. \<lfloor>\<lfloor>concat [\<lceil>\<lceil>x\<rceil>\<rceil>, \<lceil>\<lceil>y\<rceil>\<rceil>]\<rfloor>\<rfloor>"
          by unfold_locales (auto simp:OclAdd\<^sub>S\<^sub>t\<^sub>r\<^sub>i\<^sub>n\<^sub>g_def bot_option_def null_option_def)
-         
+
 (* TODO : size(), concat, substring(s:string) toInteger, toReal, at(i:Integer), characters() etc. *)
 
 

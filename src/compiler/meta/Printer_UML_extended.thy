@@ -104,7 +104,7 @@ definition "of_ocl_def_state_core l =
                              | OclDefCoreAdd ocli \<Rightarrow> of_ocl_instance_single ocli) l)"
 
 definition "of_ocl_def_state _ (floor :: (* polymorphism weakening needed by code_reflect *)
-                                         String.literal) = (\<lambda> OclDefSt n l \<Rightarrow> 
+                                         String.literal) = (\<lambda> OclDefSt n l \<Rightarrow>
   \<open>State%s %s = [ %s ]\<close>
     floor
     (To_string n)

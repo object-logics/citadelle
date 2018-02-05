@@ -58,10 +58,10 @@ with multiple arguments, roles of n-ary associations, ... *}
 
 subsection{* Semantic Properties of the Type Constructor *}
 
-lemma A[simp]:"Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> None \<Longrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> null \<Longrightarrow> (fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
+lemma A[simp]:"Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> None \<Longrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> null \<Longrightarrow> (fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot"
 by(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x],auto simp:null_option_def bot_option_def)
 
-lemma A'[simp]:" x \<noteq> bot \<Longrightarrow>  x \<noteq> null \<Longrightarrow> (fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
+lemma A'[simp]:" x \<noteq> bot \<Longrightarrow>  x \<noteq> null \<Longrightarrow> (fst \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot"
 apply(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x], simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
 apply(auto simp:null_option_def bot_option_def)
 apply(erule contrapos_np[of "x = Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"])
@@ -72,10 +72,10 @@ apply(subst Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject[symmetric], simp)
 apply(subst Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse, simp_all,simp add: null_option_def bot_option_def)
 done
 
-lemma B[simp]:"Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> None \<Longrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> null \<Longrightarrow> (snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
+lemma B[simp]:"Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> None \<Longrightarrow> Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x \<noteq> null \<Longrightarrow> (snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot"
 by(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x],auto simp:null_option_def bot_option_def)
 
-lemma B'[simp]:"x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> (snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot" 
+lemma B'[simp]:"x \<noteq> bot \<Longrightarrow> x \<noteq> null \<Longrightarrow> (snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>) \<noteq> bot"
 apply(insert Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e[of x], simp add: bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
 apply(auto simp:null_option_def bot_option_def)
 apply(erule contrapos_np[of "x = Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e None"])
@@ -103,9 +103,9 @@ begin
 end
 
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
-interpretation  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y" 
+interpretation  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>,'\<alpha>::null,'\<beta>::null)Pair) \<doteq> y"
                 by unfold_locales (auto simp:  StrictRefEq\<^sub>P\<^sub>a\<^sub>i\<^sub>r)
- 
+
 subsection{* Standard Operations Definitions *}
 
 text{* This part provides a collection of operators for the Pair type. *}
@@ -119,11 +119,11 @@ where     "Pair{X,Y} \<equiv> (\<lambda> \<tau>. if (\<upsilon> X) \<tau> = true
                               then Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(X \<tau>, Y \<tau>)\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
-interpretation OclPair : profile_bin\<^sub>v_\<^sub>v  
-               OclPair "\<lambda> x y. Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(x, y)\<rfloor>\<rfloor>"                             
+interpretation OclPair : profile_bin\<^sub>v_\<^sub>v
+               OclPair "\<lambda> x y. Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>(x, y)\<rfloor>\<rfloor>"
                apply(unfold_locales, auto simp:  OclPair_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
                by(auto simp: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def)
-             
+
 
 subsubsection{* Definition: First *}
 
@@ -137,7 +137,7 @@ interpretation OclFirst : profile_mono\<^sub>d OclFirst "\<lambda>x.  fst \<lcei
                           by unfold_locales (auto simp:  OclFirst_def)
 
 subsubsection{* Definition: Second *}
-                              
+
 definition OclSecond::" ('\<AA>,'\<alpha>::null,'\<beta>::null) Pair \<Rightarrow> ('\<AA>, '\<beta>) val"  ("_ .Second'(')")
 where     "X .Second() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true \<tau>
                                then snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (X \<tau>)\<rceil>\<rceil>
@@ -145,21 +145,21 @@ where     "X .Second() \<equiv> (\<lambda> \<tau>. if (\<delta> X) \<tau> = true
 
 interpretation OclSecond : profile_mono\<^sub>d OclSecond "\<lambda>x.  snd \<lceil>\<lceil>Rep_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x)\<rceil>\<rceil>"
                            by unfold_locales  (auto simp:  OclSecond_def)
-                           
+
 subsection{* Logical Properties *}
 
 lemma 1 : "\<tau> \<Turnstile> \<upsilon> Y \<Longrightarrow> \<tau> \<Turnstile> Pair{X,Y} .First() \<triangleq> X"
 apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> X)")
-apply(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
+apply(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2,
                                        THEN StrongEq_L_subst2_rev]],simp_all add:foundation18')
 apply(auto simp: OclValid_def valid_def defined_def StrongEq_def OclFirst_def OclPair_def
                 true_def false_def invalid_def bot_fun_def null_fun_def)
 apply(auto simp: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject null_option_def bot_option_def bot_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
 by(simp add: Abs_Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse)
 
-lemma 2 : "\<tau> \<Turnstile> \<upsilon> X \<Longrightarrow> \<tau> \<Turnstile> Pair{X,Y} .Second() \<triangleq> Y" 
+lemma 2 : "\<tau> \<Turnstile> \<upsilon> X \<Longrightarrow> \<tau> \<Turnstile> Pair{X,Y} .Second() \<triangleq> Y"
 apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> Y)")
-apply(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
+apply(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2,
                                        THEN StrongEq_L_subst2_rev]],simp_all add:foundation18')
 apply(auto simp: OclValid_def valid_def defined_def StrongEq_def OclSecond_def OclPair_def
                 true_def false_def invalid_def bot_fun_def null_fun_def)
@@ -171,8 +171,8 @@ subsection{* Algebraic Execution Properties *}
 lemma proj1_exec [simp, code_unfold] : "Pair{X,Y} .First() = (if (\<upsilon> Y) then X else invalid endif)"
 apply(rule ext, rename_tac "\<tau>", simp add: foundation22[symmetric])
 apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> Y)")
-apply(erule foundation7'[THEN iffD2, 
-                         THEN foundation15[THEN iffD2, 
+apply(erule foundation7'[THEN iffD2,
+                         THEN foundation15[THEN iffD2,
                                            THEN StrongEq_L_subst2_rev]],simp_all)
 apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> Y")
 apply(erule foundation13[THEN iffD2, THEN StrongEq_L_subst2_rev], simp_all)
@@ -181,7 +181,7 @@ by(erule 1)
 lemma proj2_exec [simp, code_unfold] : "Pair{X,Y} .Second() = (if (\<upsilon> X) then Y else invalid endif)"
 apply(rule ext, rename_tac "\<tau>", simp add: foundation22[symmetric])
 apply(case_tac "\<not>(\<tau> \<Turnstile> \<upsilon> X)")
-apply(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2, 
+apply(erule foundation7'[THEN iffD2, THEN foundation15[THEN iffD2,
                                   THEN StrongEq_L_subst2_rev]],simp_all)
 apply(subgoal_tac "\<tau> \<Turnstile> \<upsilon> X")
 apply(erule foundation13[THEN iffD2, THEN StrongEq_L_subst2_rev], simp_all)
@@ -194,9 +194,9 @@ subsection{* Test Statements*}
 Assert   "(\<tau> \<Turnstile> (Pair{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>,\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Pair{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>,\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
 Assert   "(\<tau> \<Turnstile> (Pair{\<lambda>_. \<lfloor>x\<rfloor>,\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Pair{\<lambda>_. \<lfloor>x\<rfloor>,\<lambda>_. \<lfloor>x\<rfloor>}))"
 *)
-(* (*TODO.*)  
+(* (*TODO.*)
 open problem: An executable code-generator setup for the Pair type. Some bits and pieces
-so far : 
+so far :
 instantiation int :: equal
 begin
 
@@ -218,8 +218,8 @@ lemma equal_int_code [code]:
   "HOL.equal (Neg k) (Pos l) \<longleftrightarrow> False"
   "HOL.equal (Neg k) (Neg l) \<longleftrightarrow> HOL.equal k l"
   by (auto simp add: equal)
-*)  
-  
+*)
+
 
 instantiation Pair\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (equal,equal)equal
 begin

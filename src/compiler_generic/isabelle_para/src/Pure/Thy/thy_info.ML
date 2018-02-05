@@ -222,7 +222,7 @@ val schedule_futures = Thread_Attributes.uninterruptible (fn _ => fn tasks =>
 
 (* eval theory *)
 
-datatype span_raw = 
+datatype span_raw =
     Span_cmd of Command_Span.span
   | Span_tr of Toplevel.transition
 
@@ -259,7 +259,7 @@ fun excursion keywords master_dir last_timing init elements =
                 aux
                   prev_xs
                   (apfst
-                    (fn l => 
+                    (fn l =>
                        Thy_Syntax.parse_elements keywords
                           (fn x => Span_cmd (Command_Span.Span (x, [])))
                           (fn Span_cmd (Command_Span.Span (x, _)) => x

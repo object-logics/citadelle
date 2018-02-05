@@ -252,7 +252,7 @@ fun eval_state' keywords span tr state =
   end;
 
 fun eval_state keywords span l_tr ({state, ...}: Toplevel.transitions eval_state) =
-  let val (command, (failed, state)) = 
+  let val (command, (failed, state)) =
         fold_map (fn tr => fn (failed, state) =>
                     let val result = eval_state' keywords span tr state in
                       (#command result, (failed orelse #failed result, #state result))

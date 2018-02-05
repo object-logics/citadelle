@@ -58,7 +58,7 @@ included in other documents (the printing resembles to @{command sledgehammer}).
 There are various options for keeping specific lines or discarding them:
 \<^item> @{keyword "init"}/@{keyword "remove"}: For example in @{file "Gram_Main.thy"}, we have copied the
   native grammar of the object-logic HOL (from @{theory Main}).
-  The option \<^theory_text>\<open>init Main\<close> (in \<^theory_text>\<open>print_syntax' init Main\<close>) 
+  The option \<^theory_text>\<open>init Main\<close> (in \<^theory_text>\<open>print_syntax' init Main\<close>)
   defines at the position where it is written the name of this grammar to be \<open>Main\<close>.
   Later, we can use this name to
   discard all lines appearing in \<open>Main\<close>: this is what is done in
@@ -74,7 +74,7 @@ There are various options for keeping specific lines or discarding them:
   \<^verbatim>\<open>(* [etc...]*)\<close>
 
 \<^item> Lines can also be discarded or added with these special symbols
-  ``\<^theory_text>\<open><<<\<close>'' or ``\<^theory_text>\<open>>>>\<close>'': 
+  ``\<^theory_text>\<open><<<\<close>'' or ``\<^theory_text>\<open>>>>\<close>'':
   @{theory_text [display] \<open>
   print_syntax' remove Main (*OCL_compiler_generator_dynamic*) add "Fun.updbinds", aprop
   prods:

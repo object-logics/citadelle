@@ -396,11 +396,11 @@ begin
   fix x y
   show "(\<And>\<tau>. all_defined \<tau> (f (f000 x) y)) \<Longrightarrow> \<forall>\<tau>. is_i' \<tau> (f000 x)"
    apply(rule all_def[where x = x and y = y, THEN iffD1, THEN conjunct1], simp) done
-  
+
   fix x y \<tau>
   show "(\<And>\<tau>. all_defined \<tau> (f (f000 x) y)) \<Longrightarrow> all_defined \<tau> y"
    apply(rule all_def[where x = x, THEN iffD1, THEN conjunct2, THEN spec], simp) done
-  
+
  qed
 
  lemma fold_graph_insertE:

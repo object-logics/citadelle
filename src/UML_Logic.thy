@@ -46,8 +46,8 @@
 
 chapter{* Formalization II: OCL Terms and Library Operations *}
 
-theory  UML_Logic 
-imports UML_Types 
+theory  UML_Logic
+imports UML_Types
 begin
 
 section{* The Operations of the Boolean Type and the OCL Logic*}
@@ -712,7 +712,7 @@ where     "\<tau> \<Turnstile> P \<equiv> ((P \<tau>) = true \<tau>)"
 
 syntax "_OclNonValid"  :: "[('\<AA>)st, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ |\<noteq> (_))" 50)
 
-translations "\<tau> |\<noteq> P" == "\<not>(\<tau> \<Turnstile> P)" 
+translations "\<tau> |\<noteq> P" == "\<not>(\<tau> \<Turnstile> P)"
 
 definition OclValid_at_pre  :: "[('\<AA>)state, ('\<AA>)Boolean] \<Rightarrow> bool" ("(1(_)/ \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (_))" 50)
 where     "\<sigma> \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P \<equiv> (\<forall>\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t. (\<sigma>, \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t) \<Turnstile> P)"
@@ -953,7 +953,7 @@ assumes Q: "\<tau> \<Turnstile> Q \<Longrightarrow> R"
 shows "R"
 by(insert H, subst (asm) foundation11[OF defP defQ], erule disjE, simp_all add: P Q)
 
-lemma foundation27: "\<tau> \<Turnstile> A \<Longrightarrow> (\<tau> \<Turnstile> A implies B) = (\<tau> \<Turnstile> B)" 
+lemma foundation27: "\<tau> \<Turnstile> A \<Longrightarrow> (\<tau> \<Turnstile> A implies B) = (\<tau> \<Turnstile> B)"
 by (simp add: foundation12 foundation6)
 
 lemma foundation28:"(X=Y) = (\<forall>\<tau>. \<tau> \<Turnstile> X \<triangleq> Y)"
@@ -1031,7 +1031,7 @@ by(auto simp: OclValid_def StrongEq_def true_def cp_def)
 
 lemma StrongEq_L_subst2_rev: "\<tau> \<Turnstile> y \<triangleq> x \<Longrightarrow> cp P \<Longrightarrow> \<tau> \<Turnstile> P x \<Longrightarrow> \<tau> \<Turnstile> P y"
 apply(erule StrongEq_L_subst2)
-apply(erule StrongEq_L_sym)  
+apply(erule StrongEq_L_sym)
 by assumption
 
 lemma  StrongEq_L_subst3:
@@ -1044,13 +1044,13 @@ apply(rule StrongEq_L_subst2[OF cp,OF eq[THEN StrongEq_L_sym]],simp)
 done
 
 lemma  StrongEq_L_subst3_rev:
-assumes eq: "\<tau> \<Turnstile> (x \<triangleq> y)" 
+assumes eq: "\<tau> \<Turnstile> (x \<triangleq> y)"
 and     cp: "cp P"
 shows       "(\<tau> \<Turnstile> P x) = (\<tau> \<Turnstile> P y)"
 by(insert cp, erule StrongEq_L_subst3, rule eq)
 
 lemma  StrongEq_L_subst4_rev:
-assumes eq: "\<tau> \<Turnstile> (x \<triangleq> y)" 
+assumes eq: "\<tau> \<Turnstile> (x \<triangleq> y)"
 and     cp: "cp P"
 shows       "(\<not>(\<tau> \<Turnstile> P x)) = (\<not>(\<tau> \<Turnstile> P y))"
 thm arg_cong[of _ _ "Not"]
@@ -1099,7 +1099,7 @@ lemma cp_id :     "cp(\<lambda>X. X)"
   by (simp add: cp_def, fast)
 
 text_raw{*  \isatagafp *}
- 
+
 lemmas cp_intro[intro!,simp,code_unfold] =
        cp_const
        cp_id
@@ -1113,7 +1113,7 @@ lemmas cp_intro[intro!,simp,code_unfold] =
                    of "StrongEq"]]
 
 text_raw{* \endisatagafp *}
-       
+
 
 subsubsection{* Local Judgements and Strong Equality (at pre) *}
 
@@ -1125,7 +1125,7 @@ by(auto simp: OclValid_def OclValid_at_pre_def StrongEq_def true_def cp_def)
 
 lemma StrongEq_L_subst2_rev\<^sub>p\<^sub>r\<^sub>e: "\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e y \<triangleq> x \<Longrightarrow> cp P \<Longrightarrow> \<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P x \<Longrightarrow> \<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P y"
 apply(erule StrongEq_L_subst2\<^sub>p\<^sub>r\<^sub>e)
-apply(erule StrongEq_L_sym\<^sub>p\<^sub>r\<^sub>e)  
+apply(erule StrongEq_L_sym\<^sub>p\<^sub>r\<^sub>e)
 by assumption
 
 lemma  StrongEq_L_subst3\<^sub>p\<^sub>r\<^sub>e:
@@ -1138,7 +1138,7 @@ apply(rule StrongEq_L_subst2\<^sub>p\<^sub>r\<^sub>e[OF cp,OF eq[THEN StrongEq_L
 done
 
 lemma  StrongEq_L_subst3_rev\<^sub>p\<^sub>r\<^sub>e:
-assumes eq: "\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (x \<triangleq> y)" 
+assumes eq: "\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e (x \<triangleq> y)"
 and     cp: "cp P"
 shows       "(\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P x) = (\<sigma>\<^sub>p\<^sub>r\<^sub>e \<Turnstile>\<^sub>p\<^sub>r\<^sub>e P y)"
 by(insert cp, erule StrongEq_L_subst3\<^sub>p\<^sub>r\<^sub>e, rule eq)
@@ -1153,7 +1153,7 @@ by(auto simp: OclValid_def OclValid_at_post_def StrongEq_def true_def cp_def)
 
 lemma StrongEq_L_subst2_rev\<^sub>p\<^sub>o\<^sub>s\<^sub>t: "\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t y \<triangleq> x \<Longrightarrow> cp P \<Longrightarrow> \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P x \<Longrightarrow> \<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P y"
 apply(erule StrongEq_L_subst2\<^sub>p\<^sub>o\<^sub>s\<^sub>t)
-apply(erule StrongEq_L_sym\<^sub>p\<^sub>o\<^sub>s\<^sub>t)  
+apply(erule StrongEq_L_sym\<^sub>p\<^sub>o\<^sub>s\<^sub>t)
 by assumption
 
 lemma  StrongEq_L_subst3\<^sub>p\<^sub>o\<^sub>s\<^sub>t:
@@ -1166,7 +1166,7 @@ apply(rule StrongEq_L_subst2\<^sub>p\<^sub>o\<^sub>s\<^sub>t[OF cp,OF eq[THEN St
 done
 
 lemma  StrongEq_L_subst3_rev\<^sub>p\<^sub>o\<^sub>s\<^sub>t:
-assumes eq: "\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (x \<triangleq> y)" 
+assumes eq: "\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t (x \<triangleq> y)"
 and     cp: "cp P"
 shows       "(\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P x) = (\<sigma>\<^sub>p\<^sub>o\<^sub>s\<^sub>t \<Turnstile>\<^sub>p\<^sub>o\<^sub>s\<^sub>t P y)"
 by(insert cp, erule StrongEq_L_subst3\<^sub>p\<^sub>o\<^sub>s\<^sub>t, rule eq)
@@ -1241,15 +1241,15 @@ lemma OclIf_defined': "\<tau> \<Turnstile> \<delta> (if P then A else B endif) \
 by(simp add: defined_def OclValid_def false_def true_def OclIf_def
                   invalid_def bot_fun_def
         split: if_split_asm)
-       
+
 subsection{* Fundamental Predicates on Basic Types: Strict (Referential) Equality *}
 
 text{*
   In contrast to logical equality, the OCL standard defines an equality operation
   which we call ``strict referential equality''. It behaves differently for all
-  types---on value types, it is basically a strict version of strong equality, 
-  for defined values it behaves identical. But on object types it will compare 
-  their references within the store. We  introduce strict referential equality 
+  types---on value types, it is basically a strict version of strong equality,
+  for defined values it behaves identical. But on object types it will compare
+  their references within the store. We  introduce strict referential equality
   as an \emph{overloaded} concept and will handle it for
   each type instance individually.
 *}
@@ -1261,9 +1261,9 @@ syntax
   "_notequal"        :: "('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean \<Rightarrow> ('\<AA>)Boolean"   (infix "<>" 40)
 translations
   "a <> b" == "CONST OclNot(a \<doteq> b)"
-       
-text{* We will define instances of this equality in a case-by-case basis.*}       
-       
+
+text{* We will define instances of this equality in a case-by-case basis.*}
+
 subsection{* Laws to Establish Definedness (\texorpdfstring{$\delta$}{d}-closure) *}
 
 text{* For the logical connectives, we have --- beyond
@@ -1282,7 +1282,7 @@ lemma OclNot_contrapos_nn:
  shows      "\<tau> \<Turnstile> not A"
 proof -
  have D : "\<tau> \<Turnstile> \<delta> B" by(rule B[THEN OclNot_defargs])
- show ?thesis 
+ show ?thesis
     apply(insert B,simp add: A D foundation9)
     by(erule contrapos_nn, auto intro: C)
 qed
@@ -1290,7 +1290,7 @@ qed
 
 subsection{* A Side-calculus for Constant Terms *}
 
-definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'" 
+definition "const X \<equiv> \<forall> \<tau> \<tau>'. X \<tau> = X \<tau>'"
 
 lemma const_charn: "const X \<Longrightarrow> X \<tau> = X \<tau>'"
 by(auto simp: const_def)
@@ -1404,8 +1404,8 @@ lemma const_StrongEq:
   apply(subst assms(1)[THEN const_charn])
   apply(subst assms(2)[THEN const_charn])
   by simp
-  
-  
+
+
 lemma const_OclIf :
   assumes "const B"
       and "const C1"
@@ -1417,10 +1417,10 @@ lemma const_OclIf :
                  const_true[simplified const_def, THEN spec, THEN spec]
                  assms[simplified const_def, THEN spec, THEN spec]
                  const_invalid[simplified const_def, THEN spec, THEN spec])
-by (metis (no_types) bot_fun_def OclValid_def const_def const_true defined_def 
+by (metis (no_types) bot_fun_def OclValid_def const_def const_true defined_def
                  foundation16[THEN iffD1]  null_fun_def)
 
-       
+
 
 lemma const_OclValid1:
  assumes "const x"
@@ -1441,7 +1441,7 @@ lemma const_HOL_if : "const C \<Longrightarrow> const D \<Longrightarrow> const 
       by(auto simp: const_def)
 lemma const_HOL_and: "const C \<Longrightarrow> const D \<Longrightarrow> const (\<lambda>\<tau>. C \<tau> \<and> D \<tau>)"
       by(auto simp: const_def)
-lemma const_HOL_eq : "const C \<Longrightarrow> const D \<Longrightarrow> const (\<lambda>\<tau>. C \<tau> = D \<tau>)" 
+lemma const_HOL_eq : "const C \<Longrightarrow> const D \<Longrightarrow> const (\<lambda>\<tau>. C \<tau> = D \<tau>)"
       apply(auto simp: const_def)
       apply(erule_tac x=\<tau> in allE)
       apply(erule_tac x=\<tau> in allE)
@@ -1459,7 +1459,7 @@ lemmas const_ss = const_bot const_null  const_invalid  const_false  const_true  
                   const_defined const_valid const_StrongEq const_OclNot const_OclAnd
                   const_OclOr const_OclImplies const_OclIf
                   const_HOL_if const_HOL_and const_HOL_eq
-               
+
 text{* Miscellaneous: Recovering the definition of
                       @{term OclValid_at_pre} and @{term OclValid_at_post} *}
 

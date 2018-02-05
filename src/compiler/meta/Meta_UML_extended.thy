@@ -125,7 +125,7 @@ fun map_data_shallow_self where
                                  | x \<Rightarrow> x) e"
 
 fun map_list_attr where
-   "map_list_attr f e = 
+   "map_list_attr f e =
      (\<lambda> OclAttrNoCast x \<Rightarrow> OclAttrNoCast (f x)
       | OclAttrCast c_from l_attr x \<Rightarrow> OclAttrCast c_from (map_list_attr f l_attr) (f x)) e"
 

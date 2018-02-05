@@ -70,7 +70,7 @@ definition "of_datatype _ = (\<lambda> Datatype n l \<Rightarrow>
            (String_concat \<open> \<close> (L.map (\<lambda>x. \<open>\"%s\"\<close> (of_semi__typ x)) l))) l) ))"
 
 definition "of_type_synonym _ = (\<lambda> Type_synonym n v l \<Rightarrow>
-  \<open>type_synonym %s = \"%s\"\<close> (if v = [] then 
+  \<open>type_synonym %s = \"%s\"\<close> (if v = [] then
                                 To_string n
                               else
                                 of_semi__typ (Typ_apply (Typ_base n) (L.map Typ_base v)))
@@ -122,11 +122,11 @@ definition "of_definition _ = (\<lambda>
   | Definition_where2 name abbrev e \<Rightarrow> \<open>definition %s (\"%s\")
   where \"%s\"\<close> (To_string name) (of_semi__term abbrev) (of_semi__term e))"
 
-definition "(of_semi__thm_attribute_aux_gen :: String.literal \<times> String.literal \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> _) m lacc s = 
+definition "(of_semi__thm_attribute_aux_gen :: String.literal \<times> String.literal \<Rightarrow> _ \<Rightarrow> _ \<Rightarrow> _) m lacc s =
  (let s_base = (\<lambda>s lacc. \<open>%s[%s]\<close> (To_string s) (String_concat \<open>, \<close> (L.map (\<lambda>(s, x). \<open>%s %s\<close> s x) lacc))) in
   s_base s (m # lacc))"
 
-definition "of_semi__thm_attribute_aux_gen_where l = 
+definition "of_semi__thm_attribute_aux_gen_where l =
  (\<open>where\<close>, String_concat \<open> and \<close> (L.map (\<lambda>(var, expr). \<open>%s = \"%s\"\<close>
                                                           (To_string var)
                                                           (of_semi__term expr)) l))"
@@ -157,7 +157,7 @@ fun of_semi__thm_attribute_aux where "of_semi__thm_attribute_aux lacc e =
    | Thm_simplified (Thm_thms s) e2 \<Rightarrow> of_semi__thm_attribute_aux_gen (\<open>simplified\<close>, of_semi__thm_attribute_aux [] e2) lacc s
    | Thm_simplified e1 e2 \<Rightarrow> of_semi__thm_attribute_aux ((\<open>simplified\<close>, of_semi__thm_attribute_aux [] e2) # lacc) e1
 
-   | Thm_symmetric (Thm_thm s) \<Rightarrow> of_semi__thm_attribute_aux_gen (\<open>symmetric\<close>, \<open>\<close>) lacc s 
+   | Thm_symmetric (Thm_thm s) \<Rightarrow> of_semi__thm_attribute_aux_gen (\<open>symmetric\<close>, \<open>\<close>) lacc s
    | Thm_symmetric (Thm_thms s) \<Rightarrow> of_semi__thm_attribute_aux_gen (\<open>symmetric\<close>, \<open>\<close>) lacc s
    | Thm_symmetric e1 \<Rightarrow> of_semi__thm_attribute_aux ((\<open>symmetric\<close>, \<open>\<close>) # lacc) e1
 
@@ -387,7 +387,7 @@ definition "String_concat_map s f l = String_concat s (L.map f l)"
 
 definition \<open>of_semi__theories env =
  (\<lambda> Theories_one t \<Rightarrow> of_semi__theory env t
-  | Theories_locale data l \<Rightarrow> 
+  | Theories_locale data l \<Rightarrow>
       \<open>locale %s =
 %s
 begin

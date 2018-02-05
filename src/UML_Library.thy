@@ -52,7 +52,7 @@ imports (* Basic Type Operations *)
         "basic_types/UML_Integer"
         "basic_types/UML_Real"
         "basic_types/UML_String"
-        
+
         (* Collection Type Operations *)
         "collection_types/UML_Pair"
         "collection_types/UML_Bag"
@@ -65,7 +65,7 @@ section{* Miscellaneous Stuff*}
 subsection{* Definition: asBoolean *}
 
 definition OclAsBoolean\<^sub>I\<^sub>n\<^sub>t  :: "('\<AA>) Integer \<Rightarrow> ('\<AA>) Boolean" ("(_)->oclAsType\<^sub>I\<^sub>n\<^sub>t'(Boolean')")
-where     "OclAsBoolean\<^sub>I\<^sub>n\<^sub>t X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+where     "OclAsBoolean\<^sub>I\<^sub>n\<^sub>t X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau>
                               then \<lfloor>\<lfloor>\<lceil>\<lceil>X \<tau>\<rceil>\<rceil> \<noteq> 0\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
@@ -73,7 +73,7 @@ interpretation OclAsBoolean\<^sub>I\<^sub>n\<^sub>t : profile_mono\<^sub>d OclAs
                                 by unfold_locales (auto simp: OclAsBoolean\<^sub>I\<^sub>n\<^sub>t_def bot_option_def)
 
 definition OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l  :: "('\<AA>) Real \<Rightarrow> ('\<AA>) Boolean" ("(_)->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l'(Boolean')")
-where     "OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+where     "OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau>
                               then \<lfloor>\<lfloor>\<lceil>\<lceil>X \<tau>\<rceil>\<rceil> \<noteq> 0\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
@@ -83,7 +83,7 @@ interpretation OclAsBoolean\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_mono\<^sub
 subsection{* Definition: asInteger *}
 
 definition OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l  :: "('\<AA>) Real \<Rightarrow> ('\<AA>) Integer" ("(_)->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l'(Integer')")
-where     "OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+where     "OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau>
                               then \<lfloor>\<lfloor>floor \<lceil>\<lceil>X \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
@@ -93,14 +93,14 @@ interpretation OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l : profile_mono\<^sub
 subsection{* Definition: asReal *}
 
 definition OclAsReal\<^sub>I\<^sub>n\<^sub>t  :: "('\<AA>) Integer \<Rightarrow> ('\<AA>) Real" ("(_)->oclAsType\<^sub>I\<^sub>n\<^sub>t'(Real')")
-where     "OclAsReal\<^sub>I\<^sub>n\<^sub>t X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau> 
+where     "OclAsReal\<^sub>I\<^sub>n\<^sub>t X = (\<lambda>\<tau>. if (\<delta> X) \<tau> = true \<tau>
                               then \<lfloor>\<lfloor>real_of_int \<lceil>\<lceil>X \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                               else invalid \<tau>)"
 
 interpretation OclAsReal\<^sub>I\<^sub>n\<^sub>t : profile_mono\<^sub>d OclAsReal\<^sub>I\<^sub>n\<^sub>t "\<lambda>x. \<lfloor>\<lfloor>real_of_int \<lceil>\<lceil>x\<rceil>\<rceil>\<rfloor>\<rfloor>"
                              by unfold_locales (auto simp: OclAsReal\<^sub>I\<^sub>n\<^sub>t_def bot_option_def)
 
-lemma Integer_subtype_of_Real: 
+lemma Integer_subtype_of_Real:
   assumes "\<tau> \<Turnstile> \<delta> X"
   shows   "\<tau> \<Turnstile> X ->oclAsType\<^sub>I\<^sub>n\<^sub>t(Real) ->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer) \<triangleq> X"
   apply(insert assms,  simp add: OclAsInteger\<^sub>R\<^sub>e\<^sub>a\<^sub>l_def OclAsReal\<^sub>I\<^sub>n\<^sub>t_def OclValid_def StrongEq_def)
@@ -138,9 +138,9 @@ definition OclAsSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r   :: "[('\<AA>,'\<alpha>::nu
 where     "OclAsSet\<^sub>P\<^sub>a\<^sub>i\<^sub>r S = Set{S .First(), S .Second()}"
 
 definition OclAsSet\<^sub>B\<^sub>a\<^sub>g   :: "('\<AA>,'\<alpha>::null) Bag\<Rightarrow>('\<AA>,'\<alpha>)Set" ("(_)->asSet\<^sub>B\<^sub>a\<^sub>g'(')")
-where     "OclAsSet\<^sub>B\<^sub>a\<^sub>g S =  (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau> 
-                                 then Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor> Rep_Set_base S \<tau> \<rfloor>\<rfloor> 
-                                 else if (\<upsilon> S) \<tau> = true \<tau> then null \<tau> 
+where     "OclAsSet\<^sub>B\<^sub>a\<^sub>g S =  (\<lambda> \<tau>. if (\<delta> S) \<tau> = true \<tau>
+                                 then Abs_Set\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor> Rep_Set_base S \<tau> \<rfloor>\<rfloor>
+                                 else if (\<upsilon> S) \<tau> = true \<tau> then null \<tau>
                                                           else invalid \<tau>)"
 
 subsection{* Definition: asSequence *}
@@ -313,11 +313,11 @@ ML {*
 
     fun mk_int [] = raise TERM ("int_tr", [])
       | mk_int S = let val s = implode(map fst S) in
-                    case Int.fromString s of 
+                    case Int.fromString s of
                             NONE => raise TERM (" int_tr", [])
                          |  SOME(i) => HOLogic.mk_number HOLogic.intT i
                    end
-     
+
     fun mk_number i =
       let
         fun mk 1 = Syntax.const @{const_syntax Num.One}
@@ -364,18 +364,18 @@ ML {*
         | _ => err ())
       end;
 
-   fun float_tr f [(c as Const (@{syntax_const "_constrain"}, _)) $ t $ u $ p] = 
+   fun float_tr f [(c as Const (@{syntax_const "_constrain"}, _)) $ t $ u $ p] =
                  c $ f (float_tr f [t]) $ u
       | float_tr _ [Const (str, _)] = mk_frac str
       | float_tr _ ts = (POKE:=ts;raise TERM ("float_tr", ts));
  (* in [(@{syntax_const "_Float"}, K float_tr)] end *)
-                                        
+
   end;
 *}
 
 term "123"
 
-(*  
+(*
 term "\<open>abc\<close>"
 term "\<open>123\<close>"
 term "\<open>12,24\<close>"
@@ -390,7 +390,7 @@ parse_translation {*
   [( @{syntax_const "_cartouche_oclstring"}
    , let val cartouche_type = Attrib.setup_config_string @{binding cartouche_type} (K "String") in
        fn ctxt =>
-         
+
            (case Config.get ctxt cartouche_type of
               "String" => (string_tr
                              (fn x => Abs("_",dummyT,
@@ -406,16 +406,16 @@ parse_translation {*
                                     Syntax.const @{const_syntax Some} $
                                        ( Syntax.const @{const_syntax Some} $ x)))
             | s => error ("Unregistered return type for the cartouche: \"" ^ s ^ "\""))
-           
+
      end)]
 *}
 
-term "\<open>abc\<close>" 
+term "\<open>abc\<close>"
 declare [[cartouche_type="Integer"]]
-term "\<open>-123\<close>" 
+term "\<open>-123\<close>"
 declare [[cartouche_type="Real"]]
-(*term "\<open>-123.23\<close>" 
-ML{* (*!POKE 
+(*term "\<open>-123.23\<close>"
+ML{* (*!POKE
 so, the cartouche invocation yields:*)
 val it = [Const ("_constrain" , "_") $ Free ("\<open>-123.23\<close>", "_") $ Free ("<markup>", "_")]: term list
 *}*)

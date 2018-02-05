@@ -87,7 +87,7 @@ definition "print_ctxt_is_name_at_post = (case String.to_list var_at_when_hol_po
   \<lambda>s. case print_ctxt_is_name_at_pre s of None \<Rightarrow> Some s
                                         | _ \<Rightarrow> None)"
 
-definition "print_ctxt_to_ocl_gen_split s = 
+definition "print_ctxt_to_ocl_gen_split s =
  (case L.split_at (\<lambda> s. s = CHR 0x2E) (String.to_list s) of
     (_, Some _, s) \<Rightarrow> Some s
   | _ \<Rightarrow> None)"
@@ -139,7 +139,7 @@ definition "print_ctxt_pre_post_interp = (\<lambda>(sorry, dirty) name ctxt e_na
   else
     None (* not yet implemented *))"
 
-definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.mapM (\<lambda>x env. (x env, env)) o (\<lambda> ctxt. 
+definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.mapM (\<lambda>x env. (x env, env)) o (\<lambda> ctxt.
  let ty_name = ty_obj_to_string (Ctxt_ty ctxt) in
  L.flatten (L.map (\<lambda> (l_ctxt, ctxt).
   let (l_pre, l_post) = List.partition (\<lambda> (OclCtxtPre, _) \<Rightarrow> True | _ \<Rightarrow> False) l_ctxt
@@ -161,7 +161,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
             let (l_pre, l_post) = ( to_s OclCtxtPre (print_ctxt_to_ocl_pre env) l_pre
                                       , to_s OclCtxtPost id l_post)
               ; var_r = var_result
-              ; expr = 
+              ; expr =
               Term_rewrite
                 (dot_expr (Term_annot_ocl (b var_self) ty_name) id)
                 \<open>\<equiv>\<close>
@@ -177,11 +177,11 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                                                                                                (f_tau l_post))
                                                                                              (f_tau (Term_rewrite (b var_result) \<open>\<triangleq>\<close> (b \<open>invalid\<close>)))))]))))
               ; (name0, def) =
-                 (if 
+                 (if
                     List.fold (\<lambda> (_, T_pure t _) \<Rightarrow> \<lambda> b \<Rightarrow>
                                  b | Meta_Pure.fold_Const (\<lambda> b s. b | (case print_ctxt_to_ocl_gen_split s of
                                                                None \<Rightarrow> False
-                                                             | Some s \<Rightarrow> 
+                                                             | Some s \<Rightarrow>
                                                                  let f_eq = \<lambda>a. String.to_list (print_ctxt_const_name attr_n a None) = s in
                                                                  f_eq var_at_when_hol_post | f_eq var_at_when_hol_pre))
                                                 False
@@ -211,7 +211,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                       (OclCtxtPost, l_post) of
                  None \<Rightarrow> []
                | Some x \<Rightarrow> [x]))
-        # (\<lambda>env. 
+        # (\<lambda>env.
             L.flatten (fst (fold_class (\<lambda>_ name _ _ _ _.
               Pair (if ty_name \<triangleq> name then
                       []
@@ -263,7 +263,7 @@ definition "print_ctxt_thm ctxt = Pair
  (case L.flatten (L.map (\<lambda>(tit, _). L.map (hol_definition o print_ctxt_inv_name (ty_obj_to_string (Ctxt_ty ctxt)) tit)
                                                    [ var_at_when_hol_pre
                                                    , var_at_when_hol_post ])
-                              (fold_invariant' ctxt)) of 
+                              (fold_invariant' ctxt)) of
     [] \<Rightarrow> []
   | l \<Rightarrow> [ O.thm (Thm (L.map T.thm l)) ])"
 

@@ -56,7 +56,7 @@ text {* This \emph{minimal} OCL type contains only two elements:
 @{term "Void"} could initially be defined as @{typ "unit option option"},
 however the cardinal of this type is more than two, so it would have the cost to consider
  @{text "Some None"} and @{text "Some (Some ())"} seemingly everywhere.*}
- 
+
 subsection{* Fundamental Properties on Voids: Strict Equality *}
 
 subsubsection{* Definition *}
@@ -97,10 +97,10 @@ begin
 end
 
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
-interpretation   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Void) \<doteq> y" 
+interpretation   StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Void) \<doteq> y"
        by unfold_locales (auto simp:  StrictRefEq\<^sub>V\<^sub>o\<^sub>i\<^sub>d)
- 
-                                    
+
+
 subsection{* Basic Void Constants *}
 
 

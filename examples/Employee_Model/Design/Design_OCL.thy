@@ -65,61 +65,61 @@ context Person
 \end{ocl}
 *}
 
-definition Person_label\<^sub>i\<^sub>n\<^sub>v :: "Person \<Rightarrow> Boolean" 
-where     "Person_label\<^sub>i\<^sub>n\<^sub>v (self) \<equiv>  
+definition Person_label\<^sub>i\<^sub>n\<^sub>v :: "Person \<Rightarrow> Boolean"
+where     "Person_label\<^sub>i\<^sub>n\<^sub>v (self) \<equiv>
                  (self .boss <> null implies (self .salary  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss) .salary)))"
-                                       
 
-definition Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e :: "Person \<Rightarrow> Boolean" 
-where     "Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e (self) \<equiv>  
+
+definition Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e :: "Person \<Rightarrow> Boolean"
+where     "Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e (self) \<equiv>
                  (self .boss@pre <> null implies (self .salary@pre \<le>\<^sub>i\<^sub>n\<^sub>t ((self .boss@pre) .salary@pre)))"
 
 definition Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v :: "Boolean"
-where     "Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v \<equiv> (Person .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(x | Person_label\<^sub>i\<^sub>n\<^sub>v (x)) and 
+where     "Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v \<equiv> (Person .allInstances()->forAll\<^sub>S\<^sub>e\<^sub>t(x | Person_label\<^sub>i\<^sub>n\<^sub>v (x)) and
                                   (Person .allInstances@pre()->forAll\<^sub>S\<^sub>e\<^sub>t(x | Person_label\<^sub>i\<^sub>n\<^sub>v\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e (x))))"
-                                  
-                                  
+
+
 lemma "\<tau> \<Turnstile> \<delta> (X .boss) \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(X .boss) \<and>
                             \<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(X) "
-oops (* should be: sorry *) 
-(* To be generated generically ... hard, but crucial lemma that should hold. 
+oops (* should be: sorry *)
+(* To be generated generically ... hard, but crucial lemma that should hold.
    It means that X and it successor are object representation that actually
    occur in the state. *)
 
-lemma REC_pre : "\<tau> \<Turnstile> Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v 
+lemma REC_pre : "\<tau> \<Turnstile> Person_label\<^sub>g\<^sub>l\<^sub>o\<^sub>b\<^sub>a\<^sub>l\<^sub>i\<^sub>n\<^sub>v
        \<Longrightarrow> \<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(X) (* X represented object in state *)
        \<Longrightarrow> \<exists> REC.  \<tau> \<Turnstile> REC(X)  \<triangleq> (Person_label\<^sub>i\<^sub>n\<^sub>v (X) and (X .boss <> null implies REC(X .boss)))"
 oops (* should be sorry
         Attempt to allegiate the burden of he following axiomatizations: could be
-        a witness for a constant specification ...*)       
+        a witness for a constant specification ...*)
 
 text{* This allows to state a predicate: *}
-                                       
+
 axiomatization inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l :: "Person \<Rightarrow> Boolean"
 where inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l_def:
-"(\<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow> 
- (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self) \<triangleq>  (self .boss <> null implies  
+"(\<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow>
+ (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self) \<triangleq>  (self .boss <> null implies
                                   (self .salary  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss) .salary)) and
                                    inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self .boss))))"
 
 axiomatization inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e :: "Person \<Rightarrow> Boolean"
-where inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e_def: 
+where inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e_def:
 "(\<tau> \<Turnstile> Person .allInstances@pre()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow>
- (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self) \<triangleq> (self .boss@pre <> null implies 
+ (\<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self) \<triangleq> (self .boss@pre <> null implies
                                    (self .salary@pre  \<le>\<^sub>i\<^sub>n\<^sub>t  ((self .boss@pre) .salary@pre)) and
                                     inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self .boss@pre))))"
 
 
-lemma inv_1 : 
+lemma inv_1 :
 "(\<tau> \<Turnstile> Person .allInstances()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow>
     (\<tau> \<Turnstile> inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self) = ((\<tau> \<Turnstile> (self .boss \<doteq> null)) \<or>
-                               ( \<tau> \<Turnstile> (self .boss <> null) \<and> 
+                               ( \<tau> \<Turnstile> (self .boss <> null) \<and>
                                  \<tau> \<Turnstile> ((self .salary)  \<le>\<^sub>i\<^sub>n\<^sub>t  (self .boss .salary))  \<and>
                                  \<tau> \<Turnstile> (inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l(self .boss))))) "
 oops (* should be: sorry *) (* Let's hope that this holds ... *)
 
 
-lemma inv_2 : 
+lemma inv_2 :
 "(\<tau> \<Turnstile> Person .allInstances@pre()->includes\<^sub>S\<^sub>e\<^sub>t(self)) \<Longrightarrow>
     (\<tau> \<Turnstile> inv\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n\<^sub>_\<^sub>l\<^sub>a\<^sub>b\<^sub>e\<^sub>l\<^sub>A\<^sub>T\<^sub>p\<^sub>r\<^sub>e(self)) =  ((\<tau> \<Turnstile> (self .boss@pre \<doteq> null)) \<or>
                                      (\<tau> \<Turnstile> (self .boss@pre <> null) \<and>

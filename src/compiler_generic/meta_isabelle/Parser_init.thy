@@ -133,8 +133,8 @@ lemmas [code] =
 
 text\<open>
 This theory and all the deriving one could
-also be prefixed by ``print'' instead of ``parse''. 
-In any case, we are converting (or printing) the above datatypes to another format, 
+also be prefixed by ``print'' instead of ``parse''.
+In any case, we are converting (or printing) the above datatypes to another format,
 and finally this format will be ``parsed'' by Isabelle!\<close>
 
 end

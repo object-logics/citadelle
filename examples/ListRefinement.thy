@@ -46,7 +46,7 @@
 
 chapter{* Part ... *}
 
-theory ListRefinement 
+theory ListRefinement
 imports LinkedList AbstractList
 begin
 

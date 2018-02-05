@@ -124,7 +124,7 @@ definition "list_bind\<^sub>e\<^sub>r\<^sub>r f0 f l =
     ([], l) \<Rightarrow> Return_val (f (L.map (\<lambda> Return_val e \<Rightarrow> e) l))
   | (l, _) \<Rightarrow> Return_err (Return_err_l (L.map (\<lambda> Return_err e \<Rightarrow> e) l)))"
 
-definition "filter_ocl_exn s v = 
+definition "filter_ocl_exn s v =
      (if s \<triangleq> \<open>null\<close> then
         Return_err Return_ocl_null
       else if s \<triangleq> \<open>invalid\<close> then
@@ -142,9 +142,9 @@ fun print_examp_instance_draw_list_attr_aux where
    "print_examp_instance_draw_list_attr_aux f_oid_rec e =
     (\<lambda>
      (* object case 2 *)
-       (OclTy_collection _ ty, ShallB_list l) \<Rightarrow> 
+       (OclTy_collection _ ty, ShallB_list l) \<Rightarrow>
          list_bind\<^sub>e\<^sub>r\<^sub>r (\<lambda>e. print_examp_instance_draw_list_attr_aux f_oid_rec (ty, e)) Term_list l
-     | (OclTy_pair ty1 ty2, ShallB_list [e1, e2]) \<Rightarrow> 
+     | (OclTy_pair ty1 ty2, ShallB_list [e1, e2]) \<Rightarrow>
          list_bind\<^sub>e\<^sub>r\<^sub>r id
                     (\<lambda> [e1, e2] \<Rightarrow> Term_pair e1 e2)
                     [ print_examp_instance_draw_list_attr_aux f_oid_rec (ty1, e1)
@@ -262,7 +262,7 @@ fun print_examp_instance_app_constr2_notmp' where
  (case l_attr of
     OclAttrNoCast _ \<Rightarrow> e (* NOTE: to be enclosed in a potentially not mandatory parenthesis *)
   | OclAttrCast ty (OclAttrNoCast _) _ \<Rightarrow> Term_annot' e (wrap_oclty ty) (* NOTE: to be enclosed in a mandatory parenthesis *)
-  | OclAttrCast ty l_attr _ \<Rightarrow> 
+  | OclAttrCast ty l_attr _ \<Rightarrow>
       Term_postunary (Term_parenthesis (print_examp_instance_app_constr2_notmp' l_attr e)) (Term_basic [dot_astype ty]))"
 
 definition "inst_name ocli = (case Inst_name ocli of Some n \<Rightarrow> n)"
@@ -271,7 +271,7 @@ definition "init_map_class env l =
   (let (rbt_nat, rbt_str, _, _) =
      List.fold
        (\<lambda> ocli (rbt_nat, rbt_str, oid_start, accu).
-         let f = \<lambda>_. 
+         let f = \<lambda>_.
              ( RBT.insert (Oid accu) oid_start rbt_nat
              , insert (inst_name ocli) oid_start rbt_str
              , oidSucInh oid_start
@@ -346,7 +346,7 @@ definition \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_at
                                            | _ \<Rightarrow> find_map shall of
                             [] \<Rightarrow> (accu, rbt)
                           | l \<Rightarrow> (* some rhs variables are authorized because some could have been introduced in HOL side (between 2 meta embedded commands) *)
-                                 ( if pre_post = None then 
+                                 ( if pre_post = None then
                                      (Error, S.flatten [ \<open>Extra variables on rhs: \<close>, String_concatWith \<open>, \<close> (L.map (\<lambda>s. \<open>"\<close> @@ s @@ \<open>"\<close>) l)
                                                      , \<open> in the definition of "\<close>, Inst_name_ocli, \<open>"\<close> ]) # accu
                                    else accu
@@ -595,13 +595,13 @@ definition "print_examp_instance_defassoc_typecheck_var = (\<lambda> OclInstance
         (Definition
           (Term_rewrite
             (Term_app (\<open>typecheck_instance_bad_head_on_lhs\<close> @@ n) (L.map b l_var))
-            \<open>=\<close> 
+            \<open>=\<close>
             (Term_pair' [])))
     , O.definition
         (Definition
           (Term_rewrite
             (b (\<open>typecheck_instance_extra_variables_on_rhs\<close> @@ n))
-            \<open>=\<close> 
+            \<open>=\<close>
             (Term_lambdas l_var (Term_pair' (List.fold fold_instance_single_name l [])))))]))"
 
 definition "print_examp_instance_app_constr2_notmp_norec = (\<lambda>(rbt, (map_self, map_username)) cpt_start ocli isub_name cpt.
@@ -650,8 +650,8 @@ definition \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
                                                  spec))))
        else id)
       raise_ml
-    ; raise_ml = 
-      (case 
+    ; raise_ml =
+      (case
          RBT.entries (List.fold (\<lambda> c l.
                      snd (List.fold (\<lambda> (s, _) (rbt, l).
                                        case lookup rbt s of
@@ -665,12 +665,12 @@ definition \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
        | l \<Rightarrow> raise_ml_warn (\<open>Duplicate constant declaration:\n\<close> @@
                              String_concatWith \<open>\n\<close> (L.map (\<lambda>(s, name). \<open>  \<close> @@ name @@ \<open>: \<close> @@ \<lless>s\<ggreater>) l)))
       raise_ml
-    ; raise_ml = 
+    ; raise_ml =
       (case
          L.map fst
            (RBT.entries
              (List.fold
-               (\<lambda>ass accu. case OclAss_relation ass of OclAssRel l \<Rightarrow> 
+               (\<lambda>ass accu. case OclAss_relation ass of OclAssRel l \<Rightarrow>
                  snd (List.fold (\<lambda>(_, m).
                                    case TyRole m of None \<Rightarrow> id
                                    | Some name \<Rightarrow> \<lambda>(rbt, accu).
@@ -716,8 +716,8 @@ definition \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
           let l = find_inh name spec
             ; f = \<lambda>(ty1, mult1) ty2 accu.
             fst (List.fold
-              (\<lambda> ty1' (l, b). 
-                if b then 
+              (\<lambda> ty1' (l, b).
+                if b then
                   (l, b)
                 else
                   ( check_single_ty rbt_init rbt l_attr_gen l_oid x (ty1', mult1) ty2 l
@@ -736,9 +736,9 @@ definition \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
                     l_spec2)
         l_oid_gen
         [] in
-  
+
     [ raise_ml
-        (L.flatten [ rev (print_examp_def_st_assoc_build_rbt_gen_typecheck 
+        (L.flatten [ rev (print_examp_def_st_assoc_build_rbt_gen_typecheck
                                (\<lambda>ocli. fst o print_examp_instance_app_constr2_notmp_norec (snd o rbt_init0, (map_self, map_username)) (Term_basic []) ocli id)
                                (fst o rbt_init0)
                                (fst o rbt_init)
@@ -768,16 +768,16 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
        (L.map
          (\<lambda> (ocli, cpt).
            let var_oid = Term_oid var_oid_uniq (oidGetInh cpt)
-             ; (isub_name, body2, body2') = 
+             ; (isub_name, body2, body2') =
                  case inst_ty0 ocli of
-                   Some ty \<Rightarrow> 
+                   Some ty \<Rightarrow>
                        let isub_name = \<lambda>s. s @@ String.isub (inst_ty ocli) in
                        (isub_name, print_examp_instance_app_constr2_notmp_norec (snd o rbt, (map_self, map_username)) (b var_inst_ass) ocli isub_name cpt)
                  | None \<Rightarrow> (id, (Return_err Return_err_ty_auto, id))
              ; l =
                [ Definition
                    (Term_rewrite (let e = b (inst_name ocli) in
-                                  case Inst_ty ocli of 
+                                  case Inst_ty ocli of
                                     None \<Rightarrow> e
                                   | Some ty \<Rightarrow> Term_annot_ocl e ty)
                                  \<open>=\<close>
@@ -797,7 +797,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
                                              # l))
        id
        (mk_instance_single_cpt0 map_username l env)
-   , let l_id = L.mapi (\<lambda>i ocli. (i, inst_name ocli)) l in 
+   , let l_id = L.mapi (\<lambda>i ocli. (i, inst_name ocli)) l in
      List.fold
        (\<lambda>ocli instance_rbt.
          let n = inst_name ocli in
@@ -812,7 +812,7 @@ definition "print_examp_instance = (\<lambda> OclInstance l \<Rightarrow> \<lamb
        l
        (D_input_instance env))))"
 
-definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name l \<Rightarrow> 
+definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name l \<Rightarrow>
  (let b = \<lambda>s. Term_basic [s]
     ; l_var0 = [name]
     ; n = \<open>_\<close> @@ String_concatWith \<open>_\<close> l_var0 in
@@ -821,13 +821,13 @@ definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name l \<Righ
         (Definition
           (Term_rewrite
             (Term_app (\<open>typecheck_state_bad_head_on_lhs\<close> @@ n) (L.map b l_var0))
-            \<open>=\<close> 
+            \<open>=\<close>
             (Term_pair' [])))
     , O.definition
         (Definition
           (Term_rewrite
             (b (\<open>typecheck_state_extra_variables_on_rhs\<close> @@ n))
-            \<open>=\<close> 
+            \<open>=\<close>
             (Term_pair' (List.fold (\<lambda> OclDefCoreAdd i \<Rightarrow> fold_instance_single_name i
                                     | OclDefCoreBinding s \<Rightarrow> Cons (b s))
                                    l
@@ -835,7 +835,7 @@ definition "print_examp_def_st_typecheck_var = (\<lambda> OclDefSt name l \<Righ
 
 definition "print_examp_def_st0 name l =
  (let (l, _) = List.fold (\<lambda> (pos, core) (l, n).
-                                      ((pos, pos - n, core) # l, 
+                                      ((pos, pos - n, core) # l,
                                         case core of OclDefCoreAdd _ \<Rightarrow> n
                                         | OclDefCoreBinding _ \<Rightarrow> Succ n))
                              (L.mapi Pair l)
@@ -846,7 +846,7 @@ definition "print_examp_def_st0 name l =
                      (case L.assoc self l of
                         Some (_, OclDefCoreBinding name) \<Rightarrow> ShallB_str name
                       | Some (p, _) \<Rightarrow> ShallB_self (Oid p)
-                      | _ \<Rightarrow> ShallB_list [])) ocli 
+                      | _ \<Rightarrow> ShallB_list [])) ocli
                    \<lparr> Inst_name := Some i_name \<rparr>
                  # l_inst
                  , OclDefCoreBinding i_name # l_defst)
@@ -879,7 +879,7 @@ definition "print_examp_def_st_defs = (\<lambda> _ \<Rightarrow> start_map O.lem
   [ Lemmas_simp_thms \<open>\<close> [ \<open>state.defs\<close>, \<open>const_ss\<close> ] ])"
 
 definition "print_transition_gen = (\<lambda> OclDefPP name s_pre s_post \<Rightarrow> bootstrap_floor'
-  (\<lambda>f env. 
+  (\<lambda>f env.
     let (l, accu) = f env in
     (L.flatten [ L.map META_all_meta_embedding l ], accu))
   (\<lambda>env.

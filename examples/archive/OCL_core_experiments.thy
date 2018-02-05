@@ -3,7 +3,7 @@
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * OCL_core_experiments.thy --- 
+ * OCL_core_experiments.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2011-2018 Université Paris-Saclay, Univ. Paris-Sud, France
@@ -44,7 +44,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory 
+theory
   OCL_core_experiments
 imports
   "../../src/UML_Logic"
@@ -54,7 +54,7 @@ section{* OCL Core Definitions *}
 
 nitpick_params
  [timeout = 30, tac_timeout = 0.5, show_types,assms=true]
-lemma ocl_and_defargs: 
+lemma ocl_and_defargs:
 "\<tau> \<Turnstile> (P and Q) \<Longrightarrow> (\<tau> \<Turnstile> \<delta> P) \<and> (\<tau> \<Turnstile> \<delta> Q)"
 by(auto dest: foundation5 foundation6)
 
@@ -63,7 +63,7 @@ by(auto dest: foundation5 foundation6)
 nitpick_params
 nitpick_params
  [timeout = 30, tac_timeout = 0.5, show_types]
-lemma ocl_and_defargs: 
+lemma ocl_and_defargs:
 "\<tau> \<Turnstile> ((P and Q)  \<triangleq>  (P or Q))"
 nitpick[show_all]
 

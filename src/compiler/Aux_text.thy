@@ -65,7 +65,7 @@ structure Data_code = Theory_Data
 val code_empty = ""
 
 val _ =
-  Outer_Syntax.command 
+  Outer_Syntax.command
     @{command_keyword lazy_text} ""
     (Parse.opt_target -- Parse.document_source
      >> (fn (_, code) =>
@@ -73,7 +73,7 @@ val _ =
             Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing (Input.source_content code) :: l)))
        end))
 
-fun of_text s = 
+fun of_text s =
   let val s = String.substring (s, 2, String.size s - 4)
       val langle = "\<langle>"
       val rangle = "\<rangle>" in
@@ -83,7 +83,7 @@ fun of_text s =
 
 fun apply_code_printing thy =
   (case Symtab.lookup (Data_code.get thy) code_empty of SOME l => rev l | _ => [])
-  |> (fn l => 
+  |> (fn l =>
     let val (thy, l) =
       fold (fn Code_printing s => fn (thy, l) => (thy, of_text s :: l)) l (thy, [])
       ; val _ = writeln (Active.sendback_markup_command ("definition \<open>t txt'' = [\n              " ^ String.concatWith "            , " (rev l) ^ "]\<close>")) in

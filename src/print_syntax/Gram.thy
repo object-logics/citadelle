@@ -74,7 +74,7 @@ structure Data_rule = Theory_Data
 val parse_name = Parse.long_ident >> S || Parse.binding >> B
 val parse_int = Scan.optional (Parse.sym_ident >> (fn "-" => false | _ => Scan.fail "syntax error")) true -- Parse.number >> (fn (b, n) => case Int.fromString n of SOME s => if b then s else 0 - s | _ => Scan.fail "syntax error")
 
-val parse_grammar = 
+val parse_grammar =
         (   parse_name --| Parse.$$$ "="
          -- Scan.repeat ((parse_name -- Scan.option (Parse.$$$ "[" |-- parse_int --| Parse.$$$ "]") >>
                                 (fn (t, prio) => case prio of NONE => HOL t | SOME prio => Grammar (t, prio))))
@@ -94,13 +94,13 @@ val s_of_name = fn B b => Binding.name_of b | S s => s
 fun string_of_rule ((((gram_name, l), rew), prio), doc) =
   s_of_name gram_name ^ String.concat (map (fn Grammar (n,_) => s_of_name n | Grammar_noprio n => s_of_name n | HOL n => s_of_name n) l)
 
-fun show_text l = 
+fun show_text l =
   let val terminals = Symtab.make_set Lexicon.terminals
-      val tab = fold (fn ((((gram_name, l), rew), prio), doc) => 
+      val tab = fold (fn ((((gram_name, l), rew), prio), doc) =>
                         Symtab.insert (op =) (s_of_name gram_name, ()))
                      l
                      terminals
-      val s = String.concat (List.concat (map (fn ((((gram_name, l), rew), prio), doc) => 
+      val s = String.concat (List.concat (map (fn ((((gram_name, l), rew), prio), doc) =>
         let val l = map (fn HOL s => if Symtab.lookup tab (s_of_name s) = NONE then
                                        HOL s
                                      else
@@ -119,7 +119,7 @@ fun show_text l =
                                                      | Grammar_noprio t => gram t NONE
                                                      | HOL t => "\\colorbox{Apricot}{" ^ "" ^ f (s_of_name t) ^ "" ^ "} ") l)
                               ^ (case rew of NoRewrite => "\\hfill{\\small\\color{Gray} (none)}"
-                                 | _ => 
+                                 | _ =>
                                     let val (s, ty) =
                                           case rew of R_underscore s => (s, NONE)
                                                     | RConst s => (s, SOME "const")
@@ -188,16 +188,16 @@ val _ =
                      || (@{keyword "keep"} |-- parse_n) >> Filter_on
                      || (@{keyword "drop"} |-- parse_n) >> Filter_off
                      || parse_grammar >> Filter_data
-                     end) >> (fn ((((init, name), l_add), _), l0) => 
-    Toplevel.theory (fn thy => 
+                     end) >> (fn ((((init, name), l_add), _), l0) =>
+    Toplevel.theory (fn thy =>
       if init then
         let val _ = show_text (filter_drop l0) in
         Data_rule.map (Symtab.map_default (name, Symtab.empty)
           (fold (fn Filter_data rule => Symtab.insert (op =) (string_of_rule rule, ()) | _ => I) l0)) thy
         end
       else
-        let val _ = show_text (List.filter 
-                                (let val set = 
+        let val _ = show_text (List.filter
+                                (let val set =
                                        case Symtab.lookup (Data_rule.get thy) name of SOME s => s | _ => Symtab.empty in
                                  fn e => Symtab.lookup set (string_of_rule e) = NONE
                                          orelse List.exists (case e of ((((gram_name, _), _), _), _) => fn n => s_of_name gram_name = n) l_add

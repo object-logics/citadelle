@@ -531,7 +531,7 @@ definition "thy_class_tree = Embed_theories []"
 definition "thy_class_flat = Embed_theories []"
 definition "thy_association = Embed_theories []"
 definition  thy_instance :: (* polymorphism weakening needed by code_reflect *) "_ embedding'" where
-           "thy_instance = Embed_theories 
+           "thy_instance = Embed_theories
                              [ section' \<open>Instance\<close>
                              , PRINT_examp_instance_defassoc_typecheck_var
                              , PRINT_examp_instance_defassoc
@@ -540,7 +540,7 @@ definition  thy_instance :: (* polymorphism weakening needed by code_reflect *) 
 definition  thy_def_base_l :: (* polymorphism weakening needed by code_reflect *) "_ embedding'" where
            "thy_def_base_l = Embed_theories [ section' \<open>BaseType\<close>
                                             , PRINT_examp_oclbase ]"
-definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
+definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                            [ section' \<open>State (Floor 1)\<close>
                                            , floor1_PRINT_examp_def_st_typecheck_var
                                            , floor1_PRINT_examp_def_st1 ]
@@ -554,7 +554,7 @@ definition "thy_def_state = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                            , Floor2_examp.print_examp_def_st_allinst
                                            , Floor2_examp.print_examp_def_st_defassoc_typecheck ]
                                            [ floor2_PRINT_examp_def_st_def_interp ])"
-definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
+definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                               [ section' \<open>Transition (Floor 1)\<close>
                                               , floor1_PRINT_transition ]
                                 | Floor2 \<Rightarrow> Embed_locale
@@ -566,10 +566,10 @@ definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                               , Floor2_examp.print_transition_where ]
                                               [ floor2_PRINT_transition_def_interp
                                               , floor2_PRINT_transition_lemmas_oid ])"
-definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories 
+definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                       [ section' \<open>Context (Floor 1)\<close>
                                       , floor1_PRINT_ctxt ]
-                        | Floor2 \<Rightarrow> Embed_theories 
+                        | Floor2 \<Rightarrow> Embed_theories
                                       [ section' \<open>Context (Floor 2)\<close>
                                       , floor2_PRINT_ctxt_pre_post
                                       , floor2_PRINT_ctxt_inv
@@ -697,7 +697,7 @@ definition "compiler_env_config_update f env =
            (D_input_meta env')
            (env, ())))"
 
-definition "fold_thy_shallow f_try f_accu_reset x = 
+definition "fold_thy_shallow f_try f_accu_reset x =
   fold_thy'
     comp_env_save
     f_try

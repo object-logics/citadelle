@@ -207,7 +207,7 @@ datatype semi__theory = Theory_datatype "datatype"
                       | Theory_thm "thm"
                       | Theory_interpretation "interpretation"
 
-record semi__locale = 
+record semi__locale =
   HolThyLocale_name :: string
   HolThyLocale_header :: "( (semi__term (* name *) \<times> semi__typ (* 'fix' statement *)) list
                           \<times> (string (* name *) \<times> semi__term (* 'assumes' statement *)) option (* None: no 'assumes' to generate *)) list"
@@ -409,7 +409,7 @@ lemmas [code] =
 
 definition "ty_arrow l = (case rev l of x # xs \<Rightarrow> List.fold Ty_arrow xs x)"
 
-locale C 
+locale C
 begin
 definition "done = Command_done"
 definition "by = Command_by"

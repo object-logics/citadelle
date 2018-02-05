@@ -1057,7 +1057,7 @@ term "(select_object mtSet UML_Set.OclIncluding UML_Set.OclANY f  l oid )::('\<A
 
 definition "select_object\<^sub>S\<^sub>e\<^sub>t = select_object mtSet UML_Set.OclIncluding id"
 definition "select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set = UML_Set.OclANY (select_object\<^sub>S\<^sub>e\<^sub>t f s_set)"
-definition "select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set = 
+definition "select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set =
  (let s = select_object\<^sub>S\<^sub>e\<^sub>t f s_set in
   if s->size\<^sub>S\<^sub>e\<^sub>t() \<triangleq> \<zero> then
     null
@@ -1069,7 +1069,7 @@ definition "select_object_any\<^sub>S\<^sub>e\<^sub>t f s_set =
   endif)"
 definition "select_object\<^sub>S\<^sub>e\<^sub>q = select_object mtSequence UML_Sequence.OclIncluding id"
 definition "select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set = UML_Sequence.OclANY (select_object\<^sub>S\<^sub>e\<^sub>q f s_set)"
-definition "select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set = 
+definition "select_object_any\<^sub>S\<^sub>e\<^sub>q f s_set =
  (let s = select_object\<^sub>S\<^sub>e\<^sub>q f s_set in
   if s->size\<^sub>S\<^sub>e\<^sub>q() \<triangleq> \<zero> then
     null
@@ -1241,7 +1241,7 @@ proof -
    show "List.member s_set e \<and> \<tau> \<Turnstile> select_object_any0\<^sub>S\<^sub>e\<^sub>q f s_set \<triangleq> f e \<Longrightarrow> ?thesis"
   by(rule exI[where x = e], simp add: StrongEq_L_trans[OF A])
  qed
-qed 
+qed
 
 lemma (*select_object_any_exec\<^sub>S\<^sub>e\<^sub>t:*)
  assumes def_sel: "\<tau> \<Turnstile> \<delta> (select_object_any0\<^sub>S\<^sub>e\<^sub>t f s_set)"
@@ -1304,7 +1304,7 @@ proof -
        apply(subgoal_tac "?P (f e \<tau>)")
         prefer 2
         apply(case_tac "xb = e", simp)
-        apply (metis (mono_tags) image_eqI in_set_member member_rec(1)) 
+        apply (metis (mono_tags) image_eqI in_set_member member_rec(1))
 
        apply(rule someI2[where a = "f e \<tau>"])
         apply(erule disjE, simp)+

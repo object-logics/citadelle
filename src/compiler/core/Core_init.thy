@@ -182,8 +182,8 @@ fun fold_tree where
 
 datatype 'a class_output = C_out_OclAny | C_out_simple 'a
 
-definition "mk_tree nb_child deep n_init = 
- (let (l, map) = 
+definition "mk_tree nb_child deep n_init =
+ (let (l, map) =
     fold_tree
       (\<lambda> l1 l2 (l, map).
           let (n1, map) = ident_fresh l1 map
@@ -234,7 +234,7 @@ definition "find_class_ass env =
        | x \<Rightarrow> [x]) l_all_meta)))"
 
 definition "map_enum_syn l_enum l_syn =
- (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow> 
+ (\<lambda> OclTy_object (OclTyObj (OclTyCore_pre s) []) \<Rightarrow>
       if list_ex (\<lambda>syn. s \<triangleq> (case syn of OclClassSynonym n _ \<Rightarrow> n)) l_syn then
         OclTy_class_syn s
       else if list_ex (\<lambda>enum. s \<triangleq> (case enum of OclEnum n _ \<Rightarrow> n)) l_enum then
@@ -260,7 +260,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
                                  | META_ass_class Floor1 (OclAssClass ass _) \<Rightarrow> Some ass
                                  | _ \<Rightarrow> None) l_c
       ; OclMult = \<lambda>l set. ocl_multiplicity_ext l None set ()
-      ; (l_class, l_ass0) = 
+      ; (l_class, l_ass0) =
           if with_optim_ass then
             (* move from classes to associations:
                  attributes of object types
@@ -301,7 +301,7 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
                               Some (cflat \<lparr> ClassRaw_own :=
                                               L.flatten [ ClassRaw_own cflat
                                                            , [(role_to, let ty = OclTy_object name_to in
-                                                                        if single_multip category_to then 
+                                                                        if single_multip category_to then
                                                                           ty
                                                                         else
                                                                           OclTy_collection category_to ty)]] \<rparr>)
@@ -331,7 +331,7 @@ definition "datatype_in = \<open>in\<close>"
 subsection\<open>Main Combinators for the Translation\<close>
 
 text\<open>
-As general remark, all the future translating steps 
+As general remark, all the future translating steps
 (e.g., that will occur in @{file "Floor1_access.thy"})
 will extensively use Isabelle expressions,
 represented by its Meta-Model, for example lots of functions will use @{term "Term_app"}...
@@ -380,8 +380,8 @@ definition "activate_simp_optimization = True"
 
 definition "prev_was_stop = (\<lambda> [] \<Rightarrow> True | x # _ \<Rightarrow> ignore_meta_header x)"
 
-fun collect_meta_embed where 
-   "collect_meta_embed accu e = 
+fun collect_meta_embed where
+   "collect_meta_embed accu e =
     (\<lambda> (True, _) \<Rightarrow> rev accu
      | (_, []) \<Rightarrow> rev accu
      | (_, x # l_meta) \<Rightarrow> collect_meta_embed (x # accu) (prev_was_stop l_meta, l_meta)) e"

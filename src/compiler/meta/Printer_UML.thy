@@ -72,7 +72,7 @@ fun of_ctxt2_term_aux where "of_ctxt2_term_aux l e =
 definition "of_ctxt2_term = of_ctxt2_term_aux []"
 
 definition \<open>of_ocl_ctxt _ (floor :: (* polymorphism weakening needed by code_reflect *)
-                                     String.literal) ctxt = 
+                                     String.literal) ctxt =
  (let f_inv = \<lambda> T_inv b (OclProp_ctxt n s) \<Rightarrow> \<open>  %sInv %s : "%s"\<close>
               (if b then \<open>Existential\<close> else \<open>\<close>)
               (case n of None \<Rightarrow> \<open>\<close> | Some s \<Rightarrow> To_string s)

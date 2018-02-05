@@ -47,7 +47,7 @@ imports Main
 begin
 
 text\<open>In case there are functions planned to be at the same time used by the compiler
-(by the translating step) and 
+(by the translating step) and
 also used by generated files, then these functions can be defined in this file.\<close>
 
 definition "map_of_list = (foldl ((\<lambda>map. (\<lambda>(x , l1). (case (map (x)) of None \<Rightarrow> (map (x \<mapsto> l1))

@@ -75,7 +75,7 @@ containing all ground numbers appearing in the expression, namely @{term \<six>}
 text{* The following part sets up the necessary requirement so that one can ideally normalize
 a general term composed of a set of numbers applied to an arbitrary nesting of
 @{term OclIterate} and @{term OclIncluding}.
-Instead of following a particular conventional strategy (e.g., call by value, by need, ...), 
+Instead of following a particular conventional strategy (e.g., call by value, by need, ...),
 for efficiency reasons, we present in the next subsections some algebraic properties on sets
 to manually minimize the number of reduction steps before obtaining a normal form. *}
 
@@ -94,11 +94,11 @@ A naive approach for simplifying such huge expression would be to repeatedly rew
 However, @{thm[source] UML_Set.OclIterate_including} contains @{term "comp_fun_commute F"} as hypothesis
 and in case @{term "F"} is again a nested operation on OCL sets, we would still need additional assumptions
 in order to further prove that @{term "comp_fun_commute F"} is true (like the
-validity, definedness and finiteness properties, 
+validity, definedness and finiteness properties,
 and the finiteness is precisely required for all sets occurring
 in a chain of @{term OclIterate} nested term).
 As illustration, @{file "OCL_lib_Gogolla_challenge_naive.thy"} contains additional several lemmas
-that can be proved but will not be used, 
+that can be proved but will not be used,
 since they have @{term "comp_fun_commute F"} as hypothesis. *}
 
 text{* As solution, we propose now to write an Isabelle locale similar as the locale @{term "comp_fun_commute"}

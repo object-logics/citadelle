@@ -99,7 +99,7 @@ definition "of_toy_def_state_core l =
                              | ToyDefCoreAdd toyi \<Rightarrow> of_toy_instance_single toyi) l)"
 
 definition "of_toy_def_state _ (floor :: (* polymorphism weakening needed by code_reflect *)
-                                         String.literal) = (\<lambda> ToyDefSt n l \<Rightarrow> 
+                                         String.literal) = (\<lambda> ToyDefSt n l \<Rightarrow>
   \<open>State%s %s = [ %s ]\<close>
     floor
     (To_string n)

@@ -127,9 +127,9 @@ begin
                                     then (x \<triangleq> y) \<tau>
                                     else invalid \<tau>"
 end
-                                    
+
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
-interpretation  StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)UnlimitedNatural) \<doteq> y" 
+interpretation  StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)UnlimitedNatural) \<doteq> y"
          by unfold_locales (auto simp: StrictRefEq\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l)
 
 subsection{* Basic UnlimitedNatural Constants *}
@@ -257,14 +257,14 @@ text{* Here is the special case of division, which is defined as invalid for div
 by zero. *}
 definition OclDivision\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "div\<^sub>n\<^sub>a\<^sub>t" 45)
 where "x div\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
-                       then if y \<tau> \<noteq> OclNat0 \<tau> then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> div \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor> else invalid \<tau> 
+                       then if y \<tau> \<noteq> OclNat0 \<tau> then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> div \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor> else invalid \<tau>
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
 
 
 definition OclModulus\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l ::"('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural \<Rightarrow> ('\<AA>)UnlimitedNatural" (infix "mod\<^sub>n\<^sub>a\<^sub>t" 45)
 where "x mod\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
-                       then if y \<tau> \<noteq> OclNat0 \<tau> then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> mod \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor> else invalid \<tau> 
+                       then if y \<tau> \<noteq> OclNat0 \<tau> then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> mod \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor> else invalid \<tau>
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
 

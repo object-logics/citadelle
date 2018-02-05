@@ -64,7 +64,7 @@ definition ApproxEq (infixl "\<cong>" 30)
 where     "X \<cong> Y \<equiv>  \<lambda> \<tau>. \<lfloor>\<lfloor>Rep_Set_base X \<tau> = Rep_Set_base Y \<tau> \<rfloor>\<rfloor>"
 
 
-subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Bags 
+subsection{* As a Motivation for the (infinite) Type Construction: Type-Extensions as Bags
              \label{sec:bag-type-extensions}*}
 
 text{* Our notion of typed bag goes beyond the usual notion of a finite executable bag and
@@ -304,7 +304,7 @@ this invariant (the WFF-invariant), the referential equality and the
 strong equality---and therefore the strict equality on bags in the sense above---coincides.*}
 
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
-interpretation  StrictRefEq\<^sub>B\<^sub>a\<^sub>g : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Bag) \<doteq> y" 
+interpretation  StrictRefEq\<^sub>B\<^sub>a\<^sub>g : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>,'\<alpha>::null)Bag) \<doteq> y"
          by unfold_locales (auto simp:  StrictRefEq\<^sub>B\<^sub>a\<^sub>g)
 
 
@@ -343,19 +343,19 @@ subsection{* Definition: Including *}
 
 definition OclIncluding   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>,'\<alpha>) Bag"
 where     "OclIncluding x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<upsilon> y) \<tau> = true \<tau>
-                                    then Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x \<tau>)\<rceil>\<rceil> 
-                                                      ((y \<tau>):=\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x \<tau>)\<rceil>\<rceil>(y \<tau>)+1) 
+                                    then Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x \<tau>)\<rceil>\<rceil>
+                                                      ((y \<tau>):=\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x \<tau>)\<rceil>\<rceil>(y \<tau>)+1)
                                                     \<rfloor>\<rfloor>
                                     else invalid \<tau> )"
 notation   OclIncluding   ("_->including\<^sub>B\<^sub>a\<^sub>g'(_')")
 
-interpretation OclIncluding : profile_bin\<^sub>d_\<^sub>v OclIncluding "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> 
+interpretation OclIncluding : profile_bin\<^sub>d_\<^sub>v OclIncluding "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>
                                                       (y := \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> y + 1)\<rfloor>\<rfloor>"
-proof -  
+proof -
    let ?X = "\<lambda>x y. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil> ((y):=\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil>( y )+1)"
    show "profile_bin\<^sub>d_\<^sub>v OclIncluding (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> ?X x y \<rfloor>\<rfloor>)"
-         apply unfold_locales  
-          apply(auto simp:OclIncluding_def bot_option_def null_option_def 
+         apply unfold_locales
+          apply(auto simp:OclIncluding_def bot_option_def null_option_def
                                            bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
           by(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject, simp_all,
              metis (mono_tags, lifting) Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_option_def mem_Collect_eq null_option_def,
@@ -377,12 +377,12 @@ where     "OclExcluding x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true 
                                      else invalid \<tau> )"
 notation   OclExcluding   ("_->excluding\<^sub>B\<^sub>a\<^sub>g'(_')")
 
-interpretation OclExcluding: profile_bin\<^sub>d_\<^sub>v OclExcluding  
+interpretation OclExcluding: profile_bin\<^sub>d_\<^sub>v OclExcluding
                             "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e(x)\<rceil>\<rceil>(y:=0::nat)\<rfloor>\<rfloor>"
 proof -
     show "profile_bin\<^sub>d_\<^sub>v OclExcluding (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil>(y := 0)\<rfloor>\<rfloor>)"
-         apply unfold_locales  
-         apply(auto simp:OclExcluding_def bot_option_def null_option_def  
+         apply unfold_locales
+         apply(auto simp:OclExcluding_def bot_option_def null_option_def
                          null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
          by(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,
                simp_all add: bot_option_def null_option_def,
@@ -430,7 +430,7 @@ a well-documented exception from the general strictness
 rule and the rule that the distinguished argument self should
 be non-null. *}
 
-(*TODO Locale - Equivalent*)  
+(*TODO Locale - Equivalent*)
 
 
 subsection{* Definition: IsEmpty *}
@@ -439,7 +439,7 @@ definition OclIsEmpty   :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Bo
 where     "OclIsEmpty x =  ((\<upsilon> x and not (\<delta> x)) or ((OclSize x) \<doteq> \<zero>))"
 notation   OclIsEmpty     ("_->isEmpty\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
-(*TODO Locale - Equivalent*)  
+(*TODO Locale - Equivalent*)
 
 subsection{* Definition: NotEmpty *}
 
@@ -447,7 +447,7 @@ definition OclNotEmpty   :: "('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> B
 where     "OclNotEmpty x =  not(OclIsEmpty x)"
 notation   OclNotEmpty    ("_->notEmpty\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
-(*TODO Locale - Equivalent*)  
+(*TODO Locale - Equivalent*)
 
 subsection{* Definition: Any *}
 
@@ -460,7 +460,7 @@ where     "OclANY x = (\<lambda> \<tau>. if (\<upsilon> x) \<tau> = true \<tau>
                             else \<bottom> )"
 notation   OclANY   ("_->any\<^sub>B\<^sub>a\<^sub>g'(')")
 
-(*TODO Locale - Equivalent*)  
+(*TODO Locale - Equivalent*)
 
 (* actually, this definition covers only: X->any\<^sub>B\<^sub>a\<^sub>g(true) of the standard, which foresees
 a (totally correct) high-level definition
@@ -487,10 +487,10 @@ syntax
 translations
   "X->forAll\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST UML_Bag.OclForall X (%x. P)"
 
-(*TODO Locale - Equivalent*)  
+(*TODO Locale - Equivalent*)
 
 subsection{* Definition: Exists *}
-  
+
 text{* Like OclForall, OclExists is also not strict. *}
 definition OclExists     :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> '\<AA> Boolean"
 where     "OclExists S P = not(UML_Bag.OclForall S (\<lambda> X. not (P X)))"
@@ -500,8 +500,8 @@ syntax
 translations
   "X->exists\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST UML_Bag.OclExists X (%x. P)"
 
-(*TODO Locale - Equivalent*)  
-  
+(*TODO Locale - Equivalent*)
+
 subsection{* Definition: Iterate *}
 
 definition OclIterate :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<beta>::null)val,
@@ -515,16 +515,16 @@ syntax
 translations
   "X->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P)" == "CONST OclIterate X A (%a. (% x. P))"
 
-(*TODO Locale - Equivalent*)  
+(*TODO Locale - Equivalent*)
 
 subsection{* Definition: Select *}
-  
-  
+
+
 definition OclSelect :: "[('\<AA>,'\<alpha>::null)Bag,('\<AA>,'\<alpha>)val\<Rightarrow>('\<AA>)Boolean] \<Rightarrow> ('\<AA>,'\<alpha>)Bag"
 where "OclSelect S P = (\<lambda>\<tau>. if (\<delta> S) \<tau> = true \<tau>
                               then if (\<exists>x\<in>Rep_Set_base S \<tau>. P(\<lambda> _. x) \<tau> = invalid \<tau>)
                                    then invalid \<tau>
-                                   else Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lambda>x. 
+                                   else Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor>\<lambda>x.
                                           let n = \<lceil>\<lceil> Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (S \<tau>) \<rceil>\<rceil> x in
                                           if n = 0 | P (\<lambda>_. x) \<tau> = false \<tau> then
                                             0
@@ -536,7 +536,7 @@ syntax
 translations
   "X->select\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST OclSelect X (% x. P)"
 
-(*TODO Locale - Equivalent*)  
+(*TODO Locale - Equivalent*)
 
 subsection{* Definition: Reject *}
 
@@ -547,7 +547,7 @@ syntax
 translations
   "X->reject\<^sub>B\<^sub>a\<^sub>g(x | P)" == "CONST OclReject X (% x. P)"
 
-(*TODO Locale - Equivalent*)  
+(*TODO Locale - Equivalent*)
 
 subsection{* Definition: IncludesAll *}
 
@@ -577,21 +577,21 @@ subsection{* Definition: Union *}
 
 definition OclUnion   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) Bag] \<Rightarrow> ('\<AA>,'\<alpha>) Bag"
 where     "OclUnion x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                                then Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> X + 
+                                then Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> X +
                                                        \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> X\<rfloor>\<rfloor>
                                 else invalid \<tau> )"
 notation   OclUnion       ("_->union\<^sub>B\<^sub>a\<^sub>g'(_')"          (*[66,65]65*))
 
-interpretation OclUnion : 
-               profile_bin\<^sub>d_\<^sub>d OclUnion "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X + 
+interpretation OclUnion :
+               profile_bin\<^sub>d_\<^sub>d OclUnion "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X +
                                                                 \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil> X\<rfloor>\<rfloor>"
-proof -  
+proof -
    show "profile_bin\<^sub>d_\<^sub>d OclUnion (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X + \<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil> X\<rfloor>\<rfloor>)"
-   apply unfold_locales 
-   apply(auto simp:OclUnion_def bot_option_def null_option_def 
+   apply unfold_locales
+   apply(auto simp:OclUnion_def bot_option_def null_option_def
                    null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def)
    by(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,
-      simp_all add: bot_option_def null_option_def, 
+      simp_all add: bot_option_def null_option_def,
       metis (mono_tags, lifting) Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_option_def mem_Collect_eq
                                  null_option_def)+
 qed
@@ -600,22 +600,22 @@ subsection{* Definition: Intersection *}
 
 definition OclIntersection   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) Bag] \<Rightarrow> ('\<AA>,'\<alpha>) Bag"
 where     "OclIntersection x y = (\<lambda> \<tau>.  if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                                        then Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> X) 
+                                        then Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e\<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> X)
                                                        (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (y \<tau>)\<rceil>\<rceil> X)\<rfloor>\<rfloor>
                                         else \<bottom>  )"
 notation   OclIntersection("_->intersection\<^sub>B\<^sub>a\<^sub>g'(_')"   (*[71,70]70*))
 
-interpretation OclIntersection : 
-               profile_bin\<^sub>d_\<^sub>d OclIntersection "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X) 
+interpretation OclIntersection :
+               profile_bin\<^sub>d_\<^sub>d OclIntersection "\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X)
                                                                 (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil> X)\<rfloor>\<rfloor>"
-proof -  
-   show "profile_bin\<^sub>d_\<^sub>d OclIntersection (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X) 
+proof -
+   show "profile_bin\<^sub>d_\<^sub>d OclIntersection (\<lambda>x y. Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<lfloor>\<lfloor> \<lambda> X. min (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e x\<rceil>\<rceil> X)
                                                                 (\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e y\<rceil>\<rceil> X)\<rfloor>\<rfloor>)"
-   apply unfold_locales 
-   apply(auto simp:OclIntersection_def bot_option_def null_option_def 
+   apply unfold_locales
+   apply(auto simp:OclIntersection_def bot_option_def null_option_def
                    null_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def bot_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_def invalid_def)
    by(subst (asm) Abs_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject,
-      simp_all add: bot_option_def null_option_def, 
+      simp_all add: bot_option_def null_option_def,
       metis (mono_tags, lifting) Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inverse bot_option_def mem_Collect_eq min_0R
                                  null_option_def)+
 qed
@@ -624,7 +624,7 @@ subsection{* Definition: Count *}
 
 definition OclCount   :: "[('\<AA>,'\<alpha>::null) Bag,('\<AA>,'\<alpha>) val] \<Rightarrow> ('\<AA>) Integer"
 where     "OclCount x y = (\<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                             then  \<lfloor>\<lfloor>int(\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> (y \<tau>))\<rfloor>\<rfloor> 
+                             then  \<lfloor>\<lfloor>int(\<lceil>\<lceil>Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e (x \<tau>)\<rceil>\<rceil> (y \<tau>))\<rfloor>\<rfloor>
                              else invalid \<tau> )"
 notation   OclCount ("_->count\<^sub>B\<^sub>a\<^sub>g'(_')"  (*[66,65]65*))
 
@@ -635,7 +635,7 @@ subsection{* Definition (future operators) *}
 
 consts (* abstract bag collection operations *)
     OclSum         :: " ('\<AA>,'\<alpha>::null) Bag \<Rightarrow> '\<AA> Integer"
-  
+
 notation  OclSum         ("_->sum\<^sub>B\<^sub>a\<^sub>g'(')" (*[66]*))
 
 subsection{* Logical Properties *}
@@ -651,7 +651,7 @@ lemma OclIncluding_valid_args_valid''[simp,code_unfold]:
 by (simp add: OclIncluding.def_valid_then_def)
 
 text{* etc. etc. *}
-text_raw{* \isatagafp *} 
+text_raw{* \isatagafp *}
 
 text{* OclExcluding *}
 
@@ -828,7 +828,7 @@ lemma OclANY_valid_args_valid''[simp,code_unfold]:
 by(auto intro!: OclANY_valid_args_valid transform2_rev)
 
 (* and higher order ones : forall, exists, iterate, select, reject... *)
-text_raw{* \endisatagafp *} 
+text_raw{* \endisatagafp *}
 
 subsection{* Execution Laws with Invalid or Null or Infinite Set as Argument *}
 
@@ -1021,7 +1021,7 @@ apply(erule exE, rule exI, intro allI)
 apply(erule_tac x=X in allE)
 by(subst cp_OclExists,simp)
 
-lemma cp_OclIterate: 
+lemma cp_OclIterate:
      "(X->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P a x)) \<tau> =
                 ((\<lambda> _. X \<tau>)->iterate\<^sub>B\<^sub>a\<^sub>g(a; x = A | P a x)) \<tau>"
 by(simp add: OclIterate_def cp_defined[symmetric] Rep_Bag_base_def)
@@ -1866,7 +1866,7 @@ proof -
   by (metis (hide_lams, no_types) Set_inv_lemma foundation18' foundation5)
 
   have m : "\<And>\<tau>. (\<lambda>_. \<bottom>) = (\<lambda>_. invalid \<tau>)" by(rule ext, simp add:invalid_def)
-  
+
   show "X->including\<^sub>B\<^sub>a\<^sub>g(x)->size\<^sub>B\<^sub>a\<^sub>g() \<tau> = (if \<delta> X and \<upsilon> x
                                      then X->size\<^sub>B\<^sub>a\<^sub>g() +\<^sub>i\<^sub>n\<^sub>t if X->includes\<^sub>B\<^sub>a\<^sub>g(x) then \<zero> else \<one> endif
                                      else invalid endif) \<tau>"
@@ -3115,11 +3115,11 @@ lemma OclIncluding_cong : "\<And>(s::('\<AA>,'a::null)Set) t x y \<tau>. \<tau> 
 by(auto simp: OclValid_def OclIf_def invalid_def bot_option_def OclNot_def split : if_split_asm)
 *)
 (* < *)
-(*lemma const_StrictRefEq\<^sub>B\<^sub>a\<^sub>g_empty : "const X \<Longrightarrow>  const (X \<doteq> Set{})" 
+(*lemma const_StrictRefEq\<^sub>B\<^sub>a\<^sub>g_empty : "const X \<Longrightarrow>  const (X \<doteq> Set{})"
  apply(rule StrictRefEq\<^sub>B\<^sub>a\<^sub>g.const, assumption)
 by(simp)
 
-lemma const_StrictRefEq\<^sub>B\<^sub>a\<^sub>g_including : 
+lemma const_StrictRefEq\<^sub>B\<^sub>a\<^sub>g_including :
  "const a \<Longrightarrow> const S \<Longrightarrow> const X \<Longrightarrow>  const (X \<doteq> S->including\<^sub>B\<^sub>a\<^sub>g(a))"
  apply(rule StrictRefEq\<^sub>B\<^sub>a\<^sub>g.const, assumption)
 by(rule const_OclIncluding)
@@ -3129,9 +3129,9 @@ subsection{* Test Statements *}
 (*Assert   "(\<tau> \<Turnstile> (Bag{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>} \<doteq> Bag{\<lambda>_. \<lfloor>\<lfloor>x\<rfloor>\<rfloor>}))"
 Assert   "(\<tau> \<Turnstile> (Bag{\<lambda>_. \<lfloor>x\<rfloor>} \<doteq> Bag{\<lambda>_. \<lfloor>x\<rfloor>}))"*)
 
-(* (*TODO.*)  
+(* (*TODO.*)
 open problem: An executable code-generator setup for the Bag type. Some bits and pieces
-so far : 
+so far :
 instantiation int :: equal
 begin
 
@@ -3153,8 +3153,8 @@ lemma equal_int_code [code]:
   "HOL.equal (Neg k) (Pos l) \<longleftrightarrow> False"
   "HOL.equal (Neg k) (Neg l) \<longleftrightarrow> HOL.equal k l"
   by (auto simp add: equal)
-*)  
-  
+*)
+
 
 instantiation Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e  :: (equal)equal
 begin
@@ -3166,12 +3166,12 @@ lemma equal_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_code [code]:
   "HOL.equal k (l::('a::{equal,null})Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e) \<longleftrightarrow> Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e k = Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e l"
   by (auto simp add: equal Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e.Rep_Bag\<^sub>b\<^sub>a\<^sub>s\<^sub>e_inject)
 
-Assert   "\<tau> \<Turnstile> (Bag{} \<doteq> Bag{})" 
+Assert   "\<tau> \<Turnstile> (Bag{} \<doteq> Bag{})"
 
 (* TODO Frederic ?:
-Assert   "\<tau> \<Turnstile> not(Bag{\<one>,\<one>}      \<triangleq> Bag{\<one>})" 
-Assert   "\<tau> \<Turnstile> (Bag{\<one>,\<two>}         \<triangleq> Bag{\<two>,\<one>}" 
-Assert   "\<tau> \<Turnstile> (Bag{\<one>,null}      \<triangleq> Bag{null,\<one>}" 
+Assert   "\<tau> \<Turnstile> not(Bag{\<one>,\<one>}      \<triangleq> Bag{\<one>})"
+Assert   "\<tau> \<Turnstile> (Bag{\<one>,\<two>}         \<triangleq> Bag{\<two>,\<one>}"
+Assert   "\<tau> \<Turnstile> (Bag{\<one>,null}      \<triangleq> Bag{null,\<one>}"
 Assert   "\<tau> \<Turnstile> (Bag{\<one>,invalid,\<two>} \<triangleq> invalid)"
 Assert   "\<tau> \<Turnstile> (Bag{\<one>,\<two>}->including\<^sub>B\<^sub>a\<^sub>g(null) \<triangleq> Bag{\<one>,\<two>,null})"
 *)

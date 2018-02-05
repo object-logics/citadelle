@@ -57,7 +57,7 @@ In this example, we configure our package to execute tactic SML code
 details how to obtain such generated \verb|.thy| file).
 Since SML code are already compiled (or reflected) and bound with the native Isabelle API in
 @{theory Generator_dynamic_sequential}, nothing is generated in this theory.
-The system only parses arguments given to meta-commands and immediately calls the corresponding 
+The system only parses arguments given to meta-commands and immediately calls the corresponding
 compiled functions.
 
 The execution time is comparatively similar as if tactics were written by hand,
@@ -79,7 +79,7 @@ Class Atom < Molecule
   Attributes size : Integer
 End
 
-       End End End 
+       End End End
 
 Class Molecule < Person
 
@@ -128,7 +128,7 @@ Transition \<sigma>\<^sub>1 \<sigma>\<^sub>1'
 subsection\<open>Designing Class Models (III): Interaction with (Pure) Term\<close>
 
 text{*
-Here in @{keyword "shallow"} mode, the following expression is directly rejected: 
+Here in @{keyword "shallow"} mode, the following expression is directly rejected:
 \<^verbatim>\<open>
 (* Context Person :: content ()
   Post "\<close>@{text "\<close>"}@{text "\<open>"}\<^verbatim>\<open>" *)\<close>

@@ -1,12 +1,12 @@
 (******************************************************************************
  * HOL-TestGen --- theorem-prover based test case generation
  *                 http://www.brucker.ch/projects/hol-testgen/
- *                                                                            
+ *
  * Monads.thy --- a base testing theory for sequential computations.
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2005-2007, ETH Zurich, Switzerland
- *               2009 B. Wolff, Univ. Paris-Saclay, Univ. Paris-Sud, France 
+ *               2009 B. Wolff, Univ. Paris-Saclay, Univ. Paris-Sud, France
  *               2009, 2012 Achim D. Brucker, Germany
  *               2013-2016 Université Paris-Saclay, Univ. Paris-Sud, France
  *               2013-2016 IRT SystemX, France
@@ -45,22 +45,22 @@
 chapter {* Basic Monad Theory for Sequential Computations *}
 
 theory Monads imports Main
-begin 
+begin
 
 
 section{*General Framework for Monad-based Sequence-Test *}
 text{* As such, Higher-order Logic as a purely functional specification
        formalism has no built-in mechanism for state and state-transitions.
-       Forms of testing involving state require therefore explicit mechanisms 
+       Forms of testing involving state require therefore explicit mechanisms
        for their treatment inside the logic; a well-known technique to model
        states inside purely functional languages are \emph{monads} made popular
-       by Wadler and Moggi and extensively used in Haskell. \HOL is powerful 
-       enough to represent the most important standard monads; 
-       however, it is not possible to represent monads as such due to well-known 
+       by Wadler and Moggi and extensively used in Haskell. \HOL is powerful
+       enough to represent the most important standard monads;
+       however, it is not possible to represent monads as such due to well-known
        limitations of the Hindley-Milner type-system. *}
 
 text{* Here is a variant for state-exception monads, that models precisely
-       transition functions with preconditions. Next, we declare the 
+       transition functions with preconditions. Next, we declare the
        state-backtrack-monad. In all of them, our concept of i/o stepping
        functions can be formulated; these are functions mapping input
        to a given monad. Later on, we will build the usual concepts of:
@@ -72,23 +72,23 @@ text{* Here is a variant for state-exception monads, that models precisely
 *}
 
 subsection{* Standard State Exception Monads *}
-type_synonym ('o, '\<sigma>) MON\<^sub>S\<^sub>E = "'\<sigma> \<rightharpoonup> ('o \<times> '\<sigma>)" (* = '\<sigma> \<Rightarrow> ('o \<times> '\<sigma>)option *) 
-      
-      
-definition bind_SE :: "('o,'\<sigma>)MON\<^sub>S\<^sub>E \<Rightarrow> ('o \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E) \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E" 
-where     "bind_SE f g = (\<lambda>\<sigma>. case f \<sigma> of None \<Rightarrow> None 
+type_synonym ('o, '\<sigma>) MON\<^sub>S\<^sub>E = "'\<sigma> \<rightharpoonup> ('o \<times> '\<sigma>)" (* = '\<sigma> \<Rightarrow> ('o \<times> '\<sigma>)option *)
+
+
+definition bind_SE :: "('o,'\<sigma>)MON\<^sub>S\<^sub>E \<Rightarrow> ('o \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E) \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E"
+where     "bind_SE f g = (\<lambda>\<sigma>. case f \<sigma> of None \<Rightarrow> None
                                         | Some (out, \<sigma>') \<Rightarrow> g out \<sigma>')"
 
 notation bind_SE ("bind\<^sub>S\<^sub>E")
 
 syntax    (xsymbols)
-          "_bind_SE" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E" 
+          "_bind_SE" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E"
           ("(2 _ \<leftarrow> _; _)" [5,8,8]8)
-translations 
+translations
           "x \<leftarrow> f; g" == "CONST bind_SE f (% x . g)"
-          
 
-definition unit_SE :: "'o \<Rightarrow> ('o, '\<sigma>)MON\<^sub>S\<^sub>E"   ("(return _)" 8) 
+
+definition unit_SE :: "'o \<Rightarrow> ('o, '\<sigma>)MON\<^sub>S\<^sub>E"   ("(return _)" 8)
 where     "unit_SE e = (\<lambda>\<sigma>. Some(e,\<sigma>))"
 notation   unit_SE ("unit\<^sub>S\<^sub>E")
 
@@ -108,7 +108,7 @@ text{* The standard monad theorems about unit and associativity: *}
 
 lemma bind_left_unit [simp]: "(x \<leftarrow> return c; P x) = P c"
   by (simp add: unit_SE_def bind_SE_def)
-  
+
 
 lemma bind_left_fail_SE[simp] : "(x \<leftarrow> fail\<^sub>S\<^sub>E; P x) = fail\<^sub>S\<^sub>E"
   by (simp add: fail_SE_def bind_SE_def)
@@ -126,7 +126,7 @@ lemma bind_assoc[simp]: "(y \<leftarrow> (x \<leftarrow> m; k x); h y) = (x \<le
   apply (case_tac "a", simp_all)
   done
 
-          
+
 text{* The bind-operator in the state-exception monad yields already
        a semantics for the concept of an input sequence on the meta-level: *}
 lemma     syntax_test: "(o1 \<leftarrow> f1 ; o2 \<leftarrow> f2; return (post o1 o2)) = X"
@@ -142,21 +142,21 @@ where     "f ;- g = (_ \<leftarrow> f ; g)"
 
 
 subsection {* Monadic If *}
- 
+
 definition if_SE :: "['\<sigma> \<Rightarrow> bool, ('\<alpha>, '\<sigma>)MON\<^sub>S\<^sub>E, ('\<alpha>, '\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> ('\<alpha>, '\<sigma>)MON\<^sub>S\<^sub>E"
-where     "if_SE c E F = (\<lambda>\<sigma>. if c \<sigma> then E \<sigma> else F \<sigma>)" 
+where     "if_SE c E F = (\<lambda>\<sigma>. if c \<sigma> then E \<sigma> else F \<sigma>)"
 
 syntax    (xsymbols)
-          "_if_SE" :: "['\<sigma> \<Rightarrow> bool,('o,'\<sigma>)MON\<^sub>S\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E" 
+          "_if_SE" :: "['\<sigma> \<Rightarrow> bool,('o,'\<sigma>)MON\<^sub>S\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E"
           ("(if\<^sub>S\<^sub>E _ then _ else _fi)" [5,8,8]8)
-translations 
+translations
           "(if\<^sub>S\<^sub>E cond then T1 else T2 fi)" == "CONST if_SE cond T1 T2"
-   
+
 
 
 subsubsection{* Theory of a Monadic While *}
 
-text{* First Step : Establishing an embedding between partial functions and relations *} 
+text{* First Step : Establishing an embedding between partial functions and relations *}
 (* plongement *)
 definition Mon2Rel :: "(unit, '\<sigma>)MON\<^sub>S\<^sub>E \<Rightarrow> ('\<sigma> \<times> '\<sigma>) set"
 where "Mon2Rel f = {(x, y). (f x = Some((), y))}"
@@ -182,17 +182,17 @@ lemma single_valued_Mon2Rel: "single_valued (Mon2Rel B)"
 by (auto simp: single_valued_def Mon2Rel_def)
 
 text{* Second Step : Proving an induction principle allowing to establish that lfp remains
-       deterministic *} 
+       deterministic *}
 
 
 (* Due to Tobias Nipkow *)
-definition chain :: "(nat => 'a set) => bool" 
+definition chain :: "(nat => 'a set) => bool"
 where     "chain S = (\<forall>i. S i \<subseteq> S(Suc i))"
 
 lemma chain_total: "chain S ==> S i \<le> S j \<or> S j \<le> S i"
 by (metis chain_def le_cases lift_Suc_mono_le)
 
-definition cont :: "('a set => 'b set) => bool" 
+definition cont :: "('a set => 'b set) => bool"
 where     "cont f = (\<forall>S. chain S \<longrightarrow> f(UN n. S n) = (UN n. f(S n)))"
 
 lemma mono_if_cont: fixes f :: "'a set => 'b set"
@@ -253,7 +253,7 @@ proof(auto simp: single_valued_def)
   show "y = z" by (auto simp: single_valued_def)
 qed
 
-lemma single_valued_lfp: 
+lemma single_valued_lfp:
 fixes f :: "('a \<times> 'a) set => ('a \<times> 'a) set"
 assumes "cont f" "\<And>r. single_valued r \<Longrightarrow> single_valued (f r)"
 shows "single_valued(lfp f)"
@@ -265,7 +265,7 @@ qed
 
 
 text{* Third Step: Definition of the Monadic While *}
-definition \<Gamma> :: "['\<sigma> \<Rightarrow> bool,('\<sigma> \<times> '\<sigma>) set] \<Rightarrow> (('\<sigma> \<times> '\<sigma>) set \<Rightarrow> ('\<sigma> \<times> '\<sigma>) set)" 
+definition \<Gamma> :: "['\<sigma> \<Rightarrow> bool,('\<sigma> \<times> '\<sigma>) set] \<Rightarrow> (('\<sigma> \<times> '\<sigma>) set \<Rightarrow> ('\<sigma> \<times> '\<sigma>) set)"
 where     "\<Gamma> b cd = (\<lambda>cw. {(s,t). if b s then (s, t) \<in> cd O cw else s = t})"
 
 
@@ -273,9 +273,9 @@ definition while_SE :: "['\<sigma> \<Rightarrow> bool, (unit, '\<sigma>)MON\<^su
 where     "while_SE c B \<equiv> (Rel2Mon(lfp(\<Gamma> c (Mon2Rel B))))"
 
 syntax    (xsymbols)
-          "_while_SE" :: "['\<sigma> \<Rightarrow> bool, (unit, '\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> (unit, '\<sigma>)MON\<^sub>S\<^sub>E" 
+          "_while_SE" :: "['\<sigma> \<Rightarrow> bool, (unit, '\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> (unit, '\<sigma>)MON\<^sub>S\<^sub>E"
           ("(while\<^sub>S\<^sub>E _ do _ od)" [8,8]8)
-translations 
+translations
           "while\<^sub>S\<^sub>E c do b od" == "CONST while_SE c b"
 
 lemma cont_\<Gamma>: "cont (\<Gamma> c b)"
@@ -299,8 +299,8 @@ by (simp add: Rel2Mon_def)
 lemma Rel2Mon_homomorphism:
   assumes determ_X: "single_valued X" and determ_Y: "single_valued Y"
   shows   "Rel2Mon (X O Y) = (Rel2Mon X) ;- (Rel2Mon Y)"
-proof - 
-    have relational_partial_next_in_O: "!!x E F. (\<exists>y. (x, y) \<in> (E O F)) \<Longrightarrow> (\<exists>y. (x, y) \<in> E)" 
+proof -
+    have relational_partial_next_in_O: "!!x E F. (\<exists>y. (x, y) \<in> (E O F)) \<Longrightarrow> (\<exists>y. (x, y) \<in> E)"
                         by (auto)
     have some_eq_intro: "\<And>X x y . single_valued X \<Longrightarrow> (x, y) \<in> X \<Longrightarrow> (SOME y. (x, y) \<in> X) = y"
                         by (auto simp: single_valued_def)
@@ -355,7 +355,7 @@ apply (simp add: if_SE_def seq_SE_def while_SE_def unit_SE_def)
 apply (subst lfp_unfold [OF mono_if_cont, OF cont_\<Gamma>])
 apply (rule ext)
 apply (subst \<Gamma>_def)
-apply (auto simp: Rel2Mon_if Rel2Mon_homomorphism seq_SE_def Rel2Mon_Id [simplified comp_def] 
+apply (auto simp: Rel2Mon_if Rel2Mon_homomorphism seq_SE_def Rel2Mon_Id [simplified comp_def]
                   single_valued_Mon2Rel single_valued_lfp_Mon2Rel )
 done
 
@@ -364,37 +364,37 @@ done
 subsection{* Multi-binds *}
 
 text{*  In order to express test-sequences also on the object-level and
-to make our theory amenable to formal reasoning over test-sequences, 
+to make our theory amenable to formal reasoning over test-sequences,
 we represent them as lists of input and generalize the bind-operator
 of the state-exception monad accordingly. The approach is straightforward,
 but comes with a price: we have to encapsulate all input and output data
 into one type. Assume that we have a typed interface to a module with
-the operations $op_1$, $op_2$, \ldots, $op_n$ with the inputs 
+the operations $op_1$, $op_2$, \ldots, $op_n$ with the inputs
 $\iota_1$, $\iota_2$, \ldots, $\iota_n$ (outputs are treated analogously).
 Then we can encode for this interface the general input - type:
 \begin{displaymath}
 \texttt{datatype}\ \texttt{in}\ =\ op_1\ ::\ \iota_1\ |\ ...\ |\ \iota_n
 \end{displaymath}
 Obviously, we loose some type-safety in this approach; we have to express
-that in traces only \emph{corresponding} input and output belonging to the 
+that in traces only \emph{corresponding} input and output belonging to the
 same operation will occur; this form of side-conditions have to be expressed
 inside \HOL. From the user perspective, this will not make much difference,
 since junk-data resulting from too weak typing can be ruled out by adopted
-front-ends. 
+front-ends.
 *}
 
-text{* Note that the subsequent notion of a test-sequence allows the io stepping 
-function (and the special case of a program under test) to stop execution 
-\emph{within} the sequence; such premature terminations are characterized by an 
+text{* Note that the subsequent notion of a test-sequence allows the io stepping
+function (and the special case of a program under test) to stop execution
+\emph{within} the sequence; such premature terminations are characterized by an
 output list which is shorter than the input list. *}
 
-fun    mbind :: "'\<iota> list  \<Rightarrow>  ('\<iota> \<Rightarrow> ('o,'\<sigma>) MON\<^sub>S\<^sub>E) \<Rightarrow> ('o list,'\<sigma>) MON\<^sub>S\<^sub>E"  
+fun    mbind :: "'\<iota> list  \<Rightarrow>  ('\<iota> \<Rightarrow> ('o,'\<sigma>) MON\<^sub>S\<^sub>E) \<Rightarrow> ('o list,'\<sigma>) MON\<^sub>S\<^sub>E"
 where "mbind [] iostep \<sigma> = Some([], \<sigma>)" |
-      "mbind (a#H) iostep \<sigma> = 
-                (case iostep a \<sigma> of 
+      "mbind (a#H) iostep \<sigma> =
+                (case iostep a \<sigma> of
                      None   \<Rightarrow> Some([], \<sigma>)
-                  |  Some (out, \<sigma>') \<Rightarrow> (case mbind H iostep \<sigma>' of 
-                                          None    \<Rightarrow> Some([out],\<sigma>') 
+                  |  Some (out, \<sigma>') \<Rightarrow> (case mbind H iostep \<sigma>' of
+                                          None    \<Rightarrow> Some([out],\<sigma>')
                                         | Some(outs,\<sigma>'') \<Rightarrow> Some(out#outs,\<sigma>'')))"
 
 notation mbind ("mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e") (* future name: mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e *)
@@ -403,13 +403,13 @@ text{* This definition is fail-safe; in case of an exception, the current state 
        the computation as a whole is marked as success.
        Compare to the fail-strict variant @{text "mbind'"}: *}
 
-lemma mbind_unit [simp]: 
+lemma mbind_unit [simp]:
      "mbind [] f = (return [])"
       by(rule ext, simp add: unit_SE_def)
 
-text{* The characteristic property of @{term mbind} --- which distinguishes it from 
+text{* The characteristic property of @{term mbind} --- which distinguishes it from
        @{text mbind'} defined in the sequel --- is that it never fails; it ``swallows'' internal
-       errors occurring during the computation. *}    
+       errors occurring during the computation. *}
 lemma mbind_nofailure [simp]:
      "mbind S f \<sigma> \<noteq> None"
       apply(rule_tac x=\<sigma> in spec)
@@ -422,19 +422,19 @@ lemma mbind_nofailure [simp]:
 
 fun    mbind' :: "'\<iota> list  \<Rightarrow>  ('\<iota> \<Rightarrow> ('o,'\<sigma>) MON\<^sub>S\<^sub>E) \<Rightarrow> ('o list,'\<sigma>) MON\<^sub>S\<^sub>E"
 where "mbind' [] iostep \<sigma> = Some([], \<sigma>)" |
-      "mbind' (a#S) iostep \<sigma> = 
-                (case iostep a \<sigma> of 
+      "mbind' (a#S) iostep \<sigma> =
+                (case iostep a \<sigma> of
                      None   \<Rightarrow> None
-                  |  Some (out, \<sigma>') \<Rightarrow> (case mbind' S iostep \<sigma>' of 
-                                          None    \<Rightarrow> None   (*  fail-strict *) 
+                  |  Some (out, \<sigma>') \<Rightarrow> (case mbind' S iostep \<sigma>' of
+                                          None    \<Rightarrow> None   (*  fail-strict *)
                                         | Some(outs,\<sigma>'') \<Rightarrow> Some(out#outs,\<sigma>'')))"
 notation mbind' ("mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p") (* future name: mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p *)
 
-lemma mbind'_unit [simp]: 
+lemma mbind'_unit [simp]:
      "mbind' [] f = (return [])"
       by(rule ext, simp add: unit_SE_def)
 
-lemma mbind'_bind [simp]: 
+lemma mbind'_bind [simp]:
      "(x \<leftarrow> mbind' (a#S) F; M x) = (a \<leftarrow> (F a); (x \<leftarrow> mbind' S F; M (a # x)))"
       by(rule ext, rename_tac "z",simp add: bind_SE_def split: option.split)
 
@@ -443,11 +443,11 @@ declare mbind'.simps[simp del] (* use only more abstract definitions *)
 
 fun    mbind'' :: "'\<iota> list  \<Rightarrow>  ('\<iota> \<Rightarrow> ('o,'\<sigma>) MON\<^sub>S\<^sub>E) \<Rightarrow> ('o list,'\<sigma>) MON\<^sub>S\<^sub>E"
 where "mbind'' [] iostep \<sigma> = Some([], \<sigma>)" |
-      "mbind'' (a#S) iostep \<sigma> = 
-                (case iostep a \<sigma> of 
+      "mbind'' (a#S) iostep \<sigma> =
+                (case iostep a \<sigma> of
                      None           \<Rightarrow> mbind'' S iostep \<sigma>
-                  |  Some (out, \<sigma>') \<Rightarrow> (case mbind'' S iostep \<sigma>' of 
-                                          None    \<Rightarrow> None   (*  does not occur *) 
+                  |  Some (out, \<sigma>') \<Rightarrow> (case mbind'' S iostep \<sigma>' of
+                                          None    \<Rightarrow> None   (*  does not occur *)
                                         | Some(outs,\<sigma>'') \<Rightarrow> Some(out#outs,\<sigma>'')))"
 
 notation mbind'' ("mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e") (* future name: mbind\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e\<^sub>F\<^sub>a\<^sub>i\<^sub>l *)
@@ -460,18 +460,18 @@ text{* mbind' as failure strict operator can be seen as a foldr on bind -
 definition try_SE :: "('o,'\<sigma>) MON\<^sub>S\<^sub>E \<Rightarrow> ('o option,'\<sigma>) MON\<^sub>S\<^sub>E" ("try\<^sub>S\<^sub>E")
 where     "try\<^sub>S\<^sub>E ioprog = (\<lambda>\<sigma>. case ioprog \<sigma> of
                                       None \<Rightarrow> Some(None, \<sigma>)
-                                    | Some(outs, \<sigma>') \<Rightarrow> Some(Some outs, \<sigma>'))" 
-text{* In contrast, mbind as a failure safe operator can roughly be seen 
+                                    | Some(outs, \<sigma>') \<Rightarrow> Some(Some outs, \<sigma>'))"
+text{* In contrast, mbind as a failure safe operator can roughly be seen
        as a foldr on bind - try:
        m1 ; try m2 ; try m3; ... Note, that the rough equivalence only holds for
        certain predicates in the sequence - length equivalence modulo None,
        for example. However, if a conditional is added, the equivalence
        can be made precise: *}
 
-lemma mbind_try: 
-  "(x \<leftarrow> mbind (a#S) F; M x) = 
-   (a' \<leftarrow> try\<^sub>S\<^sub>E(F a); 
-      if a' = None 
+lemma mbind_try:
+  "(x \<leftarrow> mbind (a#S) F; M x) =
+   (a' \<leftarrow> try\<^sub>S\<^sub>E(F a);
+      if a' = None
       then (M [])
       else (x \<leftarrow> mbind S F; M (the a' # x)))"
 apply(rule ext)
@@ -502,7 +502,7 @@ by(simp add: malt_SE_def)
 subsection{* State Backtrack Monads *}
 text{*This subsection is still rudimentary and as such an interesting
 formal analogue to the previous monad definitions. It is doubtful that it is
-interesting for testing and as a cmputational stucture at all. 
+interesting for testing and as a cmputational stucture at all.
 Clearly more relevant is ``sequence'' instead of ``set,'' which would
 rephrase Isabelle's internal tactic concept. *}
 
@@ -512,14 +512,14 @@ definition bind_SB :: "('o, '\<sigma>)MON\<^sub>S\<^sub>B \<Rightarrow> ('o \<Ri
 where     "bind_SB f g \<sigma> = \<Union> ((\<lambda>(out, \<sigma>). (g out \<sigma>)) ` (f \<sigma>))"
 notation   bind_SB ("bind\<^sub>S\<^sub>B")
 
-definition unit_SB :: "'o \<Rightarrow> ('o, '\<sigma>)MON\<^sub>S\<^sub>B" ("(returns _)" 8) 
+definition unit_SB :: "'o \<Rightarrow> ('o, '\<sigma>)MON\<^sub>S\<^sub>B" ("(returns _)" 8)
 where     "unit_SB e = (\<lambda>\<sigma>. {(e,\<sigma>)})"
 notation   unit_SB ("unit\<^sub>S\<^sub>B")
 
 syntax    (xsymbols)
-          "_bind_SB" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>B,('o','\<sigma>)MON\<^sub>S\<^sub>B] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>B" 
+          "_bind_SB" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>B,('o','\<sigma>)MON\<^sub>S\<^sub>B] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>B"
           ("(2 _ := _; _)" [5,8,8]8)
-translations 
+translations
           "x := f; g" == "CONST bind_SB f (% x . g)"
 
 
@@ -533,30 +533,30 @@ lemma bind_right_unit_SB: "(x := m; returns x) = m"
 
 lemma bind_assoc_SB: "(y := (x := m; k x); h y) = (x := m; (y := k x; h y))"
   by (rule ext, simp add: unit_SB_def bind_SB_def split_def)
-  
+
 
 subsection{* State Backtrack Exception Monad (vulgo: Boogie-PL) *}
 text{* The following combination of the previous two Monad-Constructions
-allows for the semantic foundation of a simple generic assertion language 
+allows for the semantic foundation of a simple generic assertion language
 in the style of Schirmers Simpl-Language or Rustan Leino's Boogie-PL language.
 The key is to use the exceptional element None for violations of
 the assert-statement. *}
 type_synonym  ('o, '\<sigma>) MON\<^sub>S\<^sub>B\<^sub>E = "'\<sigma> \<Rightarrow> (('o \<times> '\<sigma>) set) option"
 
-      
-definition bind_SBE :: "('o,'\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E \<Rightarrow> ('o \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E) \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E" 
-where     "bind_SBE f g = (\<lambda>\<sigma>. case f \<sigma> of None \<Rightarrow> None 
+
+definition bind_SBE :: "('o,'\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E \<Rightarrow> ('o \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E) \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E"
+where     "bind_SBE f g = (\<lambda>\<sigma>. case f \<sigma> of None \<Rightarrow> None
                                          | Some S \<Rightarrow> (let S' = (\<lambda>(out, \<sigma>'). g out \<sigma>') ` S
                                                       in  if None \<in> S' then None
                                                           else Some(\<Union> (the ` S'))))"
 
 syntax    (xsymbols)
-          "_bind_SBE" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E" 
+          "_bind_SBE" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E"
           ("(2 _ :\<equiv> _; _)" [5,8,8]8)
-translations 
+translations
           "x :\<equiv> f; g" == "CONST bind_SBE f (% x . g)"
 
-definition unit_SBE :: "'o \<Rightarrow> ('o, '\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E"   ("(returning _)" 8) 
+definition unit_SBE :: "'o \<Rightarrow> ('o, '\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E"   ("(returning _)" 8)
 where     "unit_SBE e = (\<lambda>\<sigma>. Some({(e,\<sigma>)}))"
 
 definition assert_SBE :: "('\<sigma> \<Rightarrow> bool) \<Rightarrow> (unit, '\<sigma>)MON\<^sub>S\<^sub>B\<^sub>E"
@@ -583,7 +583,7 @@ lemma bind_right_unit_SBE: "(x :\<equiv> m; returning x) = m"
   apply (case_tac "m x", simp_all add:Let_def)
   apply (rule HOL.ccontr, simp add: Set.image_iff)
   done
-   
+
 
 lemmas aux = trans[OF HOL.neq_commute,OF Option.not_None_eq]
 
@@ -602,18 +602,18 @@ next
   case goal3 then show ?case
        by(rule_tac x="(a, b)" in bexI, simp_all)
 next
-  case goal4 then show ?case    
+  case goal4 then show ?case
        apply(erule_tac Q="None = (* FIXME to be shorten *) (case k b of None \<Rightarrow> None | Some S \<Rightarrow> let S' = (\<lambda>(x, y). h x y) ` S in if None \<in> S' then None else Some (\<Union>(the ` S')))" in contrapos_pp)
        apply(erule_tac x="(aa,b)" in ballE)
        apply(auto simp: aux Option.not_None_eq image_def split_def intro!: rev_bexI)
        done
-next 
-  case goal5 then show ?case 
+next
+  case goal5 then show ?case
        apply simp apply((erule_tac x="(ab,ba)" in ballE)+)
        apply(simp_all add: aux Option.not_None_eq, (erule exE)+, simp add:split_def)
        apply(erule rev_bexI,case_tac "None\<in>(\<lambda>p. h (fst p) (snd p))`y",auto simp:split_def)
        done
- 
+
 next
   case goal6 then show ?case
        apply simp apply((erule_tac x="(a,b)" in ballE)+)
@@ -638,7 +638,7 @@ text{* This notation consideres failures as valid -- a definition
 inspired by I/O conformance. BUG: It is not possible to define
 this concept once and for all in a Hindley-Milner type-system.
 For the moment, we present it only for the state-exception
-monad, although for the same definition, this notion is applicable 
+monad, although for the same definition, this notion is applicable
 to other monads as well.  *}
 
 
@@ -659,11 +659,11 @@ lemma  exec_bind_SE_failure:
 "A \<sigma> = None \<Longrightarrow> \<not>(\<sigma> \<Turnstile> ((s \<leftarrow> A ; M s)))"
 by(simp add: valid_SE_def unit_SE_def bind_SE_def)
 
-lemma exec_bind_SE_success: 
+lemma exec_bind_SE_success:
 "A \<sigma> = Some(b,\<sigma>') \<Longrightarrow> (\<sigma> \<Turnstile> ((s \<leftarrow> A ; M s))) = (\<sigma>' \<Turnstile> (M b))"
 by(simp add: valid_SE_def unit_SE_def bind_SE_def )
 
-lemma exec_bind_SE_success': (* atomic boolean Monad "Query Functions" *) 
+lemma exec_bind_SE_success': (* atomic boolean Monad "Query Functions" *)
 "M \<sigma> = Some(f \<sigma>,\<sigma>) \<Longrightarrow>  (\<sigma> \<Turnstile> M) = f \<sigma>"
 by(simp add: valid_SE_def unit_SE_def bind_SE_def )
 
@@ -705,41 +705,41 @@ done
 
 text{* Recall \verb+mbind_unit+ for the base case. *}
 
-lemma exec_mbindFSave_failure: 
-"ioprog a \<sigma> = None \<Longrightarrow> 
+lemma exec_mbindFSave_failure:
+"ioprog a \<sigma> = None \<Longrightarrow>
    (\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e (a#S) ioprog ; M s)) =  (\<sigma> \<Turnstile> (M []))"
 by(simp add: valid_SE_def unit_SE_def bind_SE_def)
 
-lemma exec_mbindFStop_failure: 
-"ioprog a \<sigma> = None \<Longrightarrow> 
+lemma exec_mbindFStop_failure:
+"ioprog a \<sigma> = None \<Longrightarrow>
    (\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p (a#S) ioprog ; M s)) =  (False)"
 by(simp add: exec_bind_SE_failure)
 
-lemma exec_mbindFPurge_failure: 
-"ioprog a \<sigma> = None \<Longrightarrow> 
-   (\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e (a#S) ioprog ; M s)) = (\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e (S) ioprog ; M s))" 
+lemma exec_mbindFPurge_failure:
+"ioprog a \<sigma> = None \<Longrightarrow>
+   (\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e (a#S) ioprog ; M s)) = (\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e (S) ioprog ; M s))"
 by(simp add: valid_SE_def unit_SE_def bind_SE_def mbind''.simps)
 
 
-lemma exec_mbindFSave_success : 
-"ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow> 
-   (\<sigma>  \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e (a#S) ioprog ; M s)) = 
+lemma exec_mbindFSave_success :
+"ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow>
+   (\<sigma>  \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e (a#S) ioprog ; M s)) =
    (\<sigma>' \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e S ioprog ; M (b#s)))"
-unfolding valid_SE_def unit_SE_def bind_SE_def 
+unfolding valid_SE_def unit_SE_def bind_SE_def
 by(cases "mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e S ioprog \<sigma>'", auto)
 
-lemma exec_mbindFStop_success : 
-"ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow> 
-   (\<sigma>  \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p (a#S) ioprog ; M s)) = 
+lemma exec_mbindFStop_success :
+"ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow>
+   (\<sigma>  \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p (a#S) ioprog ; M s)) =
    (\<sigma>' \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p S ioprog ; M (b#s)))"
-unfolding valid_SE_def unit_SE_def bind_SE_def 
+unfolding valid_SE_def unit_SE_def bind_SE_def
 by(cases "mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p S ioprog \<sigma>'", auto simp:  mbind'.simps)
 
-lemma exec_mbindFPurge_success : 
-"ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow> 
-   (\<sigma>  \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e (a#S) ioprog ; M s)) = 
+lemma exec_mbindFPurge_success :
+"ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow>
+   (\<sigma>  \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e (a#S) ioprog ; M s)) =
    (\<sigma>' \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e S ioprog ; M (b#s)))"
-unfolding valid_SE_def unit_SE_def bind_SE_def 
+unfolding valid_SE_def unit_SE_def bind_SE_def
 by(cases "mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e S ioprog \<sigma>'", auto simp:  mbind''.simps)
 
 lemma exec_mbindFSave:
@@ -758,13 +758,13 @@ assumes seq : "(\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^su
   and   some: "\<And> b \<sigma>'. ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow> (\<sigma>' \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e S ioprog;(P (b#s)))) \<Longrightarrow> Q "
 shows   "Q"
 using seq
-proof(cases "ioprog a \<sigma>")  
-   case None  assume ass:"ioprog a \<sigma> = None" show "Q" 
+proof(cases "ioprog a \<sigma>")
+   case None  assume ass:"ioprog a \<sigma> = None" show "Q"
         apply(rule none[OF ass])
         apply(insert ass, erule_tac ioprog1=ioprog in exec_mbindFSave_failure[THEN iffD1],rule seq)
         done
 next
-   case (Some aa) assume ass:"ioprog a \<sigma> = Some aa" show "Q" 
+   case (Some aa) assume ass:"ioprog a \<sigma> = Some aa" show "Q"
         apply(insert ass,cases "aa",simp, rename_tac "out" "\<sigma>'")
         apply(erule some)
         apply(insert ass,simp)
@@ -774,21 +774,21 @@ qed
 
 text{* The next rule reveals the particular interest in deduction;
        as an elimination rule, it allows for a linear conversion of a validity judgement
-       @{term "mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p"} over an input list @{term "S"} into a constraint system; without any 
-       branching ... Symbolic execution can even be stopped tactically whenever 
+       @{term "mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p"} over an input list @{term "S"} into a constraint system; without any
+       branching ... Symbolic execution can even be stopped tactically whenever
        @{term "ioprog a \<sigma> = Some(b,\<sigma>')"} comes to a contradiction. *}
 lemma exec_mbindFStop_E:
 assumes seq : "(\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p (a#S) ioprog ; (P s)))"
   and   some: "\<And>b \<sigma>'. ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow> (\<sigma>'\<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p S ioprog;(P(b#s)))) \<Longrightarrow> Q"
 shows   "Q"
 using seq
-proof(cases "ioprog a \<sigma>")  
-   case None  assume ass:"ioprog a \<sigma> = None" show "Q" 
+proof(cases "ioprog a \<sigma>")
+   case None  assume ass:"ioprog a \<sigma> = None" show "Q"
         apply(insert ass seq)
         apply(drule_tac \<sigma>=\<sigma> and S=S and M=P in exec_mbindFStop_failure, simp)
         done
 next
-   case (Some aa) assume ass:"ioprog a \<sigma> = Some aa" show "Q" 
+   case (Some aa) assume ass:"ioprog a \<sigma> = Some aa" show "Q"
         apply(insert ass,cases "aa",simp, rename_tac "out" "\<sigma>'")
         apply(erule some)
         apply(insert ass,simp)
@@ -803,13 +803,13 @@ assumes seq : "(\<sigma> \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^su
   and   some: "\<And> b \<sigma>'. ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow> (\<sigma>' \<Turnstile> (s \<leftarrow> mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e S ioprog;(P (b#s)))) \<Longrightarrow> Q "
 shows   "Q"
 using seq
-proof(cases "ioprog a \<sigma>")  
-   case None  assume ass:"ioprog a \<sigma> = None" show "Q" 
+proof(cases "ioprog a \<sigma>")
+   case None  assume ass:"ioprog a \<sigma> = None" show "Q"
         apply(rule none[OF ass])
         apply(insert ass, erule_tac ioprog1=ioprog in exec_mbindFPurge_failure[THEN iffD1],rule seq)
         done
 next
-   case (Some aa) assume ass:"ioprog a \<sigma> = Some aa" show "Q" 
+   case (Some aa) assume ass:"ioprog a \<sigma> = Some aa" show "Q"
         apply(insert ass,cases "aa",simp, rename_tac "out" "\<sigma>'")
         apply(erule some)
         apply(insert ass,simp)
@@ -868,23 +868,23 @@ by(insert A [simplified if_SE_split],cases  "P \<sigma>", simp_all, auto elim: B
 lemma [code]:
   "(\<sigma> \<Turnstile> m) = (case (m \<sigma>) of None  \<Rightarrow> False | (Some (x,y))  \<Rightarrow> x)"
   apply(simp add: valid_SE_def)
-  apply(cases "m \<sigma> = None", simp_all) 
+  apply(cases "m \<sigma> = None", simp_all)
   apply(insert not_None_eq, auto)
 done
 
 
-text{* Test-Refinements will be stated in terms of the failsave @{term mbind}, opting 
-       more generality. The following lemma allows for an  optimization both in 
+text{* Test-Refinements will be stated in terms of the failsave @{term mbind}, opting
+       more generality. The following lemma allows for an  optimization both in
        test execution as well as in symbolic execution for an important special case of
-       the post-codition: Whenever the latter has the constraint that the length of input and 
+       the post-codition: Whenever the latter has the constraint that the length of input and
        output sequence equal each other (that is to say: no failure occured), failsave mbind
        can be reduced to failstop mbind ... *}
-lemma mbindFSave_vs_mbindFStop : 
-  "(\<sigma> \<Turnstile> (os \<leftarrow> (mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e \<iota>s ioprog); return(length \<iota>s = length os \<and> P \<iota>s os))) = 
+lemma mbindFSave_vs_mbindFStop :
+  "(\<sigma> \<Turnstile> (os \<leftarrow> (mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e \<iota>s ioprog); return(length \<iota>s = length os \<and> P \<iota>s os))) =
    (\<sigma> \<Turnstile> (os \<leftarrow> (mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p \<iota>s ioprog); return(P \<iota>s os)))"
   apply(rule_tac x=P in spec)
   apply(rule_tac x=\<sigma> in spec)
-  proof(induct "\<iota>s") 
+  proof(induct "\<iota>s")
      case Nil show ?case by(simp_all add: mbind_try try_SE_def del: Monads.mbind.simps)
      case (Cons a \<iota>s) show ?case
           apply(rule allI, rename_tac "\<sigma>",rule allI, rename_tac "P")
@@ -892,7 +892,7 @@ lemma mbindFSave_vs_mbindFStop :
           apply(case_tac "ioprog a \<sigma>")
           apply(simp only: exec_mbindFSave_failure exec_mbindFStop_failure, simp)
           apply(simp add:  split_paired_all del: Monads.mbind.simps )
-          apply(rename_tac "\<sigma>'") 
+          apply(rename_tac "\<sigma>'")
           apply(subst exec_mbindFSave_success, assumption)
           apply(subst (2) exec_bind_SE_success, assumption)
           apply(erule_tac x="\<sigma>'" in allE)
@@ -904,15 +904,15 @@ lemma mbindFSave_vs_mbindFStop :
 
 lemma mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e_vs_mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p:
 assumes A: "\<forall> \<iota> \<sigma>. ioprog \<iota> \<sigma> \<noteq> None"
-shows      "(\<sigma> \<Turnstile> (os \<leftarrow> (mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e \<iota>s ioprog); P os)) = 
-            (\<sigma> \<Turnstile> (os \<leftarrow> (mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p \<iota>s ioprog); P os))" 
+shows      "(\<sigma> \<Turnstile> (os \<leftarrow> (mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e \<iota>s ioprog); P os)) =
+            (\<sigma> \<Turnstile> (os \<leftarrow> (mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p \<iota>s ioprog); P os))"
 proof(induct "\<iota>s") print_cases
   case Nil show ?case by simp
-next 
-  case (Cons a \<iota>s) 
-       from Cons.hyps                           
+next
+  case (Cons a \<iota>s)
+       from Cons.hyps
        have B:"\<forall> S f \<sigma>. mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e S f \<sigma> \<noteq> None " by simp
-       have C:"\<forall>\<sigma>. mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p \<iota>s ioprog \<sigma> = mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e \<iota>s ioprog \<sigma>" 
+       have C:"\<forall>\<sigma>. mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p \<iota>s ioprog \<sigma> = mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>a\<^sub>v\<^sub>e \<iota>s ioprog \<sigma>"
                apply(induct \<iota>s, simp)
                apply(rule allI,rename_tac "\<sigma>")
                apply(simp add: Monads.mbind'.simps(2))
@@ -920,7 +920,7 @@ next
                apply(erule_tac x="\<sigma>" and P="\<lambda>\<sigma> . ioprog a \<sigma> \<noteq> None" in allE)
                apply(auto split:option.split)
                done
-       show ?case 
+       show ?case
        apply(insert A,erule_tac x="a" in allE,erule_tac x="\<sigma>" in allE)
        apply(simp, elim exE)
        apply(rename_tac  "out" "\<sigma>'")
@@ -940,7 +940,7 @@ next
     done
 qed
 
-  
+
 section{* Valid Test Sequences in the State Exception Backtrack Monad *}
 text{* This is still an unstructured merge of executable monad concepts
 and specification oriented high-level properties initiating test procedures. *}
@@ -950,13 +950,13 @@ where "\<sigma> \<Turnstile>\<^sub>S\<^sub>B\<^sub>E m \<equiv> (m \<sigma> \<no
 text{* This notation consideres all non-failures as valid. *}
 
 
-lemma assume_assert: "(\<sigma> \<Turnstile>\<^sub>S\<^sub>B\<^sub>E ( _ :\<equiv> assume\<^sub>S\<^sub>B\<^sub>E P ; assert\<^sub>S\<^sub>B\<^sub>E Q)) = (P \<sigma> \<longrightarrow> Q \<sigma>)" 
+lemma assume_assert: "(\<sigma> \<Turnstile>\<^sub>S\<^sub>B\<^sub>E ( _ :\<equiv> assume\<^sub>S\<^sub>B\<^sub>E P ; assert\<^sub>S\<^sub>B\<^sub>E Q)) = (P \<sigma> \<longrightarrow> Q \<sigma>)"
   by(simp add: valid_SBE_def assume_SBE_def assert_SBE_def bind_SBE_def)
 
 lemma assert_intro: "Q \<sigma> \<Longrightarrow> \<sigma> \<Turnstile>\<^sub>S\<^sub>B\<^sub>E (assert\<^sub>S\<^sub>B\<^sub>E Q)"
   by(simp add: valid_SBE_def assume_SBE_def assert_SBE_def bind_SBE_def)
 
-lemma assume_dest: 
+lemma assume_dest:
   "\<lbrakk> \<sigma> \<Turnstile>\<^sub>S\<^sub>B\<^sub>E (x :\<equiv> assume\<^sub>S\<^sub>B\<^sub>E Q; M x); Q \<sigma>' \<rbrakk> \<Longrightarrow> \<sigma> \<Turnstile>\<^sub>S\<^sub>B\<^sub>E M ()"
   apply(auto simp: valid_SBE_def assume_SBE_def assert_SBE_def bind_SBE_def)
   apply(cases "Q \<sigma>",simp_all)
@@ -991,13 +991,13 @@ lemmas valid_propagate_2' = exec_bind_SE_success'''(* legacy *)
 lemmas valid_propagate_2'' = exec_bind_SE_success'''' (* legacy *)
 lemmas valid_propoagate_3 = exec_unit_SE' (* legacy *)
   *)
-(* legacy ?: 
+(* legacy ?:
 lemma valid_success'':
 "ioprog a \<sigma> = Some(b,\<sigma>') \<Longrightarrow>
    (\<sigma>  \<Turnstile> (s \<leftarrow> mbind (a#S) ioprog ; return (P s))) =
    (\<sigma>' \<Turnstile> (s \<leftarrow> mbind S ioprog ; return (P (b#s))))"
-unfolding valid_SE_def unit_SE_def bind_SE_def 
+unfolding valid_SE_def unit_SE_def bind_SE_def
 by(cases "mbind S ioprog \<sigma>'", auto)
-*) 
+*)
 
 end

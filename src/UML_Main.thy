@@ -1,9 +1,9 @@
 (******************************************************************************
- * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5 
+ * Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
  *                       for the OMG Standard.
  *                       http://www.brucker.ch/projects/hol-testgen/
  *
- * UML_Main.thy --- 
+ * UML_Main.thy ---
  * This file is part of HOL-TestGen.
  *
  * Copyright (c) 2011-2018 Université Paris-Saclay, Univ. Paris-Sud, France

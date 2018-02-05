@@ -64,7 +64,7 @@ begin
 end
 
 text{* Property proof in terms of @{term "profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v"}*}
-interpretation  StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Integer) \<doteq> y" 
+interpretation  StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : profile_bin\<^sub>S\<^sub>t\<^sub>r\<^sub>o\<^sub>n\<^sub>g\<^sub>E\<^sub>q_\<^sub>v_\<^sub>v "\<lambda> x y. (x::('\<AA>)Integer) \<doteq> y"
          by unfold_locales (auto simp: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r)
 
 subsection{* Basic Integer Constants *}
@@ -132,7 +132,7 @@ where "x +\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) 
 interpretation OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : profile_bin\<^sub>d_\<^sub>d "op +\<^sub>i\<^sub>n\<^sub>t" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> + \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by unfold_locales (auto simp:OclAdd\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
 
-  
+
 definition OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "-\<^sub>i\<^sub>n\<^sub>t" 41)
 where "x -\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> - \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
@@ -140,29 +140,29 @@ where "x -\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) 
 interpretation OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : profile_bin\<^sub>d_\<^sub>d "op -\<^sub>i\<^sub>n\<^sub>t" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> - \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by   unfold_locales  (auto simp:OclMinus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
 
-                       
+
 definition OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "*\<^sub>i\<^sub>n\<^sub>t" 45)
 where "x *\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> * \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>
                        else invalid \<tau>"
 interpretation OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r : profile_bin\<^sub>d_\<^sub>d "op *\<^sub>i\<^sub>n\<^sub>t" "\<lambda> x y. \<lfloor>\<lfloor>\<lceil>\<lceil>x\<rceil>\<rceil> * \<lceil>\<lceil>y\<rceil>\<rceil>\<rfloor>\<rfloor>"
          by   unfold_locales  (auto simp:OclMult\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r_def bot_option_def null_option_def)
-          
+
 text{* Here is the special case of division, which is defined as invalid for division
 by zero. *}
 definition OclDivision\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "div\<^sub>i\<^sub>n\<^sub>t" 45)
 where "x div\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then if y \<tau> \<noteq> OclInt0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> div \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
+                       then if y \<tau> \<noteq> OclInt0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> div \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau>
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
 
 definition OclModulus\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer" (infix "mod\<^sub>i\<^sub>n\<^sub>t" 45)
 where "x mod\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
-                       then if y \<tau> \<noteq> OclInt0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> mod \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau> 
+                       then if y \<tau> \<noteq> OclInt0 \<tau> then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> mod \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor> else invalid \<tau>
                        else invalid \<tau> "
 (* TODO: special locale setup.*)
-                       
-                       
+
+
 definition OclLess\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r ::"('\<AA>)Integer \<Rightarrow> ('\<AA>)Integer \<Rightarrow> ('\<AA>)Boolean" (infix "<\<^sub>i\<^sub>n\<^sub>t" 35)
 where "x <\<^sub>i\<^sub>n\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<delta> x) \<tau> = true \<tau> \<and> (\<delta> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil> < \<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rfloor>\<rfloor>

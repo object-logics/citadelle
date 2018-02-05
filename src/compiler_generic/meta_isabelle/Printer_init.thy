@@ -427,7 +427,7 @@ begin
   declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
 end
 
-text\<open>As remark, printing functions (like @{term sprintf5}...) are currently 
+text\<open>As remark, printing functions (like @{term sprintf5}...) are currently
 weakly typed in Isabelle, we will continue the typing using the type system of target languages.\<close>
 
 end

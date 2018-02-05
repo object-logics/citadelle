@@ -67,7 +67,7 @@ definition "of\<^sub>e\<^sub>n\<^sub>v_semi__theory env =
 
 definition \<open>of\<^sub>e\<^sub>n\<^sub>v_semi__theories env =
  (\<lambda> Theories_one t \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_semi__theory env t
-  | Theories_locale data l \<Rightarrow> 
+  | Theories_locale data l \<Rightarrow>
       \<open>locale %s =
 %s
 begin

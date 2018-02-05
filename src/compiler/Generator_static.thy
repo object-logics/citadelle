@@ -67,9 +67,9 @@ definition "Design =
   , mk (n \<langle>''Planet''\<rangle> (Some \<langle>''Galaxy''\<rangle>)) [(\<langle>''weight''\<rangle>, OclTy_raw \<langle>''nat''\<rangle>)]
   , mk (n \<langle>''Person''\<rangle> (Some \<langle>''Planet''\<rangle>)) [(\<langle>''salary''\<rangle>, OclTy_raw \<langle>''int''\<rangle>)] ])"
 
-text \<open>Since we are in a Isabelle session, at this time, it becomes possible to inspect with 
-the command @{command value} the result of the translations applied with @{term Design}. 
-A suitable environment should nevertheless be provided, 
+text \<open>Since we are in a Isabelle session, at this time, it becomes possible to inspect with
+the command @{command value} the result of the translations applied with @{term Design}.
+A suitable environment should nevertheless be provided,
 one can typically experiment this by copying-pasting the following environment
 initialized below in @{text main}:\<close>
 

@@ -162,7 +162,7 @@ fun fold_pair_var where
   | _ \<Rightarrow> Some accu)"
 
 definition "Ctxt_fun_ty_arg ctxt =
- (case 
+ (case
     fold_pair_var
       Cons
       (case Ctxt_fun_ty ctxt of ToyTy_arrow t _ \<Rightarrow> t
@@ -174,9 +174,9 @@ definition "Ctxt_fun_ty_out ctxt =
  (case Ctxt_fun_ty ctxt of ToyTy_arrow _ t \<Rightarrow> Some t
                          | _ \<Rightarrow> None)"
 
-definition "map_pre_post f = 
+definition "map_pre_post f =
              Ctxt_clause_update
-               (L.map 
+               (L.map
                   (\<lambda> Ctxt_pp ctxt \<Rightarrow>
                      Ctxt_pp (Ctxt_expr_update
                                (L.map
@@ -188,7 +188,7 @@ definition "map_pre_post f =
 
 definition "map_invariant f_inv =
              Ctxt_clause_update
-               (L.map 
+               (L.map
                   (\<lambda> Ctxt_pp ctxt \<Rightarrow>
                      Ctxt_pp (Ctxt_expr_update
                                (L.map
@@ -211,7 +211,7 @@ definition "var_ty_list = \<open>list\<close>"
 definition "var_ty_prod = \<open>prod\<close>"
 definition "const_toyany = \<open>ToyAny\<close>"
 
-definition "single_multip = 
+definition "single_multip =
   List.list_all (\<lambda> (_, Some (Mult_nat n)) \<Rightarrow> n \<le> 1
                  | (Mult_nat n, None) \<Rightarrow> n \<le> 1
                  | _ \<Rightarrow> False) o TyMult"
@@ -271,7 +271,7 @@ function (sequential) class_unflat_aux where
     | _ \<Rightarrow> None)"
 *)
    "class_unflat_aux rbt rbt_inv rbt_cycle r =
-   (case lookup rbt_inv r of None \<Rightarrow> 
+   (case lookup rbt_inv r of None \<Rightarrow>
       (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
             map_option
               (ToyClass
@@ -286,7 +286,7 @@ function (sequential) class_unflat_aux where
                       id
                       ([]))
           | _ \<Rightarrow> None)
-    | Some l \<Rightarrow> 
+    | Some l \<Rightarrow>
       (case lookup rbt_cycle r of None (* cycle detection *) \<Rightarrow>
             map_option
               (ToyClass
@@ -430,7 +430,7 @@ definition "class_unflat = (\<lambda> (l_class, l_ass).
       (\<lambda> cflat.
         case ClassRaw_name cflat of
           ToyTyObj n [] \<Rightarrow> id
-        | ToyTyObj n l \<Rightarrow> case rev ([n] # l) of x0 # xs \<Rightarrow> \<lambda>rbt. 
+        | ToyTyObj n l \<Rightarrow> case rev ([n] # l) of x0 # xs \<Rightarrow> \<lambda>rbt.
             snd (List.fold
                   (\<lambda> x (x0, rbt).
                     (x, List.fold (\<lambda> ToyTyCore_pre k \<Rightarrow> modify_def [] k (\<lambda>l. L.flatten [L.map (\<lambda>ToyTyCore_pre s \<Rightarrow> s) x, l]))

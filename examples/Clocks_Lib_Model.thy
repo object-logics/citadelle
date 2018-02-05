@@ -57,17 +57,17 @@ Class Clock
   Operations equal(c : Clock) : Boolean
 
 Class WorldClock < Clock
-  Operations elapse() 
+  Operations elapse()
              Pre : "true"
-  
+
 Class DiscreteClock < Clock
-  Operations create\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e() 
-             Post: "self .oclIsNew() and 
+  Operations create\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e()
+             Post: "self .oclIsNew() and
                     (self .created_at \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at))"
   Operations get_time\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e() : Integer
              Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at ->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer))
-                               -\<^sub>i\<^sub>n\<^sub>t 
-                               (self .created_at ->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer))" 
+                               -\<^sub>i\<^sub>n\<^sub>t
+                               (self .created_at ->oclAsType\<^sub>R\<^sub>e\<^sub>a\<^sub>l(Integer))"
 
 Class PeriodicDiscreteClock < DiscreteClock
   Attributes period\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e : Integer
@@ -76,13 +76,13 @@ Class PeriodicDiscreteClock < DiscreteClock
              Post: "self .period\<^sub>D\<^sub>i\<^sub>s\<^sub>c\<^sub>r\<^sub>e\<^sub>t\<^sub>e \<doteq> p"
 
 Class ContClock < Clock
-  Operations create\<^sub>C\<^sub>o\<^sub>n\<^sub>t() 
-             Post: "self .oclIsNew() and 
+  Operations create\<^sub>C\<^sub>o\<^sub>n\<^sub>t()
+             Post: "self .oclIsNew() and
                     (self .created_at \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at))"
   Operations get_time\<^sub>C\<^sub>o\<^sub>n\<^sub>t() : Real
              Post: "result \<doteq> (WorldClock .allInstances() ->any\<^sub>S\<^sub>e\<^sub>t() .created_at)
-                               -\<^sub>r\<^sub>e\<^sub>a\<^sub>l 
-                               (self .created_at)" 
+                               -\<^sub>r\<^sub>e\<^sub>a\<^sub>l
+                               (self .created_at)"
 
 Class PeriodicContClock < Clock
   Attributes period\<^sub>C\<^sub>o\<^sub>n\<^sub>t : Real
