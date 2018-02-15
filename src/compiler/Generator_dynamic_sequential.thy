@@ -207,10 +207,10 @@ structure Outer_Syntax' = struct
     Outer_Syntax.command name_pos comment
       (parse >> (fn f =>
         Toplevel.theory (fn thy =>
-          fold snd (f thy) [] |> rev
-                              |> (fn tr => fold (fn Toplevel'.Theory f => f
-                                                  | Toplevel'.Keep f => tap f
-                                                  | Toplevel'.Read_Write _ => I) tr thy))))
+          fold snd (f thy NONE) [] |> rev
+                                   |> (fn tr => fold (fn Toplevel'.Theory f => f
+                                                       | Toplevel'.Keep f => tap f
+                                                       | Toplevel'.Read_Write _ => I) tr thy))))
 end
 \<close>
 
@@ -1514,7 +1514,7 @@ in
 fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_embed =
  let open Generation_mode in
   Outer_Syntax'.command cmd_spec cmd_descr
-    (parser >> (fn name => fn thy =>
+    (parser >> (fn name => fn thy => fn _ =>
       (* WARNING: Whenever there would be errors raised by functions taking "thy" as input,
                   they will not be shown.
                   So the use of this "thy" can be considered as safe, as long as errors do not happen. *)
@@ -1604,8 +1604,8 @@ val () = let open Generation_mode in
     ((   mode >> (fn x => SOME [x])
       || parse_l' mode >> SOME
       || @{keyword "deep"} -- @{keyword "flush_all"} >> K NONE) >>
-    (fn SOME x => K (f_command x)
-      | NONE => fn thy => []
+    (fn SOME x => K (K (f_command x))
+      | NONE => fn thy => fn _ => []
           |> fold (fn (env, i_deep) => exec_deep i_deep (META.compiler_env_config_reset_all env))
                   (#deep (Data_gen.get thy))
           |> (fn [] => Toplevel'.keep (fn _ => warning "Nothing performed.") []

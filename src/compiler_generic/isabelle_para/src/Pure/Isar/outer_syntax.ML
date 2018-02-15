@@ -12,11 +12,11 @@ sig
   val command: command_keyword -> string ->
     (Toplevel.transition -> Toplevel.transition) parser -> unit
   val command': command_keyword -> string ->
-    (theory -> Toplevel.transition -> Toplevel.transition) parser -> unit
+    (theory -> Proof.state option -> Toplevel.transition -> Toplevel.transition) parser -> unit
   val commands: command_keyword -> string ->
     (command_keyword * (Toplevel.transition -> Toplevel.transition)) list parser -> unit
   val commands': command_keyword -> string ->
-    (theory -> (command_keyword * (Toplevel.transition -> Toplevel.transition)) list) parser -> unit
+    (theory -> Proof.state option -> (command_keyword * (Toplevel.transition -> Toplevel.transition)) list) parser -> unit
   val maybe_begin_local_theory: command_keyword -> string ->
     (local_theory -> local_theory) parser -> (theory -> local_theory) parser -> unit
   val local_theory': command_keyword -> string ->
@@ -28,8 +28,8 @@ sig
   val local_theory_to_proof: command_keyword -> string ->
     (local_theory -> Proof.state) parser -> unit
   val bootstrap: bool Config.T
-  val parse: theory -> Position.T -> string -> Toplevel.transitions list
-  val parse_tokens: theory -> Token.T list -> Toplevel.transitions list
+  val parse: theory -> Proof.state option -> Position.T -> string -> Toplevel.transitions list
+  val parse_tokens: theory -> Proof.state option -> Token.T list -> Toplevel.transitions list
   val parse_spans: Token.T list -> Command_Span.span list
   val side_comments: Token.T list -> Token.T list
   val command_reports: theory -> Token.T -> Position.report_text list
@@ -52,7 +52,7 @@ fun err_dup_command name ps =
 
 (* command parsers *)
 
-type command0 = (theory -> (string -> Toplevel.transition) -> Toplevel.transitions) parser
+type command0 = (theory -> Proof.state option -> (string -> Toplevel.transition) -> Toplevel.transitions) parser
 
 datatype command_parser =
   Parser of command0 |
@@ -155,18 +155,18 @@ fun raw_command (name, pos) comment command_parser =
   in Context.>> (Context.mapping setup (Local_Theory.background_theory setup)) end;
 
 fun command (name, pos) comment parse =
-  raw_command (name, pos) comment (Parser (parse >> (fn f => fn _ => fn tr => [f (tr name)])));
+  raw_command (name, pos) comment (Parser (parse >> (fn f => fn _ => fn _ => fn tr => [f (tr name)])));
 
 fun command' (name, pos) comment parse =
-  raw_command (name, pos) comment (Parser (parse >> (fn f => fn thy => fn tr => [f thy (tr name)])));
+  raw_command (name, pos) comment (Parser (parse >> (fn f => fn thy => fn st => fn tr => [f thy st (tr name)])));
 
 fun commands (name, pos) comment parse =
-  raw_command (name, pos) comment (Parser (parse >> (fn l => fn _ => fn tr => map (fn ((name, _), f) => f (tr name)) l)));
+  raw_command (name, pos) comment (Parser (parse >> (fn l => fn _ => fn _ => fn tr => map (fn ((name, _), f) => f (tr name)) l)));
 
 fun commands' (name, pos) comment parse =
-  raw_command (name, pos) comment (Parser (parse >> (fn l => fn thy => fn tr => map (fn ((name, _), f) => f (tr name)) (l thy))));
+  raw_command (name, pos) comment (Parser (parse >> (fn l => fn thy => fn st => fn tr => map (fn ((name, _), f) => f (tr name)) (l thy st))));
 
-fun toplevel_return command_keyword f _ tr = [ f (tr (#1 command_keyword))]
+fun toplevel_return command_keyword f _ _ tr = [ f (tr (#1 command_keyword))]
 
 fun maybe_begin_local_theory command_keyword comment parse_local parse_global =
   raw_command command_keyword comment
@@ -200,7 +200,7 @@ local
 val before_command =
   Scan.option (Parse.position (Parse.private >> K true || Parse.qualified >> K false));
 
-fun parse_command thy =
+fun parse_command thy st =
   Scan.ahead (before_command |-- Parse.position Parse.command_) :|-- (fn (name, pos) =>
     let
       val keywords = Thy_Header.get_keywords thy;
@@ -214,10 +214,10 @@ fun parse_command thy =
     in
       (case lookup_commands thy name of
         SOME (Command {command_parser = Parser parse, ...}) =>
-          Parse.!!! (command_tags |-- parse) >> (fn f => f thy tr0)
+          Parse.!!! (command_tags |-- parse) >> (fn f => f thy st tr0)
       | SOME (Command {command_parser = Restricted_Parser parse, ...}) =>
           before_command :|-- (fn restricted =>
-            Parse.!!! (command_tags |-- parse restricted)) >> (fn f => f thy tr0)
+            Parse.!!! (command_tags |-- parse restricted)) >> (fn f => f thy st tr0)
       | NONE =>
           Scan.fail_with (fn _ => fn _ =>
             let
@@ -230,24 +230,24 @@ fun parse_command thy =
 
 val parse_cmt = (Parse.$$$ "--" || Parse.$$$ Symbol.comment) -- Parse.!!! Parse.document_source;
 
-fun commands_source thy =
+fun commands_source thy st =
   Token.source_proper #>
   Source.source Token.stopper (Scan.bulk (parse_cmt >> K NONE || Parse.not_eof >> SOME)) #>
   Source.map_filter I #>
-  Source.source Token.stopper (Scan.bulk (fn xs => Parse.!!! (parse_command thy) xs));
+  Source.source Token.stopper (Scan.bulk (fn xs => Parse.!!! (parse_command thy st) xs));
 
 in
 
-fun parse thy pos =
+fun parse thy st pos =
   Symbol.explode
   #> Source.of_list
   #> Token.source (Thy_Header.get_keywords thy) pos
-  #> commands_source thy
+  #> commands_source thy st
   #> Source.exhaust;
 
-fun parse_tokens thy =
+fun parse_tokens thy st =
   Source.of_list
-  #> commands_source thy
+  #> commands_source thy st
   #> Source.exhaust;
 
 end;

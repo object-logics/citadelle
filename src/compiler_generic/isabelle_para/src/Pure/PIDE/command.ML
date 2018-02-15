@@ -9,7 +9,7 @@ sig
   type blob = (string * (SHA1.digest * string list) option) Exn.result
   val read_file: Path.T -> Position.T -> Path.T -> Token.file
   val read_thy: Toplevel.state -> theory
-  val read: Keyword.keywords -> theory -> Path.T-> (unit -> theory) ->
+  val read: Keyword.keywords -> theory -> Proof.state option -> Path.T-> (unit -> theory) ->
     blob list * int -> Token.T list -> Toplevel.transitions
   type eval
   val eval_exec_id: eval -> Document_ID.exec
@@ -127,7 +127,7 @@ in
 fun read_thy st = Toplevel.theory_of st
   handle Toplevel.UNDEF => Pure_Syn.bootstrap_thy;
 
-fun read keywords thy master_dir init blobs_info span =
+fun read keywords thy st master_dir init blobs_info span =
   let
     val command_reports = Outer_Syntax.command_reports thy;
 
@@ -142,7 +142,7 @@ fun read keywords thy master_dir init blobs_info span =
   in
     if exists #1 token_reports then Toplevel.malformed pos "Malformed command syntax"
     else
-      (case Outer_Syntax.parse_tokens thy (resolve_files keywords master_dir blobs_info span) of
+      (case Outer_Syntax.parse_tokens thy st (resolve_files keywords master_dir blobs_info span) of
         [tr] => Toplevel.modify_init init tr
       | [] => Toplevel.ignored (#1 (Token.range_of span))
       | _ => Toplevel.malformed (#1 proper_range) "Exactly one command expected")
@@ -269,11 +269,13 @@ fun eval keywords master_dir init blobs_info span eval0 =
     fun process () =
       let
         val eval_state0 = eval_result eval0;
-        val thy = read_thy (#state eval_state0);
+        val state0 = #state eval_state0;
+        val thy = read_thy state0;
+        val st = Toplevel.proof_of' state0;
         val tr =
           Position.setmp_thread_data (Position.id_only (Document_ID.print exec_id))
             (fn () =>
-              read keywords thy master_dir init blobs_info span |> Toplevel.exec_id exec_id) ();
+              read keywords thy st master_dir init blobs_info span |> Toplevel.exec_id exec_id) ();
       in eval_state keywords span tr eval_state0 end;
   in Eval {exec_id = exec_id, eval_process = Lazy.lazy_name "Command.eval" process} end;
 
