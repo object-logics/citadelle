@@ -1624,8 +1624,7 @@ structure USE_parse = struct
   val colon = Parse.$$$ ":"
   fun repeat2 scan = scan ::: Scan.repeat1 scan
 
-  fun xml_unescape s = (YXML.content_of s, Position.none)
-                       |> Symbol_Pos.explode |> Symbol_Pos.implode |> From.string
+  fun xml_unescape s = YXML.content_of s |> Symbol_Pos.explode0 |> Symbol_Pos.implode |> From.string
 
   fun outer_syntax_commands2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
     outer_syntax_commands' mk_string cmd_spec cmd_descr
