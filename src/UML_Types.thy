@@ -51,7 +51,9 @@ imports   HOL.Transcendental (* Testing *)
 keywords "Assert" :: thy_decl
      and "Assert_local" :: thy_decl
 begin
-declare[[syntax_ambiguity_warning = false]]
+
+(* declare[[syntax_ambiguity_warning = false]] *)
+
 section{* Preliminaries *}
 subsection{* Notations for the Option Type *}
 
