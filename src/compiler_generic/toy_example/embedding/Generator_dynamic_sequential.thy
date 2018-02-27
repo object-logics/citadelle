@@ -1501,7 +1501,7 @@ fun thy_switch (*pos1 pos2*) f mode tr =
                                     ^ ": Commands will not be concurrently considered. "
                                     ^ Markup.markup
                                         (Markup.properties (Position.properties_of pos2) Markup.position)
-                                        "(Handled here\<here>)"))*) tr)
+                                        "(Handled here\092<^here>)"))*) tr)
   , f #~> Generation_mode.Data_gen.put)
 
 in
