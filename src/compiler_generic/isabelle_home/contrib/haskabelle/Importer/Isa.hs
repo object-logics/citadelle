@@ -109,7 +109,7 @@ data Stmt =
   | Comment String
   deriving Show
 
-data Module = Module ThyName [ThyName] [Stmt]
+data Module = Module ThyName [ThyName] [Stmt] Bool
   deriving Show
 
 
@@ -220,7 +220,7 @@ idents_of_stmt (Instance c tyco vs stmts) = -- this is only an approximation
 idents_of_stmt (Comment _) =
   (([], []), [])
 
-retopologize (Module thyname imports stmts) =
+retopologize (Module thyname imports stmts exportCode) =
   {- This does some additional work to arrange statements
      in a topological order.  It would be better to unify this
      with the tasks of Importer.DeclDependencyGraph.arrangeDecls -}
@@ -230,7 +230,7 @@ retopologize (Module thyname imports stmts) =
     strong_conns = (map_filter only_strong_conns . stronglyConnComp . dummy_nodes) raw_deps
     acyclic_deps = fold (\ys -> map (complete_strong_conn ys)) strong_conns raw_deps
     (stmts', _) = ultimately select (representants, acyclic_deps)
-  in Module thyname imports stmts' where
+  in Module thyname imports stmts' exportCode where
     mk_raw_deps stmt =
       let
         ((xs1, xs2), xs3) = idents_of_stmt stmt

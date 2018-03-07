@@ -13,7 +13,7 @@ Conversion from abstract Haskell code to abstract Isar/HOL theory.
 -}
 
 module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFiles, IsaUnit(..),
-  liftIO, getOutputDir, getCustomisations, getInputFilesRecursively) where
+  liftIO, getOutputDir, getExportCode, getCustomisations, getInputFilesRecursively) where
 
 import Importer.Library
 import qualified Importer.AList as AList
@@ -56,8 +56,8 @@ import qualified Importer.Isa as Isa
   This is the main function of the conversion process; converts a Unit of Haskell
   ASTs into a Unit of Isar/HOL ASTs.
 -}
-convertHskUnit :: Customisations -> Adaption -> HskUnit -> (AdaptionTable, IsaUnit)
-convertHskUnit custs adapt (HskUnit hsmodules custMods initialGlobalEnv)
+convertHskUnit :: Customisations -> Bool -> Adaption -> HskUnit -> (AdaptionTable, IsaUnit)
+convertHskUnit custs exportCode adapt (HskUnit hsmodules custMods initialGlobalEnv)
     = let pragmass       = map (accumulate (fold add_pragmas) . snd) hsmodules
           hsmodules'     = map (Preprocess.preprocessModule (usedConstNames adapt) . Hsx.fmapUnit . fst) hsmodules
           env            = Ident_Env.environmentOf custs hsmodules' custMods
@@ -68,7 +68,7 @@ convertHskUnit custs adapt (HskUnit hsmodules custMods initialGlobalEnv)
           hskmodules = map (toHskModule global_env_hsk) hsmodules'
           
           isathys = fst $ runConversion' custs adapt global_env_hsk $
-            mapM convertModule (zip pragmass hskmodules)
+            mapM (convertModule exportCode) (zip pragmass hskmodules)
           custThys = Map.elems custMods
           adaptedEnv = adaptGlobalEnv adaptionTable global_env_hsk
           isaunit = IsaUnit isathys custThys adaptedEnv
@@ -412,8 +412,8 @@ class Show a => Convert a b | a -> b where
                                in Msg.prettyShow' frameName hsexpr : bt)
                      $ convert' pragmas hsexpr
 
-convertModule :: ([Pragma], HskModule) -> ContextM Isa.Module
-convertModule (pragmas, HskModule _loc modul dependentDecls) =
+convertModule :: Bool -> ([Pragma], HskModule) -> ContextM Isa.Module
+convertModule exportCode (pragmas, HskModule _loc modul dependentDecls) =
   do
     thy <- convert pragmas modul
     env <- queryContext globalEnv
@@ -423,7 +423,7 @@ convertModule (pragmas, HskModule _loc modul dependentDecls) =
     withUpdatedContext theory (\t -> assert (t == Isa.ThyName "Scratch") thy)
       $ do
           stmts <- mapsM (convertDependentDecls pragmas) dependentDecls
-          return (Isa.retopologize (Isa.Module thy imps stmts))
+          return (Isa.retopologize (Isa.Module thy imps stmts exportCode))
   where isStandardTheory usedThyNames (Isa.ThyName n) = n `elem` usedThyNames
 
 lookupImports :: Isa.ThyName -> Ident_Env.GlobalE -> Customisations -> [Isa.ThyName]
@@ -1242,6 +1242,9 @@ traverseDir dirpath op = do
 
 getOutputDir :: Conversion FilePath
 getOutputDir = ask >>= return . fileLocation . outputLocation
+
+getExportCode :: Conversion Bool
+getExportCode = ask >>= return . exportCode
 
 runConversion :: Config -> Conversion a -> IO a
 runConversion config (Conversion parser) = runReaderT parser config

@@ -27,12 +27,19 @@ import Importer.Version (version)
   Haskell files according to configuration file <CONFIG>.
 -}
 
+readBool :: String -> IO Bool
+readBool "true" = return True
+readBool "false" = return False
+readBool _ = exitWith (ExitFailure 2)
+
 mainInterface :: [String] -> IO ()
-mainInterface ["--internal", adaptDir, "--config", configFile] = do
-  config <- readConfig configFile
+mainInterface ["--internal", adaptDir, "--export", exportVar, "--config", configFile] = do
+  exportCode <- readBool exportVar
+  config <- readConfig configFile exportCode
   importProject config adaptDir
-mainInterface ("--internal" : adaptDir : srcs_dst @ (_ : _ : _)) =
-  importFiles adaptDir (init srcs_dst) (last srcs_dst)
+mainInterface ("--internal" : adaptDir : "--export" : exportVar : srcs_dst @ (_ : _ : _)) = do
+  exportCode <- readBool exportVar
+  importFiles adaptDir (init srcs_dst) (last srcs_dst) exportCode
 
 mainInterface ("--internal" : args) = do
   putStrLn "Error calling internal haskabelle binary. Wrong parameters:"

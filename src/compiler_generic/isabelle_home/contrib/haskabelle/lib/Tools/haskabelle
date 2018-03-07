@@ -23,6 +23,7 @@ function usage()
   echo "    -c CONFIG  configuration file"
   echo "    -e         runs the Haskabelle examples"
   echo "    -r         rebuild adaptation table"
+  echo "    -t         generate a theory with at the end a command exporting everything to Haskell"
   echo "    -v         show Haskabelle version"
   echo
   echo "At least one of SRC... DST, -c or -r must be given. Not both of"
@@ -56,12 +57,13 @@ ADAPT_DIR=""
 BUILD_ADAPT=false
 CONFIG_FILE=""
 RUN_EXAMPLES=false
+EXPORT_CODE=false
 SHOW_VERSION=false
 
 function getoptions()
 {
   OPTIND=1
-  while getopts "a:bc:erv" OPT
+  while getopts "a:bc:ertv" OPT
   do
     case "$OPT" in
       a)
@@ -75,6 +77,9 @@ function getoptions()
         ;;
       r)
         BUILD_ADAPT=true
+        ;;
+      t)
+        EXPORT_CODE=true
         ;;
       v)
         SHOW_VERSION=true
@@ -136,9 +141,9 @@ if [ "$SHOW_VERSION" = true ]; then
 elif [ "$RUN_EXAMPLES" = true ]; then
   "$HASKABELLE_HOME/lib/regression" "$@"
 elif [ "$CONFIG_FILE" != "" ]; then
-  "$HASKABELLE_BIN" --internal "$ADAPT_DIR" --config "$CONFIG_FILE" || exit $?
+  "$HASKABELLE_BIN" --internal "$ADAPT_DIR" --export "$EXPORT_CODE" --config "$CONFIG_FILE" || exit $?
 elif [ "$#" -ge 2 ]; then
-  "$HASKABELLE_BIN" --internal "$ADAPT_DIR" "$@" || exit $?
+  "$HASKABELLE_BIN" --internal "$ADAPT_DIR" --export "$EXPORT_CODE" "$@" || exit $?
 elif [ "$BUILD_ADAPT" = false ]; then
   usage
 fi

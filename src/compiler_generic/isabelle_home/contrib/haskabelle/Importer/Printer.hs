@@ -237,14 +237,15 @@ class Printer a where
 
 instance Printer Isa.Module where
 
-    pprint' adapt reserved (Isa.Module thy imps cmds)
+    pprint' adapt reserved (Isa.Module thy imps cmds exportCode)
         = do env <- queryPP globalEnv
              let imps' = map (pprint' adapt reserved) (imps ++ [Isa.ThyName Ident_Env.prelude])
              withCurrentTheory thy $
                text "theory" <+> pprint' adapt reserved thy $+$
                text "imports " <> fsep  imps' $+$
                text "begin" $+$
-               (vcat $ map (pprint' adapt reserved) cmds) $+$
+               (vcat $ (map (pprint' adapt reserved) cmds ++
+                        if exportCode then [text "ML\\<open>Haskabelle.export (Path.variable \"REGRESSION_DST\") @{theory}\\<close>"] else [])) $+$
                text "\nend\n"
 
 instance Printer Isa.Function_Stmt where

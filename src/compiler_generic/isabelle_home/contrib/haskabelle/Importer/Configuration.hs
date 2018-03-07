@@ -107,7 +107,7 @@ data CustomTheory = CustomTheory {
 {-|
   An element of this type represents configuration information for this application.
 -}
-data Config = Config{inputLocations :: [InputLocation], outputLocation :: OutputLocation, customisations :: Customisations}
+data Config = Config{inputLocations :: [InputLocation], outputLocation :: OutputLocation, customisations :: Customisations, exportCode :: Bool}
               deriving (Show, Eq, Data, Typeable)
 
 {-|
@@ -177,11 +177,12 @@ type XMLReader a = Either String a
   This function constructs a default configuration depending on the input files,
   output directory and customisation.
 -}
-defaultConfig ::[FilePath] -> FilePath -> Customisations -> Config
-defaultConfig inFiles outDir custs = Config {
-                                      inputLocations = map FileLocation inFiles,
-                                      outputLocation = FileLocation outDir,
-                                      customisations = custs}
+defaultConfig ::[FilePath] -> FilePath -> Customisations -> Bool -> Config
+defaultConfig inFiles outDir custs exportCode = Config {
+                                                 inputLocations = map FileLocation inFiles,
+                                                 outputLocation = FileLocation outDir,
+                                                 customisations = custs,
+                                                 exportCode = exportCode}
 
 {-|
   This constant represents a default customisations option.
@@ -298,14 +299,14 @@ getMonadConstant mon name =
   and provides the parsed configuration data structure.
 -}
 
-readConfig :: FilePath -> IO Config
-readConfig path =
+readConfig :: FilePath -> Bool -> IO Config
+readConfig path exportCode =
     do content <- readFile path 
        let maybeRoot = parseXMLDoc content
        when (isNothing maybeRoot) $
             error $ "Parsing error: The configuration file \"" ++ path ++ "\" is not a well-formed XML document!"
        let Just root = maybeRoot
-       let res = parseConfigDoc root
+       let res = parseConfigDoc root exportCode
        config <- either (\msg -> error $ "Malformed configuration file: " ++ msg) return res
        wd <- getCurrentDirectory
        let path' = combine wd path
@@ -319,8 +320,8 @@ readConfig path =
   This function takes the root element of a configuration document
   and reads the configuration information in it.
 -}
-parseConfigDoc :: Element -> XMLReader Config
-parseConfigDoc el
+parseConfigDoc :: Element -> Bool -> XMLReader Config
+parseConfigDoc el exportCode
     = do checkSName el "translation"
          inputEl <- findSingleSElem "input" el
          outputEl <- findSingleSElem "output" el
@@ -334,7 +335,8 @@ parseConfigDoc el
          cust' <- processCustomisations cust
          return $ Config {inputLocations=input,
                           outputLocation=output,
-                          customisations=cust'}
+                          customisations=cust',
+                          exportCode=exportCode}
 
 {-|
   This function processes the given customisations, i.e. it resolves all

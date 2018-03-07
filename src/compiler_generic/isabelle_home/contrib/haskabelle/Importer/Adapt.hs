@@ -14,6 +14,7 @@ import Importer.Library
 import qualified Importer.AList as AList
 import Data.Maybe (mapMaybe, fromMaybe, catMaybes, isJust)
 import Data.List (partition, sort, group)
+import Data.List.Split (splitOn)
 
 import Control.Monad.State (State, get, put, foldM, evalState, runState, liftM2)
 
@@ -159,7 +160,7 @@ evaluate dir decls = Adaption {
     (lookupFunbind "raw_adaption_table"),
   reservedKeywords = lookupStringList "reserved_keywords",
   usedConstNames = lookupStringList "used_const_names",
-  usedThyNames = lookupStringList "used_thy_names",
+  usedThyNames = map (\s -> case splitOn "." s of [_, s] -> s ; _ -> s) $ lookupStringList "used_thy_names",
   preludeFile = combine dir "Prelude.thy" } where
     lookupFunbind name = case lookup name decls of
       Nothing -> error ("No entry for " ++ name ++ " in adaption file")
@@ -543,12 +544,12 @@ class Adapt a where
 
 instance Adapt Isa.Module where
 
-    adapt (Isa.Module thy imps cmds)
+    adapt (Isa.Module thy imps cmds exportCode)
         = do old_mID <- query currentModuleID
              set (setModuleID $ Just (Ident_Env.fromIsa thy))
              cmds' <- mapM adapt cmds
              set (setModuleID old_mID)
-             return (Isa.Module thy imps cmds')
+             return (Isa.Module thy imps cmds' exportCode)
         where setModuleID v state
                   = state { currentModuleID = v }
 

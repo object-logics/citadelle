@@ -28,22 +28,23 @@ importProject config adaptDir = do
   adapt <- readAdapt adaptDir
   runConversion config (convertFiles adapt)
 
-importFiles :: FilePath -> [FilePath] -> FilePath -> IO ()
-importFiles adaptDir files out
-  = importProject (defaultConfig files out defaultCustomisations) adaptDir
+importFiles :: FilePath -> [FilePath] -> FilePath -> Bool -> IO ()
+importFiles adaptDir files out exportCode
+  = importProject (defaultConfig files out defaultCustomisations exportCode) adaptDir
 
 convertFiles :: Adaption -> Conversion ()
 convertFiles adapt = do
 
   inFiles <- getInputFilesRecursively
   outDir <- getOutputDir
+  exportCode <- getExportCode
   custs <- getCustomisations
   
   exists <- liftIO $ doesDirectoryExist outDir
   when (not exists) $ liftIO $ createDirectory outDir
 
   units <- parseHskFiles (filter Hsx.isHaskellSourceFile inFiles)
-  let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs adapt) units
+  let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs exportCode adapt) units
 
   liftIO $ copyFile (preludeFile adapt) (combine outDir (takeFileName (preludeFile adapt)))
   sequence_ (map (writeIsaUnit adaptTable (reservedKeywords adapt)) convertedUnits)
@@ -63,7 +64,7 @@ writeCustomTheory cust =
        liftIO $ copyFile src dest
 
 writeTheory :: AdaptionTable -> [String] -> Ident_Env.GlobalE -> Isa.Module -> Conversion ()
-writeTheory adapt reserved env thy @ (Isa.Module (Isa.ThyName thyname) _ _) = do
+writeTheory adapt reserved env thy @ (Isa.Module (Isa.ThyName thyname) _ _ _) = do
   let content = render (pprint adapt reserved env thy)
   let dstName = content `seq` map (\c -> if c == '.' then '_' else c) thyname ++ ".thy"
   outLoc <- getOutputDir

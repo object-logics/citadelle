@@ -34,6 +34,7 @@ MK_ADAPT_LOC="$HASKABELLE_HOME/lib/mk_adapt.ML"
 SRC_LOC="$DIR/adapt.txt"
 DST_LOC="$DIR/Generated_Adapt.hs"
 PRELUDE_NAME="Prelude"
+PRELUDE_NAME_FULL="Draft.$PRELUDE_NAME"
 PRELUDE_LOC="$DIR/$PRELUDE_NAME"
 
 ## convert
@@ -45,7 +46,7 @@ FORMAL_CMD="Runtime.toplevel_program (fn () => (use_thy prelude_loc; ML_Context.
   handle _ => OS.Process.exit OS.Process.failure;"
 
 ACTUAL_CMD="val prelude_loc = \"$PRELUDE_LOC\"; \
-  val prelude_name = \"$PRELUDE_NAME\"; \
+  val prelude_name = \"$PRELUDE_NAME_FULL\"; \
   val src_loc = \"$SRC_LOC\"; \
   val dst_loc = \"$DST_LOC\"; \
   val mk_adapt_path = Path.explode \"$MK_ADAPT_LOC\"; \

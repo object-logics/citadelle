@@ -55,7 +55,7 @@ for SRC in ex/src_hs/*.hs
 do
   DST=ex/dst_thy/
   echo "importing $SRC..."
-  "$HASKABELLE_HOME/lib/Tools/haskabelle" "$SRC" "$DST" || fail "Could not import $SRC"
+  "$HASKABELLE_HOME/lib/Tools/haskabelle" -t "$SRC" "$DST" || fail "Could not import $SRC"
 done
 
 ## re-importing
@@ -66,13 +66,12 @@ then
   export REGRESSION_PATH=$(pwd)
   export REGRESSION_DST="$(pwd)/../../ex/dst_hs/"
   mkdir -p "$REGRESSION_DST"
+  echo 'session "dst_thy" = "HOL" + options [document = false, quick_and_dirty = true] theories '$(basename -s '.thy' *.thy) > ROOT
+  echo "re-importing all theories..."
+  "$ISABELLE_TOOL" build -c -D. > /dev/zero 2>&1 || fail_or_warn "Could not re-import all theories"
   for THY in *.thy
   do
     THY_NAME="$(basename $THY .thy)"
-    echo "re-importing $THY_NAME..."
-    REGRESSION_THY_NAME="$THY_NAME" REGRESSION_THY_PATH="$REGRESSION_PATH/$THY_NAME" \
-        "$ISABELLE_TOOL" build -c -D"$HASKABELLE_HOME/lib/Regression0" \
-        > /dev/zero 2>&1 || fail_or_warn "Could not re-import $THY"
     HS_FILE="$REGRESSION_DST$THY_NAME.hs"
     if [ ! -e "$HS_FILE" ]
     then
