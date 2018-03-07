@@ -63,12 +63,12 @@ import qualified Importer.Hsx as Hsx
   This type represents sets of custom translations, i.e., mappings from Haskell
   modules to custom theories.
 -}
-type CustomTranslations = Map Hsx.ModuleName CustomTheory
+type CustomTranslations = Map (Hsx.ModuleName ()) CustomTheory
 
 {-|
   This type represents single custom translations.
 -}
-type CustomTranslation = (Hsx.ModuleName, CustomTheory)
+type CustomTranslation = (Hsx.ModuleName (), CustomTheory)
 
 {-|
   This type represents locations  declared in a configuration.
@@ -79,7 +79,7 @@ newtype Location = FileLocation{ fileLocation :: FilePath}
 {-|
   This type represents information that customise the actual translation.
 -}
-data Customisations = Customisations{ customTheoryCust :: Map Hsx.ModuleName CustomTheory, monadInstanceCust ::  Map String MonadInstance}
+data Customisations = Customisations{ customTheoryCust :: Map (Hsx.ModuleName ()) CustomTheory, monadInstanceCust ::  Map String MonadInstance}
     deriving (Show, Eq, Data, Typeable)
 
 {-|
@@ -114,7 +114,7 @@ data Config = Config{inputLocations :: [InputLocation], outputLocation :: Output
   This type represents a particular kind of a translation customisation. An element
   of this type describes how a Haskell module can be replaced by an Isabelle theory.
 -}
-data Replace = Replace{ moduleRepl :: Hsx.ModuleName, customTheoryRepl :: CustomTheory}
+data Replace = Replace{ moduleRepl :: Hsx.ModuleName (), customTheoryRepl :: CustomTheory}
                deriving (Show, Eq, Data, Typeable)
 
 {-|
@@ -204,7 +204,7 @@ noMonadConstants = ExplicitMonadConstants (Map.empty)
   replaced with according to the given customisations or @nothing@ if
   no such translation was declared for the given module.
 -}
-getCustomTheory :: Customisations -> Hsx.ModuleName -> Maybe CustomTheory
+getCustomTheory :: Customisations -> Hsx.ModuleName () -> Maybe CustomTheory
 getCustomTheory Customisations{ customTheoryCust = custs} mod = Map.lookup mod custs
 
 
@@ -527,8 +527,8 @@ parseThyMonadsElem el = return .words . strContent $ el
   This function reads a module name stored in the given @module@
   XML element.
 -}            
-parseModuleNameElem :: Element -> XMLReader Hsx.ModuleName
-parseModuleNameElem el = liftM Hsx.ModuleName $ findSAttr "name" el
+parseModuleNameElem :: Element -> XMLReader (Hsx.ModuleName ())
+parseModuleNameElem el = liftM (Hsx.ModuleName ()) $ findSAttr "name" el
 
 ---------------------
 -- Monad Instances --

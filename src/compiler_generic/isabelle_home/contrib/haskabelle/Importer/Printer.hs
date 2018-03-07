@@ -517,12 +517,12 @@ isNil, isCons, isPairCon :: AdaptionTable -> Isa.Name -> Bool
 mk_isFoo adapt foo n = case reAdaptEnvName adapt (Ident_Env.fromIsa n) of
   Nothing -> False
   Just x -> case Ident_Env.toHsk x of
-    Hsx.Special con -> con == foo
+    Hsx.Special _ con -> con == foo
     _ -> False
 
-isNil adapt = mk_isFoo adapt Hsx.ListCon
-isCons adapt = mk_isFoo adapt Hsx.Cons
-isPairCon adapt = mk_isFoo adapt (Hsx.TupleCon Hsx.Boxed 2)
+isNil adapt = mk_isFoo adapt (Hsx.ListCon ())
+isCons adapt = mk_isFoo adapt (Hsx.Cons ())
+isPairCon adapt = mk_isFoo adapt (Hsx.TupleCon () Hsx.Boxed 2)
 
 pprintAsList :: AdaptionTable -> [String] -> [Isa.Term] -> DocM P.Doc
 pprintAsList adapt reserved ts = brackets (hsep (punctuate comma (map (pprint' adapt reserved) ts)))

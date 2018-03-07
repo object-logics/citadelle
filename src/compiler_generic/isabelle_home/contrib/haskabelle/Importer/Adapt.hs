@@ -40,7 +40,7 @@ data OpKind = Type
             | Function
             | RawHskOp          -- placeholder
             | UnaryOp Int 
-            | InfixOp Assoc Int
+            | InfixOp Assoc (Maybe Int)
             | Class RawClassInfo
 
 data Assoc = RightAssoc | LeftAssoc | NoneAssoc
@@ -63,37 +63,37 @@ data AdaptionTable = AdaptionTable [(Ident_Env.Identifier, Ident_Env.Identifier)
 
 hsk_infix_ops :: [(String, OpKind)]
 hsk_infix_ops = [
-  ("Prelude.(.)",  InfixOp RightAssoc 9),
-  ("Prelude.(!!)", InfixOp LeftAssoc 9),
-  ("Prelude.(^)",  InfixOp RightAssoc 8),
-  ("Prelude.(^^)",  InfixOp RightAssoc 8),
-  ("Prelude.(**)",  InfixOp RightAssoc 8),
-  ("Prelude.(*)",  InfixOp LeftAssoc 7),
-  ("Prelude.(/)",  InfixOp LeftAssoc 7),
-  ("Prelude.quot",  InfixOp LeftAssoc 7),
-  ("Prelude.rem",  InfixOp LeftAssoc 7),
-  ("Prelude.div",  InfixOp LeftAssoc 7),
-  ("Prelude.mod",  InfixOp LeftAssoc 7),
-  ("Prelude.(+)",  InfixOp LeftAssoc 6),
-  ("Prelude.(-)",  InfixOp LeftAssoc 6),
-  ("Prelude.(:)",  InfixOp RightAssoc 5),
-  ("Prelude.(++)", InfixOp RightAssoc 5),
-  ("Prelude.(==)", InfixOp NoneAssoc 4),
-  ("Prelude.(/=)", InfixOp NoneAssoc 4),
-  ("Prelude.(<)",  InfixOp NoneAssoc 4),
-  ("Prelude.(<=)", InfixOp NoneAssoc 4),
-  ("Prelude.(>=)", InfixOp NoneAssoc 4),
-  ("Prelude.(>)",  InfixOp NoneAssoc 4),
-  ("Prelude.elem",  InfixOp NoneAssoc 4),
-  ("Prelude.notElem",  InfixOp NoneAssoc 4),
-  ("Prelude.(&&)", InfixOp LeftAssoc 3),
-  ("Prelude.(||)", InfixOp LeftAssoc 2),
-  ("Prelude.(>>)", InfixOp LeftAssoc 1),
-  ("Prelude.(>>=)", InfixOp LeftAssoc 1),
-  ("Prelude.(=<<)", InfixOp RightAssoc 1),
-  ("Prelude.($)", InfixOp RightAssoc 0),
-  ("Prelude.($!)", InfixOp RightAssoc 0),
-  ("Prelude.seq", InfixOp RightAssoc 0)]
+  ("Prelude.(.)",  InfixOp RightAssoc (Just 9)),
+  ("Prelude.(!!)", InfixOp LeftAssoc (Just 9)),
+  ("Prelude.(^)",  InfixOp RightAssoc (Just 8)),
+  ("Prelude.(^^)",  InfixOp RightAssoc (Just 8)),
+  ("Prelude.(**)",  InfixOp RightAssoc (Just 8)),
+  ("Prelude.(*)",  InfixOp LeftAssoc (Just 7)),
+  ("Prelude.(/)",  InfixOp LeftAssoc (Just 7)),
+  ("Prelude.quot",  InfixOp LeftAssoc (Just 7)),
+  ("Prelude.rem",  InfixOp LeftAssoc (Just 7)),
+  ("Prelude.div",  InfixOp LeftAssoc (Just 7)),
+  ("Prelude.mod",  InfixOp LeftAssoc (Just 7)),
+  ("Prelude.(+)",  InfixOp LeftAssoc (Just 6)),
+  ("Prelude.(-)",  InfixOp LeftAssoc (Just 6)),
+  ("Prelude.(:)",  InfixOp RightAssoc (Just 5)),
+  ("Prelude.(++)", InfixOp RightAssoc (Just 5)),
+  ("Prelude.(==)", InfixOp NoneAssoc (Just 4)),
+  ("Prelude.(/=)", InfixOp NoneAssoc (Just 4)),
+  ("Prelude.(<)",  InfixOp NoneAssoc (Just 4)),
+  ("Prelude.(<=)", InfixOp NoneAssoc (Just 4)),
+  ("Prelude.(>=)", InfixOp NoneAssoc (Just 4)),
+  ("Prelude.(>)",  InfixOp NoneAssoc (Just 4)),
+  ("Prelude.elem",  InfixOp NoneAssoc (Just 4)),
+  ("Prelude.notElem",  InfixOp NoneAssoc (Just 4)),
+  ("Prelude.(&&)", InfixOp LeftAssoc (Just 3)),
+  ("Prelude.(||)", InfixOp LeftAssoc (Just 2)),
+  ("Prelude.(>>)", InfixOp LeftAssoc (Just 1)),
+  ("Prelude.(>>=)", InfixOp LeftAssoc (Just 1)),
+  ("Prelude.(=<<)", InfixOp RightAssoc (Just 1)),
+  ("Prelude.($)", InfixOp RightAssoc (Just 0)),
+  ("Prelude.($!)", InfixOp RightAssoc (Just 0)),
+  ("Prelude.seq", InfixOp RightAssoc (Just 0))]
 
 {- Reading adaption file -}
 
@@ -101,56 +101,56 @@ readError :: forall a. FilePath -> String -> a
 readError file msg =
   error ("An error occurred while reading adaption file \"" ++ file ++ "\": " ++ msg)
 
-parseAdapt :: FilePath -> IO [Hsx.Decl]
+parseAdapt :: FilePath -> IO [Hsx.Decl ()]
 parseAdapt file = do
   result <- Hsx.parseFile file
     `catchIO` (\ioError-> readError file (show ioError))
   case result of
     Hsx.ParseFailed loc msg ->
       readError file (Msg.failed_parsing loc msg)
-    Hsx.ParseOk (Hsx.Module _ _ _ _ _ _ decls) ->
-      return decls
+    Hsx.ParseOk (Hsx.Module _ _ _ _ decls) ->
+      return $ map Hsx.fmapUnit decls
 
-indexify :: [Hsx.Decl] -> [(String, Hsx.Exp)]
+indexify :: [Hsx.Decl ()] -> [(String, Hsx.Exp ())]
 indexify decls = fold idxify decls [] where
-  idxify (Hsx.PatBind _ (Hsx.PVar (Hsx.Ident name)) (Hsx.UnGuardedRhs rhs) _) xs =
+  idxify (Hsx.PatBind _ (Hsx.PVar _ (Hsx.Ident _ name)) (Hsx.UnGuardedRhs _ rhs) _) xs =
       (name, rhs) : xs
   idxify _ xs = xs
 
-evaluateString :: Hsx.Exp -> String
-evaluateString (Hsx.Lit (Hsx.String s)) = s
+evaluateString :: Hsx.Exp () -> String
+evaluateString (Hsx.Lit _ (Hsx.String _ s _)) = s
 
-evaluateList :: (Hsx.Exp -> a) -> Hsx.Exp -> [a]
-evaluateList eval (Hsx.List ts) = map eval ts
+evaluateList :: (Hsx.Exp () -> a) -> Hsx.Exp () -> [a]
+evaluateList eval (Hsx.List _ ts) = map eval ts
 
-evaluatePair :: (Hsx.Exp -> a) -> (Hsx.Exp -> b) -> Hsx.Exp -> (a, b)
-evaluatePair eval1 eval2 (Hsx.Tuple Hsx.Boxed [t1, t2]) = (eval1 t1, eval2 t2)
+evaluatePair :: (Hsx.Exp () -> a) -> (Hsx.Exp () -> b) -> Hsx.Exp () -> (a, b)
+evaluatePair eval1 eval2 (Hsx.Tuple _ Hsx.Boxed [t1, t2]) = (eval1 t1, eval2 t2)
 
-evaluateEntryClass :: Hsx.Exp -> RawClassInfo
-evaluateEntryClass (Hsx.Paren (Hsx.RecConstr (Hsx.UnQual (Hsx.Ident "RawClassInfo"))
-  [Hsx.FieldUpdate (Hsx.UnQual (Hsx.Ident "superclasses")) superclasses,
-    Hsx.FieldUpdate (Hsx.UnQual (Hsx.Ident "classVar")) classVar,
-      Hsx.FieldUpdate (Hsx.UnQual (Hsx.Ident "methods")) methods])) =
+evaluateEntryClass :: Hsx.Exp () -> RawClassInfo
+evaluateEntryClass (Hsx.Paren _ (Hsx.RecConstr _ (Hsx.UnQual _ (Hsx.Ident _ "RawClassInfo"))
+  [Hsx.FieldUpdate _ (Hsx.UnQual _ (Hsx.Ident _ "superclasses")) superclasses,
+    Hsx.FieldUpdate _ (Hsx.UnQual _ (Hsx.Ident _ "classVar")) classVar,
+      Hsx.FieldUpdate _ (Hsx.UnQual _ (Hsx.Ident _ "methods")) methods])) =
   RawClassInfo {
     superclasses = evaluateList evaluateString superclasses,
     classVar = evaluateString classVar,
     methods = evaluateList (evaluatePair evaluateString evaluateString) methods }
 
-evaluateEntryKind :: Hsx.Exp -> OpKind
-evaluateEntryKind (Hsx.Paren (Hsx.App (Hsx.Con (Hsx.UnQual (Hsx.Ident "Class"))) cls)) =
+evaluateEntryKind :: Hsx.Exp () -> OpKind
+evaluateEntryKind (Hsx.Paren _ (Hsx.App _ (Hsx.Con _ (Hsx.UnQual _ (Hsx.Ident _ "Class"))) cls)) =
   Class (evaluateEntryClass cls)
-evaluateEntryKind (Hsx.Con (Hsx.UnQual (Hsx.Ident "Type"))) = Type
-evaluateEntryKind (Hsx.Con (Hsx.UnQual (Hsx.Ident "Function"))) = Function
-evaluateEntryKind (Hsx.Paren (Hsx.App (Hsx.App (Hsx.Con (Hsx.UnQual (Hsx.Ident "InfixOp")))
-  (Hsx.Con (Hsx.UnQual (Hsx.Ident assc)))) (Hsx.Lit (Hsx.Int pri)))) =
-    InfixOp assoc (fromInteger pri) where
+evaluateEntryKind (Hsx.Con _ (Hsx.UnQual _ (Hsx.Ident _ "Type"))) = Type
+evaluateEntryKind (Hsx.Con _ (Hsx.UnQual _ (Hsx.Ident _ "Function"))) = Function
+evaluateEntryKind (Hsx.Paren _ (Hsx.App _ (Hsx.App _ (Hsx.Con _ (Hsx.UnQual _ (Hsx.Ident _ "InfixOp")))
+  (Hsx.Con _ (Hsx.UnQual _ (Hsx.Ident _ assc)))) (Hsx.Lit _ (Hsx.Int _ pri _)))) =
+    InfixOp assoc (Just (fromInteger pri)) where
     assoc = case assc of
       "LeftAssoc" -> LeftAssoc
       "RightAssoc" -> RightAssoc
       "NoneAssoc" -> NoneAssoc
 
-evaluateEntry :: Hsx.Exp -> AdaptionEntry
-evaluateEntry (Hsx.App (Hsx.App (Hsx.Con (Hsx.UnQual (Hsx.Ident kind))) (Hsx.Lit (Hsx.String name))) entry)
+evaluateEntry :: Hsx.Exp () -> AdaptionEntry
+evaluateEntry (Hsx.App _ (Hsx.App _ (Hsx.Con _ (Hsx.UnQual _ (Hsx.Ident _ kind))) (Hsx.Lit _ (Hsx.String _ name _))) entry)
   | (kind == "Haskell") = Haskell name (evaluateEntryKind entry)
   | (kind == "Isabelle") = Isabelle name (evaluateEntryKind entry)
 
@@ -188,15 +188,15 @@ extractIsaEntries (AdaptionTable mapping) = map snd mapping
 -- 
 -- Hence, we have to remove entries from `adaptionTable' which are
 -- defined in one of the source files.
-makeAdaptionTable_FromHsModule :: Adaption -> Ident_Env.GlobalE -> [Hsx.Module] -> AdaptionTable
+makeAdaptionTable_FromHsModule :: Adaption -> Ident_Env.GlobalE -> [Hsx.Module ()] -> AdaptionTable
 makeAdaptionTable_FromHsModule adapt env hsmodules = let
   adaptionTable = mkAdaptionTable adapt
   initial_class_env = makeGlobalEnv_FromAdaptionTable
     (filterAdaptionTable (Ident_Env.isClass . fst) adaptionTable)
   tmp_env = Ident_Env.unionGlobalEnvs initial_class_env env
   defined_names = concatMap (extractDefNames tmp_env) hsmodules
-  extractDefNames :: Ident_Env.GlobalE -> Hsx.Module -> [String]
-  extractDefNames globalEnv (Hsx.Module _ m _ _ _ _ decls) =
+  extractDefNames :: Ident_Env.GlobalE -> Hsx.Module () -> [String]
+  extractDefNames globalEnv (Hsx.Module _ (Just (Hsx.ModuleHead _ m _ _)) _ _ decls) =
     mapMaybe (\n -> let m'   = Ident_Env.fromHsk m
                         n'   = Ident_Env.fromHsk n
                         ids  = Ident_Env.lookupIdentifiers_OrLose m' n' globalEnv
@@ -312,9 +312,9 @@ makeIdentifier Type m identifier t
 makeTypeAnnot :: Ident_Env.LexInfo -> Ident_Env.Identifier
 makeTypeAnnot lexinfo = Ident_Env.Constant (Ident_Env.TypeAnnotation lexinfo)
 
-parseType :: String -> Hsx.Type
+parseType :: String -> Hsx.Type ()
 parseType string = case Hsx.parseFileContents ("__foo__ :: " ++ string) of
-  (Hsx.ParseOk (Hsx.Module _ _ _ _ _ _ [Hsx.TypeSig _ _ t])) -> t
+  (Hsx.ParseOk (Hsx.Module _ _ _ _ [Hsx.TypeSig _ _ t])) -> Hsx.fmapUnit t
 
 transformAssoc :: Assoc -> Ident_Env.Assoc
 transformAssoc RightAssoc = Ident_Env.AssocRight

@@ -10,30 +10,41 @@ import Control.Monad.State
 import qualified Language.Haskell.Exts as Hsx (Name(..), QName(..))
 import qualified Importer.Isa as Isa (Name(..))
 
+data Count = Count { sym :: Int, pos :: Int }
 
-newtype GensymM a = GensymM (State Int a)
-  deriving (Monad, Functor, Applicative, MonadFix, MonadState Int)
+posInit = 0
+countInit = Count {sym = 0, pos = posInit}
+
+newtype GensymM a = GensymM (State Count a)
+  deriving (Monad, Functor, Applicative, MonadFix, MonadState Count)
 
 gensym :: String -> GensymM String
 gensym prefix = do count <- get
-                   put (count + 1)
-                   return (prefix ++ show count)
+                   put (count { sym = sym count + 1 })
+                   return (prefix ++ show (sym count))
 
-genHsName :: Hsx.Name -> GensymM Hsx.Name
-genHsName (Hsx.Ident  prefix) = liftM Hsx.Ident  (gensym prefix) 
-genHsName (Hsx.Symbol prefix) = liftM Hsx.Symbol (gensym prefix) 
+setPos :: Int -> GensymM ()
+setPos pos = do count <- get
+                put (count { pos = pos })
 
-genHsQName :: Hsx.QName -> GensymM Hsx.QName
-genHsQName (Hsx.Qual m prefix)  = liftM (Hsx.Qual m) (genHsName prefix)
-genHsQName (Hsx.UnQual prefix)  = liftM Hsx.UnQual   (genHsName prefix)
-genHsQName junk = error ("junk = " ++ show junk)
+askPos :: GensymM Int
+askPos = do count <- get
+            return $ pos count
+
+genHsName :: Hsx.Name l -> GensymM (Hsx.Name l)
+genHsName (Hsx.Ident  l prefix) = liftM (Hsx.Ident l)  (gensym prefix) 
+genHsName (Hsx.Symbol l prefix) = liftM (Hsx.Symbol l) (gensym prefix) 
+
+genHsQName :: Hsx.QName l -> GensymM (Hsx.QName l)
+genHsQName (Hsx.Qual l m prefix)  = liftM (Hsx.Qual l m) (genHsName prefix)
+genHsQName (Hsx.UnQual l prefix)  = liftM (Hsx.UnQual l) (genHsName prefix)
 
 genIsaName :: Isa.Name -> GensymM Isa.Name
 genIsaName (Isa.QName t prefix) = liftM (Isa.QName t) (gensym prefix)
 genIsaName (Isa.Name prefix)    = liftM Isa.Name      (gensym prefix)
 
-evalGensym :: Int -> GensymM a -> a
+evalGensym :: Count -> GensymM a -> a
 evalGensym init (GensymM state) = evalState state init
 
-runGensym :: Int -> GensymM a -> (a, Int)
+runGensym :: Count -> GensymM a -> (a, Count)
 runGensym init (GensymM state)  = runState state init

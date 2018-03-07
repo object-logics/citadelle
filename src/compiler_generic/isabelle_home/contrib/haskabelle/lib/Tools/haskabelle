@@ -113,7 +113,7 @@ if [ -n "$ISABELLE_GHC" ]; then
   cd "$HASKABELLE_HOME"
   mkdir -p "$BUILDDIR" || fail "Cannot create directory $BUILDDIR"
   mkdir -p bin || fail "Cannot create directory bin"
-  $ISABELLE_GHC -package haskell-src-exts-1.17.1 --make -O -o bin/haskabelle_bin \
+  $ISABELLE_GHC -package haskell-src-exts-1.18.0 --make -O -o bin/haskabelle_bin \
       -odir "$BUILDDIR" -hidir "$BUILDDIR" -stubdir "$BUILDDIR" "Main.hs"
   ) || fail "Cannot build source. See Haskabelle documentation."
 elif [ ! -e "$HASKABELLE_BIN" ]; then

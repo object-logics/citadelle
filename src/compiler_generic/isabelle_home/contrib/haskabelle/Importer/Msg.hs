@@ -19,7 +19,7 @@ quote :: Show a => a -> String
 quote x = "`" ++ (show x) ++ "'"
 
 prettyShow' prefix obj = let str = prefix ++ " = " ++ show obj
-                             (Hsx.ParseOk (Hsx.Module _ _ _ _ _ _ decls)) 
+                             (Hsx.ParseOk (Hsx.Module _ _ _ _ decls)) 
                                  = Hsx.parseModule str
                          in concatMap Hsx.prettyPrint decls
 
@@ -101,6 +101,9 @@ no_default_methods_in_class_decl
 
 only_simple_instantiations
     = "Only simple instantiations in the manner of Haskell 1.0 allowed."
+
+unsupported_semantics_decl
+    = "This particular semantics of Haskell declarations has to be implemented."
 
 recursive_bindings_disallowed srcloc
     = Hsx.srcloc2string srcloc ++ ": " ++ "Recursive bindings disallowed."

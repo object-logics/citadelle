@@ -59,7 +59,7 @@ import qualified Importer.Isa as Isa
 convertHskUnit :: Customisations -> Adaption -> HskUnit -> (AdaptionTable, IsaUnit)
 convertHskUnit custs adapt (HskUnit hsmodules custMods initialGlobalEnv)
     = let pragmass       = map (accumulate (fold add_pragmas) . snd) hsmodules
-          hsmodules'     = map (Preprocess.preprocessModule (usedConstNames adapt) . fst) hsmodules
+          hsmodules'     = map (Preprocess.preprocessModule (usedConstNames adapt) . Hsx.fmapUnit . fst) hsmodules
           env            = Ident_Env.environmentOf custs hsmodules' custMods
           adaptionTable  = makeAdaptionTable_FromHsModule adapt env hsmodules'
           initial_env    = Ident_Env.augmentGlobalEnv initialGlobalEnv $ extractHskEntries adaptionTable
@@ -75,8 +75,8 @@ convertHskUnit custs adapt (HskUnit hsmodules custMods initialGlobalEnv)
       in
         (adaptionTable, adaptIsaUnit adaptionTable global_env_hsk isaunit)
     where 
-      toHskModule :: Ident_Env.GlobalE -> Hsx.Module -> HskModule
-      toHskModule globalEnv (Hsx.Module loc modul _ _ _ _ decls) =
+      toHskModule :: Ident_Env.GlobalE -> Hsx.Module () -> HskModule
+      toHskModule globalEnv (Hsx.Module loc (Just (Hsx.ModuleHead _ modul _ _)) _ _ decls) =
         HskModule loc modul ((map HskDependentDecls . DeclDependencyGraph.arrangeDecls globalEnv modul) decls)
       adaptIsaUnit adaptionTable globalEnv (IsaUnit modules custThys adaptedGlobalEnv) =
         IsaUnit (adaptModules adaptionTable adaptedGlobalEnv globalEnv modules) custThys adaptedGlobalEnv
@@ -109,14 +109,14 @@ add_pragmas (Hsx.UnknownPragma src line) =
 -- (Ok, this might sound somewhat confusing, at least we're consistent
 -- about it.)
 
-data HskModule = HskModule Hsx.SrcLoc Hsx.ModuleName [HskDependentDecls]
+data HskModule = HskModule () (Hsx.ModuleName ()) [HskDependentDecls]
   deriving Show
 
 {-|
   This data structure is supposed to collect function declarations
   that depend mutually recursive on each other.
 -}
-newtype HskDependentDecls = HskDependentDecls [Hsx.Decl]
+newtype HskDependentDecls = HskDependentDecls [Hsx.Decl ()]
   deriving Show
 
 {-|
@@ -160,30 +160,30 @@ adapt       = (_adapt,       \c f -> c { _adapt       = f })
 monad     :: FieldSurrogate (Maybe MonadInstance)
 monad       = (_monad,       \c f -> c { _monad       = f })
 
-currentModule :: FieldSurrogate Hsx.ModuleName
-currentModule = (\c -> let (Isa.ThyName n) = _theory c in Hsx.ModuleName n, \c f -> c)
+currentModule :: FieldSurrogate (Hsx.ModuleName ())
+currentModule = (\c -> let (Isa.ThyName n) = _theory c in Hsx.ModuleName () n, \c f -> c)
 
 getMonadInstance :: String -> ContextM (Maybe MonadInstance)
 getMonadInstance name = ask >>= (return . flip Config.getMonadInstance name)
 
-getMonadInstance' :: Hsx.Type -> ContextM (Maybe MonadInstance)
+getMonadInstance' :: Hsx.Type () -> ContextM (Maybe MonadInstance)
 getMonadInstance' ty =
     case Hsx.typeConName . Hsx.returnType $ ty of
       Nothing -> return Nothing
       Just name -> getMonadInstance name
 
-withFunctionType :: Hsx.Type -> ContextM a -> ContextM a
+withFunctionType :: Hsx.Type () -> ContextM a -> ContextM a
 withFunctionType ty contextm = 
     do mbMon <- getMonadInstance' ty
        withUpdatedContext monad (const mbMon) contextm
 
-withFunctionType' :: Maybe Hsx.Type -> ContextM a -> ContextM a
+withFunctionType' :: Maybe (Hsx.Type ()) -> ContextM a -> ContextM a
 withFunctionType' mbTy contextm = 
     case mbTy of
       Nothing -> contextm
       Just ty -> withFunctionType ty contextm
 
-withPossibleLift :: Hsx.Exp -> ContextM a -> ContextM a
+withPossibleLift :: Hsx.Exp () -> ContextM a -> ContextM a
 withPossibleLift name contextm = 
     do mbMon <- queryContext monad
        case mbMon of
@@ -193,26 +193,26 @@ withPossibleLift name contextm =
                Nothing -> contextm
                newMon@(Just _) ->
                    withUpdatedContext monad (const newMon) contextm
-    where uname (Hsx.Qual _ n) = n
-          uname (Hsx.UnQual n) = n
-          sname (Hsx.Ident n) = n
-          sname (Hsx.Symbol n) = n
-          qname (Hsx.Var n) = Just n
+    where uname (Hsx.Qual _ _ n) = n
+          uname (Hsx.UnQual _ n) = n
+          sname (Hsx.Ident _ n) = n
+          sname (Hsx.Symbol _ n) = n
+          qname (Hsx.Var _ n) = Just n
           qname _ = Nothing
           varName = liftM sname . liftM uname . qname
 
-getCurrentMonadFunction :: Hsx.QName -> ContextM Hsx.QName
+getCurrentMonadFunction :: Hsx.QName () -> ContextM (Hsx.QName ())
 getCurrentMonadFunction name =
     do mbMon <- queryContext monad
        case mbMon of
          Nothing -> return name
          Just mon -> 
              case name of
-               Hsx.Qual mod uName -> return $ Hsx.Qual mod (lookup mon uName)
-               Hsx.UnQual uName -> return $ Hsx.UnQual (lookup mon uName)
+               Hsx.Qual l mod uName -> return $ Hsx.Qual l mod (lookup mon uName)
+               Hsx.UnQual l uName -> return $ Hsx.UnQual l (lookup mon uName)
                def -> return def
-       where lookup mon (Hsx.Ident name) = Hsx.Ident $ getMonadConstant mon name
-             lookup mon (Hsx.Symbol name) = Hsx.Symbol $ getMonadConstant mon name
+       where lookup mon (Hsx.Ident l name) = Hsx.Ident l $ getMonadConstant mon name
+             lookup mon (Hsx.Symbol l name) = Hsx.Symbol l $ getMonadConstant mon name
 
 getCurrentMonadDoSyntax :: ContextM (Maybe DoSyntax)
 getCurrentMonadDoSyntax =
@@ -242,7 +242,7 @@ liftGensym = ContextM . lift . lift
 -}
 runConversion' :: Customisations -> Adaption -> Ident_Env.GlobalE -> ContextM v -> (v, Context)
 runConversion' custs adapt env (ContextM m) =
-  Gensym.evalGensym 0 $ runStateT (runReaderT m custs) (initContext adapt env)
+  Gensym.evalGensym Gensym.countInit $ runStateT (runReaderT m custs) (initContext adapt env)
 
 {-|
   This function queries the given field in the context monad
@@ -299,10 +299,10 @@ die msg
   This function quits the conversion with an error providing the given error
   message and source location.
 -}
-dieWithLoc :: Hsx.SrcLoc -> String -> ContextM t
+dieWithLoc :: (){-Hsx.SrcLoc-} -> String -> ContextM t
 dieWithLoc loc msg 
     = do backtrace <- queryContext backtrace
-         error $ Hsx.srcloc2string loc ++ ": " ++ msg ++ "\n\n"
+         error $ {-Hsx.srcloc2string loc ++ ": " ++-} msg ++ "\n\n"
                    ++ "Backtrace:\n"
                    ++ concat (map (++ "\n\n") (reverse backtrace))
 {-|
@@ -320,20 +320,21 @@ pattern_match_exhausted str obj
   This function generates the auxiliary functions for the given Haskell
   data type declaration. This includes accessor functions and update functions
 -}
-generateRecordAux :: [Pragma] -> Hsx.Decl -> ContextM [Isa.Stmt]
-generateRecordAux pragmas (Hsx.DataDecl _loc _kind _context tyconN tyvarNs condecls _deriving)
+generateRecordAux :: [Pragma] -> Hsx.Decl () -> ContextM [Isa.Stmt]
+generateRecordAux pragmas (Hsx.DataDecl _loc _kind _context _declhead condecls _deriving)
         = let strip (Hsx.QualConDecl _loc _FIXME _context decl) = decl
               decls = map strip condecls
+              (tyconN, tyvarNs) = Hsx.split_declhead _declhead
           in do tyvars <- mapM (convert pragmas) tyvarNs
                 let vs = map (rpair []) tyvars
                 tycon <- convert pragmas tyconN
                 let dataTy = Isa.Type tycon (map Isa.TVar tyvars)
                 let fieldNames = concatMap extrFieldNames decls
-                fields <- mapM (liftM fromJust . lookupIdentifier_Constant . Hsx.UnQual) (nub fieldNames)
+                fields <- mapM (liftM fromJust . lookupIdentifier_Constant . Hsx.UnQual ()) (nub fieldNames)
                 let funBinds = map (mkAFunBinds (length decls) vs dataTy) fields
                       ++ map (mkUFunBinds (length decls) vs dataTy) fields
                 return funBinds
-              where extrFieldNames (Hsx.RecDecl conName fields) = map fst $ Hsx.flattenRecFields fields
+              where extrFieldNames (Hsx.RecDecl _ conName fields) = map fst $ Hsx.flattenRecFields fields
                     extrFieldNames _ = []
                     mkAFunBinds numCon vs dty (Ident_Env.Constant (Ident_Env.Field Ident_Env.LexInfo{Ident_Env.nameOf=fname, Ident_Env.typschemeOf=(_, fty)} constrs)) =
                         let binds = map (mkAFunBind fname) constrs
@@ -377,19 +378,20 @@ generateRecordAux pragmas (Hsx.DataDecl _loc _kind _context tyconN tyvarNs conde
   This function converts a Haskell data type declaration into a
   Isabelle data type definition .
 -}
-convertDataDecl :: [Pragma] -> Hsx.Decl -> ContextM (Isa.TypeSpec, [(Isa.Name, [Isa.Type])])
-convertDataDecl pragmas (Hsx.DataDecl _loc _kind _context tyconN tyvarNs condecls _deriving)
+convertDataDecl :: [Pragma] -> Hsx.Decl () -> ContextM (Isa.TypeSpec, [(Isa.Name, [Isa.Type])])
+convertDataDecl pragmas (Hsx.DataDecl _loc _kind _context _declhead condecls _deriving)
     = let strip (Hsx.QualConDecl _loc _FIXME _context decl) = decl
           decls = map strip condecls
+          (tyconN, tyvarNs) = Hsx.split_declhead _declhead
       in do tyvars <- mapM (convert pragmas) tyvarNs
             tycon  <- convert pragmas tyconN
             decls' <- mapM cnvt decls
             return $ (Isa.TypeSpec tyvars tycon, decls')
-              where cnvt (Hsx.ConDecl name types)
+              where cnvt (Hsx.ConDecl _ name types)
                         = do name'  <- convert pragmas name
                              tyvars <- mapM (convert pragmas) types
                              return $ (name', tyvars)
-                    cnvt (Hsx.RecDecl name fields) = 
+                    cnvt (Hsx.RecDecl _ name fields) = 
                         let types = map snd (Hsx.flattenRecFields fields)
                         in do name'  <- convert pragmas name
                               tyvars <- mapM (convert pragmas) types
@@ -428,7 +430,7 @@ lookupImports :: Isa.ThyName -> Ident_Env.GlobalE -> Customisations -> [Isa.ThyN
 lookupImports thy globalEnv custs
     = map (rename .(\(Ident_Env.Import name _ _) ->  Ident_Env.toIsa name))
         $ Ident_Env.lookupImports_OrLose (Ident_Env.fromIsa thy) globalEnv
-    where rename orig@(Isa.ThyName name) = case Config.getCustomTheory custs (Hsx.ModuleName name) of
+    where rename orig@(Isa.ThyName name) = case Config.getCustomTheory custs (Hsx.ModuleName () name) of
                                    Nothing -> orig
                                    Just ct -> getCustomTheoryName ct
 
@@ -449,37 +451,37 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
            auxCmds <- mapM (generateRecordAux pragmas) decls
            return (Isa.Datatype dataDefs : concat auxCmds)
   where 
-    isFunBind (Hsx.FunBind _) = True
+    isFunBind (Hsx.FunBind _ _) = True
     isFunBind _ = False
-    isDataDecl (Hsx.DataDecl _ _ _ _ _ _ _) = True
+    isDataDecl (Hsx.DataDecl _ _ _ _ _ _) = True
     isDataDecl _ = False
     splitFunCmd (Isa.Function (Isa.Function_Stmt kind [sig] eqs)) = (kind, sig, eqs)
 
-instance Convert Hsx.Module Isa.Stmt where
-    convert' pragmas (Hsx.Module loc modul _ _ _exports _imports decls)
+instance Convert (Hsx.Module ()) Isa.Stmt where
+    convert' pragmas (Hsx.Module loc _ _ _ _)
         = dieWithLoc loc "Internal Error: Each Hsx.Module should have been pre-converted to HskModule."
 
 
 --- Trivially convertable stuff.
 
-instance Convert Hsx.ModuleName Isa.ThyName where
+instance Convert (Hsx.ModuleName ()) Isa.ThyName where
     convert' pragmas m = return (Ident_Env.toIsa (Ident_Env.fromHsk m :: Ident_Env.ModuleID))
 
-instance Convert Hsx.Name Isa.Name where
+instance Convert (Hsx.Name ()) Isa.Name where
     convert' pragmas n = return (Ident_Env.toIsa (Ident_Env.fromHsk n :: Ident_Env.Name))
 
-instance Convert Hsx.QName Isa.Name where
+instance Convert (Hsx.QName ()) Isa.Name where
     convert' pragmas qn = return (Ident_Env.toIsa (Ident_Env.fromHsk qn :: Ident_Env.Name))
 
-instance Convert Hsx.Type Isa.Type where
-    convert' pragmas t @ (Hsx.TyForall _ _ _) = pattern_match_exhausted "Hsx.Type -> Isa.Type" t
+instance Convert (Hsx.Type ()) Isa.Type where
+    convert' pragmas t @ (Hsx.TyForall _ _ _ _) = pattern_match_exhausted "Hsx.Type () -> Isa.Type" t
     convert' pragmas t = return (Ident_Env.toIsa (Ident_Env.fromHsk t :: Ident_Env.Type))
 
-instance Convert Hsx.TyVarBind Isa.Name where
-    convert' pragmas (Hsx.KindedVar n _) = convert' pragmas n
-    convert' pragmas (Hsx.UnkindedVar n) = convert' pragmas n
+instance Convert (Hsx.TyVarBind ()) Isa.Name where
+    convert' pragmas (Hsx.KindedVar _ n _) = convert' pragmas n
+    convert' pragmas (Hsx.UnkindedVar _ n) = convert' pragmas n
 
-convert_type_sign :: Hsx.Name -> Hsx.Type -> Isa.TypeSign
+convert_type_sign :: Hsx.Name () -> Hsx.Type () -> Isa.TypeSign
 convert_type_sign n typ =
   let
     n' = Ident_Env.toIsa (Ident_Env.fromHsk n :: Ident_Env.Name)
@@ -488,33 +490,34 @@ convert_type_sign n typ =
     typ' = Ident_Env.toIsa e_typ
   in Isa.TypeSign n' vs' typ'
 
-instance Convert Hsx.QOp Isa.Term where
-    convert' pragmas (Hsx.QVarOp qname) = do qname' <- convert pragmas qname; return (Isa.Const qname')
-    convert' pragmas (Hsx.QConOp qname) = do qname' <- convert pragmas qname; return (Isa.Const qname')
-    -- convert' junk = pattern_match_exhausted "Hsx.QOp -> Isa.Term" junk
+instance Convert (Hsx.QOp ()) Isa.Term where
+    convert' pragmas (Hsx.QVarOp _ qname) = do qname' <- convert pragmas qname; return (Isa.Const qname')
+    convert' pragmas (Hsx.QConOp _ qname) = do qname' <- convert pragmas qname; return (Isa.Const qname')
+    -- convert' junk = pattern_match_exhausted "Hsx.QOp () -> Isa.Term" junk
 
-instance Convert Hsx.Op Isa.Name where
-    convert' pragmas (Hsx.VarOp qname) = convert pragmas qname
-    convert' pragmas (Hsx.ConOp qname) = convert pragmas qname
+instance Convert (Hsx.Op ()) Isa.Name where
+    convert' pragmas (Hsx.VarOp _ qname) = convert pragmas qname
+    convert' pragmas (Hsx.ConOp _ qname) = convert pragmas qname
     -- convert' junk = pattern_match_exhausted "HsOp -> Isa.Name" junk
 
-instance Convert Hsx.Literal Isa.Literal where
-    convert' pragmas (Hsx.Int i)      = return (Isa.Int i)
-    convert' pragmas (Hsx.Char ch)    = return (Isa.Char ch)
-    convert' pragmas (Hsx.String str) = return (Isa.String str)
+instance Convert (Hsx.Literal ()) Isa.Literal where
+    convert' pragmas (Hsx.Int _ i _)      = return (Isa.Int i)
+    convert' pragmas (Hsx.Char _ ch _)    = return (Isa.Char ch)
+    convert' pragmas (Hsx.String _ str _) = return (Isa.String str)
     convert' pragmas junk           = pattern_match_exhausted "HsLiteral -> Isa.Literal" junk
 
 
 --- Not so trivially convertable stuff.
 
-convertDecl :: [Pragma] -> Hsx.Decl -> ContextM [Isa.Stmt]
-convertDecl pragmas (Hsx.TypeDecl _loc tyconN tyvarNs typ)
-        = do tyvars <- mapM (convert pragmas) tyvarNs
+convertDecl :: [Pragma] -> Hsx.Decl () -> ContextM [Isa.Stmt]
+convertDecl pragmas (Hsx.TypeDecl _loc _declhead typ)
+        = let (tyconN, tyvarNs) = Hsx.split_declhead _declhead in
+          do tyvars <- mapM (convert pragmas) tyvarNs
              tycon  <- convert pragmas tyconN
              typ'   <- convert pragmas typ
              return [Isa.TypeSynonym [(Isa.TypeSpec tyvars tycon, typ')]]
                                 
-convertDecl pragmas decl@(Hsx.DataDecl _ _ _ _ _ _ _) = 
+convertDecl pragmas decl@(Hsx.DataDecl _ _ _ _ _ _) = 
         do dataDef <- convertDataDecl pragmas decl
            accCmds <- generateRecordAux pragmas decl
            return (Isa.Datatype [dataDef] : accCmds)
@@ -523,13 +526,13 @@ convertDecl pragmas (Hsx.InfixDecl _loc assoc prio ops)
         = do (assocs, prios) <- mapAndUnzipM (lookupInfixOp . toQOp) ops 
              assert (all (== assoc) assocs && all (== prio) prios) 
                $ return []
-        where toQOp (Hsx.VarOp n) = Hsx.QVarOp (Hsx.UnQual n)
-              toQOp (Hsx.ConOp n) = Hsx.QConOp (Hsx.UnQual n)
+        where toQOp (Hsx.VarOp _ n) = Hsx.QVarOp () (Hsx.UnQual () n)
+              toQOp (Hsx.ConOp _ n) = Hsx.QConOp () (Hsx.UnQual () n)
 
 convertDecl pragmas (Hsx.TypeSig _loc names typ)
         = do globalEnv <- queryContext globalEnv
              modul     <- queryContext currentModule
-             types     <- liftM catMaybes $ mapM (lookupType . Hsx.UnQual) names
+             types     <- liftM catMaybes $ mapM (lookupType . Hsx.UnQual ()) names
              assert (all (== typ) types) 
                $ return []
                          
@@ -545,11 +548,11 @@ convertDecl pragmas (Hsx.TypeSig _loc names typ)
     --            g n = n + g (n-1)       f x = g0 x                where                     
     --                                                                "f x = g0 x"            
     --
-convertDecl pragmas (Hsx.FunBind matchs)
+convertDecl pragmas (Hsx.FunBind _ matchs)
         = do let (names, patterns, bodies, wbinds) = unzip4 (map splitMatch matchs)
              assert (all (== head names) (tail names)) (return ())
              assert (all Preprocess.isEmptyBinds wbinds) (return ()) -- all decls are global at this point.
-             ftype <- lookupType (Hsx.UnQual (names !! 0)) -- as all names are equal, pick first one.
+             ftype <- lookupType (Hsx.UnQual () (names !! 0)) -- as all names are equal, pick first one.
              let name = names !! 0
              name' <- convert' pragmas name
              let n = name_of name
@@ -568,94 +571,107 @@ convertDecl pragmas (Hsx.FunBind matchs)
              thy        <- queryContext theory
              return [Isa.Function (Isa.Function_Stmt kind [fsig']
                (zip3 (repeat (Isa.name_of_type_sign fsig')) patterns' bodies''))]
-       where splitMatch (Hsx.Match _loc name patterns _ (Hsx.UnGuardedRhs body) wherebind)
+       where splitMatch (Hsx.Match _loc name patterns (Hsx.UnGuardedRhs _ body) wherebind)
                  = (name, patterns, body, wherebind)
-             name_of (Hsx.Ident n) = n
+             splitMatch (Hsx.InfixMatch _loc pattern name patterns (Hsx.UnGuardedRhs _ body) wherebind)
+                 = (name, pattern : patterns, body, wherebind)
+             name_of (Hsx.Ident _ n) = n
              name_of _ = ""
 
 convertDecl pragmas (Hsx.PatBind loc pattern rhs _wherebinds)
         = case pattern of
-            pat@(Hsx.PVar name) 
+            pat@(Hsx.PVar _ name) 
                 -> do name' <- convert pragmas name
                       (pat', aliases)  <- convert pragmas pat
                       rhs'  <- convert pragmas rhs
                       let rhs'' = mkSimpleLet aliases rhs'
-                      ftype <- lookupType (Hsx.UnQual name)
+                      ftype <- lookupType (Hsx.UnQual () name)
                       let sig' = case ftype of { 
                         Nothing -> Isa.TypeSign name' [] Isa.NoType;
                         Just typ -> convert_type_sign name typ }
                       return [Isa.Function (Isa.Function_Stmt Isa.Definition [sig'] [(name', [], rhs'')])]
             _   -> dieWithLoc loc (Msg.complex_toplevel_patbinding)
     
-convertDecl pragmas decl@(Hsx.ClassDecl _ ctx classN _ _ class_decls)
+convertDecl pragmas decl@(Hsx.ClassDecl _ ctx declhead _ class_decls)
         = check_class_decl decl
-            $ do let superclassNs   = Hsx.extractSuperclassNs ctx
+            $ do let (classN, _) = Hsx.split_declhead declhead
+                 let superclassNs   = Hsx.extractSuperclassNs ctx
                  superclassNs' <- mapM (convert pragmas) superclassNs
                  classN'       <- convert pragmas classN
-                 typesigs'     <- mapsM convertToTypeSig class_decls
+                 typesigs'     <- mapsM convertToTypeSig $ class_decls_list class_decls
                  return [Isa.Class classN' superclassNs' typesigs']
         where
-          check_class_decl (Hsx.ClassDecl loc ctx classN varNs fundeps decls) cont
-              | length varNs /= 1          = dieWithLoc loc (Msg.only_one_tyvar_in_class_decl)
-              | not (null fundeps)         = dieWithLoc loc (Msg.no_fundeps_in_class_decl)
-              | not (all isTypeSig decls)  = dieWithLoc loc (Msg.no_default_methods_in_class_decl)
-              | otherwise                  = cont
+          class_decls_list Nothing = []
+          class_decls_list (Just l) = l
+          check_class_decl (Hsx.ClassDecl loc ctx declhead fundeps decls) cont
+              | length (snd $ Hsx.split_declhead declhead) /= 1  = dieWithLoc loc (Msg.only_one_tyvar_in_class_decl)
+              | not (null fundeps)                               = dieWithLoc loc (Msg.no_fundeps_in_class_decl)
+              | not (all isTypeSig $ class_decls_list decls)     = dieWithLoc loc (Msg.no_default_methods_in_class_decl)
+              | otherwise                                        = cont
           isTypeSig decl = case decl of 
-                             Hsx.ClsDecl (Hsx.TypeSig _ _ _) -> True
-                             _                           -> False
-          convertToTypeSig (Hsx.ClsDecl (Hsx.TypeSig _ names typ))
+                             Hsx.ClsDecl _ (Hsx.TypeSig _ _ _) -> True
+                             _                                 -> False
+          convertToTypeSig (Hsx.ClsDecl _ (Hsx.TypeSig _ names typ))
                   = do names' <- mapM (convert pragmas) names
                        typ'   <- convert pragmas typ {-FIXME-}
                        return (map (\name' -> Isa.TypeSign name' [] typ') names')
 
-convertDecl pragmas (Hsx.InstDecl loc _ _ ctx cls [typ] stmts) = do
-    cls' <- convert pragmas cls
-    typ' <- convert pragmas typ
-    case dest_typ_tvars typ' of
-      Nothing -> dieWithLoc loc Msg.only_simple_instantiations
-      Just (tyco', vs') -> do
-        raw_arities <- mapM (convert_arity) (Hsx.dest_typcontext ctx)
-        let arities' = AList.make (the . AList.lookup raw_arities) vs';
-        identifier <- lookupIdentifier_Type cls
-        let classinfo = case fromJust identifier of
-                              Ident_Env.TypeDecl (Ident_Env.Class _ classinfo) -> classinfo
-                              t -> error $ "found:\n" ++ show t
-        let methods = Ident_Env.methodsOf classinfo
-        let classVarN = Ident_Env.classVarOf classinfo
-        let inst_envtype = Ident_Env.fromHsk typ
-        let tyannots = map (mk_method_annotation classVarN inst_envtype) methods
-        withUpdatedContext globalEnv (\e -> Ident_Env.augmentGlobalEnv e tyannots) $
-          do stmts' <- mapsM (convertDecl pragmas) (map toHsDecl stmts)
-             let fun_stmts' = map (\(Isa.Function fun_stmt) -> fun_stmt) stmts'
-             return [Isa.Instance cls' tyco' arities' fun_stmts']
-  where
-    dest_typ_tvars (Isa.Type tyco typs) = case perhaps_map dest_tvar typs of
-      Nothing -> Nothing
-      Just vs -> Just (tyco, vs)
-    dest_typ_tvars _ = Nothing
-    dest_tvar (Isa.TVar v) = Just v
-    dest_tvar _ = Nothing
-    convert_arity (v, sort) = do
-      v' <- convert pragmas v
-      sort' <- mapM (convert pragmas) sort
-      return (v', sort')
-    toHsDecl (Hsx.InsDecl decl) = decl
-    mk_method_annotation :: Ident_Env.Name -> Ident_Env.Type -> Ident_Env.Identifier -> Ident_Env.Identifier
-    mk_method_annotation tyvarN tycon class_method_annot
-        = assert (Ident_Env.isTypeAnnotation class_method_annot)
-            $ let lexinfo = Ident_Env.lexInfoOf class_method_annot
-                  (_, typ)     = Ident_Env.typschemeOf lexinfo
-                  typ'    = Ident_Env.substituteTyVars [(Ident_Env.TyVar tyvarN, tycon)] typ
-              in Ident_Env.Constant (Ident_Env.TypeAnnotation (lexinfo { Ident_Env.typschemeOf = ([], typ') }))
-convertDecl pragmas (Hsx.InstDecl loc _ _ ctx cls _ stmts) = dieWithLoc loc (Msg.only_one_tyvar_in_class_decl)
+convertDecl pragmas (Hsx.InstDecl loc _ instrule (Just stmts)) =
+  case get_instrule instrule of
+    (_, ctx, insthead) ->
+      case Hsx.split_insthead insthead of
+        (cls, [typ]) ->
+          do
+            cls' <- convert pragmas cls
+            typ' <- convert pragmas typ
+            case dest_typ_tvars typ' of
+              Nothing -> dieWithLoc loc Msg.only_simple_instantiations
+              Just (tyco', vs') -> do
+                raw_arities <- mapM (convert_arity) (case ctx of Nothing -> [] ; Just ctx -> Hsx.dest_typcontext ctx)
+                let arities' = AList.make (the . AList.lookup raw_arities) vs';
+                identifier <- lookupIdentifier_Type cls
+                let classinfo = case fromJust identifier of
+                                      Ident_Env.TypeDecl (Ident_Env.Class _ classinfo) -> classinfo
+                                      t -> error $ "found:\n" ++ show t
+                let methods = Ident_Env.methodsOf classinfo
+                let classVarN = Ident_Env.classVarOf classinfo
+                let inst_envtype = Ident_Env.fromHsk typ
+                let tyannots = map (mk_method_annotation classVarN inst_envtype) methods
+                withUpdatedContext globalEnv (\e -> Ident_Env.augmentGlobalEnv e tyannots) $
+                  do stmts' <- mapsM (convertDecl pragmas) (map toHsDecl stmts)
+                     let fun_stmts' = map (\(Isa.Function fun_stmt) -> fun_stmt) stmts'
+                     return [Isa.Instance cls' tyco' arities' fun_stmts']
+          where
+            dest_typ_tvars (Isa.Type tyco typs) = case perhaps_map dest_tvar typs of
+              Nothing -> Nothing
+              Just vs -> Just (tyco, vs)
+            dest_typ_tvars _ = Nothing
+            dest_tvar (Isa.TVar v) = Just v
+            dest_tvar _ = Nothing
+            convert_arity (v, sort) = do
+              v' <- convert pragmas v
+              sort' <- mapM (convert pragmas) sort
+              return (v', sort')
+            toHsDecl (Hsx.InsDecl _ decl) = decl
+            mk_method_annotation :: Ident_Env.Name -> Ident_Env.Type -> Ident_Env.Identifier -> Ident_Env.Identifier
+            mk_method_annotation tyvarN tycon class_method_annot
+                = assert (Ident_Env.isTypeAnnotation class_method_annot)
+                    $ let lexinfo = Ident_Env.lexInfoOf class_method_annot
+                          (_, typ)     = Ident_Env.typschemeOf lexinfo
+                          typ'    = Ident_Env.substituteTyVars [(Ident_Env.TyVar tyvarN, tycon)] typ
+                      in Ident_Env.Constant (Ident_Env.TypeAnnotation (lexinfo { Ident_Env.typschemeOf = ([], typ') }))
+        _ -> dieWithLoc loc (Msg.only_one_tyvar_in_class_decl)
 
 
-convertDecl pragmas junk = pattern_match_exhausted "Hsx.Decl -> Isa.Stmt" junk
+convertDecl pragmas junk = pattern_match_exhausted "Hsx.Decl () -> Isa.Stmt" junk
 
 
-instance Convert Hsx.Binds [Isa.Stmt] where
-    convert' pragmas (Hsx.BDecls decls) = mapsM (convertDecl pragmas) decls
-    convert' pragmas junk = pattern_match_exhausted "Hsx.Binds -> Isa.Stmt" junk
+get_instrule (Hsx.IRule _ t c h) = (t, c, h)
+get_instrule (Hsx.IParen _ r) = get_instrule r
+
+instance Convert (Hsx.Binds ()) [Isa.Stmt] where
+    convert' pragmas (Hsx.BDecls _ decls) = mapsM (convertDecl pragmas) decls
+    convert' pragmas junk = pattern_match_exhausted "Hsx.Binds () -> Isa.Stmt" junk
 
 mkList :: [Isa.Term] -> Isa.Term
 mkList = foldr
@@ -688,46 +704,46 @@ isInsideAsPattern = ask
 addAlias :: (Isa.Name, Isa.Term) -> PatternM ()
 addAlias = tell . (:[])
 
-convertPat :: [Pragma] -> Hsx.Pat -> PatternM Isa.Pat
-convertPat pragmas (Hsx.PVar name) = 
+convertPat :: [Pragma] -> Hsx.Pat () -> PatternM Isa.Pat
+convertPat pragmas (Hsx.PVar _ name) = 
     do name' <- liftConvert $ convert pragmas name
        return (Isa.Const name')
-convertPat pragmas (Hsx.PLit Hsx.Signless lit) = 
+convertPat pragmas (Hsx.PLit _ (Hsx.Signless _) lit) = 
     do lit' <- liftConvert $ convert pragmas lit
        return (Isa.Literal lit')
               
 convertPat pragmas infixapp@Hsx.PInfixApp{} = 
-    do (Hsx.PInfixApp p1 qname p2) <- liftConvert $ fixOperatorFixities' infixapp
+    do (Hsx.PInfixApp _ p1 qname p2) <- liftConvert $ fixOperatorFixities' infixapp
        p1' <- convertPat pragmas p1 
        qname'   <- liftConvert $ convert pragmas qname
        p2' <- convertPat pragmas p2
        return (Isa.App (Isa.App (Isa.Const qname') p1') p2')
 
-convertPat pragmas (Hsx.PApp qname pats) = 
+convertPat pragmas (Hsx.PApp _ qname pats) = 
     do qname' <- liftConvert $ convert pragmas qname
        pats' <- mapM (convertPat pragmas) pats
        return $ foldl Isa.App (Isa.Const qname') pats'
        
-convertPat pragmas (Hsx.PTuple Hsx.Boxed comps) = 
-    convertPat pragmas (foldr Hsx.hskPPair (Hsx.PParen (last comps)) (init comps))
+convertPat pragmas (Hsx.PTuple _ Hsx.Boxed comps) = 
+    convertPat pragmas (foldr Hsx.hskPPair (Hsx.PParen () (last comps)) (init comps))
 
-convertPat pragmas (Hsx.PList []) =
-    do list_datacon_name <- liftConvert $ convert pragmas (Hsx.Special Hsx.ListCon)
+convertPat pragmas (Hsx.PList _ []) =
+    do list_datacon_name <- liftConvert $ convert pragmas (Hsx.Special () (Hsx.ListCon ()))
        return (Isa.Const list_datacon_name)
 
-convertPat pragmas (Hsx.PList els) =
+convertPat pragmas (Hsx.PList _ els) =
     convertPat pragmas $ foldr Hsx.hskPCons Hsx.hskPNil els
 
-convertPat pragmas (Hsx.PParen pat) = 
+convertPat pragmas (Hsx.PParen _ pat) = 
     do pat' <- convertPat pragmas pat
        return (Isa.Parenthesized pat')
 
-convertPat pragmas (Hsx.PRec qname fields) = 
+convertPat pragmas (Hsx.PRec _ qname fields) = 
     do mbConstr <- liftConvert $ lookupIdentifier_Constant qname
        case mbConstr of
          Just (Ident_Env.Constant (Ident_Env.Constructor (Ident_Env.RecordConstr _ _ recFields))) -> 
              do isAs <- isInsideAsPattern
-                let fields' = map (\(Hsx.PFieldPat name pat) -> (Ident_Env.fromHsk name, pat)) fields
+                let fields' = map (\(Hsx.PFieldPat _ name pat) -> (Ident_Env.fromHsk name, pat)) fields
                     toSimplePat (Ident_Env.RecordField iden _) = 
                         case lookup iden fields' of
                           Nothing -> if isAs
@@ -740,12 +756,12 @@ convertPat pragmas (Hsx.PRec qname fields) =
                 return $ Isa.Parenthesized (foldl Isa.App (Isa.Const qname') recArgs)
          _ -> liftConvert . die $ "Record constructor " ++ Msg.quote qname ++ " is not declared in environment!"
 
-convertPat pragmas (Hsx.PAsPat name pat) = 
+convertPat pragmas (Hsx.PAsPat _ name pat) = 
     do name' <- liftConvert $ convert pragmas name
        pat' <- withAsPattern $ convertPat pragmas pat
        addAlias (name', pat')
        return pat'
-convertPat pragmas (Hsx.PWildCard) = 
+convertPat pragmas (Hsx.PWildCard _) = 
     do isAs <- isInsideAsPattern
        if isAs
          then liftConvert . liftGensym . liftM Isa.Const . liftM Isa.Name $
@@ -753,60 +769,60 @@ convertPat pragmas (Hsx.PWildCard) =
          else return (Isa.Const (Isa.Name "_"))
 
 convertPat pragmas junk = liftConvert $ pattern_match_exhausted 
-                  "Hsx.Pat -> Isa.Term" 
+                  "Hsx.Pat () -> Isa.Term" 
                   junk
-instance Convert Hsx.Pat (Isa.Pat, [(Isa.Name, Isa.Term)]) where
+instance Convert (Hsx.Pat ()) (Isa.Pat, [(Isa.Name, Isa.Term)]) where
     convert' pragmas  = runPatternM . convertPat pragmas 
 
-instance Convert Hsx.Rhs Isa.Term where
-    convert' pragmas (Hsx.UnGuardedRhs exp) = convert pragmas exp
+instance Convert (Hsx.Rhs ()) Isa.Term where
+    convert' pragmas (Hsx.UnGuardedRhs _ exp) = convert pragmas exp
     -- convert (Hsx.GuardedRhss rhss) ; FIXME
-    convert' pragmas junk = pattern_match_exhausted "Hsx.Rhs -> Isa.Term" junk
+    convert' pragmas junk = pattern_match_exhausted "Hsx.Rhs () -> Isa.Term" junk
 
-instance Convert Hsx.FieldUpdate (Isa.Name, Isa.Term) where
-    convert' pragmas (Hsx.FieldUpdate qname exp)
+instance Convert (Hsx.FieldUpdate ()) (Isa.Name, Isa.Term) where
+    convert' pragmas (Hsx.FieldUpdate _ qname exp)
         = do qname' <- convert pragmas qname
              exp'   <- convert pragmas exp
              return (qname', exp')
 
-instance Convert Hsx.Alt (Isa.Term, Isa.Term) where
-    convert' pragmas (Hsx.Alt _loc pat (Hsx.UnGuardedRhs exp) _wherebinds)
+instance Convert (Hsx.Alt ()) (Isa.Term, Isa.Term) where
+    convert' pragmas (Hsx.Alt _loc pat (Hsx.UnGuardedRhs _ exp) _wherebinds)
         = do (pat',aliases) <- convert pragmas pat
              exp' <- convert pragmas exp
              let exp'' = mkSimpleLet aliases exp'
              return (pat', exp'')
     convert' pragmas junk 
-        = pattern_match_exhausted "Hsx.Alt -> (Isa.Term, Isa.Term)" junk
+        = pattern_match_exhausted "Hsx.Alt () -> (Isa.Term, Isa.Term)" junk
 
 
-instance Convert Hsx.Exp Isa.Term where
-    convert' pragmas (Hsx.Lit lit)       = convert pragmas lit   >>= (\l -> return (Isa.Literal l))
-    convert' pragmas (Hsx.Var qname)     =
+instance Convert (Hsx.Exp ()) Isa.Term where
+    convert' pragmas (Hsx.Lit _ lit)       = convert pragmas lit   >>= (\l -> return (Isa.Literal l))
+    convert' pragmas (Hsx.Var _ qname)     =
         do qname' <- getCurrentMonadFunction qname
            convert pragmas qname' >>= (\n -> return (Isa.Const n))
-    convert' pragmas (Hsx.Con qname)     = convert pragmas qname >>= (\n -> return (Isa.Const n))
-    convert' pragmas (Hsx.Paren exp)     = convert pragmas exp   >>= (\e -> return (Isa.Parenthesized e))
-    -- convert' (Hsx.WildCard)      = return (Isa.Const (Isa.Name "_"))
-    convert' pragmas (Hsx.NegApp exp)    = convert pragmas (Hsx.hsk_negate exp)
+    convert' pragmas (Hsx.Con _ qname)     = convert pragmas qname >>= (\n -> return (Isa.Const n))
+    convert' pragmas (Hsx.Paren _ exp)     = convert pragmas exp   >>= (\e -> return (Isa.Parenthesized e))
+    -- convert' (Hsx.WildCard _)      = return (Isa.Const (Isa.Name "_"))
+    convert' pragmas (Hsx.NegApp _ exp)    = convert pragmas (Hsx.hsk_negate exp)
 
-    convert' pragmas (Hsx.List [])       = do
-      list_datacon_name <- convert pragmas (Hsx.Special Hsx.ListCon)
+    convert' pragmas (Hsx.List _ [])       = do
+      list_datacon_name <- convert pragmas (Hsx.Special () (Hsx.ListCon ()))
       return (Isa.Const list_datacon_name)
-    convert' pragmas (Hsx.List exps)
+    convert' pragmas (Hsx.List _ exps)
         = convert pragmas $ foldr Hsx.hsk_cons Hsx.hsk_nil exps
 
     -- We have to wrap the last expression in an explicit HsParen as that last
     -- expression may itself be a pair. If we didn't, we couldn't distinguish
     -- between "((1,2), (3,4))" and "((1,2), 3, 4)" afterwards anymore.
-    convert' pragmas (Hsx.Tuple Hsx.Boxed exps) = convert pragmas (foldr Hsx.hsk_pair (Hsx.Paren (last exps)) (init exps))
+    convert' pragmas (Hsx.Tuple _ Hsx.Boxed exps) = convert pragmas (foldr Hsx.hsk_pair (Hsx.Paren () (last exps)) (init exps))
 
-    convert' pragmas (Hsx.App exp1 exp2)
+    convert' pragmas (Hsx.App _ exp1 exp2)
         = do exp1' <- convert pragmas exp1
              exp2' <- withPossibleLift exp1 $ convert pragmas exp2
              return (Isa.App exp1' exp2')
 
-    convert' pragmas infixapp@(Hsx.InfixApp _ _ _)
-        = do (Hsx.InfixApp exp1 op exp2) <- fixOperatorFixities infixapp
+    convert' pragmas infixapp@(Hsx.InfixApp _ _ _ _)
+        = do (Hsx.InfixApp _ exp1 op exp2) <- fixOperatorFixities infixapp
              exp1' <- convert pragmas exp1 
              op'   <- convert pragmas op
              exp2' <- if isApp op
@@ -814,60 +830,60 @@ instance Convert Hsx.Exp Isa.Term where
                        else convert pragmas exp2
              return (mkInfixApp exp1' op' exp2')
         where 
-          uname (Hsx.Qual _ n) = n
-          uname (Hsx.UnQual n) = n
-          isApp (Hsx.QVarOp qname) =
+          uname (Hsx.Qual _ _ n) = n
+          uname (Hsx.UnQual _ n) = n
+          isApp (Hsx.QVarOp _ qname) =
               case uname qname of
-                Hsx.Ident _ -> False
-                Hsx.Symbol sym -> sym == "$"
+                Hsx.Ident _ _ -> False
+                Hsx.Symbol _ sym -> sym == "$"
           isApp _ = False
           mkInfixApp t1 op t2 = Isa.App (Isa.App op t1) t2
 
-    convert' pragmas (Hsx.LeftSection e qop)
+    convert' pragmas (Hsx.LeftSection _ e qop)
         = do e'   <- convert pragmas e
              qop' <- convert pragmas qop
              g    <- liftGensym (Gensym.genIsaName (Isa.Name "arg"))
              return (makeAbs [g] $ Isa.App (Isa.App qop' e') (Isa.Const g))
 
-    convert' pragmas (Hsx.RightSection qop e)
+    convert' pragmas (Hsx.RightSection _ qop e)
         = do e'   <- convert pragmas e
              qop' <- convert pragmas qop
              g <- liftGensym (Gensym.genIsaName (Isa.Name "arg"))
              return (makeAbs [g] $ Isa.App (Isa.App qop' (Isa.Const g)) e')
 
-    convert' pragmas (Hsx.RecConstr qname updates) = 
+    convert' pragmas (Hsx.RecConstr _ qname updates) = 
         do mbConstr <- lookupIdentifier_Constant qname
            case mbConstr of
              Just (Ident_Env.Constant (Ident_Env.Constructor (Ident_Env.RecordConstr _ _ recFields))) -> 
-                 let updates' = map (\(Hsx.FieldUpdate name exp) -> (Ident_Env.fromHsk name, exp)) updates
+                 let updates' = map (\(Hsx.FieldUpdate _ name exp) -> (Ident_Env.fromHsk name, exp)) updates
                      toSimplePat (Ident_Env.RecordField iden _) = 
                          case lookup iden updates' of
-                           Nothing -> Hsx.Var (Hsx.UnQual (Hsx.Ident "undefined"))
+                           Nothing -> Hsx.Var () (Hsx.UnQual () (Hsx.Ident () "undefined"))
                            Just exp -> exp
                      recArgs = map toSimplePat recFields
-                 in convert' pragmas $ foldl Hsx.App (Hsx.Con qname) recArgs
+                 in convert' pragmas $ foldl (Hsx.App ()) (Hsx.Con () qname) recArgs
              _ -> die $ "Record constructor " ++ Msg.quote qname ++ " is not declared in environment!"
 
-    convert' pragmas (Hsx.RecUpdate exp updates) = 
+    convert' pragmas (Hsx.RecUpdate _ exp updates) = 
         do exp' <- convert pragmas exp
            fstupd:upds <- mapM convUpd updates
            let updateFunction = Isa.Parenthesized (foldr comp fstupd upds)
            return $ Isa.App updateFunction exp'
        where comp a b = Isa.App (Isa.App (Isa.Const (Isa.Name "\\<circ>" {- FIXME use a lookup in the adaption table instead of the raw string -})) a) b
-             convUpd (Hsx.FieldUpdate fname fexp) =
+             convUpd (Hsx.FieldUpdate _ fname fexp) =
                                 do fexp' <- convert pragmas fexp
                                    let ufun = Isa.Const (Isa.Name ("update_" ++ unqual fname))
                                    return $ Isa.App ufun fexp'
-             unqual (Hsx.Qual _ n) = uname n
-             unqual (Hsx.UnQual n) = uname n
-             uname (Hsx.Ident n) = n
-             uname (Hsx.Symbol n) = n
+             unqual (Hsx.Qual _ _ n) = uname n
+             unqual (Hsx.UnQual _ n) = uname n
+             uname (Hsx.Ident _ n) = n
+             uname (Hsx.Symbol _ n) = n
 
-    convert' pragmas (Hsx.If t1 t2 t3)
+    convert' pragmas (Hsx.If _ t1 t2 t3)
         = do t1' <- convert pragmas t1; t2' <- convert pragmas t2; t3' <- convert pragmas t3
              return (Isa.If t1' t2' t3')
 
-    convert' pragmas (Hsx.Case exp alts)
+    convert' pragmas (Hsx.Case _ exp alts)
         = do exp'  <- convert pragmas exp
              alts' <- mapM (convert pragmas) alts
              return $ Isa.Case exp' alts'
@@ -883,7 +899,7 @@ instance Convert Hsx.Exp Isa.Term where
           where isConst (Isa.Const _)   = True
                 isConst _             = False
 
-    convert' pragmas expr@(Hsx.Let (Hsx.BDecls bindings) body)
+    convert' pragmas expr@(Hsx.Let _ (Hsx.BDecls _ bindings) body)
         = let (_, patbindings) = partition isTypeSig bindings
           in assert (all isPatBinding patbindings)
              $ do let (pats, rhss) = unzip (map (\(Hsx.PatBind _ pat rhs _) -> (pat, rhs)) patbindings)
@@ -895,16 +911,16 @@ instance Convert Hsx.Exp Isa.Term where
                   return (Isa.Let (zip pats' rhss'') body')
           where isTypeSig (Hsx.TypeSig _ _ _)      = True
                 isTypeSig _                      = False
-                isPatBinding (Hsx.PatBind _ _ _ (Just (Hsx.BDecls []))) = True
+                isPatBinding (Hsx.PatBind _ _ _ (Just (Hsx.BDecls _ []))) = True
                 isPatBinding (Hsx.PatBind _ _ _ Nothing)                = True
                 isPatBinding _                   = False
                 
-    convert' pragmas (Hsx.ListComp e stmts) 
+    convert' pragmas (Hsx.ListComp _ e stmts) 
         = do e'     <- convert pragmas e
              stmts' <- liftM concat $ mapM convertListCompStmt stmts
              return (Isa.ListCompr e' stmts')
-        where convertListCompStmt (Hsx.QualStmt (Hsx.Qualifier b))     = convert pragmas  b >>= (return . (:[]) . Isa.Guard)
-              convertListCompStmt (Hsx.QualStmt (Hsx.Generator _ p e)) = do
+        where convertListCompStmt (Hsx.QualStmt _ (Hsx.Qualifier _ b))     = convert pragmas  b >>= (return . (:[]) . Isa.Guard)
+              convertListCompStmt (Hsx.QualStmt _ (Hsx.Generator _ p e)) = do
                 (p',as) <- convert pragmas p
                 let gens = mkSimpleGens as
                 e' <- convert pragmas e
@@ -912,7 +928,7 @@ instance Convert Hsx.Exp Isa.Term where
               convertListCompStmt _
                   = die "Such statements not supported in List Comprehensions."
               mkSimpleGens = map (\(n,t) -> Isa.Generator (Isa.Const n, mkList [t]))
-    convert' pragmas (Hsx.Do stmts)
+    convert' pragmas (Hsx.Do _ stmts)
         = do isaStmts <- liftM concat $ mapM (convert pragmas) stmts
              mbDo <- getCurrentMonadDoSyntax
              case mbDo of
@@ -920,19 +936,19 @@ instance Convert Hsx.Exp Isa.Term where
                Just (DoParen pre post) -> 
                    return $ Isa.DoBlock pre isaStmts post
 
-    convert' pragmas junk = pattern_match_exhausted "Hsx.Exp -> Isa.Term" junk
+    convert' pragmas junk = pattern_match_exhausted "Hsx.Exp () -> Isa.Term" junk
 
-instance Convert Hsx.Stmt [Isa.DoBlockFragment] where
+instance Convert (Hsx.Stmt ()) [Isa.DoBlockFragment] where
 
     convert' pragmas (Hsx.Generator _ pat exp) = 
         do exp' <- convert pragmas exp
            (pat', aliases) <- convert pragmas pat
            aliases' <- mkDoLet pragmas aliases
            return (Isa.DoGenerator pat' exp' : aliases')
-    convert' pragmas (Hsx.Qualifier exp) = liftM ( (:[]) . Isa.DoQualifier) (convert pragmas exp)
-    convert' pragmas (Hsx.LetStmt binds) =
+    convert' pragmas (Hsx.Qualifier _ exp) = liftM ( (:[]) . Isa.DoQualifier) (convert pragmas exp)
+    convert' pragmas (Hsx.LetStmt _ binds) =
         case binds of
-          Hsx.BDecls [Hsx.PatBind _ pat (Hsx.UnGuardedRhs exp) _] ->
+          Hsx.BDecls _ [Hsx.PatBind _ pat (Hsx.UnGuardedRhs _ exp) _] ->
               do exp' <- convert pragmas exp
                  (pat', aliases) <- convert pragmas pat
                  aliases' <- mkDoLet pragmas aliases
@@ -942,7 +958,7 @@ instance Convert Hsx.Stmt [Isa.DoBlockFragment] where
           def -> pattern_match_exhausted "Hsx.Stmt -> Isa.DoBlockFragment" def
 
 mkReturn :: [Pragma] -> ContextM Isa.Term
-mkReturn pragmas = convert pragmas . Hsx.Var . Hsx.UnQual .Hsx.Ident $ "return"
+mkReturn pragmas = convert pragmas . Hsx.Var () . Hsx.UnQual () .Hsx.Ident () $ "return"
 
 mkDoLet :: [Pragma] -> [(Isa.Name, Isa.Term)] -> ContextM [Isa.DoBlockFragment]
 mkDoLet pragmas aliases = 
@@ -968,12 +984,12 @@ makeAbs varNs body
 makeTupleDataCon :: [Pragma] -> Int -> ContextM Isa.Term
 makeTupleDataCon pragmas n     -- n < 2  cannot happen (cf. Language.Haskell.Exts.Hsx.TupleCon)
     = assert (n > 2) $ -- n == 2, i.e. pairs, can and are dealt with by usual conversion.
-      do argNs  <- mapM (liftGensym . Gensym.genHsQName) (replicate n (Hsx.UnQual (Hsx.Ident "arg")))
-         args   <- return (map Hsx.Var argNs)
+      do argNs  <- mapM (liftGensym . Gensym.genHsQName) (replicate n (Hsx.UnQual () (Hsx.Ident () "arg")))
+         args   <- return (map (Hsx.Var ()) argNs)
          argNs' <- mapM (convert pragmas) argNs
-         args'  <- convert pragmas (Hsx.Tuple Hsx.Boxed args)
+         args'  <- convert pragmas (Hsx.Tuple () Hsx.Boxed args)
          return $ Isa.Parenthesized (makeAbs argNs' args')
-    where pair x y = Hsx.App (Hsx.App (Hsx.Con (Hsx.Special (Hsx.TupleCon Hsx.Boxed 2))) x) y
+    where pair x y = Hsx.App () (Hsx.App () (Hsx.Con () (Hsx.Special () (Hsx.TupleCon () Hsx.Boxed 2))) x) y
 
 {-|
   HOL does not support pattern matching directly within a lambda
@@ -996,16 +1012,16 @@ makePatternMatchingAbs patterns theBody
                      return $ Isa.Abs g (Isa.Case (Isa.Const g) [(pat, body)])
 
 
-makeRecordCmd :: [Pragma] -> Hsx.Name  -- ^type constructor
-              -> [Hsx.Name] -- ^type variable arguments to the constructor
-              -> [Hsx.ConDecl] -- ^a singleton list containing a record declaration
+makeRecordCmd :: [Pragma] -> Hsx.Name ()  -- ^type constructor
+              -> [Hsx.Name ()] -- ^type variable arguments to the constructor
+              -> [Hsx.ConDecl ()] -- ^a singleton list containing a record declaration
               -> ContextM Isa.Stmt   -- ^the resulting record declaration
-makeRecordCmd pragmas tyconN tyvarNs [Hsx.RecDecl name slots] -- cf. `isRecDecls'
+makeRecordCmd pragmas tyconN tyvarNs [Hsx.RecDecl _ name slots] -- cf. `isRecDecls'
     = do tycon  <- convert pragmas tyconN
          tyvars <- mapM (convert pragmas) tyvarNs
          slots' <- mapsM cnvSlot slots
          return $ Isa.Record (Isa.TypeSpec tyvars tycon) slots'
-    where cnvSlot (names, typ)
+    where cnvSlot (Hsx.FieldDecl _ names typ)
               = do names' <- mapM (convert pragmas) names
                    typ'   <- convert pragmas typ
                    return (zip names' (cycle [typ']))
@@ -1017,7 +1033,7 @@ makeRecordCmd pragmas tyconN tyvarNs [Hsx.RecDecl name slots] -- cf. `isRecDecls
   we gotta fix that up ourselves. (We also properly consider infix
   declarations to get user defined operator right.)
 -}
-fixOperatorFixities :: Hsx.Exp -> ContextM Hsx.Exp
+fixOperatorFixities :: Hsx.Exp () -> ContextM (Hsx.Exp ())
 
 -- Notice that `1 * 2 + 3 / 4' is parsed as `((1 * 2) + 3) / 4', i.e.
 -- 
@@ -1035,7 +1051,7 @@ fixOperatorFixities :: Hsx.Exp -> ContextM Hsx.Exp
 -- i.e. the e2 in `Hsx.InfixApp e1 op e2', can _never_ be a bare infix
 -- application that we might have to consider during fixup.
 --  
-fixOperatorFixities app@(Hsx.InfixApp (Hsx.InfixApp e1 op1 e2) op2 e3)
+fixOperatorFixities app@(Hsx.InfixApp _ (Hsx.InfixApp _ e1 op1 e2) op2 e3)
     -- We assume that `(e1, op1, e2)' is correct already
     -- and from above, we also know that `e3' cannot possibly
     -- interfere, so we just have to find the proper place of `op2'.
@@ -1045,13 +1061,13 @@ fixOperatorFixities app@(Hsx.InfixApp (Hsx.InfixApp e1 op1 e2) op2 e3)
          let assoc2 = normalizeAssociativity assoc2'
          case prio1 `compare` prio2 of
            GT -> return app
-           LT -> liftM (Hsx.InfixApp e1 op1) (fixOperatorFixities (Hsx.InfixApp e2 op2 e3))
+           LT -> liftM (Hsx.InfixApp () e1 op1) (fixOperatorFixities (Hsx.InfixApp () e2 op2 e3))
            EQ -> if assoc2 /= assoc1 then
                      die (Msg.assoc_mismatch op1 assoc1 op2 assoc2)
                  else case assoc2 of
-                        Hsx.AssocLeft  -> return app
-                        Hsx.AssocRight -> return (Hsx.InfixApp e1 op1 (Hsx.InfixApp e2 op2 e3))
-                        Hsx.AssocNone  -> die ("fixupOperatorFixities: Internal error " ++
+                        Hsx.AssocLeft _  -> return app
+                        Hsx.AssocRight _ -> return (Hsx.InfixApp () e1 op1 (Hsx.InfixApp () e2 op2 e3))
+                        Hsx.AssocNone _  -> die ("fixupOperatorFixities: Internal error " ++
                                                "(AssocNone should have already been normalized away.)")
 fixOperatorFixities nonNestedInfixApp = return nonNestedInfixApp
 
@@ -1062,21 +1078,21 @@ fixOperatorFixities nonNestedInfixApp = return nonNestedInfixApp
   we gotta fix that up ourselves. (We also properly consider infix
   declarations to get user defined operator right.)
 -}
-fixOperatorFixities' :: Hsx.Pat -> ContextM Hsx.Pat
-fixOperatorFixities' app@(Hsx.PInfixApp (Hsx.PInfixApp e1 op1 e2) op2 e3)
+fixOperatorFixities' :: Hsx.Pat () -> ContextM (Hsx.Pat ())
+fixOperatorFixities' app@(Hsx.PInfixApp _ (Hsx.PInfixApp _ e1 op1 e2) op2 e3)
     = do (assoc1', prio1)  <- lookupInfixOpName op1
          (assoc2', prio2)  <- lookupInfixOpName op2
          let assoc1 = normalizeAssociativity assoc1'
          let assoc2 = normalizeAssociativity assoc2'
          case prio1 `compare` prio2 of
            GT -> return app
-           LT -> liftM (Hsx.PInfixApp e1 op1) (fixOperatorFixities' (Hsx.PInfixApp e2 op2 e3))
+           LT -> liftM (Hsx.PInfixApp () e1 op1) (fixOperatorFixities' (Hsx.PInfixApp () e2 op2 e3))
            EQ -> if assoc2 /= assoc1 then
                      die (Msg.assoc_mismatch op1 assoc1 op2 assoc2)
                  else case assoc2 of
-                        Hsx.AssocLeft  -> return app
-                        Hsx.AssocRight -> return (Hsx.PInfixApp e1 op1 (Hsx.PInfixApp e2 op2 e3))
-                        Hsx.AssocNone  -> die ("fixupOperatorFixities: Internal error " ++
+                        Hsx.AssocLeft _  -> return app
+                        Hsx.AssocRight _ -> return (Hsx.PInfixApp () e1 op1 (Hsx.PInfixApp () e2 op2 e3))
+                        Hsx.AssocNone _  -> die ("fixupOperatorFixities: Internal error " ++
                                                "(AssocNone should have already been normalized away.)")
 fixOperatorFixities' nonNestedInfixApp = return nonNestedInfixApp
 
@@ -1084,15 +1100,15 @@ fixOperatorFixities' nonNestedInfixApp = return nonNestedInfixApp
 {-|
   Enforces left associativity as default.
 -}
-normalizeAssociativity :: Hsx.Assoc -> Hsx.Assoc
-normalizeAssociativity (Hsx.AssocNone) = Hsx.AssocLeft -- as specified in Haskell98.
+normalizeAssociativity :: Hsx.Assoc () -> Hsx.Assoc ()
+normalizeAssociativity (Hsx.AssocNone _) = Hsx.AssocLeft () -- as specified in Haskell98.
 normalizeAssociativity etc = etc
 
 {-|
   This function looks up the lexical information for the
   given constant identifier.
 -}
-lookupIdentifier_Constant :: Hsx.QName -> ContextM (Maybe Ident_Env.Identifier)
+lookupIdentifier_Constant :: Hsx.QName () -> ContextM (Maybe Ident_Env.Identifier)
 lookupIdentifier_Constant qname
     = do globalEnv <- queryContext globalEnv
          modul     <- queryContext currentModule
@@ -1111,7 +1127,7 @@ lookupIdentifier_Type' envName
   This function looks up the lexical information for the given
   type identifier.
 -}
-lookupIdentifier_Type :: Hsx.QName -> ContextM (Maybe Ident_Env.Identifier)
+lookupIdentifier_Type :: Hsx.QName () -> ContextM (Maybe Ident_Env.Identifier)
 lookupIdentifier_Type qname
     = do globalEnv <- queryContext globalEnv
          modul     <- queryContext currentModule
@@ -1121,15 +1137,15 @@ lookupIdentifier_Type qname
   This function looks up the fixity declaration for the given
   infix operator.
 -}
-lookupInfixOp :: Hsx.QOp -> ContextM (Hsx.Assoc, Int)
+lookupInfixOp :: Hsx.QOp () -> ContextM (Hsx.Assoc (), Maybe Int)
 lookupInfixOp = lookupInfixOpName . qop2name
-    where qop2name (Hsx.QVarOp n) = n
-          qop2name (Hsx.QConOp n) = n
+    where qop2name (Hsx.QVarOp _ n) = n
+          qop2name (Hsx.QConOp _ n) = n
 {-|
   This function looks up the fixity declaration for the given
   infix operator.
 -}
-lookupInfixOpName :: Hsx.QName -> ContextM (Hsx.Assoc, Int)
+lookupInfixOpName :: Hsx.QName () -> ContextM (Hsx.Assoc (), Maybe Int)
 lookupInfixOpName qname
     = do identifier <- lookupIdentifier_Constant (qname)
          case identifier of
@@ -1137,15 +1153,15 @@ lookupInfixOpName qname
                    -> return (Ident_Env.toHsk envassoc, prio)
            Nothing -> do globalEnv <- queryContext globalEnv;
                          warn (Msg.missing_infix_decl qname globalEnv)
-                         return (Hsx.AssocLeft, 9) -- default values in Haskell98
-    where qop2name (Hsx.QVarOp n) = n
-          qop2name (Hsx.QConOp n) = n
+                         return (Hsx.AssocLeft (), Just 9) -- default values in Haskell98
+    where qop2name (Hsx.QVarOp _ n) = n
+          qop2name (Hsx.QConOp _ n) = n
 
 
 {-|
   This function looks up the type for the given identifier.
 -}
-lookupType :: Hsx.QName -> ContextM (Maybe Hsx.Type)
+lookupType :: Hsx.QName () -> ContextM (Maybe (Hsx.Type ()))
 lookupType fname = do
   identifier <- lookupIdentifier_Constant fname
   case identifier of
@@ -1161,7 +1177,7 @@ lookupType fname = do
   This data structure combines several Haskell modules and the corresponding environment.
   into one coherent unit.
 -}
-type HskModulePragma = (Hsx.Module, [Hsx.UnknownPragma])
+type HskModulePragma = (Hsx.Module Hsx.SrcLoc, [Hsx.UnknownPragma])
 data HskUnit = HskUnit [HskModulePragma] CustomTranslations Ident_Env.GlobalE
   deriving (Show)
 
@@ -1175,14 +1191,14 @@ data IsaUnit = IsaUnit [Isa.Module] [CustomTheory] Ident_Env.GlobalE
 newtype Conversion a = Conversion (ReaderT Config IO a)
     deriving (Functor, Applicative, Monad, MonadReader Config, MonadIO, MonadError IOError)
 
-isCustomModule :: Hsx.ModuleName -> Conversion Bool
+isCustomModule :: Hsx.ModuleName () -> Conversion Bool
 isCustomModule
     = liftM isJust . getCustomTheory
 
 getCustomisations :: Conversion Customisations
 getCustomisations = ask >>= return . customisations
 
-getCustomTheory :: Hsx.ModuleName -> Conversion (Maybe CustomTheory)
+getCustomTheory :: Hsx.ModuleName () -> Conversion (Maybe CustomTheory)
 getCustomTheory mod =
     ask >>= return . (`Config.getCustomTheory` mod) . customisations
 
@@ -1267,18 +1283,18 @@ cyclesFromGraph graph
 -}
 makeDependencyGraph ::  [HskModulePragma]
                     -> Conversion (Graph,
-                          Vertex -> (HskModulePragma, Hsx.ModuleName, [Hsx.ModuleName]),
-                          Hsx.ModuleName -> Maybe Vertex)
+                          Vertex -> (HskModulePragma, Hsx.ModuleName (), [Hsx.ModuleName ()]),
+                          Hsx.ModuleName () -> Maybe Vertex)
 makeDependencyGraph hsmodules
     = do edges <- (mapM makeEdge hsmodules)
          return $ graphFromEdges edges
-    where makeEdge hsmodule@(Hsx.Module _loc modul _ _ _exports imports _decls, _)
-              = do let imported_modules = map Hsx.importModule imports
+    where makeEdge hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ modul _ _)) _ imports _, _)
+              = do let imported_modules = map (Hsx.importModule . Hsx.fmapUnit) imports
                    imported_modules'  <- filterM isCustomModule imported_modules
-                   return (hsmodule, modul, imported_modules)
+                   return (hsmodule, Hsx.fmapUnit modul, imported_modules)
 
 
-type ModuleImport = (FilePath, Maybe Hsx.ModuleName)
+type ModuleImport = (FilePath, Maybe (Hsx.ModuleName ()))
 
 data GrovelS = GrovelS{gVisitedPaths :: Set FilePath,
                        gRemainingPaths :: [ModuleImport],
@@ -1296,8 +1312,8 @@ liftConv = GrovelM . lift
 checkVisited :: FilePath -> GrovelM Bool
 checkVisited path = liftM (Set.member path . gVisitedPaths) get
                     
-addModule :: HskModulePragma -> GrovelM ()
-addModule mod@(Hsx.Module loc _ _ _ _ _ _, _)
+addModule :: Hsx.SrcLoc -> HskModulePragma -> GrovelM ()
+addModule loc mod
     = modify (\ state@(GrovelS{gVisitedPaths = visited, gParsedModules = mods}) -> 
               state{gVisitedPaths = Set.insert (Hsx.srcFilename loc)  visited, gParsedModules = mod:mods})
 
@@ -1309,7 +1325,7 @@ addImports imps = modify (\state@(GrovelS{gRemainingPaths = files}) -> state{gRe
   is it is added to the set of custom modules in the state and @True@
   is returned. Otherwise just @False@ is returned.
 -}       
--- addCustMod :: Hsx.ModuleName -> GrovelM Bool
+-- addCustMod :: Hsx.ModuleName () -> GrovelM Bool
 addCustMod mod =
     do state <- get
        mbCustThy <- liftConv $ getCustomTheory mod
@@ -1322,7 +1338,7 @@ addCustMod mod =
 {-|
   Same as 'addCustMod' but @True@ and @False@ are swapped.
 -}
-addCustMod' :: Hsx.ModuleName -> GrovelM Bool 
+addCustMod' :: Hsx.ModuleName () -> GrovelM Bool 
 addCustMod' = liftM not . addCustMod
                    
 nextImport :: GrovelM (Maybe ModuleImport)
@@ -1355,14 +1371,14 @@ grovelFile imp@(file,_) =
     do v <- checkVisited file
        if v 
         then grovelImports
-        else do mod@(Hsx.Module _ name _ _ _ _ _, _) <- parseHskFile imp
-                cust <- addCustMod name
+        else do (loc, mod@(Hsx.Module _ (Just (Hsx.ModuleHead _ name _ _)) _ _ _, _)) <- parseHskFile imp
+                cust <- addCustMod $ Hsx.fmapUnit name
                 if cust then grovelImports
-                 else addModule mod
-                      >> grovelModule mod
+                 else addModule loc mod
+                      >> grovelModule loc (case mod of (m, u) -> (Hsx.fmapUnit m, u))
 
--- grovelModule :: Hsx.ModuleName -> GrovelM ()
-grovelModule hsmodule@(Hsx.Module loc baseMod _ _ _ imports _, _) = 
+-- grovelModule :: Hsx.ModuleName () -> GrovelM ()
+grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ imports _, _) = 
     do let newModules = map Hsx.importModule imports
        realModules <- filterM addCustMod' newModules
        let modImps = map mkModImp realModules
@@ -1381,9 +1397,9 @@ grovelModule hsmodule@(Hsx.Module loc baseMod _ _ _ imports _, _) =
   This function computes the path where to look for an imported module.
 -}
 
-computeSrcPath :: Hsx.ModuleName      -- ^the module that is importing
+computeSrcPath :: Hsx.ModuleName ()      -- ^the module that is importing
                -> FilePath     -- ^the path to the importing module
-               -> Hsx.ModuleName       -- ^the module that is to be imported
+               -> Hsx.ModuleName ()       -- ^the module that is to be imported
                -> FilePath     -- ^the assumed path to the module to be imported
 computeSrcPath importingMod basePath m
     = let curDir = takeDirectory basePath
@@ -1398,19 +1414,20 @@ shrinkPath = joinPath . shrinkPath' . splitPath
               | x /= "/" && y `elem` ["..", "../"] = shrinkPath' xs
               | otherwise = x : shrinkPath' (y:xs)
     
-parseHskFile :: ModuleImport -> GrovelM HskModulePragma
+parseHskFile :: ModuleImport -> GrovelM (Hsx.SrcLoc, HskModulePragma)
 parseHskFile (file, mbMod)  = 
     do result <- liftIO $ Hsx.parseFileWithCommentsAndPragmas (Hsx.defaultParseMode { Hsx.extensions = [Hsx.EnableExtension Hsx.ExplicitForAll], Hsx.parseFilename = file }) file `catchIO`
                 (\ioError -> fail $ "An error occurred while reading module file \"" ++ file ++ "\": " ++ show ioError)
        case result of
          (Hsx.ParseFailed loc msg) ->
              fail $ "An error occurred while parsing module file: " ++ Msg.failed_parsing loc msg
-         (Hsx.ParseOk (m@(Hsx.Module _ mName _ _ _ _ _), _, pragma)) ->
+         (Hsx.ParseOk (m@(Hsx.Module loc (Just (Hsx.ModuleHead _ mName _ _)) _ _ _), _, pragma)) ->
+             let m' = fmap Hsx.getPointLoc m in
              case mbMod of
-               Nothing -> return (m, pragma)
+               Nothing -> return (Hsx.getPointLoc loc, (m', pragma))
                Just expMod ->
-                   if mName == expMod
-                   then return (m, pragma)
+                   if Hsx.fmapUnit mName == expMod
+                   then return (Hsx.getPointLoc loc, (m', pragma))
                    else fail $ "Name mismatch: Name of imported module in \"" 
-                            ++ file ++"\" is " ++ Hsx.showModuleName mName
+                            ++ file ++"\" is " ++ Hsx.showModuleName (Hsx.fmapUnit mName)
                                    ++ ", expected was " ++ Hsx.showModuleName expMod
