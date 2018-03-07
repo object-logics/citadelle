@@ -17,6 +17,7 @@ module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFile
 
 import Importer.Library
 import qualified Importer.AList as AList
+import qualified Data.Generics as G
 import Data.List (nub, unzip4, partition)
 import Data.Maybe
 import qualified Data.Set as Set hiding (Set)
@@ -446,16 +447,24 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
            let (kinds, sigs, eqs) = unzip3 (map splitFunCmd funcmds)
            let kind = if any (== Isa.Function_Sorry) kinds then Isa.Function_Sorry else Isa.Fun
            return [Isa.Function (Isa.Function_Stmt kind sigs (flat eqs))]
-  | isDataDecl decl = assert (all isDataDecl decls)
-      $ do dataDefs <- mapM (convertDataDecl pragmas) decls
-           auxCmds <- mapM (generateRecordAux pragmas) decls
-           return (Isa.Datatype dataDefs : concat auxCmds)
+  | otherwise = 
+        let (decls', tydecls) = partition isDataDecl decls
+            decls'' = G.everywhere (G.mkT $ replaceTy (map (\(Hsx.TypeDecl _ (Hsx.DHead _ i) ty) -> (i, ty)) tydecls)) decls' in
+        do
+           dataDefs <- mapM (convertDataDecl pragmas) decls''
+           auxCmds <- mapM (generateRecordAux pragmas) decls''
+           tyDefs <- mapM (\x -> convertDependentDecls pragmas $ HskDependentDecls [x]) tydecls
+           return (Isa.Datatype dataDefs : concat (auxCmds ++ tyDefs))
   where 
     isFunBind (Hsx.FunBind _ _) = True
     isFunBind _ = False
     isDataDecl (Hsx.DataDecl _ _ _ _ _ _) = True
     isDataDecl _ = False
     splitFunCmd (Isa.Function (Isa.Function_Stmt kind [sig] eqs)) = (kind, sig, eqs)
+    replaceTy :: [(Hsx.Name (), Hsx.Type ())] -> Hsx.Type () -> Hsx.Type ()
+    replaceTy tydecls t = case t of Hsx.TyCon _ (Hsx.UnQual _ i) -> maybe t id $ AList.lookup tydecls i
+                                    _                            -> G.gmapT (G.mkT $ replaceTy tydecls) t
+
 
 instance Convert (Hsx.Module ()) Isa.Stmt where
     convert' pragmas (Hsx.Module loc _ _ _ _)
