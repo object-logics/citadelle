@@ -336,7 +336,7 @@ boundNamesEnv = Env.mkE fromExp
                 in Env.Envs [bound]
           fromExp (Hsx.ListComp _ stmts)
               = let bound = Set.fromList $ extractBindingNs stmts
-                in Env.Envs [bound, Set.empty]
+                in Env.Envs [bound, bound]
           fromExp exp = Env.uniEloc exp Set.empty
                             
           fromAlt :: Hsx.Alt -> HskNames
