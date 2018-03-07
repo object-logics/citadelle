@@ -1,0 +1,3 @@
+session "Regression" = "HOL" +
+  options [document = false, quick_and_dirty = true]
+  theories Regression
