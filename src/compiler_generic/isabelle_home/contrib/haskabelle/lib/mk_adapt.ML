@@ -56,13 +56,13 @@ fun mk_constentry thy (hs, raw_isa) =
   let
     val isa = check_const thy raw_isa;
     val syn = Syntax.guess_infix (Sign.syn_of thy) (Lexicon.mark_const isa);
-    val source_content = translate_string (fn "\\" => "\\\\" | s => s);
+    val source_content = translate_string (fn "\\" => "\\\\" | s => s) o Input.source_content;
     fun string_of_syn NONE = (isa, "Function")
-      | string_of_syn (SOME (Infix (s, j))) =
+      | string_of_syn (SOME (Infix (s, j, _))) =
           (source_content s, enclose "(" ")" ("InfixOp NoneAssoc " ^ string_of_int j))
-      | string_of_syn (SOME (Infixl (s, j))) = 
+      | string_of_syn (SOME (Infixl (s, j, _))) = 
           (source_content s, enclose "(" ")" ("InfixOp LeftAssoc " ^ string_of_int j))
-      | string_of_syn (SOME (Infixr (s, j))) = 
+      | string_of_syn (SOME (Infixr (s, j, _))) = 
           (source_content s, enclose "(" ")" ("InfixOp RightAssoc " ^ string_of_int j))
       | string_of_syn _ = raise Match;
     val (sym, syn') = string_of_syn syn;
@@ -81,7 +81,7 @@ val constsN = "consts";
 
 val adapt_keywords =
   let
-    val entries = map (fn s => ((s, Position.none), NONE))
+    val entries = map (fn s => ((s, Position.none), Keyword.no_spec))
       [classesN, superclassN, parameterN, typesN, constsN];
   in Keyword.add_keywords entries Keyword.empty_keywords end;
 
@@ -101,7 +101,6 @@ fun adapt thy = (
   || consts thy) >> (space_implode ",\n  " #> enclose "[" "]");
 
 fun convert thy pos = Source.of_string
-  #> Symbol.source
   #> Token.source adapt_keywords pos
   #> Token.source_proper
   #> Source.source Token.stopper (Scan.single (Scan.error (Parse.!!! (adapt thy))))
