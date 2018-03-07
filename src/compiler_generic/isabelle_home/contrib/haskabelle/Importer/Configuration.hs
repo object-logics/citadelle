@@ -40,7 +40,7 @@ import Data.List
 import Data.Map (Map)
 import qualified Data.Map as Map hiding (Map)
 
-import Control.Monad.Error (catchError)
+import Control.Monad.Except (catchError)
 
 import Text.XML.Light hiding (findAttr)
 import qualified Text.XML.Light as XML

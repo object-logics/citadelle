@@ -32,6 +32,7 @@ import qualified Importer.Gensym as Gensym
 import qualified Importer.Env as Env
 
 import qualified Language.Haskell.Exts as Hsx
+import qualified Language.Haskell.Exts.SrcLoc as HsxL
 
 
 {-|
@@ -118,14 +119,14 @@ hsk_cons x y        = Hsx.App (Hsx.App (Hsx.Con (Hsx.Special Hsx.Cons)) x) y
   the pair constructor @(,)@ to them.
 -}
 hskPPair :: Hsx.Pat -> Hsx.Pat -> Hsx.Pat
-hskPPair x y = Hsx.PApp (Hsx.Special (Hsx.TupleCon 2)) [x, y]
+hskPPair x y = Hsx.PApp (Hsx.Special (Hsx.TupleCon Hsx.Boxed 2)) [x, y]
 
 {-|
   The Haskell pair constructor. This function takes two Haskell expressions and applies
   the pair constructor @(,)@ to them.
 -}
 hsk_pair :: Hsx.Exp -> Hsx.Exp -> Hsx.Exp
-hsk_pair x y        = Hsx.App (Hsx.App (Hsx.Con (Hsx.Special (Hsx.TupleCon 2))) x) y
+hsk_pair x y        = Hsx.App (Hsx.App (Hsx.Con (Hsx.Special (Hsx.TupleCon Hsx.Boxed 2))) x) y
 
 {-|
   The Haskell logical negation. This function takes a Haskell expression and applies
@@ -152,7 +153,7 @@ hsk_lambda = Hsx.Lambda
 -}
 hsk_case :: Hsx.SrcLoc -> Hsx.Exp -> [(Hsx.Pat, Hsx.Exp)] -> Hsx.Exp
 hsk_case loc e cases
-    = Hsx.Case e [ Hsx.Alt loc pat (Hsx.UnGuardedAlt exp) (Hsx.BDecls []) | (pat, exp) <- cases ]
+    = Hsx.Case e [ Hsx.Alt loc pat (Hsx.UnGuardedRhs exp) (Hsx.BDecls []) | (pat, exp) <- cases ]
 
 {-|
   This function turns a string into a Haskell name. Depending on the
@@ -172,6 +173,13 @@ string2Name string = case isSymbol string of
 srcloc2string :: Hsx.SrcLoc -> String
 srcloc2string (Hsx.SrcLoc { Hsx.srcFilename=filename, Hsx.srcLine=line, Hsx.srcColumn=column })
     = filename ++ ":" ++ (show line) ++ ":" ++ (show column)
+
+srcspan2string :: HsxL.SrcSpan -> String
+srcspan2string (HsxL.SrcSpan { HsxL.srcSpanFilename=filename, HsxL.srcSpanStartLine=line1, HsxL.srcSpanStartColumn=column1, HsxL.srcSpanEndLine=line2, HsxL.srcSpanEndColumn=column2 })
+    = "(" ++ srcloc2string (Hsx.SrcLoc { Hsx.srcFilename=filename, Hsx.srcLine=line1, Hsx.srcColumn=column1 })
+          ++ ", "
+          ++ srcloc2string (Hsx.SrcLoc { Hsx.srcFilename=filename, Hsx.srcLine=line2, Hsx.srcColumn=column2 })
+          ++ ")"
 
 {-|
   This function computes the relative file path to the given module name.
@@ -205,10 +213,12 @@ isHaskellSourceFile fp = map Char.toLower (last (slice (== '.') fp)) == "hs"
 extractSuperclassNs :: Hsx.Context -> [Hsx.QName]
 extractSuperclassNs ctx = map extract ctx
     where extract (Hsx.ClassA qn _) = qn
+          extract (Hsx.ParenA a) = extract a
 
 dest_typcontext :: Hsx.Context -> [(Hsx.Name, [Hsx.QName])]
 dest_typcontext ctx = AList.group (maps dest_entry ctx) where
   dest_entry (Hsx.ClassA cls typs) = [ (v, cls) | v <- map dest_tyvar typs ]
+  dest_entry (Hsx.ParenA a) = dest_entry a
   dest_tyvar (Hsx.TyVar v) = v
 
 {-|
@@ -230,13 +240,13 @@ namesFromDecl :: Hsx.Decl -> [Hsx.QName]
 namesFromDecl (Hsx.TypeDecl _ name _ _)        = [Hsx.UnQual name]
 namesFromDecl (Hsx.DataDecl _ _ _ name _ _ _)  = [Hsx.UnQual name]
 namesFromDecl (Hsx.ClassDecl _ _ name _ _ _)   = [Hsx.UnQual name]
-namesFromDecl (Hsx.InstDecl _ _ qname _ _)     = [qname]
+namesFromDecl (Hsx.InstDecl _ _ _ _ qname _ _)     = [qname]
 namesFromDecl (Hsx.TypeSig _ names _)          = map Hsx.UnQual names
 namesFromDecl (Hsx.InfixDecl _ _ _ ops)        = [Hsx.UnQual n | n <- (universeBi ops :: [Hsx.Name])]
-namesFromDecl (Hsx.PatBind _ pat _ _ _)        = bindingsFromPats [pat]
+namesFromDecl (Hsx.PatBind _ pat _ _)        = bindingsFromPats [pat]
 namesFromDecl (Hsx.FunBind (Hsx.Match _ fname _ _ _ _ : ms ))
                                                = [Hsx.UnQual fname]
-namesFromDecl (Hsx.UnknownDeclPragma _ _ _) = []
+--namesFromDecl (Hsx.UnknownDeclPragma _ _ _) = []
 namesFromDecl decl                           = error $ "Internal error: The given declaration " ++ show decl ++ " is not supported!"
 
 {-|
@@ -274,6 +284,9 @@ instance HasBindings Hsx.Stmt where
     extractBindingNs (Hsx.Generator _ pat exp) = extractBindingNs pat
     extractBindingNs (Hsx.LetStmt binds)       = extractBindingNs binds
 
+instance HasBindings Hsx.QualStmt where
+    extractBindingNs (Hsx.QualStmt stmt) = extractBindingNs stmt
+    extractBindingNs _                   = []
 
 
 {-|
@@ -297,7 +310,7 @@ bindingsFromDecls decls = assert (not (has_duplicates bindings)) bindings
 
 type HskNames = Set Hsx.QName
 newtype BindingM a = BindingM (Reader HskNames a)
-    deriving (Monad, MonadReader HskNames, Functor)
+    deriving (Monad, MonadReader HskNames, Functor, Applicative)
 
 runBindingM :: BindingM a -> a
 runBindingM (BindingM m) = runReader m Set.empty
@@ -343,7 +356,7 @@ boundNamesEnv = Env.mkE fromExp
           fromAlt (Hsx.Alt _ pat _ _) = Set.fromList $ extractBindingNs pat
 
           fromDecl :: Hsx.Decl -> HskNames
-          fromDecl (Hsx.PatBind _ _ _ _ whereBinds) = Set.fromList $
+          fromDecl (Hsx.PatBind _ _ _ whereBinds) = Set.fromList $
                                                        extractBindingNs whereBinds
           fromDecl _ = Set.empty
 
@@ -426,6 +439,8 @@ extractTypeConNs node = everything Set.union (mkQ Set.empty fromType) node where
   fromType (Hsx.TyFun typ1 typ2) = Set.union (fromType typ1) (fromType typ2)
   fromType (Hsx.TyForall _ _ typ)  = fromType typ
   fromType (Hsx.TyApp typ1 typ2) = Set.union (fromType typ1) (fromType typ2)
+  fromType (Hsx.TyParen typ) = fromType typ
+  fromType (Hsx.TyList typ) = fromType (Hsx.TyApp (Hsx.TyCon (Hsx.Special Hsx.ListCon)) typ)
   fromType typ = error ("extractTypeConNs: bad type " ++ show typ)
 
 {-|
@@ -550,8 +565,7 @@ renamePat :: [Renaming] -> Hsx.Pat -> Hsx.Pat
 renamePat renams pat
     = case pat of
         Hsx.PVar name                 -> Hsx.PVar (translate renams name)
-        Hsx.PLit lit                  -> Hsx.PLit lit
-        Hsx.PNeg pat                  -> Hsx.PNeg (renamePat renams pat)
+        Hsx.PLit s lit                -> Hsx.PLit s lit
         Hsx.PInfixApp pat1 qname pat2 -> Hsx.PInfixApp pat1' qname' pat2'
             where pat1'  = renamePat renams pat1 
                   qname' = qtranslate renams qname
@@ -559,7 +573,7 @@ renamePat renams pat
         Hsx.PApp qname pats           -> Hsx.PApp qname' pats'
             where qname' = qtranslate renams qname
                   pats'  = map (renamePat renams) pats
-        Hsx.PTuple pats               -> Hsx.PTuple (map (renamePat renams) pats)
+        Hsx.PTuple b pats             -> Hsx.PTuple b (map (renamePat renams) pats)
         Hsx.PList  pats               -> Hsx.PList (map (renamePat renams) pats)
         Hsx.PParen pat                -> Hsx.PParen (renamePat renams pat)
         Hsx.PWildCard                 -> Hsx.PWildCard
@@ -581,8 +595,8 @@ renameDecl renamings decl =
           -> Hsx.TypeSig loc (map (translate renamings) names) typ
       Hsx.FunBind matches
           -> Hsx.FunBind (map renMatch matches)
-      Hsx.PatBind loc pat some_typ rhs binds 
-          -> Hsx.PatBind loc (renamePat renamings pat) some_typ rhs binds
+      Hsx.PatBind loc pat rhs binds 
+          -> Hsx.PatBind loc (renamePat renamings pat) rhs binds
       _ -> decl
     where renMatch :: Hsx.Match -> Hsx.Match
           renMatch (Hsx.Match loc name pats some_typ rhs binds)
@@ -622,10 +636,6 @@ showModuleName :: Hsx.ModuleName -> String
 showModuleName (Hsx.ModuleName name) = name
 
 
-unBang :: Hsx.BangType -> Hsx.Type
-unBang (Hsx.UnBangedTy t) = t
-unBang (Hsx.BangedTy t) = t
-
-flattenRecFields :: [([Hsx.Name],Hsx.BangType)] -> [(Hsx.Name,Hsx.Type)]
+flattenRecFields :: [([Hsx.Name],Hsx.Type)] -> [(Hsx.Name,Hsx.Type)]
 flattenRecFields = concatMap flatten
-    where flatten (ns,bType) = zip ns (replicate (length ns) (unBang bType))
+    where flatten (ns,bType) = zip ns (replicate (length ns) bType)

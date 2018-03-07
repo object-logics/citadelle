@@ -1,4 +1,4 @@
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FlexibleContexts, RankNTypes #-}
 {-  Author: Tobias C. Rittweiler and Florian Haftmann, TU Muenchen
 
 Adaption tables and their application.
@@ -9,6 +9,7 @@ module Importer.Adapt (Adaption(..), AdaptionTable(AdaptionTable),
   adaptGlobalEnv, adaptModules
 ) where
 
+import Prelude hiding ((*>))
 import Importer.Library
 import qualified Importer.AList as AList
 import Data.Maybe (mapMaybe, fromMaybe, catMaybes, isJust)
@@ -112,7 +113,7 @@ parseAdapt file = do
 
 indexify :: [Hsx.Decl] -> [(String, Hsx.Exp)]
 indexify decls = fold idxify decls [] where
-  idxify (Hsx.PatBind _ (Hsx.PVar (Hsx.Ident name)) _ (Hsx.UnGuardedRhs rhs) _) xs =
+  idxify (Hsx.PatBind _ (Hsx.PVar (Hsx.Ident name)) (Hsx.UnGuardedRhs rhs) _) xs =
       (name, rhs) : xs
   idxify _ xs = xs
 
@@ -123,7 +124,7 @@ evaluateList :: (Hsx.Exp -> a) -> Hsx.Exp -> [a]
 evaluateList eval (Hsx.List ts) = map eval ts
 
 evaluatePair :: (Hsx.Exp -> a) -> (Hsx.Exp -> b) -> Hsx.Exp -> (a, b)
-evaluatePair eval1 eval2 (Hsx.Tuple [t1, t2]) = (eval1 t1, eval2 t2)
+evaluatePair eval1 eval2 (Hsx.Tuple Hsx.Boxed [t1, t2]) = (eval1 t1, eval2 t2)
 
 evaluateEntryClass :: Hsx.Exp -> RawClassInfo
 evaluateEntryClass (Hsx.Paren (Hsx.RecConstr (Hsx.UnQual (Hsx.Ident "RawClassInfo"))

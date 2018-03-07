@@ -68,7 +68,7 @@ preprocessModule reserved (Hsx.Module loc modul pragmas warning exports imports 
   as functions must not close over them. See below for an explanation.
  -}
 newtype DelocaliserM a = DelocaliserM (ReaderT Hsx.HskNames (WriterT [Hsx.Decl] Gensym.GensymM) a)
-    deriving (Monad, Functor, MonadFix, MonadReader Hsx.HskNames, MonadWriter [Hsx.Decl])
+    deriving (Monad, Functor, Applicative, MonadFix, MonadReader Hsx.HskNames, MonadWriter [Hsx.Decl])
 
 {-instance MonadWriter [Hsx.Decl] DelocaliserM where
     tell _ = error ""
@@ -170,7 +170,7 @@ addEnvArgToMatch envName closureNames match@(Hsx.Match loc name pats some_typ rh
           allBound = all (`elem` boundNames) closureNames
           tuple = case closureNames of
                     [closureName] -> toPat closureName
-                    _ -> Hsx.PTuple (map toPat closureNames)
+                    _ -> Hsx.PTuple Hsx.Boxed (map toPat closureNames)
           passing = (Hsx.UnQual envName) `Set.member` Hsx.extractFreeVarNs match
           envArg = if passing then if allBound
                                    then Hsx.PVar envName
@@ -207,8 +207,8 @@ addPatBindsToMatch patBinds match@(Hsx.Match loc name pats some_typ (Hsx.UnGuard
                                 `Set.intersection` Hsx.extractFreeVarNs exp ))
           boundNames = Set.fromList (Hsx.extractBindingNs pats)
           shadowPatBind :: Hsx.Decl -> Hsx.Decl
-          shadowPatBind (Hsx.PatBind loc pat some_typ rhs binds) 
-              = (Hsx.PatBind loc (shadow pat) some_typ rhs binds) 
+          shadowPatBind (Hsx.PatBind loc pat rhs binds) 
+              = (Hsx.PatBind loc (shadow pat) rhs binds) 
           shadowPVar :: Hsx.Pat -> Hsx.Pat
           shadowPVar var@(Hsx.PVar name) 
               | Hsx.UnQual name `Set.member` boundNames = Hsx.PWildCard
@@ -240,17 +240,15 @@ delocaliseFunDefs funDefs =
            addEnv (orig,ren) = (orig, Hsx.App (Hsx.Var ren) (Hsx.Var envName))
            envTuple = case closureNameList of
                         [closureName] -> Hsx.Var closureName
-                        _ -> Hsx.Tuple (map Hsx.Var closureNameList)
+                        _ -> Hsx.Tuple Hsx.Boxed (map Hsx.Var closureNameList)
            addEnvTuple (orig,ren) = Hsx.PatBind
                                     (Hsx.SrcLoc "" 0 0)
                                     (Hsx.PVar $ uname orig)
-                                    Nothing
                                     (Hsx.UnGuardedRhs (Hsx.App (Hsx.Var ren) envTuple))
                                     (Hsx.BDecls [])
            withoutEnvTuple (orig,ren) = Hsx.PatBind
                                         (Hsx.SrcLoc "" 0 0)
                                         (Hsx.PVar $ uname orig)
-                                        Nothing
                                         (Hsx.UnGuardedRhs (Hsx.Var ren))
                                         (Hsx.BDecls [])
            subst = Map.fromList $ map addEnv renamings
@@ -285,7 +283,7 @@ delocaliseLet exp = return exp
   This predicates checks whether the argument is a pattern binding.
 -}
 isPatBind :: Hsx.Decl -> Bool
-isPatBind (Hsx.PatBind _ _ _ _ _) = True
+isPatBind (Hsx.PatBind _ _ _ _) = True
 isPatBind _ = False
 
 
@@ -304,7 +302,7 @@ splitPatBinds (Hsx.BDecls decls)
                           typeSigs'
       in (Hsx.BDecls (patTypeSigs ++ patDecls'), Hsx.BDecls (otherTypeSigs ++ otherDecls'))
 
-    where split decl@(Hsx.PatBind _ _ _ _ _) = (Just decl, Nothing, Nothing)
+    where split decl@(Hsx.PatBind _ _ _ _) = (Just decl, Nothing, Nothing)
           split decl@(Hsx.TypeSig _ _ _) = (Nothing, Just decl, Nothing)
           split decl = (Nothing, Nothing, Just decl)
 splitPatBinds junk = error ("splitPatBinds: Fall through. " ++ show junk)
@@ -370,13 +368,13 @@ isEmptyBinds (Hsx.IPBinds []) = True
 isEmptyBinds _ = False
 
 whereToLetDecl :: Hsx.Decl -> Hsx.Decl
-whereToLetDecl (Hsx.PatBind loc pat some_typ rhs binds)
+whereToLetDecl (Hsx.PatBind loc pat rhs binds)
     | not $ isEmptyBinds binds = 
         case rhs of
           Hsx.GuardedRhss _ -> assert False undefined
           Hsx.UnGuardedRhs exp -> 
               let rhs' = Hsx.UnGuardedRhs $ Hsx.Let binds exp
-              in Hsx.PatBind loc pat some_typ rhs' (Hsx.BDecls [])
+              in Hsx.PatBind loc pat rhs' (Hsx.BDecls [])
 whereToLetDecl decl = decl
 
 whereToLetMatch :: Hsx.Match -> Hsx.Match
@@ -394,9 +392,9 @@ whereToLetAlt orig@(Hsx.Alt loc pat alt binds)
     | isEmptyBinds binds = orig
     | otherwise =
         case alt of
-          Hsx.GuardedAlts _ -> assert False undefined
-          Hsx.UnGuardedAlt exp -> 
-              let alt' = Hsx.UnGuardedAlt $ Hsx.Let binds exp
+          Hsx.GuardedRhss _ -> assert False undefined
+          Hsx.UnGuardedRhs exp -> 
+              let alt' = Hsx.UnGuardedRhs $ Hsx.Let binds exp
               in Hsx.Alt loc pat alt' (Hsx.BDecls [])
 
 
@@ -430,12 +428,12 @@ deguardifyRhs :: Hsx.Rhs -> DeguardifyEnv Hsx.Rhs
 deguardifyRhs rhs@(Hsx.UnGuardedRhs _) = return rhs
 deguardifyRhs (Hsx.GuardedRhss guards) = liftM Hsx.UnGuardedRhs $ deguardifyGuards guards
 
-deguardifyAlts :: Hsx.GuardedAlts -> DeguardifyEnv Hsx.GuardedAlts
-deguardifyAlts alt@(Hsx.UnGuardedAlt _) = return alt
-deguardifyAlts (Hsx.GuardedAlts guards) = 
-    liftM Hsx.UnGuardedAlt .
+deguardifyAlts :: Hsx.Rhs -> DeguardifyEnv Hsx.Rhs
+deguardifyAlts alt@(Hsx.UnGuardedRhs _) = return alt
+deguardifyAlts (Hsx.GuardedRhss guards) = 
+    liftM Hsx.UnGuardedRhs .
     deguardifyGuards .
-    (map (\(Hsx.GuardedAlt l ss e) -> Hsx.GuardedRhs l ss e)) $
+    (map (\(Hsx.GuardedRhs l ss e) -> Hsx.GuardedRhs l ss e)) $
     guards
 deguardifyGuards :: [Hsx.GuardedRhs] -> DeguardifyEnv Hsx.Exp
 deguardifyGuards guards = 

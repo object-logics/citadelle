@@ -56,13 +56,14 @@ fun mk_constentry thy (hs, raw_isa) =
   let
     val isa = check_const thy raw_isa;
     val syn = Syntax.guess_infix (Sign.syn_of thy) (Lexicon.mark_const isa);
+    val source_content = translate_string (fn "\\" => "\\\\" | s => s);
     fun string_of_syn NONE = (isa, "Function")
       | string_of_syn (SOME (Infix (s, j))) =
-          (s, enclose "(" ")" ("InfixOp NoneAssoc " ^ string_of_int j))
+          (source_content s, enclose "(" ")" ("InfixOp NoneAssoc " ^ string_of_int j))
       | string_of_syn (SOME (Infixl (s, j))) = 
-          (s, enclose "(" ")" ("InfixOp LeftAssoc " ^ string_of_int j))
+          (source_content s, enclose "(" ")" ("InfixOp LeftAssoc " ^ string_of_int j))
       | string_of_syn (SOME (Infixr (s, j))) = 
-          (s, enclose "(" ")" ("InfixOp RightAssoc " ^ string_of_int j))
+          (source_content s, enclose "(" ")" ("InfixOp RightAssoc " ^ string_of_int j))
       | string_of_syn _ = raise Match;
     val (sym, syn') = string_of_syn syn;
     val s = "(Haskell " ^ quote hs ^ " Function, Isabelle "

@@ -12,7 +12,7 @@ import qualified Importer.Isa as Isa (Name(..))
 
 
 newtype GensymM a = GensymM (State Int a)
-  deriving (Monad, Functor, MonadFix, MonadState Int)
+  deriving (Monad, Functor, Applicative, MonadFix, MonadState Int)
 
 gensym :: String -> GensymM String
 gensym prefix = do count <- get

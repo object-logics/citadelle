@@ -80,7 +80,7 @@ import qualified Importer.Isa as Isa
 
 
 newtype LexM a = LexM (Reader Customisations a)
-    deriving (Functor, Monad, MonadReader Customisations)
+    deriving (Functor, Applicative, Monad, MonadReader Customisations)
 
 runLexM :: Customisations -> LexM a -> a
 runLexM c (LexM m) = runReader m c 
@@ -506,6 +506,10 @@ instance Hsk2Env Hsx.Assoc Assoc where
     toHsk AssocLeft   = Hsx.AssocLeft
     toHsk AssocNone   = Hsx.AssocNone
 
+instance Hsk2Env Hsx.TyVarBind Name where
+    fromHsk (Hsx.KindedVar n _) = fromHsk n
+    fromHsk (Hsx.UnkindedVar n) = fromHsk n
+
 instance Hsk2Env Hsx.Type Type where
     fromHsk (Hsx.TyVar name)  = TyVar (fromHsk name)
     fromHsk (Hsx.TyCon qname) = TyCon (fromHsk (translate qname)) []
@@ -539,6 +543,10 @@ instance Hsk2Env Hsx.Type Type where
                 dest (Hsx.TyCon _) = Nothing
                 dest junk = error ("Hsx.Type -> Ident_Env.Type (dest Hsx.TyApp): " ++ show junk)
 
+    fromHsk (Hsx.TyParen typ) = fromHsk typ
+
+    fromHsk (Hsx.TyList typ) = fromHsk (Hsx.TyApp (Hsx.TyCon (Hsx.Special Hsx.ListCon)) typ)
+
     fromHsk junk = error ("Hsx.Type -> Ident_Env.Type: Fall Through: " ++ Msg.prettyShow' "thing" junk)
 
     toHsk (TyVar n)          = Hsx.TyVar (toHsk n)
@@ -568,7 +576,7 @@ hsk_typ_of_typscheme (vs, typ) = Hsx.TyForall Nothing ctx (toHsk typ) where
 
     toHsk junk = error ("Type -> Hsx.Type: Fall Through: " ++ Msg.prettyShow' "thing" junk) -}
 instance Hsk2Env Hsx.ExportSpec Export where
-    fromHsk (Hsx.EVar qname)        = ExportVar   (fromHsk qname)
+    fromHsk (Hsx.EVar _ qname)      = ExportVar   (fromHsk qname) -- FIXME namespace ignored in matched pattern
     fromHsk (Hsx.EAbs qname)        = ExportAbstr (fromHsk qname)
     fromHsk (Hsx.EThingAll qname)   = ExportAll   (fromHsk qname)
     fromHsk (Hsx.EModuleContents m) = ExportMod   (fromHsk m)
@@ -665,14 +673,14 @@ primitive_tycon_table, primitive_datacon_table :: [(Hsx.SpecialCon, Hsx.QName)]
 primitive_tycon_table 
     = [(Hsx.ListCon,    Hsx.Qual (Hsx.ModuleName "Prelude") (Hsx.Ident "ListTyCon")),
        (Hsx.UnitCon,    Hsx.Qual (Hsx.ModuleName "Prelude") unit_tyco),
-       (Hsx.TupleCon 2, Hsx.Qual (Hsx.ModuleName "Prelude") pair_tyco)
+       (Hsx.TupleCon Hsx.Boxed 2, Hsx.Qual (Hsx.ModuleName "Prelude") pair_tyco)
       ]
 
 primitive_datacon_table 
     = [(Hsx.Cons,       Hsx.Qual (Hsx.ModuleName "Prelude") (Hsx.Ident ":")),
        (Hsx.ListCon,    Hsx.Qual (Hsx.ModuleName "Prelude") (Hsx.Ident "[]")),
        (Hsx.UnitCon,    Hsx.Qual (Hsx.ModuleName "Prelude") (Hsx.Ident "()")),
-       (Hsx.TupleCon 2, Hsx.Qual (Hsx.ModuleName "Prelude") (Hsx.Ident "PairDataCon"))
+       (Hsx.TupleCon Hsx.Boxed 2, Hsx.Qual (Hsx.ModuleName "Prelude") (Hsx.Ident "PairDataCon"))
       ]
 
 
@@ -884,7 +892,7 @@ computeConstantMappings modul decl
          let moduleID       = fromHsk modul
          let defaultLexInfo = LexInfo { nameOf=nameID, typschemeOf=([], TyNone), moduleOf=moduleID}
          case decl of
-           Hsx.PatBind _ _ _ _ _         -> [Constant (Variable defaultLexInfo)]
+           Hsx.PatBind _ _ _ _           -> [Constant (Variable defaultLexInfo)]
            Hsx.FunBind _                 -> [Constant (Function defaultLexInfo)]
            Hsx.InfixDecl _ a p _         -> [Constant (InfixOp  defaultLexInfo (fromHsk a) p)]
            Hsx.TypeSig _ _ typ           -> [Constant (TypeAnnotation (defaultLexInfo { typschemeOf = typscheme_of_hsk_typ typ }))]
@@ -897,7 +905,7 @@ computeConstantMappings modul decl
                classInfo = makeClassInfo sups methods (fromHsk (head ns))
              in [TypeDecl (Class defaultLexInfo classInfo)]
              -- If length ts > 1, we will die later in Convert.hs anyway.
-           Hsx.InstDecl _ _ _ ts _       -> [TypeDecl (Instance defaultLexInfo $ [makeInstanceInfo (fromHsk (head ts))])]
+           Hsx.InstDecl _ _ _ _ _ ts _   -> [TypeDecl (Instance defaultLexInfo $ [makeInstanceInfo (fromHsk (head ts))])]
            Hsx.DataDecl _ _ _ conN tyvarNs condecls _
                -> assert (fromHsk conN == nameID) $
                   let tycon = mkType (fromHsk name) tyvarNs
@@ -921,7 +929,7 @@ computeConstantMappings modul decl
                            UnqualName name -> QualName moduleID name
                  mkDataCon :: Type -> Hsx.QualConDecl -> Constructor
                  mkDataCon tycon (Hsx.QualConDecl _ _ _ (Hsx.ConDecl n args))
-                     = let typ = foldr TyFun tycon (map (fromHsk . Hsx.unBang) args)
+                     = let typ = foldr TyFun tycon (map fromHsk args)
                        in SimpleConstr conNe (makeLexInfo moduleID (fromHsk n) ([], typ))
                  mkDataCon tycon (Hsx.QualConDecl _ _ _ (Hsx.RecDecl name fields))
                      = let fields' = Hsx.flattenRecFields fields

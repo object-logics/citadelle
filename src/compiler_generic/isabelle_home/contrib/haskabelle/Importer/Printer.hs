@@ -1,4 +1,4 @@
-{-# LANGUAGE PatternGuards #-}
+{-# LANGUAGE FlexibleContexts, PatternGuards #-}
 
 {-| Author: Tobias C. Rittweiler, TU Muenchen
 
@@ -9,11 +9,11 @@ module Importer.Printer (pprint) where
 
 import Importer.Library
 import qualified Importer.AList as AList
-import Control.Monad (liftM2)
+import Control.Monad (ap, liftM, liftM2)
 
 import qualified Text.PrettyPrint as P
 
-import qualified Language.Haskell.Exts as Hsx (SpecialCon(..), QName(..))
+import qualified Language.Haskell.Exts as Hsx (Boxed(..), SpecialCon(..), QName(..))
 
 import Importer.Adapt as Adapt (AdaptionTable(AdaptionTable))
 import qualified Importer.Ident_Env as Ident_Env
@@ -38,6 +38,13 @@ emptyPPState = PPState { globalEnv = Ident_Env.initialGlobalEnv,
                          currentTyScheme = [],
                          withinHOL = False
                        }
+
+instance Functor DocM where
+    fmap = Control.Monad.liftM
+
+instance Applicative DocM where
+    pure  = return
+    (<*>) = ap
 
 instance Monad DocM where
     return value = DocM (\state -> (value, state))
@@ -515,7 +522,7 @@ mk_isFoo adapt foo n = case reAdaptEnvName adapt (Ident_Env.fromIsa n) of
 
 isNil adapt = mk_isFoo adapt Hsx.ListCon
 isCons adapt = mk_isFoo adapt Hsx.Cons
-isPairCon adapt = mk_isFoo adapt (Hsx.TupleCon 2)
+isPairCon adapt = mk_isFoo adapt (Hsx.TupleCon Hsx.Boxed 2)
 
 pprintAsList :: AdaptionTable -> [String] -> [Isa.Term] -> DocM P.Doc
 pprintAsList adapt reserved ts = brackets (hsep (punctuate comma (map (pprint' adapt reserved) ts)))

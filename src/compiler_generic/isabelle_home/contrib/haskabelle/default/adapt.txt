@@ -39,8 +39,8 @@ consts
   "Prelude.const"       "Prelude.const"
   "Prelude.id"          "Fun.id"
   "Prelude.(.)"         "Fun.comp"
-  "Prelude.curry"       "Prelude.curry"
-  "Prelude.uncurry"     "Prelude.uncurry"
+  "Prelude.curry"       "curry"
+  "Prelude.uncurry"     "case_prod"
 
   "Prelude.(==)"        "Prelude.eq"
   "Prelude.(/=)"        "Prelude.not_eq"
@@ -88,6 +88,6 @@ consts
   "Prelude.abs"         "Groups.abs"
   "Prelude.sgn"         "Groups.sgn"
   "Prelude.fromInteger" "Int.of_int"
-  "Prelude.divMod"      "Divides.divmod_int"
+  "Prelude.divMod"      "Divides.divmod_int_rel"
   "Prelude.min"         "Orderings.min"
   "Prelude.max"         "Orderings.max"

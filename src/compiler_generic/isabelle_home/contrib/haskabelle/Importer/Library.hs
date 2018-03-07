@@ -20,6 +20,7 @@ module Importer.Library (
   catchIO
 ) where
 
+import Prelude hiding ((*>))
 import qualified Data.List as List
 import qualified Data.Maybe as Maybe
 import qualified Control.Monad as Monad

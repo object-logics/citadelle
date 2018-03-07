@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 {-| Author: Tobias C. Rittweiler, TU Muenchen
 -}
 
@@ -75,7 +77,7 @@ handleDuplicateEdges edges
 
           isTypeAnnotation (Hsx.TypeSig _ _ _, _ , _) = True
           isTypeAnnotation _ = False
-          isInstance (Hsx.InstDecl _ _ _ _ _, _, _) = True
+          isInstance (Hsx.InstDecl _ _ _ _ _ _ _, _, _) = True
           isInstance _ = False
           isClass (Hsx.ClassDecl _ _ _ _ _ _, _, _) = True
           isClass _ = False
