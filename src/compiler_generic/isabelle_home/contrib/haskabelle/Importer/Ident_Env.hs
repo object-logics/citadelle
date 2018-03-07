@@ -576,8 +576,8 @@ hsk_typ_of_typscheme (vs, typ) = Hsx.TyForall Nothing ctx (toHsk typ) where
 
     toHsk junk = error ("Type -> Hsx.Type: Fall Through: " ++ Msg.prettyShow' "thing" junk) -}
 instance Hsk2Env Hsx.ExportSpec Export where
-    fromHsk (Hsx.EVar _ qname)      = ExportVar   (fromHsk qname) -- FIXME namespace ignored in matched pattern
-    fromHsk (Hsx.EAbs qname)        = ExportAbstr (fromHsk qname)
+    fromHsk (Hsx.EVar qname)        = ExportVar   (fromHsk qname)
+    fromHsk (Hsx.EAbs _ qname)      = ExportAbstr (fromHsk qname) -- FIXME namespace ignored in matched pattern
     fromHsk (Hsx.EThingAll qname)   = ExportAll   (fromHsk qname)
     fromHsk (Hsx.EModuleContents m) = ExportMod   (fromHsk m)
     fromHsk etc = error ("Not supported yet: " ++ show etc)

@@ -548,7 +548,7 @@ convertDecl pragmas (Hsx.TypeSig _loc names typ)
 convertDecl pragmas (Hsx.FunBind matchs)
         = do let (names, patterns, bodies, wbinds) = unzip4 (map splitMatch matchs)
              assert (all (== head names) (tail names)) (return ())
-             assert (all isEmpty wbinds) (return ()) -- all decls are global at this point.
+             assert (all Preprocess.isEmptyBinds wbinds) (return ()) -- all decls are global at this point.
              ftype <- lookupType (Hsx.UnQual (names !! 0)) -- as all names are equal, pick first one.
              let name = names !! 0
              name' <- convert' pragmas name
@@ -570,7 +570,6 @@ convertDecl pragmas (Hsx.FunBind matchs)
                (zip3 (repeat (Isa.name_of_type_sign fsig')) patterns' bodies''))]
        where splitMatch (Hsx.Match _loc name patterns _ (Hsx.UnGuardedRhs body) wherebind)
                  = (name, patterns, body, wherebind)
-             isEmpty wherebind = case wherebind of Hsx.BDecls [] -> True; _ -> False
              name_of (Hsx.Ident n) = n
              name_of _ = ""
 
@@ -896,7 +895,8 @@ instance Convert Hsx.Exp Isa.Term where
                   return (Isa.Let (zip pats' rhss'') body')
           where isTypeSig (Hsx.TypeSig _ _ _)      = True
                 isTypeSig _                      = False
-                isPatBinding (Hsx.PatBind _ _ _ (Hsx.BDecls [])) = True
+                isPatBinding (Hsx.PatBind _ _ _ (Just (Hsx.BDecls []))) = True
+                isPatBinding (Hsx.PatBind _ _ _ Nothing)                = True
                 isPatBinding _                   = False
                 
     convert' pragmas (Hsx.ListComp e stmts) 

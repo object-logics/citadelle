@@ -4,7 +4,7 @@
 
 -}
 
-module Importer.Preprocess (preprocessModule) where
+module Importer.Preprocess (isEmptyBinds, preprocessModule) where
 
 import Importer.Library
 import Data.Maybe
@@ -245,12 +245,12 @@ delocaliseFunDefs funDefs =
                                     (Hsx.SrcLoc "" 0 0)
                                     (Hsx.PVar $ uname orig)
                                     (Hsx.UnGuardedRhs (Hsx.App (Hsx.Var ren) envTuple))
-                                    (Hsx.BDecls [])
+                                    Nothing
            withoutEnvTuple (orig,ren) = Hsx.PatBind
                                         (Hsx.SrcLoc "" 0 0)
                                         (Hsx.PVar $ uname orig)
                                         (Hsx.UnGuardedRhs (Hsx.Var ren))
-                                        (Hsx.BDecls [])
+                                        Nothing
            subst = Map.fromList $ map addEnv renamings
            funs = map funBind funDefs
            funsRenamed = map (Hsx.renameDecl renamings) funs
@@ -341,7 +341,7 @@ normalizeNames_Decl reserved (Hsx.FunBind matchs)
             in do renames <- Hsx.freshIdentifiers clashes
                   pats'   <- return (map (Hsx.renamePat renames) pats)
                   body'   <- return (Hsx.renameFreeVars renames body)
-                  binds'  <- normalizeNames_Binds where_binds
+                  binds'  <- mapM normalizeNames_Binds where_binds
                   return (Hsx.Match loc name pats' some_typ (Hsx.UnGuardedRhs body') binds') 
 
       normalizeNames_Binds (Hsx.BDecls decls)
@@ -362,40 +362,30 @@ whereToLet =
     whereToLetMatch `extT`
     whereToLetAlt
 
-isEmptyBinds :: Hsx.Binds -> Bool
-isEmptyBinds (Hsx.BDecls []) = True
-isEmptyBinds (Hsx.IPBinds []) = True
+isEmptyBinds :: Maybe Hsx.Binds -> Bool
+isEmptyBinds (Just (Hsx.BDecls [])) = True
+isEmptyBinds (Just (Hsx.IPBinds [])) = True
+isEmptyBinds Nothing = True
 isEmptyBinds _ = False
+
+whereToLetRhs _     (Hsx.GuardedRhss _) = assert False undefined
+whereToLetRhs binds (Hsx.UnGuardedRhs exp) =
+    Hsx.UnGuardedRhs $ Hsx.Let (case binds of Nothing -> Hsx.BDecls [] ; Just binds -> binds) exp
 
 whereToLetDecl :: Hsx.Decl -> Hsx.Decl
 whereToLetDecl (Hsx.PatBind loc pat rhs binds)
-    | not $ isEmptyBinds binds = 
-        case rhs of
-          Hsx.GuardedRhss _ -> assert False undefined
-          Hsx.UnGuardedRhs exp -> 
-              let rhs' = Hsx.UnGuardedRhs $ Hsx.Let binds exp
-              in Hsx.PatBind loc pat rhs' (Hsx.BDecls [])
+    | not $ isEmptyBinds binds = Hsx.PatBind loc pat (whereToLetRhs binds rhs) Nothing
 whereToLetDecl decl = decl
 
 whereToLetMatch :: Hsx.Match -> Hsx.Match
 whereToLetMatch match@(Hsx.Match loc name pat some_typ rhs binds)
     | isEmptyBinds binds = match
-    | otherwise =
-        case rhs of
-          Hsx.GuardedRhss _ -> assert False undefined
-          Hsx.UnGuardedRhs exp -> 
-              let rhs' = Hsx.UnGuardedRhs $ Hsx.Let binds exp
-              in Hsx.Match loc name pat some_typ rhs' (Hsx.BDecls [])
+    | otherwise = Hsx.Match loc name pat some_typ (whereToLetRhs binds rhs) Nothing
 
 whereToLetAlt :: Hsx.Alt -> Hsx.Alt
 whereToLetAlt orig@(Hsx.Alt loc pat alt binds) 
     | isEmptyBinds binds = orig
-    | otherwise =
-        case alt of
-          Hsx.GuardedRhss _ -> assert False undefined
-          Hsx.UnGuardedRhs exp -> 
-              let alt' = Hsx.UnGuardedRhs $ Hsx.Let binds exp
-              in Hsx.Alt loc pat alt' (Hsx.BDecls [])
+    | otherwise = Hsx.Alt loc pat (whereToLetRhs binds alt) Nothing
 
 
 ---- Deguardification

@@ -153,7 +153,7 @@ hsk_lambda = Hsx.Lambda
 -}
 hsk_case :: Hsx.SrcLoc -> Hsx.Exp -> [(Hsx.Pat, Hsx.Exp)] -> Hsx.Exp
 hsk_case loc e cases
-    = Hsx.Case e [ Hsx.Alt loc pat (Hsx.UnGuardedRhs exp) (Hsx.BDecls []) | (pat, exp) <- cases ]
+    = Hsx.Case e [ Hsx.Alt loc pat (Hsx.UnGuardedRhs exp) Nothing | (pat, exp) <- cases ]
 
 {-|
   This function turns a string into a Haskell name. Depending on the
@@ -278,6 +278,10 @@ instance HasBindings Hsx.Binds where
     extractBindingNs (Hsx.IPBinds (Hsx.IPBind loc _ _ : _))
         = error $ srcloc2string loc ++ ": Implicit parameter bindings are not supported!"
     extractBindingNs (Hsx.IPBinds []) = []
+
+instance HasBindings (Maybe Hsx.Binds) where
+    extractBindingNs (Just b) = extractBindingNs b
+    extractBindingNs Nothing  = []
 
 instance HasBindings Hsx.Stmt where
     extractBindingNs (Hsx.Qualifier b)         = []
