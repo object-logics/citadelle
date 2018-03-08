@@ -64,6 +64,7 @@ module Importer.Ident_Env
 
 import Importer.Library
 import qualified Importer.AList as AList
+import Data.Function
 import Data.Maybe
 import Data.List (partition, nub)
 import qualified Data.Map as Map
@@ -1368,11 +1369,14 @@ allIdentifiers (GlobalEnv modulemap)
 updateGlobalEnv :: (Name -> [Identifier]) -> GlobalE -> GlobalE
 updateGlobalEnv update globalEnv@(GlobalEnv modulemaps)
     = let all_ids     = allIdentifiers globalEnv
-          id_alist    = AList.group $ concatMap (\id -> case update (identifier2name id) of 
-                                                         []      -> [(id, id)]
-                                                         new_ids -> [ (new, id) | new <- new_ids ])
+          id_alist    = AList.group $ concatMap (\id -> case update (identifier2name id)
+                                                           & filter (\new -> case (new, id) of
+                                                                               (TypeDecl _, Constant (Constructor _)) -> moduleOf' new == moduleOf' id
+                                                                               _ -> True)
+                                                        of []      -> [(id, id)]
+                                                           new_ids -> [ (new, id) | new <- new_ids ])
                                          all_ids
-          mod_alist   = nub (concat [ [ (moduleOf (lexInfoOf n), (moduleOf (lexInfoOf o))) | o <- os ] 
+          mod_alist   = nub (concat [ [ (moduleOf' n, moduleOf' o) | o <- os ] 
                                           | (n, os) <- id_alist ])
           id_tbl      = Map.fromListWith (failDups "id_tbl")  id_alist   -- Map from new_id  to [old_id]
           mod_tbl     = Map.fromListWith (failDups "mod_tbl") mod_alist  -- Map from new_mID to old_mID
@@ -1406,8 +1410,8 @@ updateGlobalEnv update globalEnv@(GlobalEnv modulemaps)
           recompute_exports new_id
               = or (do old_id  <- fromMaybe (error $ "Internal error: New identifier " ++ show new_id ++ " not found during update of global environment!")
                                  (Map.lookup new_id id_tbl)
-                       old_mID <- (let oldm = moduleOf (lexInfoOf old_id)
-                                       newm = moduleOf (lexInfoOf new_id)
+                       old_mID <- (let oldm = moduleOf' old_id
+                                       newm = moduleOf' new_id
                                    in assert (oldm == fromMaybe (error $ "Internal error: New module " ++ show newm ++ " not found during assertion in update of global environment") (Map.lookup newm mod_tbl))
                                       $ return oldm)
                        return (isExported old_id old_mID globalEnv))
@@ -1416,6 +1420,7 @@ updateGlobalEnv update globalEnv@(GlobalEnv modulemaps)
          makeGlobalEnv recompute_imports recompute_exports (map fst id_alist)
 
     where failDups str a b = error (Msg.found_duplicates ("computing " ++ str) a b)
+          moduleOf' = moduleOf . lexInfoOf
 {-|
   ???
 -}
