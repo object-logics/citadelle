@@ -449,7 +449,8 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
            return [Isa.Function (Isa.Function_Stmt kind sigs (flat eqs))]
   | otherwise = 
         let (decls', tydecls) = partition isDataDecl decls
-            decls'' = G.everywhere (G.mkT $ replaceTy (map (\(Hsx.TypeDecl _ (Hsx.DHead _ i) ty) -> (i, ty)) tydecls)) decls' in
+            decls'' = G.everywhere (G.mkT $ replaceTy (map (\t -> case t of Hsx.TypeDecl _ (Hsx.DHead _ i) ty -> ((i, Nothing), ty)
+                                                                            Hsx.TypeDecl _ (Hsx.DHApp _ (Hsx.DHead _ i) (Hsx.UnkindedVar _ i')) ty -> ((i, Just i'), ty)) tydecls)) decls' in
         do
            dataDefs <- mapM (convertDataDecl pragmas) decls''
            auxCmds <- mapM (generateRecordAux pragmas) decls''
@@ -461,9 +462,10 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
     isDataDecl (Hsx.DataDecl _ _ _ _ _ _) = True
     isDataDecl _ = False
     splitFunCmd (Isa.Function (Isa.Function_Stmt kind [sig] eqs)) = (kind, sig, eqs)
-    replaceTy :: [(Hsx.Name (), Hsx.Type ())] -> Hsx.Type () -> Hsx.Type ()
-    replaceTy tydecls t = case t of Hsx.TyCon _ (Hsx.UnQual _ i) -> maybe t id $ AList.lookup tydecls i
-                                    _                            -> G.gmapT (G.mkT $ replaceTy tydecls) t
+    replaceTy :: [((Hsx.Name (), Maybe (Hsx.Name ())), Hsx.Type ())] -> Hsx.Type () -> Hsx.Type ()
+    replaceTy tydecls t = case t of Hsx.TyCon _ (Hsx.UnQual _ i) -> maybe t id $ AList.lookup tydecls (i, Nothing)
+                                    Hsx.TyApp _ (Hsx.TyCon _ (Hsx.UnQual _ i)) (Hsx.TyCon _ (Hsx.UnQual _ i')) -> maybe t id $ AList.lookup tydecls (i, Just i')
+                                    _ -> G.gmapT (G.mkT $ replaceTy tydecls) t
 
 
 instance Convert (Hsx.Module ()) Isa.Stmt where
