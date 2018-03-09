@@ -22,7 +22,7 @@ newtype ThyName = ThyName String
   deriving (Show, Eq, Ord, Data, Typeable)
 
 data Name = QName ThyName String | Name String -- FIXME unqualified names should be classified as variables
-  deriving (Show, Eq, Ord)
+  deriving (Show, Eq, Ord, Data)
 
 is_qualified :: Name -> Bool
 is_qualified (QName _ _) = True
@@ -42,7 +42,7 @@ data Type =
   | Func Type Type
   | TVar Name
   | NoType
-  deriving Show
+  deriving (Show, Data)
 
 dest_Type :: Type -> (Name, [Type])
 dest_Type (Type n tys) = (n, tys)
@@ -51,7 +51,7 @@ dest_TVar :: Type -> Name
 dest_TVar (TVar n) = n
 
 data Literal = Int Integer | Char Char | String String
-  deriving Show
+  deriving (Show, Data)
 
 data Term =
     Literal Literal
@@ -66,38 +66,38 @@ data Term =
   | RecUpdate Term [(Name, Term)]
   | DoBlock String [DoBlockFragment] String -- syntactic sugar for translating Haskell do expressions
   | Parenthesized Term
-  deriving Show
+  deriving (Show, Data)
 
 type Pat = Term
 
 data ListComprFragment =
     Generator (Pat, Term)
   | Guard Term
-  deriving Show
+  deriving (Show, Data)
 
 data DoBlockFragment =
     DoGenerator Pat Term
   | DoQualifier Term
   | DoLetStmt [(Pat, Term)]
-  deriving Show
+  deriving (Show, Data)
 
 
 {- Statements -}
 
 data TypeSpec = TypeSpec [Name] Name
-  deriving Show
+  deriving (Show, Data)
 
 data TypeSign = TypeSign Name [(Name, Sort)] Type
-  deriving Show
+  deriving (Show, Data)
 
 name_of_type_sign :: TypeSign -> Name
 name_of_type_sign (TypeSign name _ _) = name
 
 data Function_Kind = Definition | Primrec | Fun | Function_Sorry
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 data Function_Stmt = Function_Stmt Function_Kind [TypeSign] [(Name, [Pat], Term)]
-  deriving Show
+  deriving (Show, Data)
 
 data Stmt =
     Datatype [(TypeSpec, [(Name, [Type])])]
@@ -107,10 +107,10 @@ data Stmt =
   | Class Name [Name] [TypeSign]
   | Instance Name Name [(Name, Sort)] [Function_Stmt]
   | Comment String
-  deriving Show
+  deriving (Show, Data)
 
 data Module = Module ThyName [ThyName] [Stmt] Bool
-  deriving Show
+  deriving (Show, Data)
 
 
 {- Identifier categories -}

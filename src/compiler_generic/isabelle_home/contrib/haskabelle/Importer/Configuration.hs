@@ -161,7 +161,7 @@ type InputLocation = Location
 {-|
   This type represents output locations.
 -}
-type OutputLocation = Location
+type OutputLocation = Maybe Location
 
 {-|
   This type represents the monad where the processing of the XML
@@ -177,10 +177,10 @@ type XMLReader a = Either String a
   This function constructs a default configuration depending on the input files,
   output directory and customisation.
 -}
-defaultConfig ::[FilePath] -> FilePath -> Customisations -> Bool -> Config
+defaultConfig ::[FilePath] -> Maybe FilePath -> Customisations -> Bool -> Config
 defaultConfig inFiles outDir custs exportCode = Config {
                                                  inputLocations = map FileLocation inFiles,
-                                                 outputLocation = FileLocation outDir,
+                                                 outputLocation = fmap FileLocation outDir,
                                                  customisations = custs,
                                                  exportCode = exportCode}
 
@@ -421,7 +421,7 @@ parseInputLocElem el
 -}
 
 parseOutputElem :: Element -> XMLReader OutputLocation
-parseOutputElem  el = liftM FileLocation $ findSAttr "location" el
+parseOutputElem  el = liftM (Just . FileLocation) $ findSAttr "location" el
 
 --------------------
 -- Customisations --

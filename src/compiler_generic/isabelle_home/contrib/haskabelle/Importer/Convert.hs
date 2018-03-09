@@ -1226,7 +1226,7 @@ getInputFilesRecursively
                      else do dirEx <- doesDirectoryExist path
                              if dirEx
                                then getFilesRecursively path
-                               else putStr ("Warning: File or directory \"" ++ path ++ "\" does not exist!") >> return []  
+                               else hPutStr stderr ("Warning: File or directory \"" ++ path ++ "\" does not exist!") >> return []  
 
      
 {-|
@@ -1251,8 +1251,8 @@ traverseDir dirpath op = do
               res' <- traverseDir f op
               return $ res:res'
 
-getOutputDir :: Conversion FilePath
-getOutputDir = ask >>= return . fileLocation . outputLocation
+getOutputDir :: Conversion (Maybe FilePath)
+getOutputDir = ask >>= return . fmap fileLocation . outputLocation
 
 getExportCode :: Conversion Bool
 getExportCode = ask >>= return . exportCode

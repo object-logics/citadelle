@@ -37,9 +37,10 @@ mainInterface ["--internal", adaptDir, "--export", exportVar, "--config", config
   exportCode <- readBool exportVar
   config <- readConfig configFile exportCode
   importProject config adaptDir
-mainInterface ("--internal" : adaptDir : "--export" : exportVar : srcs_dst @ (_ : _ : _)) = do
-  exportCode <- readBool exportVar
-  importFiles adaptDir (init srcs_dst) (last srcs_dst) exportCode
+mainInterface ("--internal" : adaptDir : "--export" : exportVar : "--dump-output" : srcs @ (_ : _)) = mainInterfaceDump adaptDir exportVar srcs
+mainInterface ("--internal" : adaptDir : "--export" : exportVar : src @ [_]) = mainInterfaceDump adaptDir exportVar src
+mainInterface ("--internal" : adaptDir : "--export" : exportVar : srcs_dst @ (_ : _ : _)) =
+  readBool exportVar >>= importFiles adaptDir (init srcs_dst) (Just (last srcs_dst))
 
 mainInterface ("--internal" : args) = do
   putStrLn "Error calling internal haskabelle binary. Wrong parameters:"
@@ -55,6 +56,9 @@ mainInterface _ = do
   putStrLn "Have a nice day!"
   putStrLn ""
   exitWith (ExitFailure 2)
+
+mainInterfaceDump adaptDir exportVar srcs =
+  readBool exportVar >>= importFiles adaptDir srcs Nothing
 
 main :: IO ()
 main = getArgs >>= mainInterface
