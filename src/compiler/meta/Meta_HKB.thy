@@ -38,7 +38,7 @@
 
 section\<open>Isabelle Meta-Model aka. AST definition of Isabelle\<close>
 
-theory Meta_HKB_Isa
+theory Meta_HKB
 imports Main
 begin
  
