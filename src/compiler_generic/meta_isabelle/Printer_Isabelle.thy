@@ -63,16 +63,22 @@ definition "of_semi__typ' = (\<lambda> (n, v). if v = [] then
                                        else
                                          of_semi__typ (Typ_apply (Typ_base n) (L.map Typ_base v)))"
 
-definition "of_datatype _ = (\<lambda> Datatype n l \<Rightarrow>
-  \<open>datatype %s = %s\<close>
+definition "of_datatype _ = (\<lambda> Datatype [] \<Rightarrow> \<open>\<close>
+                             | Datatype (d # ds) \<Rightarrow>
+  let of_datatype = (\<lambda>type (n, l).
+  \<open>%s %s = %s\<close>
+    type
     (of_semi__typ' n)
     (String_concat \<open>
                         | \<close>
       (L.map
-        (\<lambda>(n,l).
+        (\<lambda>(n, l).
          \<open>%s %s\<close>
            (To_string n)
-           (String_concat \<open> \<close> (L.map (\<lambda>x. \<open>\"%s\"\<close> (of_semi__typ x)) l))) l) ))"
+           (String_concat \<open> \<close> (L.map (\<lambda>x. \<open>\"%s\"\<close> (of_semi__typ x)) l))) l) )) in
+  \<open>%s
+%s\<close> (of_datatype \<open>datatype\<close> d) (String_concat \<open>
+\<close> (map (of_datatype \<open>and\<close>) ds)))"
 
 definition "of_type_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
   \<open>type_synonym %s = \"%s\"\<close> (of_semi__typ' n) (of_semi__typ l))"
