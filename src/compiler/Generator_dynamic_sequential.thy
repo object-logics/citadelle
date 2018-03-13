@@ -459,18 +459,18 @@ fun end' top =
 structure Cmd = struct open META open META_overload
 fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
 
-fun datatype' top (Datatype (n, l)) = #local_theory top NONE NONE
+fun datatype' top (Datatype ((n, v), l)) = #local_theory top NONE NONE
   (BNF_FP_Def_Sugar.co_datatype_cmd
     BNF_Util.Least_FP
     BNF_LFP.construct_lfp
     (Ctr_Sugar.default_ctr_options_cmd,
-     [( ( ( (([], To_sbinding n), NoSyn)
+     [( ( ( ((map (fn v => (SOME (To_binding ""), (To_string0 v, NONE))) v, To_sbinding n), NoSyn)
           , List.map (fn (n, l) => ( ( (To_binding "", To_sbinding n)
                                      , List.map (fn s => (To_binding "", of_semi__typ s)) l)
                                    , NoSyn)) l)
         , (To_binding "", To_binding "", To_binding ""))
       , [])]))
-fun type_synonym top (Type_synonym (n, v, l)) = #theory top (fn thy => let val s_bind = To_sbinding n in
+fun type_synonym top (Type_synonym ((n, v), l)) = #theory top (fn thy => let val s_bind = To_sbinding n in
   (snd o Typedecl.abbrev_global
            (s_bind, map To_string0 v, NoSyn)
            (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (of_semi__typ l))) thy end)

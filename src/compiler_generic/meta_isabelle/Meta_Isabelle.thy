@@ -58,11 +58,12 @@ datatype semi__typ = Typ_apply semi__typ "semi__typ list"
                    | Typ_apply_paren string (* left *) string (* right *) semi__typ
                    | Typ_base string
 
-datatype "datatype" = Datatype string (* name *)
+datatype "datatype" = Datatype "( string (* name *)
+                                \<times> string list (* arguments *))"
                                "(string (* name *) \<times> semi__typ list (* arguments *)) list" (* constructors *)
 
-datatype "type_synonym" = Type_synonym string (* name *)
-                                       "string list" (* parametric variables *)
+datatype "type_synonym" = Type_synonym "( string (* name *)
+                                        \<times> string list (* parametric variables *))"
                                        semi__typ (* content *)
 
 datatype semi__term = Term_rewrite semi__term (* left *) string (* symb rewriting *) semi__term (* right *)
@@ -246,8 +247,9 @@ lemmas [code] =
 
 definition "Opt s = Typ_apply (Typ_base \<open>option\<close>) [Typ_base s]"
 definition "Raw = Typ_base"
-definition "Type_synonym' n = Type_synonym n []"
-definition "Type_synonym'' n l f = Type_synonym n l (f l)"
+definition "Datatype' n l = Datatype (n, []) l"
+definition "Type_synonym' n = Type_synonym (n, [])"
+definition "Type_synonym'' n l f = Type_synonym (n, l) (f l)"
 definition "Term_annot' e s = Term_annot e (Typ_base s)"
 definition "Term_lambdas s = Term_bind \<open>\<lambda>\<close> (Term_basic s)"
 definition "Term_lambda x = Term_lambdas [x]"

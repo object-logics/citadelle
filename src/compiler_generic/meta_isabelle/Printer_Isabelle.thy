@@ -58,9 +58,14 @@ fun of_semi__typ where "of_semi__typ e = (\<lambda>
   | Typ_apply_bin s ty1 ty2 \<Rightarrow> \<open>%s %s %s\<close> (of_semi__typ ty1) (To_string s) (of_semi__typ ty2)
   | Typ_apply_paren s1 s2 ty \<Rightarrow> \<open>%s%s%s\<close> (To_string s1) (of_semi__typ ty) (To_string s2)) e"
 
+definition "of_semi__typ' = (\<lambda> (n, v). if v = [] then
+                                         To_string n
+                                       else
+                                         of_semi__typ (Typ_apply (Typ_base n) (L.map Typ_base v)))"
+
 definition "of_datatype _ = (\<lambda> Datatype n l \<Rightarrow>
   \<open>datatype %s = %s\<close>
-    (To_string n)
+    (of_semi__typ' n)
     (String_concat \<open>
                         | \<close>
       (L.map
@@ -69,12 +74,8 @@ definition "of_datatype _ = (\<lambda> Datatype n l \<Rightarrow>
            (To_string n)
            (String_concat \<open> \<close> (L.map (\<lambda>x. \<open>\"%s\"\<close> (of_semi__typ x)) l))) l) ))"
 
-definition "of_type_synonym _ = (\<lambda> Type_synonym n v l \<Rightarrow>
-  \<open>type_synonym %s = \"%s\"\<close> (if v = [] then
-                                To_string n
-                              else
-                                of_semi__typ (Typ_apply (Typ_base n) (L.map Typ_base v)))
-                             (of_semi__typ l))"
+definition "of_type_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
+  \<open>type_synonym %s = \"%s\"\<close> (of_semi__typ' n) (of_semi__typ l))"
 
 fun of_semi__term where "of_semi__term e = (\<lambda>
     Term_rewrite e1 symb e2 \<Rightarrow> \<open>%s %s %s\<close> (of_semi__term e1) (To_string symb) (of_semi__term e2)
@@ -413,6 +414,7 @@ end
 
 lemmas [code] =
   (* def *)
+  Print.of_semi__typ'_def
   Print.of_datatype_def
   Print.of_type_synonym_def
   Print.of_type_notation_def
