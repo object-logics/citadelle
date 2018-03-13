@@ -49,6 +49,7 @@ section\<open>Dynamic Meta Embedding with Reflection\<close>
 theory Generator_dynamic_sequential
 imports Printer
         "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main2"
+        "~~/src/HOL/Library/Old_Datatype"
   keywords (* OCL (USE tool) *)
            "Between"
            "Attributes" "Operations" "Constraints"
@@ -459,7 +460,14 @@ fun end' top =
 structure Cmd = struct open META open META_overload
 fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
 
-fun datatype' top (Datatype l) = #local_theory top NONE NONE
+fun datatype' top (Datatype (old_datatype, l)) = 
+  if old_datatype then #theory top
+  ((snd oo Old_Datatype.add_datatype_cmd Old_Datatype_Aux.default_config)
+    (map (fn ((n, v), l) =>
+           ( (To_sbinding n, map (fn v => (To_string0 v, NONE)) v, NoSyn)
+           , List.map (fn (n, l) => (To_sbinding n, List.map of_semi__typ l, NoSyn)) l))
+         l))
+  else #local_theory top NONE NONE
   (BNF_FP_Def_Sugar.co_datatype_cmd
     BNF_Util.Least_FP
     BNF_LFP.construct_lfp
