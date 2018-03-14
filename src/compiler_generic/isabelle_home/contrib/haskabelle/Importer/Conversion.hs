@@ -82,6 +82,8 @@ getOutputDirMaybe f = getOutputDir >>= maybe (return ()) f
 
 --
 
+render_string_wrap = True
+
 char_escape c =    c >= '\b' && c <= '\n'
                 || c == '\r'
                 || c == '"'
@@ -103,9 +105,11 @@ gshows = render `G.extQ` (render_bool :: Bool -> SS)
                 `G.extQ` (render_int :: Int -> SS)
                 `G.extQ` (render_integer :: Integer -> SS) where
   render_bool b = monad_String $ if b then "true" else "false"
-  render_string s = if all char s then shows s
-                    else monad_String $ "\"" ++ concatMap (\c -> if char c && not (char_escape c) then [c]
-                                                                 else Printf.printf "\\%03d" (Char.ord c)) s ++ "\""
+  render_string =
+    let (monad_String_show, monad_String) = if render_string_wrap then (monad_String . show, \s -> monad_String ("From.string " ++ s)) else (shows, monad_String) in
+    \s -> if all char s then monad_String_show s
+          else monad_String $ "\"" ++ concatMap (\c -> if char c && not (char_escape c) then [c]
+                                                       else Printf.printf "\\%03d" (Char.ord c)) s ++ "\""
   render_char c = monad_Char '#' . render_string [c]
   render_int i = if i < 0 then monad_Char '~' . shows (-i) else shows i
   render_integer = render_int
