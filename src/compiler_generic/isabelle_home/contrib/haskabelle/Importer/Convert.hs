@@ -464,7 +464,7 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
     splitFunCmd (Isa.Function (Isa.Function_Stmt kind [sig] eqs)) = (kind, sig, eqs)
     replaceTy :: [((Hsx.Name (), Maybe (Hsx.Name ())), Hsx.Type ())] -> Hsx.Type () -> Hsx.Type ()
     replaceTy tydecls t = case t of Hsx.TyCon _ (Hsx.UnQual _ i) -> maybe t id $ AList.lookup tydecls (i, Nothing)
-                                    Hsx.TyApp _ (Hsx.TyCon _ (Hsx.UnQual _ i)) (Hsx.TyCon _ (Hsx.UnQual _ i')) -> maybe t id $ AList.lookup tydecls (i, Just i')
+                                    Hsx.TyApp _ (Hsx.TyCon _ (Hsx.UnQual _ i)) (Hsx.TyVar _ i') -> maybe t id $ AList.lookup tydecls (i, Just i')
                                     _ -> G.gmapT (G.mkT $ replaceTy tydecls) t
 
 
