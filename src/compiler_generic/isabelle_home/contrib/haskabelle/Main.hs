@@ -7,6 +7,9 @@ Toplevel interface to Haskabelle importer.
 
 module Main where
 
+import Data.Function
+import qualified Data.List as List
+
 import System.Environment (getArgs, getProgName)
 import System.Exit (exitWith, ExitCode (ExitFailure))
 
@@ -32,21 +35,21 @@ readBool "true" = return True
 readBool "false" = return False
 readBool _ = exitWith (ExitFailure 2)
 
-mainInterface :: [String] -> IO ()
-mainInterface ["--internal", adaptDir, "--export", exportVar, "--config", configFile] = do
+mainInterface :: [(String, [String])] -> IO ()
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("config", [configFile]) : []) = do
   exportCode <- readBool exportVar
   config <- readConfig configFile exportCode
   importProject config adaptDir
-mainInterface ("--internal" : adaptDir : "--export" : exportVar : "--dump-output" : srcs @ (_ : _)) = mainInterfaceDump adaptDir exportVar srcs
-mainInterface ("--internal" : adaptDir : "--export" : exportVar : src @ [_]) = mainInterfaceDump adaptDir exportVar src
-mainInterface ("--internal" : adaptDir : "--export" : exportVar : srcs_dst @ (_ : _ : _)) =
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("dump-output", []) : ("files", srcs @ (_ : _)) : []) = mainInterfaceDump adaptDir exportVar srcs
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump adaptDir exportVar srcs
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs_dst @ (_ : _ : _)) : []) =
   readBool exportVar >>= importFiles adaptDir (init srcs_dst) (Just (last srcs_dst))
 
-mainInterface ("--internal" : args) = do
+mainInterface (("internal", arg) : args) = do
   putStrLn "Error calling internal haskabelle binary. Wrong parameters:"
-  putStrLn ("  " ++ show args)
+  putStrLn ("  " ++ show arg ++ " " ++ show args)
 
-mainInterface ("--version" : _) = do
+mainInterface (("version", _) : _) = do
   putStrLn (version ++ ".")
 
 mainInterface _ = do
@@ -61,4 +64,15 @@ mainInterfaceDump adaptDir exportVar srcs =
   readBool exportVar >>= importFiles adaptDir srcs Nothing
 
 main :: IO ()
-main = getArgs >>= mainInterface
+main = getArgs >>= mapM (return . \s -> case s of '-' : '-' : s -> Left s ; s -> Right s)
+               >>= (\l ->
+                       let isLeft = either (\_ -> True) (\_ -> False)
+                           isRight = either (\_ -> False) (\_ -> True)
+                       in l
+                        & List.groupBy (\a1 a2 -> isRight a1 && isRight a2)
+                        & map (\t -> case t of [Left t] -> Left t ; l -> Right (map (\(Right e) -> e) l))
+                        & List.groupBy (\a1 a2 -> isLeft a1 && isRight a2)
+                        & map (\l -> case l of [Left t] -> (t, [])
+                                               [Left t0, Right t1] -> (t0, t1))
+                        & return)
+               >>= mainInterface

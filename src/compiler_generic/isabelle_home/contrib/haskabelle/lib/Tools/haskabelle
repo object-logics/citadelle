@@ -143,7 +143,7 @@ elif [ "$RUN_EXAMPLES" = true ]; then
 elif [ "$CONFIG_FILE" != "" ]; then
   "$HASKABELLE_BIN" --internal "$ADAPT_DIR" --export "$EXPORT_CODE" --config "$CONFIG_FILE" || exit $?
 elif [ "$#" -ge 2 ]; then
-  "$HASKABELLE_BIN" --internal "$ADAPT_DIR" --export "$EXPORT_CODE" "$@" || exit $?
+  "$HASKABELLE_BIN" --internal "$ADAPT_DIR" --export "$EXPORT_CODE" --files "$@" || exit $?
 elif [ "$BUILD_ADAPT" = false ]; then
   usage
 fi
