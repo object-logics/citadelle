@@ -60,6 +60,8 @@ imports Printer
            "self"
            "Nonunique" "Sequence_"
            "with_only"
+           (* Haskabelle *)
+           "datatype_old"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -79,6 +81,8 @@ imports Printer
            "Context"
            (* OCL (added) *)
            "End" "Instance" "BaseType" "State" "Transition" "Tree"
+           (* Haskabelle *)
+           "Haskell_file"
 
            (* Isabelle syntax *)
            "generation_syntax"
@@ -158,17 +162,17 @@ structure From = struct
  val class = string
  val sort = list class
  fun typ e = (fn
-     Type (s, l) => (META.Type o pair string (list typ)) (s, l)
+     Type (s, l) => (META.Typea o pair string (list typ)) (s, l)
    | TFree (s, s0) => (META.TFree o pair string sort) (s, s0)
-   | TVar (i, s0) => (META.TVar o pair indexname sort) (i, s0)
+   | TVar (i, s0) => (META.TVara o pair indexname sort) (i, s0)
   ) e
  fun term e = (fn
-     Const (s, t) => (META.Const o pair string typ) (s, t)
+     Const (s, t) => (META.Consta o pair string typ) (s, t)
    | Free (s, t) => (META.Free o pair string typ) (s, t)
    | Var (i, t) => (META.Var o pair indexname typ) (i, t)
    | Bound i => (META.Bound o nat) i
-   | Abs (s, ty, t) => (META.Abs o pair3 string typ term) (s, ty, t)
-   | op $ (term1, term2) => (META.App o pair term term) (term1, term2)
+   | Abs (s, ty, t) => (META.Absa o pair3 string typ term) (s, ty, t)
+   | op $ (term1, term2) => (META.Appa o pair term term) (term1, term2)
   ) e
  end
 
@@ -436,7 +440,7 @@ fun end' top =
 structure Cmd = struct open META open META_overload
 fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
 
-fun datatype' top (Datatype (old_datatype, l)) = 
+fun datatype' top (Datatypea (old_datatype, l)) = 
   if old_datatype then #theory top
   ((snd oo Old_Datatype.add_datatype_cmd Old_Datatype_Aux.default_config)
     (map (fn ((n, v), l) =>
@@ -478,7 +482,7 @@ fun consts top (Consts (n, ty, symb)) = #theory top
                         , Mixfix (Input.string ("(_) " ^ To_string0 symb), [], 1000, Position.no_range))])
 fun definition top def = #local_theory' top NONE NONE
   let val (def, e) = case def of
-      Definition e => (NONE, e)
+      Definitiona e => (NONE, e)
     | Definition_where1 (name, (abbrev, prio), e) =>
         (SOME ( To_sbinding name
               , NONE
@@ -2081,6 +2085,61 @@ val () =
   outer_syntax_commands' @{mk_string} @{command_keyword Tree} ""
     (natural -- natural)
     (K o META.META_class_tree o META.OclClassTree)
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for Haskabelle: Haskell_file\<close>
+
+ML\<open>
+structure Haskabelle_Data = Theory_Data
+  (open META
+   type T = module list
+   val empty = []
+   val extend = I
+   val merge = #2)
+
+local
+  fun ML source =
+    ML_Context.exec (fn () =>
+            ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) source) #>
+          Local_Theory.propagate_ml_env
+  fun haskabelle_path hkb_home l = Path.appends (Path.variable hkb_home :: map Path.explode l)
+  val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"] |> File.check_file
+  val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"] |> File.check_dir
+in
+  fun parse ((old_datatype, l_rewrite), file) =
+    let val st =
+          Bash.process
+           (space_implode " "
+             [ Path.implode haskabelle_bin
+             , "--internal", Path.implode haskabelle_default
+             , "--export", "false"
+             , "--dump-output"
+             , "--files"
+             , file |> Path.explode |> File.check_file |> Path.implode ])
+    in
+      if #rc st = 0 then
+        fn thy => 
+          Context.Theory thy
+        |> ML (Input.string ("let open META in Context.>> (Context.map_theory (Haskabelle_Data.put " ^ #out st ^ ")) end"))
+        |> Context.map_theory_result (fn thy => (Haskabelle_Data.get thy, thy))
+        |> META.META_haskell o (fn m => META.IsaUnit (old_datatype, map (META.map_prod From.string (Option.map From.string)) l_rewrite, From.string (Context.theory_name thy), m)) o #1
+      else
+        fn _ =>
+          let val _ = #terminate st ()
+          in error (#err st) end
+    end
+end
+
+local
+  open USE_parse
+in
+val () =
+  outer_syntax_commands' @{mk_string} @{command_keyword Haskell_file} ""
+    (Scan.optional (@{keyword "datatype_old"} >> K true) false
+     -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
+     -- Parse.path)
+    (get_thy @{here} o parse)
 end
 (*val _ = print_depth 100*)
 \<close>

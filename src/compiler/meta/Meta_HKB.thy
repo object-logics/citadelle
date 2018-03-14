@@ -39,9 +39,11 @@
 section\<open>Isabelle Meta-Model aka. AST definition of Isabelle\<close>
 
 theory Meta_HKB
-imports Main
+imports "../../compiler_generic/Init"
 begin
  
+section \<open>Isa.hs\<close>
+
 (* Author: Tobias C. Rittweiler, TU Muenchen
 
 Abstract representation of Isar/HOL theory.
@@ -59,9 +61,9 @@ datatype Type = Type Name "Type list"
               | TVar Name
               | NoType
  
-datatype Literal = Int int
+datatype Literal = (*(*To be supported*)Int int
                  | Char char
-                 | String string
+                 |*) String string
  
 datatype Term = Literal Literal
               | Const Name
@@ -103,5 +105,17 @@ datatype Stmt = Datatype "(TypeSpec * ((Name * (Type list)) list)) list"
               | Comment string
  
 datatype Module = Module ThyName "ThyName list" "Stmt list" bool
+
+section \<open>Convert.hs\<close>
+
+(* Author: Tobias C. Rittweiler, TU Muenchen
+
+Conversion from abstract Haskell code to abstract Isar/HOL theory.
+*)
+
+datatype IsaUnit = IsaUnit bool (* true: generate with 'old_datatype' instead of 'datatype' *) (* FIXME add a generic meta-command 'generation_syntax_params' to parameterize at any interleaving place the generating mode (i.e. datatype or old_datatype) *)
+                           "(string (* old prefix name to replace *) \<times> string option (* new substitute (or none to remove the prefix) *)) list"
+                           string (* name of the current theory *) (* FIXME move that 'static value' to the global environment. In principle, each meta-command is evaluated within one "own" theory name, following the hierarchy of children theories... *)
+                           "Module list"
 
 end
