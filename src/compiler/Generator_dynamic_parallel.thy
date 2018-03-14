@@ -61,7 +61,7 @@ imports Printer
            "Nonunique" "Sequence_"
            "with_only"
            (* Haskabelle *)
-           "datatype_old"
+           "datatype_old" "try_imports"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -2107,13 +2107,15 @@ local
   val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"] |> File.check_file
   val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"] |> File.check_dir
 in
-  fun parse ((old_datatype, l_rewrite), file) =
-    let val st =
+  fun parse (((old_datatype, try_imports), l_rewrite), file) =
+    let fun string_of_bool b = if b then "true" else "false"
+        val st =
           Bash.process
            (space_implode " "
              [ Path.implode haskabelle_bin
              , "--internal", Path.implode haskabelle_default
              , "--export", "false"
+             , "--try-imports", string_of_bool try_imports
              , "--dump-output"
              , "--files"
              , file |> Path.explode |> File.check_file |> Path.implode ])
@@ -2133,10 +2135,12 @@ end
 
 local
   open USE_parse
+  fun optional_b key = Scan.optional (key >> K true) false
 in
 val () =
   outer_syntax_commands' @{mk_string} @{command_keyword Haskell_file} ""
-    (Scan.optional (@{keyword "datatype_old"} >> K true) false
+    (optional_b @{keyword "datatype_old"}
+     -- optional_b @{keyword "try_imports"}
      -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
      -- Parse.path)
     (get_thy @{here} o parse)

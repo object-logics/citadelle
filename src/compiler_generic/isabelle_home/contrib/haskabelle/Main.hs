@@ -35,15 +35,18 @@ readBool "true" = return True
 readBool "false" = return False
 readBool _ = exitWith (ExitFailure 2)
 
+tryImports = False
+
 mainInterface :: [(String, [String])] -> IO ()
 mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("config", [configFile]) : []) = do
   exportCode <- readBool exportVar
   config <- readConfig configFile exportCode
   importProject config adaptDir
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("dump-output", []) : ("files", srcs @ (_ : _)) : []) = mainInterfaceDump adaptDir exportVar srcs
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump adaptDir exportVar srcs
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs_dst @ (_ : _ : _)) : []) =
-  readBool exportVar >>= importFiles adaptDir (init srcs_dst) (Just (last srcs_dst))
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("try-imports", [tryImportsVar]) : ("dump-output", []) : ("files", srcs @ (_ : _)) : []) = readBool tryImportsVar >>= mainInterfaceDump adaptDir exportVar srcs
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump adaptDir exportVar srcs tryImports
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs_dst @ (_ : _ : _)) : []) = do
+  exportCode <- readBool exportVar
+  importFiles adaptDir (init srcs_dst) (Just (last srcs_dst)) exportCode tryImports
 
 mainInterface (("internal", arg) : args) = do
   putStrLn "Error calling internal haskabelle binary. Wrong parameters:"
@@ -60,8 +63,9 @@ mainInterface _ = do
   putStrLn ""
   exitWith (ExitFailure 2)
 
-mainInterfaceDump adaptDir exportVar srcs =
-  readBool exportVar >>= importFiles adaptDir srcs Nothing
+mainInterfaceDump adaptDir exportVar srcs tryImports = do
+  exportCode <- readBool exportVar
+  importFiles adaptDir srcs Nothing exportCode tryImports
 
 main :: IO ()
 main = getArgs >>= mapM (return . \s -> case s of '-' : '-' : s -> Left s ; s -> Right s)
