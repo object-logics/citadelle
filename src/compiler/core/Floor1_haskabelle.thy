@@ -68,6 +68,9 @@ definition "hsk_stmt old_datatype names =
     | TypeSynonym [(t0, t1)] \<Rightarrow> Some (O.type_synonym (Type_synonym (hsk_typespec names t0) (hsk_type names t1)))
     | Function (Function_Stmt Primrec l1 l2) \<Rightarrow> None)"
 
-definition "print_haskell = (\<lambda> IsaUnit old_datatype l_name name_new [Module (ThyName name_old) _ m _] \<Rightarrow> Pair (hsk_stmt old_datatype ((name_old, Some name_new) # l_name) m))"
+definition "print_haskell = (\<lambda> IsaUnit old_datatype l_name name_new (l_mod, b_concat) \<Rightarrow>
+  Pair (List.bind (if b_concat then l_mod else [last l_mod])
+                  (\<lambda> Module (ThyName name_old) _ m _ \<Rightarrow>
+                       hsk_stmt old_datatype ((name_old, Some name_new) # l_name) m)))"
 
 end

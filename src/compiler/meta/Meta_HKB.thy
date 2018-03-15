@@ -116,6 +116,6 @@ Conversion from abstract Haskell code to abstract Isar/HOL theory.
 datatype IsaUnit = IsaUnit bool (* true: generate with 'old_datatype' instead of 'datatype' *) (* FIXME add a generic meta-command 'generation_syntax_params' to parameterize at any interleaving place the generating mode (i.e. datatype or old_datatype) *)
                            "(string (* old prefix name to replace *) \<times> string option (* new substitute (or none to remove the prefix) *)) list"
                            string (* name of the current theory *) (* FIXME move that 'static value' to the global environment. In principle, each meta-command is evaluated within one "own" theory name, following the hierarchy of children theories... *)
-                           "Module list"
+                           "(Module list \<times> bool (* true: treat as most the list as a single module *))"
 
 end

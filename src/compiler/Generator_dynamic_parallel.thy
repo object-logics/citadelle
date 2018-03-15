@@ -61,7 +61,7 @@ imports Printer
            "Nonunique" "Sequence_"
            "with_only"
            (* Haskabelle *)
-           "datatype_old" "try_import" "only_types" "base_path"
+           "datatype_old" "try_import" "only_types" "base_path" "concat_modules"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -2107,7 +2107,7 @@ local
   val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"] |> File.check_file
   val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"] |> File.check_dir
 in
-  fun parse (((((old_datatype, try_import), only_types), base_path_abs), l_rewrite), file) =
+  fun parse ((((((old_datatype, try_import), only_types), concat_modules), base_path_abs), l_rewrite), file) =
     let fun string_of_bool b = if b then "true" else "false"
         val st =
           Bash.process
@@ -2127,7 +2127,8 @@ in
           Context.Theory thy
         |> ML (Input.string ("let open META in Context.>> (Context.map_theory (Haskabelle_Data.put " ^ #out st ^ ")) end"))
         |> Context.map_theory_result (fn thy => (Haskabelle_Data.get thy, thy))
-        |> META.META_haskell o (fn m => META.IsaUnit (old_datatype, map (META.map_prod From.string (Option.map From.string)) l_rewrite, From.string (Context.theory_name thy), m)) o #1
+        |> META.META_haskell o (fn m => META.IsaUnit (old_datatype, map (META.map_prod From.string (Option.map From.string)) l_rewrite, From.string (Context.theory_name thy), (m, concat_modules))) o #1
+        |> tap (fn _ => warning (#err st))
       else
         fn _ =>
           let val _ = #terminate st ()
@@ -2144,6 +2145,7 @@ val () =
     (optional_b @{keyword "datatype_old"}
      -- optional_b @{keyword "try_import"}
      -- optional_b @{keyword "only_types"}
+     -- optional_b @{keyword "concat_modules"}
      -- Scan.option (@{keyword "base_path"} |-- Parse.path)
      -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
      -- Parse.path)
