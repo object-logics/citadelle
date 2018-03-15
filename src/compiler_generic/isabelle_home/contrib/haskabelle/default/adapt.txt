@@ -24,6 +24,7 @@ types
   "Prelude.String"      "string"
   "Prelude.Int"         "int"
   "Prelude.Integer"     "int"
+  "Prelude.Either"      "Prelude.Either"
 
 consts
   "Prelude.True"        "True"
@@ -74,6 +75,9 @@ consts
   "Prelude.Nothing"     "Option.None"
   "Prelude.Just"        "Option.Some"
   "Prelude.maybe"       "Prelude.maybe"
+
+  "Prelude.Left"        "Prelude.Left"
+  "Prelude.Right"       "Prelude.Right"
 
   "Prelude.show"        "Prelude.print"
 
