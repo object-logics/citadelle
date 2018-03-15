@@ -579,10 +579,10 @@ hsk_typ_of_typscheme (vs, typ) = Hsx.TyForall () Nothing (Just (Hsx.CxTuple () c
 
     toHsk junk = error ("Type -> Hsx.Type: Fall Through: " ++ Msg.prettyShow' "thing" junk) -}
 instance Hsk2Env (Hsx.ExportSpec ()) Export where
-    fromHsk (Hsx.EVar _ qname)        = ExportVar   (fromHsk qname)
-    fromHsk (Hsx.EAbs _ _ qname)      = ExportAbstr (fromHsk qname) -- FIXME namespace ignored in matched pattern
-    fromHsk (Hsx.EModuleContents _ m) = ExportMod   (fromHsk m)
-    fromHsk etc = error ("Not supported yet: " ++ show etc)
+    fromHsk (Hsx.EVar _ qname)           = ExportVar   (fromHsk qname)
+    fromHsk (Hsx.EAbs _ _ qname)         = ExportAbstr (fromHsk qname) -- FIXME namespace ignored in matched pattern
+    fromHsk (Hsx.EThingWith _ _ qname _) = ExportAll (fromHsk qname) -- FIXME this is an over-approximation
+    fromHsk (Hsx.EModuleContents _ m)    = ExportMod   (fromHsk m)
 
 instance Hsk2Env (Hsx.ImportDecl ()) Import where
     fromHsk (Hsx.ImportDecl { Hsx.importModule=m,
@@ -1153,6 +1153,7 @@ computeExportedNames moduleID globalEnv
                              Just t@(TypeDecl (Data _ constructors))
                                  -> let id_of = nameOf . lexInfoOf
                                     in id_of t : map (id_of . Constant . Constructor) constructors
+                             Nothing -> []
                              etc -> error ("Internal error (computeExportedNames): " ++ show etc)
                     ExportMod m
                                            -- export everything:
