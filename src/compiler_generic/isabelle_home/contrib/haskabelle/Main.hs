@@ -37,20 +37,21 @@ readBool _ = exitWith (ExitFailure 2)
 
 tryImport = False
 onlyTypes = False
+basePathAbs = Nothing
 
 mainInterface :: [(String, [String])] -> IO ()
 mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("config", [configFile]) : []) = do
   exportCode <- readBool exportVar
   config <- readConfig configFile exportCode
   importProject config adaptDir
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("try-import", [tryImportVar]) : ("only-types", [onlyTypesVar]) : ("dump-output", []) : ("files", srcs @ (_ : _)) : []) = do
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("try-import", [tryImportVar]) : ("only-types", [onlyTypesVar]) : ("base-path-abs", basePathAbs) : ("dump-output", []) : ("files", srcs @ (_ : _)) : []) = do
   tryImport <- readBool tryImportVar
   onlyTypes <- readBool onlyTypesVar
-  mainInterfaceDump adaptDir exportVar srcs tryImport onlyTypes
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump adaptDir exportVar srcs tryImport onlyTypes
+  mainInterfaceDump adaptDir exportVar srcs tryImport onlyTypes (case basePathAbs of [] -> Nothing ; x : _ -> Just (x))
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump adaptDir exportVar srcs tryImport onlyTypes basePathAbs
 mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs_dst @ (_ : _ : _)) : []) = do
   exportCode <- readBool exportVar
-  importFiles adaptDir (init srcs_dst) (Just (last srcs_dst)) exportCode tryImport onlyTypes
+  importFiles adaptDir (init srcs_dst) (Just (last srcs_dst)) exportCode tryImport onlyTypes basePathAbs
 
 mainInterface (("internal", arg) : args) = do
   putStrLn "Error calling internal haskabelle binary. Wrong parameters:"
@@ -67,9 +68,9 @@ mainInterface _ = do
   putStrLn ""
   exitWith (ExitFailure 2)
 
-mainInterfaceDump adaptDir exportVar srcs tryImport onlyTypes = do
+mainInterfaceDump adaptDir exportVar srcs tryImport onlyTypes basePathAbs = do
   exportCode <- readBool exportVar
-  importFiles adaptDir srcs Nothing exportCode tryImport onlyTypes
+  importFiles adaptDir srcs Nothing exportCode tryImport onlyTypes basePathAbs
 
 main :: IO ()
 main = getArgs >>= mapM (return . \s -> case s of '-' : '-' : s -> Left s ; s -> Right s)

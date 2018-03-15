@@ -13,7 +13,7 @@ Conversion from abstract Haskell code to abstract Isar/HOL theory.
 -}
 
 module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFiles, IsaUnit(..),
-  liftIO, getOutputDir, getExportCode, getTryImport, getOnlyTypes, getCustomisations, getInputFilesRecursively) where
+  liftIO, getOutputDir, getExportCode, getTryImport, getOnlyTypes, getBasePathAbs, getCustomisations, getInputFilesRecursively) where
 
 import Importer.Library
 import qualified Importer.AList as AList
@@ -1263,6 +1263,9 @@ getTryImport = ask >>= return . tryImport
 getOnlyTypes :: Conversion Bool
 getOnlyTypes = ask >>= return . onlyTypes
 
+getBasePathAbs :: Conversion (Maybe FilePath)
+getBasePathAbs = ask >>= return . basePathAbs
+
 runConversion :: Config -> Conversion a -> IO a
 runConversion config (Conversion parser) = runReaderT parser config
 
@@ -1272,9 +1275,9 @@ runConversion config (Conversion parser) = runReaderT parser config
   all module imported by the given module and add including the initial global environment
   as given by 'Ident_Env.initialGlobalEnv'.
 -}
-parseHskFiles :: Bool -> Bool -> [FilePath] -> Conversion [HskUnit]
-parseHskFiles tryImport onlyTypes paths
-    = do (hsmodules,custTrans) <- parseFilesAndDependencies tryImport paths
+parseHskFiles :: Bool -> Bool -> Maybe FilePath -> [FilePath] -> Conversion [HskUnit]
+parseHskFiles tryImport onlyTypes basePathAbs paths
+    = do (hsmodules,custTrans) <- parseFilesAndDependencies tryImport basePathAbs paths
          (depGraph, fromVertex, _) <- makeDependencyGraph hsmodules
          let cycles = cyclesFromGraph depGraph
       --   when (not (null cycles)) -- not a DAG?
@@ -1324,7 +1327,8 @@ data GrovelS = GrovelS{gVisitedPaths :: Set FilePath,
                        gRemainingPaths :: [ModuleImport],
                        gParsedModules :: [HskModulePragma],
                        gCustTrans :: CustomTranslations,
-                       gTryImport :: Bool}
+                       gTryImport :: Bool,
+                       gBasePathAbs :: Maybe FilePath}
 
 newtype GrovelM a = GrovelM (StateT GrovelS Conversion a)
     deriving (Monad, Functor, Applicative, MonadState GrovelS, MonadIO)
@@ -1336,10 +1340,13 @@ liftConv = GrovelM . lift
 
 checkVisited :: FilePath -> GrovelM Bool
 checkVisited path = liftM (Set.member path . gVisitedPaths) get
-                    
+
 getTryImport' :: GrovelM Bool
 getTryImport' = liftM gTryImport get
-                    
+
+getBasePathAbs' :: GrovelM (Maybe FilePath)
+getBasePathAbs' = liftM gBasePathAbs get
+
 addModule :: Hsx.SrcLoc -> HskModulePragma -> GrovelM ()
 addModule loc mod
     = modify (\ state@(GrovelS{gVisitedPaths = visited, gParsedModules = mods}) -> 
@@ -1378,12 +1385,12 @@ nextImport =
              do put $ state{gRemainingPaths = ps}
                 return$ Just p
 
-parseFilesAndDependencies :: Bool -> [FilePath] -> Conversion ([HskModulePragma],CustomTranslations)
-parseFilesAndDependencies tryImport files = 
+parseFilesAndDependencies :: Bool -> Maybe FilePath -> [FilePath] -> Conversion ([HskModulePragma],CustomTranslations)
+parseFilesAndDependencies tryImport basePathAbs files = 
     let GrovelM grovel = grovelImports
         mkImp file = (file,Nothing)
         imps = map mkImp files
-        state = GrovelS Set.empty imps [] Map.empty tryImport
+        state = GrovelS Set.empty imps [] Map.empty tryImport basePathAbs
     in do state' <- execStateT grovel state
           return (gParsedModules state' , gCustTrans state')
 
@@ -1409,13 +1416,14 @@ grovelFile imp@(file,_) =
 grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ imports _, _) = 
     do let newModules = map Hsx.importModule imports
        realModules <- filterM addCustMod' newModules
-       let modImps = map mkModImp realModules
+       basePathAbs <- getBasePathAbs'
+       let modImps = map (mkModImp basePathAbs) realModules
        tryImport <- getTryImport'
        modImps' <- liftIO $ mapM (checkImp tryImport) modImps
        addImports $ concatMap id modImps'
        grovelImports
     where baseLoc = Hsx.srcFilename loc
-          mkModImp mod = (computeSrcPath baseMod baseLoc mod, Just mod)
+          mkModImp basePathAbs mod = (computeSrcPath baseMod (baseLoc, basePathAbs) mod, Just mod)
           checkImp tryImport (file,Just mod) =
               do ext <- doesFileExist file
                  if ext then return $ [(file, Just mod)]
@@ -1431,12 +1439,11 @@ grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ 
 -}
 
 computeSrcPath :: Hsx.ModuleName ()      -- ^the module that is importing
-               -> FilePath     -- ^the path to the importing module
+               -> (FilePath, Maybe FilePath)     -- ^the path to the importing module
                -> Hsx.ModuleName ()       -- ^the module that is to be imported
                -> FilePath     -- ^the assumed path to the module to be imported
-computeSrcPath importingMod basePath m
-    = let curDir = takeDirectory basePath
-          baseDir = shrinkPath . joinPath $ (splitPath curDir) ++ replicate (Hsx.moduleHierarchyDepth importingMod) ".."
+computeSrcPath importingMod (basePath, basePathAbs) m
+    = let baseDir = shrinkPath . joinPath $ maybe (splitPath (takeDirectory basePath) ++ replicate (Hsx.moduleHierarchyDepth importingMod) "..") splitPath basePathAbs
       in combine baseDir (Hsx.module2FilePath m)   
 
 shrinkPath :: FilePath -> FilePath
