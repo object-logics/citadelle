@@ -13,7 +13,7 @@ Conversion from abstract Haskell code to abstract Isar/HOL theory.
 -}
 
 module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFiles, IsaUnit(..),
-  liftIO, getOutputDir, getExportCode, getTryImports, getCustomisations, getInputFilesRecursively) where
+  liftIO, getOutputDir, getExportCode, getTryImports, getOnlyTypes, getCustomisations, getInputFilesRecursively) where
 
 import Importer.Library
 import qualified Importer.AList as AList
@@ -1226,7 +1226,7 @@ getInputFilesRecursively
                      else do dirEx <- doesDirectoryExist path
                              if dirEx
                                then getFilesRecursively path
-                               else hPutStr stderr ("Warning: File or directory \"" ++ path ++ "\" does not exist!") >> return []  
+                               else hPutStrLn stderr ("Warning: File or directory \"" ++ path ++ "\" does not exist!") >> return []  
 
      
 {-|
@@ -1260,6 +1260,9 @@ getExportCode = ask >>= return . exportCode
 getTryImports :: Conversion Bool
 getTryImports = ask >>= return . tryImports
 
+getOnlyTypes :: Conversion Bool
+getOnlyTypes = ask >>= return . onlyTypes
+
 runConversion :: Config -> Conversion a -> IO a
 runConversion config (Conversion parser) = runReaderT parser config
 
@@ -1269,8 +1272,8 @@ runConversion config (Conversion parser) = runReaderT parser config
   all module imported by the given module and add including the initial global environment
   as given by 'Ident_Env.initialGlobalEnv'.
 -}
-parseHskFiles :: Bool -> [FilePath] -> Conversion [HskUnit]
-parseHskFiles tryImports paths
+parseHskFiles :: Bool -> Bool -> [FilePath] -> Conversion [HskUnit]
+parseHskFiles tryImports onlyTypes paths
     = do (hsmodules,custTrans) <- parseFilesAndDependencies tryImports paths
          (depGraph, fromVertex, _) <- makeDependencyGraph hsmodules
          let cycles = cyclesFromGraph depGraph
@@ -1283,8 +1286,12 @@ parseHskFiles tryImports paths
            [] -> fail $ "Internal error: No Haskell module was parsed!"
            modss -> 
                let mkUnit mods = HskUnit mods custTrans Ident_Env.initialGlobalEnv
-               in return $ map mkUnit modss 
-               
+               in return $ map (mkUnit . if onlyTypes then G.everywhere (G.mkT filter_decl) else id) modss
+  where filter_decl :: [Hsx.Decl Hsx.SrcLoc] -> [Hsx.Decl Hsx.SrcLoc]
+        filter_decl = concatMap (\t -> case t of Hsx.TypeDecl _ _ _ -> [t]
+                                                 Hsx.DataDecl _ _ _ _ _ _ -> [t]
+                                                 _ -> [])
+
 {-|
   This function computes a list of all cycles in the given graph.
   The cycles are represented by the vertexes which constitute them.
@@ -1413,7 +1420,7 @@ grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ 
               do ext <- doesFileExist file
                  if ext then return $ [(file, Just mod)]
                         else do
-                               (if tryImports then hPutStr stderr else fail)
+                               (if tryImports then hPutStrLn stderr else fail)
                                   $ "The module \"" ++ Hsx.showModuleName mod
                                  ++ "\" imported from module \"" ++ Hsx.showModuleName baseMod 
                                  ++ "\" cannot be found at \"" ++ file ++ "\"!"

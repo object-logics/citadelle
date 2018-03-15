@@ -33,9 +33,9 @@ importProject config adaptDir = do
   adapt <- readAdapt adaptDir
   runConversion config (convertFiles adapt)
 
-importFiles :: FilePath -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> IO ()
-importFiles adaptDir files out exportCode tryImports
-  = importProject (defaultConfig files out defaultCustomisations exportCode tryImports) adaptDir
+importFiles :: FilePath -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> IO ()
+importFiles adaptDir files out exportCode tryImports onlyTypes
+  = importProject (defaultConfig files out defaultCustomisations exportCode tryImports onlyTypes) adaptDir
 
 convertFiles :: Adaption -> Conversion ()
 convertFiles adapt = do
@@ -44,12 +44,13 @@ convertFiles adapt = do
   outDir <- getOutputDir
   exportCode <- getExportCode
   tryImports <- getTryImports
+  onlyTypes <- getOnlyTypes
   custs <- getCustomisations
   
   exists <- liftIO $ mapM doesDirectoryExist outDir
   when (case exists of Just False -> True ; _ -> False) $ liftIO $ maybe (return ()) createDirectory outDir
 
-  units <- parseHskFiles tryImports (filter Hsx.isHaskellSourceFile inFiles)
+  units <- parseHskFiles tryImports onlyTypes (filter Hsx.isHaskellSourceFile inFiles)
   let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs exportCode adapt) units
 
   liftIO $ maybe (return ()) (\outDir -> copyFile (preludeFile adapt) (combine outDir (takeFileName (preludeFile adapt)))) outDir
@@ -76,7 +77,7 @@ writeTheory adapt reserved env thy @ (Isa.Module (Isa.ThyName thyname) _ _ _) = 
   let dstName = content `seq` map (\c -> if c == '.' then '_' else c) thyname ++ ".thy"
   getOutputDirMaybe (\outLoc -> do
     let dstPath = combine outLoc dstName
-    liftIO $ hPutStr stderr $ "writing " ++ dstName ++ "...\n"
+    liftIO $ hPutStrLn stderr $ "writing " ++ dstName ++ "..."
     liftIO $ writeFile dstPath content)
 
 getOutputDirMaybe f = getOutputDir >>= maybe (return ()) f

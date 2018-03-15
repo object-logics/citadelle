@@ -36,17 +36,21 @@ readBool "false" = return False
 readBool _ = exitWith (ExitFailure 2)
 
 tryImports = False
+onlyTypes = False
 
 mainInterface :: [(String, [String])] -> IO ()
 mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("config", [configFile]) : []) = do
   exportCode <- readBool exportVar
   config <- readConfig configFile exportCode
   importProject config adaptDir
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("try-imports", [tryImportsVar]) : ("dump-output", []) : ("files", srcs @ (_ : _)) : []) = readBool tryImportsVar >>= mainInterfaceDump adaptDir exportVar srcs
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump adaptDir exportVar srcs tryImports
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("try-imports", [tryImportsVar]) : ("only-types", [onlyTypesVar]) : ("dump-output", []) : ("files", srcs @ (_ : _)) : []) = do
+  tryImports <- readBool tryImportsVar
+  onlyTypes <- readBool onlyTypesVar
+  mainInterfaceDump adaptDir exportVar srcs tryImports onlyTypes
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump adaptDir exportVar srcs tryImports onlyTypes
 mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs_dst @ (_ : _ : _)) : []) = do
   exportCode <- readBool exportVar
-  importFiles adaptDir (init srcs_dst) (Just (last srcs_dst)) exportCode tryImports
+  importFiles adaptDir (init srcs_dst) (Just (last srcs_dst)) exportCode tryImports onlyTypes
 
 mainInterface (("internal", arg) : args) = do
   putStrLn "Error calling internal haskabelle binary. Wrong parameters:"
@@ -63,9 +67,9 @@ mainInterface _ = do
   putStrLn ""
   exitWith (ExitFailure 2)
 
-mainInterfaceDump adaptDir exportVar srcs tryImports = do
+mainInterfaceDump adaptDir exportVar srcs tryImports onlyTypes = do
   exportCode <- readBool exportVar
-  importFiles adaptDir srcs Nothing exportCode tryImports
+  importFiles adaptDir srcs Nothing exportCode tryImports onlyTypes
 
 main :: IO ()
 main = getArgs >>= mapM (return . \s -> case s of '-' : '-' : s -> Left s ; s -> Right s)
