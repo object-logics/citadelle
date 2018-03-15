@@ -68,7 +68,7 @@ convertHskUnit custs exportCode adapt (HskUnit hsmodules custMods initialGlobalE
                              
           hskmodules = map (toHskModule global_env_hsk) hsmodules'
           
-          isathys = fst $ runConversion' custs adapt global_env_hsk $
+          isathys = Isa.retopologizeModule $ fst $ runConversion' custs adapt global_env_hsk $
             mapM (convertModule exportCode) (zip pragmass hskmodules)
           custThys = Map.elems custMods
           adaptedEnv = adaptGlobalEnv adaptionTable global_env_hsk

@@ -8,7 +8,7 @@ Abstract representation of Isar/HOL theory.
 module Importer.Isa (ThyName(..), Name(..), Type(..), Literal(..), Term(..), Pat,
   ListComprFragment(..), DoBlockFragment(..),
   Function_Kind(..), Function_Stmt(..), Stmt(..), TypeSpec(..), TypeSign(..), Module(..),
-  dest_Type, dest_TVar, base_name_of, name_of_type_sign, retopologize) where
+  dest_Type, dest_TVar, base_name_of, name_of_type_sign, retopologize, retopologizeModule) where
 
 import Prelude hiding ((*>))
 import Importer.Library
@@ -264,3 +264,9 @@ retopologize (Module thyname imports stmts exportCode) =
         in Just (stmt, (xs, deps'))
       else case select (xs, deps) of
         Just (stmt', (xs', deps')) -> Just (stmt', ((Just (x, ws), stmt) : xs', deps'))
+
+
+retopologizeModule :: [Module] -> [Module]
+retopologizeModule l =
+  let (graph, fromVertex, _) = graphFromEdges (map (\m@(Module thyname imports _ _) -> (m, thyname, imports)) l) in
+  reverse $ map (\v -> let (n, _, _) = fromVertex v in n) $ topSort graph
