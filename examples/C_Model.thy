@@ -37,7 +37,7 @@
  ******************************************************************************)
 
 theory C_Model
-  imports "../src/compiler/Generator_dynamic_sequential"
+  imports "../src/compiler/Generator_dynamic_parallel"
           "$HASKABELLE_HOME_USER/default/Prelude"
 begin
 

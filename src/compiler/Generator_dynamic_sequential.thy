@@ -2128,8 +2128,8 @@ local
             ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) source) #>
           Local_Theory.propagate_ml_env
   fun haskabelle_path hkb_home l = Path.appends (Path.variable hkb_home :: map Path.explode l)
-  val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"] |> File.check_file
-  val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"] |> File.check_dir
+  val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"]
+  val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"]
 in
   fun parse ((((((old_datatype, try_import), only_types), concat_modules), base_path_abs), l_rewrite), file) =
     let fun string_of_bool b = if b then "true" else "false"
