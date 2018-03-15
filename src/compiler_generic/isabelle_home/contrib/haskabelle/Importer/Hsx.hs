@@ -488,6 +488,7 @@ extractTypeConNs = everything Set.union (mkQ Set.empty fromType `extQ` fromAsst)
   fromType (Hsx.TyApp _ typ1 typ2) = Set.union (fromType typ1) (fromType typ2)
   fromType (Hsx.TyParen _ typ) = fromType typ
   fromType (Hsx.TyList _ typ) = fromType (Hsx.TyApp () (Hsx.TyCon () (Hsx.Special () (Hsx.ListCon ()))) typ)
+  fromType (Hsx.TyBang _ _ _ typ) = fromType typ
   fromType typ = error ("extractTypeConNs: bad type " ++ show typ)
   fromAsst :: Hsx.Asst () -> HskNames
   fromAsst (Hsx.ClassA _ name _) = Set.singleton name

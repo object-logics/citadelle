@@ -546,6 +546,7 @@ instance Hsk2Env (Hsx.Type ()) Type where
 
     fromHsk (Hsx.TyParen _ typ) = fromHsk typ
     fromHsk (Hsx.TyForall _ _ _ typ) = fromHsk typ
+    fromHsk (Hsx.TyBang _ _ _ typ) = fromHsk typ
 
     fromHsk (Hsx.TyList _ typ) = fromHsk (Hsx.TyApp () (Hsx.TyCon () (Hsx.Special () (Hsx.ListCon ()))) typ)
 
