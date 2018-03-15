@@ -13,7 +13,7 @@ Conversion from abstract Haskell code to abstract Isar/HOL theory.
 -}
 
 module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFiles, IsaUnit(..),
-  liftIO, getOutputDir, getExportCode, getTryImports, getOnlyTypes, getCustomisations, getInputFilesRecursively) where
+  liftIO, getOutputDir, getExportCode, getTryImport, getOnlyTypes, getCustomisations, getInputFilesRecursively) where
 
 import Importer.Library
 import qualified Importer.AList as AList
@@ -1257,8 +1257,8 @@ getOutputDir = ask >>= return . fmap fileLocation . outputLocation
 getExportCode :: Conversion Bool
 getExportCode = ask >>= return . exportCode
 
-getTryImports :: Conversion Bool
-getTryImports = ask >>= return . tryImports
+getTryImport :: Conversion Bool
+getTryImport = ask >>= return . tryImport
 
 getOnlyTypes :: Conversion Bool
 getOnlyTypes = ask >>= return . onlyTypes
@@ -1273,8 +1273,8 @@ runConversion config (Conversion parser) = runReaderT parser config
   as given by 'Ident_Env.initialGlobalEnv'.
 -}
 parseHskFiles :: Bool -> Bool -> [FilePath] -> Conversion [HskUnit]
-parseHskFiles tryImports onlyTypes paths
-    = do (hsmodules,custTrans) <- parseFilesAndDependencies tryImports paths
+parseHskFiles tryImport onlyTypes paths
+    = do (hsmodules,custTrans) <- parseFilesAndDependencies tryImport paths
          (depGraph, fromVertex, _) <- makeDependencyGraph hsmodules
          let cycles = cyclesFromGraph depGraph
       --   when (not (null cycles)) -- not a DAG?
@@ -1324,7 +1324,7 @@ data GrovelS = GrovelS{gVisitedPaths :: Set FilePath,
                        gRemainingPaths :: [ModuleImport],
                        gParsedModules :: [HskModulePragma],
                        gCustTrans :: CustomTranslations,
-                       gTryImports :: Bool}
+                       gTryImport :: Bool}
 
 newtype GrovelM a = GrovelM (StateT GrovelS Conversion a)
     deriving (Monad, Functor, Applicative, MonadState GrovelS, MonadIO)
@@ -1337,8 +1337,8 @@ liftConv = GrovelM . lift
 checkVisited :: FilePath -> GrovelM Bool
 checkVisited path = liftM (Set.member path . gVisitedPaths) get
                     
-getTryImports' :: GrovelM Bool
-getTryImports' = liftM gTryImports get
+getTryImport' :: GrovelM Bool
+getTryImport' = liftM gTryImport get
                     
 addModule :: Hsx.SrcLoc -> HskModulePragma -> GrovelM ()
 addModule loc mod
@@ -1379,11 +1379,11 @@ nextImport =
                 return$ Just p
 
 parseFilesAndDependencies :: Bool -> [FilePath] -> Conversion ([HskModulePragma],CustomTranslations)
-parseFilesAndDependencies tryImports files = 
+parseFilesAndDependencies tryImport files = 
     let GrovelM grovel = grovelImports
         mkImp file = (file,Nothing)
         imps = map mkImp files
-        state = GrovelS Set.empty imps [] Map.empty tryImports
+        state = GrovelS Set.empty imps [] Map.empty tryImport
     in do state' <- execStateT grovel state
           return (gParsedModules state' , gCustTrans state')
 
@@ -1410,17 +1410,17 @@ grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ 
     do let newModules = map Hsx.importModule imports
        realModules <- filterM addCustMod' newModules
        let modImps = map mkModImp realModules
-       tryImports <- getTryImports'
-       modImps' <- liftIO $ mapM (checkImp tryImports) modImps
+       tryImport <- getTryImport'
+       modImps' <- liftIO $ mapM (checkImp tryImport) modImps
        addImports $ concatMap id modImps'
        grovelImports
     where baseLoc = Hsx.srcFilename loc
           mkModImp mod = (computeSrcPath baseMod baseLoc mod, Just mod)
-          checkImp tryImports (file,Just mod) =
+          checkImp tryImport (file,Just mod) =
               do ext <- doesFileExist file
                  if ext then return $ [(file, Just mod)]
                         else do
-                               (if tryImports then hPutStrLn stderr else fail)
+                               (if tryImport then hPutStrLn stderr else fail)
                                   $ "The module \"" ++ Hsx.showModuleName mod
                                  ++ "\" imported from module \"" ++ Hsx.showModuleName baseMod 
                                  ++ "\" cannot be found at \"" ++ file ++ "\"!"

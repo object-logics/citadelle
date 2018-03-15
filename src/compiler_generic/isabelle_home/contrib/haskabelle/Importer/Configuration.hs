@@ -107,7 +107,7 @@ data CustomTheory = CustomTheory {
 {-|
   An element of this type represents configuration information for this application.
 -}
-data Config = Config{inputLocations :: [InputLocation], outputLocation :: OutputLocation, customisations :: Customisations, exportCode :: Bool, tryImports :: Bool, onlyTypes :: Bool}
+data Config = Config{inputLocations :: [InputLocation], outputLocation :: OutputLocation, customisations :: Customisations, exportCode :: Bool, tryImport :: Bool, onlyTypes :: Bool}
               deriving (Show, Eq, Data, Typeable)
 
 {-|
@@ -178,12 +178,12 @@ type XMLReader a = Either String a
   output directory and customisation.
 -}
 defaultConfig ::[FilePath] -> Maybe FilePath -> Customisations -> Bool -> Bool -> Bool -> Config
-defaultConfig inFiles outDir custs exportCode tryImports onlyTypes =
+defaultConfig inFiles outDir custs exportCode tryImport onlyTypes =
   Config { inputLocations = map FileLocation inFiles,
            outputLocation = fmap FileLocation outDir,
            customisations = custs,
            exportCode = exportCode,
-           tryImports = tryImports,
+           tryImport = tryImport,
            onlyTypes = onlyTypes}
 
 {-|
@@ -339,7 +339,7 @@ parseConfigDoc el exportCode
                           outputLocation=output,
                           customisations=cust',
                           exportCode=exportCode,
-                          tryImports=False,
+                          tryImport=False,
                           onlyTypes=False}
 
 {-|

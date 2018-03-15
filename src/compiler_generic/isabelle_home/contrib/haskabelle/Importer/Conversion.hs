@@ -34,8 +34,8 @@ importProject config adaptDir = do
   runConversion config (convertFiles adapt)
 
 importFiles :: FilePath -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> IO ()
-importFiles adaptDir files out exportCode tryImports onlyTypes
-  = importProject (defaultConfig files out defaultCustomisations exportCode tryImports onlyTypes) adaptDir
+importFiles adaptDir files out exportCode tryImport onlyTypes
+  = importProject (defaultConfig files out defaultCustomisations exportCode tryImport onlyTypes) adaptDir
 
 convertFiles :: Adaption -> Conversion ()
 convertFiles adapt = do
@@ -43,14 +43,14 @@ convertFiles adapt = do
   inFiles <- getInputFilesRecursively
   outDir <- getOutputDir
   exportCode <- getExportCode
-  tryImports <- getTryImports
+  tryImport <- getTryImport
   onlyTypes <- getOnlyTypes
   custs <- getCustomisations
   
   exists <- liftIO $ mapM doesDirectoryExist outDir
   when (case exists of Just False -> True ; _ -> False) $ liftIO $ maybe (return ()) createDirectory outDir
 
-  units <- parseHskFiles tryImports onlyTypes (filter Hsx.isHaskellSourceFile inFiles)
+  units <- parseHskFiles tryImport onlyTypes (filter Hsx.isHaskellSourceFile inFiles)
   let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs exportCode adapt) units
 
   liftIO $ maybe (return ()) (\outDir -> copyFile (preludeFile adapt) (combine outDir (takeFileName (preludeFile adapt)))) outDir
