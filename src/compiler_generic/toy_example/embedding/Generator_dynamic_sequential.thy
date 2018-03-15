@@ -1907,7 +1907,7 @@ structure TOY_parse = struct
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: Enum\<close>
+subsection\<open>Setup of Meta Commands for Toy: @{command Enum}\<close>
 
 ML\<open>
 val () =
@@ -1917,7 +1917,7 @@ val () =
       K (META.META_enum (META.ToyEnum (From.binding n1, From.list From.binding n2))))
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: (abstract) Class\<close>
+subsection\<open>Setup of Meta Commands for Toy: (abstract) @{command Class}\<close>
 
 ML\<open>
 local
@@ -1946,7 +1946,7 @@ val () = mk_classDefinition TOY_class_abstract @{command_keyword Abstract_class}
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: Association, Composition, Aggregation\<close>
+subsection\<open>Setup of Meta Commands for Toy: @{command Association}, @{command Composition}, @{command Aggregation}\<close>
 
 ML\<open>
 local
@@ -1965,7 +1965,7 @@ val () = mk_associationDefinition META.ToyAssTy_aggregation @{command_keyword Ag
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: (abstract) Associationclass\<close>
+subsection\<open>Setup of Meta Commands for Toy: (abstract) @{command Associationclass}\<close>
 
 ML\<open>
 
@@ -2003,7 +2003,7 @@ val () = mk_associationClassDefinition TOY_associationclass_abstract @{command_k
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: Context\<close>
+subsection\<open>Setup of Meta Commands for Toy: @{command Context}\<close>
 
 ML\<open>
 local
@@ -2027,7 +2027,7 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: End\<close>
+subsection\<open>Setup of Meta Commands for Toy: @{command End}\<close>
 
 ML\<open>
 val () =
@@ -2041,7 +2041,7 @@ val () =
            []))
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: BaseType, Instance, State\<close>
+subsection\<open>Setup of Meta Commands for Toy: @{command BaseType}, @{command Instance}, @{command State}\<close>
 
 ML\<open>
 val () =
@@ -2069,7 +2069,7 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: Transition\<close>
+subsection\<open>Setup of Meta Commands for Toy: @{command Transition}\<close>
 
 ML\<open>
 local
@@ -2090,7 +2090,7 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Toy: Tree\<close>
+subsection\<open>Setup of Meta Commands for Toy: @{command Tree}\<close>
 
 ML\<open>
 local

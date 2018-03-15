@@ -1916,7 +1916,7 @@ structure USE_parse = struct
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: Enum\<close>
+subsection\<open>Setup of Meta Commands for OCL: @{command Enum}\<close>
 
 ML\<open>
 val () =
@@ -1926,7 +1926,7 @@ val () =
       K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: (abstract) Class\<close>
+subsection\<open>Setup of Meta Commands for OCL: (abstract) @{command Class}\<close>
 
 ML\<open>
 local
@@ -1955,7 +1955,7 @@ val () = mk_classDefinition USE_class_abstract @{command_keyword Abstract_class}
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: Association, Composition, Aggregation\<close>
+subsection\<open>Setup of Meta Commands for OCL: @{command Association}, @{command Composition}, @{command Aggregation}\<close>
 
 ML\<open>
 local
@@ -1974,7 +1974,7 @@ val () = mk_associationDefinition META.OclAssTy_aggregation @{command_keyword Ag
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: (abstract) Associationclass\<close>
+subsection\<open>Setup of Meta Commands for OCL: (abstract) @{command Associationclass}\<close>
 
 ML\<open>
 
@@ -2012,7 +2012,7 @@ val () = mk_associationClassDefinition USE_associationclass_abstract @{command_k
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: Context\<close>
+subsection\<open>Setup of Meta Commands for OCL: @{command Context}\<close>
 
 ML\<open>
 local
@@ -2036,7 +2036,7 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: End\<close>
+subsection\<open>Setup of Meta Commands for OCL: @{command End}\<close>
 
 ML\<open>
 val () =
@@ -2050,7 +2050,7 @@ val () =
            []))
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: BaseType, Instance, State\<close>
+subsection\<open>Setup of Meta Commands for OCL: @{command BaseType}, @{command Instance}, @{command State}\<close>
 
 ML\<open>
 val () =
@@ -2078,7 +2078,7 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: Transition\<close>
+subsection\<open>Setup of Meta Commands for OCL: @{command Transition}\<close>
 
 ML\<open>
 local
@@ -2099,7 +2099,7 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for OCL: Tree\<close>
+subsection\<open>Setup of Meta Commands for OCL: @{command Tree}\<close>
 
 ML\<open>
 local
@@ -2112,7 +2112,7 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Haskabelle: Haskell_file\<close>
+subsection\<open>Setup of Meta Commands for Haskabelle: @{command Haskell_file}\<close>
 
 ML\<open>
 structure Haskabelle_Data = Theory_Data
