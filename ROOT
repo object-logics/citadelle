@@ -122,6 +122,7 @@ session "OCL-all-dirty" in "src" = "HOL-Library" +
     "../examples/Bank_Model"
     "../examples/Bank_Test_Model"
     "../examples/Clocks_Lib_Model"
+    "../examples/C_Model"
     (*"../examples/Employee_Model/Analysis_deep"*)
     "../examples/Employee_Model/Analysis_shallow"
     (*"../examples/Employee_Model/Design_deep"*)
