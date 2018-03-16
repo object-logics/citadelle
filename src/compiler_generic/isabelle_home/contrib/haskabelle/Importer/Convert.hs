@@ -1280,9 +1280,9 @@ parseHskFiles tryImport onlyTypes basePathAbs paths
     = do (hsmodules,custTrans) <- parseFilesAndDependencies tryImport basePathAbs paths
          (depGraph, fromVertex, _) <- makeDependencyGraph hsmodules
          let cycles = cyclesFromGraph depGraph
-      --   when (not (null cycles)) -- not a DAG?
-      --        $ let toModuleName v = case fromVertex v of (_, Hsx.ModuleName n,_) -> n
-      -- |           in fail (Msg.cycle_in_dependency_graph (map toModuleName (head cycles)))
+         when (not (null cycles)) -- not a DAG?
+              $ let toModuleName v = case fromVertex v of (_, Hsx.ModuleName _ n,_) -> n
+                in fail (Msg.cycle_in_dependency_graph (map toModuleName (head cycles)))
          let toModule v = case fromVertex v of (m,_,_) -> m
          case map (map toModule . flatten) (components depGraph) of
            -- this should not happen
