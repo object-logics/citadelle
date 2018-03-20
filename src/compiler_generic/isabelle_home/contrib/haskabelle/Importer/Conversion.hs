@@ -28,17 +28,17 @@ import qualified Importer.Isa as Isa (Module (..), ThyName (..))
 import qualified Importer.Hsx as Hsx
 
 
-importProject :: Config -> FilePath -> IO ()
-importProject config adaptDir = do
+importProject :: Config -> FilePath -> [String] -> IO ()
+importProject config adaptDir hsk_cts = do
   adapt <- readAdapt adaptDir
-  runConversion config (convertFiles adapt)
+  runConversion config (convertFiles adapt hsk_cts)
 
-importFiles :: FilePath -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> IO ()
-importFiles adaptDir files out exportCode tryImport onlyTypes basePathAbs getIgnoreNotInScope
-  = importProject (defaultConfig files out defaultCustomisations exportCode tryImport onlyTypes basePathAbs getIgnoreNotInScope) adaptDir
+importFiles :: [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> FilePath -> [String] -> IO ()
+importFiles files out exportCode tryImport onlyTypes basePathAbs getIgnoreNotInScope
+  = importProject (defaultConfig defaultCustomisations files out exportCode tryImport onlyTypes basePathAbs getIgnoreNotInScope)
 
-convertFiles :: Adaption -> Conversion ()
-convertFiles adapt = do
+convertFiles :: Adaption -> [String] -> Conversion ()
+convertFiles adapt hsk_cts = do
 
   inFiles <- getInputFilesRecursively
   outDir <- getOutputDir
@@ -52,7 +52,7 @@ convertFiles adapt = do
   exists <- liftIO $ mapM doesDirectoryExist outDir
   when (case exists of Just False -> True ; _ -> False) $ liftIO $ maybe (return ()) createDirectory outDir
 
-  units <- parseHskFiles tryImport onlyTypes basePathAbs (filter Hsx.isHaskellSourceFile inFiles)
+  units <- parseHskFiles tryImport onlyTypes basePathAbs (map Right hsk_cts ++ map Left (filter Hsx.isHaskellSourceFile inFiles))
   let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs exportCode ignoreNotInScope adapt) units
 
   liftIO $ maybe (return ()) (\outDir -> copyFile (preludeFile adapt) (combine outDir (takeFileName (preludeFile adapt)))) outDir

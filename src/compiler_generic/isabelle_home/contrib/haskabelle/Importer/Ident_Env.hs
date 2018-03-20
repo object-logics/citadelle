@@ -56,7 +56,7 @@ module Importer.Ident_Env
       lookupType, lookupType_OrLose,
       substituteTyVars,
       lookupIdentifiers_OrLose,
-      lookupImports_OrLose,
+      lookupImports,
       lexInfoOf,
       methodsOf,
       classVarOf,
@@ -1318,10 +1318,10 @@ lookupType_OrLose m n env
 {-|
   This function looks up the import list of the given module.
 -}
-lookupImports_OrLose :: ModuleID -> GlobalE -> [Import]
-lookupImports_OrLose moduleID globalEnv
-    = let (Module _ imps _ _) = findEnvModule_OrLose moduleID globalEnv 
-      in imps
+lookupImports :: ModuleID -> GlobalE -> [Import]
+lookupImports moduleID globalEnv
+    = case findEnvModule moduleID globalEnv of Just (Module _ imps _ _) -> imps
+                                               Nothing -> []
 
 {-|
   This function looks up the given name in the given module's import list to get

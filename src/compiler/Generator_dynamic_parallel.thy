@@ -82,7 +82,7 @@ imports Printer
            (* OCL (added) *)
            "End" "Instance" "BaseType" "State" "Transition" "Tree"
            (* Haskabelle *)
-           "Haskell_file"
+           "Haskell" "Haskell_file"
 
            (* Isabelle syntax *)
            "generation_syntax"
@@ -2088,7 +2088,7 @@ val () =
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for Haskabelle: @{command Haskell_file}\<close>
+subsection\<open>Setup of Meta Commands for Haskabelle: @{command Haskell}, @{command Haskell_file}\<close>
 
 ML\<open>
 structure Haskabelle_Data = Theory_Data
@@ -2107,21 +2107,25 @@ local
   val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"]
   val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"]
 in
-  fun parse (((((((old_datatype, try_import), only_types), ignore_not_in_scope), concat_modules), base_path_abs), l_rewrite), file) =
+  fun parse hsk_str (((((((old_datatype, try_import), only_types), ignore_not_in_scope), concat_modules), base_path_abs), l_rewrite), content) =
     let fun string_of_bool b = if b then "true" else "false"
         val st =
           Bash.process
            (space_implode " "
-             [ Path.implode haskabelle_bin
-             , "--internal", Path.implode haskabelle_default
-             , "--export", "false"
-             , "--try-import", string_of_bool try_import
-             , "--only-types", string_of_bool only_types
-             , "--base-path-abs", case base_path_abs of NONE => "" | SOME s => s
-             , "--ignore-not-in-scope", string_of_bool ignore_not_in_scope
-             , "--dump-output"
-             , "--files"
-             , file |> Path.explode |> File.check_file |> Path.implode ])
+             ( [ Path.implode haskabelle_bin
+               , "--internal", Path.implode haskabelle_default
+               , "--export", "false"
+               , "--try-import", string_of_bool try_import
+               , "--only-types", string_of_bool only_types
+               , "--base-path-abs", case base_path_abs of NONE => "" | SOME s => s
+               , "--ignore-not-in-scope", string_of_bool ignore_not_in_scope
+               , "--dump-output" ]
+             @ (case
+                  if hsk_str then
+                    ([ Bash.string content ], [])
+                  else
+                    ([], [ content |> Path.explode |> File.check_file |> Path.implode ])
+                of (cts, files) => List.concat [ ["--hsk-contents"], cts, ["--files"], files ])))
     in
       if #rc st = 0 then
         fn thy => 
@@ -2140,18 +2144,23 @@ end
 local
   open USE_parse
   fun optional_b key = Scan.optional (key >> K true) false
+  val haskell_parse =  optional_b @{keyword "datatype_old"}
+                    -- optional_b @{keyword "try_import"}
+                    -- optional_b @{keyword "only_types"}
+                    -- optional_b @{keyword "ignore_not_in_scope"}
+                    -- optional_b @{keyword "concat_modules"}
+                    -- Scan.option (@{keyword "base_path"} |-- Parse.path)
+                    -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
 in
 val () =
+  outer_syntax_commands' @{mk_string} @{command_keyword Haskell} ""
+    (haskell_parse -- Parse.cartouche)
+    (get_thy @{here} o parse true)
+
+val () =
   outer_syntax_commands' @{mk_string} @{command_keyword Haskell_file} ""
-    (optional_b @{keyword "datatype_old"}
-     -- optional_b @{keyword "try_import"}
-     -- optional_b @{keyword "only_types"}
-     -- optional_b @{keyword "ignore_not_in_scope"}
-     -- optional_b @{keyword "concat_modules"}
-     -- Scan.option (@{keyword "base_path"} |-- Parse.path)
-     -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
-     -- Parse.path)
-    (get_thy @{here} o parse)
+    (haskell_parse -- Parse.path)
+    (get_thy @{here} o parse false)
 end
 (*val _ = print_depth 100*)
 \<close>

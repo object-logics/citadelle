@@ -177,11 +177,11 @@ type XMLReader a = Either String a
   This function constructs a default configuration depending on the input files,
   output directory and customisation.
 -}
-defaultConfig ::[FilePath] -> Maybe FilePath -> Customisations -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> Config
-defaultConfig inFiles outDir custs exportCode tryImport onlyTypes basePathAbs ignoreNotInScope =
-  Config { inputLocations = map FileLocation inFiles,
+defaultConfig ::Customisations -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> Config
+defaultConfig custs inFiles outDir exportCode tryImport onlyTypes basePathAbs ignoreNotInScope =
+  Config { customisations = custs,
+           inputLocations = map FileLocation inFiles,
            outputLocation = fmap FileLocation outDir,
-           customisations = custs,
            exportCode = exportCode,
            tryImport = tryImport,
            onlyTypes = onlyTypes,

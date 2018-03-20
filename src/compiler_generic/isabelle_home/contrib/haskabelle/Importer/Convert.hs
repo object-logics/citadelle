@@ -18,7 +18,7 @@ module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFile
 import Importer.Library
 import qualified Importer.AList as AList
 import qualified Data.Generics as G
-import Data.List (nub, unzip4, partition)
+import Data.List (nub, unzip4, partition, isSuffixOf)
 import Data.Maybe
 import qualified Data.Set as Set hiding (Set)
 import Data.Set (Set)
@@ -26,6 +26,8 @@ import qualified Data.Map as Map hiding (Map)
 import Data.Map (Map)
 import Data.Tree
 import Data.Graph
+
+import qualified Language.Preprocessor.Unlit as Unlit
 
 import Control.Monad (foldM, mapAndUnzipM)
 import Control.Monad.State (StateT, MonadState, get, put, modify, execStateT, runStateT)
@@ -430,7 +432,7 @@ convertModule exportCode (pragmas, HskModule _loc modul dependentDecls) =
 lookupImports :: Isa.ThyName -> Ident_Env.GlobalE -> Customisations -> [Isa.ThyName]
 lookupImports thy globalEnv custs
     = map (rename .(\(Ident_Env.Import name _ _) ->  Ident_Env.toIsa name))
-        $ Ident_Env.lookupImports_OrLose (Ident_Env.fromIsa thy) globalEnv
+        $ Ident_Env.lookupImports (Ident_Env.fromIsa thy) globalEnv
     where rename orig@(Isa.ThyName name) = case Config.getCustomTheory custs (Hsx.ModuleName () name) of
                                    Nothing -> orig
                                    Just ct -> getCustomTheoryName ct
@@ -1278,7 +1280,7 @@ runConversion config (Conversion parser) = runReaderT parser config
   all module imported by the given module and add including the initial global environment
   as given by 'Ident_Env.initialGlobalEnv'.
 -}
-parseHskFiles :: Bool -> Bool -> Maybe FilePath -> [FilePath] -> Conversion [HskUnit]
+parseHskFiles :: Bool -> Bool -> Maybe FilePath -> [HaskellDocument] -> Conversion [HskUnit]
 parseHskFiles tryImport onlyTypes basePathAbs paths
     = do (hsmodules,custTrans) <- parseFilesAndDependencies tryImport basePathAbs paths
          (depGraph, fromVertex, _) <- makeDependencyGraph hsmodules
@@ -1323,8 +1325,8 @@ makeDependencyGraph hsmodules
                    imported_modules'  <- filterM isCustomModule imported_modules
                    return (hsmodule, Hsx.fmapUnit modul, imported_modules)
 
-
-type ModuleImport = (FilePath, Maybe (Hsx.ModuleName ()))
+type HaskellDocument = Either FilePath String
+type ModuleImport = (HaskellDocument, Maybe (Hsx.ModuleName ()))
 
 data GrovelS = GrovelS{gVisitedPaths :: Set FilePath,
                        gRemainingPaths :: [ModuleImport],
@@ -1388,7 +1390,7 @@ nextImport =
              do put $ state{gRemainingPaths = ps}
                 return$ Just p
 
-parseFilesAndDependencies :: Bool -> Maybe FilePath -> [FilePath] -> Conversion ([HskModulePragma],CustomTranslations)
+parseFilesAndDependencies :: Bool -> Maybe FilePath -> [HaskellDocument] -> Conversion ([HskModulePragma],CustomTranslations)
 parseFilesAndDependencies tryImport basePathAbs files = 
     let GrovelM grovel = grovelImports
         mkImp file = (file,Nothing)
@@ -1405,15 +1407,13 @@ grovelImports =
          Just file -> grovelFile file
 
 grovelFile :: ModuleImport -> GrovelM ()
-grovelFile imp@(file,_) = 
+grovelFile imp@(Left file,_) = 
     do v <- checkVisited file
        if v 
         then grovelImports
-        else do (loc, mod@(Hsx.Module _ (Just (Hsx.ModuleHead _ name _ _)) _ _ _, _)) <- parseHskFile imp
-                cust <- addCustMod $ Hsx.fmapUnit name
-                if cust then grovelImports
-                 else addModule loc mod
-                      >> grovelModule loc (case mod of (m, u) -> (Hsx.fmapUnit m, u))
+        else parseHskFile imp
+
+grovelFile imp@(Right _,_) = parseHskFile imp
 
 -- grovelModule :: Hsx.ModuleName () -> GrovelM ()
 grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ imports _, _) = 
@@ -1429,7 +1429,7 @@ grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ 
           mkModImp basePathAbs mod = (computeSrcPath baseMod (baseLoc, basePathAbs) mod, Just mod)
           checkImp tryImport (file,Just mod) =
               do ext <- doesFileExist file
-                 if ext then return $ [(file, Just mod)]
+                 if ext then return $ [(Left file, Just mod)]
                         else do
                                (if tryImport then hPutStrLn stderr else fail)
                                   $ "The module \"" ++ Hsx.showModuleName mod
@@ -1457,20 +1457,53 @@ shrinkPath = joinPath . shrinkPath' . splitPath
               | x /= "/" && y `elem` ["..", "../"] = shrinkPath' xs
               | otherwise = x : shrinkPath' (y:xs)
     
-parseHskFile :: ModuleImport -> GrovelM (Hsx.SrcLoc, HskModulePragma)
+parseHskFile :: ModuleImport -> GrovelM ()
 parseHskFile (file, mbMod)  = 
-    do result <- liftIO $ Hsx.parseFileWithCommentsAndPragmas (Hsx.defaultParseMode { Hsx.extensions = [Hsx.EnableExtension Hsx.ExplicitForAll], Hsx.parseFilename = file }) file `catchIO`
-                (\ioError -> fail $ "An error occurred while reading module file \"" ++ file ++ "\": " ++ show ioError)
-       case result of
-         (Hsx.ParseFailed loc msg) ->
-             fail $ "An error occurred while parsing module file: " ++ Msg.failed_parsing loc msg
-         (Hsx.ParseOk (m@(Hsx.Module loc (Just (Hsx.ModuleHead _ mName _ _)) _ _ _), _, pragma)) ->
-             let m' = fmap Hsx.getPointLoc m in
-             case mbMod of
-               Nothing -> return (Hsx.getPointLoc loc, (m', pragma))
-               Just expMod ->
-                   if Hsx.fmapUnit mName == expMod
-                   then return (Hsx.getPointLoc loc, (m', pragma))
-                   else fail $ "Name mismatch: Name of imported module in \"" 
-                            ++ file ++"\" is " ++ Hsx.showModuleName (Hsx.fmapUnit mName)
-                                   ++ ", expected was " ++ Hsx.showModuleName expMod
+    do result <- let extensions = [Hsx.EnableExtension Hsx.ExplicitForAll] in
+                 case file of
+                   Left file -> liftIO $ Hsx.parseFileWithCommentsAndPragmas (Hsx.defaultParseMode { Hsx.extensions = extensions, Hsx.parseFilename = file }) file
+                                `catchIO` (\ioError -> fail $ "An error occurred while reading module file \"" ++ file ++ "\": " ++ show ioError)
+                   Right cts -> return $ parseFileContentsWithCommentsAndPragmas (Hsx.defaultParseMode { Hsx.extensions = extensions }) cts
+       (loc, mod@(Hsx.Module _ (Just (Hsx.ModuleHead _ name _ _)) _ _ _, _)) <-
+         case result of
+           (Hsx.ParseFailed loc msg) ->
+               fail $ "An error occurred while parsing module file: " ++ Msg.failed_parsing loc msg
+           (Hsx.ParseOk (m@(Hsx.Module loc (Just (Hsx.ModuleHead _ mName _ _)) _ _ _), _, pragma)) ->
+               let m' = fmap Hsx.getPointLoc m in
+               case (file, mbMod) of
+                 (Left file, Just expMod) ->
+                     if Hsx.fmapUnit mName == expMod
+                     then return (Hsx.getPointLoc loc, (m', pragma))
+                     else fail $ "Name mismatch: Name of imported module in \"" 
+                              ++ file ++"\" is " ++ Hsx.showModuleName (Hsx.fmapUnit mName)
+                                      ++ ", expected was " ++ Hsx.showModuleName expMod
+                 _ -> return (Hsx.getPointLoc loc, (m', pragma))
+       cust <- addCustMod $ Hsx.fmapUnit name
+       if cust then grovelImports
+               else addModule loc mod
+                    >> grovelModule loc (case mod of (m, u) -> (Hsx.fmapUnit m, u))
+
+-- | Converts a parse result with comments to a parse result with comments and
+--   unknown pragmas.
+--   (Adapted from haskell-src-exts)
+separatePragmas :: Hsx.ParseResult (Hsx.Module Hsx.SrcSpanInfo, [Hsx.Comment])
+                -> Hsx.ParseResult (Hsx.Module Hsx.SrcSpanInfo, [Hsx.Comment], [Hsx.UnknownPragma])
+separatePragmas r =
+    case r of
+        Hsx.ParseOk (m, comments) ->
+            let (pragmas, comments') = partition pragLike comments
+              in  Hsx.ParseOk (m, comments', map commentToPragma pragmas)
+                where commentToPragma (Hsx.Comment _ l s) =
+                            Hsx.UnknownPragma l $ init $ drop 1 s
+                      pragLike (Hsx.Comment b _ s) = b && pcond s
+                      pcond s = length s > 1 && take 1 s == "#" && last s == '#'
+        Hsx.ParseFailed l s ->  Hsx.ParseFailed l s
+
+-- | Parse a source file from a string using a custom parse mode retaining comments
+--   as well as unknown pragmas.
+--   (Adapted from haskell-src-exts)
+parseFileContentsWithCommentsAndPragmas
+  :: Hsx.ParseMode -> String
+  -> Hsx.ParseResult (Hsx.Module Hsx.SrcSpanInfo, [Hsx.Comment], [Hsx.UnknownPragma])
+parseFileContentsWithCommentsAndPragmas pmode str = separatePragmas parseResult
+    where parseResult = Hsx.parseFileContentsWithComments pmode str
