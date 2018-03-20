@@ -13,7 +13,7 @@ Conversion from abstract Haskell code to abstract Isar/HOL theory.
 -}
 
 module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFiles, IsaUnit(..),
-  liftIO, getOutputDir, getExportCode, getTryImport, getOnlyTypes, getBasePathAbs, getCustomisations, getInputFilesRecursively) where
+  liftIO, getOutputDir, getExportCode, getTryImport, getOnlyTypes, getBasePathAbs, getIgnoreNotInScope, getCustomisations, getInputFilesRecursively) where
 
 import Importer.Library
 import qualified Importer.AList as AList
@@ -57,8 +57,8 @@ import qualified Importer.Isa as Isa
   This is the main function of the conversion process; converts a Unit of Haskell
   ASTs into a Unit of Isar/HOL ASTs.
 -}
-convertHskUnit :: Customisations -> Bool -> Adaption -> HskUnit -> (AdaptionTable, IsaUnit)
-convertHskUnit custs exportCode adapt (HskUnit hsmodules custMods initialGlobalEnv)
+convertHskUnit :: Customisations -> Bool -> Bool -> Adaption -> HskUnit -> (AdaptionTable, IsaUnit)
+convertHskUnit custs exportCode ignoreNotInScope adapt (HskUnit hsmodules custMods initialGlobalEnv)
     = let pragmass       = map (accumulate (fold add_pragmas) . snd) hsmodules
           hsmodules'     = map (Preprocess.preprocessModule (usedConstNames adapt) . Hsx.fmapUnit . fst) hsmodules
           env            = Ident_Env.environmentOf custs hsmodules' custMods
@@ -66,7 +66,7 @@ convertHskUnit custs exportCode adapt (HskUnit hsmodules custMods initialGlobalE
           initial_env    = Ident_Env.augmentGlobalEnv initialGlobalEnv $ extractHskEntries adaptionTable
           global_env_hsk = Ident_Env.unionGlobalEnvs env initial_env
                              
-          hskmodules = map (toHskModule global_env_hsk) hsmodules'
+          hskmodules = map (toHskModule ignoreNotInScope global_env_hsk) hsmodules'
           
           isathys = Isa.retopologizeModule $ fst $ runConversion' custs adapt global_env_hsk $
             mapM (convertModule exportCode) (zip pragmass hskmodules)
@@ -76,9 +76,9 @@ convertHskUnit custs exportCode adapt (HskUnit hsmodules custMods initialGlobalE
       in
         (adaptionTable, adaptIsaUnit adaptionTable global_env_hsk isaunit)
     where 
-      toHskModule :: Ident_Env.GlobalE -> Hsx.Module () -> HskModule
-      toHskModule globalEnv (Hsx.Module loc (Just (Hsx.ModuleHead _ modul _ _)) _ _ decls) =
-        HskModule loc modul ((map HskDependentDecls . DeclDependencyGraph.arrangeDecls globalEnv modul) decls)
+      toHskModule :: Bool -> Ident_Env.GlobalE -> Hsx.Module () -> HskModule
+      toHskModule ignoreNotInScope globalEnv (Hsx.Module loc (Just (Hsx.ModuleHead _ modul _ _)) _ _ decls) =
+        HskModule loc modul ((map HskDependentDecls . DeclDependencyGraph.arrangeDecls ignoreNotInScope globalEnv modul) decls)
       adaptIsaUnit adaptionTable globalEnv (IsaUnit modules custThys adaptedGlobalEnv) =
         IsaUnit (adaptModules adaptionTable adaptedGlobalEnv globalEnv modules) custThys adaptedGlobalEnv
 
@@ -1265,6 +1265,9 @@ getOnlyTypes = ask >>= return . onlyTypes
 
 getBasePathAbs :: Conversion (Maybe FilePath)
 getBasePathAbs = ask >>= return . basePathAbs
+
+getIgnoreNotInScope :: Conversion Bool
+getIgnoreNotInScope = ask >>= return . ignoreNotInScope
 
 runConversion :: Config -> Conversion a -> IO a
 runConversion config (Conversion parser) = runReaderT parser config

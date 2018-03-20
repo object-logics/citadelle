@@ -30,6 +30,7 @@ module Importer.Ident_Env
       hsk_typ_of_typscheme,
       isa_of_sort,
       resolveName_OrLose,
+      resolveName_NoLose,
       makeLexInfo,
       makeClassInfo,
       initialGlobalEnv,
@@ -1326,14 +1327,24 @@ lookupImports_OrLose moduleID globalEnv
   This function looks up the given name in the given module's import list to get
   a qualified name.
 -}
+resolveName_NoLose :: GlobalE -> ModuleID -> Name -> Maybe Name
+resolveName_NoLose globalEnv mID name
+    = case lookupName mID name globalEnv of
+        (Just c, Nothing)  -> Just $ constant2name c
+        (Nothing, Just t)  -> Just $ type2name t
+        (Nothing, Nothing) -> Nothing
+        (Just c, Just t)   -> assert (constant2name c == type2name t) 
+                                $ Just $ constant2name c
+
+{-|
+  This function looks up the given name in the given module's import list to get
+  a qualified name.
+-}
 resolveName_OrLose :: GlobalE -> ModuleID -> Name -> Name
 resolveName_OrLose globalEnv mID name
-    = case lookupName mID name globalEnv of
-        (Just c, Nothing)  -> constant2name c
-        (Nothing, Just t)  -> type2name t
-        (Nothing, Nothing) -> error (Msg.failed_lookup "Constant or Type" mID name globalEnv)
-        (Just c, Just t)   -> assert (constant2name c == type2name t) 
-                                $ constant2name c
+    = case resolveName_NoLose globalEnv mID name of
+        Just n -> n
+        Nothing -> error (Msg.failed_lookup "Constant or Type" mID name globalEnv)
 
 {-|
   This function looks up the given name, which is supposed to identify a constant, in the

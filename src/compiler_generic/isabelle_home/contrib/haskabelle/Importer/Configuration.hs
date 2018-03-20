@@ -107,7 +107,7 @@ data CustomTheory = CustomTheory {
 {-|
   An element of this type represents configuration information for this application.
 -}
-data Config = Config{inputLocations :: [InputLocation], outputLocation :: OutputLocation, customisations :: Customisations, exportCode :: Bool, tryImport :: Bool, onlyTypes :: Bool, basePathAbs :: Maybe FilePath}
+data Config = Config{inputLocations :: [InputLocation], outputLocation :: OutputLocation, customisations :: Customisations, exportCode :: Bool, tryImport :: Bool, onlyTypes :: Bool, basePathAbs :: Maybe FilePath, ignoreNotInScope :: Bool}
               deriving (Show, Eq, Data, Typeable)
 
 {-|
@@ -177,15 +177,16 @@ type XMLReader a = Either String a
   This function constructs a default configuration depending on the input files,
   output directory and customisation.
 -}
-defaultConfig ::[FilePath] -> Maybe FilePath -> Customisations -> Bool -> Bool -> Bool -> Maybe FilePath -> Config
-defaultConfig inFiles outDir custs exportCode tryImport onlyTypes basePathAbs =
+defaultConfig ::[FilePath] -> Maybe FilePath -> Customisations -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> Config
+defaultConfig inFiles outDir custs exportCode tryImport onlyTypes basePathAbs ignoreNotInScope =
   Config { inputLocations = map FileLocation inFiles,
            outputLocation = fmap FileLocation outDir,
            customisations = custs,
            exportCode = exportCode,
            tryImport = tryImport,
            onlyTypes = onlyTypes,
-           basePathAbs = basePathAbs}
+           basePathAbs = basePathAbs,
+           ignoreNotInScope = ignoreNotInScope}
 
 {-|
   This constant represents a default customisations option.
@@ -342,7 +343,8 @@ parseConfigDoc el exportCode
                           exportCode=exportCode,
                           tryImport=False,
                           onlyTypes=False,
-                          basePathAbs=Nothing}
+                          basePathAbs=Nothing,
+                          ignoreNotInScope=False}
 
 {-|
   This function processes the given customisations, i.e. it resolves all

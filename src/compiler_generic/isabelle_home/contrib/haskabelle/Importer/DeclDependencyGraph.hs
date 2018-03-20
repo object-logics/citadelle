@@ -46,23 +46,29 @@ data HskDeclDepGraph = HskDeclDepGraph (Graph,
   given module in the given environment. An edge from a declaration A to declaration B
   means the definition of A depends on B.
 -}
-makeDeclDepGraph :: Ident_Env.GlobalE -> Hsx.ModuleName () -> [Hsx.Decl ()] -> HskDeclDepGraph
-makeDeclDepGraph globalEnv modul decls = HskDeclDepGraph declDepGraph
+makeDeclDepGraph :: Bool -> Ident_Env.GlobalE -> Hsx.ModuleName () -> [Hsx.Decl ()] -> HskDeclDepGraph
+makeDeclDepGraph ignoreNotInScope globalEnv modul decls = HskDeclDepGraph declDepGraph
     where declDepGraph = graphFromEdges
                            $ handleDuplicateEdges
-                               $ concatMap (makeEdgesFromDecl globalEnv modul) (zip [0..] decls)
+                               $ concatMap (makeEdgesFromDecl ignoreNotInScope globalEnv modul) (zip [0..] decls)
 
 {-|
   This function constructs the outgoing edges of the given declaration in the given environment
   module.
 -}
-makeEdgesFromDecl :: Ident_Env.GlobalE -> Hsx.ModuleName () -> HskDecl -> [(HskDecl, Ident_Env.Name, [Ident_Env.Name])]
-makeEdgesFromDecl globalEnv modul (pos, decl) =
+makeEdgesFromDecl :: Bool -> Ident_Env.GlobalE -> Hsx.ModuleName () -> HskDecl -> [(HskDecl, Ident_Env.Name, [Ident_Env.Name])]
+makeEdgesFromDecl ignoreNotInScope globalEnv modul (pos, decl) =
   let
     canonicalize hsqname = Ident_Env.resolveName_OrLose globalEnv (Ident_Env.fromHsk modul) (Ident_Env.fromHsk hsqname)
+    canonicalize' =
+      if ignoreNotInScope then
+        \hsqname -> let hsqname' = Ident_Env.fromHsk hsqname in
+                    maybe hsqname' id (Ident_Env.resolveName_NoLose globalEnv (Ident_Env.fromHsk modul) hsqname')
+      else
+        canonicalize
     names = map canonicalize $ Hsx.namesFromDeclInst decl
-    used_names = Set.map canonicalize $ Set.unions [Hsx.extractFreeVarNs decl, Hsx.extractDataConNs decl, Hsx.extractFieldNs decl]
-    used_types = Set.map canonicalize $ Hsx.extractTypeConNs decl
+    used_names = Set.map canonicalize' $ Set.unions [Hsx.extractFreeVarNs decl, Hsx.extractDataConNs decl, Hsx.extractFieldNs decl]
+    used_types = Set.map canonicalize' $ Hsx.extractTypeConNs decl
     impl_types = catMaybes $ Set.toList $ Set.map (Ident_Env.getDepDataType globalEnv (Ident_Env.fromHsk modul)) used_names
   in
     [ ((pos, decl), name, Set.toList (Set.union used_names used_types) ++ impl_types) | name <- names ]
@@ -156,6 +162,6 @@ flattenDeclDepGraph (HskDeclDepGraph (graph, fromVertex, _))
             where 
               isContained xs ys = not (null (List.intersect xs ys))
 
-arrangeDecls :: Ident_Env.GlobalE -> Hsx.ModuleName () -> [Hsx.Decl ()] -> [[Hsx.Decl ()]]
-arrangeDecls globalEnv modul = flattenDeclDepGraph . makeDeclDepGraph globalEnv modul
+arrangeDecls :: Bool -> Ident_Env.GlobalE -> Hsx.ModuleName () -> [Hsx.Decl ()] -> [[Hsx.Decl ()]]
+arrangeDecls ignoreNotInScope globalEnv modul = flattenDeclDepGraph . makeDeclDepGraph ignoreNotInScope globalEnv modul
 

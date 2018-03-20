@@ -33,9 +33,9 @@ importProject config adaptDir = do
   adapt <- readAdapt adaptDir
   runConversion config (convertFiles adapt)
 
-importFiles :: FilePath -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> IO ()
-importFiles adaptDir files out exportCode tryImport onlyTypes basePathAbs
-  = importProject (defaultConfig files out defaultCustomisations exportCode tryImport onlyTypes basePathAbs) adaptDir
+importFiles :: FilePath -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> IO ()
+importFiles adaptDir files out exportCode tryImport onlyTypes basePathAbs getIgnoreNotInScope
+  = importProject (defaultConfig files out defaultCustomisations exportCode tryImport onlyTypes basePathAbs getIgnoreNotInScope) adaptDir
 
 convertFiles :: Adaption -> Conversion ()
 convertFiles adapt = do
@@ -46,13 +46,14 @@ convertFiles adapt = do
   tryImport <- getTryImport
   onlyTypes <- getOnlyTypes
   basePathAbs <- getBasePathAbs
+  ignoreNotInScope <- getIgnoreNotInScope
   custs <- getCustomisations
   
   exists <- liftIO $ mapM doesDirectoryExist outDir
   when (case exists of Just False -> True ; _ -> False) $ liftIO $ maybe (return ()) createDirectory outDir
 
   units <- parseHskFiles tryImport onlyTypes basePathAbs (filter Hsx.isHaskellSourceFile inFiles)
-  let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs exportCode adapt) units
+  let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs exportCode ignoreNotInScope adapt) units
 
   liftIO $ maybe (return ()) (\outDir -> copyFile (preludeFile adapt) (combine outDir (takeFileName (preludeFile adapt)))) outDir
   sequence_ (map (writeIsaUnit adaptTable (reservedKeywords adapt)) convertedUnits)
