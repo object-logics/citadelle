@@ -37,9 +37,12 @@
  ******************************************************************************)
 
 theory C_Model
-  imports "../src/compiler/Generator_dynamic_parallel"
-          "$HASKABELLE_HOME_USER/default/Prelude"
+  imports "$HASKABELLE_HOME_USER/default/Prelude"
+          "../src/UML_Main"
+          "../src/compiler/Generator_dynamic_parallel"
 begin
+
+declare[[syntax_ambiguity_warning = false]]
 
 generation_syntax [ deep
                       (THEORY C_Model_generated)
