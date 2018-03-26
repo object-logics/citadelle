@@ -7,7 +7,7 @@ section \<open>Old Datatype package: constructing datatypes from Cartesian Produ
 
 theory Old_Datatype
 imports Main
-keywords "old_datatype" :: thy_decl
+keywords "sub_atomic_old_datatype" "atomic_old_datatype" "old_datatype" :: thy_decl
 begin
 
 ML_file "~~/src/HOL/Tools/datatype_realizer.ML"

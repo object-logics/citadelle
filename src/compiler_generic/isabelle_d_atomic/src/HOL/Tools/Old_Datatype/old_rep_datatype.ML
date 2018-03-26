@@ -152,7 +152,8 @@ fun prove_primrec_thms (config : Old_Datatype_Aux.config) new_type_names descr
       |> Sign.concealed
       |> Inductive.add_inductive_global
           {quiet_mode = #quiet config, verbose = false, alt_name = Binding.name big_rec_name',
-            coind = false, no_elim = false, no_ind = true, skip_mono = true}
+            coind = false, no_elim = false, no_elim' = false, no_ind0 = #skip_level config >= 1,
+            no_eqs = #skip_level config >= 1, no_ind = true, skip_mono = true}
           (map (fn (s, T) => ((Binding.name s, T), NoSyn)) (rec_set_names' ~~ rec_set_Ts))
           (map dest_Free rec_fns)
           (map (fn x => (Binding.empty_atts, x)) rec_intr_ts) []
@@ -510,48 +511,71 @@ fun make_dt_info descr induct inducts rec_names rec_rewrites
     split = split,
     split_asm = split_asm});
 
+fun make_dt_info1 descr induct inducts rec_names rec_rewrites (index, v) =
+  let val t = @{thm True_def}
+  in make_dt_info descr induct inducts rec_names rec_rewrites
+       (index, (((v, t), t), (t, t)))
+  end;
+
+fun make_dt_info2 descr induct inducts rec_names rec_rewrites (index, v) =
+  let val t = @{thm True_def}
+  in make_dt_info1 descr induct inducts rec_names rec_rewrites
+       (index, ((((((v, []), []), t), t), ""), []))
+  end;
+
 in
 
 fun derive_datatype_props config dt_names descr induct inject distinct thy2 =
   let
     val flat_descr = flat descr;
     val new_type_names = map Long_Name.base_name dt_names;
+    fun f_skip n a b thy = if #skip_level config >= n then (a, thy) else b thy;
     val _ =
       Old_Datatype_Aux.message config
         ("Deriving properties for datatype(s) " ^ commas_quote new_type_names);
 
     val (exhaust, thy3) = thy2
-      |> prove_casedist_thms config new_type_names descr induct
-        (Old_Datatype_Data.mk_case_names_exhausts flat_descr dt_names);
+      |> f_skip 2 [] (prove_casedist_thms config new_type_names descr induct
+        (Old_Datatype_Data.mk_case_names_exhausts flat_descr dt_names));
     val (nchotomys, thy4) = thy3
-      |> prove_nchotomys config new_type_names descr exhaust;
+      |> f_skip 1 (map (fn _ => @{thm True_def}) exhaust) (prove_nchotomys config new_type_names descr exhaust);
     val ((rec_names, rec_rewrites), thy5) = thy4
-      |> prove_primrec_thms config new_type_names descr
+      |> f_skip 2 ([], []) (prove_primrec_thms config new_type_names descr
         (#inject o the o Symtab.lookup (Old_Datatype_Data.get_all thy4)) inject
         (distinct,
-         Old_Datatype_Data.all_distincts thy2 (Old_Datatype_Aux.get_rec_types flat_descr)) induct;
+         Old_Datatype_Data.all_distincts thy2 (Old_Datatype_Aux.get_rec_types flat_descr)) induct);
     val ((case_rewrites, case_names), thy6) = thy5
-      |> prove_case_thms config new_type_names descr rec_names rec_rewrites;
+      |> f_skip 2 ([], []) (prove_case_thms config new_type_names descr rec_names rec_rewrites);
     val (case_congs, thy7) = thy6
-      |> prove_case_congs new_type_names case_names descr nchotomys case_rewrites;
+      |> f_skip 1 [] (prove_case_congs new_type_names case_names descr nchotomys case_rewrites);
     val (case_cong_weaks, thy8) = thy7
-      |> prove_case_cong_weaks new_type_names case_names descr;
+      |> f_skip 1 [] (prove_case_cong_weaks new_type_names case_names descr);
     val (splits, thy9) = thy8
-      |> prove_split_thms config new_type_names case_names descr
-        inject distinct exhaust case_rewrites;
-
-    val inducts = Project_Rule.projections (Proof_Context.init_global thy2) induct;
+      |> f_skip 1 [] (prove_split_thms config new_type_names case_names descr
+        inject distinct exhaust case_rewrites);
+    val (inducts, _) = thy2 |> f_skip 2 [] (fn thy2 =>
+                          (Project_Rule.projections (Proof_Context.init_global thy2) induct, thy2));
     val dt_infos =
-      map_index
-        (make_dt_info flat_descr induct inducts rec_names rec_rewrites)
-        (hd descr ~~ inject ~~ distinct ~~ exhaust ~~ nchotomys ~~
-          case_names ~~ case_rewrites ~~ case_congs ~~ case_cong_weaks ~~ splits);
+      if #skip_level config >= 2 then
+        map_index
+          (make_dt_info2 flat_descr induct inducts rec_names rec_rewrites)
+          (hd descr)
+      else if #skip_level config >= 1 then
+        map_index
+          (make_dt_info1 flat_descr induct inducts rec_names rec_rewrites)
+          (hd descr ~~ inject ~~ distinct ~~ exhaust ~~ nchotomys ~~
+            case_names ~~ case_rewrites)
+      else
+        map_index
+          (make_dt_info flat_descr induct inducts rec_names rec_rewrites)
+          (hd descr ~~ inject ~~ distinct ~~ exhaust ~~ nchotomys ~~
+            case_names ~~ case_rewrites ~~ case_congs ~~ case_cong_weaks ~~ splits);
     val dt_names = map fst dt_infos;
     val prfx = Binding.qualify true (space_implode "_" new_type_names);
     val simps = flat (inject @ distinct @ case_rewrites) @ rec_rewrites;
     val named_rules = flat (map_index (fn (i, tname) =>
-      [((Binding.empty, [Induct.induct_type tname]), [([nth inducts i], [])]),
-       ((Binding.empty, [Induct.cases_type tname]), [([nth exhaust i], [])])]) dt_names);
+      [((Binding.empty, [Induct.induct_type tname]), [(if #skip_level config >= 2 then [] else [nth inducts i], [])]),
+       ((Binding.empty, [Induct.cases_type tname]), [(if #skip_level config >= 2 then [] else [nth exhaust i], [])])]) dt_names);
     val unnamed_rules = map (fn induct =>
       ((Binding.empty, [Rule_Cases.inner_rule, Induct.induct_type ""]), [([induct], [])]))
         (drop (length dt_names) inducts);
@@ -579,7 +603,7 @@ fun derive_datatype_props config dt_names descr induct inject distinct thy2 =
     |> snd
     |> Code.declare_default_eqns_global (map (rpair true) rec_rewrites)
     |> Old_Datatype_Data.register dt_infos
-    |> Context.theory_map (fold2 Case_Translation.register case_combs constrss)
+    |> (if #skip_level config >= 2 then I else Context.theory_map (fold2 Case_Translation.register case_combs constrss))
     |> Old_Datatype_Data.interpretation_data (config, dt_names)
     |> pair dt_names
   end;
@@ -690,6 +714,6 @@ val _ =
   Outer_Syntax.command @{command_keyword old_rep_datatype}
     "register existing types as old-style datatypes"
     (Scan.repeat1 Parse.term >> (fn ts =>
-      Toplevel.theory_to_proof (rep_datatype_cmd Old_Datatype_Aux.default_config (K I) ts)));
+      Toplevel.theory_to_proof (rep_datatype_cmd (Old_Datatype_Aux.default_config 0) (K I) ts)));
 
 end;

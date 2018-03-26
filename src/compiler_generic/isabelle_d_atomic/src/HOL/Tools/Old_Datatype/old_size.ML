@@ -207,7 +207,8 @@ fun prove_size_thms (info : Old_Datatype_Aux.info) new_type_names thy =
       end
   end;
 
-fun add_size_thms _ (new_type_names as name :: _) thy =
+fun add_size_thms config (new_type_names as name :: _) =
+  if #skip_level config >= 1 then I else fn thy =>
   let
     val info as {descr, ...} = Old_Datatype_Data.the_info thy name;
     val prefix = space_implode "_" (map Long_Name.base_name new_type_names);

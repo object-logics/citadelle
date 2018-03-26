@@ -175,7 +175,7 @@ fun representation_proofs (config : Old_Datatype_Aux.config)
       |> Sign.concealed
       |> Inductive.add_inductive_global
           {quiet_mode = #quiet config, verbose = false, alt_name = Binding.name big_rec_name,
-           coind = false, no_elim = true, no_ind = false, skip_mono = true}
+           coind = false, no_elim = true, no_elim' = true, no_ind0 = #skip_level config >= 2, no_eqs = true, no_ind = #skip_level config >= 2, skip_mono = true}
           (map (fn s => ((Binding.name s, UnivT'), NoSyn)) rep_set_names') []
           (map (fn x => (Binding.empty_atts, x)) intr_ts) []
       ||> Sign.restore_naming thy1;
@@ -266,7 +266,11 @@ fun representation_proofs (config : Old_Datatype_Aux.config)
         (hd descr ~~ new_type_names ~~ map #2 typedefs ~~ newTs ~~ constr_syntax)
         (thy3 |> Sign.add_consts iso_decls |> Sign.parent_path, [], [], [], []);
 
-
+  in
+  if #skip_level config >= 2 then
+    (([], [], @{thm True_def}), thy4)
+  else
+  let
     (*********** isomorphisms for new types (introduced by typedef) ***********)
 
     val _ = Old_Datatype_Aux.message config "Proving isomorphism properties ...";
@@ -667,6 +671,7 @@ fun representation_proofs (config : Old_Datatype_Aux.config)
           [([dt_induct], [])])];
   in
     ((constr_inject', distinct_thms', dt_induct'), thy7)
+  end
   end;
 
 
@@ -805,7 +810,17 @@ val spec_cmd =
 val _ =
   Outer_Syntax.command @{command_keyword old_datatype} "define old-style inductive datatypes"
     (Parse.and_list1 spec_cmd
-      >> (Toplevel.theory o (snd oo add_datatype_cmd Old_Datatype_Aux.default_config)));
+      >> (Toplevel.theory o (snd oo add_datatype_cmd (Old_Datatype_Aux.default_config 0))));
+
+val _ =
+  Outer_Syntax.command @{command_keyword atomic_old_datatype} "define old-style inductive datatypes"
+    (Parse.and_list1 spec_cmd
+      >> (Toplevel.theory o (snd oo add_datatype_cmd (Old_Datatype_Aux.default_config 1))));
+
+val _ =
+  Outer_Syntax.command @{command_keyword sub_atomic_old_datatype} "define old-style inductive datatypes"
+    (Parse.and_list1 spec_cmd
+      >> (Toplevel.theory o (snd oo add_datatype_cmd (Old_Datatype_Aux.default_config 2))));
 
 open Old_Datatype_Aux;
 
