@@ -18,6 +18,7 @@ module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFile
 import Importer.Library
 import qualified Importer.AList as AList
 import qualified Data.Generics as G
+import Data.Function
 import Data.List (nub, unzip4, partition, isSuffixOf)
 import Data.Maybe
 import qualified Data.Set as Set hiding (Set)
@@ -455,9 +456,21 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
                                                                             Hsx.TypeDecl _ (Hsx.DHApp _ (Hsx.DHead _ i) (Hsx.UnkindedVar _ i')) ty -> ((i, Just i'), ty)) tydecls)) decls' in
         do
            dataDefs <- mapM (convertDataDecl pragmas) decls''
+           params' <- foldM (\res (Isa.TypeSpec params _, _) ->
+                              if all (uncurry (==)) (zip res params) then
+                                return $ if length res > length params then res else params
+                              else
+                                error Msg.unsupported_semantics_decl)
+                            []
+                            dataDefs
            auxCmds <- mapM (generateRecordAux pragmas) decls''
            tyDefs <- mapM (\x -> convertDependentDecls pragmas $ HskDependentDecls [x]) tydecls
-           return (Isa.Datatype dataDefs : concat (auxCmds ++ tyDefs))
+           return (Isa.Datatype (map (let names = dataDefs
+                                                & map (\(Isa.TypeSpec _ name, _) -> name)
+                                                & Set.fromList in
+                                      \(tySpec, ty) -> ( replaceParamsTySpec params' names tySpec
+                                                       , G.everywhere' (G.mkT $ replaceParamsTy (map Isa.TVar params') names) ty)) dataDefs)
+                   : concat (auxCmds ++ tyDefs))
   where 
     isFunBind (Hsx.FunBind _ _) = True
     isFunBind _ = False
@@ -468,6 +481,14 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
     replaceTy tydecls t = case t of Hsx.TyCon _ (Hsx.UnQual _ i) -> maybe t id $ AList.lookup tydecls (i, Nothing)
                                     Hsx.TyApp _ (Hsx.TyCon _ (Hsx.UnQual _ i)) (Hsx.TyVar _ i') -> maybe t id $ AList.lookup tydecls (i, Just i')
                                     _ -> G.gmapT (G.mkT $ replaceTy tydecls) t
+    replaceParamsTySpec :: [Isa.Name] -> Set Isa.Name -> Isa.TypeSpec -> Isa.TypeSpec
+    replaceParamsTySpec params set t@(Isa.TypeSpec _ name) = if Set.member name set then Isa.TypeSpec params name else t
+    replaceParamsTy :: [Isa.Type] -> Set Isa.Name -> Isa.Type -> Isa.Type
+    replaceParamsTy params set (Isa.Type name t') = replaceParamsTy' (t' ++ foldl (\params _ -> tail params) params t') set name (Isa.Type name (map (replaceParamsTy params set) t'))
+    replaceParamsTy params set (Isa.Func t1 t2)   = Isa.Func (replaceParamsTy params set t1) (replaceParamsTy params set t2)
+    replaceParamsTy params set t@(Isa.TVar name)  = replaceParamsTy' params set name t
+    replaceParamsTy params set Isa.NoType         = Isa.NoType
+    replaceParamsTy' params set name t = if Set.member name set then Isa.Type name params else t
 
 
 instance Convert (Hsx.Module ()) Isa.Stmt where

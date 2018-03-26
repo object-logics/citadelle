@@ -103,7 +103,7 @@ only_simple_instantiations
     = "Only simple instantiations in the manner of Haskell 1.0 allowed."
 
 unsupported_semantics_decl
-    = "This particular semantics of Haskell declarations has to be implemented."
+    = "The support of this particular semantics of Haskell declarations has to be implemented."
 
 recursive_bindings_disallowed srcloc
     = Hsx.srcloc2string srcloc ++ ": " ++ "Recursive bindings disallowed."
