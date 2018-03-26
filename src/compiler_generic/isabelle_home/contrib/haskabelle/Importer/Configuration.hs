@@ -107,7 +107,7 @@ data CustomTheory = CustomTheory {
 {-|
   An element of this type represents configuration information for this application.
 -}
-data Config = Config{inputLocations :: [InputLocation], outputLocation :: OutputLocation, customisations :: Customisations, exportCode :: Bool, tryImport :: Bool, onlyTypes :: Bool, basePathAbs :: Maybe FilePath, ignoreNotInScope :: Bool}
+data Config = Config{inputLocations :: [InputLocation], outputLocation :: OutputLocation, customisations :: Customisations, exportCode :: Bool, tryImport :: Bool, onlyTypes :: Bool, basePathAbs :: Maybe FilePath, ignoreNotInScope :: Bool, absMutParams :: Bool}
               deriving (Show, Eq, Data, Typeable)
 
 {-|
@@ -177,8 +177,8 @@ type XMLReader a = Either String a
   This function constructs a default configuration depending on the input files,
   output directory and customisation.
 -}
-defaultConfig ::Customisations -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> Config
-defaultConfig custs inFiles outDir exportCode tryImport onlyTypes basePathAbs ignoreNotInScope =
+defaultConfig ::Customisations -> [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> Bool -> Config
+defaultConfig custs inFiles outDir exportCode tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams =
   Config { customisations = custs,
            inputLocations = map FileLocation inFiles,
            outputLocation = fmap FileLocation outDir,
@@ -186,7 +186,8 @@ defaultConfig custs inFiles outDir exportCode tryImport onlyTypes basePathAbs ig
            tryImport = tryImport,
            onlyTypes = onlyTypes,
            basePathAbs = basePathAbs,
-           ignoreNotInScope = ignoreNotInScope}
+           ignoreNotInScope = ignoreNotInScope,
+           absMutParams = absMutParams}
 
 {-|
   This constant represents a default customisations option.
@@ -344,7 +345,8 @@ parseConfigDoc el exportCode
                           tryImport=False,
                           onlyTypes=False,
                           basePathAbs=Nothing,
-                          ignoreNotInScope=False}
+                          ignoreNotInScope=False,
+                          absMutParams=False}
 
 {-|
   This function processes the given customisations, i.e. it resolves all

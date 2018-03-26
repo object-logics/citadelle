@@ -13,7 +13,7 @@ Conversion from abstract Haskell code to abstract Isar/HOL theory.
 -}
 
 module Importer.Convert (convertHskUnit, Conversion, runConversion, parseHskFiles, IsaUnit(..),
-  liftIO, getOutputDir, getExportCode, getTryImport, getOnlyTypes, getBasePathAbs, getIgnoreNotInScope, getCustomisations, getInputFilesRecursively) where
+  liftIO, getOutputDir, getExportCode, getTryImport, getOnlyTypes, getBasePathAbs, getIgnoreNotInScope, getAbsMutParams, getCustomisations, getInputFilesRecursively) where
 
 import Importer.Library
 import qualified Importer.AList as AList
@@ -60,8 +60,8 @@ import qualified Importer.Isa as Isa
   This is the main function of the conversion process; converts a Unit of Haskell
   ASTs into a Unit of Isar/HOL ASTs.
 -}
-convertHskUnit :: Customisations -> Bool -> Bool -> Adaption -> HskUnit -> (AdaptionTable, IsaUnit)
-convertHskUnit custs exportCode ignoreNotInScope adapt (HskUnit hsmodules custMods initialGlobalEnv)
+convertHskUnit :: Customisations -> Bool -> Bool -> Bool -> Adaption -> HskUnit -> (AdaptionTable, IsaUnit)
+convertHskUnit custs exportCode ignoreNotInScope absMutParams adapt (HskUnit hsmodules custMods initialGlobalEnv)
     = let pragmass       = map (accumulate (fold add_pragmas) . snd) hsmodules
           hsmodules'     = map (Preprocess.preprocessModule (usedConstNames adapt) . Hsx.fmapUnit . fst) hsmodules
           env            = Ident_Env.environmentOf custs hsmodules' custMods
@@ -72,7 +72,7 @@ convertHskUnit custs exportCode ignoreNotInScope adapt (HskUnit hsmodules custMo
           hskmodules = map (toHskModule ignoreNotInScope global_env_hsk) hsmodules'
           
           isathys = Isa.retopologizeModule $ fst $ runConversion' custs adapt global_env_hsk $
-            mapM (convertModule exportCode) (zip pragmass hskmodules)
+            mapM (convertModule exportCode absMutParams) (zip pragmass hskmodules)
           custThys = Map.elems custMods
           adaptedEnv = adaptGlobalEnv adaptionTable global_env_hsk
           isaunit = IsaUnit isathys custThys adaptedEnv
@@ -416,8 +416,8 @@ class Show a => Convert a b | a -> b where
                                in Msg.prettyShow' frameName hsexpr : bt)
                      $ convert' pragmas hsexpr
 
-convertModule :: Bool -> ([Pragma], HskModule) -> ContextM Isa.Module
-convertModule exportCode (pragmas, HskModule _loc modul dependentDecls) =
+convertModule :: Bool -> Bool -> ([Pragma], HskModule) -> ContextM Isa.Module
+convertModule exportCode absMutParams (pragmas, HskModule _loc modul dependentDecls) =
   do
     thy <- convert pragmas modul
     env <- queryContext globalEnv
@@ -426,7 +426,7 @@ convertModule exportCode (pragmas, HskModule _loc modul dependentDecls) =
     let imps = filter (not . isStandardTheory (usedThyNames adaption)) (lookupImports thy env custs)
     withUpdatedContext theory (\t -> assert (t == Isa.ThyName "Scratch") thy)
       $ do
-          stmts <- mapsM (convertDependentDecls pragmas) dependentDecls
+          stmts <- mapsM (convertDependentDecls absMutParams pragmas) dependentDecls
           return (Isa.retopologize (Isa.Module thy imps stmts exportCode))
   where isStandardTheory usedThyNames (Isa.ThyName n) = n `elem` usedThyNames
 
@@ -438,13 +438,13 @@ lookupImports thy globalEnv custs
                                    Nothing -> orig
                                    Just ct -> getCustomTheoryName ct
 
-convertDependentDecls :: [Pragma] -> HskDependentDecls -> ContextM [Isa.Stmt]
-convertDependentDecls pragmas (HskDependentDecls [])  =
+convertDependentDecls :: Bool -> [Pragma] -> HskDependentDecls -> ContextM [Isa.Stmt]
+convertDependentDecls _ pragmas (HskDependentDecls [])  =
   return []
-convertDependentDecls pragmas (HskDependentDecls [d]) = do
+convertDependentDecls _ pragmas (HskDependentDecls [d]) = do
   d <- convertDecl pragmas d
   return d
-convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
+convertDependentDecls absMutParams pragmas (HskDependentDecls decls@(decl:_))
   | isFunBind decl = assert (all isFunBind decls)
       $ do funcmds <- mapsM (convertDecl pragmas) decls
            let (kinds, sigs, eqs) = unzip3 (map splitFunCmd funcmds)
@@ -464,7 +464,7 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
                             []
                             dataDefs
            auxCmds <- mapM (generateRecordAux pragmas) decls''
-           tyDefs <- mapM (\x -> convertDependentDecls pragmas $ HskDependentDecls [x]) tydecls
+           tyDefs <- mapM (\x -> convertDependentDecls absMutParams pragmas $ HskDependentDecls [x]) tydecls
            return (Isa.Datatype (map (let names = dataDefs
                                                 & map (\(Isa.TypeSpec _ name, _) -> name)
                                                 & Set.fromList in
@@ -484,7 +484,7 @@ convertDependentDecls pragmas (HskDependentDecls decls@(decl:_))
     replaceParamsTySpec :: [Isa.Name] -> Set Isa.Name -> Isa.TypeSpec -> Isa.TypeSpec
     replaceParamsTySpec params set t@(Isa.TypeSpec _ name) = if Set.member name set then Isa.TypeSpec params name else t
     replaceParamsTy :: [Isa.Type] -> Set Isa.Name -> Isa.Type -> Isa.Type
-    replaceParamsTy params set (Isa.Type name t') = replaceParamsTy' (t' ++ foldl (\params _ -> tail params) params t') set name (Isa.Type name (map (replaceParamsTy params set) t'))
+    replaceParamsTy params set (Isa.Type name t') = replaceParamsTy' (if absMutParams then params else t' ++ foldl (\params _ -> tail params) params t') set name (Isa.Type name (map (replaceParamsTy params set) t'))
     replaceParamsTy params set (Isa.Func t1 t2)   = Isa.Func (replaceParamsTy params set t1) (replaceParamsTy params set t2)
     replaceParamsTy params set t@(Isa.TVar name)  = replaceParamsTy' params set name t
     replaceParamsTy params set Isa.NoType         = Isa.NoType
@@ -1291,6 +1291,9 @@ getBasePathAbs = ask >>= return . basePathAbs
 
 getIgnoreNotInScope :: Conversion Bool
 getIgnoreNotInScope = ask >>= return . ignoreNotInScope
+
+getAbsMutParams :: Conversion Bool
+getAbsMutParams = ask >>= return . absMutParams
 
 runConversion :: Config -> Conversion a -> IO a
 runConversion config (Conversion parser) = runReaderT parser config

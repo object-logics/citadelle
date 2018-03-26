@@ -61,7 +61,7 @@ imports Printer
            "Nonunique" "Sequence_"
            "with_only"
            (* Haskabelle *)
-           "datatype_old" "try_import" "only_types" "base_path" "ignore_not_in_scope" "concat_modules"
+           "datatype_old" "try_import" "only_types" "base_path" "ignore_not_in_scope" "abstract_mutual_data_params" "concat_modules"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -2107,7 +2107,7 @@ local
   val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"]
   val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"]
 in
-  fun parse hsk_str (((((((old_datatype, try_import), only_types), ignore_not_in_scope), concat_modules), base_path_abs), l_rewrite), content) =
+  fun parse hsk_str ((((((((old_datatype, try_import), only_types), ignore_not_in_scope), abstract_mutual_data_params), concat_modules), base_path_abs), l_rewrite), content) =
     let fun string_of_bool b = if b then "true" else "false"
         val st =
           Bash.process
@@ -2119,6 +2119,7 @@ in
                , "--only-types", string_of_bool only_types
                , "--base-path-abs", case base_path_abs of NONE => "" | SOME s => s
                , "--ignore-not-in-scope", string_of_bool ignore_not_in_scope
+               , "--abstract-mutual-data-params", string_of_bool abstract_mutual_data_params
                , "--dump-output" ]
              @ (case
                   if hsk_str then
@@ -2148,6 +2149,7 @@ local
                     -- optional_b @{keyword "try_import"}
                     -- optional_b @{keyword "only_types"}
                     -- optional_b @{keyword "ignore_not_in_scope"}
+                    -- optional_b @{keyword "abstract_mutual_data_params"}
                     -- optional_b @{keyword "concat_modules"}
                     -- Scan.option (@{keyword "base_path"} |-- Parse.path)
                     -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
