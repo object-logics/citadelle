@@ -810,17 +810,17 @@ val spec_cmd =
 val _ =
   Outer_Syntax.command @{command_keyword old_datatype} "define old-style inductive datatypes"
     (Parse.and_list1 spec_cmd
-      >> (Toplevel.theory o (snd oo add_datatype_cmd (Old_Datatype_Aux.default_config 0))));
+      >> (Toplevel.theory o (snd oo add_datatype_cmd Old_Datatype_Aux.default_config)));
 
 val _ =
   Outer_Syntax.command @{command_keyword atomic_old_datatype} "define old-style inductive datatypes"
     (Parse.and_list1 spec_cmd
-      >> (Toplevel.theory o (snd oo add_datatype_cmd (Old_Datatype_Aux.default_config 1))));
+      >> (Toplevel.theory o (snd oo add_datatype_cmd (Old_Datatype_Aux.default_config' 1))));
 
 val _ =
   Outer_Syntax.command @{command_keyword sub_atomic_old_datatype} "define old-style inductive datatypes"
     (Parse.and_list1 spec_cmd
-      >> (Toplevel.theory o (snd oo add_datatype_cmd (Old_Datatype_Aux.default_config 2))));
+      >> (Toplevel.theory o (snd oo add_datatype_cmd (Old_Datatype_Aux.default_config' 2))));
 
 open Old_Datatype_Aux;
 

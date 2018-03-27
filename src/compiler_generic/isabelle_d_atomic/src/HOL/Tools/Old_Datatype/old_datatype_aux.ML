@@ -7,7 +7,8 @@ Datatype package: auxiliary data structures and functions.
 signature OLD_DATATYPE_COMMON =
 sig
   type config = {strict : bool, quiet : bool, skip_level : int}
-  val default_config : int -> config
+  val default_config : config
+  val default_config' : int -> config
   datatype dtyp =
       DtTFree of string * sort
     | DtType of string * dtyp list
@@ -86,7 +87,8 @@ struct
 (* datatype option flags *)
 
 type config = {strict : bool, quiet : bool, skip_level : int};
-fun default_config i : config = {strict = true, quiet = false, skip_level = i};
+fun default_config' i : config = {strict = true, quiet = false, skip_level = i};
+val default_config : config = default_config' 0;
 
 fun message ({quiet = true, ...} : config) s = writeln s
   | message _ _ = ();
