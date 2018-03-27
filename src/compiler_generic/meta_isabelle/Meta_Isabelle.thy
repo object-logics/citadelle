@@ -58,7 +58,12 @@ datatype semi__typ = Typ_apply semi__typ "semi__typ list"
                    | Typ_apply_paren string (* left *) string (* right *) semi__typ
                    | Typ_base string
 
-datatype "datatype" = Datatype bool (* true: it represents 'old_datatype' instead of the normal 'datatype' *)
+datatype semi__datatype_version = Datatype_new
+                                | Datatype_old
+                                | Datatype_old_atomic
+                                | Datatype_old_atomic_sub
+
+datatype "datatype" = Datatype semi__datatype_version
                                "(( string (* name *)
                                  \<times> string list (* arguments *))
                                 \<times> (string (* name *) \<times> semi__typ list (* arguments *)) list (* constructors *))
@@ -249,7 +254,7 @@ lemmas [code] =
 
 definition "Opt s = Typ_apply (Typ_base \<open>option\<close>) [Typ_base s]"
 definition "Raw = Typ_base"
-definition "Datatype' n l = Datatype False [((n, []), l)]"
+definition "Datatype' n l = Datatype Datatype_new [((n, []), l)]"
 definition "Type_synonym' n = Type_synonym (n, [])"
 definition "Type_synonym'' n l f = Type_synonym (n, l) (f l)"
 definition "Term_annot' e s = Term_annot e (Typ_base s)"

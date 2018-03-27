@@ -61,16 +61,20 @@ fun hsk_type where
 
 definition "hsk_typespec names = (\<lambda> TypeSpec l n \<Rightarrow> (hsk_name names n, L.map (hsk_name' names) l))"
 
-definition "hsk_stmt old_datatype names =
+definition "hsk_stmt version names =
   List.map_filter
    (\<lambda> Meta_HKB.Datatype l \<Rightarrow>
-        Some (O.datatype (Datatype old_datatype (L.map (map_prod (hsk_typespec names) (L.map (map_prod (hsk_name names) (L.map (hsk_type names))))) l)))
+        Some (O.datatype (Datatype version (L.map (map_prod (hsk_typespec names) (L.map (map_prod (hsk_name names) (L.map (hsk_type names))))) l)))
     | TypeSynonym [(t0, t1)] \<Rightarrow> Some (O.type_synonym (Type_synonym (hsk_typespec names t0) (hsk_type names t1)))
     | Function (Function_Stmt Primrec l1 l2) \<Rightarrow> None)"
 
-definition "print_haskell = (\<lambda> IsaUnit old_datatype l_name name_new (l_mod, b_concat) \<Rightarrow>
+definition "print_haskell = (\<lambda> IsaUnit version l_name name_new (l_mod, b_concat) \<Rightarrow>
   Pair (List.bind (if b_concat then l_mod else [last l_mod])
                   (\<lambda> Module (ThyName name_old) _ m _ \<Rightarrow>
-                       hsk_stmt old_datatype ((name_old, Some name_new) # l_name) m)))"
+                       hsk_stmt (case map_prod id nat_of_natural version of (False, _) \<Rightarrow> Datatype_new
+                                                                          | (True, 0) \<Rightarrow> Datatype_old
+                                                                          | (True, Suc 0) \<Rightarrow> Datatype_old_atomic
+                                                                          | (True, Suc (Suc 0)) \<Rightarrow> Datatype_old_atomic_sub)
+                                ((name_old, Some name_new) # l_name) m)))"
 
 end

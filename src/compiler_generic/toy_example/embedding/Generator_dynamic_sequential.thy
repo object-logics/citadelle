@@ -208,6 +208,15 @@ structure Outer_Syntax' = struct
                                                        | Toplevel'.Keep f => tap f
                                                        | Toplevel'.Read_Write _ => I) tr thy))))
 end
+
+structure Old_Datatype_Aux' = struct
+  fun default_config' n =
+    if n = 0 then
+      Old_Datatype_Aux.default_config
+    else
+      let val _ = warning "Type of datatype not available in this running version of Isabelle"
+      in Old_Datatype_Aux.default_config end
+end
 \<close>
 
 ML\<open>
@@ -455,14 +464,8 @@ fun end' top =
 structure Cmd = struct open META open META_overload
 fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
 
-fun datatype' top (Datatype (old_datatype, l)) = 
-  if old_datatype then #theory top
-  ((snd oo Old_Datatype.add_datatype_cmd Old_Datatype_Aux.default_config)
-    (map (fn ((n, v), l) =>
-           ( (To_sbinding n, map (fn v => (To_string0 v, NONE)) v, NoSyn)
-           , List.map (fn (n, l) => (To_sbinding n, List.map of_semi__typ l, NoSyn)) l))
-         l))
-  else #local_theory top NONE NONE
+fun datatype' top (Datatype (version, l)) = 
+  case version of Datatype_new => #local_theory top NONE NONE
   (BNF_FP_Def_Sugar.co_datatype_cmd
     BNF_Util.Least_FP
     BNF_LFP.construct_lfp
@@ -474,6 +477,14 @@ fun datatype' top (Datatype (old_datatype, l)) =
                                          , NoSyn)) l)
               , (To_binding "", To_binding "", To_binding ""))
             , [])) l)))
+  | _ => #theory top
+  ((snd oo Old_Datatype.add_datatype_cmd
+     (Old_Datatype_Aux'.default_config'
+       (case version of Datatype_old => 0 | Datatype_old_atomic => 1 | _ => 2)))
+    (map (fn ((n, v), l) =>
+           ( (To_sbinding n, map (fn v => (To_string0 v, NONE)) v, NoSyn)
+           , List.map (fn (n, l) => (To_sbinding n, List.map of_semi__typ l, NoSyn)) l))
+         l))
 
 fun type_synonym top (Type_synonym ((n, v), l)) = #theory top (fn thy => let val s_bind = To_sbinding n in
   (snd o Typedecl.abbrev_global

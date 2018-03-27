@@ -121,7 +121,7 @@ definition "of_Module a b = rec_Module
   (ap4 a (b \<open>Module\<close>) (of_ThyName a b) (of_list a b (of_ThyName a b)) (of_list a b (of_Stmt a b)) (of_bool b))"
 
 definition "of_IsaUnit a b = rec_IsaUnit
-  (ap4 a (b \<open>IsaUnit\<close>) (of_bool b) (of_list a b (of_pair a b (of_string a b) (of_option a b (of_string a b)))) (of_string a b) (of_pair a b (of_list a b (of_Module a b)) (of_bool b)))"
+  (ap4 a (b \<open>IsaUnit\<close>) (of_pair a b (of_bool b) (of_nat a b)) (of_list a b (of_pair a b (of_string a b) (of_option a b (of_string a b)))) (of_string a b) (of_pair a b (of_list a b (of_Module a b)) (of_bool b)))"
 
 end
 

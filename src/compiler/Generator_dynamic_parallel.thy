@@ -61,7 +61,7 @@ imports Printer
            "Nonunique" "Sequence_"
            "with_only"
            (* Haskabelle *)
-           "datatype_old" "try_import" "only_types" "base_path" "ignore_not_in_scope" "abstract_mutual_data_params" "concat_modules"
+           "datatype_old" "datatype_old_atomic" "datatype_old_atomic_sub" "try_import" "only_types" "base_path" "ignore_not_in_scope" "abstract_mutual_data_params" "concat_modules"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -440,14 +440,8 @@ fun end' top =
 structure Cmd = struct open META open META_overload
 fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
 
-fun datatype' top (Datatypea (old_datatype, l)) = 
-  if old_datatype then #theory top
-  ((snd oo Old_Datatype.add_datatype_cmd Old_Datatype_Aux.default_config)
-    (map (fn ((n, v), l) =>
-           ( (To_sbinding n, map (fn v => (To_string0 v, NONE)) v, NoSyn)
-           , List.map (fn (n, l) => (To_sbinding n, List.map of_semi__typ l, NoSyn)) l))
-         l))
-  else #local_theory top NONE NONE
+fun datatype' top (Datatypea (version, l)) = 
+  case version of Datatype_new => #local_theory top NONE NONE
   (BNF_FP_Def_Sugar.co_datatype_cmd
     BNF_Util.Least_FP
     BNF_LFP.construct_lfp
@@ -459,6 +453,14 @@ fun datatype' top (Datatypea (old_datatype, l)) =
                                          , NoSyn)) l)
               , (To_binding "", To_binding "", To_binding ""))
             , [])) l)))
+  | _ => #theory top
+  ((snd oo Old_Datatype.add_datatype_cmd
+     (Old_Datatype_Aux.default_config'
+       (case version of Datatype_old => 0 | Datatype_old_atomic => 1 | _ => 2)))
+    (map (fn ((n, v), l) =>
+           ( (To_sbinding n, map (fn v => (To_string0 v, NONE)) v, NoSyn)
+           , List.map (fn (n, l) => (To_sbinding n, List.map of_semi__typ l, NoSyn)) l))
+         l))
 
 fun type_synonym top (Type_synonym ((n, v), l)) = #theory top (fn thy => let val s_bind = To_sbinding n in
   (snd o Typedecl.abbrev_global
@@ -2145,7 +2147,11 @@ end
 local
   open USE_parse
   fun optional_b key = Scan.optional (key >> K true) false
-  val haskell_parse =  optional_b @{keyword "datatype_old"}
+  val haskell_parse =  Scan.optional let fun k x = K (true, From.nat x)
+                                     in   @{keyword "datatype_old"} >> k 0
+                                       || @{keyword "datatype_old_atomic"} >> k 1
+                                       || @{keyword "datatype_old_atomic_sub"} >> k 2 end
+                                     (false, From.nat 0)
                     -- optional_b @{keyword "try_import"}
                     -- optional_b @{keyword "only_types"}
                     -- optional_b @{keyword "ignore_not_in_scope"}
