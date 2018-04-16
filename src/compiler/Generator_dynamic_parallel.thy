@@ -1525,20 +1525,13 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
       in let
            val l_obj = get_all_m NONE
              (* In principle, we could provide (SOME thy) here,
-                but this would only mostly work if we are evaluating a generated (not modified) file,
-                because it could be tempting to assume that generated files do not raise errors. *)
+                but in this case, any errors occurring during the application of the above function
+                will not be interactively shown.
+                Whenever we are evaluating commands coming from generated files, this restriction
+                can normally be removed (by writing (SOME thy)), as generally generated files are
+                conceived to not raise errors. *)
            val m_tr = m_tr
-             |-> mapM_deep (META.mapM (fn (env, i_deep) =>
-                pair (META.fold_thy_deep l_obj env, i_deep)
-                     o (if #skip_exportation i_deep then
-                          I
-                        else
-                          exec_deep { output_header_thy = #output_header_thy i_deep
-                                    , seri_args = #seri_args i_deep
-                                    , filename_thy = NONE
-                                    , tmp_export_code = #tmp_export_code i_deep
-                                    , skip_exportation = #skip_exportation i_deep }
-                                    ( META.d_output_header_thy_update (K NONE) env, l_obj))))
+                      |-> thy_deep0 exec_deep l_obj
          in ( m_tr
               |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
                     let val (tps, disp_time) = disp_time Toplevel'.keep_output
