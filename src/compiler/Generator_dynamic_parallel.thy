@@ -1411,16 +1411,13 @@ fun thy_deep0 exec_deep l_obj =
                           , skip_exportation = #skip_exportation i_deep }
                           ( META.d_output_header_thy_update (K NONE) env, l_obj))))
 
-fun thy_deep get_all_meta_embed mode thy =
-  thy_deep0 (tap oo exec_deep0) (get_all_meta_embed (SOME thy)) mode thy
-
 fun report m f = (Method.report m; f)
 fun report_o o' f = (Option.map Method.report o'; f)
 
-fun thy_shallow get_all_meta_embed =
+fun thy_shallow l_obj get_all_meta_embed =
   Generation_mode.mapM_shallow
-    (META.mapM
-      (fn (env, thy0) => fn thy =>
+    (fn l_shallow => fn thy => META.mapM
+      (fn (env, thy0) => fn (thy, l_obj) =>
         let val (_, disp_time) = disp_time (tap o K ooo out_intensify')
             fun aux (env, thy) x =
               fold_thy_shallow
@@ -1487,8 +1484,11 @@ fun thy_shallow get_all_meta_embed =
                     val () = out_intensify (Timing.message s |> Markup.markup Markup.operator) "" in
                   r
                 end
-              in disp_time (aux (env, thy)) (get_all_meta_embed (SOME thy)) end
-        in ((env, thy0), thy) end))
+              in disp_time (aux (env, thy)) (l_obj ()) end
+        in ((env, thy0), (thy, fn _ => get_all_meta_embed (SOME thy))) end)
+      l_shallow
+      (thy, case l_obj of SOME f => f | NONE => fn _ => get_all_meta_embed (SOME thy))
+      |> META.map_prod I fst)
 
 fun thy_switch pos1 pos2 f mode tr =
   ( ( mode
@@ -1567,10 +1567,14 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                             (Toplevel'.keep_output tps Markup.operator "") end))
             , Data_gen.put)
             handle THY_REQUIRED pos =>
-              m_tr |-> thy_switch pos @{here} (thy_shallow get_all_m)
+              m_tr |-> thy_switch pos @{here} (thy_shallow NONE get_all_m)
          end
          handle THY_REQUIRED pos =>
-           m_tr |-> thy_switch pos @{here} (thy_deep get_all_m #~> thy_shallow get_all_m)
+           m_tr |-> thy_switch pos @{here} (fn mode => fn thy => 
+                                            let val l_obj = get_all_m (SOME thy) in
+                                              (thy_deep0 (tap oo exec_deep0) l_obj
+                                                 #~> thy_shallow (SOME (K l_obj)) get_all_m) mode thy
+                                            end)
       end
       |> uncurry Toplevel'.setup_theory))
  end
