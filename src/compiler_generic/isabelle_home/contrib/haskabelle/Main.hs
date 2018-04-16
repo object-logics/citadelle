@@ -60,6 +60,7 @@ mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", sr
 mainInterface (("internal", arg) : args) = do
   putStrLn "Error calling internal haskabelle binary. Wrong parameters:"
   putStrLn ("  " ++ show arg ++ " " ++ show args)
+  exitWith (ExitFailure 2)
 
 mainInterface (("version", _) : _) = do
   putStrLn (version ++ ".")
