@@ -1421,7 +1421,7 @@ fun disp_time toplevel_keep_output =
                           (Pretty.str msg)) end
   in (tps, disp_time) end
 
-fun thy_deep0 exec_deep l_obj =
+fun thy_deep exec_deep l_obj =
   Generation_mode.mapM_deep
     (META.mapM (fn (env, i_deep) =>
       pair (META.fold_thy_deep l_obj env, i_deep)
@@ -1435,16 +1435,13 @@ fun thy_deep0 exec_deep l_obj =
                           , skip_exportation = #skip_exportation i_deep }
                           ( META.d_output_header_thy_update (K NONE) env, l_obj))))
 
-fun thy_deep get_all_meta_embed mode thy =
-  thy_deep0 (tap oo exec_deep0) (get_all_meta_embed (SOME thy)) mode thy
-
 fun report m f = (Method.report m; f)
 fun report_o o' f = (Option.map Method.report o'; f)
 
-fun thy_shallow get_all_meta_embed =
+fun thy_shallow l_obj get_all_meta_embed =
   Generation_mode.mapM_shallow
-    (META.mapM
-      (fn (env, thy0) => fn thy =>
+    (fn l_shallow => fn thy => META.mapM
+      (fn (env, thy0) => fn (thy, l_obj) =>
         let val (_, disp_time) = disp_time (tap o K ooo out_intensify')
             fun aux (env, thy) x =
               fold_thy_shallow
@@ -1511,8 +1508,11 @@ fun thy_shallow get_all_meta_embed =
                     val () = out_intensify (Timing.message s |> Markup.markup Markup.operator) "" in
                   r
                 end
-              in disp_time (aux (env, thy)) (get_all_meta_embed (SOME thy)) end
-        in ((env, thy0), thy) end))
+              in disp_time (aux (env, thy)) (l_obj ()) end
+        in ((env, thy0), (thy, fn _ => get_all_meta_embed (SOME thy))) end)
+      l_shallow
+      (thy, case l_obj of SOME f => f | NONE => fn _ => get_all_meta_embed (SOME thy))
+      |> META.map_prod I fst)
 
 fun thy_switch (*pos1 pos2*) f mode tr =
   ( ( mode
@@ -1549,20 +1549,13 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
       in (*let
            val l_obj = get_all_m NONE
              (* In principle, we could provide (SOME thy) here,
-                but this would only mostly work if we are evaluating a generated (not modified) file,
-                because it could be tempting to assume that generated files do not raise errors. *)
+                but in this case, any errors occurring during the application of the above function
+                will not be interactively shown.
+                Whenever we are evaluating commands coming from generated files, this restriction
+                can normally be removed (by writing (SOME thy)), as generally generated files are
+                conceived to not raise errors. *)
            val m_tr = m_tr
-             |-> mapM_deep (META.mapM (fn (env, i_deep) =>
-                pair (META.fold_thy_deep l_obj env, i_deep)
-                     o (if #skip_exportation i_deep then
-                          I
-                        else
-                          exec_deep { output_header_thy = #output_header_thy i_deep
-                                    , seri_args = #seri_args i_deep
-                                    , filename_thy = NONE
-                                    , tmp_export_code = #tmp_export_code i_deep
-                                    , skip_exportation = #skip_exportation i_deep }
-                                    ( META.d_output_header_thy_update (K NONE) env, l_obj))))
+                      |-> thy_deep exec_deep l_obj
          in ( m_tr
               |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
                     let val (tps, disp_time) = disp_time Toplevel'.keep_output
@@ -1598,10 +1591,14 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                             (Toplevel'.keep_output tps Markup.operator "") end))
             , Data_gen.put)
             handle THY_REQUIRED pos =>
-              m_tr |-> thy_switch pos @{here} (thy_shallow get_all_m)
+              m_tr |-> thy_switch pos @{here} (thy_shallow NONE get_all_m)
          end
          handle THY_REQUIRED pos =>
-           *)m_tr |-> thy_switch (*pos @{here}*) (thy_deep get_all_m #~> thy_shallow get_all_m)
+           *)m_tr |-> thy_switch (*pos @{here}*) (fn mode => fn thy => 
+                                            let val l_obj = get_all_m (SOME thy) in
+                                              (thy_deep (tap oo exec_deep0) l_obj
+                                                 #~> thy_shallow (SOME (K l_obj)) get_all_m) mode thy
+                                            end)
       end
       |> uncurry Toplevel'.setup_theory))
  end
