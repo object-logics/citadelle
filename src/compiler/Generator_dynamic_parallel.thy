@@ -1397,7 +1397,7 @@ fun disp_time toplevel_keep_output =
                           (Pretty.str msg)) end
   in (tps, disp_time) end
 
-fun thy_deep0 exec_deep l_obj =
+fun thy_deep exec_deep l_obj =
   Generation_mode.mapM_deep
     (META.mapM (fn (env, i_deep) =>
       pair (META.fold_thy_deep l_obj env, i_deep)
@@ -1531,7 +1531,7 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                 can normally be removed (by writing (SOME thy)), as generally generated files are
                 conceived to not raise errors. *)
            val m_tr = m_tr
-                      |-> thy_deep0 exec_deep l_obj
+                      |-> thy_deep exec_deep l_obj
          in ( m_tr
               |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
                     let val (tps, disp_time) = disp_time Toplevel'.keep_output
@@ -1572,7 +1572,7 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
          handle THY_REQUIRED pos =>
            m_tr |-> thy_switch pos @{here} (fn mode => fn thy => 
                                             let val l_obj = get_all_m (SOME thy) in
-                                              (thy_deep0 (tap oo exec_deep0) l_obj
+                                              (thy_deep (tap oo exec_deep0) l_obj
                                                  #~> thy_shallow (SOME (K l_obj)) get_all_m) mode thy
                                             end)
       end
