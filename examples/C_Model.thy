@@ -1,9 +1,11 @@
 (******************************************************************************
- * Haskabelle --- Converting Haskell Source Files to Isabelle/HOL Theories.
- *                http://isabelle.in.tum.de/repos/haskabelle
+ * Orca: A Functional Correctness Verifier for Imperative Programs
+ *       Based on Isabelle/UTP
  *
- * Copyright (c) 2007-2015 Technische Universität München, Germany
- *               2017-2018 Virginia Tech, USA
+ * Copyright (c) 2016-2018 Virginia Tech, USA
+ *               2016-2018 Technische Universität München, Germany
+ *               2016-2018 University of York, UK
+ *               2016-2018 Université Paris-Saclay, Univ. Paris-Sud, France
  *
  * All rights reserved.
  *
