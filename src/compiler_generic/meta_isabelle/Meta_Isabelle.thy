@@ -278,6 +278,7 @@ definition "Term_pair e1 e2 = Term_parenthesis (Term_binop e1 \<open>,\<close> e
 definition "Term_pair' l = (case l of [] \<Rightarrow> Term_basic [\<open>()\<close>] | _ \<Rightarrow> Term_paren \<open>(\<close> \<open>)\<close> (term_binop \<open>,\<close> l))"
 definition "Term_pairs' f l = Term_pair' (L.map f l)"
 definition \<open>Term_string s = Term_basic [S.flatten [\<open>"\<close>, s, \<open>"\<close>]]\<close>
+definition "Term_string' s = Term_basic [S.flatten [\<open>\<langle>''\<close>, s, \<open>''\<rangle>\<close>]]"
 definition "Term_applys0 e l = Term_parenthesis (Term_apply e (L.map Term_parenthesis l))"
 definition "Term_applys e l = Term_applys0 (Term_parenthesis e) l"
 definition "Term_app e = Term_applys0 (Term_basic [e])"

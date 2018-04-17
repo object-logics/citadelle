@@ -69,7 +69,7 @@ convertHskUnit custs exportCode ignoreNotInScope absMutParams adapt (HskUnit hsm
           initial_env    = Ident_Env.augmentGlobalEnv initialGlobalEnv $ extractHskEntries adaptionTable
           global_env_hsk = Ident_Env.unionGlobalEnvs env initial_env
                              
-          hskmodules = map (toHskModule ignoreNotInScope global_env_hsk) hsmodules'
+          hskmodules = map (toHskModule ignoreNotInScope global_env_hsk) $ Hsx.zipMod hsmodules'
           
           isathys = Isa.retopologizeModule $ fst $ runConversion' custs adapt global_env_hsk $
             mapM (convertModule exportCode absMutParams) (zip pragmass hskmodules)
@@ -79,8 +79,8 @@ convertHskUnit custs exportCode ignoreNotInScope absMutParams adapt (HskUnit hsm
       in
         (adaptionTable, adaptIsaUnit adaptionTable global_env_hsk isaunit)
     where 
-      toHskModule :: Bool -> Ident_Env.GlobalE -> Hsx.Module () -> HskModule
-      toHskModule ignoreNotInScope globalEnv (Hsx.Module loc (Just (Hsx.ModuleHead _ modul _ _)) _ _ decls) =
+      toHskModule :: Bool -> Ident_Env.GlobalE -> (Hsx.ModuleName (), Hsx.Module ()) -> HskModule
+      toHskModule ignoreNotInScope globalEnv (modul, Hsx.Module loc _ _ _ decls) =
         HskModule loc modul ((map HskDependentDecls . DeclDependencyGraph.arrangeDecls ignoreNotInScope globalEnv modul) decls)
       adaptIsaUnit adaptionTable globalEnv (IsaUnit modules custThys adaptedGlobalEnv) =
         IsaUnit (adaptModules adaptionTable adaptedGlobalEnv globalEnv modules) custThys adaptedGlobalEnv
@@ -1342,12 +1342,12 @@ makeDependencyGraph ::  [HskModulePragma]
                           Vertex -> (HskModulePragma, Hsx.ModuleName (), [Hsx.ModuleName ()]),
                           Hsx.ModuleName () -> Maybe Vertex)
 makeDependencyGraph hsmodules
-    = do edges <- (mapM makeEdge hsmodules)
+    = do edges <- mapM makeEdge $ Hsx.zipMod0 fst hsmodules
          return $ graphFromEdges edges
-    where makeEdge hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ modul _ _)) _ imports _, _)
+    where makeEdge (modul, hsmodule@(Hsx.Module _ _ _ imports _, _))
               = do let imported_modules = map (Hsx.importModule . Hsx.fmapUnit) imports
                    imported_modules'  <- filterM isCustomModule imported_modules
-                   return (hsmodule, Hsx.fmapUnit modul, imported_modules)
+                   return (hsmodule, modul, imported_modules)
 
 type HaskellDocument = Either FilePath String
 type ModuleImport = (HaskellDocument, Maybe (Hsx.ModuleName ()))
@@ -1440,7 +1440,7 @@ grovelFile imp@(Left file,_) =
 grovelFile imp@(Right _,_) = parseHskFile imp
 
 -- grovelModule :: Hsx.ModuleName () -> GrovelM ()
-grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ imports _, _) = 
+grovelModule loc hsmodule@(Hsx.Module _ baseMod _ imports _, _) = 
     do let newModules = map Hsx.importModule imports
        realModules <- filterM addCustMod' newModules
        basePathAbs <- getBasePathAbs'
@@ -1457,7 +1457,7 @@ grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ 
                         else do
                                (if tryImport then hPutStrLn stderr else fail)
                                   $ "The module \"" ++ Hsx.showModuleName mod
-                                 ++ "\" imported from module \"" ++ Hsx.showModuleName baseMod 
+                                 ++ maybe "" (\(Hsx.ModuleHead _ baseMod _ _) -> "\" imported from module \"" ++ Hsx.showModuleName baseMod) baseMod
                                  ++ "\" cannot be found at \"" ++ file ++ "\"!"
                                return []
 
@@ -1465,12 +1465,12 @@ grovelModule loc hsmodule@(Hsx.Module _ (Just (Hsx.ModuleHead _ baseMod _ _)) _ 
   This function computes the path where to look for an imported module.
 -}
 
-computeSrcPath :: Hsx.ModuleName ()      -- ^the module that is importing
+computeSrcPath :: Maybe (Hsx.ModuleHead ())      -- ^the module that is importing
                -> (FilePath, Maybe FilePath)     -- ^the path to the importing module
                -> Hsx.ModuleName ()       -- ^the module that is to be imported
                -> FilePath     -- ^the assumed path to the module to be imported
 computeSrcPath importingMod (basePath, basePathAbs) m
-    = let baseDir = shrinkPath . joinPath $ maybe (splitPath (takeDirectory basePath) ++ replicate (Hsx.moduleHierarchyDepth importingMod) "..") splitPath basePathAbs
+    = let baseDir = shrinkPath . joinPath $ maybe (splitPath (takeDirectory basePath) ++ replicate (maybe 0 (\(Hsx.ModuleHead _ m _ _) -> Hsx.moduleHierarchyDepth m) importingMod) "..") splitPath basePathAbs
       in combine baseDir (Hsx.module2FilePath m)   
 
 shrinkPath :: FilePath -> FilePath
@@ -1488,21 +1488,24 @@ parseHskFile (file, mbMod)  =
                    Left file -> liftIO $ Hsx.parseFileWithCommentsAndPragmas (Hsx.defaultParseMode { Hsx.extensions = extensions, Hsx.parseFilename = file }) file
                                 `catchIO` (\ioError -> fail $ "An error occurred while reading module file \"" ++ file ++ "\": " ++ show ioError)
                    Right cts -> return $ parseFileContentsWithCommentsAndPragmas (Hsx.defaultParseMode { Hsx.extensions = extensions }) cts
-       (loc, mod@(Hsx.Module _ (Just (Hsx.ModuleHead _ name _ _)) _ _ _, _)) <-
+       (loc, mod@(Hsx.Module _ name _ _ _, _)) <-
          case result of
            (Hsx.ParseFailed loc msg) ->
                fail $ "An error occurred while parsing module file: " ++ Msg.failed_parsing loc msg
-           (Hsx.ParseOk (m@(Hsx.Module loc (Just (Hsx.ModuleHead _ mName _ _)) _ _ _), _, pragma)) ->
+           (Hsx.ParseOk (m@(Hsx.Module loc mName _ _ _), _, pragma)) ->
                let m' = fmap Hsx.getPointLoc m in
                case (file, mbMod) of
                  (Left file, Just expMod) ->
-                     if Hsx.fmapUnit mName == expMod
-                     then return (Hsx.getPointLoc loc, (m', pragma))
-                     else fail $ "Name mismatch: Name of imported module in \"" 
-                              ++ file ++"\" is " ++ Hsx.showModuleName (Hsx.fmapUnit mName)
-                                      ++ ", expected was " ++ Hsx.showModuleName expMod
+                     case mName of
+                       (Just (Hsx.ModuleHead _ mName _ _)) ->
+                         if Hsx.fmapUnit mName == expMod
+                         then return (Hsx.getPointLoc loc, (m', pragma))
+                         else fail $ "Name mismatch: Name of imported module in \"" 
+                                  ++ file ++"\" is " ++ Hsx.showModuleName (Hsx.fmapUnit mName)
+                                          ++ ", expected was " ++ Hsx.showModuleName expMod
                  _ -> return (Hsx.getPointLoc loc, (m', pragma))
-       cust <- addCustMod $ Hsx.fmapUnit name
+       cust <- case name of Nothing -> return False
+                            Just (Hsx.ModuleHead _ name _ _) -> addCustMod $ Hsx.fmapUnit name
        if cust then grovelImports
                else addModule loc mod
                     >> grovelModule loc (case mod of (m, u) -> (Hsx.fmapUnit m, u))

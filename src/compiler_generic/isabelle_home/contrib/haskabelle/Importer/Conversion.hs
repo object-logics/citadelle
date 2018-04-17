@@ -8,6 +8,7 @@ module Importer.Conversion (importFiles, importProject) where
 import Importer.Library
 
 import qualified Data.List as List
+import qualified Language.Haskell.Interpreter as I
 import Text.PrettyPrint (render)
 
 import System.FilePath
@@ -25,17 +26,17 @@ import qualified Importer.Hsx as Hsx
 import qualified Importer.Conversion.SML as SML
 
 
-importProject :: Config -> FilePath -> [String] -> IO ()
-importProject config adaptDir hsk_cts = do
+importProject :: Config -> FilePath -> Maybe ([String], [String], String, String) -> [String] -> IO ()
+importProject config adaptDir metaParse hskContents = do
   adapt <- readAdapt adaptDir
-  runConversion config (convertFiles adapt hsk_cts)
+  runConversion config (convertFiles adapt metaParse hskContents)
 
-importFiles :: [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> Bool -> FilePath -> [String] -> IO ()
+importFiles :: [FilePath] -> Maybe FilePath -> Bool -> Bool -> Bool -> Maybe FilePath -> Bool -> Bool -> FilePath -> Maybe ([String], [String], String, String) -> [String] -> IO ()
 importFiles files out exportCode tryImport onlyTypes basePathAbs getIgnoreNotInScope absMutParams
   = importProject (defaultConfig defaultCustomisations files out exportCode tryImport onlyTypes basePathAbs getIgnoreNotInScope absMutParams)
 
-convertFiles :: Adaption -> [String] -> Conversion ()
-convertFiles adapt hsk_cts = do
+convertFiles :: Adaption -> Maybe ([String], [String], String, String) -> [String] -> Conversion ()
+convertFiles adapt metaParse hskContents = do
 
   inFiles <- getInputFilesRecursively
   outDir <- getOutputDir
@@ -49,8 +50,18 @@ convertFiles adapt hsk_cts = do
   
   exists <- liftIO $ mapM doesDirectoryExist outDir
   when (case exists of Just False -> True ; _ -> False) $ liftIO $ maybe (return ()) createDirectory outDir
-
-  units <- parseHskFiles tryImport onlyTypes basePathAbs (map Right hsk_cts ++ map Left (filter Hsx.isHaskellSourceFile inFiles))
+  hskContents' <- liftIO $ mapM (let returnR = return . Right in
+                                 case metaParse of Nothing -> returnR
+                                                   Just (load, imports, code, hskName) -> \hsk_ct -> do
+                                                     let s = I.parens code ++ " " ++ show hsk_ct
+                                                     res <- I.runInterpreter $ do
+                                                              mapM (\basePathAbs -> I.set [I.searchPath I.:= [basePathAbs]]) basePathAbs
+                                                              I.loadModules load
+                                                              I.setImports ("Prelude" : imports)
+                                                              I.interpret s (I.as :: String)
+                                                     returnR $ case res of Right r -> hskName ++ " = " ++ r ; Left l -> error (show l))
+                                hskContents
+  units <- parseHskFiles tryImport onlyTypes basePathAbs (hskContents' ++ map Left (filter Hsx.isHaskellSourceFile inFiles))
   let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs exportCode ignoreNotInScope absMutParams adapt) units
 
   liftIO $ maybe (return ()) (\outDir -> copyFile (preludeFile adapt) (combine outDir (takeFileName (preludeFile adapt)))) outDir

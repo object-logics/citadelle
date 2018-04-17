@@ -34,7 +34,7 @@ gshows = render `G.extQ` (render_bool :: Bool -> SS)
           else monad_String' $ "\"" ++ concatMap (\c -> if char c && not (char_escape c) then [c]
                                                         else Printf.printf "\\%03d" (Char.ord c)) s ++ "\""
   render_char c = monad_Char '#' . render_string [c]
-  render_int i = if i < 0 then monad_Char '~' . shows (-i) else shows i
+  render_int i = monad_String "From.nat " . if i < 0 then monad_Char '~' . shows (-i) else shows i
   render_integer = render_int
   render t
     | isTuple = commaSlots' '(' "," ')'

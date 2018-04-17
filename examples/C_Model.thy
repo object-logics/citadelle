@@ -58,7 +58,7 @@ generation_syntax [ deep
                   , shallow (*SORRY*) ]
 
 type_synonym int = integer
-type_synonym string = String.literal
+type_synonym string = abr_string
 notation Some ("Just")
 notation None ("Nothing")
 
@@ -83,6 +83,24 @@ Haskell_file datatype_old_atomic try_import only_types concat_modules
              "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/AST.hs"
 
 typ "CTranslUnit"
+
+section \<open>Initialization of the parsing code\<close>
+
+meta_language C
+  base_path "../src/compiler_generic/isabelle_home/contrib/haskabelle"
+  [Prelude, Int, String, Option]
+  imports \<open>Language.C\<close>
+          (load \<open>Importer.Conversion.Haskell\<close>)
+  defines \<open>\s -> case parseC (inputStreamFromString s) nopos of Right r -> gshows r ""; Left e -> error ("\n" ++ show e)\<close>
+
+ML \<open>val String = META.Stringa\<close>
+
+section \<open>Parsing\<close>
+
+language program1 :: C where \<open>f () { int a = 1; }
+                              g () { int b = 2; }\<close>
+
+term "program1 :: CTranslUnit"
 
 section \<open>Garbage Collection of Notations\<close>
 

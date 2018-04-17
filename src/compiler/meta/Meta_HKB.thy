@@ -61,9 +61,9 @@ datatype Type = Type Name "Type list"
               | TVar Name
               | NoType
  
-datatype Literal = (*(*To be supported*)Int int
-                 | Char char
-                 |*) String string
+datatype Literal = Int nat (*FIXME 'int' to be supported instead of 'nat'*)
+                 (*(*To be supported*)| Char char*)
+                 | String string
  
 datatype Term = Literal Literal
               | Const Name

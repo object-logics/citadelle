@@ -195,9 +195,9 @@ makeAdaptionTable_FromHsModule adapt env hsmodules = let
   initial_class_env = makeGlobalEnv_FromAdaptionTable
     (filterAdaptionTable (Ident_Env.isClass . fst) adaptionTable)
   tmp_env = Ident_Env.unionGlobalEnvs initial_class_env env
-  defined_names = concatMap (extractDefNames tmp_env) hsmodules
-  extractDefNames :: Ident_Env.GlobalE -> Hsx.Module () -> [String]
-  extractDefNames globalEnv (Hsx.Module _ (Just (Hsx.ModuleHead _ m _ _)) _ _ decls) =
+  defined_names = concatMap (extractDefNames tmp_env) (Hsx.zipMod hsmodules)
+  extractDefNames :: Ident_Env.GlobalE -> (Hsx.ModuleName (), Hsx.Module ()) -> [String]
+  extractDefNames globalEnv (m, Hsx.Module _ _ _ _ decls) =
     mapMaybe (\n -> let m'   = Ident_Env.fromHsk m
                         n'   = Ident_Env.fromHsk n
                         ids  = Ident_Env.lookupIdentifiers_OrLose m' n' globalEnv

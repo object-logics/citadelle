@@ -64,6 +64,7 @@ definition "of_Type a b = (\<lambda>f1 f2 f3. rec_Type f1 (\<lambda>_ _. f2) f3)
   (b \<open>NoType\<close>)"
 
 definition "of_Literal a b = rec_Literal
+  (ap1 a (b \<open>Int\<close>) (of_nat a b))
   (ap1 a (b \<open>String\<close>) (of_string a b))"
 
 definition "of_TLD_aux f_rec a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17. f_rec f1 f2 (co1 K f3) (\<lambda>_ _. f4) (\<lambda>_ _ _. f5) (\<lambda>l _. f6 (map (map_prod snd snd) l)) (\<lambda>_ l. f7 (map (map_prod snd snd) l)) (\<lambda>_ l. f8 (map snd l)) (\<lambda>a l. f9 a (map (map_prod id snd) l)) (K (f10 o map (map_prod id snd))) (\<lambda>a l. f11 a (map snd l)) (K f12) (f13 o map_prod snd snd) (K f14) (\<lambda>_ _. f15) (K f16) (f17 o map (map_prod snd snd)))

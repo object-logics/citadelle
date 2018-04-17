@@ -52,6 +52,16 @@ fmapUnit = fmap (\_ -> ())
 hsk_prelude :: Hsx.ModuleName ()
 hsk_prelude = Hsx.ModuleName () "Prelude"
 
+zipMod0 :: (a -> Hsx.Module l) -> [a] -> [(Hsx.ModuleName (), a)]
+zipMod0 f = map (\(modulN, modul) ->
+               ( case f modul of Hsx.Module _ (Just (Hsx.ModuleHead _ m _ _)) _ _ _ -> fmapUnit m
+                                 _ -> Hsx.ModuleName () (show modulN)
+               , modul))
+          . zip [0..]
+
+zipMod :: [Hsx.Module l] -> [(Hsx.ModuleName (), Hsx.Module l)]
+zipMod = zipMod0 id
+
 {-|
   This function takes a constant identifier name and converts it into a
   Haskell expression of a qualified 

@@ -41,22 +41,24 @@ onlyTypes = False
 basePathAbs = Nothing
 ignoreNotInScope = False
 absMutParams = False
+metaParse = Nothing
+hskContents = []
 
 mainInterface :: [(String, [String])] -> IO ()
 mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("config", [configFile]) : []) = do
   exportCode <- readBool exportVar
   config <- readConfig configFile exportCode
-  importProject config adaptDir []
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("try-import", [tryImportVar]) : ("only-types", [onlyTypesVar]) : ("base-path-abs", basePathAbs) : ("ignore-not-in-scope", [ignoreNotInScopeVar]) : ("abstract-mutual-data-params", [absMutParamsVar]) : ("dump-output", []) : ("hsk-contents", hskContents) : ("files", srcs) : []) = do
+  importProject config adaptDir metaParse hskContents
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("try-import", [tryImportVar]) : ("only-types", [onlyTypesVar]) : ("base-path-abs", basePathAbs) : ("ignore-not-in-scope", [ignoreNotInScopeVar]) : ("abstract-mutual-data-params", [absMutParamsVar]) : ("dump-output", []) : ("meta-parse-load", metaParseLoad) : ("meta-parse-imports", metaParseImports) : ("meta-parse-code", metaParseCode) : ("hsk-name", hskName) : ("hsk-contents", hskContents) : ("files", srcs) : []) = do
   tryImport <- readBool tryImportVar
   onlyTypes <- readBool onlyTypesVar
   ignoreNotInScope <- readBool ignoreNotInScopeVar
   absMutParams <- readBool absMutParamsVar
-  mainInterfaceDump exportVar srcs tryImport onlyTypes (case basePathAbs of [] -> Nothing ; x : _ -> Just (x)) ignoreNotInScope absMutParams adaptDir hskContents
-mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump exportVar srcs tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir []
+  mainInterfaceDump exportVar srcs tryImport onlyTypes (case basePathAbs of [] -> Nothing ; [x] -> Just (x)) ignoreNotInScope absMutParams adaptDir (case (metaParseLoad, metaParseImports, metaParseCode, hskName) of ([], [], [], []) -> Nothing ; (l, i, [c], [n]) -> Just (l, i, c, n)) hskContents
+mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs @ [_]) : []) = mainInterfaceDump exportVar srcs tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir metaParse hskContents
 mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", srcs_dst @ (_ : _ : _)) : []) = do
   exportCode <- readBool exportVar
-  importFiles (init srcs_dst) (Just (last srcs_dst)) exportCode tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir []
+  importFiles (init srcs_dst) (Just (last srcs_dst)) exportCode tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir metaParse hskContents
 
 mainInterface (("internal", arg) : args) = do
   hPutStrLn stderr "Error calling internal haskabelle binary. Wrong parameters:"
@@ -74,9 +76,9 @@ mainInterface _ = do
   hPutStrLn stderr ""
   exitWith (ExitFailure 2)
 
-mainInterfaceDump exportVar srcs tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir hskContents = do
+mainInterfaceDump exportVar srcs tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir metaParse hskContents = do
   exportCode <- readBool exportVar
-  importFiles srcs Nothing exportCode tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir hskContents
+  importFiles srcs Nothing exportCode tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir metaParse hskContents
 
 main :: IO ()
 main = getArgs >>= mapM (return . \s -> case s of '-' : '-' : s -> Left s ; s -> Right s)

@@ -858,13 +858,13 @@ makeEnvModule imports shall_export_p identifiers
 {-|
   This function constructs a module environment from a Haskell module.
 -}
-makeEnvModule_FromModule :: Hsx.Module () ->  LexM Module
-makeEnvModule_FromModule (Hsx.Module lmod (Just (Hsx.ModuleHead lhead modul _ exports)) _ imports topdecls)
+makeEnvModule_FromModule :: Hsx.ModuleName () -> Hsx.Module () ->  LexM Module
+makeEnvModule_FromModule modul (Hsx.Module lmod exports _ imports topdecls)
     = let env = makeEnvConstTypes (concatMap (computeConstantMappings modul) topdecls)
           imports' = map fromHsk imports ++ defaultImports
           exports' = case exports of
-                       Nothing -> [ExportMod (fromHsk modul)] 
-                       Just (Hsx.ExportSpecList _ jexports) -> map fromHsk jexports
+                       Just (Hsx.ModuleHead _ _ _ (Just (Hsx.ExportSpecList _ jexports))) -> map fromHsk jexports
+                       _ -> [ExportMod (fromHsk modul)]
           mod = fromHsk modul
       in return $ Module mod imports' exports' env
 
@@ -1075,9 +1075,9 @@ environmentOf custs ms custMods = runLexM custs $ makeGlobalEnv_FromModule ms cu
 -}
 makeGlobalEnv_FromModule :: [Hsx.Module ()] -> CustomTranslations -> LexM GlobalE
 makeGlobalEnv_FromModule ms  custMods
-    = do mapping <- mapM (\ m@(Hsx.Module _ (Just (Hsx.ModuleHead _ modul _ _)) _ _ _) ->
-                         do env <- makeEnvModule_FromModule m
-                            return (fromHsk modul,env) ) ms
+    = do mapping <- mapM (\ (modul, m) ->
+                         do env <- makeEnvModule_FromModule modul m
+                            return (fromHsk modul,env) ) $ Hsx.zipMod ms
          let custMapping = map (\(m, ct) -> let mid = fromHsk m in (mid, makeEnvModule_FromCustThy mid ct)) (Map.toList custMods)
          return $ GlobalEnv $ Map.fromListWith failDups (mapping ++ custMapping)
     where failDups a b = error ("Duplicate modules: " ++ show a ++ ", " ++ show b)
