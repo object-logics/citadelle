@@ -12,6 +12,7 @@ import qualified Data.List as List
 
 import System.Environment (getArgs, getProgName)
 import System.Exit (exitWith, ExitCode (ExitFailure))
+import System.IO
 
 import Importer.Conversion (importProject, importFiles)
 import Importer.Adapt (readAdapt, Adaption (..))
