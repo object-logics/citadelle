@@ -63,14 +63,15 @@ notation None ("Nothing")
 (**************************************************************************************************)
 End!
 old_datatype 'a option = None | Some 'a
+old_datatype ('a, 'b) Either = Left 'a | Right 'b
 
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Name.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Position.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Node.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Ident.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Ops.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Constants.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/AST.hs"
+Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Name.hs"
+Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Position.hs"
+Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Node.hs"
+Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Ident.hs"
+Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Ops.hs"
+Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Constants.hs"
+Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/AST.hs"
 
 section \<open>Garbage Collection of Notations\<close>
 
