@@ -44,7 +44,9 @@ theory C_Model
           "../src/compiler/Generator_dynamic_parallel"
 begin
 
-declare[[syntax_ambiguity_warning = false]]
+section \<open>Initialization of the generator\<close>
+
+declare [[syntax_ambiguity_warning = false]]
 
 generation_syntax [ deep
                       (THEORY C_Model_generated)
@@ -53,25 +55,34 @@ generation_syntax [ deep
                       SECTION
                       [ in self ]
                       (output_directory "../doc")
-                  (*, shallow (*SORRY*)*) ]
+                  , shallow (*SORRY*) ]
 
 type_synonym int = integer
 type_synonym string = String.literal
 notation Some ("Just")
 notation None ("Nothing")
 
-(**************************************************************************************************)
+section \<open>Type definition\<close>
+
 End!
+
 old_datatype 'a option = None | Some 'a
 old_datatype ('a, 'b) Either = Left 'a | Right 'b
 
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Name.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Position.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Node.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Ident.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Ops.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Constants.hs"
-Haskell_file datatype_old try_import only_types (*concat_modules*) base_path "$HASKABELLE_HOME/ex/language-c/src" [Prelude, Int, String, Option] "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/AST.hs"
+text \<open> \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Name.hs\<close>
+       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Position.hs\<close>
+       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Node.hs\<close>
+       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Ident.hs\<close>
+       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Ops.hs\<close>
+       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Constants.hs\<close> \<close>
+
+Haskell_file datatype_old_atomic try_import only_types concat_modules
+             base_path "$HASKABELLE_HOME/ex/language-c/src"
+             [Prelude, Int, String, Option]
+             (**)
+             "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/AST.hs"
+
+typ "CTranslUnit"
 
 section \<open>Garbage Collection of Notations\<close>
 
