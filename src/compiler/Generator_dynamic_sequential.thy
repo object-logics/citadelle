@@ -1921,6 +1921,22 @@ structure USE_parse = struct
 
   val mk_pp_state = fn ST_PP_l_attr l => META.OclDefPPCoreAdd (mk_state l)
                      | ST_PP_binding s => META.OclDefPPCoreBinding (From.binding s)
+
+  (* *)
+
+  fun optional_b key = Scan.optional (key >> K true) false
+  val haskell_parse =  Scan.optional let fun k x = K (true, From.nat x)
+                                     in   @{keyword "datatype_old"} >> k 0
+                                       || @{keyword "datatype_old_atomic"} >> k 1
+                                       || @{keyword "datatype_old_atomic_sub"} >> k 2 end
+                                     (false, From.nat 0)
+                    -- optional_b @{keyword "try_import"}
+                    -- optional_b @{keyword "only_types"}
+                    -- optional_b @{keyword "ignore_not_in_scope"}
+                    -- optional_b @{keyword "abstract_mutual_data_params"}
+                    -- optional_b @{keyword "concat_modules"}
+                    -- Scan.option (@{keyword "base_path"} |-- Parse.path)
+                    -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
 end
 \<close>
 
@@ -2176,19 +2192,6 @@ end
 
 local
   open USE_parse
-  fun optional_b key = Scan.optional (key >> K true) false
-  val haskell_parse =  Scan.optional let fun k x = K (true, From.nat x)
-                                     in   @{keyword "datatype_old"} >> k 0
-                                       || @{keyword "datatype_old_atomic"} >> k 1
-                                       || @{keyword "datatype_old_atomic_sub"} >> k 2 end
-                                     (false, From.nat 0)
-                    -- optional_b @{keyword "try_import"}
-                    -- optional_b @{keyword "only_types"}
-                    -- optional_b @{keyword "ignore_not_in_scope"}
-                    -- optional_b @{keyword "abstract_mutual_data_params"}
-                    -- optional_b @{keyword "concat_modules"}
-                    -- Scan.option (@{keyword "base_path"} |-- Parse.path)
-                    -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
 in
 val () =
   outer_syntax_commands' @{mk_string} @{command_keyword Haskell} ""
