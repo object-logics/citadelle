@@ -58,19 +58,19 @@ mainInterface (("internal", [adaptDir]) : ("export", [exportVar]) : ("files", sr
   importFiles (init srcs_dst) (Just (last srcs_dst)) exportCode tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir []
 
 mainInterface (("internal", arg) : args) = do
-  putStrLn "Error calling internal haskabelle binary. Wrong parameters:"
-  putStrLn ("  " ++ show arg ++ " " ++ show args)
+  hPutStrLn stderr "Error calling internal haskabelle binary. Wrong parameters:"
+  hPutStrLn stderr ("  " ++ show arg ++ " " ++ show args)
   exitWith (ExitFailure 2)
 
 mainInterface (("version", _) : _) = do
   putStrLn (version ++ ".")
 
 mainInterface _ = do
-  putStrLn "Do not invoke linked Haskabelle binary directly"
-  putStrLn "  -- invoke it as described in the Haskabelle manual."
-  putStrLn ""
-  putStrLn "Have a nice day!"
-  putStrLn ""
+  hPutStrLn stderr "Do not invoke linked Haskabelle binary directly"
+  hPutStrLn stderr "  -- invoke it as described in the Haskabelle manual."
+  hPutStrLn stderr ""
+  hPutStrLn stderr "Have a nice day!"
+  hPutStrLn stderr ""
   exitWith (ExitFailure 2)
 
 mainInterfaceDump exportVar srcs tryImport onlyTypes basePathAbs ignoreNotInScope absMutParams adaptDir hskContents = do
