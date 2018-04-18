@@ -228,6 +228,26 @@ structure Old_Datatype_Aux' = struct
       let val _ = warning "Type of datatype not available in this running version of Isabelle"
       in Old_Datatype_Aux.default_config end
 end
+
+structure Resources' = struct
+  fun check_path' check_file ctxt dir (name, pos) =
+    let
+      fun err msg pos = error (msg ^ Position.here pos)
+      val _ = Context_Position.report ctxt pos Markup.language_path;
+  
+      val path = Path.append dir (Path.explode name) handle ERROR msg => err msg pos;
+      val path' = Path.expand path handle ERROR msg => err msg pos;
+      val _ = Context_Position.report ctxt pos (Markup.path (Path.smart_implode path));
+      val _ =
+        (case check_file of
+          NONE => path
+        | SOME check => (check path handle ERROR msg => err msg pos));
+    in Path.implode path' end
+
+  fun check_dir thy = check_path' (SOME File.check_dir)
+                                  (Proof_Context.init_global thy)
+                                  (Resources.master_directory thy)
+end
 \<close>
 
 ML\<open>
@@ -1937,7 +1957,7 @@ structure USE_parse = struct
                     -- optional_b @{keyword "ignore_not_in_scope"}
                     -- optional_b @{keyword "abstract_mutual_data_params"}
                     -- optional_b @{keyword "concat_modules"}
-                    -- Scan.option (@{keyword "base_path"} |-- Parse.path)
+                    -- Scan.option (@{keyword "base_path"} |-- Parse.position Parse.path)
                     -- Scan.optional (parse_l' (Parse.name -- Scan.option ((@{keyword \<rightharpoonup>} || @{keyword =>}) |-- Parse.name))) []
 end
 \<close>
@@ -2157,7 +2177,7 @@ local
   val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"]
   val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"]
 in
-  fun parse meta_parse_imports meta_parse_code hsk_name hsk_str ((((((((old_datatype, try_import), only_types), ignore_not_in_scope), abstract_mutual_data_params), concat_modules), base_path_abs), l_rewrite), content) thy =
+  fun parse meta_parse_imports meta_parse_code hsk_name check_dir hsk_str ((((((((old_datatype, try_import), only_types), ignore_not_in_scope), abstract_mutual_data_params), concat_modules), base_path_abs), l_rewrite), (content, pos)) thy =
     let fun string_of_bool b = if b then "true" else "false"
         val st =
           Bash.process
@@ -2167,7 +2187,7 @@ in
                , "--export", "false"
                , "--try-import", string_of_bool try_import
                , "--only-types", string_of_bool only_types
-               , "--base-path-abs", case base_path_abs of NONE => "" | SOME s => Path.implode (File.full_path (Resources.master_directory thy) (Path.explode s))
+               , "--base-path-abs", case base_path_abs of NONE => "" | SOME s => check_dir thy s
                , "--ignore-not-in-scope", string_of_bool ignore_not_in_scope
                , "--abstract-mutual-data-params", string_of_bool abstract_mutual_data_params
                , "--dump-output"
@@ -2179,7 +2199,7 @@ in
                   if hsk_str then
                     ([ Bash.string content ], [])
                   else
-                    ([], [ content |> Path.explode |> File.check_file |> Path.implode ])
+                    ([], [ Resources'.check_path' (SOME File.check_file) (Proof_Context.init_global thy) Path.current (content, pos) ])
                 of (cts, files) => List.concat [ ["--hsk-contents"], cts, ["--files"], files ])))
     in
       if #rc st = 0 then
@@ -2194,16 +2214,16 @@ in
                       "Failed executing the ML process (" ^ Int.toString (#rc st) ^ ")"
                     else #err st |> String.explode |> trim (fn #"\n" => true | _ => false) |> String.implode) end
     end
-  val parse' = parse [] [] []
+  val parse' = parse [] [] [] Resources'.check_dir
 end
 
 local
   type haskell_parse =
-    (((((((bool * Code_Numeral.natural) * bool) * bool) * bool) * bool) * bool) * string option)
+    (((((((bool * Code_Numeral.natural) * bool) * bool) * bool) * bool) * bool) * (string * Position.T) option)
     * (string * string option) list
   
   structure Data_lang = Theory_Data
-    (type T = (haskell_parse * (bool * string) list * string) Name_Space.table
+    (type T = (haskell_parse * string option * (bool * string) list * string) Name_Space.table
      val empty = Name_Space.empty_table "meta_language"
      val extend = I
      val merge = Name_Space.merge_tables)
@@ -2212,12 +2232,12 @@ local
 in
 val () =
   outer_syntax_commands' @{mk_string} @{command_keyword Haskell} ""
-    (haskell_parse -- Parse.cartouche)
+    (haskell_parse -- Parse.position Parse.cartouche)
     (get_thy @{here} o parse' true)
 
 val () =
   outer_syntax_commands' @{mk_string} @{command_keyword Haskell_file} ""
-    (haskell_parse -- Parse.path)
+    (haskell_parse -- Parse.position Parse.path)
     (get_thy @{here} o parse' false)
 
 val () =
@@ -2232,24 +2252,34 @@ val () =
                                    |-- Parse.$$$ "load"
                                    |-- Parse.cartouche --| Parse.$$$ ")" >> pair true))) []
      --| Parse.$$$ "defines" -- Parse.cartouche
-    >> (fn (((lang, hsk_arg), imports), defines) => 
+    >> (fn (((lang, hsk_arg as ((_, base_path), _)), imports), defines) => 
         let val _ = if exists (fn #"\n" => true | _ => false) (String.explode defines) then
                       error "Haskell indentation rules are not yet supported"
                     else ()
         in Toplevel.theory
              (fn thy =>
                Data_lang.map
-                 (#2 o Name_Space.define (Context.Theory thy) true (lang, (hsk_arg, imports, defines)))
+                 (#2 o Name_Space.define
+                    (Context.Theory thy)
+                    true
+                    (lang, (hsk_arg, Option.map (Resources'.check_dir thy) base_path, imports, defines)))
                  thy)
         end))
 
 val () =
   outer_syntax_commands' @{mk_string} @{command_keyword language} ""
-    (Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name --| Parse.where_ -- Parse.cartouche)
+    (Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name --| Parse.where_ -- Parse.position Parse.cartouche)
     (fn ((prog, lang), code) => 
       get_thy @{here} (fn thy => 
-        let val (_, (hsk_arg, imports, defines)) = Name_Space.check (Context.Theory thy) (Data_lang.get thy) lang
-        in parse imports [defines] [Binding.name_of prog] true (hsk_arg, code) thy end))
+        let val (_, (hsk_arg, hsk_path, imports, defines)) =
+              Name_Space.check (Context.Theory thy) (Data_lang.get thy) lang
+        in parse imports
+                 [defines]
+                 [Binding.name_of prog]
+                 (K (K (case hsk_path of NONE => "" | SOME s => s)))
+                 true
+                 (hsk_arg, code)
+                 thy end))
 end
 (*val _ = print_depth 100*)
 \<close>
