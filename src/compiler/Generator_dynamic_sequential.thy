@@ -2203,10 +2203,10 @@ local
     * (string * string option) list
   
   structure Data_lang = Theory_Data
-    (type T = (string * (Position.T * haskell_parse * (bool * string) list * string)) list
-     val empty = []
+    (type T = (haskell_parse * (bool * string) list * string) Name_Space.table
+     val empty = Name_Space.empty_table "meta_language"
      val extend = I
-     fun merge (e1, e2) = e1 @ e2)
+     val merge = Name_Space.merge_tables)
   
   open USE_parse
 in
@@ -2222,7 +2222,7 @@ val () =
 
 val () =
   Outer_Syntax.command @{command_keyword meta_language} ""
-    (Parse.position Parse.name
+    (Parse.binding
      -- haskell_parse
      -- Scan.optional
           (Parse.$$$ "imports"
@@ -2232,21 +2232,24 @@ val () =
                                    |-- Parse.$$$ "load"
                                    |-- Parse.cartouche --| Parse.$$$ ")" >> pair true))) []
      --| Parse.$$$ "defines" -- Parse.cartouche
-    >> (fn ((((lang, pos), hsk_arg), imports), defines) => 
+    >> (fn (((lang, hsk_arg), imports), defines) => 
         let val _ = if exists (fn #"\n" => true | _ => false) (String.explode defines) then
                       error "Haskell indentation rules are not yet supported"
                     else ()
-        in Toplevel.theory (Data_lang.map (cons (lang, (pos, hsk_arg, imports, defines)))) end))
+        in Toplevel.theory
+             (fn thy =>
+               Data_lang.map
+                 (#2 o Name_Space.define (Context.Theory thy) true (lang, (hsk_arg, imports, defines)))
+                 thy)
+        end))
 
 val () =
   outer_syntax_commands' @{mk_string} @{command_keyword language} ""
     (Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name --| Parse.where_ -- Parse.cartouche)
-    (fn ((prog, (lang, _)), code) => 
+    (fn ((prog, lang), code) => 
       get_thy @{here} (fn thy => 
-        case AList.lookup (op =) (Data_lang.get thy) lang of
-          SOME (_, hsk_arg, imports, defines) => 
-            parse imports [defines] [Binding.name_of prog] true (hsk_arg, code) thy
-        | NONE => error ("Undefined language: " ^ lang)))
+        let val (_, (hsk_arg, imports, defines)) = Name_Space.check (Context.Theory thy) (Data_lang.get thy) lang
+        in parse imports [defines] [Binding.name_of prog] true (hsk_arg, code) thy end))
 end
 (*val _ = print_depth 100*)
 \<close>
