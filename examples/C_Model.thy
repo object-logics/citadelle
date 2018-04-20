@@ -84,14 +84,20 @@ Haskell_file datatype_old_atomic try_import only_types concat_modules
 
 typ "CTranslUnit"
 
+datatype CommentFormat = SingleLine | MultiLine
+datatype Comment = Comment Position string CommentFormat
+
+abbreviation Position' ("Position") where
+            "Position' offset file row column \<equiv> C_Model.Position offset row column (FilePosition file None)"
+
 section \<open>Initialization of the parsing code\<close>
 
-meta_language C
-  base_path "../src/compiler_generic/isabelle_home/contrib/haskabelle"
-  [Prelude, Int, String, Option]
-  imports \<open>Language.C\<close>
-          (load \<open>Importer.Conversion.Haskell\<close>)
-  defines \<open>\s -> case parseC (inputStreamFromString s) nopos of Right r -> gshows r ""; Left e -> error ("\n" ++ show e)\<close>
+meta_language C base_path "../src/compiler_generic/isabelle_home/contrib/haskabelle"
+                [Prelude, Option]
+                imports \<open>Language.C\<close>
+                        (load \<open>Importer.Conversion.Haskell\<close>)
+                        (load \<open>Importer.Conversion.Haskell.C\<close>)
+                defines \<open>\s -> do { r <- parseC' (inputStreamFromString s) ; return (gshows r "") }\<close>
 
 ML \<open>val String = META.Stringa\<close>
 
@@ -100,7 +106,7 @@ section \<open>Parsing\<close>
 language program1 :: C where \<open>f () { int a = 1; }
                               g () { int b = 2; }\<close>
 
-term "program1 :: CTranslUnit"
+term "program1 :: CTranslUnit \<times> Comment list \<times> int list"
 
 section \<open>Garbage Collection of Notations\<close>
 

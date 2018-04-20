@@ -58,7 +58,7 @@ convertFiles adapt metaParse hskContents = do
                                                               mapM (\basePathAbs -> I.set [I.searchPath I.:= [basePathAbs]]) basePathAbs
                                                               I.loadModules load
                                                               I.setImports ("Prelude" : imports)
-                                                              I.interpret s (I.as :: String)
+                                                              I.interpret s (I.as :: IO String) >>= liftIO
                                                      returnR $ case res of Right r -> hskName ++ " = " ++ r ; Left l -> error (show l))
                                 hskContents
   units <- parseHskFiles tryImport onlyTypes basePathAbs (hskContents' ++ map Left (filter Hsx.isHaskellSourceFile inFiles))
