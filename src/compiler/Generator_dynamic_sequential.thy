@@ -2163,8 +2163,8 @@ subsection\<open>Setup of Meta Commands for Haskabelle: @{command Haskell}, @{co
 ML\<open>
 structure Haskabelle_Data = Theory_Data
   (open META
-   type T = module list
-   val empty = []
+   type T = module list * ((Code_Numeral.natural * Code_Numeral.natural) * (abr_string * (abr_string * abr_string) list)) list list
+   val empty = ([], [])
    val extend = I
    val merge = #2)
 
@@ -2206,7 +2206,32 @@ in
           Context.Theory thy
         |> ML (Input.string ("let open META in Context.>> (Context.map_theory (Haskabelle_Data.put " ^ #out st ^ ")) end"))
         |> Context.map_theory_result (fn thy => (Haskabelle_Data.get thy, thy))
-        |> META.META_haskell o (fn m => META.IsaUnit (old_datatype, map (META.map_prod From.string (Option.map From.string)) l_rewrite, From.string (Context.theory_name thy), (m, concat_modules))) o #1
+        |-> (fn (l_mod, l_rep) => K
+              let
+                val _ =
+                  List.app
+                    (fn l_rep =>
+                      let val l_rep =
+                        fold (fn ((offset, end_offset), (markup, prop)) => fn ((pos, pos_o), acc) =>
+                                let val offset = To_nat offset
+                                    val end_offset = To_nat end_offset
+                                    val pos0 = Position.advance_offset (offset - pos_o) pos
+                                    val pos1 = Position.advance_offset (end_offset - offset) pos0
+                                in ( (pos1, end_offset)
+                                   , ( Position.range_position (pos0, pos1)
+                                     , (To_string0 markup, map (META.map_prod To_string0 To_string0) prop))
+                                     :: acc)
+                                end)
+                             l_rep
+                             ((Position.advance_offset 1 pos, 0), [])
+                        |> #2
+                      in Position.reports l_rep end)
+                    l_rep
+              in l_mod |> (fn m => META.IsaUnit ( old_datatype
+                                                , map (META.map_prod From.string (Option.map From.string)) l_rewrite
+                                                , From.string (Context.theory_name thy)
+                                                , (m, concat_modules)))
+                       |> META.META_haskell end)
         |> tap (fn _ => warning (#err st))
       else
           let val _ = #terminate st ()

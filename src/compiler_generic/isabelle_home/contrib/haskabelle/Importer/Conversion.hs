@@ -50,24 +50,25 @@ convertFiles adapt metaParse hskContents = do
   
   exists <- liftIO $ mapM doesDirectoryExist outDir
   when (case exists of Just False -> True ; _ -> False) $ liftIO $ maybe (return ()) createDirectory outDir
-  hskContents' <- liftIO $ mapM (let returnR = return . Right in
-                                 case metaParse of Nothing -> returnR
+  hskContents' <- liftIO $ mapM (case metaParse of Nothing -> return . (\code -> (code, []))
                                                    Just (load, imports, code, hskName) -> \hsk_ct -> do
                                                      let s = I.parens code ++ " " ++ show hsk_ct
                                                      res <- I.runInterpreter $ do
                                                               mapM (\basePathAbs -> I.set [I.searchPath I.:= [basePathAbs]]) basePathAbs
                                                               I.loadModules load
                                                               I.setImports ("Prelude" : imports)
-                                                              I.interpret s (I.as :: IO String) >>= liftIO
-                                                     returnR $ case res of Right r -> hskName ++ " = " ++ r ; Left l -> error (show l))
+                                                              I.interpret s (I.as :: IO (String, [(Int, Int, (String, [(String, String)]))])) >>= liftIO
+                                                     return $ case res of Right (code, report) -> (hskName ++ " = " ++ code, report) ; Left l -> error (show l))
                                 hskContents
-  units <- parseHskFiles tryImport onlyTypes basePathAbs (hskContents' ++ map Left (filter Hsx.isHaskellSourceFile inFiles))
+  let (hskContents'0, report) = unzip hskContents'
+  units <- parseHskFiles tryImport onlyTypes basePathAbs (map Right hskContents'0 ++ map Left (filter Hsx.isHaskellSourceFile inFiles))
   let (adaptTable : _, convertedUnits) = map_split (convertHskUnit custs exportCode ignoreNotInScope absMutParams adapt) units
 
   liftIO $ maybe (return ()) (\outDir -> copyFile (preludeFile adapt) (combine outDir (takeFileName (preludeFile adapt)))) outDir
   sequence_ (map (writeIsaUnit adaptTable (reservedKeywords adapt)) convertedUnits)
-  liftIO $ case outDir of Nothing -> putStrLn $ SML.gshow (List.nubBy (let f (Isa.Module t _ _ _) = t in \m1 m2 -> f m1 == f m2)
-                                                            $ concatMap (\(IsaUnit l _ _) -> l) convertedUnits)
+  liftIO $ case outDir of Nothing -> putStrLn $ SML.gshow ( List.nubBy (let f (Isa.Module t _ _ _) = t in \m1 m2 -> f m1 == f m2)
+                                                             $ concatMap (\(IsaUnit l _ _) -> l) convertedUnits
+                                                          , report)
                           _       -> return ()
 
 

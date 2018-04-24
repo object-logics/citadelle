@@ -164,7 +164,7 @@ meta_language C base_path "../src/compiler_generic/isabelle_home/contrib/haskabe
                 imports \<open>Language.C\<close>
                         (load \<open>Importer.Conversion.Haskell\<close>)
                         (load \<open>Importer.Conversion.Haskell.C\<close>)
-                defines \<open>\s -> do { r <- parseC' (inputStreamFromString s) ; return (gshows r "") }\<close>
+                defines \<open>\s -> do { (r, acc) <- parseC' (inputStreamFromString s) ; return (gshows r "", acc) }\<close>
 
 ML \<open>val String = META.Stringa\<close>
 

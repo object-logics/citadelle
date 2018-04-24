@@ -18,6 +18,7 @@ import qualified Language.C.Comments as CC
 import qualified Language.C.Data.Position as P
 import qualified Language.C.System.GCC as GCC
 import qualified Language.C.System.Preprocess as CP
+import qualified Importer.Conversion.Markup as Markup
 
 parseComments fic = do
   f <- readFile fic
@@ -82,7 +83,7 @@ parseCFile' cpp args input_file = do
     handleCppError (Left exitCode) = fail $ "Preprocessor failed with " ++ show exitCode
     handleCppError (Right ok)      = return ok
 
-parseC' :: C.InputStream -> IO (C.CTranslUnit, ([Comment], [Int]))
+parseC' :: C.InputStream -> IO ((C.CTranslUnit, ([Comment], [Int])), [(Int, Int, (String, [(String, String)]))])
 parseC' input = do
   fic_orig <- mkOutputFile Nothing id "input.c"
   B.writeFile fic_orig input
@@ -90,7 +91,8 @@ parseC' input = do
   parsed' <- parseCFilePre0 (Just fic_orig) (maybe fic_orig id fic_pre) parsed
   mapM removeFile fic_pre
   removeFile fic_orig
-  return $ G.everywhere (G.mkT (\pos -> if P.isSourcePos pos then P.position (P.posOffset pos) "" (P.posRow pos) (P.posColumn pos) else pos)) parsed'
+  return $ ( G.everywhere (G.mkT (\pos -> if P.isSourcePos pos then P.position (P.posOffset pos) "" (P.posRow pos) (P.posColumn pos) else pos)) parsed'
+           , case parsed' of (_, (l_comm, _)) -> map (\(Comment { commentPosition = pos, commentText = txt }) -> (P.posOffset pos, P.posOffset pos + length txt, (Markup.to_ML Markup.ML_COMMENT, []))) l_comm)
 
 --------------------------------------------------------------------------------
 -- Same types as language-c-comments with the addition of Data as derived entity
