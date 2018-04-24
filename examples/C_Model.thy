@@ -157,9 +157,6 @@ text \<open>@{typ CTranslUnit}\<close>
 datatype CommentFormat = SingleLine | MultiLine
 datatype Comment = Comment Position string CommentFormat
 
-abbreviation Position' ("Position") where
-            "Position' offset file row column \<equiv> C_Model.Position offset row column (FilePosition file None)"
-
 section \<open>Initialization of the parsing code\<close>
 
 meta_language C base_path "../src/compiler_generic/isabelle_home/contrib/haskabelle"
