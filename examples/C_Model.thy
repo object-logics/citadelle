@@ -120,7 +120,7 @@ section \<open>Initialization of the generator\<close>
 declare [[syntax_ambiguity_warning = false]]
 
 generation_syntax [ deep
-                      (THEORY C_Model_generated)
+                      (THEORY Meta_C_generated)
                       (IMPORTS ["../src/UML_Main", "../src/compiler/Static", "../examples/C_Model_init"]
                                "../src/compiler/Generator_dynamic_parallel")
                       SECTION
