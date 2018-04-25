@@ -60,6 +60,7 @@ theory C_Model
   imports "$HASKABELLE_HOME_USER/default/Prelude"
           "../src/UML_Main"
           "../src/compiler/Generator_dynamic_parallel"
+          C_Model_init
 begin
 
 subsection \<open>\<^file>\<open>$HASKABELLE_HOME/ex/language-c/AUTHORS.c2hs\<close>\<close>
@@ -120,24 +121,17 @@ declare [[syntax_ambiguity_warning = false]]
 
 generation_syntax [ deep
                       (THEORY C_Model_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static", "HOL-Library.Old_Datatype"]
+                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static", "../examples/C_Model_init"]
                                "../src/compiler/Generator_dynamic_parallel")
                       SECTION
+                      SORRY
                       [ in self ]
                       (output_directory "../doc")
-                  , shallow (*SORRY*) ]
-
-type_synonym int = integer
-type_synonym string = abr_string
-notation Some ("Just")
-notation None ("Nothing")
+                  , shallow SORRY ]
 
 section \<open>Type definition\<close>
 
 End!
-
-old_datatype 'a option = None | Some 'a
-old_datatype ('a, 'b) Either = Left 'a | Right 'b
 
 text \<open> \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Name.hs\<close>
        \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Position.hs\<close>
@@ -148,7 +142,7 @@ text \<open> \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/N
 
 Haskell_file datatype_old_atomic try_import only_types concat_modules
              base_path "$HASKABELLE_HOME/ex/language-c/src"
-             [Prelude, Int, String, Option]
+             [Prelude \<rightharpoonup> C_Model_init, Int, String, Option \<rightharpoonup> C_Model_init]
              (**)
              "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/AST.hs"
 
@@ -160,7 +154,7 @@ datatype Comment = Comment Position string CommentFormat
 section \<open>Initialization of the parsing code\<close>
 
 meta_language C base_path "../src/compiler_generic/isabelle_home/contrib/haskabelle"
-                [Prelude, Option]
+                [Prelude \<rightharpoonup> C_Model_init, Option \<rightharpoonup> C_Model_init]
                 imports \<open>Language.C\<close>
                         (load \<open>Importer.Conversion.Haskell\<close>)
                         (load \<open>Importer.Conversion.Haskell.C\<close>)
