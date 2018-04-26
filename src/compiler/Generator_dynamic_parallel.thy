@@ -2178,20 +2178,25 @@ in
                 val _ =
                   List.app
                     (fn l_rep =>
-                      let val l_rep =
-                        fold (fn ((offset, end_offset), (markup, prop)) => fn ((pos, pos_o), acc) =>
+                      let fun advance_offset n =
+                            if n = 0 then I
+                            else fn (x :: xs, p) =>
+                                   advance_offset (n - String.size x) (xs, Position.advance x p)
+                          val l_rep =
+                        fold (fn ((offset, end_offset), (markup, prop)) => fn (content, (pos, pos_o), acc) =>
                                 let val offset = To_nat offset
                                     val end_offset = To_nat end_offset
-                                    val pos0 = Position.advance_offset (offset - pos_o) pos
-                                    val pos1 = Position.advance_offset (end_offset - offset) pos0
-                                in ( (pos1, end_offset)
+                                    val (content, pos0) = advance_offset (offset - pos_o) (content, pos)
+                                    val (content, pos1) = advance_offset (end_offset - offset) (content, pos0)
+                                in ( content
+                                   , (pos1, end_offset)
                                    , ( Position.range_position (pos0, pos1)
                                      , (To_string0 markup, map (META.map_prod To_string0 To_string0) prop))
                                      :: acc)
                                 end)
                              l_rep
-                             ((Position.advance_offset 1 pos, 0), [])
-                        |> #2
+                             (Symbol.explode content, (Position.advance_offset 1 pos, 0), [])
+                        |> #3
                       in Position.reports l_rep end)
                     l_rep
               in l_mod |> (fn m => META.IsaUnit ( old_datatype
