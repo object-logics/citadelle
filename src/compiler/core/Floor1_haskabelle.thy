@@ -99,10 +99,11 @@ definition "hsk_stmt version names =
         Some (O.datatype (Datatype version (L.map (map_prod (hsk_typespec names) (L.map (map_prod (hsk_name names) (L.map (hsk_type names))))) l)))
     | TypeSynonym [(t0, t1)] \<Rightarrow> Some (O.type_synonym (Type_synonym (hsk_typespec names t0) (hsk_type names t1)))
     | Function (Function_Stmt Meta_HKB.Definition [t] [((lhs_n, lhs_arg), rhs)]) \<Rightarrow>
-        let hsk_term = hsk_term \<lparr> lex_cons = \<open>#\<close>, lex_string = Term_string' \<rparr> names in
+        let s_empty = Term_basic [\<open>v\<close>]
+          ; hsk_term = hsk_term \<lparr> lex_cons = \<open>#\<close>, lex_string = (\<lambda>s. if s \<triangleq> \<open>\<close> then s_empty else Term_string' s) \<rparr> names in
         Some (O.definition (Definition (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
                                                      \<open>=\<close>
-                                                     (hsk_term rhs))))
+                                                     (Term_parenthesis (Term_let s_empty (Term_string' \<open>\<close>) (hsk_term rhs))))))
     | _ \<Rightarrow> None)"
 
 definition "print_haskell = (\<lambda> IsaUnit version l_name name_new (l_mod, b_concat) \<Rightarrow>

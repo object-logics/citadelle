@@ -81,6 +81,7 @@ datatype semi__term = Term_rewrite semi__term (* left *) string (* symb rewritin
                     | Term_apply semi__term "semi__term list"
                     | Term_paren string (* left *) string (* right *) semi__term
                     | Term_if_then_else semi__term semi__term semi__term
+                    | Term_let semi__term (* left *) semi__term (* right *) semi__term (* body *)
                     | Term_term "string list" (* simulate a pre-initialized context (de bruijn variables under "lam") *)
                                 "term" (* usual continuation of inner syntax term *)
 
