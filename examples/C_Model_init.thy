@@ -55,7 +55,7 @@
  ******************************************************************************)
 
 theory C_Model_init
-  imports "../src/compiler_generic/Init"
+  imports "../src/compiler_generic/meta_isabelle/Printer_init"
           "~~/src/HOL/Library/Old_Datatype"
 begin
 
@@ -72,5 +72,7 @@ hide_const (open) None Some
 
 hide_type (open) Either
 hide_const (open) Left Right
+
+declare [[cartouche_type' = "abr_string"]]
 
 end
