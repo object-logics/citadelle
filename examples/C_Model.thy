@@ -153,12 +153,13 @@ datatype Comment = Comment Position string CommentFormat
 
 section \<open>Initialization of the parsing code\<close>
 
-meta_language C base_path "../src/compiler_generic/isabelle_home/contrib/haskabelle"
-                [Prelude \<rightharpoonup> C_Model_init, Option \<rightharpoonup> C_Model_init]
-                imports \<open>Language.C\<close>
-                        (load \<open>Importer.Conversion.Haskell\<close>)
-                        (load \<open>Importer.Conversion.Haskell.C\<close>)
-                defines \<open>\s -> do { (r, acc) <- parseC' (inputStreamFromString s) ; return (gshows r "", acc) }\<close>
+meta_language C
+  base_path "../src/compiler_generic/isabelle_home/contrib/haskabelle"
+  [Prelude \<rightharpoonup> C_Model_init, Option \<rightharpoonup> C_Model_init]
+  where imports \<open>Language.C\<close>
+          (load \<open>Importer.Conversion.Haskell\<close>)
+          (load \<open>Importer.Conversion.Haskell.C\<close>)
+  where defines \<open>\s -> do { (r, acc) <- parseC' (inputStreamFromString s) ; return (gshows r "", acc) }\<close>
 
 ML \<open>val String = META.Stringa\<close>
 

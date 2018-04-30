@@ -2242,13 +2242,13 @@ val () =
     (Parse.binding
      -- haskell_parse
      -- Scan.optional
-          (Parse.$$$ "imports"
+          (Parse.where_ |-- Parse.$$$ "imports"
            |-- Parse.!!!
                  (Scan.repeat1 (Parse.cartouche >> pair false
                                 || Parse.$$$ "("
                                    |-- Parse.$$$ "load"
                                    |-- Parse.cartouche --| Parse.$$$ ")" >> pair true))) []
-     --| Parse.$$$ "defines" -- Parse.cartouche
+     --| Parse.where_ --| Parse.$$$ "defines" -- Parse.cartouche
     >> (fn (((lang, hsk_arg as ((_, base_path), _)), imports), defines) => 
         let val _ = if exists (fn #"\n" => true | _ => false) (String.explode defines) then
                       error "Haskell indentation rules are not yet supported"
