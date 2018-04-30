@@ -165,10 +165,38 @@ ML \<open>val String = META.Stringa\<close>
 
 section \<open>Parsing\<close>
 
-language program1 :: C where \<open>f () { int a = 1; }
-                              g () { int b = 2; }\<close>
+language increment_method :: C where \<open>/* ASSUMES \<open>\<guillemotleft>a\<guillemotright> >\<^sub>u 0\<close> */ f () {
+  int x = 0;
+  /* INVAR \<open>\<guillemotleft>a\<guillemotright> >\<^sub>u 0 \<and> \<guillemotleft>a\<guillemotright> \<ge>\<^sub>u &x\<close>
+     VRT \<open>(measure o Rep_uexpr) (\<guillemotleft>a\<guillemotright> - &x)\<close> */
+  while (x < a) {
+    x = x + 1;
+  }
+} /* ENSURES \<open>\<guillemotleft>a\<guillemotright> =\<^sub>u &x\<close> */\<close>
 
-term "program1 :: CTranslUnit \<times> Comment list \<times> int list"
+language even_count_gen :: C where \<open>/* ASSUMES \<open>\<guillemotleft>a\<guillemotright> >\<^sub>u 0\<close> */ f () {
+  int i = 0;
+  int j = 0;
+  /* INVAR \<open>&j =\<^sub>u (&i + 1) div \<guillemotleft>2\<guillemotright> \<and> &i \<le>\<^sub>u \<guillemotleft>a\<guillemotright>\<close>
+     VRT \<open>measure (nat o (Rep_uexpr (\<guillemotleft>a\<guillemotright> - &i)))\<close> */
+  while (i < a) {
+    if (i % 2 == 0) {
+      j = j + 1;
+    } else skip;
+    i = i + 1;
+  }
+} /* ENSURES \<open>&j =\<^sub>u (\<guillemotleft>a\<guillemotright> + 1)div \<guillemotleft>2\<guillemotright>\<close> */\<close>
+
+language max_program_correct :: C where \<open>/* ASSUMES \<open>uop length \<guillemotleft>a\<guillemotright> \<ge>\<^sub>u1 \<and> &i =\<^sub>u 1 \<and> &r =\<^sub>u bop nth \<guillemotleft>a:: int list\<guillemotright> 0\<close> */ f () {
+  /* INVAR \<open>0 <\<^sub>u &i \<and> &i \<le>\<^sub>u uop length \<guillemotleft>a\<guillemotright> \<and> &r =\<^sub>u uop Max (uop set (bop take (&i) \<guillemotleft>a\<guillemotright>))\<close>
+     VRT \<open>measure (Rep_uexpr (uop length \<guillemotleft>a\<guillemotright> - (&i)))\<close> */
+  while (! (i < length(a))) {
+    if (r < nth(a, i)) {
+      r = nth(a, i);
+    } else skip;
+    i = i + 1;
+  }
+} /* ENSURES \<open>&r =\<^sub>u uop Max (uop set \<guillemotleft>a\<guillemotright>)\<close> */\<close>
 
 section \<open>Garbage Collection of Notations\<close>
 
