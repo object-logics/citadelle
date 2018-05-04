@@ -1525,7 +1525,7 @@ fun thy_switch pos1 pos2 f mode tr =
 
 in
 
-fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all_meta_embed =
  let open Generation_mode in
   Outer_Syntax.commands' cmd_spec cmd_descr
     (parser >> (fn name => fn thy => fn _ =>
@@ -1545,13 +1545,28 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
                                                     | SOME n => Config.put_global ML_Print_Depth.print_depth n thy))
                                          name)))))
       in let
-           val l_obj = get_all_m NONE
-             (* In principle, we could provide (SOME thy) here,
-                but in this case, any errors occurring during the application of the above function
-                will not be interactively shown.
-                Whenever we are evaluating commands coming from generated files, this restriction
-                can normally be removed (by writing (SOME thy)), as generally generated files are
-                conceived to not raise errors. *)
+           val l_obj = get_all_m (is_safe thy)
+                       (* In principle, it is fine if (SOME thy) is provided to
+                          get_all_m. However, because certain types of errors are most of the
+                          time happening whenever certain specific operations depending on thy
+                          are explicitly performed, and because get_all_m was intentionally set
+                          to not interactively manage such errors, then these errors (whenever
+                          they are happening) could possibly not appear in the output
+                          window. Although the computation would be in any case interrupted as
+                          usual (but with only minimal debugging information, such as a simple
+                          red underlining color).
+                          
+                          Generally, whenever get_all_m is called during the evaluating commands
+                          coming from generated files (which is not the case here, but will be
+                          later), this restriction can normally be removed (i.e., by writing
+                          (SOME thy)), as for the case of generated files, we are taking the
+                          assumption that errors (if they are happening) are as hard to detect
+                          as if an error was raised somewhere else by the generator itself.
+                          Another assumption nevertheless related with the generator is that it
+                          is supposed to explicitly not raise errors, however here this
+                          get_all_m is not situated below a generating part. This is why we are
+                          tempted to mostly give NONE to get_all_m, unless the calling command
+                          is explicitly taking the responsibility of a potential failure. *)
            val m_tr = m_tr
                       |-> thy_deep exec_deep l_obj
          in ( m_tr
@@ -1602,9 +1617,13 @@ fun outer_syntax_commands'' mk_string cmd_spec cmd_descr parser get_all_meta_emb
  end
 end
 
+fun outer_syntax_commands'' mk_string = outer_syntax_commands''' (K NONE) mk_string
+
 fun outer_syntax_commands' mk_string cmd_spec cmd_descr parser get_all_meta_embed =
   outer_syntax_commands'' mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
 
+fun outer_syntax_commands'2 mk_string cmd_spec cmd_descr parser get_all_meta_embed =
+  outer_syntax_commands''' SOME mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
 \<close>
 
 subsection\<open>Parameterizing the Semantics of Embedded Languages\<close>
@@ -2228,7 +2247,7 @@ local
   open USE_parse
 in
 val () =
-  outer_syntax_commands' @{mk_string} @{command_keyword Haskell} ""
+  outer_syntax_commands'2 @{mk_string} @{command_keyword Haskell} ""
     (haskell_parse -- Parse.position Parse.cartouche)
     (get_thy @{here} o parse' true)
 
@@ -2264,7 +2283,7 @@ val () =
         end))
 
 val () =
-  outer_syntax_commands' @{mk_string} @{command_keyword language} ""
+  outer_syntax_commands'2 @{mk_string} @{command_keyword language} ""
     (Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name --| Parse.where_ -- Parse.position Parse.cartouche)
     (fn ((prog, lang), code) => 
       get_thy @{here} (fn thy => 
