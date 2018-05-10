@@ -2280,7 +2280,7 @@ val () =
     (get_thy @{here} o parse' true)
 
 val () =
-  outer_syntax_commands' @{mk_string} @{command_keyword Haskell_file} ""
+  outer_syntax_commands'2 @{mk_string} @{command_keyword Haskell_file} ""
     (haskell_parse -- Parse.position Parse.path)
     (get_thy @{here} o parse' false)
 
