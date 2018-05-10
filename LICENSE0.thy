@@ -61,14 +61,14 @@ fun define key data_map n =
 
 val _ =
   Outer_Syntax.commands @{command_keyword project} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.list1 (Parse.opt_target -- Parse.document_source --
+    (Parse.binding --| Parse.where_ -- Parse.list1 (Parse.document_source --
                  (Parse.position Parse.name >> SOME || Parse.document_source >> K NONE)) >>
      (fn (n, l) =>
        define @{command_keyword project} Project.map n
        :: flat
             (map
               (fn (x, opt_n) =>
-                let val l = [(@{command_keyword project}, Thy_Output.document_command {markdown = true} x)] in
+                let val l = [(@{command_keyword project}, Thy_Output.document_command {markdown = true} (NONE, x))] in
                   case opt_n of
                     NONE => l
                   | SOME n =>
@@ -83,31 +83,33 @@ val _ =
 
 val _ =
   Outer_Syntax.commands @{command_keyword country} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.opt_target -- Parse.document_source >>
-      (fn ((n, opt), src) =>
+    (Parse.binding --| Parse.where_ -- Parse.document_source >>
+      (fn (n, src) =>
         [ define @{command_keyword country} Country.map n
-        , (@{command_keyword country}, Thy_Output.document_command {markdown = true} (opt, src))]));
+        , (@{command_keyword country}, Thy_Output.document_command {markdown = true} (NONE, src))]));
 
 val _ =
   Outer_Syntax.commands @{command_keyword holder} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.opt_target -- Parse.document_source >>
-      (fn ((n, opt), src) =>
-        [ define @{command_keyword holder} Holder.map n
-        , (@{command_keyword holder}, Thy_Output.document_command {markdown = true} (opt, src))]));
+    (Parse.binding --| Parse.where_ -- Parse.list Parse.document_source >>
+      (fn (n, l_src) =>
+        define @{command_keyword holder} Holder.map n
+        :: map (fn src =>
+                 (@{command_keyword holder}, Thy_Output.document_command {markdown = true} (NONE, src)))
+               l_src));
 
 val _ =
   Outer_Syntax.commands @{command_keyword copyright} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.opt_target -- Parse.document_source >>
-      (fn ((n, opt), src) =>
+    (Parse.binding --| Parse.where_ -- Parse.document_source >>
+      (fn (n, src) =>
         [ define @{command_keyword copyright} Copyright.map n
-        , (@{command_keyword copyright}, Thy_Output.document_command {markdown = true} (opt, src))]));
+        , (@{command_keyword copyright}, Thy_Output.document_command {markdown = true} (NONE, src))]));
 
 val _ =
   Outer_Syntax.commands @{command_keyword license} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.opt_target -- Parse.document_source >>
-      (fn ((n, opt), src) =>
+    (Parse.binding --| Parse.where_ -- Parse.document_source >>
+      (fn (n, src) =>
         [ define @{command_keyword license} License.map n
-        , (@{command_keyword license}, Thy_Output.document_command {markdown = true} (opt, src))]));
+        , (@{command_keyword license}, Thy_Output.document_command {markdown = true} (NONE, src))]));
 
 val _ =
   Outer_Syntax.command @{command_keyword check_license} "formal comment (primary style)"
