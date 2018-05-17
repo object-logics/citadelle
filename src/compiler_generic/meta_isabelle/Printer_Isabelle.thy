@@ -76,13 +76,12 @@ definition "of_datatype _ = (\<lambda> Datatype _ [] \<Rightarrow> \<open>\<clos
          \<open>%s %s\<close>
            (To_string n)
            (String_concat \<open> \<close> (L.map (\<lambda>x. \<open>\"%s\"\<close> (of_semi__typ x)) l))) l) )) in
-  \<open>%s
-%s\<close> (of_datatype (case version of Datatype_new \<Rightarrow> \<open>datatype\<close>
+  \<open>%s%s\<close> (of_datatype (case version of Datatype_new \<Rightarrow> \<open>datatype\<close>
                                 | Datatype_old \<Rightarrow> \<open>old_datatype\<close>
                                 | Datatype_old_atomic \<Rightarrow> \<open>atomic_old_datatype\<close>
                                 | Datatype_old_atomic_sub \<Rightarrow> \<open>sub_atomic_old_datatype\<close>) d)
-    (String_concat \<open>
-\<close> (map (of_datatype \<open>and\<close>) ds)))"
+    (String_concat \<open>\<close> (L.map (of_datatype \<open>
+and\<close>) ds)))"
 
 definition "of_type_synonym _ = (\<lambda> Type_synonym n l \<Rightarrow>
   \<open>type_synonym %s = \"%s\"\<close> (of_semi__typ' n) (of_semi__typ l))"
