@@ -162,7 +162,7 @@ definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.ma
                 \<open>\<equiv>\<close>
                 (Term_lambda var_tau
                   (a \<open>Eps\<close> (Term_lambda var_r
-                                        (Term_app \<open>Let\<close>
+                                        (Term_app \<open>HOL.Let\<close>
                                           [ Term_lambda \<open>_\<close> (b var_r)
                                           , Term_lambda var_result
                                                         (Term_parenthesis (Term_if_then_else (term_binop0 \<open>True\<close> \<open>\<and>\<close> (f_tau (a \<open>\<delta>\<close> (b var_self)) # L.map (\<lambda>s. f_tau (a \<open>\<upsilon>\<close> (b (fst s)))) (Ctxt_fun_ty_arg ctxt)))
