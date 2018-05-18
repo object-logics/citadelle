@@ -36,85 +36,254 @@
 
 theory LICENSE0
   imports Main
-  keywords "project" "country" "holder" "copyright" "license"
+  keywords "portions"
+       and "project" "country" "holder" "copyright" "license"
            "check_license" "insert_license" "map_license" :: thy_decl
 begin
 
 ML\<open>
-functor Theory_Data' (N : sig type T val name : string end) : THEORY_DATA = Theory_Data
-  (type T = N.T Name_Space.table
-   val empty = Name_Space.empty_table N.name
+structure Resources' = struct
+  fun check_path' check_file ctxt dir (name, pos) =
+    let
+      fun err msg pos = error (msg ^ Position.here pos)
+      val _ = Context_Position.report ctxt pos Markup.language_path;
+  
+      val path = Path.append dir (Path.explode name) handle ERROR msg => err msg pos;
+      val path' = Path.expand path handle ERROR msg => err msg pos;
+      val _ = Context_Position.report ctxt pos (Markup.path (Path.smart_implode path));
+      val _ =
+        (case check_file of
+          NONE => path
+        | SOME check => (check path handle ERROR msg => err msg pos));
+    in path' end
+
+  fun check_dir thy = check_path' (SOME File.check_dir)
+                                  (Proof_Context.init_global thy)
+                                  (Resources.master_directory thy)
+end
+
+fun fold_dir f path =
+  File.fold_dir
+    (fn s =>
+      let val path = Path.append path (Path.explode s)
+      in if File.is_dir path then fold_dir f path else f path end)
+    path
+\<close>
+
+ML\<open>
+datatype ('a, 'b) either = Left of 'a | Right of 'b
+
+fun the_left (Left a) = a
+
+signature OBJECT = sig
+  type T
+  val key : string
+  val pretty : T -> string
+end
+
+functor Theory_Data' (Obj : OBJECT) : THEORY_DATA = Theory_Data
+  (type T = Obj.T Name_Space.table
+   val empty = Name_Space.empty_table Obj.key
    val extend = I
    val merge = Name_Space.merge_tables)
 
-structure Project = Theory_Data' (type T = unit val name = "project")
-structure Country = Theory_Data' (type T = unit val name = "country")
-structure Holder = Theory_Data' (type T = unit val name = "holder")
-structure Copyright = Theory_Data' (type T = unit val name = "copyright")
-structure License = Theory_Data' (type T = unit val name = "license")
+val pretty_input = Input.source_content #> split_lines #> trim (fn s => s = "") #> cat_lines
 
+structure Country0 : OBJECT = struct
+  type T = Input.source
+  val key = "country"
+  val pretty = pretty_input
+end
+
+structure Country = Theory_Data' (Country0)
+
+structure Holder0 : OBJECT = struct
+  type T = Input.source list * Country0.T option
+  val key = "holder"
+  fun pretty (l, country) = 
+    let val sep = ", " in
+      String.concatWith sep (map (fn s => s |> Input.source_explode |> Symbol_Pos.trim_blanks |> Symbol_Pos.content) l)
+      ^ (case country of NONE => "" | SOME country => sep ^ Country0.pretty country)
+    end
+end
+
+structure Holder = Theory_Data' (Holder0)
+
+structure Date0 (*: OBJECT*) = struct
+  datatype T = D_interval of int (*date min*) * int (*date max*)
+             | D_discrete of int list
+  val key = "date"
+  val pretty = fn D_interval (d_min, d_max) => Int.toString d_min ^ "-" ^ Int.toString d_max
+                | D_discrete l => String.concatWith "," (map Int.toString l)
+end
+
+structure Copyright0 : OBJECT = struct
+  type T = (bool (*false: portions copyright*) * Date0.T * Holder0.T list) list
+  val key = "copyright"
+  fun pretty l =
+    let
+      val s_copy = "Copyright (c) "
+      fun s_portions b = if b then Symbol.spaces (String.size s_copy) else "Portions " ^ s_copy
+    in
+      case map (fn (b, date, l) => (b, case l of h :: hs => let val s_date = Date0.pretty date ^ " " 
+                                                            in s_date ^ Holder0.pretty h
+                                                               :: map (fn h => Symbol.spaces (String.size s_date) ^ Holder0.pretty h) hs end)) l
+      of (true, l) :: ls =>
+        let fun f s_copy (l :: ls) = 
+          s_copy ^ l ^ String.concat (map (fn s => "\n" ^ Symbol.spaces (String.size s_copy) ^ s) ls)
+        in f s_copy l ^ String.concat (map (fn (b, l) => "\n" ^ f (s_portions b) l) ls) end
+    end
+end
+
+structure Copyright = Theory_Data' (Copyright0)
+
+structure License0 : OBJECT = struct
+  type T = Input.source
+  val key = "license"
+  val pretty = pretty_input
+end
+
+structure License = Theory_Data' (License0)
+
+structure Project0 : OBJECT = struct
+  type T = (Input.source * Copyright0.T) list * License0.T
+  val key = "project"
+  fun wrap_stars s =
+    let val stars = "******************************************************************************" in
+      cat_lines
+        ("(" ^ stars
+         :: map ((fn s => " *" ^ s) o (fn "" => "" | s => " " ^ s)) (split_lines s)
+         @ [" " ^ stars ^ ")"])
+    end
+  fun pretty (l, lic) =
+    let val s_end = case l of [_] => "" | _ => "\n\n *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
+    in String.concat (map (fn (src, copy) => pretty_input src ^ "\n\n" ^ Copyright0.pretty copy ^ s_end ^ "\n\n") l)
+       ^ License0.pretty lic
+       |> wrap_stars
+    end
+end
+
+structure Project = Theory_Data' (Project0)
+
+fun define0 data_map n thy = data_map (#2 o Name_Space.define (Context.Theory thy) true n) thy
 fun define key data_map n =
   ( key
   , Toplevel.theory
-      (fn thy => data_map (#2 o Name_Space.define (Context.Theory thy) true (n, ()))
+      (fn thy => data_map (#2 o Name_Space.define (Context.Theory thy) true n)
                           thy))
+
+local
+fun check0 f_map key data_get f n f_left =
+  ( key
+  , Toplevel.theory
+      (fn thy => f (f_map (fn (Right a, v) => (Right a, v)
+                            | (Left k, v) => (Left (f_left (Name_Space.check (Context.Theory thy) (data_get thy)) k), v)) n) thy))
+in
+fun check key data_get f n = check0 (fn f => Option.map (the_left o #1 o f)) key data_get f (Option.map (fn n => (Left n, ())) n)
+fun check' key = check0 map key
+end
+
+structure Parse' = struct
+datatype copyright = C_ref of string * Position.T
+                   | C_def of (((string option * int) * (bool * int) option) * (string * Position.T) list) list
+val copyright =
+  Scan.repeat (Scan.option (Parse.$$$ "portions") -- Parse.nat -- Scan.option ((Parse.$$$ "," >> K false || Parse.minus >> K true) -- Parse.nat) -- Parse.list1 (Parse.position Parse.name))
+
+fun copyright_check key f = check' key Holder.get f
+
+fun copyright_check' h ((portions, d0), opt_d) =
+                        ( portions = NONE
+                        , case opt_d of SOME (true, d_max) => Date0.D_interval (d0, d_max)
+                                      | SOME (false, d1) => Date0.D_discrete [d0, d1]
+                                      | NONE => Date0.D_discrete [d0]
+                        , h)
+end
 
 val _ =
   Outer_Syntax.commands @{command_keyword project} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.list1 (Parse.document_source --
-                 (Parse.position Parse.name >> SOME || Parse.document_source >> K NONE)) >>
-     (fn (n, l) =>
-       define @{command_keyword project} Project.map n
-       :: flat
-            (map
-              (fn (x, opt_n) =>
-                let val l = [(@{command_keyword project}, Thy_Output.document_command {markdown = true} (NONE, x))] in
-                  case opt_n of
-                    NONE => l
-                  | SOME n =>
-                    ( @{command_keyword project}
-                    , Toplevel.keep
-                        (fn thy => 
-                          let val thy = Toplevel.theory_of thy
-                          in #2 (Name_Space.check (Context.Theory thy) (Copyright.get thy) n) end))
-                    :: l
-                end)
-              l)));
+    (Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name -- Scan.repeat1 (Parse.where_ |-- Parse.document_source --
+                 (   Parse.$$$ "imports" |-- Parse.position Parse.name >> Parse'.C_ref
+                  || Parse.$$$ "defines" |-- Parse'.copyright >> Parse'.C_def)) >>
+     (fn ((n, lic), l_pj) =>
+       [( @{command_keyword project}
+        , Toplevel.theory
+            (fn thy => 
+              define0
+                Project.map
+                ( n
+                , ( map (fn (x, opt_n) =>
+                          (x, case opt_n of
+                                Parse'.C_ref n => #2 (Name_Space.check (Context.Theory thy) (Copyright.get thy) n)
+                              | Parse'.C_def l_src => map (fn (v, holder) => Parse'.copyright_check' (map (#2 o Name_Space.check (Context.Theory thy) (Holder.get thy)) holder) v) l_src))
+                        l_pj
+                  , #2 (Name_Space.check (Context.Theory thy) (License.get thy) lic)))
+                thy))]));
 
 val _ =
   Outer_Syntax.commands @{command_keyword country} "formal comment (primary style)"
     (Parse.binding --| Parse.where_ -- Parse.document_source >>
       (fn (n, src) =>
-        [ define @{command_keyword country} Country.map n
+        [ define @{command_keyword country} Country.map (n, src)
         , (@{command_keyword country}, Thy_Output.document_command {markdown = true} (NONE, src))]));
 
 val _ =
   Outer_Syntax.commands @{command_keyword holder} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.list Parse.document_source >>
-      (fn (n, l_src) =>
-        define @{command_keyword holder} Holder.map n
+    (Parse.binding -- Scan.option (Parse.$$$ "::" |-- Parse.position Parse.name) --| Parse.where_ -- Parse.list Parse.document_source >>
+      (fn ((name, country), l_src) =>
+        check
+          @{command_keyword holder}
+          Country.get
+          (fn country => define0 Holder.map (name, (l_src, Option.map #2 country)))
+          country
+          I
         :: map (fn src =>
                  (@{command_keyword holder}, Thy_Output.document_command {markdown = true} (NONE, src)))
                l_src));
 
 val _ =
   Outer_Syntax.commands @{command_keyword copyright} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.document_source >>
-      (fn (n, src) =>
-        [ define @{command_keyword copyright} Copyright.map n
-        , (@{command_keyword copyright}, Thy_Output.document_command {markdown = true} (NONE, src))]));
+    (Parse.binding --| Parse.where_ -- Parse'.copyright >>
+      (fn (n, l_src) =>
+        [Parse'.copyright_check
+          @{command_keyword copyright}
+          (fn l => define0
+                     Copyright.map
+                     (n, map (fn (Left h, d) => Parse'.copyright_check' h d) l))
+          (map (fn (a, b) => (Left b, a)) l_src)
+          (fn f => map (#2 o f))]));
 
 val _ =
   Outer_Syntax.commands @{command_keyword license} "formal comment (primary style)"
     (Parse.binding --| Parse.where_ -- Parse.document_source >>
       (fn (n, src) =>
-        [ define @{command_keyword license} License.map n
+        [ define @{command_keyword license} License.map (n, src)
         , (@{command_keyword license}, Thy_Output.document_command {markdown = true} (NONE, src))]));
 
 val _ =
-  Outer_Syntax.command @{command_keyword check_license} "formal comment (primary style)"
-    (Scan.option Parse.binding >>
-      (fn _ => Toplevel.keep (fn _ => warning "to be implemented")))
+  Outer_Syntax.commands' @{command_keyword check_license} "formal comment (primary style)"
+    (Scan.repeat (Parse.position Parse.name) --| Parse.$$$ "in" -- Scan.option (Parse.$$$ "file") -- Parse.position Parse.path >>
+      (fn ((pj, file), loc) => fn thy => fn _ =>
+        let
+          val l_head = map (fn n => Project0.pretty (#2 (Name_Space.check (Context.Theory thy) (Project.get thy) n))) pj
+          fun f s =
+            let (*val _ = List.app (fn s => writeln s) l_head*)
+              fun f_exists f_un s l = fold (fn p => fn b => b orelse try (f_un p) s <> NONE) l false
+            in
+              cons ( @{command_keyword check_license}
+                   , Toplevel.keep
+                       (fn _ =>
+                         if f_exists unprefix (File.read s) l_head then
+                           writeln (@{make_string} s)
+                         else if f_exists unsuffix (Path.base_name s) [".thy", ".ml", ".ML", "ROOT"] then
+                           error (@{make_string} s)
+                         else
+                           warning (@{make_string} s)))
+            end
+        in
+          (case file of NONE => fold_dir f (Resources'.check_dir thy loc)
+                      | SOME _ => f (Resources'.check_path' (SOME File.check_file) (Proof_Context.init_global thy) (Resources.master_directory thy) loc))
+            []
+        end))
 
 val _ =
   Outer_Syntax.command @{command_keyword insert_license} "formal comment (primary style)"
