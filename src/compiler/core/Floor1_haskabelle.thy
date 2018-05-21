@@ -104,7 +104,7 @@ definition "hsk_stmt version names =
           ; hsk_term = hsk_term \<lparr> lex_list_cons = \<open>#\<close>, lex_string = (\<lambda>s. if s \<triangleq> \<open>\<close> then s_empty else T_string s) \<rparr> names in
         Some (O.definition (Definition (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
                                                      \<open>=\<close>
-                                                     (Term_parenthesis (Term_let s_empty (T_string \<open>\<close>) (hsk_term rhs))))))
+                                                     (Term_parenthesis (Term_let [(s_empty, T_string \<open>\<close>)] (hsk_term rhs))))))
     | _ \<Rightarrow> None)"
 
 definition "print_haskell = (\<lambda> IsaUnit version l_name name_new (l_mod, b_concat) \<Rightarrow>
