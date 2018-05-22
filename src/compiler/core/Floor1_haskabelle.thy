@@ -69,6 +69,7 @@ definition "hsk_literal str = (\<lambda> String s \<Rightarrow> str s
                                | Meta_HKB.Int n \<Rightarrow> Term_basic [String.natural_to_digit10 n])"
 
 record lexical = lex_list_cons :: string
+                 lex_bool_false :: string
                  lex_string :: "string \<Rightarrow> semi__term"
 
 fun hsk_term and
@@ -77,7 +78,10 @@ fun hsk_term and
  (\<lambda> Literal l \<Rightarrow> hsk_literal (lex_string lexi) l
   | Const n \<Rightarrow> 
       let f = \<lambda> (). Term_basic [hsk_name names n] in
-      (case n of QName (ThyName s1) s2 \<Rightarrow> if s1 \<triangleq> \<open>List\<close> & s2 \<triangleq> \<open>Nil\<close> then Term_list [] else f ()
+      (case n of QName (ThyName s1) s2 \<Rightarrow>
+                   if s1 \<triangleq> \<open>List\<close> & s2 \<triangleq> \<open>Nil\<close> then Term_list []
+                   else if s1 \<triangleq> \<open>HOL\<close> & s2 \<triangleq> \<open>False\<close> then Term_basic [lex_bool_false lexi]
+                   else f ()
                | _ \<Rightarrow> f ())
   | App t1 t2 \<Rightarrow>
       let t2 = hsk_term lexi names t2
@@ -101,10 +105,24 @@ definition "hsk_stmt version names =
     | Function (Function_Stmt Meta_HKB.Definition [t] [((lhs_n, lhs_arg), rhs)]) \<Rightarrow>
         let s_empty = Term_basic [\<open>v\<close>]
           ; T_string = Term_string'
-          ; hsk_term = hsk_term \<lparr> lex_list_cons = \<open>#\<close>, lex_string = (\<lambda>s. if s \<triangleq> \<open>\<close> then s_empty else T_string s) \<rparr> names in
-        Some (O.definition (Definition (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
-                                                     \<open>=\<close>
-                                                     (Term_parenthesis (Term_let [(s_empty, T_string \<open>\<close>)] (hsk_term rhs))))))
+          ; hsk_term = hsk_term \<lparr> lex_list_cons = \<open>#\<close>, lex_bool_false = \<open>False\<close>, lex_string = (\<lambda>s. if s \<triangleq> \<open>\<close> then s_empty else T_string s) \<rparr> names in
+        (Some o O.definition o Definition)
+          (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
+                        \<open>=\<close>
+                        (Term_parenthesis (Term_let [(s_empty, T_string \<open>\<close>)] (hsk_term rhs))))
+    | Meta_HKB.SML (Function_Stmt Meta_HKB.Definition [t] [((lhs_n, lhs_arg), rhs)]) \<Rightarrow>
+        let s_empty = Term_basic [\<open>v\<close>]
+          ; f_content = Term_basic [\<open>content\<close>]
+          ; T_string = Term_string'' f_content
+          ; hsk_term = hsk_term \<lparr> lex_list_cons = \<open>::\<close>, lex_bool_false = \<open>false\<close>, lex_string = (\<lambda>s. if s \<triangleq> \<open>\<close> then s_empty else T_string s) \<rparr> names in
+        (Some o O.ML o SML o SML_top)
+          [SML_val_fun
+             (Some Sval)
+             (hol_to_sml (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
+                                       \<open>=\<close>
+                                       (Term_parenthesis (Term_let [ (f_content, term_binop \<open>o\<close> (map (\<lambda>s. Term_basic [s]) [\<open>SS_base\<close>, \<open>ST\<close>, \<open>Input.source_content\<close>]))
+                                                                   , (s_empty, T_string \<open>\<close>)]
+                                                                   (hsk_term rhs)))))]
     | _ \<Rightarrow> None)"
 
 definition "print_haskell = (\<lambda> IsaUnit version l_name name_new (l_mod, b_concat) \<Rightarrow>

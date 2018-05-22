@@ -54,108 +54,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Acknowledgements\<close>
-
-theory C_Model
-  imports "$HASKABELLE_HOME_USER/default/Prelude"
-          "../src/UML_Main"
-          "../src/compiler/Generator_dynamic_parallel"
-          C_Model_init
+theory C_Model_ex_meta
+  imports C_Model_core
 begin
 
-subsection \<open>\<^file>\<open>$HASKABELLE_HOME/ex/language-c/AUTHORS.c2hs\<close>\<close>
-text \<open>
-  Manuel M T Chakravarty	<chak@cse.unsw.edu.au>
-  Duncan Coutts		<duncan@haskell.org>
-  
-  with contributions from (alphabetical order)
-  
-  Bertram Felgenhauer	<int-e@gmx.de>
-  Ian Lynagh		<igloo@earth.li>
-  André Pang		<ozone@algorithm.com.au>
-  Jens-Ulrik Petersen	<petersen@haskell.org>
-  Armin Sander		<armin@mindwalker.org>
-  Sean Seefried		<sseefried@cse.unsw.edu.au>
-  Udo Stenzel		<u.stenzel@web.de>
-  Axel Simon              <A.Simon@ukc.ac.uk>
-  Michael Weber		<michaelw@debian.org>
-  
-  Thanks for comments and suggestions to 
-  
-  Roman Leshchinskiy	<rl@cs.tu-berlin.de>
-  Jan Kort		<kort@science.uva.nl>
-  Seth Kurtzberg		<seth@cql.com>
-  Simon Marlow		<simonmar@microsoft.com>
-  Matthias Neubauer	<neubauer@informatik.uni-freiburg.de>
-  Sven Panne		<sven.panne@aedion.de>
-  Simon L. Peyton Jones	<simonpj@microsoft.com>
-  Volker Wysk		<post@volker-wysk.de>
-\<close>
+section \<open>Type definition (at ML level)\<close>
 
-subsection \<open>\<^file>\<open>$HASKABELLE_HOME/ex/language-c/AUTHORS\<close>\<close>
-text \<open>
-  Benedikt Huber          <benedikt.huber@gmail.com>
-  Manuel M T Chakravarty  <chak@cse.unsw.edu.au>
-  Duncan Coutts           <duncan@haskell.org>
-  Bertram Felgenhauer     <int-e@gmx.de>
-  
-  with code contributions and patches from
-  
-  Iavor Diatchki          <iavor.diatchki@gmail.com>
-  Kevin Charter           <kcharter@gmail.com>
-  Aleksey Kliger
-  
-  This project originated from the C parser component of c2hs,
-  for many additional contributors see AUTHORS.c2hs.
-  
-  Special thanks for their great support, comments and suggestions to:
-  
-  Duncan Coutts           <duncan@haskell.org>
-  Iavor Diatchki          <iavor.diatchki@gmail.com>
-  Don Steward             <dons@galois.com>
-\<close>
-
-section \<open>Initialization of the generator\<close>
-
-declare [[syntax_ambiguity_warning = false]]
-
-generation_syntax [ deep
-                      (THEORY Meta_C_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static", "../examples/C_Model_init"]
-                               "../src/compiler/Generator_dynamic_parallel")
-                      SECTION
-                      SORRY
-                      [ in self ]
-                      (output_directory "../doc")
-                  , shallow SORRY ]
-
-section \<open>Type definition\<close>
-
-End!
-
-text \<open> \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Name.hs\<close>
-       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Position.hs\<close>
-       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Node.hs\<close>
-       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/Ident.hs\<close>
-       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Ops.hs\<close>
-       \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/Constants.hs\<close> \<close>
-
-Haskell_file datatype_old_atomic try_import only_types concat_modules
-             base_path "$HASKABELLE_HOME/ex/language-c/src"
-             [Prelude \<rightharpoonup> C_Model_init, Int, String, Option \<rightharpoonup> C_Model_init]
-             (**)
-             "$HASKABELLE_HOME/ex/language-c/src/Language/C/Syntax/AST.hs"
-
-text \<open>@{typ CTranslUnit}\<close>
-
-datatype CommentFormat = SingleLine | MultiLine
-datatype Comment = Comment Position string CommentFormat
+code_reflect' open META2 functions CTranslUnit Comment
+ML\<open>open META2\<close>
 
 section \<open>Initialization of the parsing code\<close>
 
 meta_language C
   base_path "../src/compiler_generic/isabelle_home/contrib/haskabelle"
-  [Prelude \<rightharpoonup> C_Model_init, Option \<rightharpoonup> C_Model_init]
+  [Prelude, Option]
   where imports \<open>Language.C\<close>
           (load \<open>Importer.Conversion.Haskell\<close>)
           (load \<open>Importer.Conversion.Haskell.C\<close>)
@@ -165,7 +77,7 @@ ML \<open>val String = META.Stringa\<close>
 
 section \<open>Parsing\<close>
 
-language increment_method :: C where \<open>/* ASSUMES \<open>\<guillemotleft>a\<guillemotright> >\<^sub>u 0\<close> */ f () {
+language meta increment_method :: C where \<open>/* ASSUMES \<open>\<guillemotleft>a\<guillemotright> >\<^sub>u 0\<close> */ f () {
   int x = 0;
   /* INVAR \<open>\<guillemotleft>a\<guillemotright> >\<^sub>u 0 \<and> \<guillemotleft>a\<guillemotright> \<ge>\<^sub>u &x\<close>
      VRT \<open>(measure o Rep_uexpr) (\<guillemotleft>a\<guillemotright> - &x)\<close> */
@@ -174,7 +86,7 @@ language increment_method :: C where \<open>/* ASSUMES \<open>\<guillemotleft>a\
   }
 } /* ENSURES \<open>\<guillemotleft>a\<guillemotright> =\<^sub>u &x\<close> */\<close>
 
-language even_count_gen :: C where \<open>/* ASSUMES \<open>\<guillemotleft>a\<guillemotright> >\<^sub>u 0\<close> */ f () {
+language meta even_count_gen :: C where \<open>/* ASSUMES \<open>\<guillemotleft>a\<guillemotright> >\<^sub>u 0\<close> */ f () {
   int i = 0;
   int j = 0;
   /* INVAR \<open>&j =\<^sub>u (&i + 1) div \<guillemotleft>2\<guillemotright> \<and> &i \<le>\<^sub>u \<guillemotleft>a\<guillemotright>\<close>
@@ -187,7 +99,7 @@ language even_count_gen :: C where \<open>/* ASSUMES \<open>\<guillemotleft>a\<g
   }
 } /* ENSURES \<open>&j =\<^sub>u (\<guillemotleft>a\<guillemotright> + 1)div \<guillemotleft>2\<guillemotright>\<close> */\<close>
 
-language max_program_correct :: C where \<open>/* ASSUMES \<open>uop length \<guillemotleft>a\<guillemotright> \<ge>\<^sub>u1 \<and> &i =\<^sub>u 1 \<and> &r =\<^sub>u bop nth \<guillemotleft>a:: int list\<guillemotright> 0\<close> */ f () {
+language meta max_program_correct :: C where \<open>/* ASSUMES \<open>uop length \<guillemotleft>a\<guillemotright> \<ge>\<^sub>u1 \<and> &i =\<^sub>u 1 \<and> &r =\<^sub>u bop nth \<guillemotleft>a:: int list\<guillemotright> 0\<close> */ f () {
   /* INVAR \<open>0 <\<^sub>u &i \<and> &i \<le>\<^sub>u uop length \<guillemotleft>a\<guillemotright> \<and> &r =\<^sub>u uop Max (uop set (bop take (&i) \<guillemotleft>a\<guillemotright>))\<close>
      VRT \<open>measure (Rep_uexpr (uop length \<guillemotleft>a\<guillemotright> - (&i)))\<close> */
   while (! (i < length(a))) {
@@ -197,10 +109,5 @@ language max_program_correct :: C where \<open>/* ASSUMES \<open>uop length \<gu
     i = i + 1;
   }
 } /* ENSURES \<open>&r =\<^sub>u uop Max (uop set \<guillemotleft>a\<guillemotright>)\<close> */\<close>
-
-section \<open>Garbage Collection of Notations\<close>
-
-hide_type (open) int
-hide_type (open) string
 
 end

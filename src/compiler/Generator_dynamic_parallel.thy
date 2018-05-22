@@ -58,7 +58,7 @@ imports Printer
            (* Haskabelle *)
            "datatype_old" "datatype_old_atomic" "datatype_old_atomic_sub"
            "try_import" "only_types" "base_path" "ignore_not_in_scope" "abstract_mutual_data_params"
-           "concat_modules" "load"
+           "concat_modules" "load" "meta"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -547,7 +547,7 @@ fun section n s _ =
   let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1) in
     out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) n) ""
   end
-fun ml top (SML ml) = #generic_theory top
+fun ml top (SMLa ml) = #generic_theory top
   (ML_Context.exec let val source = input_source ml in
                    fn () => ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source
                    end #>
@@ -2158,7 +2158,7 @@ local
   val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"]
   val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"]
 in
-  fun parse meta_parse_imports meta_parse_code hsk_name check_dir hsk_str ((((((((old_datatype, try_import), only_types), ignore_not_in_scope), abstract_mutual_data_params), concat_modules), base_path_abs), l_rewrite), (content, pos)) thy =
+  fun parse meta_parse_shallow meta_parse_imports meta_parse_code hsk_name check_dir hsk_str ((((((((old_datatype, try_import), only_types), ignore_not_in_scope), abstract_mutual_data_params), concat_modules), base_path_abs), l_rewrite), (content, pos)) thy =
     let fun string_of_bool b = if b then "true" else "false"
         val st =
           Bash.process
@@ -2172,6 +2172,7 @@ in
                , "--ignore-not-in-scope", string_of_bool ignore_not_in_scope
                , "--abstract-mutual-data-params", string_of_bool abstract_mutual_data_params
                , "--dump-output"
+               , "--meta-parse-shallow", string_of_bool meta_parse_shallow
                , "--meta-parse-load"] @ map_filter (fn (true, s) => SOME (Bash.string s) | _ => NONE) meta_parse_imports @
                [ "--meta-parse-imports"] @ map (Bash.string o snd) meta_parse_imports @
                [ "--meta-parse-code" ] @ map Bash.string meta_parse_code @
@@ -2185,7 +2186,7 @@ in
     in
       if #rc st = 0 then
           Context.Theory thy
-        |> ML (Input.string ("let open META in Context.>> (Context.map_theory (Haskabelle_Data.put " ^ #out st ^ ")) end"))
+        |> ML (Input.string ("let open META val ML = META.SML in Context.>> (Context.map_theory (Haskabelle_Data.put " ^ #out st ^ ")) end"))
         |> Context.map_theory_result (fn thy => (Haskabelle_Data.get thy, thy))
         |-> (fn (l_mod, l_rep) => K
               let
@@ -2225,7 +2226,7 @@ in
                       "Failed executing the ML process (" ^ Int.toString (#rc st) ^ ")"
                     else #err st |> String.explode |> trim (fn #"\n" => true | _ => false) |> String.implode) end
     end
-  val parse' = parse [] [] [] Resources'.check_dir
+  val parse' = parse false [] [] [] Resources'.check_dir
 end
 
 local
@@ -2279,12 +2280,14 @@ val () =
 
 val () =
   outer_syntax_commands'2 @{mk_string} @{command_keyword language} ""
-    (Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name --| Parse.where_ -- Parse.position Parse.cartouche)
-    (fn ((prog, lang), code) => 
+    (Scan.optional (@{keyword "meta"} >> K true) false
+     -- Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name --| Parse.where_ -- Parse.position Parse.cartouche)
+    (fn (((is_shallow, prog), lang), code) => 
       get_thy @{here} (fn thy => 
         let val (_, (hsk_arg, hsk_path, imports, defines)) =
               Name_Space.check (Context.Theory thy) (Data_lang.get thy) lang
-        in parse imports
+        in parse is_shallow
+                 imports
                  [defines]
                  [Binding.name_of prog]
                  (K (K (case hsk_path of NONE => "" | SOME s => s)))

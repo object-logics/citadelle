@@ -91,11 +91,13 @@ definition "parenthesis (* mandatory parenthesis *) = paren \<open>(\<close> \<o
 definition "binop_l s l = (case rev l of x # xs \<Rightarrow> List.fold (\<lambda>x. binop x s) xs x)"
 definition "list l = (case l of [] \<Rightarrow> basic [\<open>[]\<close>] | _ \<Rightarrow> paren \<open>[\<close> \<open>]\<close> (binop_l \<open>,\<close> l))"
 definition "list' f l = list (L.map f l)"
+definition "pair0 l = paren \<open>(\<close> \<open>)\<close> (binop_l \<open>,\<close> l)"
 definition "pair e1 e2 = parenthesis (binop e1 \<open>,\<close> e2)"
 definition "pair' f1 f2 = (\<lambda> (e1, e2) \<Rightarrow> parenthesis (binop (f1 e1) \<open>,\<close> (f2 e2)))"
 definition "rewrite_val e1 s e2 = SML_top [SML_val_fun (Some Sval) (rewrite e1 s e2)]"
 definition "rewrite_fun e1 s e2 = SML_top [SML_val_fun (Some Sfun) (rewrite e1 s e2)]"
 definition "let_open s = SML_let (SML_top [SML_open s])"
+definition "app_pair e l = apply e (case l of [] \<Rightarrow> [] | _ \<Rightarrow> [pair0 l])"
 end
 
 lemmas [code] =
@@ -118,10 +120,12 @@ lemmas [code] =
   SML.binop_l_def
   SML.list_def
   SML.list'_def
+  SML.pair0_def
   SML.pair_def
   SML.pair'_def
   SML.rewrite_val_def
   SML.rewrite_fun_def
   SML.let_open_def
+  SML.app_pair_def
 
 end
