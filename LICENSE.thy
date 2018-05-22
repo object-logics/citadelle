@@ -1,6 +1,7 @@
-theory LICENSE imports LICENSE0 begin
+theory LICENSE imports LICENSE0 begin license "3-Clause BSD" where \<open>
 
-license "3-Clause BSD" where \<open>
+Copyright (c) 2017-2018 Virginia Tech, USA \<close>\<open>
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -68,7 +69,11 @@ http://www.brucker.ch/projects/hol-testgen/
 This file is part of HOL-TestGen.
 \<close> imports default
 
-project LICENSE :: "3-Clause BSD" where \<open>LICENSE\<close> defines 2017-2018 vt
+project LICENSE0 :: "3-Clause BSD" where \<open>LICENSE\<close> defines 2017-2018 vt
+
+project LICENSE :: "3-Clause BSD" where \<open>
+theory LICENSE imports LICENSE0 begin license "3-Clause BSD" where
+\<close> defines 2017-2018 vt
 
 project "Featherweight OCL" :: "3-Clause BSD" where \<open>
 Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
@@ -79,6 +84,7 @@ This file is part of HOL-TestGen.
 \<close> imports default
 
 project Citadelle :: "3-Clause BSD" where \<open>Citadelle\<close> imports default
+
 project Isabelle_Meta_Model :: "3-Clause BSD" where \<open>A Meta-Model for the Isabelle API\<close> imports default
 
 project Isabelle :: "3-Clause BSD" where \<open>
@@ -94,6 +100,7 @@ Haskabelle --- Converting Haskell Source Files to Isabelle/HOL Theories.
           2017-2018 vt
 
 project "HOL-OCL" :: "3-Clause BSD" where \<open>HOL-OCL\<close> imports default
+
 project "HOL-TOY" :: "3-Clause BSD" where \<open>HOL-TOY\<close> imports default
 
 project C11 :: "3-Clause BSD" where \<open>
@@ -126,6 +133,7 @@ check_license Miscellaneous_Monads
   in file "examples/archive/Monads.thy"
 (*
 check_license ROOT
+              LICENSE0
               LICENSE
               "Featherweight OCL"
               Citadelle

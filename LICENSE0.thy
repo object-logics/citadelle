@@ -109,9 +109,11 @@ end
 
 structure Holder = Theory_Data' (Holder0)
 
-structure Date0 (*: OBJECT*) = struct
-  datatype T = D_interval of int (*date min*) * int (*date max*)
-             | D_discrete of int list
+datatype date = D_interval of int (*date min*) * int (*date max*)
+              | D_discrete of int list
+
+structure Date0 : OBJECT where type T = date = struct
+  type T = date
   val key = "date"
   val pretty = fn D_interval (d_min, d_max) => Int.toString d_min ^ "-" ^ Int.toString d_max
                 | D_discrete l => String.concatWith "," (map Int.toString l)
@@ -145,8 +147,11 @@ end
 
 structure License = Theory_Data' (License0)
 
-structure Project0 : OBJECT = struct
-  type T = (Input.source * Copyright0.T) list * License0.T
+type project_head = (Input.source * Copyright0.T) list
+
+structure Project0 : sig include OBJECT val pretty0 : bool -> project_head * Input.source -> string
+                     end = struct
+  type T = project_head * License0.T
   val key = "project"
   fun wrap_stars s =
     let val stars = "******************************************************************************" in
@@ -155,12 +160,13 @@ structure Project0 : OBJECT = struct
          :: map ((fn s => " *" ^ s) o (fn "" => "" | s => " " ^ s)) (split_lines s)
          @ [" " ^ stars ^ ")"])
     end
-  fun pretty (l, lic) =
+  fun pretty0 stars (l, lic) =
     let val s_end = case l of [_] => "" | _ => "\n\n *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
-    in String.concat (map (fn (src, copy) => pretty_input src ^ "\n\n" ^ Copyright0.pretty copy ^ s_end ^ "\n\n") l)
+    in String.concat (map (fn (src, copy) => pretty_input src ^ (if stars then "" else " " ^ Symbol.open_) ^ "\n\n" ^ Copyright0.pretty copy ^ s_end ^ (if stars then "" else " " ^ Symbol.close ^ Symbol.open_) ^ "\n\n") l)
        ^ License0.pretty lic
-       |> wrap_stars
+       |> (if stars then wrap_stars else fn s => s ^ "\n" ^ Symbol.close)
     end
+  val pretty = pretty0 true
 end
 
 structure Project = Theory_Data' (Project0)
@@ -173,30 +179,30 @@ fun define key data_map n =
                           thy))
 
 local
-fun check0 f_map key data_get f n f_left =
-  ( key
-  , Toplevel.theory
-      (fn thy => f (f_map (fn (Right a, v) => (Right a, v)
-                            | (Left k, v) => (Left (f_left (Name_Space.check (Context.Theory thy) (data_get thy)) k), v)) n) thy))
+  fun check0 f_map key data_get f n f_left =
+    ( key
+    , Toplevel.theory
+        (fn thy => f (f_map (fn (Right a, v) => (Right a, v)
+                              | (Left k, v) => (Left (f_left (Name_Space.check (Context.Theory thy) (data_get thy)) k), v)) n) thy))
 in
 fun check key data_get f n = check0 (fn f => Option.map (the_left o #1 o f)) key data_get f (Option.map (fn n => (Left n, ())) n)
 fun check' key = check0 map key
 end
 
 structure Parse' = struct
-datatype copyright = C_ref of string * Position.T
-                   | C_def of (((string option * int) * (bool * int) option) * (string * Position.T) list) list
-val copyright =
-  Scan.repeat (Scan.option (Parse.$$$ "portions") -- Parse.nat -- Scan.option ((Parse.$$$ "," >> K false || Parse.minus >> K true) -- Parse.nat) -- Parse.list1 (Parse.position Parse.name))
-
-fun copyright_check key f = check' key Holder.get f
-
-fun copyright_check' h ((portions, d0), opt_d) =
-                        ( portions = NONE
-                        , case opt_d of SOME (true, d_max) => Date0.D_interval (d0, d_max)
-                                      | SOME (false, d1) => Date0.D_discrete [d0, d1]
-                                      | NONE => Date0.D_discrete [d0]
-                        , h)
+  datatype copyright = C_ref of string * Position.T
+                     | C_def of (((string option * int) * (bool * int) option) * (string * Position.T) list) list
+  val copyright =
+    Scan.repeat (Scan.option (Parse.$$$ "portions") -- Parse.nat -- Scan.option ((Parse.$$$ "," >> K false || Parse.minus >> K true) -- Parse.nat) -- Parse.list1 (Parse.position Parse.name))
+  
+  fun copyright_check key f = check' key Holder.get f
+  
+  fun copyright_check' h ((portions, d0), opt_d) =
+                          ( portions = NONE
+                          , case opt_d of SOME (true, d_max) => D_interval (d0, d_max)
+                                        | SOME (false, d1) => D_discrete [d0, d1]
+                                        | NONE => D_discrete [d0]
+                          , h)
 end
 
 val _ =
@@ -254,8 +260,9 @@ val _ =
 
 val _ =
   Outer_Syntax.commands @{command_keyword license} "formal comment (primary style)"
-    (Parse.binding --| Parse.where_ -- Parse.document_source >>
-      (fn (n, src) =>
+    (Parse.binding --| Parse.where_ -- Parse.document_source (* ignored for bootstrapping *)
+                                    -- Parse.document_source >>
+      (fn ((n, _), src) =>
         [ define @{command_keyword license} License.map (n, src)
         , (@{command_keyword license}, Thy_Output.document_command {markdown = true} (NONE, src))]));
 
@@ -264,20 +271,26 @@ val _ =
     (Scan.repeat (Parse.position Parse.name) --| Parse.$$$ "in" -- Scan.option (Parse.$$$ "file") -- Parse.position Parse.path >>
       (fn ((pj, file), loc) => fn thy => fn _ =>
         let
-          val l_head = map (fn n => Project0.pretty (#2 (Name_Space.check (Context.Theory thy) (Project.get thy) n))) pj
+          fun head stars = map (fn n => Project0.pretty0 stars (#2 (Name_Space.check (Context.Theory thy) (Project.get thy) n))) pj
+          val l_head = head true
+          val l_head0 = head false
+          (*val _ = List.app (fn s => writeln s) l_head0*)
           fun f s =
-            let (*val _ = List.app (fn s => writeln s) l_head*)
+            let
               fun f_exists f_un s l = fold (fn p => fn b => b orelse try (f_un p) s <> NONE) l false
             in
               cons ( @{command_keyword check_license}
                    , Toplevel.keep
                        (fn _ =>
-                         if f_exists unprefix (File.read s) l_head then
-                           writeln (@{make_string} s)
-                         else if f_exists unsuffix (Path.base_name s) [".thy", ".ml", ".ML", "ROOT"] then
-                           error (@{make_string} s)
-                         else
-                           warning (@{make_string} s)))
+                         let val base_name = Path.base_name s
+                         in
+                           if f_exists unprefix (File.read s) (if base_name = "LICENSE.thy" then l_head0 else l_head) then
+                             writeln (@{make_string} s)
+                           else if f_exists unsuffix base_name [".thy", ".ml", ".ML", "ROOT"] then
+                             error (@{make_string} s)
+                           else
+                             warning (@{make_string} s)
+                         end))
             end
         in
           (case file of NONE => fold_dir f (Resources'.check_dir thy loc)
