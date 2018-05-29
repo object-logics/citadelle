@@ -871,189 +871,26 @@ val check =
       ; error msg)
     end)
 
-val compiler = let open Export_code_env in
-  [ let val ml_ext = "hs" in
-    ( "Haskell", ml_ext, Directory, Haskell.Filename.hs_function
-    , check [("ghc --version", "ghc is not installed (required for compiling a Haskell project)")]
-    , (fn mk_fic => fn _ => fn mk_free => fn thy =>
-        File.write (mk_fic ("Main." ^ ml_ext))
-          (String.concatWith "; " [ "import qualified Unsafe.Coerce"
-                         , "import qualified " ^ Haskell.function
-                         , "import qualified " ^ Haskell.argument
-                         , "main :: IO ()"
-                         , "main = " ^ Haskell.function ^ "." ^ Isabelle.function ^
-                           " (Unsafe.Coerce.unsafeCoerce " ^ Haskell.argument ^ "." ^
-                           mk_free (Proof_Context.init_global thy)
-                                   Isabelle.argument_main ([]: (string * string) list) ^
-                           ")"]))
-    , fn tmp_export_code => fn tmp_file =>
-        compile [ "mv " ^ tmp_file ^ "/" ^ Haskell.Filename.hs_argument ml_ext ^ " " ^
-                          Path.implode tmp_export_code
-                , "cd " ^ Path.implode tmp_export_code ^
-                  " && ghc -outputdir _build " ^ Haskell.Filename.hs_main ml_ext ]
-                (Path.implode (Path.append tmp_export_code (Path.make [Haskell.main]))))
-    end
-  , let val ml_ext = "ml" in
-    ( "OCaml", ml_ext, File, OCaml.Filename.function
-    , check [("ocp-build -version", "ocp-build is not installed (required for compiling an OCaml project)")
-            ,("ocamlopt -version", "ocamlopt is not installed (required for compiling an OCaml project)")]
-    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
-        let val () =
-          File.write
-            (mk_fic (OCaml.Filename.makefile "ocp"))
-            (String.concat
-              [ "comp += \"-g\" link += \"-g\" "
-              , "begin generated = true begin library \"nums\" end end "
-              , "begin program \"", OCaml.make, "\" sort = true files = [ \"", OCaml.Filename.function ml_ext
-              , "\" \"", OCaml.Filename.argument ml_ext
-              , "\" \"", OCaml.Filename.main_fic ml_ext
-              , "\" ]"
-              , "requires = [\"nums\"] "
-              , "end" ]) in
-        File.write (mk_fic (OCaml.Filename.main_fic ml_ext))
-          ("let _ = Function." ^ ml_module ^ "." ^ Isabelle.function ^
-           " (Obj.magic (Argument." ^ ml_module ^ "." ^
-           mk_free (Proof_Context.init_global thy)
-                   Isabelle.argument_main
-                   ([]: (string * string) list) ^ "))")
-        end
-    , fn tmp_export_code => fn tmp_file =>
-        compile
-          [ "mv " ^ tmp_file ^ " " ^
-              Path.implode (Path.append tmp_export_code (Path.make [OCaml.Filename.argument ml_ext]))
-          , "cd " ^ Path.implode tmp_export_code ^
-            " && ocp-build -init -scan -no-bytecode 2>&1" ]
-          (Path.implode (Path.append tmp_export_code (Path.make [ "_obuild"
-                                                                , OCaml.make
-                                                                , OCaml.make ^ ".asm"]))))
-    end
-  , let val ml_ext = "scala"
-        val ml_module = Unsynchronized.ref ("", "") in
-    ( "Scala", ml_ext, File, Scala.Filename.function
-    , check [("scala -e 0", "scala is not installed (required for compiling a Scala project)")]
-    , (fn _ => fn ml_mod => fn mk_free => fn thy =>
-        ml_module := (ml_mod, mk_free (Proof_Context.init_global thy)
-                                      Isabelle.argument_main
-                                      ([]: (string * string) list)))
-    , fn tmp_export_code => fn tmp_file =>
-        let val l = File.read_lines (Path.explode tmp_file)
-            val (ml_module, ml_main) = Unsynchronized.! ml_module
-            val () =
-              File.write_list
-               (Path.append tmp_export_code (Path.make [Scala.Filename.argument ml_ext]))
-               (List.map
-                 (fn s => s ^ "\n")
-                 ("object " ^ ml_module ^ " { def main (__ : Array [String]) = " ^
-                  ml_module ^ "." ^ Isabelle.function ^ " (" ^ ml_module ^ "." ^ ml_main ^ ")"
-                  :: l @ ["}"])) in
-        compile []
-          ("scala -nowarn " ^ Path.implode (Path.append tmp_export_code
-                                                        (Path.make [Scala.Filename.argument ml_ext])))
-        end)
-    end
-  , let val ml_ext_thy = "thy"
-        val ml_ext_ml = "ML" in
-    ( "SML", ml_ext_ml, File, SML.Filename.function
-    , check [ let open Path val isa = "isabelle" in
-              ( implode (expand (append (variable "ISABELLE_HOME") (make ["bin", isa]))) ^ " version"
-              , isa ^ " is not installed (required for compiling a SML project)")
-              end ]
-    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
-         let val esc_star = "*"
-             fun ml l =
-               List.concat
-               [ [ "ML{" ^ esc_star ]
-               , map (fn s => s ^ ";") l
-               , [ esc_star ^ "}"] ]
-             val () =
-               let val fic = mk_fic (SML.Filename.function ml_ext_ml) in
-               (* replace ("\\" ^ "<") by ("\\\060") in 'fic' *)
-               File.write_list fic
-                 (map (fn s =>
-                         (if s = "" then
-                           ""
-                         else
-                           String.concatWith "\\"
-                             (map (fn s =>
-                                     let val l = String.size s in
-                                     if l > 0 andalso String.sub (s,0) = #"<" then
-                                       "\\060" ^ String.substring (s, 1, String.size s - 1)
-                                     else
-                                       s end)
-                                  (String.fields (fn c => c = #"\\") s))) ^ "\n")
-                      (File.read_lines fic))
-               end in
-         File.write_list (mk_fic (SML.Filename.main_fic ml_ext_thy))
-           (map (fn s => s ^ "\n") (List.concat
-             [ [ "theory " ^ SML.main
-               , "imports Main"
-               , "begin"
-               , "declare [[ML_print_depth = 500]]"
-                 (* any large number so that @{make_string} displays all the expression *) ]
-             , ml [ "val stdout_file = Unsynchronized.ref (File.read (Path.make [\"" ^
-                      SML.Filename.stdout ml_ext_ml ^ "\"]))"
-                  , "use \"" ^ SML.Filename.argument ml_ext_ml ^ "\"" ]
-             , ml let val arg = "argument" in
-                  [ "val " ^ arg ^ " = YXML.content_of (@{make_string} (" ^
-                    ml_module ^ "." ^
-                    mk_free (Proof_Context.init_global thy)
-                            Isabelle.argument_main
-                            ([]: (string * string) list) ^ "))"
-                  , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
-                  , "ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) (Input.source false (\"let open " ^
-                      ml_module ^ " in " ^ Isabelle.function ^ " (\" ^ " ^ arg ^
-                      " ^ \") end\") (Position.none, Position.none) )" ]
-                  end
-             , [ "end" ]]))
-         end
-    , fn tmp_export_code => fn tmp_file =>
-        let open Path
-            val stdout_file = Isabelle_System.create_tmp_path "stdout_file" "thy"
-            val () = File.write (append tmp_export_code (make [SML.Filename.stdout ml_ext_ml]))
-                                (implode (expand stdout_file))
-            val (l, (_, exit_st)) =
-              compile
-                [ "mv " ^ tmp_file ^ " " ^ implode (append tmp_export_code
-                                                           (make [SML.Filename.argument ml_ext_ml]))
-                , "cd " ^ implode tmp_export_code ^
-                  " && echo 'use_thy \"" ^ SML.main ^ "\";' | " ^
-                  implode (expand (append (variable "ISABELLE_HOME") (make ["bin", "isabelle"]))) ^
-                  " console" ]
-                "true"
-            val stdout = File.read stdout_file |> (fn s => let val () = File.rm stdout_file in s end)
-        in  (l, (stdout, if List.exists (fn (err, _) =>
-                              List.exists (fn "*** Error" => true | _ => false)
-                                (String.tokens (fn #"\n" => true | _ => false) err)) l then
-                           List.app (fn (out, err) => (warning err; writeln out)) l |> K 1
-                         else exit_st))
-        end)
-    end ]
-end
+val compiler = []
 
 structure Find = struct
-fun ext ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, ext, _, _, _, _, _) => ext
 
-fun export_mode ml_compiler =
+fun find ml_compiler = 
   case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, mode, _, _, _, _) => mode
+    SOME v => v
+  | NONE => error ("Not registered compiler: " ^ ml_compiler)
 
-fun function ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, f, _, _, _) => f
+fun ext ml_compiler = case find ml_compiler of (_, ext, _, _, _, _, _) => ext
 
-fun check_compil ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, _, build, _, _) => build
+fun export_mode ml_compiler = case find ml_compiler of (_, _, mode, _, _, _, _) => mode
 
-fun init ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, _, _, build, _) => build
+fun function ml_compiler = case find ml_compiler of (_, _, _, f, _, _, _) => f
 
-fun build ml_compiler =
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME (_, _, _, _, _, _, build) => build
+fun check_compil ml_compiler = case find ml_compiler of (_, _, _, _, build, _, _) => build
+
+fun init ml_compiler = case find ml_compiler of (_, _, _, _, _, build, _) => build
+
+fun build ml_compiler = case find ml_compiler of (_, _, _, _, _, _, build) => build
 end
 
 end
