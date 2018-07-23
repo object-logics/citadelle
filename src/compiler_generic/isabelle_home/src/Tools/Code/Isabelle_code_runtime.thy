@@ -38,8 +38,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter{* Part ... *}
-
 theory  Isabelle_code_runtime
 imports Main
   keywords "code_reflect'" :: thy_decl

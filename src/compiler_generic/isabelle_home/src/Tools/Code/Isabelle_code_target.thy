@@ -38,8 +38,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter{* Part ... *}
-
 theory  Isabelle_code_target
 imports Main
   keywords "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect"
