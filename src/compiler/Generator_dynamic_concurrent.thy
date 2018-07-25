@@ -41,7 +41,7 @@
 
 section\<open>Dynamic Meta Embedding with Reflection\<close>
 
-theory Generator_dynamic_parallel
+theory Generator_dynamic_concurrent
 imports Printer
         "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main2"
         "~~/src/HOL/Library/Old_Datatype"
