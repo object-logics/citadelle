@@ -609,12 +609,13 @@ fun transition int tr st =
     val st = state_load tr st
     val (st', opt_err) =
       Context.setmp_generic_context (try (Context.Proof o presentation_context_of) st)
-        (fn () => app int tr st) ();
+        (fn () => app int tr st) ()
+      |> apfst (state_store tr);
     val opt_err' = opt_err |> Option.map
       (fn Runtime.EXCURSION_FAIL exn_info => exn_info
         | exn => (Runtime.exn_context (try context_of st) exn, at_command tr));
     val _ = get_hooks () |> List.app (fn f => (try (fn () => f tr st st') (); ()));
-  in (state_store tr st', opt_err') end;
+  in (st', opt_err') end;
 
 end;
 
