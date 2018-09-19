@@ -2012,8 +2012,8 @@ in
                , "--meta-parse-shallow", string_of_bool meta_parse_shallow
                , "--meta-parse-load"] @ map_filter (fn (true, s) => SOME (Bash.string s) | _ => NONE) meta_parse_imports @
                [ "--meta-parse-imports"] @ map (Bash.string o snd) meta_parse_imports @
-               [ "--meta-parse-code" ] @ map Bash.string meta_parse_code @
-               [ "--hsk-name" ] @ hsk_name
+               [ "--meta-parse-code" ] @ map Bash.string (the_list meta_parse_code) @
+               [ "--hsk-name" ] @ the_list hsk_name
              @ (case
                   if hsk_str then
                     ([ Bash.string content ], [])
@@ -2063,7 +2063,7 @@ in
                       "Failed executing the ML process (" ^ Int.toString (#rc st) ^ ")"
                     else #err st |> String.explode |> trim (fn #"\n" => true | _ => false) |> String.implode) end
     end
-  val parse' = parse false [] [] [] Resources'.check_dir
+  val parse' = parse false [] NONE NONE Resources'.check_dir
 end
 
 local
@@ -2125,8 +2125,8 @@ val () =
               Name_Space.check (Context.Theory thy) (Data_lang.get thy) lang
         in parse is_shallow
                  imports
-                 [defines]
-                 [Binding.name_of prog]
+                 (SOME defines)
+                 (SOME (Binding.name_of prog))
                  (K (K (case hsk_path of NONE => "" | SOME s => s)))
                  true
                  (hsk_arg, code)
