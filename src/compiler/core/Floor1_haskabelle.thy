@@ -97,7 +97,7 @@ fun hsk_term and
  | "hsk_term_app lexi names l t = (\<lambda> App t1 t2 \<Rightarrow> hsk_term_app lexi names (hsk_term lexi names t2 # l) t1
                                    | e \<Rightarrow> Term_parenthesis (Term_apply (hsk_term lexi names e) l)) t"
 
-definition "hsk_stmt version names =
+definition "hsk_stmt version names app_end =
   List.map_filter
    (\<lambda> Meta_HKB.Datatype l \<Rightarrow>
         Some (O.datatype (Datatype version (L.map (map_prod (hsk_typespec names) (L.map (map_prod (hsk_name names) (L.map (hsk_type names))))) l)))
@@ -109,7 +109,9 @@ definition "hsk_stmt version names =
         (Some o O.definition o Definition)
           (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
                         \<open>=\<close>
-                        (Term_parenthesis (Term_let [(s_empty, T_string \<open>\<close>)] (hsk_term rhs))))
+                        (let t = Term_parenthesis (Term_let [(s_empty, T_string \<open>\<close>)] (hsk_term rhs)) in
+                         case app_end of Some (False, f) \<Rightarrow> Term_app f [t]
+                                       | _ \<Rightarrow> t))
     | Meta_HKB.SML (Function_Stmt Meta_HKB.Definition [t] [((lhs_n, lhs_arg), rhs)]) \<Rightarrow>
         let s_empty = Term_basic [\<open>v\<close>]
           ; f_content = Term_basic [\<open>content\<close>]
@@ -120,18 +122,22 @@ definition "hsk_stmt version names =
              (Some Sval)
              (hol_to_sml (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
                                        \<open>=\<close>
-                                       (Term_parenthesis (Term_let [ (f_content, term_binop \<open>o\<close> (map (\<lambda>s. Term_basic [s]) [\<open>SS_base\<close>, \<open>ST\<close>, \<open>Input.source_content\<close>]))
-                                                                   , (s_empty, T_string \<open>\<close>)]
-                                                                   (hsk_term rhs)))))]
+                                       (let t = Term_parenthesis (Term_let [ (f_content, term_binop \<open>o\<close> (map (\<lambda>s. Term_basic [s]) [\<open>SS_base\<close>, \<open>ST\<close>, \<open>Input.source_content\<close>]))
+                                                                           , (s_empty, T_string \<open>\<close>)]
+                                                                           (hsk_term rhs)) in
+                                        case app_end of Some (True, f) \<Rightarrow> Term_app f [t]
+                                                      | _ \<Rightarrow> t)))]
     | _ \<Rightarrow> None)"
 
-definition "print_haskell = (\<lambda> IsaUnit version l_name name_new (l_mod, b_concat) \<Rightarrow>
+definition "print_haskell = (\<lambda> IsaUnit version l_name app_end name_new (l_mod, b_concat) \<Rightarrow>
   Pair (List.bind (if b_concat then l_mod else [last l_mod])
                   (\<lambda> Module (ThyName name_old) _ m _ \<Rightarrow>
                        hsk_stmt (case map_prod id nat_of_natural version of (False, _) \<Rightarrow> Datatype_new
                                                                           | (True, 0) \<Rightarrow> Datatype_old
                                                                           | (True, Suc 0) \<Rightarrow> Datatype_old_atomic
                                                                           | (True, Suc (Suc 0)) \<Rightarrow> Datatype_old_atomic_sub)
-                                ((name_old, Some name_new) # l_name) m)))"
+                                ((name_old, Some name_new) # l_name)
+                                app_end
+                                m)))"
 
 end
