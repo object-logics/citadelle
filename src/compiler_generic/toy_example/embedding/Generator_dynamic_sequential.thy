@@ -765,29 +765,35 @@ local
           end)
 in
 
-fun all_meta_tr top aux ret = fn
-  META_semi_theories thy => ret o
-    (case thy of
-       Theories_one thy => Command_Transition.semi__theory top thy
+fun all_meta_tr top aux = fn
+  META_semi_theories theo => apsnd
+    (case theo of
+       Theories_one theo => Command_Transition.semi__theory top theo
      | Theories_locale (data, l) => fn acc => acc
        |>:: (@{command_keyword locale}, #begin_local_theory top true (semi__locale data))
        |> fold (fold (Command_Transition.semi__theory top)) l
        |>:: end' top)
-| META_boot_generation_syntax _ => ret o I
-| META_boot_setup_env _ => ret o I
+| META_boot_generation_syntax _ => I
+| META_boot_setup_env _ => I
 | META_all_meta_embedding meta => aux (semi__aux NONE meta)
 
-fun all_meta_thy top_theory top_local_theory aux ret = fn
-  META_semi_theories thy => ret o
-    (case thy of
-       Theories_one thy => Command_Theory.semi__theory top_theory thy
+and all_meta_trs top aux = fold (all_meta_tr top aux)
+
+fun all_meta_thy top_theory top_local_theory aux = fn
+  META_semi_theories theo => apsnd
+    (case theo of
+       Theories_one theo => Command_Theory.semi__theory top_theory theo
      | Theories_locale (data, l) => (*Toplevel.begin_local_theory*) fn thy => thy
        |> semi__locale data
        |> fold (fold (Command_Theory.semi__theory top_local_theory)) l
        |> Local_Theory.exit_global)
-| META_boot_generation_syntax _ => ret o I
-| META_boot_setup_env _ => ret o I
-| META_all_meta_embedding meta => fn thy => aux (semi__aux (SOME thy) meta) thy
+| META_boot_generation_syntax _ => I
+| META_boot_setup_env _ => I
+| META_all_meta_embedding meta => fn (env, thy) => aux (semi__aux (SOME thy) meta) (env, thy)
+
+and all_meta_thys top_theory top_local_theory aux =
+  fold (all_meta_thy top_theory top_local_theory aux)
+
 end
 end
 \<close>
@@ -1280,7 +1286,7 @@ fun thy_shallow l_obj get_all_meta_embed =
     (fn l_shallow => fn thy => META.mapM
       (fn (env, thy0) => fn (thy, l_obj) =>
         let val (_, disp_time) = disp_time (tap o K ooo out_intensify')
-            fun aux (env, thy) x =
+            fun aux x =
               fold_thy_shallow
                 (K o K thy0)
                 (fn msg =>
@@ -1296,48 +1302,43 @@ fun thy_shallow l_obj get_all_meta_embed =
                       fun proofs f s = s |> f |> Seq.the_result ""
                       val proof = I
                       val dual = #seq in
-                  fn l => fn (env, thy) =>
-                  Bind_META.all_meta_thy { (* specialized part *)
-                                           theory = I
-                                         , local_theory = K o K Named_Target.theory_map
-                                         , local_theory' = K o K (fn f => Named_Target.theory_map (f false))
-                                         , keep = fn f => Named_Target.theory_map (fn lthy => (f lthy ; lthy))
-                                         , generic_theory = Context.theory_map
-                                           (* generic part *)
-                                         , context_of = context_of, dual = dual
-                                         , proof' = proof', proofs = proofs, proof = proof
-                                         , tr_report = report, tr_report_o = report_o
-                                         , pr_report = report, pr_report_o = report_o
-                                           (* irrelevant part *)
-                                         , begin_local_theory = K o not_used @{here}
-                                         , local_theory_to_proof' = K o K not_used @{here}
-                                         , local_theory_to_proof = K o K not_used @{here}
-                                         , tr_raw = not_used @{here} }
+                  Bind_META.all_meta_thys { (* specialized part *)
+                                            theory = I
+                                          , local_theory = K o K Named_Target.theory_map
+                                          , local_theory' = K o K (fn f => Named_Target.theory_map (f false))
+                                          , keep = fn f => Named_Target.theory_map (fn lthy => (f lthy ; lthy))
+                                          , generic_theory = Context.theory_map
+                                            (* generic part *)
+                                          , context_of = context_of, dual = dual
+                                          , proof' = proof', proofs = proofs, proof = proof
+                                          , tr_report = report, tr_report_o = report_o
+                                          , pr_report = report, pr_report_o = report_o
+                                            (* irrelevant part *)
+                                          , begin_local_theory = K o not_used @{here}
+                                          , local_theory_to_proof' = K o K not_used @{here}
+                                          , local_theory_to_proof = K o K not_used @{here}
+                                          , tr_raw = not_used @{here} }
 
-                                         { (* specialized part *)
-                                           theory = Local_Theory.background_theory
-                                         , local_theory = K o K in_self
-                                         , local_theory' = K o K (fn f => in_self (f false))
-                                         , keep = fn f => in_self (fn lthy => (f lthy ; lthy))
-                                         , generic_theory = Context.proof_map
-                                           (* generic part *)
-                                         , context_of = context_of, dual = dual
-                                         , proof' = proof', proofs = proofs, proof = proof
-                                         , tr_report = report, tr_report_o = report_o
-                                         , pr_report = report, pr_report_o = report_o
-                                           (* irrelevant part *)
-                                         , begin_local_theory = K o not_used @{here}
-                                         , local_theory_to_proof' = K o K not_used @{here}
-                                         , local_theory_to_proof = K o K not_used @{here}
-                                         , tr_raw = not_used @{here} }
+                                          { (* specialized part *)
+                                            theory = Local_Theory.background_theory
+                                          , local_theory = K o K in_self
+                                          , local_theory' = K o K (fn f => in_self (f false))
+                                          , keep = fn f => in_self (fn lthy => (f lthy ; lthy))
+                                          , generic_theory = Context.proof_map
+                                            (* generic part *)
+                                          , context_of = context_of, dual = dual
+                                          , proof' = proof', proofs = proofs, proof = proof
+                                          , tr_report = report, tr_report_o = report_o
+                                          , pr_report = report, pr_report_o = report_o
+                                            (* irrelevant part *)
+                                          , begin_local_theory = K o not_used @{here}
+                                          , local_theory_to_proof' = K o K not_used @{here}
+                                          , local_theory_to_proof = K o K not_used @{here}
+                                          , tr_raw = not_used @{here} }
 
-                                         (fn x => fn thy => aux (env, thy) [x])
-                                         (pair env)
-                                         l
-                                         thy
+                                          (aux o (fn x => [x]))
                   end)
                 x
-                (env, thy)
             val (env, thy) =
               let
                 fun disp_time f x =
@@ -1345,7 +1346,7 @@ fun thy_shallow l_obj get_all_meta_embed =
                     val () = out_intensify (Timing.message s |> Markup.markup Markup.operator) "" in
                   r
                 end
-              in disp_time (aux (env, thy)) (l_obj ()) end
+              in disp_time (fn x => aux x (env, thy)) (l_obj ()) end
         in ((env, thy0), (thy, fn _ => get_all_meta_embed (SOME thy))) end)
       l_shallow
       (thy, case l_obj of SOME f => f | NONE => fn _ => get_all_meta_embed (SOME thy))
@@ -1411,33 +1412,31 @@ fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all
          in ( m_tr
               |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
                     let val (tps, disp_time) = disp_time Toplevel'.keep_output
-                        fun aux (env, acc) x =
+                        fun aux x =
                           fold_thy_shallow
                             (K (cons (Toplevel'.read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
-                            (fn msg => fn l => fn (env, acc) => acc
-                              |> disp_time msg
-                              |> Bind_META.all_meta_tr { context_of = Toplevel.context_of
-                                                       , keep = Toplevel.keep
-                                                       , generic_theory = Toplevel.generic_theory
-                                                       , theory = Toplevel.theory
-                                                       , begin_local_theory = Toplevel.begin_local_theory
-                                                       , local_theory' = Toplevel.local_theory'
-                                                       , local_theory = Toplevel.local_theory
-                                                       , local_theory_to_proof' = Toplevel.local_theory_to_proof'
-                                                       , local_theory_to_proof = Toplevel.local_theory_to_proof
-                                                       , proof' = Toplevel.proof'
-                                                       , proofs = Toplevel.proofs
-                                                       , proof = Toplevel.proof
-                                                         (* *)
-                                                       , dual = #par, tr_raw = I
-                                                       , tr_report = report, tr_report_o = report_o
-                                                       , pr_report = report, pr_report_o = report_o }
-                                                       (fn x => fn acc => aux (env, acc) [x])
-                                                       (pair env)
-                                                       l)
+                            (fn msg => fn l =>
+                              apsnd (disp_time msg)
+                              #> Bind_META.all_meta_trs { context_of = Toplevel.context_of
+                                                        , keep = Toplevel.keep
+                                                        , generic_theory = Toplevel.generic_theory
+                                                        , theory = Toplevel.theory
+                                                        , begin_local_theory = Toplevel.begin_local_theory
+                                                        , local_theory' = Toplevel.local_theory'
+                                                        , local_theory = Toplevel.local_theory
+                                                        , local_theory_to_proof' = Toplevel.local_theory_to_proof'
+                                                        , local_theory_to_proof = Toplevel.local_theory_to_proof
+                                                        , proof' = Toplevel.proof'
+                                                        , proofs = Toplevel.proofs
+                                                        , proof = Toplevel.proof
+                                                          (* *)
+                                                        , dual = #par, tr_raw = I
+                                                        , tr_report = report, tr_report_o = report_o
+                                                        , pr_report = report, pr_report_o = report_o }
+                                                        (aux o (fn x => [x]))
+                                                        l)
                             x
-                            (env, acc)
-                    in aux (env, acc) l_obj
+                    in aux l_obj (env, acc)
                        |> META.map_prod
                             (fn env => (env, thy_init))
                             (Toplevel'.keep_output tps Markup.operator "") end))

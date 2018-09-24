@@ -325,7 +325,7 @@ definition "fold_thy_shallow f_try f_accu_reset x =
     f_accu_reset
     (\<lambda>name l acc1.
       map_prod (\<lambda> env. env \<lparr> D_input_meta := D_input_meta acc1 \<rparr>) id
-      o List.fold (x name) l
+      o x name l
       o Pair acc1)"
 
 definition "fold_thy_deep obj env =
