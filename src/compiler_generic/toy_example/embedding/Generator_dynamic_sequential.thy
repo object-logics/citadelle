@@ -73,6 +73,7 @@ imports Printer
            "Abstract_associationclass" "Associationclass"
            "Context"
            "End" "Instance" "BaseType" "State" "Transition" "Tree"
+           "meta_command"
 
            (* Isabelle syntax *)
            "generation_syntax"
@@ -716,9 +717,30 @@ end
 
 structure Bind_META = struct open Bind_Isabelle
 
+structure Meta_Cmd_Data = Theory_Data
+  (open META
+   type T = META.all_meta list
+   val empty = []
+   val extend = I
+   val merge = #2)
+
+fun ML_context_exec source =
+  ML_Context.exec (fn () =>
+          ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) source) #>
+        Local_Theory.propagate_ml_env
+
+fun meta_command0 s_put f_get source =
+  Context.Theory 
+  #> ML_context_exec (Input.string ("let open META val ML = META.SML in Context.>> (Context.map_theory (" ^ s_put ^ " (" ^ source ^ "))) end"))
+  #> Context.map_theory_result (fn thy => (f_get thy, thy))
+  #> fst
+
+val meta_command = meta_command0 "Bind_META.Meta_Cmd_Data.put" Meta_Cmd_Data.get
+
 local
   open META
   open META_overload
+  open Library
 
   fun semi__locale data thy = thy
            |> (   Expression.add_locale_cmd
@@ -765,7 +787,7 @@ local
           end)
 in
 
-fun all_meta_tr top aux = fn
+fun all_meta_tr top thy_o aux = fn
   META_semi_theories theo => apsnd
     (case theo of
        Theories_one theo => Command_Transition.semi__theory top theo
@@ -775,9 +797,25 @@ fun all_meta_tr top aux = fn
        |>:: end' top)
 | META_boot_generation_syntax _ => I
 | META_boot_setup_env _ => I
+| META_all_meta_embedding (META_generic (ToyGeneric source)) => 
+    (fn (env, tr) =>
+      all_meta_trs
+        top
+        thy_o
+        aux
+        (get_thy @{here}
+                 (fn thy =>
+                   get_thy @{here}
+                           (meta_command (To_string0 source))
+                           (if forall (fn ((key, _), _) =>
+                                        Keyword.is_vacuous (Thy_Header.get_keywords thy) key)
+                                      tr
+                            then SOME thy else NONE))
+                 thy_o)
+          (env, tr))
 | META_all_meta_embedding meta => aux (semi__aux NONE meta)
 
-and all_meta_trs top aux = fold (all_meta_tr top aux)
+and all_meta_trs top thy_o aux = fold (all_meta_tr top thy_o aux)
 
 fun all_meta_thy top_theory top_local_theory aux = fn
   META_semi_theories theo => apsnd
@@ -789,6 +827,9 @@ fun all_meta_thy top_theory top_local_theory aux = fn
        |> Local_Theory.exit_global)
 | META_boot_generation_syntax _ => I
 | META_boot_setup_env _ => I
+| META_all_meta_embedding (META_generic (ToyGeneric source)) =>
+    (fn (env, thy) =>
+      all_meta_thys top_theory top_local_theory aux (meta_command (To_string0 source) thy) (env, thy))
 | META_all_meta_embedding meta => fn (env, thy) => aux (semi__aux (SOME thy) meta) (env, thy)
 
 and all_meta_thys top_theory top_local_theory aux =
@@ -1271,12 +1312,23 @@ fun thy_deep exec_deep l_obj =
            o (if #skip_exportation i_deep then
                 I
               else
-                exec_deep { output_header_thy = #output_header_thy i_deep
-                          , seri_args = #seri_args i_deep
-                          , filename_thy = NONE
-                          , tmp_export_code = #tmp_export_code i_deep
-                          , skip_exportation = #skip_exportation i_deep }
-                          ( META.d_output_header_thy_update (K NONE) env, l_obj))))
+                let fun exec l_obj =
+                  exec_deep { output_header_thy = #output_header_thy i_deep
+                            , seri_args = #seri_args i_deep
+                            , filename_thy = NONE
+                            , tmp_export_code = #tmp_export_code i_deep
+                            , skip_exportation = #skip_exportation i_deep }
+                            ( META.d_output_header_thy_update (K NONE) env, l_obj)
+                in
+                  case l_obj of
+                    META.Fold_meta obj => exec [obj]
+                  | META.Fold_custom l_obj =>
+                      let val l_obj' = map_filter (fn META.META_all_meta_embedding x => SOME x
+                                                    | _ => NONE)
+                                                  l_obj
+                      in if length l_obj' = length l_obj then exec l_obj' else I
+                      end
+                end)))
 
 fun report m f = (Method.report m; f)
 fun report_o o' f = (Option.map Method.report o'; f)
@@ -1336,7 +1388,7 @@ fun thy_shallow l_obj get_all_meta_embed =
                                           , local_theory_to_proof = K o K not_used @{here}
                                           , tr_raw = not_used @{here} }
 
-                                          (aux o (fn x => [x]))
+                                          (aux o META.Fold_meta)
                   end)
                 x
             val (env, thy) =
@@ -1385,7 +1437,8 @@ fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all
                                                     | SOME n => Config.put_global ML_Print_Depth.print_depth n thy))
                                          name)))))
       in (*let
-           val l_obj = get_all_m (is_safe thy)
+           val thy_o = is_safe thy
+           val l_obj = get_all_m thy_o
                        (* In principle, it is fine if (SOME thy) is provided to
                           get_all_m. However, because certain types of errors are most of the
                           time happening whenever certain specific operations depending on thy
@@ -1412,7 +1465,7 @@ fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all
          in ( m_tr
               |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
                     let val (tps, disp_time) = disp_time Toplevel'.keep_output
-                        fun aux x =
+                        fun aux thy_o =
                           fold_thy_shallow
                             (K (cons (Toplevel'.read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
                             (fn msg => fn l =>
@@ -1433,10 +1486,10 @@ fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all
                                                         , dual = #par, tr_raw = I
                                                         , tr_report = report, tr_report_o = report_o
                                                         , pr_report = report, pr_report_o = report_o }
-                                                        (aux o (fn x => [x]))
+                                                        thy_o
+                                                        (aux thy_o o META.Fold_meta)
                                                         l)
-                            x
-                    in aux l_obj (env, acc)
+                    in aux thy_o l_obj (env, acc)
                        |> META.map_prod
                             (fn env => (env, thy_init))
                             (Toplevel'.keep_output tps Markup.operator "") end))
@@ -1458,10 +1511,10 @@ end
 fun outer_syntax_commands'' mk_string = outer_syntax_commands''' (K NONE) mk_string
 
 fun outer_syntax_commands' mk_string cmd_spec cmd_descr parser get_all_meta_embed =
-  outer_syntax_commands'' mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
+  outer_syntax_commands'' mk_string cmd_spec cmd_descr parser (META.Fold_meta oo get_all_meta_embed)
 
 fun outer_syntax_commands'2 mk_string cmd_spec cmd_descr parser get_all_meta_embed =
-  outer_syntax_commands''' SOME mk_string cmd_spec cmd_descr parser (fn a => fn thy => [get_all_meta_embed a thy])
+  outer_syntax_commands''' SOME mk_string cmd_spec cmd_descr parser (META.Fold_meta oo get_all_meta_embed)
 \<close>
 
 subsection\<open>Parameterizing the Semantics of Embedded Languages\<close>
@@ -1770,6 +1823,16 @@ structure TOY_parse = struct
 end
 \<close>
 
+subsection\<open>Setup of Meta Commands for a Generic Usage: @{command meta_command}\<close>
+
+ML\<open>
+val () =
+  outer_syntax_commands''' SOME @{mk_string} @{command_keyword meta_command} ""
+    Parse.ML_source
+    (fn source =>
+      get_thy @{here} (Bind_META.meta_command (Input.source_content source) #> META.Fold_custom))
+\<close>
+
 subsection\<open>Setup of Meta Commands for Toy: @{command Enum}\<close>
 
 ML\<open>
@@ -1899,9 +1962,9 @@ val () =
                     || Parse.$$$ "!" >> K true) false)
     (fn b =>
       K (if b then
-           [META.META_flush_all META.ToyFlushAll]
+           META.Fold_meta (META.META_flush_all META.ToyFlushAll)
          else
-           []))
+           META.Fold_custom []))
 \<close>
 
 subsection\<open>Setup of Meta Commands for Toy: @{command BaseType}, @{command Instance}, @{command State}\<close>

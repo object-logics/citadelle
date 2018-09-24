@@ -59,6 +59,13 @@ text\<open>Most of the Meta-Model we have defined (in particular those defined i
 
 datatype ocl_flush_all = OclFlushAll
 
+subsection\<open>The Generic Meta-Model\<close>
+
+text\<open>The generic Meta-Model can simulate any other Meta-Models \<open>M\<close> by taking a string representing
+     some ML code, which is supposed to express a parsed value inhabiting \<open>M\<close>.\<close>
+
+datatype ocl_generic = OclGeneric string
+
 subsection\<open>The META Meta-Model (I)\<close>
 
 datatype floor = Floor1 | Floor2 | Floor3 (* NOTE nat can be used *)
@@ -103,6 +110,7 @@ datatype all_meta_embedding =
                             | META_def_transition floor ocl_def_transition
                             | META_class_tree ocl_class_tree
                             | META_flush_all ocl_flush_all
+                            | META_generic ocl_generic
 
 subsection\<open>Main Compiling Environment\<close>
 
@@ -205,7 +213,11 @@ datatype all_meta = (* pure Isabelle *)
 
 text\<open>As remark, the Isabelle Meta-Model represented by @{typ semi__theories} can be merged
 with the previous META Meta-Model @{typ all_meta_embedding}.
-However a corresponding parser and printer would then be required.\<close>
+However a corresponding parser and printer would then be required, instead we can just regroup them
+in a temporary type:\<close>
+
+datatype fold_all_input = Fold_meta all_meta_embedding
+                        | Fold_custom "all_meta list"
 
 subsubsection\<open>Extending the Meta-Model\<close>
 

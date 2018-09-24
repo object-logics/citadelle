@@ -63,7 +63,7 @@ definition "(write_file0 :: _ \<Rightarrow> (((_ \<Rightarrow> String.literal \<
                      out_file1 f (if Sys_is_directory2_dir then sprint2 \<open>%s/%s.thy\<close>\<acute> dir (To_string file_out) else dir)))
       | _ \<Rightarrow> (False, out_stand1)
     ; (env, l) =
-           fold_thy'
+           fold_thy''
              comp_env_save_deep
              (\<lambda>f. f ())
              (\<lambda>_ _. [])

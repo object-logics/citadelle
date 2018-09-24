@@ -86,13 +86,16 @@ assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
 
 (* *)
 
+definition "of_ocl_generic _ = (\<lambda> OclGeneric s \<Rightarrow> \<open>meta_command \<open>%s\<close>\<close> (To_string s))"
+
 definition "of_floor = (\<lambda> Floor1 \<Rightarrow> \<open>\<close> | Floor2 \<Rightarrow> \<open>[shallow]\<close> | Floor3 \<Rightarrow> \<open>[shallow_shallow]\<close>)"
 
 definition "of_all_meta_embedding env =
  (\<lambda> META_ctxt floor ctxt \<Rightarrow> of_ocl_ctxt env (of_floor floor) ctxt
   | META_instance i \<Rightarrow> of_ocl_instance env i
   | META_def_state floor s \<Rightarrow> of_ocl_def_state env (of_floor floor) s
-  | META_def_transition floor p \<Rightarrow> of_ocl_def_transition env (of_floor floor) p)"
+  | META_def_transition floor p \<Rightarrow> of_ocl_def_transition env (of_floor floor) p
+  | META_generic s \<Rightarrow> of_ocl_generic env s)"
 
 definition "of_boot_generation_syntax _ = (\<lambda> Boot_generation_syntax mode \<Rightarrow>
   \<open>generation_syntax [ shallow%s ]\<close>
@@ -159,6 +162,7 @@ lemmas [code] =
   Print.of\<^sub>e\<^sub>n\<^sub>v_section_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theory_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theories_def
+  Print.of_ocl_generic_def
   Print.of_floor_def
   Print.of_all_meta_embedding_def
   Print.of_boot_generation_syntax_def

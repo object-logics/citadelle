@@ -92,6 +92,9 @@ begin
 definition "of_toy_flush_all a b = rec_toy_flush_all
   (b \<open>ToyFlushAll\<close>)"
 
+definition "of_toy_generic a b = rec_toy_generic
+  (ap1 a (b \<open>ToyGeneric\<close>) (of_string a b))"
+
 definition "of_floor a b = rec_floor
   (b \<open>Floor1\<close>)
   (b \<open>Floor2\<close>)
@@ -110,7 +113,8 @@ definition "of_all_meta_embedding a b = rec_all_meta_embedding
   (ap2 a (b \<open>META_def_state\<close>) (of_floor a b) (of_toy_def_state a b))
   (ap2 a (b \<open>META_def_transition\<close>) (of_floor a b) (of_toy_def_transition a b))
   (ap1 a (b \<open>META_class_tree\<close>) (of_toy_class_tree a b))
-  (ap1 a (b \<open>META_flush_all\<close>) (of_toy_flush_all a b))"
+  (ap1 a (b \<open>META_flush_all\<close>) (of_toy_flush_all a b))
+  (ap1 a (b \<open>META_generic\<close>) (of_toy_generic a b))"
 
 definition "of_generation_semantics_toy a b = rec_generation_semantics_toy
   (b \<open>Gen_only_design\<close>)
@@ -143,6 +147,7 @@ end
 
 lemmas [code] =
   Parse.of_toy_flush_all_def
+  Parse.of_toy_generic_def
   Parse.of_floor_def
   Parse.of_all_meta_embedding_def
   Parse.of_generation_semantics_toy_def

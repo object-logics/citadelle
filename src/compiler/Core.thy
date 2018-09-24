@@ -575,6 +575,7 @@ definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                       , floor2_PRINT_ctxt_inv
                                       , floor2_PRINT_ctxt_thm ])"
 definition "thy_flush_all = Embed_theories []"
+definition "thy_generic = Embed_theories []"
 (* NOTE typechecking functions can be put at the end, however checking already defined constants can be done earlier *)
 
 subsection\<open>Combinators Folding the Compiling Environment\<close>
@@ -651,25 +652,35 @@ definition "comp_env_input_class_mk f_try f_accu_reset f_fold f =
 definition "comp_env_input_class_bind l f =
   List.fold (\<lambda>x. x f) l"
 
-definition "fold_thy' f_env_save f_try f_accu_reset f =
+definition "fold_thy' f_env_save f_try f_accu_reset =
  (let comp_env_input_class_mk = comp_env_input_class_mk f_try f_accu_reset in
-  List.fold (\<lambda> ast.
-    f_env_save ast (case ast of
-     META_enum meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_enum_flat)
-   | META_class_raw Floor1 meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_flat)
-   | META_association meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_association)
-   | META_ass_class Floor1 (OclAssClass meta_ass meta_class) \<Rightarrow>
-       comp_env_input_class_rm (comp_env_input_class_bind [ fold_thy0 meta_ass thy_association
-                                                      , fold_thy0 meta_class thy_class_flat ])
-   | META_haskell meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_haskell)
-   | META_class_synonym meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_synonym)
-   | META_class_tree meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_tree)
-   | META_instance meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_instance)
-   | META_def_base_l meta \<Rightarrow> fold_thy0 meta thy_def_base_l
-   | META_def_state floor meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta (thy_def_state floor))
-   | META_def_transition floor meta \<Rightarrow> fold_thy0 meta (thy_def_transition floor)
-   | META_ctxt floor meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta (thy_ctxt floor))
-   | META_flush_all meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_flush_all)) f))"
+  (\<lambda> f.
+   let fold_m = \<lambda>ast.
+      f_env_save ast (case ast of
+       META_enum meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_enum_flat)
+     | META_class_raw Floor1 meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_flat)
+     | META_association meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_association)
+     | META_ass_class Floor1 (OclAssClass meta_ass meta_class) \<Rightarrow>
+         comp_env_input_class_rm (comp_env_input_class_bind [ fold_thy0 meta_ass thy_association
+                                                            , fold_thy0 meta_class thy_class_flat ])
+     | META_haskell meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_haskell)
+     | META_class_synonym meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_synonym)
+     | META_class_tree meta \<Rightarrow> comp_env_input_class_rm (fold_thy0 meta thy_class_tree)
+     | META_instance meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_instance)
+     | META_def_base_l meta \<Rightarrow> fold_thy0 meta thy_def_base_l
+     | META_def_state floor meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta (thy_def_state floor))
+     | META_def_transition floor meta \<Rightarrow> fold_thy0 meta (thy_def_transition floor)
+     | META_ctxt floor meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta (thy_ctxt floor))
+     | META_flush_all meta \<Rightarrow> comp_env_input_class_mk (fold_thy0 meta thy_flush_all)
+     | META_generic meta \<Rightarrow> fold_thy0 meta thy_generic) f in
+   \<lambda> Fold_meta ast \<Rightarrow> fold_m ast
+   | Fold_custom l_meta \<Rightarrow>
+       List.fold (\<lambda> META_all_meta_embedding ast \<Rightarrow> fold_m ast
+                  | meta \<Rightarrow> fold_thy0 () (Embed_theories [Embedding_fun_simple (\<lambda>_. Pair [meta])]) f)
+                 l_meta))"
+
+definition "fold_thy'' f_env_save f_try f_accu_reset f =
+  List.fold (fold_thy' f_env_save f_try f_accu_reset f) o map Fold_meta"
 
 definition "compiler_env_config_update f env =
   (* WARNING The semantics of the meta-embedded language is not intended to be reset here (like oid_start), only syntactic configurations of the compiler (path, etc...) *)
@@ -691,7 +702,7 @@ definition "compiler_env_config_update f env =
       (*D_ocl_HO_type*)
       , D_output_sorry_dirty := D_output_sorry_dirty env \<rparr>
   else
-    fst (fold_thy'
+    fst (fold_thy''
            comp_env_save_deep
            (\<lambda>f. f ())
            (\<lambda>_. id)
