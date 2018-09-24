@@ -2052,7 +2052,7 @@ in
                     l_rep
               in l_mod |> (fn m => META.IsaUnit ( old_datatype
                                                 , map (META.map_prod From.string (Option.map From.string)) l_rewrite
-                                                , From.option (From.pair I From.string) meta_parse_functions
+                                                , meta_parse_functions
                                                 , From.string (Context.theory_name thy)
                                                 , (m, concat_modules)))
                        |> META.META_haskell end)
@@ -2063,7 +2063,7 @@ in
                       "Failed executing the ML process (" ^ Int.toString (#rc st) ^ ")"
                     else #err st |> String.explode |> trim (fn #"\n" => true | _ => false) |> String.implode) end
     end
-  val parse' = parse false [] NONE NONE NONE Resources'.check_dir
+  val parse' = parse false [] NONE META.Gen_no_apply NONE Resources'.check_dir
 end
 
 local
@@ -2072,7 +2072,7 @@ local
     * (string * string option) list
 
   structure Data_lang = Theory_Data
-    (type T = (haskell_parse * string option * (bool * string) list * string * (bool * string) option) Name_Space.table
+    (type T = (haskell_parse * string option * (bool * string) list * string * (META.abr_string -> META.gen_meta)) Name_Space.table
      val empty = Name_Space.empty_table "meta_language"
      val extend = I
      val merge = Name_Space.merge_tables)
@@ -2101,9 +2101,13 @@ val () =
                                    |-- Parse.$$$ "load"
                                    |-- Parse.cartouche --| Parse.$$$ ")" >> pair true))) []
      --| Parse.where_ --| Parse.$$$ "defines" -- Parse.cartouche
-     -- Scan.option (    Parse.where_
-                     |-- Parse.$$$ "functions"
-                     |-- Scan.optional (@{keyword "meta"} >> K true) false -- Parse.name)
+     -- Scan.optional (    Parse.where_
+                       |-- Parse.$$$ "functions"
+                       |-- let val parse_name = Parse.name >> From.string in
+                                @{keyword "meta"} |-- parse_name >> (K o META.Gen_apply_sml)
+                             || parse_name >> (K o META.Gen_apply_hol)
+                           end)
+                      (K META.Gen_no_apply)
     >> (fn ((((lang, hsk_arg as ((_, base_path), _)), imports), defines), functions) => 
         let val _ = if exists (fn #"\n" => true | _ => false) (String.explode defines) then
                       error "Haskell indentation rules are not yet supported"
@@ -2123,18 +2127,21 @@ val () =
     (Scan.optional (@{keyword "meta"} >> K true) false
      -- Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name --| Parse.where_ -- Parse.position Parse.cartouche)
     (fn (((is_shallow, prog), lang), code) => 
-      get_thy @{here} (fn thy => 
-        let val (_, (hsk_arg, hsk_path, imports, defines, functions)) =
-              Name_Space.check (Context.Theory thy) (Data_lang.get thy) lang
-        in parse is_shallow
-                 imports
-                 (SOME defines)
-                 functions
-                 (SOME (Binding.name_of prog))
-                 (K (K (case hsk_path of NONE => "" | SOME s => s)))
-                 true
-                 (hsk_arg, code)
-                 thy end))
+      get_thy @{here}
+              (fn thy => 
+                let val (_, (hsk_arg, hsk_path, imports, defines, functions)) =
+                      Name_Space.check (Context.Theory thy) (Data_lang.get thy) lang
+                    val prog' = Binding.name_of prog
+                in parse is_shallow
+                         imports
+                         (SOME defines)
+                         (functions (From.string prog'))
+                         (SOME prog')
+                         (K (K (case hsk_path of NONE => "" | SOME s => s)))
+                         true
+                         (hsk_arg, code)
+                         thy
+                end))
 end
 (*val _ = print_depth 100*)
 \<close>

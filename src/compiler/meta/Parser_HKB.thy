@@ -48,6 +48,11 @@ subsection\<open>Main\<close>
 context Parse
 begin
 
+definition "of_gen_meta a b = rec_gen_meta
+  (ap1 a (b \<open>Gen_apply_hol\<close>) (of_string a b))
+  (ap1 a (b \<open>Gen_apply_sml\<close>) (of_string a b))
+  (b \<open>Gen_no_apply\<close>)"
+
 definition "of_ThyName a b = rec_ThyName
   (ap1 a (b \<open>ThyName\<close>) (of_string a b))"
 
@@ -123,11 +128,12 @@ definition "of_Module a b = rec_Module
   (ap4 a (b \<open>Module\<close>) (of_ThyName a b) (of_list a b (of_ThyName a b)) (of_list a b (of_Stmt a b)) (of_bool b))"
 
 definition "of_IsaUnit a b = rec_IsaUnit
-  (ap5 a (b \<open>IsaUnit\<close>) (of_pair a b (of_bool b) (of_nat a b)) (of_list a b (of_pair a b (of_string a b) (of_option a b (of_string a b)))) (of_option a b (of_pair a b (of_bool b) (of_string a b))) (of_string a b) (of_pair a b (of_list a b (of_Module a b)) (of_bool b)))"
+  (ap5 a (b \<open>IsaUnit\<close>) (of_pair a b (of_bool b) (of_nat a b)) (of_list a b (of_pair a b (of_string a b) (of_option a b (of_string a b)))) (of_gen_meta a b) (of_string a b) (of_pair a b (of_list a b (of_Module a b)) (of_bool b)))"
 
 end
 
 lemmas [code] =
+  Parse.of_gen_meta_def
   Parse.of_ThyName_def
   Parse.of_Name_def
   Parse.of_Sort_def
