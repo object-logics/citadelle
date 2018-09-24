@@ -46,6 +46,8 @@ section \<open>Miscellaneous\<close>
 
 datatype gen_meta = Gen_apply_hol string (* HOL term to apply *)
                   | Gen_apply_sml string (* SML term to apply *)
+                  | Gen_apply_sml_cmd string (* SML term to apply *)
+                                      string (* SML term given to meta_command *)
                   | Gen_no_apply
 
 section \<open>Isa.hs\<close>

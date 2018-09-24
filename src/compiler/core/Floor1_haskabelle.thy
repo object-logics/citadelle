@@ -117,7 +117,7 @@ definition "hsk_stmt version names app_end =
           ; f_content = Term_basic [\<open>content\<close>]
           ; T_string = Term_string'' f_content
           ; hsk_term = hsk_term \<lparr> lex_list_cons = \<open>::\<close>, lex_bool_false = \<open>false\<close>, lex_string = (\<lambda>s. if s \<triangleq> \<open>\<close> then s_empty else T_string s) \<rparr> names in
-        [(O.ML o SML o SML_top)
+        (O.ML o SML o SML_top)
           [SML_val_fun
              (Some Sval)
              (hol_to_sml (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
@@ -126,7 +126,11 @@ definition "hsk_stmt version names app_end =
                                                                            , (s_empty, T_string \<open>\<close>)]
                                                                            (hsk_term rhs)) in
                                         case app_end of Gen_apply_sml f \<Rightarrow> Term_app f [t]
-                                                      | _ \<Rightarrow> t)))]]
+                                                      | Gen_apply_sml_cmd f _ \<Rightarrow> Term_app f [t]
+                                                      | _ \<Rightarrow> t)))]
+        # (case app_end of Gen_apply_sml_cmd _ s \<Rightarrow>
+                            [(META_all_meta_embedding o META_generic o OclGeneric) s]
+                         | _ \<Rightarrow> [])
     | _ \<Rightarrow> [])"
 
 definition "print_haskell = (\<lambda> IsaUnit version l_name app_end name_new (l_mod, b_concat) \<Rightarrow>

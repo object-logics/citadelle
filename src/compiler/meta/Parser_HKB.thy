@@ -51,6 +51,7 @@ begin
 definition "of_gen_meta a b = rec_gen_meta
   (ap1 a (b \<open>Gen_apply_hol\<close>) (of_string a b))
   (ap1 a (b \<open>Gen_apply_sml\<close>) (of_string a b))
+  (ap2 a (b \<open>Gen_apply_sml_cmd\<close>) (of_string a b) (of_string a b))
   (b \<open>Gen_no_apply\<close>)"
 
 definition "of_ThyName a b = rec_ThyName

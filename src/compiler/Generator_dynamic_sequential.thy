@@ -58,7 +58,7 @@ imports Printer
            (* Haskabelle *)
            "datatype_old" "datatype_old_atomic" "datatype_old_atomic_sub"
            "try_import" "only_types" "base_path" "ignore_not_in_scope" "abstract_mutual_data_params"
-           "concat_modules" "load" "meta"
+           "concat_modules" "load" "meta" "meta_cmd"
 
            (* Isabelle syntax *)
            "output_directory"
@@ -2194,6 +2194,7 @@ val () =
                        |-- Parse.$$$ "functions"
                        |-- let val parse_name = Parse.name >> From.string in
                                 @{keyword "meta"} |-- parse_name >> (K o META.Gen_apply_sml)
+                             || @{keyword "meta_cmd"} |-- parse_name >> curry META.Gen_apply_sml_cmd
                              || parse_name >> (K o META.Gen_apply_hol)
                            end)
                       (K META.Gen_no_apply)

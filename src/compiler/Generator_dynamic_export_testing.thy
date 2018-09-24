@@ -58,7 +58,7 @@ imports Printer
            (* Haskabelle *)
            "datatype_old" "datatype_old_atomic" "datatype_old_atomic_sub"
            "try_import" "only_types" "base_path" "ignore_not_in_scope" "abstract_mutual_data_params"
-           "concat_modules" "load" "meta"
+           "concat_modules" "load" "meta" "meta_cmd"
 
            (* Isabelle syntax *)
            "output_directory"
