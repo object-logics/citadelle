@@ -779,7 +779,7 @@ local
           end)
 in
 
-fun all_meta_tr top thy_o aux = fn
+fun all_meta_tr aux top thy_o = fn
   META_semi_theories theo => apsnd
     (case theo of
        Theories_one theo => Command_Transition.semi__theory top theo
@@ -792,9 +792,9 @@ fun all_meta_tr top thy_o aux = fn
 | META_all_meta_embedding (META_generic (OclGeneric source)) => 
     (fn (env, tr) =>
       all_meta_trs
+        aux
         top
         thy_o
-        aux
         (get_thy @{here}
                  (fn thy =>
                    get_thy @{here}
@@ -807,9 +807,9 @@ fun all_meta_tr top thy_o aux = fn
           (env, tr))
 | META_all_meta_embedding meta => aux (semi__aux NONE meta)
 
-and all_meta_trs top thy_o aux = fold (all_meta_tr top thy_o aux)
+and all_meta_trs aux = fold oo all_meta_tr aux
 
-fun all_meta_thy top_theory top_local_theory aux = fn
+fun all_meta_thy aux top_theory top_local_theory = fn
   META_semi_theories theo => apsnd
     (case theo of
        Theories_one theo => Command_Theory.semi__theory top_theory theo
@@ -821,11 +821,10 @@ fun all_meta_thy top_theory top_local_theory aux = fn
 | META_boot_setup_env _ => I
 | META_all_meta_embedding (META_generic (OclGeneric source)) =>
     (fn (env, thy) =>
-      all_meta_thys top_theory top_local_theory aux (meta_command (To_string0 source) thy) (env, thy))
+      all_meta_thys aux top_theory top_local_theory (meta_command (To_string0 source) thy) (env, thy))
 | META_all_meta_embedding meta => fn (env, thy) => aux (semi__aux (SOME thy) meta) (env, thy)
 
-and all_meta_thys top_theory top_local_theory aux =
-  fold (all_meta_thy top_theory top_local_theory aux)
+and all_meta_thys aux = fold oo all_meta_thy aux
 
 end
 end
@@ -1346,7 +1345,9 @@ fun thy_shallow l_obj get_all_meta_embed =
                       fun proofs f s = s |> f |> Seq.the_result ""
                       val proof = I
                       val dual = #seq in
-                  Bind_META.all_meta_thys { (* specialized part *)
+                  Bind_META.all_meta_thys (aux o META.Fold_meta)
+
+                                          { (* specialized part *)
                                             theory = I
                                           , local_theory = K o K Named_Target.theory_map
                                           , local_theory' = K o K (fn f => Named_Target.theory_map (f false))
@@ -1379,8 +1380,6 @@ fun thy_shallow l_obj get_all_meta_embed =
                                           , local_theory_to_proof' = K o K not_used @{here}
                                           , local_theory_to_proof = K o K not_used @{here}
                                           , tr_raw = not_used @{here} }
-
-                                          (aux o META.Fold_meta)
                   end)
                 x
             val (env, thy) =
@@ -1462,7 +1461,8 @@ fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all
                             (K (cons (Toplevel'.read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
                             (fn msg => fn l =>
                               apsnd (disp_time msg)
-                              #> Bind_META.all_meta_trs { context_of = Toplevel.context_of
+                              #> Bind_META.all_meta_trs (aux thy_o o META.Fold_meta)
+                                                        { context_of = Toplevel.context_of
                                                         , keep = Toplevel.keep
                                                         , generic_theory = Toplevel.generic_theory
                                                         , theory = Toplevel.theory
@@ -1479,7 +1479,6 @@ fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all
                                                         , tr_report = report, tr_report_o = report_o
                                                         , pr_report = report, pr_report_o = report_o }
                                                         thy_o
-                                                        (aux thy_o o META.Fold_meta)
                                                         l)
                     in aux thy_o l_obj (env, acc)
                        |> META.map_prod
