@@ -57,10 +57,10 @@ holder "u-psud" :: fr where \<open>Université Paris-Saclay\<close>, \<open>Univ
 holder vt :: us where \<open>Virginia Tech\<close>
 holder wolff :: fr where \<open>B. Wolff\<close>, \<open>Univ. Paris-Saclay\<close>, \<open>Univ. Paris-Sud\<close>
 
-copyright default where 2011-2018 "u-psud"
+copyright default where 2011-2019 "u-psud"
                         2013-2017 "irt-systemx"
                         2011-2015 brucker
-                        2016-2018 sheffield
+                        2016-2019 sheffield
                         2016-2017 ntu
                         2017-2018 vt
 
@@ -70,10 +70,12 @@ This file is part of HOL-TestGen.
 \<close> imports default
 
 project LICENSE0 :: "3-Clause BSD" where \<open>LICENSE\<close> defines 2017-2018 vt
+                                                           2018-2019 "u-psud"
 
 project LICENSE :: "3-Clause BSD" where \<open>
 theory LICENSE imports LICENSE0 begin license "3-Clause BSD" where
 \<close> defines 2017-2018 vt
+          2018-2019 "u-psud"
 
 project "Featherweight OCL" :: "3-Clause BSD" where \<open>
 Featherweight-OCL --- A Formal Semantics for UML-OCL Version OCL 2.5
@@ -89,13 +91,14 @@ project Isabelle_Meta_Model :: "3-Clause BSD" where \<open>A Meta-Model for the 
 
 project Isabelle :: "3-Clause BSD" where \<open>
 ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
-\<close> defines 1986-2018 contributors
+\<close> defines 1986-2019 contributors
 
 project Haskabelle :: "3-Clause BSD" where \<open>
 Haskabelle --- Converting Haskell Source Files to Isabelle/HOL Theories.
                http://isabelle.in.tum.de/repos/haskabelle
 \<close> defines 2007-2015 tum
           2017-2018 vt
+          2018-2019 "u-psud"
 
 project "HOL-OCL" :: "3-Clause BSD" where \<open>HOL-OCL\<close> imports default
 
@@ -114,6 +117,7 @@ https://hackage.haskell.org/package/language-c-comments
 Securify & Orca
 \<close> defines 2016-2017 ntu
           2017-2018 vt
+          2018-2019 "u-psud"
 
 project Miscellaneous_Monads :: "3-Clause BSD" where \<open>
 HOL-TestGen --- theorem-prover based test case generation
