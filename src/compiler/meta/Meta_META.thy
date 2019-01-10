@@ -241,6 +241,9 @@ definition "ML = i Theory_ML"
 definition "setup = i Theory_setup"
 definition "thm = i Theory_thm"
 definition "interpretation = i Theory_interpretation"
+definition "hide_const = i Theory_hide_const"
+definition "abbreviation = i Theory_abbreviation"
+definition "code_reflect' = i Theory_code_reflect'"
 end
 
 lemmas [code] =
@@ -263,6 +266,9 @@ lemmas [code] =
   O.setup_def
   O.thm_def
   O.interpretation_def
+  O.hide_const_def
+  O.abbreviation_def
+  O.code_reflect'_def
 
 locale O'
 begin
@@ -282,6 +288,9 @@ definition "ML = Theory_ML"
 definition "setup = Theory_setup"
 definition "thm = Theory_thm"
 definition "interpretation = Theory_interpretation"
+definition "hide_const = Theory_hide_const"
+definition "abbreviation = Theory_abbreviation"
+definition "code_reflect' = Theory_code_reflect'"
 end
 
 lemmas [code] =
@@ -302,6 +311,9 @@ lemmas [code] =
   O'.setup_def
   O'.thm_def
   O'.interpretation_def
+  O'.hide_const_def
+  O'.abbreviation_def
+  O'.code_reflect'_def
 
 subsubsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
 

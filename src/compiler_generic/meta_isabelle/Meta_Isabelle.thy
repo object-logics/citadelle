@@ -198,6 +198,15 @@ datatype "interpretation" = Interpretation string (* name *)
                                            "semi__term list" (* locale param *)
                                            semi__command_final
 
+datatype "hide_const" = Hide_const bool (* true: 'open' *)
+                                   "string list"
+
+datatype "abbreviation" = Abbreviation semi__term
+
+datatype code_reflect' = Code_reflect' bool (* true: 'open' *)
+                                       string (* module name *)
+                                       "string list" (* functions *)
+
 datatype semi__theory = Theory_datatype "datatype"
                       | Theory_type_synonym "type_synonym"
                       | Theory_type_notation "type_notation"
@@ -215,6 +224,9 @@ datatype semi__theory = Theory_datatype "datatype"
                       | Theory_setup "setup"
                       | Theory_thm "thm"
                       | Theory_interpretation "interpretation"
+                      | Theory_hide_const "hide_const"
+                      | Theory_abbreviation "abbreviation"
+                      | Theory_code_reflect' code_reflect'
 
 record semi__locale =
   HolThyLocale_name :: string

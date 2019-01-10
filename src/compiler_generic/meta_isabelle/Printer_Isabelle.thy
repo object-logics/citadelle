@@ -375,6 +375,19 @@ definition \<open>of_interpretation _ = (\<lambda> Interpretation n loc_n loc_pa
     (String_concat \<open>\<close> (L.map (\<lambda>s. \<open> "%s"\<close> (of_semi__term s)) loc_param))
     (of_semi__command_final tac))\<close>
 
+definition "of_hide_const _ = (\<lambda> Hide_const b l \<Rightarrow>
+  \<open>hide_const %s%s\<close> (if b then \<open>(open) \<close> else \<open>\<close>)
+                    (String_concat \<open> \<close> (L.map To_string l)))"
+
+definition "of_abbreviation _ = (\<lambda> Abbreviation e \<Rightarrow>
+  \<open>abbreviation \"%s\"\<close> (of_semi__term e))"
+
+definition "of_code_reflect' _ = (\<lambda> Code_reflect' b s l \<Rightarrow>
+  \<open>code_reflect' %s%s%s\<close>
+    (if b then \<open>open \<close> else \<open>\<close>)
+    (To_string s)
+    (case l of [] \<Rightarrow> \<open>\<close> | _ \<Rightarrow> \<open> functions %s\<close> (String_concat \<open> \<close> (L.map To_string l))))"
+
 definition "of_semi__theory env =
  (\<lambda> Theory_datatype dataty \<Rightarrow> of_datatype env dataty
   | Theory_type_synonym ty_synonym \<Rightarrow> of_type_synonym env ty_synonym
@@ -392,7 +405,10 @@ definition "of_semi__theory env =
   | Theory_ML ml \<Rightarrow> of_ML env ml
   | Theory_setup setup \<Rightarrow> of_setup env setup
   | Theory_thm thm \<Rightarrow> of_thm env thm
-  | Theory_interpretation thm \<Rightarrow> of_interpretation env thm)"
+  | Theory_interpretation thm \<Rightarrow> of_interpretation env thm
+  | Theory_hide_const const \<Rightarrow> of_hide_const env const
+  | Theory_abbreviation abbreviation \<Rightarrow> of_abbreviation env abbreviation
+  | Theory_code_reflect' code_reflect' \<Rightarrow> of_code_reflect' env code_reflect')"
 
 definition "String_concat_map s f l = String_concat s (L.map f l)"
 
@@ -458,6 +474,9 @@ lemmas [code] =
   Print.of_setup_def
   Print.of_thm_def
   Print.of_interpretation_def
+  Print.of_hide_const_def
+  Print.of_abbreviation_def
+  Print.of_code_reflect'_def
   Print.of_semi__theory_def
   Print.String_concat_map_def
   Print.of_semi__theories_def

@@ -40,7 +40,7 @@ imports Main
 begin
 
 ML{*
-structure Code_Runtime =
+structure Code_Runtime' =
 struct
 (*  Title:      Tools/Code/code_runtime.ML
     Author:     Florian Haftmann, TU Muenchen

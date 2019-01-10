@@ -472,22 +472,29 @@ fun type_synonym top (Type_synonym ((n, v), l)) = #theory top (fn thy => let val
   (snd o Typedecl.abbrev_global
            (s_bind, map To_string0 v, NoSyn)
            (Isabelle_Typedecl.abbrev_cmd0 (SOME s_bind) thy (of_semi__typ l))) thy end)
+
 fun type_notation top (Type_notation (n, e)) = #local_theory top NONE NONE
   (Specification.type_notation_cmd true ("", true) [(To_string0 n, Mixfix (Input.string (To_string0 e), [], 1000, Position.no_range))])
+
 fun instantiation1 name thy = thy
   |> Class.instantiation ([ let val Term.Type (s, _) = Isabelle_Typedecl.abbrev_cmd0 NONE thy name in s end ],
                           [],
                           Syntax.read_sort (Proof_Context.init_global thy) "object")
+
 fun instantiation2 name n_def expr =
   Specification.definition_cmd NONE [] [] ( (To_binding (To_string0 n_def ^ "_" ^ name ^ "_def"), [])
                                           , of_semi__term expr)
+
 fun overloading1 n_c e_c = Overloading.overloading_cmd [(To_string0 n_c, of_semi__term e_c, true)]
+
 fun overloading2 n e =
   #2 oo Specification.definition_cmd NONE [] [] ((To_sbinding n, []), of_semi__term e)
+
 fun consts top (Consts (n, ty, symb)) = #theory top
   (Sign.add_consts_cmd [( To_sbinding n
                         , of_semi__typ ty
                         , Mixfix (Input.string ("(_) " ^ To_string0 symb), [], 1000, Position.no_range))])
+
 fun definition top def = #local_theory' top NONE NONE
   let val (def, e) = case def of
       Definitiona e => (NONE, e)
@@ -500,6 +507,7 @@ fun definition top def = #local_theory' top NONE NONE
               , NONE
               , Mixfix (Input.string ("(" ^ of_semi__term abbrev ^ ")"), [], 1000, Position.no_range)), e) in fn ctxt => ctxt
   |> #2 oo Specification.definition_cmd def [] [] (Binding.empty_atts, of_semi__term e) end
+
 fun lemmas top lemmas = #local_theory' top NONE NONE (fn disp => fn lthy =>
   let val (simp, s, l) =
     case lemmas of Lemmas_simp_thm (simp, s, l) =>
@@ -512,10 +520,12 @@ fun lemmas top lemmas = #local_theory' top NONE NONE (fn disp => fn lthy =>
       l)]
     []
     disp) lthy end)
+
 fun lemma1 n l_spec = Specification.theorem_cmd true Thm.theoremK NONE (K I)
   Binding.empty_atts [] [] (Element.Shows [((To_sbinding n, [])
                                             ,[((String.concatWith (" \<Longrightarrow> ")
                                                   (List.map of_semi__term l_spec)), [])])])
+
 fun lemma1' n l_spec concl = Specification.theorem_cmd true Thm.theoremK NONE (K I)
   (To_sbinding n, [])
   []
@@ -525,29 +535,36 @@ fun lemma1' n l_spec concl = Specification.theorem_cmd true Thm.theoremK NONE (K
                                , [(of_semi__term e, [])])])
             l_spec)
   (Element.Shows [(Binding.empty_atts,[(of_semi__term concl, [])])])
+
 fun lemma3 l_apply = map_filter (fn META.Command_let _ => SOME []
                                   | META.Command_have _ => SOME []
                                   | META.Command_fix_let (_, _, _, l) => SOME l
                                   | _ => NONE)
                                 (rev l_apply)
+
 fun axiomatization top (Axiomatization (n, e)) = #theory top
   (#2 o Specification.axiomatization_cmd [] [] [] [((To_sbinding n, []), of_semi__term e)])
+
 fun section n s _ =
   let fun mk s n = if n <= 0 then s else mk ("  " ^ s) (n - 1) in
     out_intensify (mk (Markup.markup Markup.keyword3 (To_string0 s)) n) ""
   end
+
 fun ml top (SMLa ml) = #generic_theory top
   (ML_Context.exec let val source = input_source ml in
                    fn () => ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source
                    end #>
     Local_Theory.propagate_ml_env)
+
 fun setup top (Setup ml) = #theory top (Isar_Cmd.setup (input_source ml))
+
 fun thm top (Thm thm) = #keep top (fn state =>
   let val lthy = #context_of top state in
     Print_Mode.with_modes [] (fn () => writeln
       (Pretty.string_of
         (Proof_Context.pretty_fact lthy ("", List.map (semi__thm_attribute_single lthy) thm)))) ()
   end)
+
 fun interpretation1 n loc_n loc_param =
   Interpretation.interpretation_cmd ( [ ( (To_string0 loc_n, Position.none)
                                         , ( (To_string0 n, true)
@@ -558,6 +575,19 @@ fun interpretation1 n loc_n loc_param =
                                                                          loc_param)))]
                                     , [])
                                     []
+
+fun hide_const top (Hide_const (fully, args)) = #theory top (fn thy =>
+  fold (Sign.hide_const (not fully) o ((#1 o dest_Const) oo Proof_Context.read_const {proper = true, strict = false})
+                                        (Proof_Context.init_global thy))
+       (map To_string0 args)
+       thy)
+
+fun abbreviation top (Abbreviation e) = #local_theory' top NONE NONE
+  (Specification.abbreviation_cmd ("", true) NONE [] (of_semi__term e))
+
+fun code_reflect' top (Code_reflect (all_public, module_name, raw_functions)) = #theory top
+  (Code_Runtime'.code_reflect_cmd all_public [] (map To_string0 raw_functions) (To_string0 module_name) NONE)
+
 end
 
 structure Command_Transition = struct
@@ -627,6 +657,12 @@ fun semi__theory (top : ('transitionM, 'transitionM, 'state) toplevel) = let ope
   |>:: (@{command_keyword interpretation}, #local_theory_to_proof top NONE NONE
      (Cmd.interpretation1 n loc_n loc_param))
   |>:: terminal_proof_dual top o_by)
+| Theory_hide_const hide_const =>
+  cons (@{command_keyword hide_const}, Cmd.hide_const top hide_const)
+| Theory_abbreviation abbreviation =>
+  cons (@{command_keyword abbreviation}, Cmd.abbreviation top abbreviation)
+| Theory_code_reflect code_reflect' =>
+  cons (@{command_keyword code_reflect'}, Cmd.code_reflect' top code_reflect')
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
@@ -689,6 +725,9 @@ fun semi__theory top = let open META open META_overload in (*let val f = *)fn
 | Theory_interpretation (Interpretation (n, loc_n, loc_param, o_by)) => #local_theory top NONE NONE (fn lthy => lthy
   |> Cmd.interpretation1 n loc_n loc_param
   |> global_terminal_proof o_by)
+| Theory_hide_const hide_const => Cmd.hide_const top hide_const
+| Theory_abbreviation abbreviation => Cmd.abbreviation top abbreviation
+| Theory_code_reflect code_reflect' => Cmd.code_reflect' top code_reflect'
 (*in fn t => fn thy => f t thy handle ERROR s => (warning s; thy)
  end*)
 end
