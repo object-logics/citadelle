@@ -1481,7 +1481,7 @@ fun disp_time toplevel_keep_output =
                           (Pretty.str msg)) end
   in (tps, disp_time) end
 
-fun thy_deep exec_deep l_obj =
+fun thy_deep exec_deep exec_info l_obj =
   Generation_mode.mapM_deep
     (META.mapM (fn (env, i_deep) =>
       pair (META.fold_thy_deep l_obj env, i_deep)
@@ -1502,7 +1502,15 @@ fun thy_deep exec_deep l_obj =
                       let val l_obj' = map_filter (fn META.META_all_meta_embedding x => SOME x
                                                     | _ => NONE)
                                                   l_obj
-                      in if length l_obj' = length l_obj then exec l_obj' else I
+                      in if length l_obj' = length l_obj
+                         then exec l_obj'
+                         else
+                           exec_info
+                             (fn _ =>
+                               app ( writeln
+                                   o Active.sendback_markup_command
+                                   o META.print META.of_all_meta (META.d_output_header_thy_update (K NONE) env))
+                                   l_obj)
                       end
                 end)))
 
@@ -1637,7 +1645,7 @@ fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all
                           tempted to mostly give NONE to get_all_m, unless the calling command
                           is explicitly taking the responsibility of a potential failure. *)
            val m_tr = m_tr
-                      |-> thy_deep exec_deep l_obj
+                      |-> thy_deep exec_deep Toplevel'.keep l_obj
          in ( m_tr
               |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
                     let val (tps, disp_time) = disp_time Toplevel'.keep_output
@@ -1676,7 +1684,7 @@ fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all
          handle THY_REQUIRED pos =>
            m_tr |-> thy_switch pos @{here} (fn mode => fn thy => 
                                             let val l_obj = get_all_m (SOME thy) in
-                                              (thy_deep (tap oo exec_deep0) l_obj
+                                              (thy_deep (tap oo exec_deep0) tap l_obj
                                                  #~> thy_shallow (SOME (K l_obj)) get_all_m) mode thy
                                             end)
       end

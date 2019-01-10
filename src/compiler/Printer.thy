@@ -81,8 +81,9 @@ definition "write_file env =
                  l))"
 end
 
-definition "write_file0 = Print.write_file0 (String.implode o String.to_list) (ToNat integer_of_natural)"
-definition "write_file = Print.write_file (String.implode o String.to_list) (ToNat integer_of_natural)"
+definition "print f = f (String.implode o String.to_list) (ToNat integer_of_natural)"
+definition "write_file0 = print Print.write_file0"
+definition "write_file = print Print.write_file"
 
 lemmas [code] =
   (* def *)
