@@ -101,56 +101,62 @@ fun hsk_term and
 
 definition "hsk_stmt version names app_end =
  (let b = \<lambda>s. Term_basic [s] in
-  concat o map
+  map_prod concat concat o L.split o map
    (\<lambda> Meta_HKB.Datatype l \<Rightarrow>
         let l_data = L.map (map_prod (hsk_typespec names) (L.map (map_prod (hsk_name names) (L.map (hsk_type names))))) l
           ; l_data' = concat (L.map (L.map (\<lambda>(s, _). (s, gen_zero s)) o snd) l_data) in
-        O.datatype (Datatype version (L.map (map_prod id (L.map (map_prod gen_zero id))) l_data))
-        # (* For each constructor, we additionally generate an alias definition, for it to be used
-             in the SML code generated part as an alternative of the SML generated constructor:
-             its type will be not curried (whereas the SML type of the constructor will be). *)
-          L.map (\<lambda>(s, s'). O.definition (Definition (Term_rewrite (b s) \<open>=\<close> (b s')))) l_data'
-    | TypeSynonym [(t0, t1)] \<Rightarrow> [O.type_synonym (Type_synonym (hsk_typespec names t0) (hsk_type names t1))]
+        ( O.datatype (Datatype version (L.map (map_prod id (L.map (map_prod gen_zero id))) l_data))
+          # (* For each constructor, we additionally generate an alias definition, for it to be used
+               in the SML code generated part as an alternative of the SML generated constructor:
+               its type will be not curried (whereas the SML type of the constructor will be). *)
+            L.map (\<lambda>(s, s'). O.definition (Definition (Term_rewrite (b s) \<open>=\<close> (b s')))) l_data'
+        , L.map fst l_data')
+    | TypeSynonym [(t0, t1)] \<Rightarrow> ([O.type_synonym (Type_synonym (hsk_typespec names t0) (hsk_type names t1))], [])
     | Function (Function_Stmt Meta_HKB.Definition [t] [((lhs_n, lhs_arg), rhs)]) \<Rightarrow>
         let s_empty = b \<open>v\<close>
           ; T_string = Term_string'
           ; hsk_term = hsk_term \<lparr> lex_list_cons = \<open>#\<close>, lex_bool_false = \<open>False\<close>, lex_string = (\<lambda>s. if s \<triangleq> \<open>\<close> then s_empty else T_string s) \<rparr> names in
-        [(O.definition o Definition)
-          (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
-                        \<open>=\<close>
-                        (let t = Term_parenthesis (Term_let [(s_empty, T_string \<open>\<close>)] (hsk_term rhs)) in
-                         case app_end of Gen_apply_hol f \<Rightarrow> Term_app f [t]
-                                       | _ \<Rightarrow> t))]
+        ( [(O.definition o Definition)
+            (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
+                          \<open>=\<close>
+                          (let t = Term_parenthesis (Term_let [(s_empty, T_string \<open>\<close>)] (hsk_term rhs)) in
+                           case app_end of Gen_apply_hol f \<Rightarrow> Term_app f [t]
+                                         | _ \<Rightarrow> t))]
+        , [])
     | Meta_HKB.SML (Function_Stmt Meta_HKB.Definition [t] [((lhs_n, lhs_arg), rhs)]) \<Rightarrow>
         let s_empty = b \<open>v\<close>
           ; f_content = b \<open>content\<close>
           ; T_string = Term_string'' f_content
           ; hsk_term = hsk_term \<lparr> lex_list_cons = \<open>::\<close>, lex_bool_false = \<open>false\<close>, lex_string = (\<lambda>s. if s \<triangleq> \<open>\<close> then s_empty else T_string s) \<rparr> names in
-        (O.ML o SML o SML_top)
-          [SML_val_fun
-             (Some Sval)
-             (hol_to_sml (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
-                                       \<open>=\<close>
-                                       (let t = Term_parenthesis (Term_let [ (f_content, term_binop \<open>o\<close> (map b [\<open>SS_base\<close>, \<open>ST\<close>, \<open>Input.source_content\<close>]))
-                                                                           , (s_empty, T_string \<open>\<close>)]
-                                                                           (hsk_term rhs)) in
-                                        case app_end of Gen_apply_sml f \<Rightarrow> Term_app f [t]
-                                                      | Gen_apply_sml_cmd f _ \<Rightarrow> Term_app f [t]
-                                                      | _ \<Rightarrow> t)))]
-        # (case app_end of Gen_apply_sml_cmd _ s \<Rightarrow>
-                            [(META_all_meta_embedding o META_generic o OclGeneric) s]
-                         | _ \<Rightarrow> [])
-    | _ \<Rightarrow> []))"
+        ( (O.ML o SML o SML_top)
+            [SML_val_fun
+               (Some Sval)
+               (hol_to_sml (Term_rewrite (Term_app (hsk_name'' names lhs_n) (map hsk_term lhs_arg))
+                                         \<open>=\<close>
+                                         (let t = Term_parenthesis (Term_let [ (f_content, term_binop \<open>o\<close> (map b [\<open>SS_base\<close>, \<open>ST\<close>, \<open>Input.source_content\<close>]))
+                                                                             , (s_empty, T_string \<open>\<close>)]
+                                                                             (hsk_term rhs)) in
+                                          case app_end of Gen_apply_sml f \<Rightarrow> Term_app f [t]
+                                                        | Gen_apply_sml_cmd f _ \<Rightarrow> Term_app f [t]
+                                                        | _ \<Rightarrow> t)))]
+          # (case app_end of Gen_apply_sml_cmd _ s \<Rightarrow>
+                              [(META_all_meta_embedding o META_generic o OclGeneric) s]
+                           | _ \<Rightarrow> [])
+        , [])
+    | _ \<Rightarrow> ([], [])))"
 
-definition "print_haskell = (\<lambda> IsaUnit version l_name app_end name_new (l_mod, b_concat) \<Rightarrow>
-  Pair (List.bind (if b_concat then l_mod else [last l_mod])
-                  (\<lambda> Module (ThyName name_old) _ m _ \<Rightarrow>
-                       hsk_stmt (case map_prod id nat_of_natural version of (False, _) \<Rightarrow> Datatype_new
-                                                                          | (True, 0) \<Rightarrow> Datatype_old
-                                                                          | (True, Suc 0) \<Rightarrow> Datatype_old_atomic
-                                                                          | (True, Suc (Suc 0)) \<Rightarrow> Datatype_old_atomic_sub)
-                                ((name_old, Some name_new) # l_name)
-                                app_end
-                                m)))"
+definition "print_haskell = (\<lambda> IsaUnit version l_name app_end name_new (l_mod, b_concat) \<Rightarrow> \<lambda>env.
+  (map_prod concat ((\<lambda>l1. D_hsk_constr_update (\<lambda>l0. l0 @ l1) env) o L.map String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e o concat)
+   o L.split
+   o map
+    (\<lambda> Module (ThyName name_old) _ m _ \<Rightarrow>
+         hsk_stmt (case map_prod id nat_of_natural version of (False, _) \<Rightarrow> Datatype_new
+                                                            | (True, 0) \<Rightarrow> Datatype_old
+                                                            | (True, Suc 0) \<Rightarrow> Datatype_old_atomic
+                                                            | (True, Suc (Suc 0)) \<Rightarrow> Datatype_old_atomic_sub)
+                  ((name_old, Some name_new) # l_name)
+                  app_end
+                  m))
+    (if b_concat then l_mod else [last l_mod]))"
 
 end

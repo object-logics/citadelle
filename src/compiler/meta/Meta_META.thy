@@ -144,6 +144,7 @@ record compiler_env_config =  D_output_disable_thy :: bool
                               D_ocl_accessor :: " string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* pre *)
                                                 \<times> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *) list (* post *)"
                               D_ocl_HO_type :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* raw HOL name (as key for rbt) *)) list"
+                              D_hsk_constr :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e (* name of the constant added *)) list"
                               D_output_sorry_dirty :: "generation_lemma_mode option \<times> bool (* dirty *)" (* Some Gen_sorry or None and {dirty}: activate sorry mode for skipping proofs *)
 
 subsection\<open>Operations of Fold, Map, ..., on the Meta-Model\<close>
@@ -181,7 +182,7 @@ definition "compiler_env_config_empty output_disable_thy output_header_thy oid_s
     oid_start
     (0, 0)
     design_analysis
-    None [] [] [] False False ([], []) []
+    None [] [] [] False False ([], []) [] []
     sorry_dirty"
 
 definition "compiler_env_config_reset_no_env env =

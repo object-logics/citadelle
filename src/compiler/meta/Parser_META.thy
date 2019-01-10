@@ -64,6 +64,7 @@ definition "compiler_env_config_rec0 f env = f
   (D_output_auto_bootstrap env)
   (D_ocl_accessor env)
   (D_ocl_HO_type env)
+  (D_hsk_constr env)
   (D_output_sorry_dirty env)"
 
 definition "compiler_env_config_rec f env = compiler_env_config_rec0 f env
@@ -71,19 +72,19 @@ definition "compiler_env_config_rec f env = compiler_env_config_rec0 f env
 
 (* *)
 
-lemma [code]: "compiler_env_config.extend = (\<lambda>env v. compiler_env_config_rec0 (co14 (\<lambda>f. f v) compiler_env_config_ext) env)"
+lemma [code]: "compiler_env_config.extend = (\<lambda>env v. compiler_env_config_rec0 (co15 (\<lambda>f. f v) compiler_env_config_ext) env)"
 by(intro ext, simp add: compiler_env_config_rec0_def
                         compiler_env_config.extend_def
-                        co14_def K_def)
-lemma [code]: "compiler_env_config.make = co14 (\<lambda>f. f ()) compiler_env_config_ext"
+                        co15_def K_def)
+lemma [code]: "compiler_env_config.make = co15 (\<lambda>f. f ()) compiler_env_config_ext"
 by(intro ext, simp add: compiler_env_config.make_def
-                        co14_def)
-lemma [code]: "compiler_env_config.truncate = compiler_env_config_rec (co14 K compiler_env_config.make)"
+                        co15_def)
+lemma [code]: "compiler_env_config.truncate = compiler_env_config_rec (co15 K compiler_env_config.make)"
 by(intro ext, simp add: compiler_env_config_rec0_def
                         compiler_env_config_rec_def
                         compiler_env_config.truncate_def
                         compiler_env_config.make_def
-                        co14_def K_def)
+                        co15_def K_def)
 
 subsection\<open>Main\<close>
 
@@ -129,7 +130,7 @@ definition "of_generation_lemma_mode a b = rec_generation_lemma_mode
   (b \<open>Gen_no_dirty\<close>)"
 
 definition "of_compiler_env_config a b f = compiler_env_config_rec
-  (ap15 a (b (ext \<open>compiler_env_config_ext\<close>))
+  (ap16 a (b (ext \<open>compiler_env_config_ext\<close>))
     (of_bool b)
     (of_option a b (of_pair a b (of_string a b) (of_pair a b (of_list a b (of_string a b)) (of_string a b))))
     (of_internal_oids a b)
@@ -142,6 +143,7 @@ definition "of_compiler_env_config a b f = compiler_env_config_rec
     (of_bool b)
     (of_bool b)
     (of_pair a b (of_list a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b)) (of_list a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b)))
+    (of_list a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b))
     (of_list a b (of_string\<^sub>b\<^sub>a\<^sub>s\<^sub>e a b))
     (of_pair a b (of_option a b (of_generation_lemma_mode a b)) (of_bool b))
     (f a b))"
