@@ -79,7 +79,7 @@ imports Printer
            (* OCL (added) *)
            "End" "Instance" "BaseType" "State" "Transition" "Tree"
            (* Haskabelle *)
-           "Haskell" "Haskell_file" "meta_language" "language" "meta_command"
+           "Haskell" "Haskell_file" "meta_language" "language" "meta_command" "meta_command'"
 
            (* Isabelle syntax *)
            "generation_syntax"
@@ -1233,6 +1233,16 @@ fun update_compiler_config f =
     (fn mode => { deep = map (apfst (META.compiler_env_config_update f)) (#deep mode)
                 , shallow = map (apfst (META.compiler_env_config_update f)) (#shallow mode)
                 , syntax_print = #syntax_print mode })
+
+fun meta_command0 s_put f_get f_get0 source =
+  Context.Theory 
+  #> Bind_META.ML_context_exec (Input.string ("let open META val ML = META.SML in Context.>> (Context.map_theory (fn thy => " ^ s_put ^ " ((" ^ source ^ ") (" ^ f_get0 ^ " thy)) thy)) end"))
+  #> Context.map_theory_result (fn thy => (f_get thy, thy))
+  #> fst
+
+val meta_command = meta_command0 "Bind_META.Meta_Cmd_Data.put"
+                                 Bind_META.Meta_Cmd_Data.get
+                                 "Generation_mode.Data_gen.get"
 end
 \<close>
 
@@ -1877,14 +1887,19 @@ structure USE_parse = struct
 end
 \<close>
 
-subsection\<open>Setup of Meta Commands for a Generic Usage: @{command meta_command}\<close>
+subsection\<open>Setup of Meta Commands for a Generic Usage: @{command meta_command}, @{command meta_command'}\<close>
 
 ML\<open>
-val () =
-  outer_syntax_commands''' SOME @{mk_string} @{command_keyword meta_command} ""
-    Parse.ML_source
-    (fn source =>
-      get_thy @{here} (Bind_META.meta_command (Input.source_content source) #> META.Fold_custom))
+local
+  fun outer_syntax_commands'''2 command_keyword meta_command =
+    outer_syntax_commands''' SOME @{mk_string} command_keyword ""
+      Parse.ML_source
+      (fn source =>
+        get_thy @{here} (meta_command (Input.source_content source) #> META.Fold_custom))
+in
+val () = outer_syntax_commands'''2 @{command_keyword meta_command} Bind_META.meta_command
+val () = outer_syntax_commands'''2 @{command_keyword meta_command'} Generation_mode.meta_command
+end
 \<close>
 
 subsection\<open>Setup of Meta Commands for OCL: @{command Enum}\<close>

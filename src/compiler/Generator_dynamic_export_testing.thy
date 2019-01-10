@@ -1379,6 +1379,16 @@ fun update_compiler_config f =
     (fn mode => { deep = map (apfst (META.compiler_env_config_update f)) (#deep mode)
                 , shallow = map (apfst (META.compiler_env_config_update f)) (#shallow mode)
                 , syntax_print = #syntax_print mode })
+
+fun meta_command0 s_put f_get f_get0 source =
+  Context.Theory 
+  #> Bind_META.ML_context_exec (Input.string ("let open META val ML = META.SML in Context.>> (Context.map_theory (fn thy => " ^ s_put ^ " ((" ^ source ^ ") (" ^ f_get0 ^ " thy)) thy)) end"))
+  #> Context.map_theory_result (fn thy => (f_get thy, thy))
+  #> fst
+
+val meta_command = meta_command0 "Bind_META.Meta_Cmd_Data.put"
+                                 Bind_META.Meta_Cmd_Data.get
+                                 "Generation_mode.Data_gen.get"
 end
 \<close>
 
