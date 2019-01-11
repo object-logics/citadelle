@@ -142,7 +142,7 @@ text \<open> \<^file>\<open>$HASKABELLE_HOME/ex/language-c/src/Language/C/Data/N
 
 hide_const (open) Name
 
-Haskell_file datatype_old_atomic try_import only_types concat_modules
+Haskell_file datatype_old try_import only_types concat_modules
              base_path "$HASKABELLE_HOME/ex/language-c/src"
              [Prelude \<rightharpoonup> C_Model_init, Int, String, Option \<rightharpoonup> C_Model_init]
              (**)
