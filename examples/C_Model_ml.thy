@@ -131,7 +131,7 @@ let
        |> map_filter
             (fn s =>
               let val s' = s |> to_String |> To_string0 in
-              if List.exists (fn s0 => s0 = s') ["Ident", "ClangCVersion", "CString", "CStructTag", "CAlignSpec"] then NONE
+              if List.exists (fn s0 => s0 = s') ["Ident", "ClangCVersion", "CString"] then NONE
               else
                   SOME
                     (SML_val_fun
@@ -165,7 +165,7 @@ type CBlockItem = NodeInfo cCompoundBlockItem
 type CDeclSpec = NodeInfo cDeclarationSpecifier
 type CTypeSpec = NodeInfo cTypeSpecifier
 type CTypeQual = NodeInfo cTypeQualifier
-(*type CAlignSpec = NodeInfo cAlignmentSpecifier*)
+type CAlignSpec = NodeInfo cAlignmentSpecifier
 type CStructUnion = NodeInfo cStructureUnion
 type CEnum = NodeInfo cEnumeration
 type CInit = NodeInfo cInitializer
@@ -179,10 +179,9 @@ type CStrLit = NodeInfo cStringLiteral
 type CAssignOp = cAssignOp
 (**)
 type CDeclrR = CDeclr
-datatype CAlignSpec = CAlignSpec
 type 'a Reversed = 'a
 type 'a Maybe = 'a optiona
-datatype 'a Located = Located of 'a
+datatype 'a Located = Located of 'a * position
 datatype ClangCVersion = ClangCVersion
 type Ident = ident
 type Bool = bool
@@ -195,6 +194,14 @@ val Nothing = None
 val Just = Some
 val False = false
 val True = true
+fun L a b = Located (a, b)
+(**)
+val CDecl_flat = fn l1 => CDecl l1 o map (fn (a, b, c) => ((a, b), c))
+fun flat3 (a, b, c) = ((a, b), c)
+fun maybe def f = fn None => def | Some x => f x 
+val id = I
+fun flip f b a = f a b
+val Reversed = I
 (**)
 signature HSK_C_PARSER = sig
   type 'a p (* name of the monad, similar as Parser.y (in uppercase) *)
@@ -220,6 +227,28 @@ signature HSK_C_PARSER = sig
   val singleton : 'a -> 'a list Reversed
   val withAsmNameAttrs : CStrLit Maybe * CAttr list -> CDeclrR -> CDeclrR p
   val doDeclIdent : CDeclSpec list -> CDeclrR -> unit p
+  val reverseList : 'a list -> 'a list Reversed
+  val rmap : ('a -> 'b) -> 'a list Reversed -> 'b list Reversed
+  val rappend : 'a list Reversed -> 'a list -> 'a list Reversed
+  val addTrailingAttrs : CDeclSpec list Reversed -> CAttr list -> CDeclSpec list Reversed
+  val unL : 'a Located -> 'a
+  val posOf : 'a -> position
+  val appendObjAttrs : CAttr list -> CDeclr -> CDeclr
+  val mkVarDeclr : Ident -> NodeInfo -> CDeclrR
+  val ptrDeclr : CDeclrR -> CTypeQual list -> NodeInfo -> CDeclrR
+  val withAttribute : 'node -> CAttr list -> (NodeInfo -> CDeclrR) -> CDeclrR p
+  val appendDeclrAttrs : CAttr list -> CDeclrR -> CDeclrR
+  val funDeclr : CDeclrR -> (Ident list, (CDecl list * Bool)) either -> CAttr list -> NodeInfo -> CDeclrR
+  val emptyDeclr : CDeclrR
+  val arrDeclr : CDeclrR -> CTypeQual list -> Bool -> Bool -> CExpr Maybe -> NodeInfo -> CDeclrR
+  val withAttributePF : 'node -> CAttr list -> (NodeInfo -> CDeclrR -> CDeclrR) -> (CDeclrR -> CDeclrR) p
+  val liftStrLit : 'a cStringLiteral -> 'a cConstant
+  val CTokILit : string -> (cInteger -> 'a) -> 'a
+  val CTokCLit : string -> (cChar -> 'a) -> 'a
+  val CTokFLit : string -> (cFloat -> 'a) -> 'a
+  val CTokSLit : string -> (cString -> 'a) -> 'a
+  val concatCStrings : CString list -> CString
+  val internalIdent : string -> ident
 end
 
 structure Hsk_c_parser : HSK_C_PARSER = struct
@@ -247,6 +276,29 @@ structure Hsk_c_parser : HSK_C_PARSER = struct
   fun singleton x = [x]
   fun withAsmNameAttrs _ x () = x
   fun doDeclIdent  _ _ = I
+  val reverseList = rev
+  val rmap = map
+  fun rappend l _ = l
+  fun addTrailingAttrs l _ = l
+  fun unL (Located (a, _)) = a
+  fun posOf _ = NoPosition
+  fun appendObjAttrs _ = I
+  fun mkVarDeclr _ _ = error ""
+  fun ptrDeclr x _ _ = x
+  fun withAttribute _ _ _ = return (error "")
+  fun appendDeclrAttrs _ = I
+  fun funDeclr x _ _ _ = x
+  val undefNode = OnlyPos NoPosition (NoPosition, 0)
+  val emptyDeclr = CDeclr Nothing empty Nothing [] undefNode
+  fun arrDeclr x _ _ _ _ _ = x
+  fun withAttributePF _ _ _ = return I
+  fun liftStrLit _ = error ""
+  fun CTokILit _ = error ""
+  fun CTokCLit _ = error ""
+  fun CTokFLit _ = error ""
+  fun CTokSLit _ = error ""
+  fun concatCStrings _ = error ""
+  fun internalIdent _ = error ""
 end
 
 open Hsk_c_parser
@@ -255,10 +307,6 @@ structure List = struct
   val reverse = rev
 end
 \<close>
-
-ML\<open>
-val CDecl_flat = fn l1 => CDecl l1 o map (fn (a, b, c) => ((a, b), c))
-fun flat3 (a, b, c) = ((a, b), c)\<close>
 
 ML_file "mlyacc_output/a.grm.sig"
 ML_file "mlyacc_output/a.grm.sml"
