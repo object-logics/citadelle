@@ -96,19 +96,15 @@ structure C_ast_simple = struct
 end
 \<close>
 
-section \<open>openUnsynch\<close>
-
-ML\<open>open Unsynchronized\<close>
-
 section \<open>CTranslation\<close>
 
 ML\<open>val foldl = List.foldl val foldr = List.foldr\<close>
 
-ML_file "c-parser_ConCSimpl/tools/mlyacc/mlyacclib/MLY_base-sig.ML"
-ML_file "c-parser_ConCSimpl/tools/mlyacc/mlyacclib/MLY_join.ML"
-ML_file "c-parser_ConCSimpl/tools/mlyacc/mlyacclib/MLY_lrtable.ML"
-ML_file "c-parser_ConCSimpl/tools/mlyacc/mlyacclib/MLY_stream.ML"
-ML_file "c-parser_ConCSimpl/tools/mlyacc/mlyacclib/MLY_parser2.ML"
+ML_file "mlton/lib/mlyacc-lib/base.sig"
+ML_file "mlton/lib/mlyacc-lib/join.sml"
+ML_file "mlton/lib/mlyacc-lib/lrtable.sml"
+ML_file "mlton/lib/mlyacc-lib/stream.sml"
+ML_file "mlton/lib/mlyacc-lib/parser2.sml"
 
 ML\<open>
 structure SourcePos = struct
