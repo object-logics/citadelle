@@ -56,6 +56,7 @@
 
 theory C_Model_ml_lex
   imports Main
+  keywords "C_lex" :: thy_decl
 begin
 
 ML\<open>
@@ -65,7 +66,7 @@ ML\<open>
 Lexical syntax for Isabelle/ML and Standard ML.
 *)
 
-structure ML_Lex: ML_LEX =
+structure C_Lex =
 struct
 
 (** keywords **)
@@ -407,6 +408,32 @@ fun read_source SML source =
 end;
 
 end;
+\<close>
+
+ML\<open>
+structure C_Context =
+struct
+fun eval_source source =
+  app
+    (fn s =>
+      writeln
+        (@{make_string}
+          (case s of Antiquote.Text (C_Lex.Token t) => Antiquote.Text (#2 t)
+                   | Antiquote.Control c => Antiquote.Control c
+                   | Antiquote.Antiq a => Antiquote.Antiq a)))
+    (C_Lex.read_source false source)
+end
+
+structure C_Outer_Syntax =
+struct
+val _ =
+  Outer_Syntax.command @{command_keyword C_lex} ""
+    (Parse.ML_source >> (fn source =>
+      Toplevel.generic_theory
+        (ML_Context.exec (fn () =>
+            C_Context.eval_source source) #>
+          Local_Theory.propagate_ml_env)))
+end
 \<close>
 
 end
