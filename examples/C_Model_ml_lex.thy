@@ -60,6 +60,43 @@ theory C_Model_ml_lex
 begin
 
 ML\<open>
+(*  Title:      Pure/General/symbol_pos.ML
+    Author:     Makarius
+
+Symbols with explicit position information.
+*)
+
+structure C_Symbol_Pos =
+struct
+val !!! = Symbol_Pos.!!!
+val $$ = Symbol_Pos.$$
+val $$$ = Symbol_Pos.$$$
+val ~$$$ = Symbol_Pos.~$$$
+
+(* ML-style comments *)
+
+local
+
+val scan_cmt =
+  Scan.depend (fn (d: int) => $$$ "(" @@@ $$$ "*" >> pair (d + 1)) ||
+  Scan.depend (fn 0 => Scan.fail | d => $$$ "*" @@@ $$$ ")" >> pair (d - 1)) ||
+  Scan.lift ($$$ "*" --| Scan.ahead (~$$$ ")")) ||
+  Scan.lift (Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s)) >> single;
+
+val scan_cmts = Scan.pass 0 (Scan.repeats scan_cmt);
+
+in
+
+fun scan_comment err_prefix =
+  Scan.ahead ($$ "(" -- $$ "*") |--
+    !!! (fn () => err_prefix ^ "unclosed comment")
+      ($$$ "(" @@@ $$$ "*" @@@ scan_cmts @@@ $$$ "*" @@@ $$$ ")");
+
+end
+end
+\<close>
+
+ML\<open>
 (*  Title:      Pure/ML/ml_lex.ML
     Author:     Makarius
 
@@ -325,7 +362,7 @@ val scan_ml =
  (scan_char >> token Char ||
   scan_string >> token String ||
   scan_blanks1 >> token Space ||
-  Symbol_Pos.scan_comment err_prefix >> token Comment ||
+  C_Symbol_Pos.scan_comment err_prefix >> token Comment ||
   Scan.max token_leq
    (Scan.literal lexicon >> token Keyword)
    (scan_word >> token Word ||
