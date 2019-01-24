@@ -200,9 +200,9 @@ fun flip f b a = f a b
 val Reversed = I
 (**)
 signature HSK_C_PARSER = sig
-  type 'a p (* name of the monad, similar as Parser.y (in uppercase) *)
+  type arg
+  type 'a p (* name of the monad, similar as Parser.y (in uppercase) *) = arg -> 'a * arg
   type posLength = position * int
-  val wrap_monad : 'a p -> 'a
   val return : 'a -> 'a p
   val bind : 'a p -> ('a -> 'b p) -> 'b p
   val >> : unit p * 'a p -> 'a p
@@ -248,30 +248,30 @@ signature HSK_C_PARSER = sig
 end
 
 structure Hsk_c_parser : HSK_C_PARSER = struct
-  type 'a p = unit -> 'a
+  type arg = unit
+  type 'a p = arg -> 'a * arg
   type posLength = position * int
   type position = unit
-  fun wrap_monad f = f ()
-  fun return x () = x
-  fun getNewName () = Name 0
-  fun bind f g = g (f ())
-  fun getCurrentPosition () = NoPosition
+  val return = pair
+  val getNewName = return (Name 0)
+  fun bind f g = f #-> g
+  val getCurrentPosition = return NoPosition
   fun mkNodeInfo' _ _ _ = OnlyPos NoPosition (NoPosition, 0)
   fun withNodeInfo _ f = return (f (OnlyPos NoPosition (NoPosition, 0)))
   fun withLength x f = return (f x)
   val empty = []
   fun snoc xs x = x :: xs
-  fun leaveScope _ = ()
-  fun enterScope _ = ()
+  val leaveScope = return ()
+  val enterScope = return ()
   fun a >> b = b
   fun liftCAttrs _ = []
   fun liftTypeQuals _ = []
   fun reverseDeclr x = x
-  fun doFuncParamDeclIdent _ _ = ()
+  fun doFuncParamDeclIdent _ = return ()
   fun rappendr _ x = x
   fun singleton x = [x]
-  fun withAsmNameAttrs _ x () = x
-  fun doDeclIdent  _ _ = I
+  fun withAsmNameAttrs _ x = return x
+  fun doDeclIdent _ _ = return ()
   val reverseList = rev
   val rmap = map
   fun rappend l _ = l
@@ -297,7 +297,6 @@ structure Hsk_c_parser : HSK_C_PARSER = struct
   fun internalIdent _ = error ""
 end
 
-open Hsk_c_parser
 structure List = struct
   open List
   val reverse = rev
