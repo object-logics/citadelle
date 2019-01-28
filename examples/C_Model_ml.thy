@@ -203,6 +203,7 @@ signature HSK_C_PARSER = sig
   type arg
   type 'a p (* name of the monad, similar as Parser.y (in uppercase) *) = arg -> 'a * arg
   type posLength = position * int
+
   val return : 'a -> 'a p
   val bind : 'a p -> ('a -> 'b p) -> 'b p
   val >> : unit p * 'a p -> 'a p
@@ -213,16 +214,16 @@ signature HSK_C_PARSER = sig
   val withLength : NodeInfo -> (NodeInfo -> 'a) -> 'a p
   val empty : 'a list Reversed
   val snoc : 'a list Reversed -> 'a -> 'a list Reversed
-  val leaveScope : unit p
   val enterScope : unit p
+  val leaveScope : unit p
   val liftCAttrs : CAttr list -> CDeclSpec list
   val liftTypeQuals : CTypeQual list Reversed -> CDeclSpec list
   val reverseDeclr : CDeclrR -> CDeclr
+  val doDeclIdent : CDeclSpec list -> CDeclrR -> unit p
   val doFuncParamDeclIdent : CDeclr -> unit p
   val rappendr : 'a list Reversed -> 'a list Reversed -> 'a list Reversed
   val singleton : 'a -> 'a list Reversed
   val withAsmNameAttrs : CStrLit Maybe * CAttr list -> CDeclrR -> CDeclrR p
-  val doDeclIdent : CDeclSpec list -> CDeclrR -> unit p
   val reverseList : 'a list -> 'a list Reversed
   val rmap : ('a -> 'b) -> 'a list Reversed -> 'b list Reversed
   val rappend : 'a list Reversed -> 'a list -> 'a list Reversed
@@ -303,7 +304,7 @@ structure List = struct
 end
 \<close>
 
-ML_file "mlyacc_output/a.grm.sig"
-ML_file "mlyacc_output/a.grm.sml"
+ML_file "../doc/language_c.grm.sig"
+ML_file "../doc/language_c.grm.sml"
 
 end
