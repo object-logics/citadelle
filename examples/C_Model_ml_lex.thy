@@ -57,6 +57,7 @@
 theory C_Model_ml_lex
   imports C_Model_ml
   keywords "C_lex" :: thy_decl
+       and "C_file" :: thy_load % "ML"
 begin
 
 ML\<open>
@@ -740,7 +741,16 @@ fun eval_source source =
                     | _ => writeln (@{make_string} (Antiquote.Text (#2 t))))
       | Antiquote.Control c => writeln (@{make_string} (Antiquote.Control c))
       | Antiquote.Antiq a => writeln (@{make_string} (Antiquote.Antiq a)))
-    (C_Lex.read_source source)
+    source
+
+fun exec_parse source =
+  ML_Context.exec (fn () =>
+                    let
+                      val source = C_Lex.read_source source
+                      val _ = eval_source source
+                    in ()
+                    end) #>
+    Local_Theory.propagate_ml_env
 end
 \<close>
 
@@ -751,26 +761,19 @@ ML\<open>
 Commands to load ML files.
 *)
 
-structure ML_File =
+structure C_File =
 struct
 
-fun command SML debug files = Toplevel.generic_theory (fn gthy =>
+fun command debug files = Toplevel.generic_theory (fn gthy =>
   let
     val [{src_path, lines, digest, pos}: Token.file] = files (Context.theory_of gthy);
     val provide = Resources.provide (src_path, digest);
     val source = Input.source true (cat_lines lines) (pos, pos);
-    val flags =
-      {SML = SML, exchange = false, redirect = true, verbose = true,
-        debug = debug, writeln = writeln, warning = warning};
   in
     gthy
-    |> ML_Context.exec (fn () => ML_Context.eval_source flags source)
-    |> Local_Theory.propagate_ml_env
+    |> C_Context.exec_parse source
     |> Context.mapping provide (Local_Theory.background_theory provide)
   end);
-
-val ML = command false;
-val SML = command true;
 
 end;
 \<close>
@@ -783,9 +786,12 @@ val _ =
   Outer_Syntax.command @{command_keyword C_lex} ""
     (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
       Toplevel.generic_theory
-        (ML_Context.exec (fn () =>
-            C_Context.eval_source source) #>
-          Local_Theory.propagate_ml_env)))
+        (C_Context.exec_parse source)))
+
+val _ =
+  Outer_Syntax.command @{command_keyword C_file} "read and evaluate C file"
+    (Resources.parse_files "ML_file" >> C_File.command NONE);
+
 end
 \<close>
 
