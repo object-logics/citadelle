@@ -107,6 +107,13 @@ fun scan_full f_mem msg scan =
       (scan --| mem not)
    || (mem I --| !!! msg Scan.fail)
   end
+fun repeats_one_not_eof scan =
+  Scan.repeats (Scan.unless scan
+                            (Scan.one (fn (s, _) => Symbol.not_eof s) >> single))
+val newline =   $$$ "\n"
+             || $$$ "\^M" @@@ $$$ "\n"
+             || $$$ "\^M"
+val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
@@ -130,11 +137,13 @@ local
 val par_l = "/"
 val par_r = "/"
 
+val scan_body1 = $$$ "*" --| Scan.ahead (~$$$ par_r)
+val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
 val scan_cmt =
   Scan.depend (fn (d: int) => $$$ par_l @@@ $$$ "*" >> pair (d + 1)) ||
   Scan.depend (fn 0 => Scan.fail | d => $$$ "*" @@@ $$$ par_r >> pair (d - 1)) ||
-  Scan.lift ($$$ "*" --| Scan.ahead (~$$$ par_r)) ||
-  Scan.lift (Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s)) >> single;
+  Scan.lift scan_body1 ||
+  Scan.lift scan_body2;
 
 val scan_cmts = Scan.pass 0 (Scan.repeats scan_cmt);
 
@@ -144,7 +153,13 @@ fun scan_comment err_prefix =
   Scan.ahead ($$ par_l -- $$ "*") |--
     !!! (fn () => err_prefix ^ "unclosed comment")
       ($$$ par_l @@@ $$$ "*" @@@ scan_cmts @@@ $$$ "*" @@@ $$$ par_r)
-  || $$$ "/" @@@ $$$ "/" @@@ Scan.repeats (Scan.one (fn (s, _) => s <> "\n" andalso Symbol.not_eof s) >> single);
+  || $$$ "/" @@@ $$$ "/" @@@ Scanner.repeats_until_nl;
+
+fun scan_comment_no_nest err_prefix =
+  Scan.ahead ($$ par_l -- $$ "*") |--
+    !!! (fn () => err_prefix ^ "unclosed comment")
+      ($$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2) @@@ $$$ "*" @@@ $$$ par_r)
+  || $$$ "/" @@@ $$$ "/" @@@ Scanner.repeats_until_nl;
 
 end
 end
@@ -549,7 +564,7 @@ val scan_ml =
  (scan_char >> token Char ||
   scan_string >> token String ||
   scan_blanks1 >> token Space ||
-  C_Symbol_Pos.scan_comment err_prefix >> token Comment ||
+  C_Symbol_Pos.scan_comment_no_nest err_prefix >> token Comment ||
   Scan.max token_leq
    (Scan.literal lexicon >> token Keyword)
    (scan_clangversion >> token ClangC ||
@@ -687,6 +702,18 @@ val _ =
             C_Context.eval_source source) #>
           Local_Theory.propagate_ml_env)))
 end
+\<close>
+
+C_lex \<comment> \<open>\<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
+/* inside /* inside */ int a = "outside";
+// inside // inside until end of line
+int a = "outside";
+/* inside
+  // inside
+inside
+*/ int a = "outside";
+// inside /* inside until end of line
+int a = "outside";
 \<close>
 
 end
