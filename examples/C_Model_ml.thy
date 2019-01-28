@@ -71,7 +71,7 @@ declare [[default_code_width = 236]]
 
 code_reserved SML Ident error
 
-meta_command' \<comment>\<open>\<^theory_text>\<open>code_reflect' open C_ast_simple functions main\<close>\<close> \<open>
+meta_command' \<comment>\<open>\<^theory_text>\<open>code_reflect' open C_ast_simple functions main String.to_list S.flatten\<close>\<close> \<open>
 let
   open META
   fun meta_command {shallow, deep = _, syntax_print = _} =
@@ -79,7 +79,7 @@ let
       (Code_reflect
         ( true
         , From.string "C_ast_simple"
-        , map From.string [ "main" ]
+        , map From.string [ "main", "String.to_list", "S.flatten" ]
          @ (shallow
             |> hd
             |> fst
@@ -104,13 +104,8 @@ ML_file "mlton/lib/mlyacc-lib/base.sig"
 ML_file "mlton/lib/mlyacc-lib/join.sml"
 ML_file "mlton/lib/mlyacc-lib/lrtable.sml"
 ML_file "mlton/lib/mlyacc-lib/stream.sml"
-ML_file "mlton/lib/mlyacc-lib/parser2.sml"
-
-ML\<open>
-structure SourcePos = struct
-  datatype t = T of {column: int, file: string, line: int}
-end
-\<close>
+(*ML_file "mlton/lib/mlyacc-lib/parser2.sml"*)
+ML_file "mlton/lib/mlyacc-lib/parser1.sml"
 
 ML\<open>open C_ast_simple\<close>
 
@@ -174,18 +169,19 @@ type CStrLit = NodeInfo cStringLiteral
 (**)
 type CAssignOp = cAssignOp
 (**)
-type CDeclrR = CDeclr
 type 'a Reversed = 'a
+datatype CDeclrR = CDeclrR0 of ident optiona * NodeInfo cDerivedDeclarator list Reversed * NodeInfo cStringLiteral optiona * NodeInfo cAttribute list * NodeInfo
+fun CDeclrR ide l s a n = CDeclrR0 (ide, l, s, a, n)
 type 'a Maybe = 'a optiona
 datatype 'a Located = Located of 'a * position
-datatype ClangCVersion = ClangCVersion
+type ClangCVersion = clangCVersion
 type Ident = ident
 type Bool = bool
 type CString = cString
 type CStructTag = cStructTag
 type CUnaryOp = cUnaryOp
 (**)
-fun reverse x = x
+val reverse = rev
 val Nothing = None
 val Just = Some
 val False = false
@@ -199,103 +195,218 @@ val id = I
 fun flip f b a = f a b
 val Reversed = I
 (**)
-signature HSK_C_PARSER = sig
-  type arg
-  type 'a p (* name of the monad, similar as Parser.y (in uppercase) *) = arg -> 'a * arg
+
+val From_string = SS_base o ST
+type c_env = {tyidents : Symtab.set, scopes : Symtab.set list, namesupply : int}
+
+signature HSK_C_PARSER =
+sig
+  type arg = c_env
+  type 'a p (* name of the monad, similar as the one declared in Parser.y *) = arg -> 'a * arg
   type posLength = position * int
 
+  (**)
   val return : 'a -> 'a p
   val bind : 'a p -> ('a -> 'b p) -> 'b p
   val >> : unit p * 'a p -> 'a p
-  val getNewName : name p
-  val getCurrentPosition : position p
-  val mkNodeInfo' : position -> posLength -> name -> nodeInfo
-  val withNodeInfo : 'node -> (NodeInfo -> 'a) -> 'a p
-  val withLength : NodeInfo -> (NodeInfo -> 'a) -> 'a p
+
+  (* Language.C.Data.RList *)
   val empty : 'a list Reversed
+  val singleton : 'a -> 'a list Reversed
   val snoc : 'a list Reversed -> 'a -> 'a list Reversed
+  val rappend : 'a list Reversed -> 'a list -> 'a list Reversed
+  val rappendr : 'a list Reversed -> 'a list Reversed -> 'a list Reversed
+  val rmap : ('a -> 'b) -> 'a list Reversed -> 'b list Reversed
+
+  (* Language.C.Data.Position *)
+  val posOf : 'a -> position
+
+  (* Language.C.Data.Ident *)
+  val internalIdent : string -> ident
+
+  (* Language.C.Data.Node *)
+  val mkNodeInfo' : position -> posLength -> name -> nodeInfo
+
+  (* Language.C.Syntax.AST *)
+  val liftStrLit : 'a cStringLiteral -> 'a cConstant
+
+  (* Language.C.Syntax.Constants *)
+  val concatCStrings : CString list -> CString
+
+  (* Language.C.Parser.ParserMonad *)
+  val getNewName : name p
+  val isTypeIdent : string -> arg -> bool
   val enterScope : unit p
   val leaveScope : unit p
-  val liftCAttrs : CAttr list -> CDeclSpec list
-  val liftTypeQuals : CTypeQual list Reversed -> CDeclSpec list
+  val getCurrentPosition : position p
+
+  (* Language.C.Parser.Tokens *)
+  val CTokCLit : cChar -> (cChar -> 'a) -> 'a
+  val CTokILit : cInteger -> (cInteger -> 'a) -> 'a
+  val CTokFLit : cFloat -> (cFloat -> 'a) -> 'a
+  val CTokSLit : cString -> (cString -> 'a) -> 'a
+
+  (* Language.C.Parser.Parser *)
+  val reverseList : 'a list -> 'a list Reversed
+  val unL : 'a Located -> 'a
+  val withNodeInfo : 'node -> (NodeInfo -> 'a) -> 'a p
+  val withLength : NodeInfo -> (NodeInfo -> 'a) -> 'a p
   val reverseDeclr : CDeclrR -> CDeclr
+  val withAttribute : 'node -> CAttr list -> (NodeInfo -> CDeclrR) -> CDeclrR p
+  val withAttributePF : 'node -> CAttr list -> (NodeInfo -> CDeclrR -> CDeclrR) -> (CDeclrR -> CDeclrR) p
+  val appendObjAttrs : CAttr list -> CDeclr -> CDeclr
+  val withAsmNameAttrs : CStrLit Maybe * CAttr list -> CDeclrR -> CDeclrR p
+  val appendDeclrAttrs : CAttr list -> CDeclrR -> CDeclrR
+  val ptrDeclr : CDeclrR -> CTypeQual list -> NodeInfo -> CDeclrR
+  val funDeclr : CDeclrR -> (Ident list, (CDecl list * Bool)) either -> CAttr list -> NodeInfo -> CDeclrR
+  val arrDeclr : CDeclrR -> CTypeQual list -> Bool -> Bool -> CExpr Maybe -> NodeInfo -> CDeclrR
+  val liftTypeQuals : CTypeQual list Reversed -> CDeclSpec list
+  val liftCAttrs : CAttr list -> CDeclSpec list
+  val addTrailingAttrs : CDeclSpec list Reversed -> CAttr list -> CDeclSpec list Reversed
+  val emptyDeclr : CDeclrR
+  val mkVarDeclr : Ident -> NodeInfo -> CDeclrR
   val doDeclIdent : CDeclSpec list -> CDeclrR -> unit p
   val doFuncParamDeclIdent : CDeclr -> unit p
-  val rappendr : 'a list Reversed -> 'a list Reversed -> 'a list Reversed
-  val singleton : 'a -> 'a list Reversed
-  val withAsmNameAttrs : CStrLit Maybe * CAttr list -> CDeclrR -> CDeclrR p
-  val reverseList : 'a list -> 'a list Reversed
-  val rmap : ('a -> 'b) -> 'a list Reversed -> 'b list Reversed
-  val rappend : 'a list Reversed -> 'a list -> 'a list Reversed
-  val addTrailingAttrs : CDeclSpec list Reversed -> CAttr list -> CDeclSpec list Reversed
-  val unL : 'a Located -> 'a
-  val posOf : 'a -> position
-  val appendObjAttrs : CAttr list -> CDeclr -> CDeclr
-  val mkVarDeclr : Ident -> NodeInfo -> CDeclrR
-  val ptrDeclr : CDeclrR -> CTypeQual list -> NodeInfo -> CDeclrR
-  val withAttribute : 'node -> CAttr list -> (NodeInfo -> CDeclrR) -> CDeclrR p
-  val appendDeclrAttrs : CAttr list -> CDeclrR -> CDeclrR
-  val funDeclr : CDeclrR -> (Ident list, (CDecl list * Bool)) either -> CAttr list -> NodeInfo -> CDeclrR
-  val emptyDeclr : CDeclrR
-  val arrDeclr : CDeclrR -> CTypeQual list -> Bool -> Bool -> CExpr Maybe -> NodeInfo -> CDeclrR
-  val withAttributePF : 'node -> CAttr list -> (NodeInfo -> CDeclrR -> CDeclrR) -> (CDeclrR -> CDeclrR) p
-  val liftStrLit : 'a cStringLiteral -> 'a cConstant
-  val CTokILit : string -> (cInteger -> 'a) -> 'a
-  val CTokCLit : string -> (cChar -> 'a) -> 'a
-  val CTokFLit : string -> (cFloat -> 'a) -> 'a
-  val CTokSLit : string -> (cString -> 'a) -> 'a
-  val concatCStrings : CString list -> CString
-  val internalIdent : string -> ident
 end
 
-structure Hsk_c_parser : HSK_C_PARSER = struct
-  type arg = unit
+structure Hsk_c_parser : HSK_C_PARSER =
+struct
+  type arg = c_env
   type 'a p = arg -> 'a * arg
   type posLength = position * int
-  type position = unit
+
+  (**)
+  val To_string0 = String.implode o to_list
+  fun reverse l = rev l
+
+  (**)
   val return = pair
-  val getNewName = return (Name 0)
   fun bind f g = f #-> g
-  val getCurrentPosition = return NoPosition
+  fun a >> b = a #> b o #2
+  fun sequence_ f = fn [] => return ()
+                     | x :: xs => f x >> sequence_ f xs
+
+  (**)
+  val empty = []
+  fun singleton x = [x]
+  fun snoc xs x = x :: xs
+  fun rappend xs ys = rev ys @ xs
+  fun rappendr xs ys = ys @ xs
+  val rmap = map
+  val viewr = fn [] => error "viewr: empty RList"
+               | x :: xs => (xs, x)
+
+  (**)
+  val nopos = NoPosition
+  fun posOf _ = NoPosition
+
+  (**)
+  fun internalIdent s = Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0))
+
+  (**)
+  val undefNode = OnlyPos NoPosition (NoPosition, 0)
+  fun mkNodeInfo pos name = NodeInfo pos (nopos,~1) name
   fun mkNodeInfo' _ _ _ = OnlyPos NoPosition (NoPosition, 0)
+
+  (**)
+  fun liftStrLit (CStrLit0 (str, at)) = CStrConst str at
+
+  (**)
+  fun concatCStrings cs = CString0 (flatten (map (fn CString0 (s,_) => s) cs), exists (fn CString0 (_, b) => b) cs)
+
+  (**)
+  fun getNewName {tyidents, scopes, namesupply} =
+    (Name namesupply, {tyidents = tyidents, scopes = scopes, namesupply = namesupply + 1})
+  fun addTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply} =
+    ((), {tyidents = Symtab.update (To_string0 i, ()) tyidents, scopes = scopes, namesupply = namesupply})
+  fun shadowTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply} =
+    ((), {tyidents = Symtab.delete_safe (To_string0 i) tyidents, scopes = scopes, namesupply = namesupply})
+  fun isTypeIdent s0 {tyidents, ...} = Symtab.exists (fn (s1, _) => s0 = s1) tyidents
+  fun enterScope {tyidents, scopes, namesupply} = ((), {tyidents = tyidents, scopes = tyidents :: scopes, namesupply = namesupply})
+  fun leaveScope {scopes, namesupply, ...} = 
+    case scopes of [] => error "leaveScope: already in global scope"
+                 | tyidents :: scopes => ((), {tyidents = tyidents, scopes = scopes, namesupply = namesupply})
+  val getCurrentPosition = return NoPosition
+
+  (**)
+  fun CTokCLit x f = x |> f
+  fun CTokILit x f = x |> f
+  fun CTokFLit x f = x |> f
+  fun CTokSLit x f = x |> f
+
+  (**)
+  fun reverseList x = rev x
+  fun unL (Located (a, _)) = a
   fun withNodeInfo _ f = return (f (OnlyPos NoPosition (NoPosition, 0)))
   fun withLength x f = return (f x)
-  val empty = []
-  fun snoc xs x = x :: xs
-  val leaveScope = return ()
-  val enterScope = return ()
-  fun a >> b = b
-  fun liftCAttrs _ = []
-  fun liftTypeQuals _ = []
-  fun reverseDeclr x = x
-  fun doFuncParamDeclIdent _ = return ()
-  fun rappendr _ x = x
-  fun singleton x = [x]
+  fun reverseDeclr (CDeclrR0 (ide, reversedDDs, asmname, cattrs, at)) = CDeclr ide (rev reversedDDs) asmname cattrs at
+  fun appendDeclrAttrs newAttrs (CDeclrR0 (ident, l, asmname, cattrs, at)) =
+    case l of
+      [] => CDeclrR ident empty asmname (cattrs @ newAttrs) at
+    | x :: xs =>
+      let val appendAttrs = fn CPtrDeclr0 (typeQuals, at) => CPtrDeclr (typeQuals @ map CAttrQual newAttrs) at
+                             | CArrDeclr0 (typeQuals, arraySize, at) => CArrDeclr (typeQuals @ map CAttrQual newAttrs) arraySize at
+                             | CFunDeclr0 (parameters, cattrs, at) => CFunDeclr parameters (cattrs @ newAttrs) at
+      in CDeclrR ident (appendAttrs x :: xs) asmname cattrs at
+      end
+  fun withAttribute node cattrs mkDeclrNode =
+    bind
+      getNewName
+      (fn name =>
+        let val attrs = mkNodeInfo (posOf node) name
+            val newDeclr = appendDeclrAttrs cattrs (mkDeclrNode attrs)
+        in return newDeclr end)
+  fun withAttributePF node cattrs mkDeclrCtor =
+    bind
+      getNewName
+      (fn name =>
+        let val attrs = mkNodeInfo (posOf node) name
+            val newDeclr = appendDeclrAttrs cattrs o mkDeclrCtor attrs
+        in return newDeclr end)
+  fun appendObjAttrs newAttrs (CDeclr0 (ident, indirections, asmname, cAttrs, at)) =
+    CDeclr ident indirections asmname (cAttrs @ newAttrs) at
   fun withAsmNameAttrs _ x = return x
-  fun doDeclIdent _ _ = return ()
-  val reverseList = rev
-  val rmap = map
-  fun rappend l _ = l
-  fun addTrailingAttrs l _ = l
-  fun unL (Located (a, _)) = a
-  fun posOf _ = NoPosition
-  fun appendObjAttrs _ = I
-  fun mkVarDeclr _ _ = error ""
-  fun ptrDeclr x _ _ = x
-  fun withAttribute _ _ _ = return (error "")
-  fun appendDeclrAttrs _ = I
-  fun funDeclr x _ _ _ = x
-  val undefNode = OnlyPos NoPosition (NoPosition, 0)
-  val emptyDeclr = CDeclr Nothing empty Nothing [] undefNode
-  fun arrDeclr x _ _ _ _ _ = x
-  fun withAttributePF _ _ _ = return I
-  fun liftStrLit _ = error ""
-  fun CTokILit _ = error ""
-  fun CTokCLit _ = error ""
-  fun CTokFLit _ = error ""
-  fun CTokSLit _ = error ""
-  fun concatCStrings _ = error ""
-  fun internalIdent _ = error ""
+  fun ptrDeclr (CDeclrR0 (ident, derivedDeclrs, asmname, cattrs, dat)) tyquals at =
+    CDeclrR ident (snoc derivedDeclrs (CPtrDeclr tyquals at)) asmname cattrs dat
+  fun funDeclr (CDeclrR0 (ident, derivedDeclrs, asmname, dcattrs, dat)) params cattrs at =
+    CDeclrR ident (snoc derivedDeclrs (CFunDeclr params cattrs at)) asmname dcattrs dat
+  fun arrDeclr (CDeclrR0 (ident, derivedDeclrs, asmname, cattrs, dat)) tyquals var_sized static_size size_expr_opt at =
+    CDeclrR ident
+            (snoc
+               derivedDeclrs
+               (CArrDeclr tyquals (case size_expr_opt of
+                                     Some e => CArrSize static_size e
+                                   | None => CNoArrSize var_sized) at))
+            asmname
+            cattrs
+            dat
+  val liftTypeQuals = map CTypeQual o reverse
+  val liftCAttrs = map (CTypeQual o CAttrQual)
+  fun addTrailingAttrs declspecs new_attrs =
+    case viewr declspecs of
+      (specs_init, CTypeSpec0 (CSUType0 (CStruct0 (tag, name, Some def, def_attrs, su_node), node))) =>
+        snoc specs_init (CTypeSpec (CSUType (CStruct tag name (Just def) (def_attrs @ new_attrs) su_node) node))
+    | (specs_init, CTypeSpec0 (CEnumType0 (CEnum0 (name, Some def, def_attrs, e_node), node))) => 
+        snoc specs_init (CTypeSpec (CEnumType (CEnum name (Just def) (def_attrs @ new_attrs) e_node) node))
+    | _ => rappend declspecs (liftCAttrs new_attrs)
+  val emptyDeclr = CDeclrR Nothing empty Nothing [] undefNode
+  fun mkVarDeclr ident = CDeclrR (Some ident) empty Nothing []
+  fun doDeclIdent declspecs (CDeclrR0 (mIdent, _, _, _, _)) =
+    case mIdent of None => return ()
+                 | Some ident =>
+                     if exists (fn CStorageSpec0 (CTypedef0 _) => true | _ => false) declspecs
+                     then addTypedef ident
+                     else shadowTypedef ident
+  val doFuncParamDeclIdent =
+    fn CDeclr0 (_, (CFunDeclr0 (Right (params, _), _, _) :: _), _, _, _) =>
+        sequence_
+          shadowTypedef
+          (maps (fn CDecl0 (_,l,_) => maps (fn ((Some (CDeclr0 (Some mIdent, _, _, _, _)),_),_) => [mIdent]
+                                             | _ => [])
+                                           l
+                  | _ => [])
+                params)
+     | _ => return ()
 end
 
 structure List = struct
