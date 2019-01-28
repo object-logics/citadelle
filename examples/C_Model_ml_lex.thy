@@ -112,6 +112,11 @@ fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
 val one' = Scan.single o one
 fun scan_full mem msg scan =
   scan --| (Scan.ahead (one' (not o mem)) || !!! msg Scan.fail)
+fun this_string s =
+  (fold (fn s0 => uncurry (fn acc => one (fn s1 => s0 = s1) >> (fn x => x :: acc)))
+        (Symbol.explode s)
+   o pair [])
+  >> rev
 fun (scan1 @@@@ scan2) = scan1 -- scan2 >> (fn ((l11, l12), (l21, l22)) => (l11 @ l21, l12 @ l22))
 fun $$$$ x = $$$ x >> rpair []
 fun flat' l = let val (l1, l2) = map_split I l in (flat l1, flat l2) end
@@ -353,9 +358,9 @@ datatype token_kind =
   Float |
   String of bool * Symbol.symbol list |
   (**)
-  Space | Comment | Error of string | EOF;
+  Space | Comment | Directive_meta | Directive of token list | Error of string | EOF
 
-datatype token = Token of Position.range * (token_kind * string);
+and token = Token of Position.range * (token_kind * string);
 
 
 (* position *)
@@ -394,37 +399,42 @@ fun is_delimiter (Token (_, (Keyword, x))) = not (C_Symbol.is_ascii_identifier x
 
 val warn = K ();
 
-fun check_content_of tok =
+fun check_error tok =
   (case kind_of tok of
     Error msg => error msg
-  | _ => content_of tok);
+  | Directive l => app check_error l
+  | _ => ());
 
 (* markup *)
 
 local
 
-val token_kind_markup =
+val token_kind_markup0 =
  fn Char _ => (Markup.ML_char, "")
   | Integer _ => (Markup.ML_numeral, "")
   | Float => (Markup.ML_numeral, "")
   | ClangC => (Markup.ML_numeral, "")
   | String _ => (Markup.ML_string, "")
   | Comment => (Markup.ML_comment, "")
+  | Directive_meta => (Markup.antiquote, "")
   | Error msg => (Markup.bad (), msg)
   | _ => (Markup.empty, "");
 
 in
 
-fun token_report (tok as Token ((pos, _), (kind, x))) =
-  let
-    val (markup, txt) =
-      if not (is_keyword tok) then token_kind_markup kind
-      else if is_delimiter tok then (Markup.ML_delimiter, "")
-      else if member (op =) keywords2 x then (Markup.ML_keyword2 |> Markup.keyword_properties, "")
-      else if member (op =) keywords3 x then (Markup.ML_keyword3 |> Markup.keyword_properties, "")
-      else (Markup.ML_keyword1 |> Markup.keyword_properties, "");
-  in ((pos, markup), txt) end;
+fun token_kind_markup pos =
+  fn Directive tokens => ((pos, Markup.antiquoted), "") :: maps token_report tokens
+   | x => [let val (markup, txt) = token_kind_markup0 x in ((pos, markup), txt) end]
 
+and token_report (tok as Token ((pos, _), (kind, x))) =
+  if is_keyword tok then 
+    let
+      val (markup, txt) = if is_delimiter tok then (Markup.ML_delimiter, "")
+        else if member (op =) keywords2 x then (Markup.ML_keyword2 |> Markup.keyword_properties, "")
+        else if member (op =) keywords3 x then (Markup.ML_keyword3 |> Markup.keyword_properties, "")
+        else (Markup.ML_keyword1 |> Markup.keyword_properties, "");
+    in [((pos, markup), txt)] end
+  else token_kind_markup pos kind
 end;
 
 
@@ -604,17 +614,54 @@ local
 fun token k ss = Token (Symbol_Pos.range ss, (k, Symbol_Pos.content ss));
 fun token' f (s, v) = token (f v) s;
 
+fun scan_fragment blanks =
+     scan_char >> token' Char
+  || scan_string >> token' String
+  || blanks >> token Space
+  || C_Symbol_Pos.scan_comment_no_nest err_prefix >> token Comment
+  || Scan.max token_leq (Scan.literal lexicon >> token Keyword)
+                        (   scan_clangversion >> token ClangC
+                         || scan_float >> token Float
+                         || scan_int >> token' Integer
+                         || scan_ident >> token Ident)
+
+val scan_directive =
+  let val many1_no_eol = many1 C_Symbol.is_ascii_blank_no_line
+      fun blanks0 f = Scan.repeat (f (   many1_no_eol >> token Space
+                                      || C_Symbol_Pos.scan_comment_no_nest err_prefix >> token Comment))
+      val blanks = blanks0 I
+      infix 3 >>>
+      infixr 5 @-@ @+@
+      fun f >>> g = f >> (single o g)
+      fun f @-@ g = f @@@ blanks @@@ g
+      fun bnl f = (f @@@ blanks) --| Scan.ahead newline
+  in
+         ($$$ "#" >>> token Directive_meta)
+     @-@ (       (this_string "include" >>> token Directive_meta)
+             @-@ Scan.repeat (   scan_fragment many1_no_eol)
+          ||     (scan_ident >>> token Directive_meta)
+             @-@ Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token Directive_meta
+                              || $$$ "#" >> token Directive_meta
+                              || scan_fragment many1_no_eol)
+          ||     ((scan_int >> #1) >>> token Directive_meta)
+             @-@ ((scan_string >> #1) >>> token Directive_meta)
+             @-@ blanks0 (fn x => x || ((scan_int >> #1) >> token Directive_meta)))
+  ||     bnl ($$$ "#" >>> token Directive_meta)
+  ||     (this_string "_Pragma" >>> token Directive_meta)
+     @-@ ($$$ "(" >>> token Keyword)
+     @-@ (scan_string >>> token' String)
+     @-@ ($$$ ")" >>> token Keyword)
+  end
+
 val scan_ml =
- (scan_char >> token' Char ||
-  scan_string >> token' String ||
-  scan_blanks1 >> token Space ||
-  C_Symbol_Pos.scan_comment_no_nest err_prefix >> token Comment ||
-  Scan.max token_leq
-   (Scan.literal lexicon >> token Keyword)
-   (scan_clangversion >> token ClangC ||
-    scan_float >> token Float ||
-    scan_int >> token' Integer ||
-    scan_ident >> token Ident));
+ (scan_directive
+  >> (fn tokens =>
+        Token ( Position.range ( let val Token ((pos1, _), _) = hd tokens in pos1 end
+                               , case tokens of
+                                        [] => Position.none
+                                      | _ => case List.last tokens of Token ((_, pos2), _) => pos2)
+              , (Directive tokens, String.concatWith "" (map content_of tokens))))
+  || scan_fragment scan_blanks1);
 
 val scan_ml_antiq =
   Antiquote.scan_control >> Antiquote.Control ||
@@ -641,7 +688,7 @@ fun gen_read pos text =
           val pos2 = Position.advance Symbol.space pos1;
         in [Antiquote.Text (Token (Position.range (pos1, pos2), (Space, Symbol.space)))] end;
 
-    fun check (Antiquote.Text tok) = (check_content_of tok; warn tok)
+    fun check (Antiquote.Text tok) = (check_error tok; warn tok)
       | check _ = ();
     val input =
       Source.of_list syms
@@ -656,7 +703,7 @@ fun gen_read pos text =
       |> Source.exhaust;
     val _ = Position.reports (Antiquote.antiq_reports input);
     val _ =
-      Position.reports_text (maps (fn Antiquote.Text t => [token_report t] | _ => []) input);
+      Position.reports_text (maps (fn Antiquote.Text t => token_report t | _ => []) input);
     val _ = List.app check input;
   in input @ termination end;
 
@@ -757,8 +804,22 @@ int a = "outside";
 C_lex \<comment> \<open>\<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
 /\
 *
-*/
-@{abc\
+*/ # /*
+*/ defi\
+ne FO\
+O 10\
+20\<close>
+
+C_lex \<comment> \<open>Directive\<close> \<open># f # "/**/"
+/**/
+#     /**/ //  #
+
+_Pragma /\
+**/("a")
+\<close>
+
+C_lex \<comment> \<open>Backslash newline\<close> \<open>
+ @{abc\
 def} // break of line activated everywhere (also in antiquotations)
 i\    
 n\                
