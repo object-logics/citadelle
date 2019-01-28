@@ -377,32 +377,12 @@ fun is_keyword (Token (_, (Keyword, _))) = true
 fun is_delimiter (Token (_, (Keyword, x))) = not (C_Symbol.is_ascii_identifier x)
   | is_delimiter _ = false;
 
-fun is_regular (Token (_, (Error _, _))) = false
-  | is_regular (Token (_, (EOF, _))) = false
-  | is_regular _ = true;
-
-fun is_improper (Token (_, (Space, _))) = true
-  | is_improper (Token (_, (Comment, _))) = true
-  | is_improper _ = false;
-
 val warn = K ();
 
 fun check_content_of tok =
   (case kind_of tok of
     Error msg => error msg
   | _ => content_of tok);
-
-
-(* flatten *)
-
-fun flatten_content (tok :: (toks as tok' :: _)) =
-      Symbol.escape (check_content_of tok) ::
-        (if is_improper tok orelse is_improper tok' then flatten_content toks
-         else Symbol.space :: flatten_content toks)
-  | flatten_content toks = map (Symbol.escape o check_content_of) toks;
-
-val flatten = implode o flatten_content;
-
 
 (* markup *)
 
@@ -431,7 +411,6 @@ fun token_report (tok as Token ((pos, _), (kind, x))) =
   in ((pos, markup), txt) end;
 
 end;
-
 
 
 (** scanners **)
@@ -612,17 +591,6 @@ fun gen_read pos text =
   in input @ termination end;
 
 in
-
-fun source src =
-  Symbol_Pos.source (Position.line 1) src
-  |> Source.source Symbol_Pos.stopper (Scan.recover (Scan.bulk (!!! "bad input" scan_ml)) recover);
-
-val tokenize = Symbol.explode #> Source.of_list #> source #> Source.exhaust;
-
-val read = gen_read Position.none;
-
-fun read_set_range range =
-  read #> map (fn Antiquote.Text tok => Antiquote.Text (set_range range tok) | antiq => antiq);
 
 fun read_source source =
   let
