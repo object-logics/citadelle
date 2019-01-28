@@ -86,6 +86,10 @@ fun is_ascii_letdig s =
 
 fun is_ascii_identifier s =
   size s > 0 andalso forall_string is_ascii_letdig s;
+
+val is_ascii_blank_no_line =
+  fn " " => true | "\t" => true | "\^K" => true | "\f" => true
+    | _ => false;
 end
 \<close>
 
@@ -642,6 +646,11 @@ fun gen_read pos text =
     val input =
       Source.of_list syms
       |> Source.source Symbol_Pos.stopper
+                       (Scan.bulk (   ($$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line) --| Scanner.newline
+                                      >> (fn l => (Output.information ("Backslash newline" ^ Position.here (Symbol_Pos.range l |> Position.range_position)); NONE))
+                                   || Scan.one (K true) >> SOME))
+      |> Source.map_filter I
+      |> Source.source Symbol_Pos.stopper
         (Scan.recover (Scan.bulk (!!! "bad input" scan_ml_antiq))
           (fn msg => recover msg >> map Antiquote.Text))
       |> Source.exhaust;
@@ -743,6 +752,20 @@ inside
 */ int a = "outside";
 // inside /* inside until end of line
 int a = "outside";
+\<close>
+
+C_lex \<comment> \<open>\<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
+/\
+*
+*/
+@{abc\
+def} // break of line activated everywhere (also in antiquotations)
+i\    
+n\                
+t a = "/* //  /\ 
+*\
+fff */\
+";
 \<close>
 
 end
