@@ -60,6 +60,57 @@ theory C_Model_ml_lex
 begin
 
 ML\<open>
+(*  Title:      Pure/General/symbol.ML
+    Author:     Makarius
+
+Generalized characters with infinitely many named symbols.
+*)
+
+structure C_Symbol =
+struct
+fun is_ascii_quasi "_" = true
+  | is_ascii_quasi "$" = true
+  | is_ascii_quasi _ = false;
+
+fun is_identletter s =
+  Symbol.is_ascii_letter s orelse is_ascii_quasi s
+
+fun is_ascii_oct s =
+  Symbol.is_char s andalso Char.ord #"0" <= ord s andalso ord s <= Char.ord #"7";
+
+fun is_ascii_digit1 s =
+  Symbol.is_char s andalso Char.ord #"1" <= ord s andalso ord s <= Char.ord #"9";
+
+fun is_ascii_letdig s =
+  Symbol.is_ascii_letter s orelse Symbol.is_ascii_digit s orelse is_ascii_quasi s;
+
+fun is_ascii_identifier s =
+  size s > 0 andalso forall_string is_ascii_letdig s;
+end
+\<close>
+
+ML\<open>
+structure Scanner =
+struct
+open Basic_Symbol_Pos;
+
+val err_prefix = "C lexical error: ";
+
+fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
+fun opt x = Scan.optional x [];
+fun one f = Scan.one (f o Symbol_Pos.symbol)
+fun many f = Scan.many (f o Symbol_Pos.symbol)
+fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
+val one' = Scan.single o one
+fun scan_full f_mem msg scan =
+  let fun mem f = Scan.ahead (one' (f o f_mem)) in
+      (scan --| mem not)
+   || (mem I --| !!! msg Scan.fail)
+  end
+end
+\<close>
+
+ML\<open>
 (*  Title:      Pure/General/symbol_pos.ML
     Author:     Makarius
 
@@ -96,36 +147,6 @@ fun scan_comment err_prefix =
   || $$$ "/" @@@ $$$ "/" @@@ Scan.repeats (Scan.one (fn (s, _) => s <> "\n" andalso Symbol.not_eof s) >> single);
 
 end
-end
-\<close>
-
-ML\<open>
-(*  Title:      Pure/General/symbol.ML
-    Author:     Makarius
-
-Generalized characters with infinitely many named symbols.
-*)
-
-structure C_Symbol =
-struct
-fun is_ascii_quasi "_" = true
-  | is_ascii_quasi "$" = true
-  | is_ascii_quasi _ = false;
-
-fun is_identletter s =
-  Symbol.is_ascii_letter s orelse is_ascii_quasi s
-
-fun is_ascii_oct s =
-  Symbol.is_char s andalso Char.ord #"0" <= ord s andalso ord s <= Char.ord #"7";
-
-fun is_ascii_digit1 s =
-  Symbol.is_char s andalso Char.ord #"1" <= ord s andalso ord s <= Char.ord #"9";
-
-fun is_ascii_letdig s =
-  Symbol.is_ascii_letter s orelse Symbol.is_ascii_digit s orelse is_ascii_quasi s;
-
-fun is_ascii_identifier s =
-  size s > 0 andalso forall_string is_ascii_letdig s;
 end
 \<close>
 
@@ -397,22 +418,7 @@ end;
 
 
 (** scanners **)
-
-open Basic_Symbol_Pos;
-
-val err_prefix = "C lexical error: ";
-
-fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
-fun opt x = Scan.optional x [];
-fun one f = Scan.one (f o Symbol_Pos.symbol)
-fun many f = Scan.many (f o Symbol_Pos.symbol)
-fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
-val one' = Scan.single o one
-fun scan_full f_mem msg scan =
-  let fun mem f = Scan.ahead (one' (f o f_mem)) in
-      (scan --| mem not)
-   || (mem I --| !!! msg Scan.fail)
-  end
+open Scanner;
 
 (* identifiers *)
 
