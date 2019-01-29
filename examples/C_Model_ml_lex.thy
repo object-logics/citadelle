@@ -733,7 +733,8 @@ ML context and antiquotations.
 
 structure C_Context =
 struct
-fun eval_source source =
+
+fun eval _ _ =
   app
     (fn Antiquote.Text (C_Lex.Token t) => 
         (case #2 t of (C_Lex.Char _, _) => writeln "Text Char"
@@ -741,16 +742,10 @@ fun eval_source source =
                     | _ => writeln (@{make_string} (Antiquote.Text (#2 t))))
       | Antiquote.Control c => writeln (@{make_string} (Antiquote.Control c))
       | Antiquote.Antiq a => writeln (@{make_string} (Antiquote.Antiq a)))
-    source
 
-fun exec_parse source =
-  ML_Context.exec (fn () =>
-                    let
-                      val source = C_Lex.read_source source
-                      val _ = eval_source source
-                    in ()
-                    end) #>
-    Local_Theory.propagate_ml_env
+fun eval_source flags source =
+  eval flags (Input.pos_of source) (C_Lex.read_source source);
+
 end
 \<close>
 
@@ -764,16 +759,24 @@ Commands to load ML files.
 structure C_File =
 struct
 
-fun command debug files = Toplevel.generic_theory (fn gthy =>
+fun command SML debug files = Toplevel.generic_theory (fn gthy =>
   let
     val [{src_path, lines, digest, pos}: Token.file] = files (Context.theory_of gthy);
     val provide = Resources.provide (src_path, digest);
     val source = Input.source true (cat_lines lines) (pos, pos);
+    val flags =
+      {SML = SML, exchange = false, redirect = true, verbose = true,
+        debug = debug, writeln = writeln, warning = warning};
   in
     gthy
-    |> C_Context.exec_parse source
+    |> ML_Context.exec (fn () => C_Context.eval_source flags source)
+    |> Local_Theory.propagate_ml_env
     |> Context.mapping provide (Local_Theory.background_theory provide)
   end);
+
+val C : bool option ->
+      (theory -> Token.file list) ->
+        Toplevel.transition -> Toplevel.transition = command false;
 
 end;
 \<close>
@@ -786,12 +789,19 @@ val _ =
   Outer_Syntax.command @{command_keyword C_lex} ""
     (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
       Toplevel.generic_theory
-        (C_Context.exec_parse source)))
+        (ML_Context.exec (fn () =>
+            C_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
+          Local_Theory.propagate_ml_env)));
+
+local
+
+val semi = Scan.option @{keyword ";"};
 
 val _ =
   Outer_Syntax.command @{command_keyword C_file} "read and evaluate C file"
-    (Resources.parse_files "ML_file" >> C_File.command NONE);
+    (Resources.parse_files "C_file" --| semi >> C_File.C NONE);
 
+in end
 end
 \<close>
 
