@@ -95,7 +95,6 @@ end
 \<close>
 
 ML\<open>
-infixr 5 @@@@;
 
 structure Scanner =
 struct
@@ -105,8 +104,7 @@ val err_prefix = "C lexical error: ";
 
 fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
 fun opt x = Scan.optional x [];
-fun opt' x = Scan.optional x ([], []);
-fun opt'' x = Scan.optional (x >> rpair true) ([], false);
+fun opt'' x = Scan.optional (x >> K true) false;
 fun one f = Scan.one (f o Symbol_Pos.symbol)
 fun many f = Scan.many (f o Symbol_Pos.symbol)
 fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
@@ -118,11 +116,6 @@ fun this_string s =
         (Symbol.explode s)
    o pair [])
   >> rev
-fun (scan1 @@@@ scan2) = scan1 -- scan2 >> (fn ((l11, l12), (l21, l22)) => (l11 @ l21, l12 @ l22))
-fun $$$$ x = $$$ x >> rpair []
-fun flat' l = let val (l1, l2) = map_split I l in (flat l1, flat l2) end
-fun repeats' scan = Scan.repeat scan >> flat'
-fun repeats1' scan = Scan.repeat1 scan >> flat'
 fun repeats_one_not_eof scan =
   Scan.repeats (Scan.unless scan
                             (Scan.one (fn (s, _) => Symbol.not_eof s) >> single))
@@ -473,34 +466,34 @@ val many1_digit = many1 Symbol.is_ascii_digit
 val many_hex = many Symbol.is_ascii_hex
 val many1_hex = many1 Symbol.is_ascii_hex
 
-val scan_suffix_ll = ($$$ "l" @@@ $$$ "l" || $$$ "L" @@@ $$$ "L") >> rpair [FlagLongLong]
-fun scan_suffix_gnu flag = ($$$ "i" || $$$ "j") >> rpair [flag]
+val scan_suffix_ll = ($$$ "l" @@@ $$$ "l" || $$$ "L" @@@ $$$ "L") >> K [FlagLongLong]
+fun scan_suffix_gnu flag = ($$$ "i" || $$$ "j") >> K [flag]
 val scan_suffix_int = 
-  let val u = ($$$ "u" || $$$ "U") >> rpair [FlagUnsigned]
-      val l = ($$$ "l" || $$$ "L") >> rpair [FlagLong] in
-      u @@@@ scan_suffix_ll
-   || scan_suffix_ll @@@@ opt' u
-   || u @@@@ opt' l
-   || l @@@@ opt' u
+  let val u = ($$$ "u" || $$$ "U") >> K [FlagUnsigned]
+      val l = ($$$ "l" || $$$ "L") >> K [FlagLong] in
+      u @@@ scan_suffix_ll
+   || scan_suffix_ll @@@ opt u
+   || u @@@ opt l
+   || l @@@ opt u
   end
 
 val scan_suffix_gnu_int0 = scan_suffix_gnu FlagImag
 val scan_suffix_gnu_int = scan_full (member (op =) (raw_explode "uUlLij"))
                                     "Invalid integer constant suffix"
-                                    (   scan_suffix_int @@@@ opt' scan_suffix_gnu_int0
-                                     || scan_suffix_gnu_int0 @@@@ opt' scan_suffix_int)
+                                    (   scan_suffix_int @@@ opt scan_suffix_gnu_int0
+                                     || scan_suffix_gnu_int0 @@@ opt scan_suffix_int)
 
 fun scan_intgnu x =
-  x -- opt' scan_suffix_gnu_int
-  >> (fn ((s1, s1', read, repr), (s2, l)) => (s1 @ s2, (read (map (Symbol_Pos.content o single) s1'), repr, l)))
+  x -- opt scan_suffix_gnu_int
+  >> (fn ((s1', read, repr), l) => (read (map (Symbol_Pos.content o single) s1'), repr, l))
 
 val scan_intoct = scan_intgnu ((* NOTE: 0 is lexed as octal integer constant, and readCOctal takes care of this*)
-                               $$ "0" -- many C_Symbol.is_ascii_oct
-                               >> (fn (x, xs) => (x :: xs, xs, read_oct, OctalRepr)))
+                               $$ "0" |-- many C_Symbol.is_ascii_oct
+                               >> (fn xs => (xs, read_oct, OctalRepr)))
 val scan_intdec = scan_intgnu (one C_Symbol.is_ascii_digit1 -- many Symbol.is_ascii_digit
-                               >> (fn (x, xs) => let val xs = x :: xs in (xs, xs, read_dec, DecRepr) end))
-val scan_inthex = scan_intgnu (($$$ "0" @@@ ($$$ "x" || $$$ "X")) -- many1_hex
-                               >> (fn (xs1, xs2) => (xs1 @ xs2, xs2, read_hex, HexRepr)))
+                               >> (fn (x, xs) => (x :: xs, read_dec, DecRepr)))
+val scan_inthex = scan_intgnu (($$ "0" -- ($$ "x" || $$ "X")) |-- many1_hex
+                               >> (fn xs2 => (xs2, read_hex, HexRepr)))
 
 (**)
 
@@ -508,7 +501,7 @@ fun scan_signpart a A = ($$$ a || $$$ A) @@@ opt ($$$ "+" || $$$ "-") @@@ many1_
 val scan_exppart = scan_signpart "e" "E"
 
 val scan_suffix_float = $$$ "f" || $$$ "F" || $$$ "l" || $$$ "L"
-val scan_suffix_gnu_float0 = scan_suffix_gnu () >> #1
+val scan_suffix_gnu_float0 = Scan.trace (scan_suffix_gnu ()) >> #2
 val scan_suffix_gnu_float = scan_full (member (op =) (raw_explode "fFlLij"))
                                       "Invalid float constant suffix"
                                       (   scan_suffix_float @@@ opt scan_suffix_gnu_float0
@@ -562,46 +555,44 @@ val escape_char = [ ("n", #"\n")
 fun scan_escape s0 =
   let val oct = one' C_Symbol.is_ascii_oct
       val hex = one' Symbol.is_ascii_hex
-      fun read_oct' l = (List.concat l, [chr (read_oct (map Symbol_Pos.content l))])
+      fun read_oct' l = [chr (read_oct (map Symbol_Pos.content l))]
   in one' (member (op =) (raw_explode (s0 ^ String.concat (map #1 escape_char))))
      >> (fn i =>
-          (i, [case AList.lookup (op =) escape_char (Symbol_Pos.content i) of
-                 NONE => s0
-               | SOME c => String.str c]))
+          [case AList.lookup (op =) escape_char (Symbol_Pos.content i) of
+             NONE => s0
+           | SOME c => String.str c])
   || oct -- oct -- oct >> (fn ((o1, o2), o3) => read_oct' [o1, o2, o3])
   || oct -- oct >> (fn (o1, o2) => read_oct' [o1, o2])
   || oct >> (read_oct' o single)
-  || $$ "x" -- many1 Symbol.is_ascii_hex
-     >> (fn (x, xs) => (x :: xs, [chr (read_hex (map (Symbol_Pos.content o single) xs))]))
-  || $$$ "u" -- hex -- hex -- hex -- hex
-     >> (fn ((((x, x1), x2), x3), x4) =>
-          (List.concat [x, x1, x2, x3, x4], [chr (read_hex (map Symbol_Pos.content [x1, x2, x3, x4]))]))
-  || $$$ "U" -- hex -- hex -- hex -- hex -- hex -- hex -- hex -- hex
-     >> (fn ((((((((x, x1), x2), x3), x4), x5), x6), x7), x8) =>
-          ( List.concat [x, x1, x2, x3, x4, x5, x6, x7, x8]
-          , [chr (read_hex (map Symbol_Pos.content [x1, x2, x3, x4, x5, x6, x7, x8]))]))
+  || $$ "x" |-- many1 Symbol.is_ascii_hex
+     >> (fn xs => [chr (read_hex (map (Symbol_Pos.content o single) xs))])
+  || $$ "u" |-- hex -- hex -- hex -- hex
+     >> (fn (((x1, x2), x3), x4) =>
+          [chr (read_hex (map Symbol_Pos.content [x1, x2, x3, x4]))])
+  || $$ "U" |-- hex -- hex -- hex -- hex -- hex -- hex -- hex -- hex
+     >> (fn (((((((x1, x2), x3), x4), x5), x6), x7), x8) =>
+          [chr (read_hex (map Symbol_Pos.content [x1, x2, x3, x4, x5, x6, x7, x8]))])
   end
 
 fun scan_str s0 =
      Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s0 andalso s <> "\\")
-     >> (fn s => ([s], [#1 s]))
-  || $$$$ "\\" @@@@ !!! "bad escape character" (scan_escape s0);
+     >> (fn s => [#1 s])
+  || $$ "\\" |-- !!! "bad escape character" (scan_escape s0);
 
-val scan_gap = $$$ "\\" @@@ scan_blanks1 @@@ $$$ "\\";
+fun scan_gap xs = ($$ "\\" -- scan_blanks1 -- $$ "\\" >> K []) xs;
 
 fun scan_string0 s0 msg repeats =
-  opt'' ($$$ "L") --
+  opt'' ($$ "L") --
     (Scan.ahead ($$ s0) |--
       !!! ("unclosed " ^ msg ^ " literal")
-        ($$$$ s0 @@@@ repeats (scan_gap >> rpair [] || scan_str s0) @@@@ $$$$ s0))
-  >> (fn ((s1, v1), (s2, v2)) => (s1 @ s2, (v1, v2)))
+        ($$ s0 |-- repeats (scan_gap || scan_str s0) --| $$ s0))
 
 fun recover_string0 s0 repeats =
-  opt ($$$ "L") @@@ $$$ s0 @@@ repeats (scan_gap || Scan.permissive (scan_str s0 >> #1));
+  opt ($$$ "L") @@@ $$$ s0 @@@ repeats (scan_gap || Scan.permissive (Scan.trace (scan_str s0) >> #2));
 in
 
-val scan_char = scan_string0 "'" "char" repeats1'
-val scan_string = scan_string0 "\"" "string" repeats'
+val scan_char = scan_string0 "'" "char" Scan.repeats1
+val scan_string = scan_string0 "\"" "string" Scan.repeats
 
 val recover_char = recover_string0 "'" Scan.repeats1
 val recover_string = recover_string0 "\"" Scan.repeats
@@ -613,23 +604,25 @@ end;
 local
 
 fun token k ss = Token (Symbol_Pos.range ss, (k, Symbol_Pos.content ss));
-fun token' f (s, v) = token (f v) s;
+fun scan_token f1 f2 = Scan.trace f1 >> (fn (v, s) => token (f2 v) s)
+
+val comments = C_Symbol_Pos.scan_comment_no_nest err_prefix >> token Comment
 
 fun scan_fragment blanks =
-     scan_char >> token' Char
-  || scan_string >> token' String
+     scan_token scan_char Char
+  || scan_token scan_string String
   || blanks >> token Space
-  || C_Symbol_Pos.scan_comment_no_nest err_prefix >> token Comment
+  || comments
   || Scan.max token_leq (Scan.literal lexicon >> token Keyword)
                         (   scan_clangversion >> token ClangC
                          || scan_float >> token Float
-                         || scan_int >> token' Integer
+                         || scan_token scan_int Integer
                          || scan_ident >> token Ident)
 
 val scan_directive =
   let val many1_no_eol = many1 C_Symbol.is_ascii_blank_no_line
       fun blanks0 f = Scan.repeat (f (   many1_no_eol >> token Space
-                                      || C_Symbol_Pos.scan_comment_no_nest err_prefix >> token Comment))
+                                      || comments))
       val blanks = blanks0 I
       infix 3 >>>
       infixr 5 @-@ @+@
@@ -644,13 +637,13 @@ val scan_directive =
              @-@ Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token Directive_meta
                               || $$$ "#" >> token Directive_meta
                               || scan_fragment many1_no_eol)
-          ||     ((scan_int >> #1) >>> token Directive_meta)
-             @-@ ((scan_string >> #1) >>> token Directive_meta)
-             @-@ blanks0 (fn x => x || ((scan_int >> #1) >> token Directive_meta)))
+          ||     ((Scan.trace scan_int >> #2) >>> token Directive_meta)
+             @-@ ((Scan.trace scan_string >> #2) >>> token Directive_meta)
+             @-@ blanks0 (fn x => x || ((Scan.trace scan_int >> #2) >> token Directive_meta)))
   ||     bnl ($$$ "#" >>> token Directive_meta)
   ||     (this_string "_Pragma" >>> token Directive_meta)
      @-@ ($$$ "(" >>> token Keyword)
-     @-@ (scan_string >>> token' String)
+     @-@ (scan_token scan_string String >> single)
      @-@ ($$$ ")" >>> token Keyword)
   end
 
