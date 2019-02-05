@@ -232,6 +232,9 @@ val scan_comment_no_nest =
       ($$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2) @@@ $$$ "*" @@@ $$$ par_r)
   || $$$ "/" @@@ $$$ "/" @@@ Scanner.repeats_until_nl;
 
+val recover_comment =
+  $$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2);
+
 end
 end
 \<close>
@@ -728,7 +731,7 @@ fun recover msg =
  (recover_char ||
   recover_string ||
   Symbol_Pos.recover_cartouche ||
-  Symbol_Pos.recover_comment ||
+  C_Symbol_Pos.recover_comment ||
   one' Symbol.not_eof)
   >> token (Error msg);
 
