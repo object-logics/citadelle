@@ -1092,6 +1092,17 @@ inside
 int a = "outside";
 \<close>
 
+C_lex \<comment> \<open>Backslash newline\<close> \<open>
+ @{abc\
+def} // break of line activated everywhere (also in antiquotations)
+i\    
+n\                
+t a = "/* //  /\ 
+*\
+fff */\
+";
+\<close>
+
 C_lex \<comment> \<open>\<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
 /\
 *
@@ -1107,17 +1118,6 @@ C_lex \<comment> \<open>Directive\<close> \<open># f # "/**/"
 
 _Pragma /\
 **/("a")
-\<close>
-
-C_lex \<comment> \<open>Backslash newline\<close> \<open>
- @{abc\
-def} // break of line activated everywhere (also in antiquotations)
-i\    
-n\                
-t a = "/* //  /\ 
-*\
-fff */\
-";
 \<close>
 
 end
