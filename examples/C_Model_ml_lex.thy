@@ -98,53 +98,8 @@ ML\<open>
 Antiquotations within plain text.
 *)
 
-structure Antiquote =
+structure C_Antiquote =
 struct
-
-(* datatype antiquote *)
-
-type control = {range: Position.range, name: string * Position.T, body: Symbol_Pos.T list};
-type antiq = {start: Position.T, stop: Position.T, range: Position.range, body: Symbol_Pos.T list};
-datatype 'a antiquote = Text of 'a | Control of control | Antiq of antiq;
-
-type text_antiquote = Symbol_Pos.T list antiquote;
-
-fun antiquote_range (Text ss) = Symbol_Pos.range ss
-  | antiquote_range (Control {range, ...}) = range
-  | antiquote_range (Antiq {range, ...}) = range;
-
-fun range ants =
-  if null ants then Position.no_range
-  else Position.range (#1 (antiquote_range (hd ants)), #2 (antiquote_range (List.last ants)));
-
-
-(* split lines *)
-
-fun split_lines input =
-  let
-    fun add a (line, lines) = (a :: line, lines);
-    fun flush (line, lines) = ([], rev line :: lines);
-    fun split (a as Text ss) =
-          (case take_prefix (fn ("\n", _) => false | _ => true) ss of
-            ([], []) => I
-          | (_, []) => add a
-          | ([], _ :: rest) => flush #> split (Text rest)
-          | (prefix, _ :: rest) => add (Text prefix) #> flush #> split (Text rest))
-      | split a = add a;
-  in if null input then [] else rev (#2 (flush (fold split input ([], [])))) end;
-
-
-(* reports *)
-
-fun antiq_reports ants = ants |> maps
-  (fn Text _ => []
-    | Control {range = (pos, _), ...} => [(pos, Markup.antiquoted)]
-    | Antiq {start, stop, range = (pos, _), ...} =>
-        [(start, Markup.antiquote),
-         (stop, Markup.antiquote),
-         (pos, Markup.antiquoted),
-         (pos, Markup.language_antiquotation)]);
-
 
 (* scan *)
 
@@ -154,16 +109,17 @@ local
 
 val err_prefix = "Antiquotation lexical error: ";
 
-val scan_txt =
-  Scan.repeats1
-   (Scan.many1 (fn (s, _) =>
-      not (Symbol.is_control s) andalso s <> Symbol.open_ andalso s <> "@" andalso Symbol.not_eof s) ||
-    $$$ "@" --| Scan.ahead (~$$ "{"));
+val par_l = "/"
+val par_r = "/"
+
+val scan_body1 = $$$ "*" --| Scan.ahead (~$$$ par_r)
+val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
 
 val scan_antiq_body =
   Scan.trace (Symbol_Pos.scan_string_qq err_prefix || Symbol_Pos.scan_string_bq err_prefix) >> #2 ||
   Symbol_Pos.scan_cartouche err_prefix ||
-  Scan.one (fn (s, _) => s <> "}" andalso Symbol.not_eof s) >> single;
+  scan_body1 ||
+  scan_body2;
 
 fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
 
@@ -184,33 +140,16 @@ val scan_control =
       {name = (control_name sym, pos), range = Symbol_Pos.range [(sym, pos)], body = []});
 
 val scan_antiq =
-  Symbol_Pos.scan_pos -- ($$ "@" |-- $$ "{" |-- Symbol_Pos.scan_pos --
-    Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing brace")
-      (Scan.repeats scan_antiq_body -- Symbol_Pos.scan_pos -- ($$ "}" |-- Symbol_Pos.scan_pos))) >>
+  Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- $$ "@" |-- Symbol_Pos.scan_pos --
+    Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
+      (Scan.repeats scan_antiq_body -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos))) >>
     (fn (pos1, (pos2, ((body, pos3), pos4))) =>
       {start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos4),
        range = Position.range (pos1, pos4),
        body = body});
 
-val scan_antiquote =
-  scan_txt >> Text || scan_control >> Control || scan_antiq >> Antiq;
-
 end;
-
-
-(* read *)
-
-fun parse pos syms =
-  (case Scan.read Symbol_Pos.stopper (Scan.repeat scan_antiquote) syms of
-    SOME ants => ants
-  | NONE => error ("Malformed quotation/antiquotation source" ^ Position.here pos));
-
-fun read source =
-  let
-    val ants = parse (Input.pos_of source) (Input.source_explode source);
-    val _ = Position.reports (antiq_reports ants);
-  in ants end;
 
 end;
 \<close>
@@ -258,7 +197,7 @@ Symbols with explicit position information.
 
 structure C_Symbol_Pos =
 struct
-val !!! = Symbol_Pos.!!!
+val !!! = Scanner.!!!
 val $$ = Symbol_Pos.$$
 val $$$ = Symbol_Pos.$$$
 val ~$$$ = Symbol_Pos.~$$$
@@ -281,15 +220,15 @@ val scan_cmts = Scan.pass 0 (Scan.repeats scan_cmt);
 
 in
 
-fun scan_comment err_prefix =
+val scan_comment =
   Scan.ahead ($$ par_l -- $$ "*") |--
-    !!! (fn () => err_prefix ^ "unclosed comment")
+    !!! "unclosed comment"
       ($$$ par_l @@@ $$$ "*" @@@ scan_cmts @@@ $$$ "*" @@@ $$$ par_r)
   || $$$ "/" @@@ $$$ "/" @@@ Scanner.repeats_until_nl;
 
-fun scan_comment_no_nest err_prefix =
+val scan_comment_no_nest =
   Scan.ahead ($$ par_l -- $$ "*") |--
-    !!! (fn () => err_prefix ^ "unclosed comment")
+    !!! "unclosed comment"
       ($$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2) @@@ $$$ "*" @@@ $$$ par_r)
   || $$$ "/" @@@ $$$ "/" @@@ Scanner.repeats_until_nl;
 
@@ -475,7 +414,7 @@ datatype token_kind =
   Float |
   String of bool * Symbol.symbol list |
   (**)
-  Space | Comment | Directive_meta | Directive of token list | Error of string | EOF
+  Space | Comment of unit Antiquote.antiquote | Directive_meta | Directive of token list | Error of string | EOF
 
 and token = Token of Position.range * (token_kind * string);
 
@@ -532,7 +471,7 @@ val token_kind_markup0 =
   | Float => (Markup.ML_numeral, "")
   | ClangC => (Markup.ML_numeral, "")
   | String _ => (Markup.ML_string, "")
-  | Comment => (Markup.ML_comment, "")
+  | Comment _ => (Markup.ML_comment, "")
   | Directive_meta => (Markup.antiquote, "")
   | Error msg => (Markup.bad (), msg)
   | _ => (Markup.empty, "");
@@ -729,7 +668,12 @@ local
 fun token k ss = Token (Symbol_Pos.range ss, (k, Symbol_Pos.content ss));
 fun scan_token f1 f2 = Scan.trace f1 >> (fn (v, s) => token (f2 v) s)
 
-val comments = C_Symbol_Pos.scan_comment_no_nest err_prefix >> token Comment
+val comments =
+  let fun scan_anti f1 f2 = scan_token f1 (Comment o f2) in
+     scan_anti C_Antiquote.scan_control Antiquote.Control
+  || scan_anti C_Antiquote.scan_antiq Antiquote.Antiq
+  || C_Symbol_Pos.scan_comment_no_nest >> token (Comment (Antiquote.Text ()))
+  end
 
 fun scan_fragment blanks =
      scan_token scan_char Char
@@ -780,18 +724,13 @@ val scan_ml =
               , (Directive tokens, String.concatWith "" (map content_of tokens))))
   || scan_fragment scan_blanks1);
 
-val scan_ml_antiq =
-  Antiquote.scan_control >> Antiquote.Control ||
-  Antiquote.scan_antiq >> Antiquote.Antiq ||
-  scan_ml >> Antiquote.Text;
-
 fun recover msg =
  (recover_char ||
   recover_string ||
   Symbol_Pos.recover_cartouche ||
   Symbol_Pos.recover_comment ||
   one' Symbol.not_eof)
-  >> (single o token (Error msg));
+  >> token (Error msg);
 
 fun gen_read pos text =
   let
@@ -803,10 +742,16 @@ fun gen_read pos text =
         let
           val pos1 = List.last syms |-> Position.advance;
           val pos2 = Position.advance Symbol.space pos1;
-        in [Antiquote.Text (Token (Position.range (pos1, pos2), (Space, Symbol.space)))] end;
+        in [Token (Position.range (pos1, pos2), (Space, Symbol.space))] end;
 
-    fun check (Antiquote.Text tok) = (check_error tok; warn tok)
-      | check _ = ();
+    fun check tok = (check_error tok; warn tok);
+
+    fun get_antiq tok = case tok of
+        Token (_, (Comment (Antiquote.Control c), _)) => [Antiquote.Control c]
+      | Token (_, (Comment (Antiquote.Antiq a), _)) => [Antiquote.Antiq a]
+      | Token (_, (Directive l, _)) => maps get_antiq l
+      | _ => []
+
     val input =
       Source.of_list syms
       |> Source.source Symbol_Pos.stopper
@@ -815,14 +760,16 @@ fun gen_read pos text =
                                    || Scan.one (K true) >> SOME))
       |> Source.map_filter I
       |> Source.source Symbol_Pos.stopper
-        (Scan.recover (Scan.bulk (!!! "bad input" scan_ml_antiq))
-          (fn msg => recover msg >> map Antiquote.Text))
-      |> Source.exhaust;
-    val _ = Position.reports (Antiquote.antiq_reports input);
+        (Scan.recover (Scan.bulk (!!! "bad input" scan_ml))
+          (fn msg => recover msg >> single))
+      |> Source.exhaust
+      |> (fn input => input @ termination);
+    val input' = maps get_antiq input
+    val _ = Position.reports (Antiquote.antiq_reports input');
     val _ =
-      Position.reports_text (maps (fn Antiquote.Text t => token_report t | _ => []) input);
+      Position.reports_text (maps token_report input);
     val _ = List.app check input;
-  in input @ termination end;
+  in (input, input') end;
 
 in
 
@@ -1009,14 +956,20 @@ fun eval flags pos ants =
 
 end;
 
-fun eval' _ _ =
+fun eval' flags pos (ants, ants') =
+ (ML_Context.eval flags pos (case ML_Lex.read "(,)" of
+                              [par_l, colon, par_r, space] =>
+                                par_l ::
+                                (ants'
+                                |> separate colon)
+                                @ [par_r, space]
+                             | _ => []);
   app
-    (fn Antiquote.Text (C_Lex.Token t) => 
-        (case #2 t of (C_Lex.Char _, _) => writeln "Text Char"
-                    | (C_Lex.String _, _) => writeln "Text String"
-                    | _ => writeln (@{make_string} (Antiquote.Text (#2 t))))
-      | Antiquote.Control c => writeln (@{make_string} (Antiquote.Control c))
-      | Antiquote.Antiq a => writeln (@{make_string} (Antiquote.Antiq a)))
+    (fn C_Lex.Token (_, t) => 
+      case t of (C_Lex.Char _, _) => writeln "Text Char"
+              | (C_Lex.String _, _) => writeln "Text String"
+              | _ => writeln (@{make_string} t))
+    ants)
 
 fun eval_source flags source =
   eval' flags (Input.pos_of source) (C_Lex.read_source source);
@@ -1093,8 +1046,8 @@ int a = "outside";
 \<close>
 
 C_lex \<comment> \<open>Backslash newline\<close> \<open>
- @{abc\
-def} // break of line activated everywhere (also in antiquotations)
+ /*@con\
+text*/ // break of line activated everywhere (also in antiquotations)
 i\    
 n\                
 t a = "/* //  /\ 
