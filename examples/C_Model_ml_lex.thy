@@ -61,6 +61,37 @@ theory C_Model_ml_lex
 begin
 
 ML\<open>
+structure Scanner =
+struct
+open Basic_Symbol_Pos;
+
+val err_prefix = "C lexical error: ";
+
+fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
+fun opt x = Scan.optional x [];
+fun opt'' x = Scan.optional (x >> K true) false;
+fun one f = Scan.one (f o Symbol_Pos.symbol)
+fun many f = Scan.many (f o Symbol_Pos.symbol)
+fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
+val one' = Scan.single o one
+fun scan_full mem msg scan =
+  scan --| (Scan.ahead (one' (not o mem)) || !!! msg Scan.fail)
+fun this_string s =
+  (fold (fn s0 => uncurry (fn acc => one (fn s1 => s0 = s1) >> (fn x => x :: acc)))
+        (Symbol.explode s)
+   o pair [])
+  >> rev
+fun repeats_one_not_eof scan =
+  Scan.repeats (Scan.unless scan
+                            (Scan.one (fn (s, _) => Symbol.not_eof s) >> single))
+val newline =   $$$ "\n"
+             || $$$ "\^M" @@@ $$$ "\n"
+             || $$$ "\^M"
+val repeats_until_nl = repeats_one_not_eof newline
+end
+\<close>
+
+ML\<open>
 (*  Title:      Pure/General/antiquote.ML
     Author:     Makarius
 
@@ -215,38 +246,6 @@ fun is_ascii_identifier s =
 val is_ascii_blank_no_line =
   fn " " => true | "\t" => true | "\^K" => true | "\f" => true
     | _ => false;
-end
-\<close>
-
-ML\<open>
-
-structure Scanner =
-struct
-open Basic_Symbol_Pos;
-
-val err_prefix = "C lexical error: ";
-
-fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
-fun opt x = Scan.optional x [];
-fun opt'' x = Scan.optional (x >> K true) false;
-fun one f = Scan.one (f o Symbol_Pos.symbol)
-fun many f = Scan.many (f o Symbol_Pos.symbol)
-fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
-val one' = Scan.single o one
-fun scan_full mem msg scan =
-  scan --| (Scan.ahead (one' (not o mem)) || !!! msg Scan.fail)
-fun this_string s =
-  (fold (fn s0 => uncurry (fn acc => one (fn s1 => s0 = s1) >> (fn x => x :: acc)))
-        (Symbol.explode s)
-   o pair [])
-  >> rev
-fun repeats_one_not_eof scan =
-  Scan.repeats (Scan.unless scan
-                            (Scan.one (fn (s, _) => Symbol.not_eof s) >> single))
-val newline =   $$$ "\n"
-             || $$$ "\^M" @@@ $$$ "\n"
-             || $$$ "\^M"
-val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
