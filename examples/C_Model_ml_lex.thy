@@ -416,6 +416,7 @@ datatype token_kind =
   Integer of int * cIntRepr * cIntFlag list |
   Float |
   String of bool * Symbol.symbol list |
+  File of bool * Symbol.symbol list |
   (**)
   Space | Comment of unit Antiquote.antiquote | Sharp of int |
   (**)
@@ -523,6 +524,7 @@ val token_kind_markup0 =
   | Float => (Markup.ML_numeral, "")
   | ClangC => (Markup.ML_numeral, "")
   | String _ => (Markup.ML_string, "")
+  | File _ => (Markup.ML_string, "")
   | Comment (Antiquote.Text ()) => (Markup.ML_comment, "")
   | Sharp _ => (Markup.antiquote, "")
   | Error (msg, _) => (Markup.bad (), msg)
@@ -731,6 +733,15 @@ in
 
 val scan_char = scan_string0 "'" "char" Scan.repeats1
 val scan_string = scan_string0 "\"" "string" Scan.repeats
+val scan_file =
+  let fun scan s_l s_r =
+    Scan.ahead ($$ s_l) |--
+        !!! ("unclosed file literal")
+          ($$ s_l |-- Scan.repeats (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r) >> (fn s => [#1 s])) --| $$ s_r)
+  in
+     scan "\"" "\"" >> pair false
+  || scan "<" ">" >> pair true
+  end
 
 val recover_char = recover_string0 "'" Scan.repeats1
 val recover_string = recover_string0 "\"" Scan.repeats
@@ -765,11 +776,16 @@ fun scan_fragment blanks =
 (* scan tokens, directive part *)
 
 val scan_directive =
+  let val many1_no_eol = many1 C_Symbol.is_ascii_blank_no_line
+      val blanks = Scan.repeat (many1_no_eol >> token Space || comments) in
         ($$$ "#" >> (single o token (Sharp 1)))
-    @@@ Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
-                     || $$$ "#" >> token (Sharp 1)
-                     || scan_fragment (many1 C_Symbol.is_ascii_blank_no_line))
+    @@@ (      blanks @@@ (scan_ident >> token Ident >> single)
+           @@@ blanks @@@ (scan_token scan_file File >> single)
+        || Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
+                       || $$$ "#" >> token (Sharp 1)
+                       || scan_fragment many1_no_eol))
     >> (Inline o Group0)
+  end
 
 local
 fun !!! text scan =
@@ -806,7 +822,7 @@ val not_cond =
     (one_not_eof
      >> (fn Token (pos, (Directive ( Inline (Group0 ((tok1 as Token (_, (Sharp _, _)))
                                                      :: (tok2 as Token (_, (Ident, "include")))
-                                                     :: toks)))
+                                                     :: (toks as [Token (_, (File _, _))]))))
                                    , s)) =>
             Token (pos, (Directive ( Include (Group2 ( range_list_of [tok1, tok2]
                                                      , range_list_of toks)))
@@ -1263,7 +1279,7 @@ _Pragma /\
 \<close>
 
 C_lex \<comment> \<open>Directive conditional\<close> \<open>
-# /**/ include  fds
+# /**/ include  <a\b\\c>
 0 +  0 /**/  
 # /*@ context */ if
 #include
