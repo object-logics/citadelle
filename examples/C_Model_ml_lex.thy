@@ -760,7 +760,7 @@ fun gen_read pos text =
       |> Source.source Symbol_Pos.stopper
                        (Scan.bulk (   ($$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line) --| Scanner.newline
                                       >> (fn l => (Output.information ("Backslash newline" ^ Position.here (Symbol_Pos.range l |> Position.range_position)); NONE))
-                                   || Scan.one (K true) >> SOME))
+                                   || Scan.one (not o Symbol_Pos.is_eof) >> SOME))
       |> Source.map_filter I
       |> Source.source Symbol_Pos.stopper
         (Scan.recover (Scan.bulk (!!! "bad input" scan_ml))
