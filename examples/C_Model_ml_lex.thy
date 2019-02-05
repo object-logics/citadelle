@@ -560,7 +560,7 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
         :: ((pos, Markup.antiquoted), "")
         :: flat [ maps token_report1 toks1
                 , maps token_report0 toks2]
-   | x => [let val _ = writeln ("AAA " ^ @{make_string} x) val (markup, txt) = token_kind_markup0 x in ((pos, markup), txt) end]
+   | x => [let val (markup, txt) = token_kind_markup0 x in ((pos, markup), txt) end]
 
 and token_report0 tok = token_report' false tok
 and token_report1 tok = token_report' true tok
