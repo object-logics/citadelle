@@ -515,19 +515,11 @@ fun check_error tok =
 
 val range_list_of =
  fn [] => (Position.no_range, [])
-  | toks as tok1 :: _ => 
-      ( let val pos2 = pos_of (List.last toks) in
-        Position.range ( pos_of tok1
-                       , Position.advance_offset (  (pos2 |> Position.end_offset_of |> the)
-                                                  - (Position.offset_of pos2 |> the))
-                                                 pos2
-                         (* WARNING the use of:
-                            fn tok2 => List.last (Symbol_Pos.explode (content_of tok2, pos_of tok2)) |-> Position.advance
-                            would not return an accurate position if for example several
-                            "backslash newlines" are present in the symbol *))
-        end
-      , toks)
-
+  | toks as tok1 :: _ => (Position.range (pos_of tok1, end_pos_of (List.last toks)), toks)
+    (* WARNING the use of:
+       fn tok2 => List.last (Symbol_Pos.explode (content_of tok2, pos_of tok2)) |-> Position.advance
+       would not return an accurate position if for example several
+       "backslash newlines" are present in the symbol *)
 
 (* markup *)
 
