@@ -221,11 +221,11 @@ sig
   (* Language.C.Data.Position *)
   val posOf : 'a -> position
 
-  (* Language.C.Data.Ident *)
-  val internalIdent : string -> ident
-
   (* Language.C.Data.Node *)
   val mkNodeInfo' : position -> posLength -> name -> nodeInfo
+
+  (* Language.C.Data.Ident *)
+  val internalIdent : string -> ident
 
   (* Language.C.Syntax.AST *)
   val liftStrLit : 'a cStringLiteral -> 'a cConstant
@@ -286,7 +286,7 @@ struct
   fun sequence_ f = fn [] => return ()
                      | x :: xs => f x >> sequence_ f xs
 
-  (**)
+  (* Language.C.Data.RList *)
   val empty = []
   fun singleton x = [x]
   fun snoc xs x = x :: xs
@@ -296,25 +296,45 @@ struct
   val viewr = fn [] => error "viewr: empty RList"
                | x :: xs => (xs, x)
 
-  (**)
+  (* Language.C.Data.Position *)
   val nopos = NoPosition
   fun posOf _ = NoPosition
+  val internalPos = InternalPosition
 
-  (**)
-  fun internalIdent s = Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0))
+  (* Language.C.Data.Node *)
+  val undefNode = OnlyPos nopos (nopos, ~1)
+  fun mkNodeInfoOnlyPos pos = OnlyPos pos (nopos, ~1)
+  fun mkNodeInfo pos name = NodeInfo pos (nopos, ~1) name
+  val mkNodeInfo' = NodeInfo
 
-  (**)
-  val undefNode = OnlyPos NoPosition (NoPosition, 0)
-  fun mkNodeInfo pos name = NodeInfo pos (nopos,~1) name
-  fun mkNodeInfo' _ _ _ = OnlyPos NoPosition (NoPosition, 0)
+  (* Language.C.Data.Ident *)
+  local
+    val bits7 = Integer.pow 7 2
+    val bits14 = Integer.pow 14 2
+    val bits21 = Integer.pow 21 2
+    val bits28 = Integer.pow 28 2
+    fun quad s = case s of
+      [] => 0
+    | c1 :: [] => ord c1
+    | c1 :: c2 :: [] => ord c2 * bits7 + ord c1
+    | c1 :: c2 :: c3 :: [] => ord c3 * bits14 + ord c2 * bits7 + ord c1
+    | c1 :: c2 :: c3 :: c4 :: s => ((ord c4 * bits21
+                                     + ord c3 * bits14
+                                     + ord c2 * bits7
+                                     + ord c1)
+                                    mod bits28)
+                                   + (quad s mod bits28)
+  in
+  fun internalIdent s = Ident (From_string s, quad (Symbol.explode s), mkNodeInfoOnlyPos internalPos)
+  end
 
-  (**)
+  (* Language.C.Syntax.AST *)
   fun liftStrLit (CStrLit0 (str, at)) = CStrConst str at
 
-  (**)
+  (* Language.C.Syntax.Constants *)
   fun concatCStrings cs = CString0 (flatten (map (fn CString0 (s,_) => s) cs), exists (fn CString0 (_, b) => b) cs)
 
-  (**)
+  (* Language.C.Parser.ParserMonad *)
   fun getNewName {tyidents, scopes, namesupply} =
     (Name namesupply, {tyidents = tyidents, scopes = scopes, namesupply = namesupply + 1})
   fun addTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply} =
@@ -328,13 +348,13 @@ struct
                  | tyidents :: scopes => ((), {tyidents = tyidents, scopes = scopes, namesupply = namesupply})
   val getCurrentPosition = return NoPosition
 
-  (**)
+  (* Language.C.Parser.Tokens *)
   fun CTokCLit x f = x |> f
   fun CTokILit x f = x |> f
   fun CTokFLit x f = x |> f
   fun CTokSLit x f = x |> f
 
-  (**)
+  (* Language.C.Parser.Parser *)
   fun reverseList x = rev x
   fun unL (Located (a, _)) = a
   fun withNodeInfo _ f = return (f (OnlyPos NoPosition (NoPosition, 0)))
@@ -365,7 +385,19 @@ struct
         in return newDeclr end)
   fun appendObjAttrs newAttrs (CDeclr0 (ident, indirections, asmname, cAttrs, at)) =
     CDeclr ident indirections asmname (cAttrs @ newAttrs) at
-  fun withAsmNameAttrs _ x = return x
+  fun appendObjAttrsR newAttrs (CDeclrR0 (ident, indirections, asmname, cAttrs, at)) =
+    CDeclrR ident indirections asmname (cAttrs @ newAttrs) at
+  fun setAsmName mAsmName (CDeclrR0 (ident, indirections, oldName, cattrs, at)) =
+    case (case (mAsmName, oldName)
+          of (None, None) => Right None
+           | (None, oldname as Some _) => Right oldname
+           | (newname as Some _, None) => Right newname
+           | (Some n1, Some n2) => Left (n1, n2))
+    of
+      Left (n1, n2) => let fun showName (CStrLit0 (CString0 (s, _), _)) = To_string0 s
+                       in error ("Duplicate assembler name: " ^ showName n1 ^ " " ^ showName n2) end
+    | Right newName => return (CDeclrR ident indirections newName cattrs at)
+  fun withAsmNameAttrs (mAsmName, newAttrs) declr = setAsmName mAsmName (appendObjAttrsR newAttrs declr)
   fun ptrDeclr (CDeclrR0 (ident, derivedDeclrs, asmname, cattrs, dat)) tyquals at =
     CDeclrR ident (snoc derivedDeclrs (CPtrDeclr tyquals at)) asmname cattrs dat
   fun funDeclr (CDeclrR0 (ident, derivedDeclrs, asmname, dcattrs, dat)) params cattrs at =
