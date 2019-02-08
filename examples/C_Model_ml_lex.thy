@@ -483,7 +483,22 @@ fun is_ident (Token (_, (Ident, _))) = true
 fun is_delimiter (Token (_, (Keyword, x))) = not (C_Symbol.is_ascii_identifier x)
   | is_delimiter _ = false;
 
-val warn = K ();
+local
+  fun warn0 pos l s =
+    if exists (not o Symbol.is_printable) l then
+      app (fn (s, pos) =>
+            if Symbol.is_printable s
+            then ()
+            else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
+                                    (Symbol_Pos.explode (s, pos))
+    else ()
+in
+val warn = fn
+    Token ((pos, _), (Char (_, l), s)) => warn0 pos l s
+  | Token ((pos, _), (String (_, l), s)) => warn0 pos l s
+  | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
+  | _ => ();
+end
 
 val token_list_of = group_list_of #> maps (fn
     Group0 l => l
