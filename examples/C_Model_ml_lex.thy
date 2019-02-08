@@ -92,69 +92,6 @@ end
 \<close>
 
 ML\<open>
-(*  Title:      Pure/General/antiquote.ML
-    Author:     Makarius
-
-Antiquotations within plain text.
-*)
-
-structure C_Antiquote =
-struct
-
-(* scan *)
-
-open Basic_Symbol_Pos;
-
-local
-
-val err_prefix = "Antiquotation lexical error: ";
-
-val par_l = "/"
-val par_r = "/"
-
-val scan_body1 = $$$ "*" --| Scan.ahead (~$$$ par_r)
-val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
-
-val scan_antiq_body =
-  Scan.trace (Symbol_Pos.scan_string_qq err_prefix || Symbol_Pos.scan_string_bq err_prefix) >> #2 ||
-  Symbol_Pos.scan_cartouche err_prefix ||
-  scan_body1 ||
-  scan_body2;
-
-fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
-
-in
-
-val scan_control =
-  Scan.option (Scan.one (Symbol.is_control o Symbol_Pos.symbol)) --
-  Symbol_Pos.scan_cartouche err_prefix >>
-    (fn (opt_control, body) =>
-      let
-        val (name, range) =
-          (case opt_control of
-            SOME (sym, pos) => ((control_name sym, pos), Symbol_Pos.range ((sym, pos) :: body))
-          | NONE => (("cartouche", #2 (hd body)), Symbol_Pos.range body));
-      in {name = name, range = range, body = body} end) ||
-  Scan.one (Symbol.is_control o Symbol_Pos.symbol) >>
-    (fn (sym, pos) =>
-      {name = (control_name sym, pos), range = Symbol_Pos.range [(sym, pos)], body = []});
-
-val scan_antiq =
-  Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- $$ "@" |-- Symbol_Pos.scan_pos --
-    Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
-      (Scan.repeats scan_antiq_body -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos))) >>
-    (fn (pos1, (pos2, ((body, pos3), pos4))) =>
-      {start = Position.range_position (pos1, pos2),
-       stop = Position.range_position (pos3, pos4),
-       range = Position.range (pos1, pos4),
-       body = body});
-
-end;
-
-end;
-\<close>
-
-ML\<open>
 (*  Title:      Pure/General/symbol.ML
     Author:     Makarius
 
@@ -237,6 +174,69 @@ val recover_comment =
 
 end
 end
+\<close>
+
+ML\<open>
+(*  Title:      Pure/General/antiquote.ML
+    Author:     Makarius
+
+Antiquotations within plain text.
+*)
+
+structure C_Antiquote =
+struct
+
+(* scan *)
+
+open Basic_Symbol_Pos;
+
+local
+
+val err_prefix = "Antiquotation lexical error: ";
+
+val par_l = "/"
+val par_r = "/"
+
+val scan_body1 = $$$ "*" --| Scan.ahead (~$$$ par_r)
+val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
+
+val scan_antiq_body =
+  Scan.trace (Symbol_Pos.scan_string_qq err_prefix || Symbol_Pos.scan_string_bq err_prefix) >> #2 ||
+  Symbol_Pos.scan_cartouche err_prefix ||
+  scan_body1 ||
+  scan_body2;
+
+fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
+
+in
+
+val scan_control =
+  Scan.option (Scan.one (Symbol.is_control o Symbol_Pos.symbol)) --
+  Symbol_Pos.scan_cartouche err_prefix >>
+    (fn (opt_control, body) =>
+      let
+        val (name, range) =
+          (case opt_control of
+            SOME (sym, pos) => ((control_name sym, pos), Symbol_Pos.range ((sym, pos) :: body))
+          | NONE => (("cartouche", #2 (hd body)), Symbol_Pos.range body));
+      in {name = name, range = range, body = body} end) ||
+  Scan.one (Symbol.is_control o Symbol_Pos.symbol) >>
+    (fn (sym, pos) =>
+      {name = (control_name sym, pos), range = Symbol_Pos.range [(sym, pos)], body = []});
+
+val scan_antiq =
+  Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- $$ "@" |-- Symbol_Pos.scan_pos --
+    Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
+      (Scan.repeats scan_antiq_body -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos))) >>
+    (fn (pos1, (pos2, ((body, pos3), pos4))) =>
+      {start = Position.range_position (pos1, pos2),
+       stop = Position.range_position (pos3, pos4),
+       range = Position.range (pos1, pos4),
+       body = body});
+
+end;
+
+end;
 \<close>
 
 ML\<open>
