@@ -514,13 +514,15 @@ fun check_error tok =
 
 (* range *)
 
-val range_list_of =
- fn [] => (Position.no_range, [])
-  | toks as tok1 :: _ => (Position.range (pos_of tok1, end_pos_of (List.last toks)), toks)
+val range_list_of0 =
+ fn [] => Position.no_range
+  | toks as tok1 :: _ => Position.range (pos_of tok1, end_pos_of (List.last toks))
     (* WARNING the use of:
        fn tok2 => List.last (Symbol_Pos.explode (content_of tok2, pos_of tok2)) |-> Position.advance
        would not return an accurate position if for example several
        "backslash newlines" are present in the symbol *)
+
+fun range_list_of toks = (range_list_of0 toks, toks)
 
 local
 fun cmp_pos x2 x1 = Position.distance_of (pos_of x2) (pos_of x1) < 0
@@ -568,9 +570,11 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
     case kind of
      Directive (tokens as Inline _) =>
        ((pos, Markup.antiquoted), "") :: maps token_report0 (token_list_of tokens)
-   | Directive (Include (Group2 ((_, toks1), (_, toks2)))) =>
-       ((pos, Markup.antiquoted), "") :: flat [ maps token_report1 toks1
-                                              , maps token_report0 toks2 ]
+   | Directive (Include (Group2 (((pos1, _), toks1), ((pos2, _), toks2)))) =>
+       ((pos1, Markup.antiquoted), "")
+       :: ((pos2, Markup.antiquoted), "")
+       :: flat [ maps token_report1 toks1
+               , maps token_report0 toks2 ]
    | Directive (Conditional (c1, cs2, c3, c4)) =>
        maps (fn Group3 (((pos1, _), toks1), ((pos2, _), toks2), ((pos3, _), toks3)) => 
                 ((pos1, Markup.antiquoted), "")
@@ -916,10 +920,7 @@ val scan_ml =
  (scan_directive
   >> (fn tokens =>
         let val tokens' = token_list_of tokens in
-          Token ( case tokens' of
-                    [] => Position.no_range
-                  | Token ((pos1, _), _) :: _ =>
-                      Position.range (pos1, case List.last tokens' of Token ((_, pos2), _) => pos2)
+          Token ( range_list_of0 tokens'
                 , (Directive tokens, String.concatWith "" (map content_of tokens')))
         end)
   || scan_fragment scan_blanks1);
