@@ -422,7 +422,8 @@ datatype token_kind =
   (**)
   Error of string * token_group | Directive of token_kind_directive | EOF
 
-and token_kind_directive = Inline of token_group
+and token_kind_directive = Inline of token list (* spaces and comments firstly filtered *)
+                                   * token_group
                          | Include of token_group
                          | Conditional of token_group (* if *)
                                         * token_group list (* elif *)
@@ -467,7 +468,7 @@ val one_not_eof = Scan.one (not o is_eof)
 fun kind_of (Token (_, (k, _))) = k;
 
 val group_list_of = fn
-   Inline g => [g]
+   Inline (g0, g) => [Group0 g0, g] (* WARNING: positions may not be sorted in increase order *)
  | Include g => [g]
  | Conditional (c1, cs2, c3, c4) => flat [[c1], cs2, the_list c3, [c4]]
 
@@ -520,6 +521,22 @@ val range_list_of =
        fn tok2 => List.last (Symbol_Pos.explode (content_of tok2, pos_of tok2)) |-> Position.advance
        would not return an accurate position if for example several
        "backslash newlines" are present in the symbol *)
+
+local
+fun cmp_pos x2 x1 = Position.distance_of (pos_of x2) (pos_of x1) < 0
+
+fun merge_pos xs = case xs of (xs1, []) => xs1
+                            | ([], xs2) => xs2
+                            | (x1 :: xs1, x2 :: xs2) =>
+                                let val (x, xs) = (if cmp_pos x2 x1 then (x1, (xs1, x2 :: xs2)) else (x2, (x1 :: xs1, xs2)))
+                                in x :: merge_pos xs end
+in
+fun merge_blank toks_bl xs1 xs2 =
+  let val cmp_tok2 = cmp_pos (List.last xs1)
+  in ( range_list_of (merge_pos (xs1, filter cmp_tok2 toks_bl))
+     , range_list_of (merge_pos (xs2, filter_out cmp_tok2 toks_bl)))
+  end
+end
 
 (* markup *)
 
@@ -784,15 +801,19 @@ fun scan_fragment blanks =
 
 val scan_directive =
   let val many1_no_eol = many1 C_Symbol.is_ascii_blank_no_line
-      val blanks = Scan.repeat (many1_no_eol >> token Space || comments) in
+      val blanks = Scan.repeat (many1_no_eol >> token Space || comments)
+      val f_filter = fn Token (_, (Space, _)) => true
+                      | Token (_, (Comment _, _)) => true
+                      | Token (_, (Error _, _)) => true
+                      | _ => false in
         ($$$ "#" >> (single o token (Sharp 1)))
     @@@ (      blanks @@@ (scan_ident >> token Ident >> single)
-           @@@ blanks @@@ (scan_token scan_file File >> single)
-           @@@ blanks
-        || Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
-                       || $$$ "#" >> token (Sharp 1)
-                       || scan_fragment many1_no_eol))
-    >> (Inline o Group0)
+            @@@ blanks @@@ (scan_token scan_file File >> single)
+            @@@ blanks
+         || Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
+                         || $$$ "#" >> token (Sharp 1)
+                         || scan_fragment many1_no_eol))
+    >> (fn tokens => Inline (filter f_filter tokens, Group0 (filter_out f_filter tokens)))
   end
 
 local
@@ -809,12 +830,13 @@ fun !!! text scan =
 val pos_here_of = Position.here o pos_of
 
 fun one_directive f =
-  Scan.one (fn Token (_, (Directive (Inline (Group0 (Token (_, (Sharp 1, _)):: Token (_, s) :: _))), _)) => f s
+  Scan.one (fn Token (_, (Directive (Inline (_, Group0 (Token (_, (Sharp 1, _)):: Token (_, s) :: _))), _)) => f s
              | _ => false)
 
-val get_cond = fn Token (_, (Directive (Inline (Group0 (tok1 :: tok2 :: toks))), _)) => fn t3 =>
-                    Group3 (range_list_of [tok1, tok2], range_list_of toks, range_list_of t3)
-                | _ => error "Inline directive expected"
+val get_cond = fn Token (_, (Directive (Inline (toks_bl, Group0 (tok1 :: tok2 :: toks))), _)) =>
+ (fn t3 => let val (t1, t2) = merge_blank toks_bl [tok1, tok2] toks
+           in Group3 (t1, t2, range_list_of t3) end)
+   | _ => error "Inline directive expected"
 
 val one_start_cond = one_directive (fn (Keyword, "if") => true
                                      | (Ident, "ifdef") => true
@@ -828,13 +850,12 @@ val not_cond =
   Scan.unless
     (one_start_cond || one_elif || one_else || one_endif)
     (one_not_eof
-     >> (fn Token (pos, (Directive ( Inline (Group0 ((tok1 as Token (_, (Sharp _, _)))
-                                                     :: (tok2 as Token (_, (Ident, "include")))
-                                                     :: (toks as [Token (_, (File _, _))]))))
-                                   , s)) =>
-            Token (pos, (Directive ( Include (Group2 ( range_list_of [tok1, tok2]
-                                                     , range_list_of toks)))
-                                   , s))
+     >> (fn Token (pos, (Directive ( Inline ( toks_bl
+                                            , Group0 ((tok1 as Token (_, (Sharp _, _)))
+                                                   :: (tok2 as Token (_, (Ident, "include")))
+                                                   :: (toks as [Token (_, (File _, _))]))))
+                                 , s)) =>
+              Token (pos, (Directive (Include (Group2 (merge_blank toks_bl [tok1, tok2] toks))), s))
           | x => x))
 
 fun scan_cond xs = xs |>
@@ -883,17 +904,9 @@ fun scan_directive_recover msg =
 in
 
 val scan_directive_cond =
-  maps let val f_filter = fn Token (_, (Space, _)) => true
-                           | Token (_, (Comment _, _)) => true
-                           | Token (_, (Error _, _)) => true
-                           | _ => false
-       in fn Token (pos, (Directive (Inline (Group0 l)), s)) =>
-               [filter f_filter l, [Token (pos, (Directive (Inline (Group0 (filter_out f_filter l))), s))]]
-           | x => [[x]] end
-  #> flat
-  #> Scan.recover
-       (Scan.bulk scan_directive_cond0)
-       (fn msg => scan_directive_recover msg >> single)
+  Scan.recover
+    (Scan.bulk scan_directive_cond0)
+    (fn msg => scan_directive_recover msg >> single)
 
 end
 
