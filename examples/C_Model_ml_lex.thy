@@ -56,7 +56,7 @@
 
 theory C_Model_ml_lex
   imports C_Model_ml
-  keywords "C_lex" :: thy_decl
+  keywords "C" :: thy_decl
        and "C_file" :: thy_load % "ML"
 begin
 
@@ -1399,7 +1399,7 @@ ML\<open>
 structure C_Outer_Syntax =
 struct
 val _ =
-  Outer_Syntax.command @{command_keyword C_lex} ""
+  Outer_Syntax.command @{command_keyword C} ""
     (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
       Toplevel.generic_theory
         (ML_Context.exec (fn () =>
@@ -1418,7 +1418,7 @@ in end
 end
 \<close>
 
-C_lex \<comment> \<open>Nesting of comments \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
+C \<comment> \<open>Nesting of comments \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
 /* inside /* inside */ int a = "outside";
 // inside // inside until end of line
 int a = "outside";
@@ -1430,7 +1430,7 @@ inside
 int a = "outside";
 \<close>
 
-C_lex \<comment> \<open>Backslash newline\<close> \<open>
+C \<comment> \<open>Backslash newline\<close> \<open>
 i\    
 n\                
 t a = "/* //  /\ 
@@ -1439,7 +1439,7 @@ fff */\
 ";
 \<close>
 
-C_lex \<comment> \<open>Backslash newline, Directive \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
+C \<comment> \<open>Backslash newline, Directive \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
 /\
 *
 */ # /*
@@ -1448,7 +1448,7 @@ ne FO\
 O 10\
 20\<close>
 
-C_lex \<comment> \<open>Directive: conditional\<close> \<open>
+C \<comment> \<open>Directive: conditional\<close> \<open>
 #ifdef a
 #elif
 #else
@@ -1457,7 +1457,7 @@ C_lex \<comment> \<open>Directive: conditional\<close> \<open>
 #endif
 \<close>
 (*
-C_lex \<comment> \<open>Directive: pragma\<close> \<open># f # "/**/"
+C \<comment> \<open>Directive: pragma\<close> \<open># f # "/**/"
 /**/
 #     /**/ //  #
 
@@ -1465,7 +1465,7 @@ _Pragma /\
 **/("a")
 \<close>
 *)
-C_lex \<comment> \<open>Inline comments with antiquotations\<close> \<open>
+C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
  /*@con\
 text (**) */ // break of line activated everywhere (also in antiquotations)
 int a = 0; //\
@@ -1475,7 +1475,7 @@ int a = 0; //\
 )\<close>
 \<close>
 
-C_lex \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>
+C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>
 # /**/ include  <a\b\\c> // backslash rendered unescaped
 f(){0 +  0;} /**/  // val _ : theory => 'a => theory
 # /*@ context */ if if elif
