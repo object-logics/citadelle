@@ -449,7 +449,7 @@ end
 
 ML_file "../doc/language_c.grm.sig"
 ML_file "../doc/language_c.grm.sml"
-(*
+
 ML\<open>
 structure StrictCLrVals = StrictCLrValsFun(structure Token = LrParser1.Token)
 \<close>
@@ -652,5 +652,5 @@ local open StrictCLrVals.Tokens in
     end
 end
 \<close>
-*)
+
 end

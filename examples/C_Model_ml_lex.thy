@@ -91,6 +91,8 @@ val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
+section \<open>\<close>
+
 ML\<open>
 (*  Title:      Pure/General/symbol.ML
     Author:     Makarius
@@ -1066,6 +1068,93 @@ end;
 end;
 \<close>
 
+section \<open>\<close>
+
+ML\<open>
+structure StrictCLex : ARG_LEXER1 =
+struct
+structure Tokens = StrictCLrVals.Tokens
+structure UserDeclarations =
+struct
+  type ('a,'b) token = ('a, 'b) Tokens.token
+  type pos = Position.T
+  type arg = Tokens.arg
+  type svalue0 = Tokens.svalue0
+  type svalue = arg -> svalue0 * arg
+  type token0 = C_Lex.token
+end
+
+fun makeLexer input =
+  let val s = Synchronized.var "input"
+                (input 1024
+                 |> map_filter (fn Antiquote.Text (C_Lex.Token (_,(C_Lex.Space,_))) => NONE
+                                 | Antiquote.Text (C_Lex.Token (_,(C_Lex.Comment _,_))) => NONE
+                                 | Antiquote.Text (C_Lex.Token (_,(C_Lex.Directive _,_))) => NONE
+                                 | Antiquote.Text (C_Lex.Token s) => SOME s
+                                 | _ => NONE))
+  in
+  fn arg as {tyidents, scopes, namesupply} =>
+    let fun return0 x = (x, {tyidents = tyidents, scopes = scopes, namesupply = namesupply})
+    in
+      case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
+      of NONE => return0 (Tokens.x25_eof (Position.none, Position.none))
+       | SOME ((pos1, pos2), (C_Lex.Char (b, [c]), _)) =>
+          return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
+       | SOME ((pos1, pos2), (C_Lex.Char (b, _), _)) => error "to do"
+       | SOME ((pos1, pos2), (C_Lex.String (b, s), _)) =>
+          return0 (StrictCLrVals.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2))
+       | SOME ((pos1, pos2), (C_Lex.Integer (i, repr, flag), _)) =>
+          return0 (StrictCLrVals.Tokens.cint
+                    ( CInteger i repr
+                        (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
+                                              flag
+                                              ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
+                                         |> map #1)
+                         |> Flags)
+                    , pos1
+                    , pos2))
+       | SOME ((pos1, pos2), (C_Lex.Ident, s)) => 
+          let val ty_ident = Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0))
+          in return0 (if Hsk_c_parser.isTypeIdent s arg then
+                        (Position.reports_text [((pos1, Markup.ML_keyword3 |> Markup.keyword_properties), "")];
+                        StrictCLrVals.Tokens.tyident (ty_ident, pos1, pos2))
+                      else
+                        StrictCLrVals.Tokens.ident (ty_ident, pos1, pos2))
+          end
+       | SOME ((pos1, pos2), (_, s)) => 
+                   token_of_string (Tokens.error (pos1, pos2))
+                                   (ClangCVersion0 (From_string s))
+                                   (CChar #"0" false)
+                                   (CFloat (From_string s))
+                                   (CInteger 0 DecRepr (Flags 0))
+                                   (CString0 (From_string s, false))
+                                   (Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0)))
+                                   s
+                                   pos1
+                                   pos2
+                                   s
+                   |> return0
+    end
+  end
+
+end
+\<close>
+
+ML\<open>
+structure StrictCParser =
+  JoinWithArg1(structure LrParser = LrParser1
+               structure ParserData = StrictCLrVals.ParserData
+               structure Lex = StrictCLex)
+structure P = struct
+  fun parse s =
+   {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
+   |> StrictCParser.makeLexer (fn _ => s)
+   |> StrictCParser.parse (0, fn (s, pos, _) => error (s ^ " " ^ Position.here pos))
+end
+\<close>
+
+section \<open>\<close>
+
 ML\<open>
 (*  Title:      Pure/ML/ml_context.ML
     Author:     Makarius
@@ -1260,7 +1349,10 @@ fun eval' flags pos (ants, _, ants') =
                                                       |> Markup.markup Markup.intensify))
                                   end))
               ants
-  in print "" ants end
+      val _ = print "" ants
+      val _ = writeln (@{make_string} (P.parse (map Antiquote.Text ants)))
+  in ()
+ end
 
 fun eval_source flags source =
   eval' flags (Input.pos_of source) (C_Lex.read_source source);
@@ -1300,6 +1392,8 @@ val C : bool option ->
 end;
 \<close>
 
+section \<open>\<close>
+
 ML\<open>
 
 structure C_Outer_Syntax =
@@ -1337,8 +1431,6 @@ int a = "outside";
 \<close>
 
 C_lex \<comment> \<open>Backslash newline\<close> \<open>
- /*@con\
-text*/ // break of line activated everywhere (also in antiquotations)
 i\    
 n\                
 t a = "/* //  /\ 
@@ -1347,7 +1439,7 @@ fff */\
 ";
 \<close>
 
-C_lex \<comment> \<open>Example (Backslash newline, Directive) \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
+C_lex \<comment> \<open>Backslash newline, Directive \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
 /\
 *
 */ # /*
@@ -1356,23 +1448,44 @@ ne FO\
 O 10\
 20\<close>
 
-C_lex \<comment> \<open>Directive\<close> \<open># f # "/**/"
+C_lex \<comment> \<open>Directive: conditional\<close> \<open>
+#ifdef a
+#elif
+#else
+#if
+#endif
+#endif
+\<close>
+(*
+C_lex \<comment> \<open>Directive: pragma\<close> \<open># f # "/**/"
 /**/
 #     /**/ //  #
 
 _Pragma /\
 **/("a")
 \<close>
+*)
+C_lex \<comment> \<open>Inline comments with antiquotations\<close> \<open>
+ /*@con\
+text (**) */ // break of line activated everywhere (also in antiquotations)
+int a = 0; //\
+@ term \<open>a \
+          + b (* (**) *\      
+\     
+)\<close>
+\<close>
 
-C_lex \<comment> \<open>Directive conditional\<close> \<open>
-# /**/ include  <a\b\\c>
-0 +  0 /**/  
-# /*@ context */ if
+C_lex \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>
+# /**/ include  <a\b\\c> // backslash rendered unescaped
+f(){0 +  0;} /**/  // val _ : theory => 'a => theory
+# /*@ context */ if if elif
 #include
 if then else ;
 # /* zzz */  elif /**/
 #else\
             
+#define FOO  00 0 "" ((
+FOO(FOO(a,b,c))
 #endif\<close>
 
 end
