@@ -456,6 +456,200 @@ structure StrictCLrVals = StrictCLrValsFun(structure Token = LrParser1.Token)
 
 ML\<open>
 local open StrictCLrVals.Tokens in
+  fun token_of_string error ty_ClangCVersion ty_cChar ty_cFloat ty_cInteger ty_cString ty_ident ty_string a1 a2 = fn
+     "(" => x28 (ty_string, a1, a2)
+    | ")" => x29 (ty_string, a1, a2)
+    | "[" => x5b (ty_string, a1, a2)
+    | "]" => x5d (ty_string, a1, a2)
+    | "->" => x2d_x3e (ty_string, a1, a2)
+    | "." => x2e (ty_string, a1, a2)
+    | "!" => x21 (ty_string, a1, a2)
+    | "~" => x7e (ty_string, a1, a2)
+    | "++" => x2b_x2b (ty_string, a1, a2)
+    | "--" => x2d_x2d (ty_string, a1, a2)
+    | "+" => x2b (ty_string, a1, a2)
+    | "-" => x2d (ty_string, a1, a2)
+    | "*" => x2a (ty_string, a1, a2)
+    | "/" => x2f (ty_string, a1, a2)
+    | "%" => x25 (ty_string, a1, a2)
+    | "&" => x26 (ty_string, a1, a2)
+    | "<<" => x3c_x3c (ty_string, a1, a2)
+    | ">>" => x3e_x3e (ty_string, a1, a2)
+    | "<" => x3c (ty_string, a1, a2)
+    | "<=" => x3c_x3d (ty_string, a1, a2)
+    | ">" => x3e (ty_string, a1, a2)
+    | ">=" => x3e_x3d (ty_string, a1, a2)
+    | "==" => x3d_x3d (ty_string, a1, a2)
+    | "!=" => x21_x3d (ty_string, a1, a2)
+    | "^" => x5e (ty_string, a1, a2)
+    | "|" => x7c (ty_string, a1, a2)
+    | "&&" => x26_x26 (ty_string, a1, a2)
+    | "||" => x7c_x7c (ty_string, a1, a2)
+    | "?" => x3f (ty_string, a1, a2)
+    | ":" => x3a (ty_string, a1, a2)
+    | "=" => x3d (ty_string, a1, a2)
+    | "+=" => x2b_x3d (ty_string, a1, a2)
+    | "-=" => x2d_x3d (ty_string, a1, a2)
+    | "*=" => x2a_x3d (ty_string, a1, a2)
+    | "/=" => x2f_x3d (ty_string, a1, a2)
+    | "%=" => x25_x3d (ty_string, a1, a2)
+    | "&=" => x26_x3d (ty_string, a1, a2)
+    | "^=" => x5e_x3d (ty_string, a1, a2)
+    | "|=" => x7c_x3d (ty_string, a1, a2)
+    | "<<=" => x3c_x3c_x3d (ty_string, a1, a2)
+    | ">>=" => x3e_x3e_x3d (ty_string, a1, a2)
+    | "," => x2c (ty_string, a1, a2)
+    | ";" => x3b (ty_string, a1, a2)
+    | "{" => x7b (ty_string, a1, a2)
+    | "}" => x7d (ty_string, a1, a2)
+    | "..." => x2e_x2e_x2e (ty_string, a1, a2)
+    | x => let 
+    val alignof = alignof (ty_string, a1, a2)
+    val alignas = alignas (ty_string, a1, a2)
+    val atomic = x5f_Atomic (ty_string, a1, a2)
+    val asm = asm (ty_string, a1, a2)
+    val auto = auto (ty_string, a1, a2)
+    val break = break (ty_string, a1, a2)
+    val bool = x5f_Bool (ty_string, a1, a2)
+    val case0 = case0 (ty_string, a1, a2)
+    val char = char (ty_string, a1, a2)
+    val const = const (ty_string, a1, a2)
+    val continue = continue (ty_string, a1, a2)
+    val complex = x5f_Complex (ty_string, a1, a2)
+    val default = default (ty_string, a1, a2)
+    val do0 = do0 (ty_string, a1, a2)
+    val double = double (ty_string, a1, a2)
+    val else0 = else0 (ty_string, a1, a2)
+    val enum = enum (ty_string, a1, a2)
+    val extern = extern (ty_string, a1, a2)
+    val float = float (ty_string, a1, a2)
+    val for0 = for0 (ty_string, a1, a2)
+    val generic = x5f_Generic (ty_string, a1, a2)
+    val goto = goto (ty_string, a1, a2)
+    val if0 = if0 (ty_string, a1, a2)
+    val inline = inline (ty_string, a1, a2)
+    val int = int (ty_string, a1, a2)
+    val int128 = x5f_x5f_int_x31_x32_x38 (ty_string, a1, a2)
+    val long = long (ty_string, a1, a2)
+    val label = x5f_x5f_label_x5f_x5f (ty_string, a1, a2)
+    val noreturn = x5f_Noreturn (ty_string, a1, a2)
+    val nullable = x5f_Nullable (ty_string, a1, a2)
+    val nonnull = x5f_Nonnull (ty_string, a1, a2)
+    val register = register (ty_string, a1, a2)
+    val restrict = restrict (ty_string, a1, a2)
+    val return0 = return0 (ty_string, a1, a2)
+    val short = short (ty_string, a1, a2)
+    val signed = signed (ty_string, a1, a2)
+    val sizeof = sizeof (ty_string, a1, a2)
+    val static = static (ty_string, a1, a2)
+    val staticassert = x5f_Static_assert (ty_string, a1, a2)
+    val struct0 = struct0 (ty_string, a1, a2)
+    val switch = switch (ty_string, a1, a2)
+    val typedef = typedef (ty_string, a1, a2)
+    val typeof = typeof (ty_string, a1, a2)
+    val thread = x5f_x5f_thread (ty_string, a1, a2)
+    val union = union (ty_string, a1, a2)
+    val unsigned = unsigned (ty_string, a1, a2)
+    val void = void (ty_string, a1, a2)
+    val volatile = volatile (ty_string, a1, a2)
+    val while0 = while0 (ty_string, a1, a2)
+    val cchar = cchar (ty_cChar, a1, a2)
+    val cint = cint (ty_cInteger, a1, a2)
+    val cfloat = cfloat (ty_cFloat, a1, a2)
+    val cstr = cstr (ty_cString, a1, a2)
+    val ident = ident (ty_ident, a1, a2)
+    val tyident = tyident (ty_ident, a1, a2)
+    val attribute = x5f_x5f_attribute_x5f_x5f (ty_string, a1, a2)
+    val extension = x5f_x5f_extension_x5f_x5f (ty_string, a1, a2)
+    val real = x5f_x5f_real_x5f_x5f (ty_string, a1, a2)
+    val imag = x5f_x5f_imag_x5f_x5f (ty_string, a1, a2)
+    val builtinvaarg = x5f_x5f_builtin_va_arg (ty_string, a1, a2)
+    val builtinoffsetof = x5f_x5f_builtin_offsetof (ty_string, a1, a2)
+    val builtintypescompatiblep = x5f_x5f_builtin_types_compatible_p (ty_string, a1, a2)
+    val clangcversion = clangcversion (ty_ClangCVersion, a1, a2)
+    in case x of
+      "_Alignas" => alignas
+    | "_Alignof" => alignof
+    | "__alignof" => alignof
+    | "alignof" => alignof
+    | "__alignof__" => alignof
+    | "__asm" => asm
+    | "asm" => asm
+    | "__asm__" => asm
+    | "_Atomic" => atomic
+    | "__attribute" => attribute
+    | "__attribute__" => attribute
+    | "auto" => auto
+    | "_Bool" => bool
+    | "break" => break
+    | "__builtin_offsetof" => builtinoffsetof
+    | "__builtin_types_compatible_p" => builtintypescompatiblep
+    | "__builtin_va_arg" => builtinvaarg
+    | "case" => case0
+    | "char" => char
+    | "_Complex" => complex
+    | "__complex__" => complex
+    | "__const" => const
+    | "const" => const
+    | "__const__" => const
+    | "continue" => continue
+    | "default" => default
+    | "do" => do0
+    | "double" => double
+    | "else" => else0
+    | "enum" => enum
+    | "__extension__" => extension
+    | "extern" => extern
+    | "float" => float
+    | "for" => for0
+    | "_Generic" => generic
+    | "goto" => goto
+    | "if" => if0
+    | "__imag" => imag
+    | "__imag__" => imag
+    | "__inline" => inline
+    | "inline" => inline
+    | "__inline__" => inline
+    | "int" => int
+    | "__int128" => int128
+    | "__label__" => label
+    | "long" => long
+    | "_Nonnull" => nonnull
+    | "__nonnull" => nonnull
+    | "_Noreturn" => noreturn
+    | "_Nullable" => nullable
+    | "__nullable" => nullable
+    | "__real" => real
+    | "__real__" => real
+    | "register" => register
+    | "__restrict" => restrict
+    | "restrict" => restrict
+    | "__restrict__" => restrict
+    | "return" => return0
+    | "short" => short
+    | "__signed" => signed
+    | "signed" => signed
+    | "__signed__" => signed
+    | "sizeof" => sizeof
+    | "static" => static
+    | "_Static_assert" => staticassert
+    | "struct" => struct0
+    | "switch" => switch
+    | "__thread" => thread
+    | "_Thread_local" => thread
+    | "typedef" => typedef
+    | "__typeof" => typeof
+    | "typeof" => typeof
+    | "__typeof__" => typeof
+    | "union" => union
+    | "unsigned" => unsigned
+    | "void" => void
+    | "__volatile" => volatile
+    | "volatile" => volatile
+    | "__volatile__" => volatile
+    | "while" => while0
+    | _ => error
+    end
 end
 \<close>
 *)
