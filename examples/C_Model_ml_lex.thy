@@ -81,9 +81,9 @@ fun this_string s =
         (Symbol.explode s)
    o pair [])
   >> rev
-fun repeats_one_not_eof scan =
-  Scan.repeats (Scan.unless scan
-                            (Scan.one (fn (s, _) => Symbol.not_eof s) >> single))
+val one_not_eof = Scan.one (Symbol.not_eof o #1)
+fun unless_eol scan = Scan.unless scan one_not_eof >> single
+val repeats_one_not_eof = Scan.repeats o unless_eol
 val newline =   $$$ "\n"
              || $$$ "\^M" @@@ $$$ "\n"
              || $$$ "\^M"
@@ -138,6 +138,56 @@ val !!! = Scanner.!!!
 val $$ = Symbol_Pos.$$
 val $$$ = Symbol_Pos.$$$
 val ~$$$ = Symbol_Pos.~$$$
+
+(* scan string literals *)
+
+local
+
+val char_code =
+  Scan.one (Symbol.is_ascii_digit o Symbol_Pos.symbol) --
+  Scan.one (Symbol.is_ascii_digit o Symbol_Pos.symbol) --
+  Scan.one (Symbol.is_ascii_digit o Symbol_Pos.symbol) :|--
+  (fn (((a, pos), (b, _)), (c, _)) =>
+    let val (n, _) = Library.read_int [a, b, c]
+    in if n <= 255 then Scan.succeed [(chr n, pos)] else Scan.fail end);
+
+fun scan_str_no_eol q =
+  $$$ "\\" |-- !!! "bad escape character in string"
+    ($$$ q || $$$ "\\" || char_code) ||
+  Scan.unless Scanner.newline
+              (Scan.one (fn (s, _) => s <> q andalso s <> "\\" andalso Symbol.not_eof s)) >> single;
+
+fun scan_strs_no_eol q =
+  Scan.ahead ($$ q) |--
+    !!! "unclosed string literal within the same line"
+      ((Symbol_Pos.scan_pos --| $$$ q) -- (Scan.repeats (scan_str_no_eol q) -- ($$$ q |-- Symbol_Pos.scan_pos)));
+
+in
+
+val scan_string_qq_no_eol = scan_strs_no_eol "\"";
+val scan_string_bq_no_eol = scan_strs_no_eol "`";
+
+end;
+
+(* nested text cartouches *)
+
+val scan_cartouche_depth_no_eol =
+  Scan.repeat1 (Scan.depend (fn (depth: int option) =>
+    (case depth of
+      SOME d =>
+        $$ Symbol.open_ >> pair (SOME (d + 1)) ||
+          (if d > 0 then
+            Scan.unless Scanner.newline
+                        (Scan.one (fn (s, _) => s <> Symbol.close andalso Symbol.not_eof s))
+            >> pair depth ||
+            $$ Symbol.close >> pair (if d = 1 then NONE else SOME (d - 1))
+          else Scan.fail)
+    | NONE => Scan.fail)));
+
+val scan_cartouche_no_eol =
+  Scan.ahead ($$ Symbol.open_) |--
+    !!! "unclosed text cartouche within the same line"
+      (Scan.provide is_none (SOME 0) scan_cartouche_depth_no_eol);
 
 (* C-style comments *)
 
@@ -206,6 +256,11 @@ val scan_antiq_body =
   scan_body1 ||
   scan_body2;
 
+val scan_antiq_body_no_eol =
+  Scan.trace (C_Symbol_Pos.scan_string_qq_no_eol || C_Symbol_Pos.scan_string_bq_no_eol) >> #2 ||
+  C_Symbol_Pos.scan_cartouche_no_eol ||
+  Scanner.unless_eol Scanner.newline;
+
 fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
 
 in
@@ -232,7 +287,15 @@ val scan_antiq =
       {start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos4),
        range = Position.range (pos1, pos4),
-       body = body});
+       body = body}) ||
+  (Symbol_Pos.scan_pos --| $$ "/" --| $$ "/" --| $$ "@"
+  -- Symbol_Pos.scan_pos
+  -- Scan.repeats scan_antiq_body_no_eol -- Symbol_Pos.scan_pos)
+  >> (fn (((pos1, pos2), body), pos3) => 
+      {start = Position.range_position (pos1, pos2),
+       stop = Position.range_position (pos3, pos3),
+       range = Position.range (pos1, pos3),
+       body = body})
 
 end;
 
@@ -248,6 +311,8 @@ Lexical syntax for Isabelle/ML and Standard ML.
 
 structure C_Lex =
 struct
+
+open Scanner;
 
 (** keywords **)
 
@@ -601,7 +666,6 @@ end;
 
 
 (** scanners **)
-open Scanner;
 
 (* identifiers *)
 
