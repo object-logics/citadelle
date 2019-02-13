@@ -55,9 +55,9 @@
  ******************************************************************************)
 
 theory C_Model_ml
-  imports C_Model_core
+  imports Main
 begin
-
+(*
 section \<open>Convert\<close>
 
 definition translation_unit :: "CTranslUnit \<times> Comment list \<times> integer list \<Rightarrow> unit" where
@@ -88,6 +88,8 @@ let
 in meta_command
 end
 \<close>
+*)
+ML_file \<open>../generated/Ast_C.ML\<close>
 
 ML\<open>
 structure C_ast_simple = struct
@@ -99,7 +101,7 @@ end
 section \<open>Language.C Haskell parsing in ML\<close>
 
 ML\<open>open C_ast_simple\<close>
-
+(*
 meta_command'\<open>
 let
   open META
@@ -126,6 +128,8 @@ let
 in meta_command
 end
 \<close>
+*)
+ML \<open>val Position = position val NoPosition = noPosition val BuiltinPosition = builtinPosition val InternalPosition = internalPosition val Name = name val OnlyPos = onlyPos val NodeInfo = nodeInfo val AnonymousRef = anonymousRef val NamedRef = namedRef val CChar = cChar val CChars = cChars val DecRepr = decRepr val HexRepr = hexRepr val OctalRepr = octalRepr val FlagUnsigned = flagUnsigned val FlagLong = flagLong val FlagLongLong = flagLongLong val FlagImag = flagImag val CFloat = cFloat val Flags = flags val CInteger = cInteger val CAssignOp = cAssignOp val CMulAssOp = cMulAssOp val CDivAssOp = cDivAssOp val CRmdAssOp = cRmdAssOp val CAddAssOp = cAddAssOp val CSubAssOp = cSubAssOp val CShlAssOp = cShlAssOp val CShrAssOp = cShrAssOp val CAndAssOp = cAndAssOp val CXorAssOp = cXorAssOp val COrAssOp = cOrAssOp val CMulOp = cMulOp val CDivOp = cDivOp val CRmdOp = cRmdOp val CAddOp = cAddOp val CSubOp = cSubOp val CShlOp = cShlOp val CShrOp = cShrOp val CLeOp = cLeOp val CGrOp = cGrOp val CLeqOp = cLeqOp val CGeqOp = cGeqOp val CEqOp = cEqOp val CNeqOp = cNeqOp val CAndOp = cAndOp val CXorOp = cXorOp val COrOp = cOrOp val CLndOp = cLndOp val CLorOp = cLorOp val CPreIncOp = cPreIncOp val CPreDecOp = cPreDecOp val CPostIncOp = cPostIncOp val CPostDecOp = cPostDecOp val CAdrOp = cAdrOp val CIndOp = cIndOp val CPlusOp = cPlusOp val CMinOp = cMinOp val CCompOp = cCompOp val CNegOp = cNegOp val CAuto = cAuto val CRegister = cRegister val CStatic = cStatic val CExtern = cExtern val CTypedef = cTypedef val CThread = cThread val CInlineQual = cInlineQual val CNoreturnQual = cNoreturnQual val CStructTag = cStructTag val CUnionTag = cUnionTag val CIntConst = cIntConst val CCharConst = cCharConst val CFloatConst = cFloatConst val CStrConst = cStrConst val CStrLit = cStrLit val CFunDef = cFunDef val CDecl = cDecl val CStaticAssert = cStaticAssert val CDeclr = cDeclr val CPtrDeclr = cPtrDeclr val CArrDeclr = cArrDeclr val CFunDeclr = cFunDeclr val CNoArrSize = cNoArrSize val CArrSize = cArrSize val CLabel = cLabel val CCase = cCase val CCases = cCases val CDefault = cDefault val CExpr = cExpr val CCompound = cCompound val CIf = cIf val CSwitch = cSwitch val CWhile = cWhile val CFor = cFor val CGoto = cGoto val CGotoPtr = cGotoPtr val CCont = cCont val CBreak = cBreak val CReturn = cReturn val CAsm = cAsm val CAsmStmt = cAsmStmt val CAsmOperand = cAsmOperand val CBlockStmt = cBlockStmt val CBlockDecl = cBlockDecl val CNestedFunDef = cNestedFunDef val CStorageSpec = cStorageSpec val CTypeSpec = cTypeSpec val CTypeQual = cTypeQual val CFunSpec = cFunSpec val CAlignSpec = cAlignSpec val CVoidType = cVoidType val CCharType = cCharType val CShortType = cShortType val CIntType = cIntType val CLongType = cLongType val CFloatType = cFloatType val CDoubleType = cDoubleType val CSignedType = cSignedType val CUnsigType = cUnsigType val CBoolType = cBoolType val CComplexType = cComplexType val CInt128Type = cInt128Type val CSUType = cSUType val CEnumType = cEnumType val CTypeDef = cTypeDef val CTypeOfExpr = cTypeOfExpr val CTypeOfType = cTypeOfType val CAtomicType = cAtomicType val CConstQual = cConstQual val CVolatQual = cVolatQual val CRestrQual = cRestrQual val CAtomicQual = cAtomicQual val CAttrQual = cAttrQual val CNullableQual = cNullableQual val CNonnullQual = cNonnullQual val CAlignAsType = cAlignAsType val CAlignAsExpr = cAlignAsExpr val CStruct = cStruct val CEnum = cEnum val CInitExpr = cInitExpr val CInitList = cInitList val CArrDesig = cArrDesig val CMemberDesig = cMemberDesig val CRangeDesig = cRangeDesig val CAttr = cAttr val CComma = cComma val CAssign = cAssign val CCond = cCond val CBinary = cBinary val CCast = cCast val CUnary = cUnary val CSizeofExpr = cSizeofExpr val CSizeofType = cSizeofType val CAlignofExpr = cAlignofExpr val CAlignofType = cAlignofType val CComplexReal = cComplexReal val CComplexImag = cComplexImag val CIndex = cIndex val CCall = cCall val CMember = cMember val CVar = cVar val CConst = cConst val CCompoundLit = cCompoundLit val CGenericSelection = cGenericSelection val CStatExpr = cStatExpr val CLabAddrExpr = cLabAddrExpr val CBuiltinExpr = cBuiltinExpr val CBuiltinVaArg = cBuiltinVaArg val CBuiltinOffsetOf = cBuiltinOffsetOf val CBuiltinTypesCompatible = cBuiltinTypesCompatible val CDeclExt = cDeclExt val CFDefExt = cFDefExt val CAsmExt = cAsmExt val CTranslUnit = cTranslUnit\<close>
 
 ML\<open>
 type NodeInfo = nodeInfo
@@ -447,8 +451,8 @@ ML_file "mlton/lib/mlyacc-lib/stream.sml"
 (*ML\<open>val foldl = List.foldl val foldr = List.foldr\<close>
   ML_file "mlton/lib/mlyacc-lib/parser2.sml"*)
 ML_file "mlton/lib/mlyacc-lib/parser1.sml"
-ML_file "../doc/language_c.grm.sig"
-ML_file "../doc/language_c.grm.sml"
+ML_file "../generated/language_c.grm.sig"
+ML_file "../generated/language_c.grm.sml"
 
 ML\<open>
 structure StrictCLrVals = StrictCLrValsFun(structure Token = LrParser1.Token)
