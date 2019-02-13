@@ -10,9 +10,3 @@ In particular, these are:
 -- language_c.grm.sig 
    and
    language_c.grm.sml, generated sml files from mlyacc above.
-
--- Meta_C_generated.thy a iHOL theory containing the output of
-                   haskabelle 
-                   https://gitlri.lri.fr/ftuong/isabelle_para 
-                   branch 2017 all. Containing the AST of C11.
-
