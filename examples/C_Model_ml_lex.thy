@@ -188,6 +188,11 @@ fun scan_cartouche_depth stop =
 
 val scan_cartouche_depth_inline = scan_cartouche_depth Scanner.newline
 
+fun scan_cartouche_multi stop =
+  Scan.ahead ($$ Symbol.open_) |--
+    !!! "unclosed text cartouche within the comment delimiter"
+      (Scan.provide is_none (SOME 0) (scan_cartouche_depth stop));
+
 val scan_cartouche_inline =
   Scan.ahead ($$ Symbol.open_) |--
     !!! "unclosed text cartouche within the same line"
@@ -254,9 +259,9 @@ val par_r = "/"
 val scan_body1 = $$$ "*" --| Scan.ahead (~$$$ par_r)
 val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
 
-val scan_antiq_body =
+val scan_antiq_body_multi =
   Scan.trace (Symbol_Pos.scan_string_qq err_prefix || Symbol_Pos.scan_string_bq err_prefix) >> #2 ||
-  Symbol_Pos.scan_cartouche err_prefix ||
+  C_Symbol_Pos.scan_cartouche_multi ($$$ "*" @@@ $$$ par_r) ||
   scan_body1 ||
   scan_body2;
 
@@ -286,7 +291,7 @@ val scan_control =
 val scan_antiq =
   Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- $$ "@" |-- Symbol_Pos.scan_pos --
     Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
-      (Scan.repeats scan_antiq_body -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos))) >>
+      (Scan.repeats scan_antiq_body_multi -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos))) >>
     (fn (pos1, (pos2, ((body, pos3), pos4))) =>
       {start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos4),
