@@ -56,9 +56,9 @@
 
 theory C_Model_ml_lex
   imports C_Model_ml
-  keywords "C" :: thy_decl
-       and "C_file" :: thy_load % "ML"
 begin
+
+section\<open> Basic Scanning Combinators from Isabelle \<close>
 
 ML\<open>
 structure Scanner =
@@ -91,8 +91,9 @@ val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
-section \<open>\<close>
+section \<open>Instantiation of the Scanner with C Lexems \<close>
 
+text\<open>Basically copied and modified from files in Pure General of Isabelle.\<close>
 ML\<open>
 (*  Title:      Pure/General/symbol.ML
     Author:     Makarius
@@ -1075,7 +1076,9 @@ end;
 end;
 \<close>
 
-section \<open>\<close>
+section \<open>Instantiation of the Parser with the Lexer\<close>
+text\<open>The parser consists of a generic module @{file "../mlton/lib/mlyacc-lib/base.sig"}, 
+which interprets a automata-like format generated from smlyacc.\<close>
 
 ML\<open>
 structure StrictCLex : ARG_LEXER1 =
@@ -1146,7 +1149,7 @@ fun makeLexer input =
 
 end
 \<close>
-
+text\<open>This is where the instatiation of the Parser Functor with the Lexer actually happens ...\<close>
 ML\<open>
 structure StrictCParser =
   JoinWithArg1(structure LrParser = LrParser1
@@ -1160,7 +1163,7 @@ structure P = struct
 end
 \<close>
 
-section \<open>\<close>
+section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>
 
 ML\<open>
 (*  Title:      Pure/ML/ml_context.ML
@@ -1366,133 +1369,5 @@ fun eval_source flags source =
 
 end
 \<close>
-
-ML\<open>
-(*  Title:      Pure/ML/ml_file.ML
-    Author:     Makarius
-
-Commands to load ML files.
-*)
-
-structure C_File =
-struct
-
-fun command SML debug files = Toplevel.generic_theory (fn gthy =>
-  let
-    val [{src_path, lines, digest, pos}: Token.file] = files (Context.theory_of gthy);
-    val provide = Resources.provide (src_path, digest);
-    val source = Input.source true (cat_lines lines) (pos, pos);
-    val flags =
-      {SML = SML, exchange = false, redirect = true, verbose = true,
-        debug = debug, writeln = writeln, warning = warning};
-  in
-    gthy
-    |> ML_Context.exec (fn () => C_Context.eval_source flags source)
-    |> Local_Theory.propagate_ml_env
-    |> Context.mapping provide (Local_Theory.background_theory provide)
-  end);
-
-val C : bool option ->
-      (theory -> Token.file list) ->
-        Toplevel.transition -> Toplevel.transition = command false;
-
-end;
-\<close>
-
-section \<open>\<close>
-
-ML\<open>
-
-structure C_Outer_Syntax =
-struct
-val _ =
-  Outer_Syntax.command @{command_keyword C} ""
-    (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
-      Toplevel.generic_theory
-        (ML_Context.exec (fn () =>
-            C_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
-          Local_Theory.propagate_ml_env)));
-
-local
-
-val semi = Scan.option @{keyword ";"};
-
-val _ =
-  Outer_Syntax.command @{command_keyword C_file} "read and evaluate C file"
-    (Resources.parse_files "C_file" --| semi >> C_File.C NONE);
-
-in end
-end
-\<close>
-
-C \<comment> \<open>Nesting of comments \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
-/* inside /* inside */ int a = "outside";
-// inside // inside until end of line
-int a = "outside";
-/* inside
-  // inside
-inside
-*/ int a = "outside";
-// inside /* inside until end of line
-int a = "outside";
-\<close>
-
-C \<comment> \<open>Backslash newline\<close> \<open>
-i\    
-n\                
-t a = "/* //  /\ 
-*\
-fff */\
-";
-\<close>
-
-C \<comment> \<open>Backslash newline, Directive \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
-/\
-*
-*/ # /*
-*/ defi\
-ne FO\
-O 10\
-20\<close>
-
-C \<comment> \<open>Directive: conditional\<close> \<open>
-#ifdef a
-#elif
-#else
-#if
-#endif
-#endif
-\<close>
-(*
-C \<comment> \<open>Directive: pragma\<close> \<open># f # "/**/"
-/**/
-#     /**/ //  #
-
-_Pragma /\
-**/("a")
-\<close>
-*)
-C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
- /*@con\
-text (**) */ // break of line activated everywhere (also in antiquotations)
-int a = 0; //\
-@ term \<open>a \
-          + b (* (**) *\      
-\     
-)\<close>
-\<close>
-
-C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>
-# /**/ include  <a\b\\c> // backslash rendered unescaped
-f(){0 +  0;} /**/  // val _ : theory => 'a => theory
-# /*@ context */ if if elif
-#include
-if then else ;
-# /* zzz */  elif /**/
-#else\
-            
-#define FOO  00 0 "" ((
-FOO(FOO(a,b,c))
-#endif\<close>
 
 end
