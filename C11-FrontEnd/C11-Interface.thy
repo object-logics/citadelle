@@ -5,7 +5,27 @@ theory "C11-Interface"
 
 begin
 
+section\<open>The Global C11-Module State\<close>
+ML\<open>
+structure C11_core = 
+struct
+   type c_file_name      = string 
+   type C11_struct       = { tab  : (CTranslUnit list) Symtab.table }
+   val  C11_struct_empty = { tab  = Symtab.empty}
 
+(* registrating data of the Isa_DOF component *)
+structure Data = Generic_Data
+(
+  type T =     C11_struct
+  val empty = C11_struct_empty
+  val extend =  I
+  fun merge(t1,t2) = { tab = Symtab.merge (op =)(#tab t1, #tab t2)}
+);
+
+end
+\<close>
+
+section\<open>Definition of the Command "C_file"\<close>
 
 ML\<open>
 (*  Title:      Pure/ML/ml_file.ML
@@ -39,7 +59,7 @@ val C : bool option ->
 end;
 \<close>
 
-section \<open>\<close>
+section \<open>The Isar Binding to the C11 Interface.\<close>
 
 ML\<open>
 
