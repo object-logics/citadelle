@@ -22,8 +22,12 @@ structure Data = Generic_Data
   fun merge(t1,t2) = { tab = Symtab.merge (op =)(#tab t1, #tab t2)}
 );
 
+
+
 end
 \<close>
+
+ML\<open>C11_core.Data.put\<close>
 
 section\<open>Definition of the Command "C_file"\<close>
 
