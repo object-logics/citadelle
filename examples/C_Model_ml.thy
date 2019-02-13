@@ -96,16 +96,7 @@ structure C_ast_simple = struct
 end
 \<close>
 
-section \<open>CTranslation\<close>
-
-ML\<open>val foldl = List.foldl val foldr = List.foldr\<close>
-
-ML_file "mlton/lib/mlyacc-lib/base.sig"
-ML_file "mlton/lib/mlyacc-lib/join.sml"
-ML_file "mlton/lib/mlyacc-lib/lrtable.sml"
-ML_file "mlton/lib/mlyacc-lib/stream.sml"
-(*ML_file "mlton/lib/mlyacc-lib/parser2.sml"*)
-ML_file "mlton/lib/mlyacc-lib/parser1.sml"
+section \<open>Language.C Haskell parsing in ML\<close>
 
 ML\<open>open C_ast_simple\<close>
 
@@ -447,6 +438,15 @@ structure List = struct
 end
 \<close>
 
+section \<open>Loading of Generated Grammar\<close>
+
+ML_file "mlton/lib/mlyacc-lib/base.sig"
+ML_file "mlton/lib/mlyacc-lib/join.sml"
+ML_file "mlton/lib/mlyacc-lib/lrtable.sml"
+ML_file "mlton/lib/mlyacc-lib/stream.sml"
+(*ML\<open>val foldl = List.foldl val foldr = List.foldr\<close>
+  ML_file "mlton/lib/mlyacc-lib/parser2.sml"*)
+ML_file "mlton/lib/mlyacc-lib/parser1.sml"
 ML_file "../doc/language_c.grm.sig"
 ML_file "../doc/language_c.grm.sml"
 
