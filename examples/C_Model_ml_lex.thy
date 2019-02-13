@@ -82,8 +82,8 @@ fun this_string s =
    o pair [])
   >> rev
 val one_not_eof = Scan.one (Symbol.not_eof o #1)
-fun unless_eol scan = Scan.unless scan one_not_eof >> single
-val repeats_one_not_eof = Scan.repeats o unless_eol
+fun unless_eof scan = Scan.unless scan one_not_eof >> single
+val repeats_one_not_eof = Scan.repeats o unless_eof
 val newline =   $$$ "\n"
              || $$$ "\^M" @@@ $$$ "\n"
              || $$$ "\^M"
@@ -153,43 +153,45 @@ val char_code =
     let val (n, _) = Library.read_int [a, b, c]
     in if n <= 255 then Scan.succeed [(chr n, pos)] else Scan.fail end);
 
-fun scan_str_no_eol q =
+fun scan_str_inline q =
   $$$ "\\" |-- !!! "bad escape character in string"
     ($$$ q || $$$ "\\" || char_code) ||
   Scan.unless Scanner.newline
               (Scan.one (fn (s, _) => s <> q andalso s <> "\\" andalso Symbol.not_eof s)) >> single;
 
-fun scan_strs_no_eol q =
+fun scan_strs_inline q =
   Scan.ahead ($$ q) |--
     !!! "unclosed string literal within the same line"
-      ((Symbol_Pos.scan_pos --| $$$ q) -- (Scan.repeats (scan_str_no_eol q) -- ($$$ q |-- Symbol_Pos.scan_pos)));
+      ((Symbol_Pos.scan_pos --| $$$ q) -- (Scan.repeats (scan_str_inline q) -- ($$$ q |-- Symbol_Pos.scan_pos)));
 
 in
 
-val scan_string_qq_no_eol = scan_strs_no_eol "\"";
-val scan_string_bq_no_eol = scan_strs_no_eol "`";
+val scan_string_qq_inline = scan_strs_inline "\"";
+val scan_string_bq_inline = scan_strs_inline "`";
 
 end;
 
 (* nested text cartouches *)
 
-val scan_cartouche_depth_no_eol =
+fun scan_cartouche_depth stop =
   Scan.repeat1 (Scan.depend (fn (depth: int option) =>
     (case depth of
       SOME d =>
         $$ Symbol.open_ >> pair (SOME (d + 1)) ||
           (if d > 0 then
-            Scan.unless Scanner.newline
+            Scan.unless stop
                         (Scan.one (fn (s, _) => s <> Symbol.close andalso Symbol.not_eof s))
             >> pair depth ||
             $$ Symbol.close >> pair (if d = 1 then NONE else SOME (d - 1))
           else Scan.fail)
     | NONE => Scan.fail)));
 
-val scan_cartouche_no_eol =
+val scan_cartouche_depth_inline = scan_cartouche_depth Scanner.newline
+
+val scan_cartouche_inline =
   Scan.ahead ($$ Symbol.open_) |--
     !!! "unclosed text cartouche within the same line"
-      (Scan.provide is_none (SOME 0) scan_cartouche_depth_no_eol);
+      (Scan.provide is_none (SOME 0) scan_cartouche_depth_inline);
 
 (* C-style comments *)
 
@@ -258,10 +260,10 @@ val scan_antiq_body =
   scan_body1 ||
   scan_body2;
 
-val scan_antiq_body_no_eol =
-  Scan.trace (C_Symbol_Pos.scan_string_qq_no_eol || C_Symbol_Pos.scan_string_bq_no_eol) >> #2 ||
-  C_Symbol_Pos.scan_cartouche_no_eol ||
-  Scanner.unless_eol Scanner.newline;
+val scan_antiq_body_inline =
+  Scan.trace (C_Symbol_Pos.scan_string_qq_inline || C_Symbol_Pos.scan_string_bq_inline) >> #2 ||
+  C_Symbol_Pos.scan_cartouche_inline ||
+  Scanner.unless_eof Scanner.newline;
 
 fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
 
@@ -292,7 +294,7 @@ val scan_antiq =
        body = body}) ||
   (Symbol_Pos.scan_pos --| $$ "/" --| $$ "/" --| $$ "@"
   -- Symbol_Pos.scan_pos
-  -- Scan.repeats scan_antiq_body_no_eol -- Symbol_Pos.scan_pos)
+  -- Scan.repeats scan_antiq_body_inline -- Symbol_Pos.scan_pos)
   >> (fn (((pos1, pos2), body), pos3) => 
       {start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos3),
