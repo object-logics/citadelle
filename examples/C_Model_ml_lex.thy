@@ -60,6 +60,8 @@ theory C_Model_ml_lex
        and "C_file" :: thy_load % "ML"
 begin
 
+section\<open> Basic Scanning Combinators from Isabelle \<close>
+
 ML\<open>
 structure Scanner =
 struct
@@ -91,8 +93,9 @@ val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
-section \<open>\<close>
+section \<open>Instantiation of the Scanner with C Lexems \<close>
 
+text\<open>Basically copied and modified from files in Pure General of Isabelle.\<close>
 ML\<open>
 (*  Title:      Pure/General/symbol.ML
     Author:     Makarius
@@ -1140,7 +1143,9 @@ end;
 end;
 \<close>
 
-section \<open>\<close>
+section \<open>Instantiation of the Parser with the Lexer\<close>
+text\<open>The parser consists of a generic module @{file "../mlton/lib/mlyacc-lib/base.sig"}, 
+which interprets a automata-like format generated from smlyacc.\<close>
 
 ML\<open>
 type 'a stack_elem = (LrTable.state * ('a * Position.T * Position.T))
@@ -1246,7 +1251,7 @@ fun makeLexer input =
   end
 end
 \<close>
-
+text\<open>This is where the instatiation of the Parser Functor with the Lexer actually happens ...\<close>
 ML\<open>
 structure StrictCParser =
   JoinWithArg1(structure LrParser = LrParser1
@@ -1285,7 +1290,7 @@ structure P = struct
 end
 \<close>
 
-section \<open>\<close>
+section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>
 
 ML\<open>
 (*  Title:      Pure/ML/ml_context.ML
@@ -1524,7 +1529,7 @@ val C : bool option ->
 end;
 \<close>
 
-section \<open>\<close>
+section \<open>The Isar Binding to the C11 Interface.\<close>
 
 ML\<open>
 

@@ -2,7 +2,6 @@ theory "C11-Interface"
   imports "src/C_Model_ml_lex"
   keywords "C" :: thy_decl
        and "C_file" :: thy_load % "ML"
-
 begin
 
 section\<open>The Global C11-Module State\<close>
@@ -69,12 +68,15 @@ ML\<open>
 
 structure C_Outer_Syntax =
 struct
+
+val C = C_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
+
 val _ =
   Outer_Syntax.command @{command_keyword C} ""
     (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
       Toplevel.generic_theory
         (ML_Context.exec (fn () =>
-            C_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
+            C source) #>
           Local_Theory.propagate_ml_env)));
 
 local
@@ -89,6 +91,14 @@ in end
 end
 \<close>
 
+ML\<open>
+fun hook make_string f (_, (value, pos1, pos2)) thy =
+  let
+    val () = writeln (make_string value)
+    val () = Position.reports_text [((Position.range (pos1, pos2) |> Position.range_position, Markup.intensify), "")]
+  in f thy end
+\<close>
+setup\<open>ML_Antiquotation.inline @{binding hook} (Args.context >> K ("hook " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
 
 
 end

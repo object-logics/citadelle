@@ -59,8 +59,9 @@ functor JoinWithArg1(structure Lex : ARG_LEXER1
              sharing type Lex.UserDeclarations.arg = ParserData.arg
              sharing type Lex.UserDeclarations.svalue0 = ParserData.svalue0
              sharing type Lex.UserDeclarations.pos = ParserData.pos
-             sharing type Lex.UserDeclarations.token = ParserData.Token.token)
-                 : ARG_PARSER1  =
+             sharing type Lex.UserDeclarations.token = ParserData.Token.token
+             sharing type Lex.UserDeclarations.state = ParserData.Token.LrTable.state)
+                 : ARG_PARSER1 =
 struct
     structure Token = ParserData.Token
     structure Stream = LrParser.Stream
@@ -76,11 +77,14 @@ struct
 
     val makeLexer = LrParser.Stream.streamify o Lex.makeLexer
 
-    val parse = fn (lookahead,error) =>
+    val parse = fn (lookahead, error, void_position, reduce, accept) =>
       LrParser.parse {table = ParserData.table,
-                      lookahead=lookahead,
+                      lookahead = lookahead,
                       saction = ParserData.Actions.actions,
-                      void= ParserData.Actions.void,
+                      void = ParserData.Actions.void,
+                      void_position = void_position,
+                      reduce = reduce,
+                      accept = accept,
                       ec = {is_keyword = ParserData.EC.is_keyword,
                             noShift = ParserData.EC.noShift,
                             preferred_change = ParserData.EC.preferred_change,

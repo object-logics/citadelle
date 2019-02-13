@@ -28,12 +28,11 @@ val DEBUG1 = false
 exception ParseError
 exception ParseImpossible of int
 
-type ('a,'b) elem = (state * ('a * 'b * 'b))
-type ('a,'b) stack = ('a,'b) elem list
+type ('a,'b) stack = (state * ('a * 'b * 'b)) list
 
 val showState = fn (STATE s) => "STATE " ^ Int.toString s
 
-fun printStack(stack: ('a,'b) elem list, n: int) =
+fun printStack(stack: ('a,'b) stack, n: int) =
    case stack
      of (state, _) :: rest =>
            (writeln ("          " ^ Int.toString n ^ ": " ^ showState state);
@@ -41,7 +40,7 @@ fun printStack(stack: ('a,'b) elem list, n: int) =
            )
       | nil => ()
 
-val parse = fn {table, saction, void, ec = {showTerminal, error, ...}, ...} =>
+fun parse {table, saction, void, void_position, reduce, accept, ec = {showTerminal, error, ...}, ...} =
   let fun prAction(stack as (state, _) :: _, (TOKEN (term,_),_), action) =
              (writeln "Parse: state stack:";
               printStack(stack, 0);
@@ -60,35 +59,49 @@ val parse = fn {table, saction, void, ec = {showTerminal, error, ...}, ...} =>
       val action = LrTable.action table
       val goto = LrTable.goto table
 
-      fun parseStep (((token as TOKEN (terminal, (f_val,leftPos,rightPos))),
-                    stack as (state,_) :: _), (lexer,arg)) =
+      fun add_stack x stack stack_ml = (x :: stack, [] :: stack_ml)
+
+      fun parseStep ( (token as TOKEN (terminal, (f_val,leftPos,rightPos)))
+                    , (lexer, (((stack as (state,_) :: _), stack_ml), arg))) =
           let val nextAction = action (state, terminal)
               val _ = if DEBUG1 then prAction(stack,(token, lexer),nextAction)
                       else ()
           in case nextAction
              of SHIFT s => (lexer, arg)
-                           |> Scan.lift f_val -- Stream.get >> (fn (value, v) => (v, (s,(value, leftPos, rightPos)) :: stack))
+                           ||> (f_val #>> (fn value => add_stack (s, (value, leftPos, rightPos)) stack stack_ml))
+                           |> Stream.get
                            |> parseStep
-              | REDUCE i => (lexer, arg)
-                           |> Scan.lift (fn arg =>
-                                         case saction(i,leftPos,stack,arg)
-                                         of (nonterm,(f_val, p1, p2),stack as (state,_) :: _ ) =>
-                                             arg
-                                             |> f_val >> (fn value => (token,(goto(state,nonterm),(value, p1, p2))::stack))
-                                          | _ => raise (ParseImpossible 197))
-                           |> parseStep
-              | ERROR => (error("syntax error\n",leftPos,rightPos);
+              | REDUCE i =>
+                (case saction (i, leftPos, stack, arg)
+                 of (nonterm, (f_val, p1, p2), stack' as (state, _) :: _) =>
+                   let val (value, arg) = f_val arg
+                       val goto0 = (goto (state, nonterm), (value, p1, p2))
+                       val len = length stack
+                       val len' = length stack'
+                       val (arg, stack_ml) =
+                         if len = len' then (arg, stack_ml)
+                         else
+                           chop (len - len') stack_ml
+                           |>> (fn st0 => fold_rev (fold_rev (curry (I #>> pair (i, goto0) #> reduce)))
+                                                   st0
+                                                   arg)
+                   in (add_stack goto0 stack' stack_ml, arg) end
+                 | _ => raise (ParseImpossible 197))
+                |> (fn stack_arg => parseStep (token, (lexer, stack_arg)))
+              | ERROR => (error (stack,leftPos,rightPos);
                           raise ParseError)
-              | ACCEPT => (lexer, arg)
+              | ACCEPT => (lexer, ((stack, stack_ml), arg))
                           |> Stream.cons o pair token
-                          |> (case stack
-                              of (_,(topvalue,_,_)) :: _ => pair topvalue
+                          |> (fn (lexer, ((stack, stack_ml), arg)) =>
+                              case stack
+                              of (_,(topvalue,_,_)) :: _ => pair topvalue (lexer, accept (stack_ml, arg))
                                | _ => raise (ParseImpossible 202))
           end
         | parseStep _ = raise (ParseImpossible 204)
+  in I
+     ##> (void #>> (fn void' => add_stack (initialState table, (void', void_position, void_position)) [] []))
+     #> Stream.get 
+     #> parseStep 
+end
 
-  in Scan.lift void -- Stream.get >> (fn (void, p1 as TOKEN (_,(_,leftPos,_))) =>
-                                      (p1,[(initialState table,(void,leftPos,leftPos))]))
-     #> parseStep
-  end
 end;
