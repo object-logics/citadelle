@@ -245,6 +245,11 @@ Antiquotations within plain text.
 structure C_Antiquote =
 struct
 
+(* datatype antiquote *)
+
+type antiq = {start1: Position.T, start2: Position.T, stop: Position.T, range: Position.range, head: antiq_head, body: Symbol_Pos.T list};
+datatype 'a antiquote = Text of 'a | Control of Antiquote.control | Antiq of Antiquote.antiq | ML_source of antiq;
+
 (* scan *)
 
 open Basic_Symbol_Pos;
@@ -259,6 +264,8 @@ val par_r = "/"
 val scan_body1 = $$$ "*" --| Scan.ahead (~$$$ par_r)
 val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
 
+val many_blank = Scanner.many Symbol.is_ascii_blank
+
 val scan_antiq_body_multi =
   Scan.trace (Symbol_Pos.scan_string_qq err_prefix || Symbol_Pos.scan_string_bq err_prefix) >> #2 ||
   C_Symbol_Pos.scan_cartouche_multi ($$$ "*" @@@ $$$ par_r) ||
@@ -271,6 +278,16 @@ val scan_antiq_body_inline =
   Scanner.unless_eof Scanner.newline;
 
 fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
+
+fun scan_antiq_multi scan =
+  Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- scan -- Symbol_Pos.scan_pos --
+    Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
+      (Scan.repeats scan_antiq_body_multi -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos)))
+
+fun scan_antiq_inline scan =
+  (Symbol_Pos.scan_pos --| $$ "/" --| $$ "/" -- scan
+  -- Symbol_Pos.scan_pos
+  -- Scan.repeats scan_antiq_body_inline -- Symbol_Pos.scan_pos)
 
 in
 
@@ -289,22 +306,45 @@ val scan_control =
       {name = (control_name sym, pos), range = Symbol_Pos.range [(sym, pos)], body = []});
 
 val scan_antiq =
-  Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- $$ "@" |-- Symbol_Pos.scan_pos --
-    Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
-      (Scan.repeats scan_antiq_body_multi -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos))) >>
-    (fn (pos1, (pos2, ((body, pos3), pos4))) =>
+  let val sym = $$ "@" in
+  scan_antiq_multi sym
+  >> (fn (pos1, ((_, pos2), ((body, pos3), pos4))) =>
       {start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos4),
        range = Position.range (pos1, pos4),
        body = body}) ||
-  (Symbol_Pos.scan_pos --| $$ "/" --| $$ "/" --| $$ "@"
-  -- Symbol_Pos.scan_pos
-  -- Scan.repeats scan_antiq_body_inline -- Symbol_Pos.scan_pos)
-  >> (fn (((pos1, pos2), body), pos3) => 
+  scan_antiq_inline sym
+  >> (fn ((((pos1, _), pos2), body), pos3) => 
       {start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos3),
        range = Position.range (pos1, pos3),
        body = body})
+  end
+
+val scan_ml_source =
+  let val sym = $$ "@" |-- many_blank |--
+                Symbol_Pos.scan_pos --
+                (Scanner.this_string "setup" >> K Setup
+                 || (Scan.repeat ($$ "@") --| many_blank --| Scanner.this_string "hook") >> Hook)
+                --| Scanner.many Symbol.is_ascii_blank in
+  scan_antiq_multi sym
+  >> (fn (pos1, (((pos1', head), pos2), ((body, pos3), pos4))) =>
+      {start1 = Position.range_position (pos1, pos1'),
+       start2 = Position.range_position (pos1', pos2),
+       stop = Position.range_position (pos3, pos4),
+       range = Position.range (pos1, pos4),
+       head = head,
+       body = body}) ||
+  scan_antiq_inline sym
+  >> (fn ((((pos1, (pos1', head)), pos2), body), pos3) => 
+      {start1 = Position.range_position (pos1, pos1'),
+       start2 = Position.range_position (pos1', pos2),
+       stop = Position.range_position (pos3, pos3),
+       range = Position.range (pos1, pos3),
+       head = head,
+       body = body})
+
+  end
 
 end;
 
@@ -492,7 +532,7 @@ datatype token_kind =
   String of bool * Symbol.symbol list |
   File of bool * Symbol.symbol list |
   (**)
-  Space | Comment of unit Antiquote.antiquote | Sharp of int |
+  Space | Comment of unit C_Antiquote.antiquote | Sharp of int |
   (**)
   Error of string * token_group | Directive of token_kind_directive | EOF
 
@@ -625,7 +665,7 @@ val token_kind_markup0 =
   | ClangC => (Markup.ML_numeral, "")
   | String _ => (Markup.ML_string, "")
   | File _ => (Markup.ML_string, "")
-  | Comment (Antiquote.Text ()) => (Markup.ML_comment, "")
+  | Comment (C_Antiquote.Text ()) => (Markup.ML_comment, "")
   | Sharp _ => (Markup.antiquote, "")
   | Error (msg, _) => (Markup.bad (), msg)
   | _ => (Markup.empty, "");
@@ -858,9 +898,10 @@ fun scan_token f1 f2 = Scan.trace f1 >> (fn (v, s) => token (f2 v) s)
 
 val comments =
   let fun scan_anti f1 f2 = scan_token f1 (Comment o f2) in
-     scan_anti C_Antiquote.scan_control Antiquote.Control
-  || scan_anti C_Antiquote.scan_antiq Antiquote.Antiq
-  || C_Symbol_Pos.scan_comment_no_nest >> token (Comment (Antiquote.Text ()))
+     scan_anti C_Antiquote.scan_ml_source C_Antiquote.ML_source
+  || scan_anti C_Antiquote.scan_control C_Antiquote.Control
+  || scan_anti C_Antiquote.scan_antiq C_Antiquote.Antiq
+  || C_Symbol_Pos.scan_comment_no_nest >> token (Comment (C_Antiquote.Text ()))
   end
 
 fun scan_fragment blanks =
@@ -1022,12 +1063,6 @@ fun gen_read pos text =
       let val () = warn tok
       in case check_error tok of SOME s => cons s | NONE => I end
 
-    fun get_antiq tok = case tok of
-        Token (_, (Comment (Antiquote.Control c), _)) => [Antiquote.Control c]
-      | Token (_, (Comment (Antiquote.Antiq a), _)) => [Antiquote.Antiq a]
-      | Token (_, (Directive l, _)) => maps get_antiq (token_list_of l)
-      | _ => []
-
     val backslash1 = $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ Scanner.newline
     val backslash2 = Scan.one (not o Symbol_Pos.is_eof)
 
@@ -1048,16 +1083,46 @@ fun gen_read pos text =
       |> Source.exhaust
       |> (fn input => input @ termination);
 
-    val input2 = [];
+    fun get_antiq tok = case tok of
+        Token (_, (Comment (C_Antiquote.Control c), _)) => [Antiquote.Control c]
+      | Token (_, (Comment (C_Antiquote.Antiq a), _)) => [Antiquote.Antiq a]
+      | Token (_, (Directive l, _)) => maps get_antiq (token_list_of l)
+      | _ => []
 
-    val input' = maps (maps get_antiq) [input1, input2];
-    val _ = Position.reports (Antiquote.antiq_reports input');
+    fun get_ml tok = case tok of
+        Token (_, (Comment (C_Antiquote.ML_source {start1, start2, stop, range = (pos, _), ...}), _)) =>
+                                          [(start1, Markup.antiquote),
+                                           (start2, Markup.keyword1),
+                                           (stop, Markup.antiquote),
+                                           (pos, Markup.language_antiquotation)]
+      | Token (_, (Directive l, _)) => maps get_ml (token_list_of l)
+      | _ => []
+
+    fun filter_ml tok = case tok of
+        Token (_, (Comment (C_Antiquote.ML_source {head = head, body = body, ...}), _)) => [(head, body)]
+      | Token (_, (Directive l, _)) => maps filter_ml (token_list_of l)
+      | _ => []
+
+    fun read_ml0 (head, body) =
+                  body
+                  |> Token.read_no_commands (Thy_Header.get_keywords' @{context}) Parse.ML_source
+                  |> map (fn source => Left (head, Input.range_of source, ML_Lex.read_source false source))
+
+    fun read_ml tok = case tok of
+        Token (_, (Comment (C_Antiquote.ML_source {head = head, body = body, ...}), _)) => (read_ml0 (head, body))
+      | Token (_, (Directive _, _)) => maps read_ml0 (filter_ml tok) @ [Right tok]
+      | _ => [Right tok]
+
+    val input' = maps get_antiq input1;
+
+    val _ = Position.reports (Antiquote.antiq_reports input' @ maps get_ml input1);
     val _ = app (fn pos => Output.information ("Backslash newline" ^ Position.here pos)) input0
-    val _ = Position.reports_text (  map (fn pos => ((pos, Markup.intensify), "")) input0
-                                   @ maps (fn input => maps token_report input) [input1, input2]);
-    val _ = case fold (fold check) [input1, input2] [] of [] => ()
-                                                        | l => error (String.concatWith "\n" (rev l));
-  in (input1, input2, input') end;
+    val _ = Position.reports_text ( map (fn pos => ((pos, Markup.intensify), "")) input0
+                                  @ maps token_report input1);
+    val _ = case fold check input1 [] of [] => ()
+                                       | l => error (String.concatWith "\n" (rev l));
+  in (maps read_ml input1, input')
+end;
 
 in
 
@@ -1078,6 +1143,16 @@ end;
 section \<open>\<close>
 
 ML\<open>
+type 'a stack_elem = (LrTable.state * ('a * Position.T * Position.T))
+
+fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
+
+structure Stack_Data = Theory_Data
+  (type T = StrictCLrVals.Tokens.svalue0 stack_elem list
+   val empty = []
+   val extend = I
+   val merge = #2)
+
 structure StrictCLex : ARG_LEXER1 =
 struct
 structure Tokens = StrictCLrVals.Tokens
@@ -1089,61 +1164,86 @@ struct
   type svalue0 = Tokens.svalue0
   type svalue = arg -> svalue0 * arg
   type token0 = C_Lex.token
+  type state = StrictCLrVals.ParserData.LrTable.state
 end
 
 fun makeLexer input =
   let val s = Synchronized.var "input"
                 (input 1024
-                 |> map_filter (fn Antiquote.Text (C_Lex.Token (_,(C_Lex.Space,_))) => NONE
-                                 | Antiquote.Text (C_Lex.Token (_,(C_Lex.Comment _,_))) => NONE
-                                 | Antiquote.Text (C_Lex.Token (_,(C_Lex.Directive _,_))) => NONE
-                                 | Antiquote.Text (C_Lex.Token s) => SOME s
-                                 | _ => NONE))
-  in
-  fn arg as {tyidents, scopes, namesupply} =>
-    let fun return0 x = (x, {tyidents = tyidents, scopes = scopes, namesupply = namesupply})
-    in
-      case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
-      of NONE => return0 (Tokens.x25_eof (Position.none, Position.none))
-       | SOME ((pos1, pos2), (C_Lex.Char (b, [c]), _)) =>
-          return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
-       | SOME ((pos1, pos2), (C_Lex.Char (b, _), _)) => error "to do"
-       | SOME ((pos1, pos2), (C_Lex.String (b, s), _)) =>
-          return0 (StrictCLrVals.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2))
-       | SOME ((pos1, pos2), (C_Lex.Integer (i, repr, flag), _)) =>
-          return0 (StrictCLrVals.Tokens.cint
-                    ( CInteger i repr
-                        (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
-                                              flag
-                                              ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
-                                         |> map #1)
-                         |> Flags)
-                    , pos1
-                    , pos2))
-       | SOME ((pos1, pos2), (C_Lex.Ident, s)) => 
-          let val ty_ident = Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0))
-          in return0 (if Hsk_c_parser.isTypeIdent s arg then
-                        (Position.reports_text [((pos1, Markup.ML_keyword3 |> Markup.keyword_properties), "")];
-                        StrictCLrVals.Tokens.tyident (ty_ident, pos1, pos2))
-                      else
-                        StrictCLrVals.Tokens.ident (ty_ident, pos1, pos2))
-          end
-       | SOME ((pos1, pos2), (_, s)) => 
-                   token_of_string (Tokens.error (pos1, pos2))
-                                   (ClangCVersion0 (From_string s))
-                                   (CChar #"0" false)
-                                   (CFloat (From_string s))
-                                   (CInteger 0 DecRepr (Flags 0))
-                                   (CString0 (From_string s, false))
-                                   (Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0)))
-                                   s
-                                   pos1
-                                   pos2
-                                   s
-                   |> return0
-    end
+                 |> map_filter (fn Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
+                                 | Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
+                                 | Right (C_Lex.Token (_, (C_Lex.Directive _, _))) => NONE
+                                 | Right (C_Lex.Token s) => SOME (Right s)
+                                 | Left ml => SOME (Left ml)))
+      fun drain ((stack, stack_ml), arg as {tyidents, scopes, namesupply, context}) =
+        let fun return0 x = (x, ((stack, stack_ml), {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context}))
+        in
+          case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
+          of SOME (Left (Setup, range, ants)) =>
+               let val setup = "setup" in
+                 context
+                 |> Context.map_theory (Stack_Data.put stack)
+                 |> ML_Context.expression
+                      range
+                      setup
+                      "Stack_Data.T -> theory -> theory"
+                      ("Context.map_theory (fn thy => " ^ setup ^ " (Stack_Data.get thy) thy)")
+                      ants
+                 |> (fn context => drain ((stack, stack_ml), {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context}))
+               end
+           | SOME (Left (Hook syms, range, ants)) =>
+               drain ( ( stack
+                       , let
+                           val () =
+                             if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
+                               warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (range |> Position.range_position))
+                             else ()
+                           val () =
+                             if length stack_ml - length syms <= 0 then
+                               error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
+                             else ()
+                         in nth_map (length syms) (fn xs => (range, ants) :: xs) stack_ml end)
+                     , arg)
+           | NONE => return0 (Tokens.x25_eof (Position.none, Position.none))
+           | SOME (Right ((pos1, pos2), (C_Lex.Char (b, [c]), _))) =>
+              return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
+           | SOME (Right ((pos1, pos2), (C_Lex.Char (b, _), _))) => error "to do"
+           | SOME (Right ((pos1, pos2), (C_Lex.String (b, s), _))) =>
+              return0 (StrictCLrVals.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2))
+           | SOME (Right ((pos1, pos2), (C_Lex.Integer (i, repr, flag), _))) =>
+              return0 (StrictCLrVals.Tokens.cint
+                        ( CInteger i repr
+                            (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
+                                                  flag
+                                                  ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
+                                             |> map #1)
+                             |> Flags)
+                        , pos1
+                        , pos2))
+           | SOME (Right ((pos1, pos2), (C_Lex.Ident, s))) => 
+              let val ty_ident = Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0))
+              in return0 (if Hsk_c_parser.isTypeIdent s arg then
+                            (Position.reports_text [((pos1, Markup.ML_keyword3 |> Markup.keyword_properties), "")];
+                            StrictCLrVals.Tokens.tyident (ty_ident, pos1, pos2))
+                          else
+                            StrictCLrVals.Tokens.ident (ty_ident, pos1, pos2))
+              end
+           | SOME (Right ((pos1, pos2), (_, s))) => 
+                       token_of_string (Tokens.error (pos1, pos2))
+                                       (ClangCVersion0 (From_string s))
+                                       (CChar #"0" false)
+                                       (CFloat (From_string s))
+                                       (CInteger 0 DecRepr (Flags 0))
+                                       (CString0 (From_string s, false))
+                                       (Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0)))
+                                       s
+                                       pos1
+                                       pos2
+                                       s
+                       |> return0
+        end
+  in drain
   end
-
 end
 \<close>
 
@@ -1153,10 +1253,35 @@ structure StrictCParser =
                structure ParserData = StrictCLrVals.ParserData
                structure Lex = StrictCLex)
 structure P = struct
-  fun parse s =
-   {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
+  fun parse s context =
+   {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), context = context}
    |> StrictCParser.makeLexer (fn _ => s)
-   |> StrictCParser.parse (0, fn (s, pos, _) => error (s ^ " " ^ Position.here pos))
+   |> StrictCParser.parse
+        ( 0
+        , fn (stack, pos1, pos2) =>
+            let val range_pos = I #> Position.range #> Position.range_position
+                val () = Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
+                                                  , Markup.bad ())
+                                                , "")]
+            in Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
+                          [("", range_pos (pos1, pos2))]
+            end
+        , Position.none
+        , fn (((rule, stack0), (range, ants)), {tyidents, scopes, namesupply, context}) =>
+               let val stack = [stack0]
+                   val hook = "hook" in
+                 context
+                 |> Context.map_theory (Stack_Data.put stack)
+                 |> ML_Context.expression
+                      range
+                      hook
+                      (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
+                      ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
+                      ants
+                 |> (fn context => {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context})
+               end
+        , fn (_, arg) => arg)
+   ||> (fn (_, {context = context, ...}) => context)
 end
 \<close>
 
@@ -1331,7 +1456,7 @@ fun eval flags pos ants =
 
 end;
 
-fun eval' flags pos (ants, _, ants') =
+fun eval' flags pos (ants, ants') =
   let val _ = ML_Context.eval flags pos (case ML_Lex.read "(,)" of
                               [par_l, colon, par_r, space] =>
                                 par_l ::
@@ -1356,10 +1481,10 @@ fun eval' flags pos (ants, _, ants') =
                                                       |> Markup.markup Markup.intensify))
                                   end))
               ants
-      val _ = print "" ants
-      val _ = writeln (@{make_string} (P.parse (map Antiquote.Text ants)))
-  in ()
- end
+      val _ = print "" (maps (fn Right x => [x] | _ => []) ants)
+      val (_, context) = P.parse ants (Context.the_generic_context ())
+  in Context.put_generic_context (SOME context)
+  end
 
 fun eval_source flags source =
   eval' flags (Input.pos_of source) (C_Lex.read_source source);
@@ -1405,12 +1530,15 @@ ML\<open>
 
 structure C_Outer_Syntax =
 struct
+
+val C = C_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
+
 val _ =
   Outer_Syntax.command @{command_keyword C} ""
     (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
       Toplevel.generic_theory
         (ML_Context.exec (fn () =>
-            C_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
+            C source) #>
           Local_Theory.propagate_ml_env)));
 
 local
@@ -1424,6 +1552,17 @@ val _ =
 in end
 end
 \<close>
+
+ML\<open>
+fun hook make_string f (_, (value, pos1, pos2)) thy =
+  let
+    val () = writeln (make_string value)
+    val () = Position.reports_text [((Position.range (pos1, pos2) |> Position.range_position, Markup.intensify), "")]
+  in f thy end
+\<close>
+setup\<open>ML_Antiquotation.inline @{binding hook} (Args.context >> K ("hook " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
+
+section \<open>\<close>
 
 C \<comment> \<open>Nesting of comments \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
 /* inside /* inside */ int a = "outside";
@@ -1480,6 +1619,50 @@ int a = 0; //\
           + b (* (**) *\      
 \     
 )\<close>
+\<close>
+
+C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
+int a = (((0 //@ setup \<open>fn _ => fn thy => let in (* */ *) thy end\<close>
+             /*@ setup (*   * /   *) */
+         )));
+\<close>
+
+C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>setup\<close> is executed during SHIFT actions\<close> \<open>
+int a = (((0))); /*@ setup \<open>fn stack => fn thy =>
+                            let
+                              val () = warning ("SHIFT  " ^ @{make_string} (length stack - 1) ^ "    +1 ")
+                              val () = stack
+                                    |> split_list
+                                    |> #2
+                                    |> map_index I
+                                    |> app (fn (i, (value, pos1, pos2)) => writeln ("   " ^ @{make_string} (length stack - i) ^ " " ^ @{make_string} value ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
+                            in thy end\<close> */
+\<close>
+
+C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close> is executed during REDUCE actions\<close> \<open>
+int a = (((0
+      + 5)))  /*@ hook \<open>fn (_, (value, pos1, pos2)) => fn thy =>
+                          let
+                            val () = writeln (@{make_string} value)
+                            val () = Position.reports_text [((Position.range (pos1, pos2) |> Position.range_position, Markup.intensify), "")]
+                          in thy end\<close>
+               */
+      * 4; 
+float b = 7 / 3;
+\<close>
+
+C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close>: selecting deeper sub-trees\<close> \<open>
+int b = 7 / (3) * 50 /*@@@@ hook \<open>@{hook}\<close>
+                      */;
+\<close>
+
+C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close>: nesting parsed C code\<close> \<open>
+int b = 7 / (3) * 50
+  /*@@@@ hook \<open>(hook @{make_string} o tap)
+                 (fn _ => C_Outer_Syntax.C
+                            \<open>int b = 7 / 5 * 2 + 3 * 50 //@ hook \<open>@{hook}\<close>
+                             ;\<close>)\<close>
+   */;
 \<close>
 
 C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>

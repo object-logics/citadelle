@@ -188,7 +188,7 @@ val Reversed = I
 (**)
 
 val From_string = SS_base o ST
-type c_env = {tyidents : Symtab.set, scopes : Symtab.set list, namesupply : int}
+type c_env = {tyidents : Symtab.set, scopes : Symtab.set list, namesupply : int, context : Context.generic}
 
 signature HSK_C_PARSER =
 sig
@@ -326,17 +326,18 @@ struct
   fun concatCStrings cs = CString0 (flatten (map (fn CString0 (s,_) => s) cs), exists (fn CString0 (_, b) => b) cs)
 
   (* Language.C.Parser.ParserMonad *)
-  fun getNewName {tyidents, scopes, namesupply} =
-    (Name namesupply, {tyidents = tyidents, scopes = scopes, namesupply = namesupply + 1})
-  fun addTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply} =
-    ((), {tyidents = Symtab.update (To_string0 i, ()) tyidents, scopes = scopes, namesupply = namesupply})
-  fun shadowTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply} =
-    ((), {tyidents = Symtab.delete_safe (To_string0 i) tyidents, scopes = scopes, namesupply = namesupply})
+  fun getNewName {tyidents, scopes, namesupply, context} =
+    (Name namesupply, {tyidents = tyidents, scopes = scopes, namesupply = namesupply + 1, context = context})
+  fun addTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply, context} =
+    ((), {tyidents = Symtab.update (To_string0 i, ()) tyidents, scopes = scopes, namesupply = namesupply, context = context})
+  fun shadowTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply, context} =
+    ((), {tyidents = Symtab.delete_safe (To_string0 i) tyidents, scopes = scopes, namesupply = namesupply, context = context})
   fun isTypeIdent s0 {tyidents, ...} = Symtab.exists (fn (s1, _) => s0 = s1) tyidents
-  fun enterScope {tyidents, scopes, namesupply} = ((), {tyidents = tyidents, scopes = tyidents :: scopes, namesupply = namesupply})
-  fun leaveScope {scopes, namesupply, ...} = 
+  fun enterScope {tyidents, scopes, namesupply, context} =
+    ((), {tyidents = tyidents, scopes = tyidents :: scopes, namesupply = namesupply, context = context})
+  fun leaveScope {scopes, namesupply, context, ...} = 
     case scopes of [] => error "leaveScope: already in global scope"
-                 | tyidents :: scopes => ((), {tyidents = tyidents, scopes = scopes, namesupply = namesupply})
+                 | tyidents :: scopes => ((), {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context})
   val getCurrentPosition = return NoPosition
 
   (* Language.C.Parser.Tokens *)
@@ -439,6 +440,8 @@ end
 \<close>
 
 section \<open>Loading of Generated Grammar\<close>
+
+ML\<open>datatype antiq_head = Setup | Hook of Symbol_Pos.T list\<close>
 
 ML_file "mlton/lib/mlyacc-lib/base.sig"
 ML_file "mlton/lib/mlyacc-lib/join.sml"
