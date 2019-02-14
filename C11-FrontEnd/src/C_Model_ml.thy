@@ -394,13 +394,13 @@ section \<open>Loading of Generated Grammar\<close>
 
 ML\<open>datatype antiq_head = Setup | Hook of Symbol_Pos.T list\<close>
 
-ML_file "../mlton/lib/mlyacc-lib/base.sig"
-ML_file "../mlton/lib/mlyacc-lib/join.sml"
-ML_file "../mlton/lib/mlyacc-lib/lrtable.sml"
-ML_file "../mlton/lib/mlyacc-lib/stream.sml"
+ML_file "../copied_from_git/mlton/lib/mlyacc-lib/base.sig"
+ML_file "../copied_from_git/mlton/lib/mlyacc-lib/join.sml"
+ML_file "../copied_from_git/mlton/lib/mlyacc-lib/lrtable.sml"
+ML_file "../copied_from_git/mlton/lib/mlyacc-lib/stream.sml"
 (*ML\<open>val foldl = List.foldl val foldr = List.foldr\<close>
-  ML_file "../mlton/lib/mlyacc-lib/parser2.sml"*)
-ML_file "../mlton/lib/mlyacc-lib/parser1.sml"
+  ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser2.sml"*)
+ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser1.sml"
 ML_file "../generated/language_c.grm.sig"
 ML_file "../generated/language_c.grm.sml"
 

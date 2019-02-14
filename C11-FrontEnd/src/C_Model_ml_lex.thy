@@ -1142,7 +1142,7 @@ end;
 \<close>
 
 section \<open>Instantiation of the Parser with the Lexer\<close>
-text\<open>The parser consists of a generic module @{file "../mlton/lib/mlyacc-lib/base.sig"}, 
+text\<open>The parser consists of a generic module @{file "../copied_from_git/mlton/lib/mlyacc-lib/base.sig"}, 
 which interprets a automata-like format generated from smlyacc.\<close>
 
 ML\<open>
