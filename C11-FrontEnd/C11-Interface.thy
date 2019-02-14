@@ -8,25 +8,38 @@ section\<open>The Global C11-Module State\<close>
 ML\<open>
 structure C11_core = 
 struct
-   type c_file_name      = string 
-   type C11_struct       = { tab  : (CTranslUnit list) Symtab.table }
-   val  C11_struct_empty = { tab  = Symtab.empty}
+  type c_file_name      = string 
+  type C11_struct       = { tab  : CTranslUnit list Symtab.table }
+  val  C11_struct_empty = { tab  = Symtab.empty}
 
-(* registrating data of the Isa_DOF component *)
-structure Data = Generic_Data
-(
-  type T =     C11_struct
-  val empty = C11_struct_empty
-  val extend =  I
-  fun merge(t1,t2) = { tab = Symtab.merge (op =)(#tab t1, #tab t2)}
-);
+  fun map_tab f {tab = tab} = {tab = f tab}
 
+  (* registrating data of the Isa_DOF component *)
+  structure Data = Generic_Data
+  (
+    type T =     C11_struct
+    val empty = C11_struct_empty
+    val extend =  I
+    fun merge(t1,t2) = { tab = Symtab.merge (op =)(#tab t1, #tab t2)}
+  );
 
+  fun dest_list thy =
+    case Data.get (Context.Theory thy) of {tab = tab} => Symtab.dest_list tab
 
 end
 \<close>
 
-ML\<open>C11_core.Data.put\<close>
+ML\<open>
+structure C_Context = struct
+val eval_source =
+  C_Context.eval_source
+    (fn (_, (res, _, _)) => fn context => 
+      (Context.theory_name (Context.theory_of context), res)
+      |> Symtab.update_list (op =)
+      |> C11_core.map_tab
+      |> (fn res => C11_core.Data.map res context))
+end
+\<close>
 
 section\<open>Definition of the Command "C_file"\<close>
 

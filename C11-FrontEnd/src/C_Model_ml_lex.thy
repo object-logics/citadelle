@@ -1256,7 +1256,7 @@ structure StrictCParser =
                structure ParserData = StrictCLrVals.ParserData
                structure Lex = StrictCLex)
 structure P = struct
-  fun parse s context =
+  fun parse accept s context =
    {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), context = context}
    |> StrictCParser.makeLexer (fn _ => s)
    |> StrictCParser.parse
@@ -1270,20 +1270,21 @@ structure P = struct
                           [("", range_pos (pos1, pos2))]
             end
         , Position.none
-        , fn (((rule, stack0), (range, ants)), {tyidents, scopes, namesupply, context}) =>
-               let val stack = [stack0]
-                   val hook = "hook" in
-                 context
-                 |> Context.map_theory (Stack_Data.put stack)
-                 |> ML_Context.expression
-                      range
-                      hook
-                      (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
-                      ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
-                      ants
-                 |> (fn context => {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context})
-               end
-        , fn (_, arg) => arg)
+        , uncurry (fn ((rule, stack0), (range, ants)) =>
+                     let val stack = [stack0]
+                         val hook = "hook" in
+                       context
+                       |> Context.map_theory (Stack_Data.put stack)
+                       |> ML_Context.expression
+                            range
+                            hook
+                            (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
+                            ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
+                            ants
+                       |> C_Env.map_context o K
+                     end)
+        , uncurry (fn (stack, _) =>
+            C_Env.map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0))))
    ||> (fn (_, {context = context, ...}) => context)
 end
 \<close>
@@ -1459,7 +1460,7 @@ fun eval flags pos ants =
 
 end;
 
-fun eval' flags pos (ants, ants') =
+fun eval' accept flags pos (ants, ants') =
   let val _ = ML_Context.eval flags pos (case ML_Lex.read "(,)" of
                               [par_l, colon, par_r, space] =>
                                 par_l ::
@@ -1485,12 +1486,12 @@ fun eval' flags pos (ants, ants') =
                                   end))
               ants
       val _ = print "" (maps (fn Right x => [x] | _ => []) ants)
-      val (_, context) = P.parse ants (Context.the_generic_context ())
+      val (_, context) = P.parse accept ants (Context.the_generic_context ())
   in Context.put_generic_context (SOME context)
   end
 
-fun eval_source flags source =
-  eval' flags (Input.pos_of source) (C_Lex.read_source source);
+fun eval_source accept flags source =
+  eval' accept flags (Input.pos_of source) (C_Lex.read_source source);
 
 end
 \<close>

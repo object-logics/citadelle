@@ -133,11 +133,17 @@ val Reversed = I
 (**)
 
 val From_string = SS_base o ST
-type c_env = {tyidents : Symtab.set, scopes : Symtab.set list, namesupply : int, context : Context.generic}
+
+structure C_Env = struct
+type T = {tyidents : Symtab.set, scopes : Symtab.set list, namesupply : int, context : Context.generic}
+
+fun map_context f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = f context}
+end
 
 signature HSK_C_PARSER =
 sig
-  type arg = c_env
+  type arg = C_Env.T
   type 'a p (* name of the monad, similar as the one declared in Parser.y *) = arg -> 'a * arg
   type posLength = position * int
 
@@ -207,7 +213,7 @@ end
 
 structure Hsk_c_parser : HSK_C_PARSER =
 struct
-  type arg = c_env
+  type arg = C_Env.T
   type 'a p = arg -> 'a * arg
   type posLength = position * int
 
@@ -393,7 +399,7 @@ ML_file "../mlton/lib/mlyacc-lib/join.sml"
 ML_file "../mlton/lib/mlyacc-lib/lrtable.sml"
 ML_file "../mlton/lib/mlyacc-lib/stream.sml"
 (*ML\<open>val foldl = List.foldl val foldr = List.foldr\<close>
-  ML_file "mlton/lib/mlyacc-lib/parser2.sml"*)
+  ML_file "../mlton/lib/mlyacc-lib/parser2.sml"*)
 ML_file "../mlton/lib/mlyacc-lib/parser1.sml"
 ML_file "../generated/language_c.grm.sig"
 ML_file "../generated/language_c.grm.sml"
