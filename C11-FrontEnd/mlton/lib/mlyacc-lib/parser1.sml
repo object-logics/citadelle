@@ -94,7 +94,7 @@ fun parse {table, saction, void, void_position, reduce, accept, ec = {showTermin
                           |> Stream.cons o pair token
                           |> (fn (lexer, ((stack, stack_ml), arg)) =>
                               case stack
-                              of (_,(topvalue,_,_)) :: _ => pair topvalue (lexer, accept (stack_ml, arg))
+                              of (_,(topvalue,_,_)) :: _ => pair topvalue (lexer, accept ((stack, stack_ml), arg))
                                | _ => raise (ParseImpossible 202))
           end
         | parseStep _ = raise (ParseImpossible 204)
