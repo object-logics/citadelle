@@ -8,11 +8,23 @@ section\<open>The Global C11-Module State\<close>
 ML\<open>
 structure C11_core = 
 struct
-  type c_file_name      = string 
-  type C11_struct       = { tab  : CTranslUnit list Symtab.table }
-  val  C11_struct_empty = { tab  = Symtab.empty}
+  datatype id_kind = cpp_id        of Position.T * serial
+                   | cpp_macro     of Position.T * serial
+                   | builtin_id  
+                   | builtin_func 
+                   | imported_id   of Position.T * serial
+                   | imported_func of Position.T * serial 
+                   | global_id     of Position.T * serial
+                   | local_id      of Position.T * serial
+                   | global_func   of Position.T * serial
 
-  fun map_tab f {tab = tab} = {tab = f tab}
+  type c_file_name      = string
+  type C11_struct       = { tab  : CTranslUnit list Symtab.table,
+                            env  : id_kind list Symtab.table }
+  val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
+
+  fun map_tab f {tab, env} = {tab = f tab, env=env}
+  fun map_env f {tab, env} = {tab = tab, env=f env}
 
   (* registrating data of the Isa_DOF component *)
   structure Data = Generic_Data
@@ -20,11 +32,17 @@ struct
     type T =     C11_struct
     val empty = C11_struct_empty
     val extend =  I
-    fun merge(t1,t2) = { tab = Symtab.merge (op =)(#tab t1, #tab t2)}
+    fun merge(t1,t2) = { tab = Symtab.merge (op =)(#tab t1, #tab t2),
+                         env =  Symtab.merge (op =)(#env t1, #env t2)}
   );
 
-  fun dest_list thy =
-    case Data.get (Context.Theory thy) of {tab = tab} => Symtab.dest_list tab
+  val get_global      =  Data.get o Context.Theory
+  fun put_global x    =  Data.put x;
+  val map_data        =  Context.theory_map o Data.map;
+  val map_data_global = Context.theory_map o Data.map
+  
+  val trans_tab_of    = #tab o get_global
+  val dest_list       = Symtab.dest_list o trans_tab_of
 
 end
 \<close>

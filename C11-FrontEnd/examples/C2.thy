@@ -232,3 +232,4 @@ void display(int a[],const int size)
     printf("\n");
 }
 \<close>
+ML\<open> C11_core.dest_list @{theory}; \<close>
