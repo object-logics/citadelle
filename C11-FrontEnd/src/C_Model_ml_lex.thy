@@ -1195,13 +1195,13 @@ fun makeLexer input =
                                  | Right (C_Lex.Token (_, (C_Lex.Directive _, _))) => NONE
                                  | Right (C_Lex.Token s) => SOME (Right s)
                                  | Left ml => SOME (Left ml)))
-      fun drain ((stack, stack_ml), arg as {tyidents, scopes, namesupply, context}) =
-        let fun return0 x = (x, ((stack, stack_ml), {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context}))
+      fun drain ((stack, stack_ml, stack_pos), arg) =
+        let fun return0 x = (x, ((stack, stack_ml, stack_pos), arg))
         in
           case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
           of SOME (Left (Setup, range, ants)) =>
                let val setup = "setup" in
-                 context
+                 #context arg
                  |> Context.map_theory (Stack_Data.put stack)
                  |> ML_Context.expression
                       range
@@ -1209,7 +1209,7 @@ fun makeLexer input =
                       "Stack_Data.T -> theory -> theory"
                       ("Context.map_theory (fn thy => " ^ setup ^ " (Stack_Data.get thy) thy)")
                       ants
-                 |> (fn context => drain ((stack, stack_ml), {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context}))
+                 |> (fn context => drain ((stack, stack_ml, stack_pos), C_Env.map_context (K context) arg))
                end
            | SOME (Left (Hook syms, range, ants)) =>
                drain ( ( stack
@@ -1222,7 +1222,8 @@ fun makeLexer input =
                              if length stack_ml - length syms <= 0 then
                                error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
                              else ()
-                         in nth_map (length syms) (fn xs => (range, ants) :: xs) stack_ml end)
+                         in nth_map (length syms) (fn xs => (range, ants) :: xs) stack_ml end
+                       , stack_pos)
                      , arg)
            | NONE => return0 (Tokens.x25_eof (Position.none, Position.none))
            | SOME (Right ((pos1, pos2), (C_Lex.Char (b, [c]), _))) =>
@@ -1241,12 +1242,14 @@ fun makeLexer input =
                         , pos1
                         , pos2))
            | SOME (Right ((pos1, pos2), (C_Lex.Ident, s))) => 
-              let val ty_ident = Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0))
-              in return0 (if Hsk_c_parser.isTypeIdent s arg then
-                            (Position.reports_text [((pos1, Markup.ML_keyword3 |> Markup.keyword_properties), "")];
-                            StrictCLrVals.Tokens.tyident (ty_ident, pos1, pos2))
-                          else
-                            StrictCLrVals.Tokens.ident (ty_ident, pos1, pos2))
+              let val (name, arg) = Hsk_c_parser.getNewName arg
+                  val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' (pos1, pos2)) s name
+              in ( (if Hsk_c_parser.isTypeIdent s arg then
+                     (Position.reports_text [((pos1, Markup.ML_keyword3 |> Markup.keyword_properties), "")];
+                      StrictCLrVals.Tokens.tyident (ident0, pos1, pos2))
+                    else
+                      StrictCLrVals.Tokens.ident (ident0, pos1, pos2))
+                 , ((stack, stack_ml, stack_pos), arg))
               end
            | SOME (Right ((pos1, pos2), (_, s))) => 
                        token_of_string (Tokens.error (pos1, pos2))
@@ -1274,7 +1277,7 @@ structure StrictCParser =
                structure Lex = StrictCLex)
 structure P = struct
   fun parse accept s context =
-   {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), context = context}
+   C_Env.make context
    |> StrictCParser.makeLexer (fn _ => s)
    |> StrictCParser.parse
         ( 0
@@ -1300,8 +1303,10 @@ structure P = struct
                             ants
                        |> C_Env.map_context o K
                      end)
-        , uncurry (fn (stack, _) =>
-            C_Env.map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0))))
+        , uncurry (fn (stack, _, _) =>
+            C_Env.map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
+        , fn (stack, env) => env |> C_Env.map_pos_stack (K stack) |> C_Env.map_pos_computed (K NONE)
+        , fn env => (#pos_computed env, env))
    ||> (fn (_, {context = context, ...}) => context)
 end
 \<close>

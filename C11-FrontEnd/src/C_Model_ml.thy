@@ -72,6 +72,8 @@ section \<open>Language.C Haskell parsing in ML\<close>
 ML\<open>open C_ast_simple\<close>
 ML \<open>val Position = position val NoPosition = noPosition val BuiltinPosition = builtinPosition val InternalPosition = internalPosition val Name = name val OnlyPos = onlyPos val NodeInfo = nodeInfo val AnonymousRef = anonymousRef val NamedRef = namedRef val CChar = cChar val CChars = cChars val DecRepr = decRepr val HexRepr = hexRepr val OctalRepr = octalRepr val FlagUnsigned = flagUnsigned val FlagLong = flagLong val FlagLongLong = flagLongLong val FlagImag = flagImag val CFloat = cFloat val Flags = flags val CInteger = cInteger val CAssignOp = cAssignOp val CMulAssOp = cMulAssOp val CDivAssOp = cDivAssOp val CRmdAssOp = cRmdAssOp val CAddAssOp = cAddAssOp val CSubAssOp = cSubAssOp val CShlAssOp = cShlAssOp val CShrAssOp = cShrAssOp val CAndAssOp = cAndAssOp val CXorAssOp = cXorAssOp val COrAssOp = cOrAssOp val CMulOp = cMulOp val CDivOp = cDivOp val CRmdOp = cRmdOp val CAddOp = cAddOp val CSubOp = cSubOp val CShlOp = cShlOp val CShrOp = cShrOp val CLeOp = cLeOp val CGrOp = cGrOp val CLeqOp = cLeqOp val CGeqOp = cGeqOp val CEqOp = cEqOp val CNeqOp = cNeqOp val CAndOp = cAndOp val CXorOp = cXorOp val COrOp = cOrOp val CLndOp = cLndOp val CLorOp = cLorOp val CPreIncOp = cPreIncOp val CPreDecOp = cPreDecOp val CPostIncOp = cPostIncOp val CPostDecOp = cPostDecOp val CAdrOp = cAdrOp val CIndOp = cIndOp val CPlusOp = cPlusOp val CMinOp = cMinOp val CCompOp = cCompOp val CNegOp = cNegOp val CAuto = cAuto val CRegister = cRegister val CStatic = cStatic val CExtern = cExtern val CTypedef = cTypedef val CThread = cThread val CInlineQual = cInlineQual val CNoreturnQual = cNoreturnQual val CStructTag = cStructTag val CUnionTag = cUnionTag val CIntConst = cIntConst val CCharConst = cCharConst val CFloatConst = cFloatConst val CStrConst = cStrConst val CStrLit = cStrLit val CFunDef = cFunDef val CDecl = cDecl val CStaticAssert = cStaticAssert val CDeclr = cDeclr val CPtrDeclr = cPtrDeclr val CArrDeclr = cArrDeclr val CFunDeclr = cFunDeclr val CNoArrSize = cNoArrSize val CArrSize = cArrSize val CLabel = cLabel val CCase = cCase val CCases = cCases val CDefault = cDefault val CExpr = cExpr val CCompound = cCompound val CIf = cIf val CSwitch = cSwitch val CWhile = cWhile val CFor = cFor val CGoto = cGoto val CGotoPtr = cGotoPtr val CCont = cCont val CBreak = cBreak val CReturn = cReturn val CAsm = cAsm val CAsmStmt = cAsmStmt val CAsmOperand = cAsmOperand val CBlockStmt = cBlockStmt val CBlockDecl = cBlockDecl val CNestedFunDef = cNestedFunDef val CStorageSpec = cStorageSpec val CTypeSpec = cTypeSpec val CTypeQual = cTypeQual val CFunSpec = cFunSpec val CAlignSpec = cAlignSpec val CVoidType = cVoidType val CCharType = cCharType val CShortType = cShortType val CIntType = cIntType val CLongType = cLongType val CFloatType = cFloatType val CDoubleType = cDoubleType val CSignedType = cSignedType val CUnsigType = cUnsigType val CBoolType = cBoolType val CComplexType = cComplexType val CInt128Type = cInt128Type val CSUType = cSUType val CEnumType = cEnumType val CTypeDef = cTypeDef val CTypeOfExpr = cTypeOfExpr val CTypeOfType = cTypeOfType val CAtomicType = cAtomicType val CConstQual = cConstQual val CVolatQual = cVolatQual val CRestrQual = cRestrQual val CAtomicQual = cAtomicQual val CAttrQual = cAttrQual val CNullableQual = cNullableQual val CNonnullQual = cNonnullQual val CAlignAsType = cAlignAsType val CAlignAsExpr = cAlignAsExpr val CStruct = cStruct val CEnum = cEnum val CInitExpr = cInitExpr val CInitList = cInitList val CArrDesig = cArrDesig val CMemberDesig = cMemberDesig val CRangeDesig = cRangeDesig val CAttr = cAttr val CComma = cComma val CAssign = cAssign val CCond = cCond val CBinary = cBinary val CCast = cCast val CUnary = cUnary val CSizeofExpr = cSizeofExpr val CSizeofType = cSizeofType val CAlignofExpr = cAlignofExpr val CAlignofType = cAlignofType val CComplexReal = cComplexReal val CComplexImag = cComplexImag val CIndex = cIndex val CCall = cCall val CMember = cMember val CVar = cVar val CConst = cConst val CCompoundLit = cCompoundLit val CGenericSelection = cGenericSelection val CStatExpr = cStatExpr val CLabAddrExpr = cLabAddrExpr val CBuiltinExpr = cBuiltinExpr val CBuiltinVaArg = cBuiltinVaArg val CBuiltinOffsetOf = cBuiltinOffsetOf val CBuiltinTypesCompatible = cBuiltinTypesCompatible val CDeclExt = cDeclExt val CFDefExt = cFDefExt val CAsmExt = cAsmExt val CTranslUnit = cTranslUnit\<close>
 
+ML\<open>type class_Pos = Position.T * Position.T\<close>
+
 ML\<open>
 type NodeInfo = nodeInfo
 type CStorageSpec = NodeInfo cStorageSpecifier
@@ -122,7 +124,6 @@ val Nothing = None
 val Just = Some
 val False = false
 val True = true
-fun L a b = Located (a, b)
 (**)
 val CDecl_flat = fn l1 => CDecl l1 o map (fn (a, b, c) => ((a, b), c))
 fun flat3 (a, b, c) = ((a, b), c)
@@ -135,10 +136,47 @@ val Reversed = I
 val From_string = SS_base o ST
 
 structure C_Env = struct
-type T = {tyidents : Symtab.set, scopes : Symtab.set list, namesupply : int, context : Context.generic}
+type T = { tyidents : Symtab.set
+         , scopes : Symtab.set list
+         , namesupply : int
+         , context : Context.generic
+         , pos_computed : class_Pos option
+         , pos_stack : class_Pos list * int }
 
-fun map_context f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = f context}
+fun map_tyidents f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
+  {tyidents = f tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack}
+
+fun map_scopes f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
+  {tyidents = tyidents, scopes = f scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack}
+
+fun map_namesupply f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
+  {tyidents = tyidents, scopes = scopes, namesupply = f namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack}
+
+fun map_context f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = f context, pos_computed = pos_computed, pos_stack = pos_stack}
+
+fun map_pos_computed f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = f pos_computed, pos_stack = pos_stack}
+
+fun map_pos_stack f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = f pos_stack}
+
+fun make context =
+  {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), context = context, pos_computed = NONE, pos_stack = ([], 0)}
+
+val encode_positions =
+     map (Position.dest
+       #> (fn pos => ((#line pos, #offset pos, #end_offset pos), #props pos)))
+  #> let open XML.Encode in list (pair (triple int int int) properties) end
+  #> YXML.string_of_body
+  
+val decode_positions =
+     YXML.parse_body
+  #> let open XML.Decode in list (pair (triple int int int) properties) end
+  #> map ((fn ((line, offset, end_offset), props) =>
+           {line = line, offset = offset, end_offset = end_offset, props = props})
+          #> Position.make)
+
 end
 
 signature HSK_C_PARSER =
@@ -162,11 +200,13 @@ sig
 
   (* Language.C.Data.Position *)
   val posOf : 'a -> position
+  val posOf' : class_Pos -> position
 
   (* Language.C.Data.Node *)
-  val mkNodeInfo' : position -> posLength -> name -> nodeInfo
+  val mkNodeInfo' : position -> posLength -> name -> NodeInfo
 
   (* Language.C.Data.Ident *)
+  val mkIdent : position -> string -> name -> ident
   val internalIdent : string -> ident
 
   (* Language.C.Syntax.AST *)
@@ -190,12 +230,15 @@ sig
 
   (* Language.C.Parser.Parser *)
   val reverseList : 'a list -> 'a list Reversed
+  val L : 'a -> int -> 'a Located p
   val unL : 'a Located -> 'a
-  val withNodeInfo : 'node -> (NodeInfo -> 'a) -> 'a p
+  val withNodeInfo : int -> (NodeInfo -> 'a) -> 'a p
+  val withNodeInfo_CExtDecl : CExtDecl -> (NodeInfo -> 'a) -> 'a p
+  val withNodeInfo_CExpr : CExpr list Reversed -> (NodeInfo -> 'a) -> 'a p
   val withLength : NodeInfo -> (NodeInfo -> 'a) -> 'a p
   val reverseDeclr : CDeclrR -> CDeclr
-  val withAttribute : 'node -> CAttr list -> (NodeInfo -> CDeclrR) -> CDeclrR p
-  val withAttributePF : 'node -> CAttr list -> (NodeInfo -> CDeclrR -> CDeclrR) -> (CDeclrR -> CDeclrR) p
+  val withAttribute : int -> CAttr list -> (NodeInfo -> CDeclrR) -> CDeclrR p
+  val withAttributePF : int -> CAttr list -> (NodeInfo -> CDeclrR -> CDeclrR) -> (CDeclrR -> CDeclrR) p
   val appendObjAttrs : CAttr list -> CDeclr -> CDeclr
   val withAsmNameAttrs : CStrLit Maybe * CAttr list -> CDeclrR -> CDeclrR p
   val appendDeclrAttrs : CAttr list -> CDeclrR -> CDeclrR
@@ -241,9 +284,17 @@ struct
   (* Language.C.Data.Position *)
   val nopos = NoPosition
   fun posOf _ = NoPosition
+  fun posOf' (pos1, pos2) = Position 0 (From_string (C_Env.encode_positions [pos1, pos2])) 0 0
+  fun posOf'' i env =
+    let val (stack, len) = #pos_stack env
+        val pos = if len <= 0 then (Position.none, Position.none) else nth stack (len - i - 1)
+    in (posOf' pos, C_Env.map_pos_computed (K (SOME pos)) env) end
   val internalPos = InternalPosition
 
   (* Language.C.Data.Node *)
+  val dest_node_first_pos =
+    fn OnlyPos0 (position, _) => position
+     | NodeInfo0 (position, _, _) => position
   val undefNode = OnlyPos nopos (nopos, ~1)
   fun mkNodeInfoOnlyPos pos = OnlyPos pos (nopos, ~1)
   fun mkNodeInfo pos name = NodeInfo pos (nopos, ~1) name
@@ -267,6 +318,9 @@ struct
                                     mod bits28)
                                    + (quad s mod bits28)
   in
+  fun mkIdent pos s name =
+    let val s' = Symbol.explode s
+    in Ident (From_string s, quad s', mkNodeInfo' pos (pos, length s') name) end
   fun internalIdent s = Ident (From_string s, quad (Symbol.explode s), mkNodeInfoOnlyPos internalPos)
   end
 
@@ -277,18 +331,19 @@ struct
   fun concatCStrings cs = CString0 (flatten (map (fn CString0 (s,_) => s) cs), exists (fn CString0 (_, b) => b) cs)
 
   (* Language.C.Parser.ParserMonad *)
-  fun getNewName {tyidents, scopes, namesupply, context} =
-    (Name namesupply, {tyidents = tyidents, scopes = scopes, namesupply = namesupply + 1, context = context})
-  fun addTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply, context} =
-    ((), {tyidents = Symtab.update (To_string0 i, ()) tyidents, scopes = scopes, namesupply = namesupply, context = context})
-  fun shadowTypedef (Ident0 (i,_,_)) {tyidents, scopes, namesupply, context} =
-    ((), {tyidents = Symtab.delete_safe (To_string0 i) tyidents, scopes = scopes, namesupply = namesupply, context = context})
+  fun getNewName env =
+    (Name (#namesupply env), C_Env.map_namesupply (fn x => x + 1) env)
+  fun addTypedef (Ident0 (i,_,_)) env =
+    ((), C_Env.map_tyidents (Symtab.update (To_string0 i, ())) env)
+  fun shadowTypedef (Ident0 (i,_,_)) env =
+    ((), C_Env.map_tyidents (Symtab.delete_safe (To_string0 i)) env)
   fun isTypeIdent s0 {tyidents, ...} = Symtab.exists (fn (s1, _) => s0 = s1) tyidents
-  fun enterScope {tyidents, scopes, namesupply, context} =
-    ((), {tyidents = tyidents, scopes = tyidents :: scopes, namesupply = namesupply, context = context})
-  fun leaveScope {scopes, namesupply, context, ...} = 
-    case scopes of [] => error "leaveScope: already in global scope"
-                 | tyidents :: scopes => ((), {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context})
+  fun enterScope env =
+    ((), C_Env.map_scopes (cons (#tyidents env)) env)
+  fun leaveScope env = 
+    case #scopes env of [] => error "leaveScope: already in global scope"
+                      | tyidents :: scopes => ((), env |> C_Env.map_scopes (K scopes)
+                                                       |> C_Env.map_tyidents (K tyidents))
   val getCurrentPosition = return NoPosition
 
   (* Language.C.Parser.Tokens *)
@@ -299,8 +354,31 @@ struct
 
   (* Language.C.Parser.Parser *)
   fun reverseList x = rev x
+  fun L a i = posOf'' i #>> curry Located a
   fun unL (Located (a, _)) = a
-  fun withNodeInfo _ f = return (f (OnlyPos NoPosition (NoPosition, 0)))
+  fun withNodeInfo0 pos mkAttrNode =
+    bind
+      getNewName
+      (fn name =>
+        return (mkAttrNode (NodeInfo pos (NoPosition, 0) name)))
+  fun withNodeInfo node mkAttrNode env = let val (pos, env) = posOf'' node env
+                                         in withNodeInfo0 pos mkAttrNode env end
+  fun withNodeInfo_CExtDecl decl =
+    withNodeInfo0 (dest_node_first_pos (case decl of CDeclExt0 (CDecl0 (_, _, node)) => node
+                                                   | CDeclExt0 (CStaticAssert0 (_, _, node)) => node
+                                                   | CFDefExt0 (CFunDef0 (_, _, _, _, node)) => node
+                                                   | CAsmExt0 (_, node) => node))
+  val get_node_CExpr =
+    fn CComma0 (_, a) => a | CAssign0 (_, _, _, a) => a | CCond0 (_, _, _, a) => a |
+    CBinary0 (_, _, _, a) => a | CCast0 (_, _, a) => a | CUnary0 (_, _, a) => a | CSizeofExpr0 (_, a) => a | CSizeofType0 (_, a) => a | CAlignofExpr0 (_, a) => a | CAlignofType0 (_, a) => a | CComplexReal0 (_, a) => a | CComplexImag0 (_, a) => a | CIndex0 (_, _, a) => a |
+    CCall0 (_, _, a) => a | CMember0 (_, _, _, a) => a | CVar0 (_, a) => a | CConst0 c => (case c of
+    CIntConst0 (_, a) => a | CCharConst0 (_, a) => a | CFloatConst0 (_, a) => a | CStrConst0 (_, a) => a) |
+    CCompoundLit0 (_, _, a) => a | CGenericSelection0 (_, _, a) => a | CStatExpr0 (_, a) => a |
+    CLabAddrExpr0 (_, a) => a | CBuiltinExpr0 cBuiltinThing => (case cBuiltinThing
+     of CBuiltinVaArg0 (_, _, a) => a
+     | CBuiltinOffsetOf0 (_, _, a) => a
+     | CBuiltinTypesCompatible0 (_, _, a) => a)
+  fun withNodeInfo_CExpr x = withNodeInfo0 (dest_node_first_pos (get_node_CExpr (hd x)))
   fun withLength x f = return (f x)
   fun reverseDeclr (CDeclrR0 (ide, reversedDDs, asmname, cattrs, at)) = CDeclr ide (rev reversedDDs) asmname cattrs at
   fun appendDeclrAttrs newAttrs (CDeclrR0 (ident, l, asmname, cattrs, at)) =
@@ -313,19 +391,17 @@ struct
       in CDeclrR ident (appendAttrs x :: xs) asmname cattrs at
       end
   fun withAttribute node cattrs mkDeclrNode =
-    bind
-      getNewName
-      (fn name =>
-        let val attrs = mkNodeInfo (posOf node) name
+    bind (posOf'' node) (fn pos =>
+    bind getNewName (fn name =>
+        let val attrs = mkNodeInfo pos name
             val newDeclr = appendDeclrAttrs cattrs (mkDeclrNode attrs)
-        in return newDeclr end)
+        in return newDeclr end))
   fun withAttributePF node cattrs mkDeclrCtor =
-    bind
-      getNewName
-      (fn name =>
-        let val attrs = mkNodeInfo (posOf node) name
+    bind (posOf'' node) (fn pos =>
+    bind getNewName (fn name =>
+        let val attrs = mkNodeInfo pos name
             val newDeclr = appendDeclrAttrs cattrs o mkDeclrCtor attrs
-        in return newDeclr end)
+        in return newDeclr end))
   fun appendObjAttrs newAttrs (CDeclr0 (ident, indirections, asmname, cAttrs, at)) =
     CDeclr ident indirections asmname (cAttrs @ newAttrs) at
   fun appendObjAttrsR newAttrs (CDeclrR0 (ident, indirections, asmname, cAttrs, at)) =
