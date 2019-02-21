@@ -40,7 +40,7 @@ fun printStack(stack: ('a,'b) stack, n: int) =
            )
       | nil => ()
 
-fun parse {table, saction, void, void_position, reduce, accept, ec = {showTerminal, error, ...}, ...} =
+fun parse {table, saction, void, void_position, reduce, accept, position_init, position_get, ec = {showTerminal, error, ...}, ...} =
   let fun prAction(stack as (state, _) :: _, (TOKEN (term,_),_), action) =
              (writeln "Parse: state stack:";
               printStack(stack, 0);
@@ -59,47 +59,50 @@ fun parse {table, saction, void, void_position, reduce, accept, ec = {showTermin
       val action = LrTable.action table
       val goto = LrTable.goto table
 
-      fun add_stack x stack stack_ml = (x :: stack, [] :: stack_ml)
+      fun add_stack x stack stack_ml pos stack_pos = (x :: stack, [] :: stack_ml, pos :: stack_pos)
 
       fun parseStep ( (token as TOKEN (terminal, (f_val,leftPos,rightPos)))
-                    , (lexer, (((stack as (state,_) :: _), stack_ml), arg))) =
+                    , (lexer, (((stack as (state,_) :: _), stack_ml, stack_pos), arg))) =
           let val nextAction = action (state, terminal)
               val _ = if DEBUG1 then prAction(stack,(token, lexer),nextAction)
                       else ()
           in case nextAction
              of SHIFT s => (lexer, arg)
-                           ||> (f_val #>> (fn value => add_stack (s, (value, leftPos, rightPos)) stack stack_ml))
+                           ||> (f_val #>> (fn value => add_stack (s, (value, leftPos, rightPos)) stack stack_ml (leftPos, rightPos) stack_pos))
                            |> Stream.get
                            |> parseStep
               | REDUCE i =>
                 (case saction (i, leftPos, stack, arg)
                  of (nonterm, (f_val, p1, p2), stack' as (state, _) :: _) =>
-                   let val (value, arg) = f_val arg
-                       val goto0 = (goto (state, nonterm), (value, p1, p2))
-                       val len = length stack
+                   let val len = length stack
                        val len' = length stack'
-                       val (arg, stack_ml) =
-                         if len = len' then (arg, stack_ml)
+                       val arg = position_init ((stack_pos, len - len'), arg)
+                       val (value, arg) = f_val arg
+                       val (goto0_pos, arg) = position_get arg
+                       val goto0 = (goto (state, nonterm), (value, p1, p2))
+                       val ((arg, stack_ml), stack_pos) =
+                         if len = len' then ((arg, stack_ml), stack_pos)
                          else
-                           chop (len - len') stack_ml
-                           |>> (fn st0 => fold_rev (fold_rev (curry (I #>> pair (i, goto0) #> reduce)))
-                                                   st0
-                                                   arg)
-                   in (add_stack goto0 stack' stack_ml, arg) end
+                           ( chop (len - len') stack_ml
+                             |>> (fn st0 => fold_rev (fold_rev (curry (I #>> pair (i, goto0) #> reduce)))
+                                                     st0
+                                                     arg)
+                           , drop (len - len') stack_pos)
+                   in (add_stack goto0 stack' stack_ml (case goto0_pos of NONE => (p1, p2) | SOME pos => pos) stack_pos, arg) end
                  | _ => raise (ParseImpossible 197))
                 |> (fn stack_arg => parseStep (token, (lexer, stack_arg)))
               | ERROR => (error (stack,leftPos,rightPos);
                           raise ParseError)
-              | ACCEPT => (lexer, ((stack, stack_ml), arg))
+              | ACCEPT => (lexer, ((stack, stack_ml, stack_pos), arg))
                           |> Stream.cons o pair token
-                          |> (fn (lexer, ((stack, stack_ml), arg)) =>
+                          |> (fn (lexer, ((stack, stack_ml, stack_pos), arg)) =>
                               case stack
-                              of (_,(topvalue,_,_)) :: _ => pair topvalue (lexer, accept ((stack, stack_ml), arg))
+                              of (_,(topvalue,_,_)) :: _ => pair topvalue (lexer, accept ((stack, stack_ml, stack_pos), arg))
                                | _ => raise (ParseImpossible 202))
           end
         | parseStep _ = raise (ParseImpossible 204)
   in I
-     ##> (void #>> (fn void' => add_stack (initialState table, (void', void_position, void_position)) [] []))
+     ##> (void #>> (fn void' => add_stack (initialState table, (void', void_position, void_position)) [] [] (void_position, void_position) []))
      #> Stream.get 
      #> parseStep 
 end

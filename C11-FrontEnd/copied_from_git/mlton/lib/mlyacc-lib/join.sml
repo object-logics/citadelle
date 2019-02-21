@@ -77,7 +77,7 @@ struct
 
     val makeLexer = LrParser.Stream.streamify o Lex.makeLexer
 
-    val parse = fn (lookahead, error, void_position, reduce, accept) =>
+    val parse = fn (lookahead, error, void_position, reduce, accept, position_init, position_get) =>
       LrParser.parse {table = ParserData.table,
                       lookahead = lookahead,
                       saction = ParserData.Actions.actions,
@@ -85,6 +85,8 @@ struct
                       void_position = void_position,
                       reduce = reduce,
                       accept = accept,
+                      position_init = position_init,
+                      position_get = position_get,
                       ec = {is_keyword = ParserData.EC.is_keyword,
                             noShift = ParserData.EC.noShift,
                             preferred_change = ParserData.EC.preferred_change,
