@@ -2,6 +2,8 @@ theory C1
   imports "../C11-Interface"
 begin
 
+declare[[C_source_trace]]
+
 C\<open>
 int a;
 float b;

@@ -353,6 +353,23 @@ end;
 \<close>
 
 ML\<open>
+(*  Title:      Pure/ML/ml_options.ML
+    Author:     Makarius
+
+ML configuration options.
+*)
+
+structure C_Options =
+struct
+
+(* source trace *)
+
+val source_trace = Attrib.setup_config_bool @{binding C_source_trace} (fn _ => false);
+
+end
+\<close>
+
+ML\<open>
 (*  Title:      Pure/ML/ml_lex.ML
     Author:     Makarius
 
@@ -1485,8 +1502,11 @@ fun eval' accept flags pos (ants, ants') =
                                                       |> Markup.markup Markup.intensify))
                                   end))
               ants
-      val _ = print "" (maps (fn Right x => [x] | _ => []) ants)
-      val (_, context) = P.parse accept ants (Context.the_generic_context ())
+      val context = Context.the_generic_context ()
+      val () = if Config.get (Context.proof_of context) C_Options.source_trace
+               then print "" (maps (fn Right x => [x] | _ => []) ants)
+               else ()
+      val (_, context) = P.parse accept ants context
   in Context.put_generic_context (SOME context)
   end
 
