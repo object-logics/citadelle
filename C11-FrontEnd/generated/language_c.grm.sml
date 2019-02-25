@@ -6,7 +6,7 @@ functor StrictCLrValsFun(structure Token : TOKEN)
 struct
 structure Header = 
 struct
-(*#line 1.2 "language_c.grm"*)open Hsk_c_parser
+(*#line 1.2 "language_c.grm"*)open C_ast_simple open Hsk_c_parser
 
 
 (*#line 12.1 "language_c.grm.sml"*)

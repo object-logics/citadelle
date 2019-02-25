@@ -1,4 +1,4 @@
-open Hsk_c_parser
+open C_ast_simple open Hsk_c_parser
 
 %%
 %pure
