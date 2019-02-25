@@ -545,7 +545,7 @@ datatype token_kind =
   Keyword | Ident | Type_ident | GnuC | ClangC |
   (**)
   Char of bool * Symbol.symbol list |
-  Integer of int * cIntRepr * cIntFlag list |
+  Integer of int * CIntRepr * CIntFlag list |
   Float |
   String of bool * Symbol.symbol list |
   File of bool * Symbol.symbol list |
@@ -760,6 +760,7 @@ val read_hex =
   end
 
 local
+open C_ast_simple
 val many_digit = many Symbol.is_ascii_digit
 val many1_digit = many1 Symbol.is_ascii_digit
 val many_hex = many Symbol.is_ascii_hex
@@ -1124,12 +1125,12 @@ fun gen_read pos text =
     fun read_ml0 (head, body) =
                   body
                   |> Token.read_no_commands (Thy_Header.get_keywords' @{context}) Parse.ML_source
-                  |> map (fn source => Left (head, Input.range_of source, ML_Lex.read_source false source))
+                  |> map (fn source => C_ast_simple.Left (head, Input.range_of source, ML_Lex.read_source false source))
 
     fun read_ml tok = case tok of
         Token (_, (Comment (C_Antiquote.ML_source {head = head, body = body, ...}), _)) => (read_ml0 (head, body))
-      | Token (_, (Directive _, _)) => maps read_ml0 (filter_ml tok) @ [Right tok]
-      | _ => [Right tok]
+      | Token (_, (Directive _, _)) => maps read_ml0 (filter_ml tok) @ [C_ast_simple.Right tok]
+      | _ => [C_ast_simple.Right tok]
 
     val input' = maps get_antiq input1;
 
@@ -1188,7 +1189,8 @@ struct
 end
 
 fun makeLexer input =
-  let val s = Synchronized.var "input"
+  let open C_ast_simple
+      val s = Synchronized.var "input"
                 (input 1024
                  |> map_filter (fn Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
                                  | Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
@@ -1538,7 +1540,7 @@ fun eval' accept flags pos (ants, ants') =
               ants
       val context = Context.the_generic_context ()
       val () = if Config.get (Context.proof_of context) C_Options.source_trace
-               then print "" (maps (fn Right x => [x] | _ => []) ants)
+               then print "" (maps (fn C_ast_simple.Right x => [x] | _ => []) ants)
                else ()
       val (_, context) = P.parse accept ants context
   in Context.put_generic_context (SOME context)
