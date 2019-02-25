@@ -121,7 +121,7 @@ let
                       , SML_rewrite ( b (to_String s)
                                     , From.string "="
                                     , b (case String.explode s' of
-                                           c :: s => Char.toLower c :: s |> String.implode |> From.string))))
+                                           c :: s => Char.toLower c :: s |> String.implode |> (fn x => "C_ast_simple." ^ x) |> From.string))))
               end))]
 in meta_command
 end
