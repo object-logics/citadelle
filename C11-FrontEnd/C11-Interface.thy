@@ -36,15 +36,33 @@ struct
                          env =  Symtab.merge (op =)(#env t1, #env t2)}
   );
 
-  val get_global      =  Data.get o Context.Theory
-  fun put_global x    =  Data.put x;
-  val map_data        =  Context.theory_map o Data.map;
+  val get_global      = Data.get o Context.Theory
+  fun put_global x    = Data.put x;
+  val map_data        = Context.theory_map o Data.map;
   val map_data_global = Context.theory_map o Data.map
   
   val trans_tab_of    = #tab o get_global
   val dest_list       = Symtab.dest_list o trans_tab_of
 
+  fun push_env(k,a) tab = case Symtab.lookup tab k of
+                        NONE => Symtab.update(k,[a])(tab)
+                     |  SOME S => Symtab.update(k,a::S)(tab)
+  fun pop_env(k) tab = case Symtab.lookup tab k of
+                       SOME (a::S) => Symtab.update(k,S)(tab)
+                     | _ => error("internal error - illegal break of scoping rules")
+  
+  fun push_global (k,a) =  (map_data_global o map_env) (push_env (k,a)) 
+  fun push (k,a)        =  (map_data        o map_env) (push_env (k,a)) 
+  fun pop_global (k)    =  (map_data_global o map_env) (pop_env k) 
+  fun pop (k)           =  (map_data        o map_env) (pop_env k) 
+
 end
+\<close>
+
+ML\<open>
+open C11_core;
+
+
 \<close>
 
 ML\<open>
@@ -126,7 +144,8 @@ ML\<open>
 fun hook make_string f (_, (value, pos1, pos2)) thy =
   let
     val () = writeln (make_string value)
-    val () = Position.reports_text [((Position.range (pos1, pos2) |> Position.range_position, Markup.intensify), "")]
+    val () = Position.reports_text [((Position.range (pos1, pos2) 
+                                    |> Position.range_position, Markup.intensify), "")]
   in f thy end
 \<close>
 setup\<open>ML_Antiquotation.inline @{binding hook} (Args.context >> K ("hook " ^ ML_Pretty.make_string_fn ^ " I"))\<close>

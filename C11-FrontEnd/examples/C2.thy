@@ -232,4 +232,17 @@ void display(int a[],const int size)
     printf("\n");
 }
 \<close>
-ML\<open> C11_core.dest_list @{theory}; \<close>
+ML\<open>
+
+(C11_core.dest_list @{theory})
+\<close>
+
+ML\<open> 
+open C_ast_simple;
+\<close>
+ML\<open>
+CTranslUnit0;
+val (CTranslUnit0 (t,u))::_ = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val CDeclExt0(x1)::_ = t;
+CDecl0;
+ \<close>
