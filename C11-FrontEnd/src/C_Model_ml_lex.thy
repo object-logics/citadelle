@@ -326,7 +326,7 @@ val scan_ml_source =
   let val sym = $$ "@" |-- many_blank |--
                 Symbol_Pos.scan_pos --
                 (Scanner.this_string "setup" >> K Setup
-                 || (Scan.repeat ($$ "@") --| many_blank --| Scanner.this_string "hook") >> Hook)
+                 || (Scan.repeat ($$ "+") --| many_blank -- Scan.repeat ($$ "@") --| many_blank --| Scanner.this_string "hook") >> Hook)
                 --| Scanner.many Symbol.is_ascii_blank in
   scan_antiq_multi sym
   >> (fn (pos1, (((pos1', head), pos2), ((body, pos3), pos4))) =>
@@ -1196,7 +1196,25 @@ fun makeLexer input =
                                  | Right (C_Lex.Token s) => SOME (Right s)
                                  | Left ml => SOME (Left ml)))
       fun drain ((stack, stack_ml, stack_pos), arg) =
-        let fun return0 x = (x, ((stack, stack_ml, stack_pos), arg))
+        let val (arg, stack_ml) =
+              case #next_eval arg
+              of l :: ls =>
+                ( C_Env.map_next_eval (K ls) arg
+                , fold_rev (fn (_, syms, range, ants) => fn stack_ml =>
+                             let
+                               val () =
+                                 if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
+                                   warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (range |> Position.range_position))
+                                 else ()
+                               val () =
+                                 if length stack_ml - length syms <= 0 then
+                                   error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
+                                 else ()
+                             in nth_map (length syms) (fn xs => (range, ants) :: xs) stack_ml end)
+                           l
+                           stack_ml)
+               | [] => (arg, stack_ml)
+            fun return0 x = (x, ((stack, stack_ml, stack_pos), arg))
         in
           case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
           of SOME (Left (Setup, range, ants)) =>
@@ -1211,21 +1229,32 @@ fun makeLexer input =
                       ants
                  |> (fn context => drain ((stack, stack_ml, stack_pos), C_Env.map_context (K context) arg))
                end
-           | SOME (Left (Hook syms, range, ants)) =>
-               drain ( ( stack
-                       , let
-                           val () =
-                             if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
-                               warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (range |> Position.range_position))
-                             else ()
-                           val () =
-                             if length stack_ml - length syms <= 0 then
-                               error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
-                             else ()
-                         in nth_map (length syms) (fn xs => (range, ants) :: xs) stack_ml end
-                       , stack_pos)
-                     , arg)
-           | NONE => return0 (Tokens.x25_eof (Position.none, Position.none))
+           | SOME (Left (Hook (syms_shift, syms), range, ants)) =>
+               drain ( (stack, stack_ml, stack_pos)
+                     , C_Env.map_next_eval
+                         (fn next_eval => 
+                          case
+                             fold (fn _ => fn (eval1, eval2) =>
+                                 (case eval2 of e2 :: eval2 => (e2, eval2)
+                                              | [] => ([], []))
+                                 |>> (fn e1 => e1 :: eval1))
+                               syms_shift
+                               ([], next_eval)
+                          of (eval1, eval2) => fold cons
+                                                    eval1
+                                                    (case eval2 of e :: es => ((syms_shift, syms, range, ants) :: e) :: es
+                                                                 | [] => [[(syms_shift, syms, range, ants)]]))
+                         arg)
+           | NONE => 
+              let val () =
+                    fold (uncurry
+                           (fn pos => 
+                             fold_rev (fn (syms, _, _, _) => fn () =>
+                                        let val () = error ("Maximum depth reached (" ^ Int.toString (pos + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
+                                        in () end)))
+                         (map_index I (#next_eval arg))
+                         ()
+              in return0 (Tokens.x25_eof (Position.none, Position.none)) end
            | SOME (Right ((pos1, pos2), (C_Lex.Char (b, [c]), _))) =>
               return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
            | SOME (Right ((pos1, pos2), (C_Lex.Char (b, _), _))) => error "to do"

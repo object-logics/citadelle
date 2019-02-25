@@ -135,34 +135,40 @@ val Reversed = I
 
 val From_string = SS_base o ST
 
+datatype antiq_head = Setup | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *)
+
 structure C_Env = struct
 type T = { tyidents : Symtab.set
          , scopes : Symtab.set list
          , namesupply : int
          , context : Context.generic
          , pos_computed : class_Pos option
-         , pos_stack : class_Pos list * int }
+         , pos_stack : class_Pos list * int
+         , next_eval : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list }
 
-fun map_tyidents f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
-  {tyidents = f tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack}
+fun map_tyidents f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {tyidents = f tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
 
-fun map_scopes f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
-  {tyidents = tyidents, scopes = f scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack}
+fun map_scopes f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {tyidents = tyidents, scopes = f scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
 
-fun map_namesupply f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
-  {tyidents = tyidents, scopes = scopes, namesupply = f namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack}
+fun map_namesupply f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {tyidents = tyidents, scopes = scopes, namesupply = f namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
 
-fun map_context f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = f context, pos_computed = pos_computed, pos_stack = pos_stack}
+fun map_context f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = f context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
 
-fun map_pos_computed f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = f pos_computed, pos_stack = pos_stack}
+fun map_pos_computed f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = f pos_computed, pos_stack = pos_stack, next_eval = next_eval}
 
-fun map_pos_stack f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = f pos_stack}
+fun map_pos_stack f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = f pos_stack, next_eval = next_eval}
+
+fun map_next_eval f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = f next_eval}
 
 fun make context =
-  {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), context = context, pos_computed = NONE, pos_stack = ([], 0)}
+  {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), context = context, pos_computed = NONE, pos_stack = ([], 0), next_eval = []}
 
 val encode_positions =
      map (Position.dest
@@ -467,8 +473,6 @@ end
 \<close>
 
 section \<open>Loading of Generated Grammar\<close>
-
-ML\<open>datatype antiq_head = Setup | Hook of Symbol_Pos.T list\<close>
 
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/base.sig"
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/join.sml"

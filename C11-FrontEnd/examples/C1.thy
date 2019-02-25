@@ -97,7 +97,7 @@ int a = (((0
 float b = 7 / 3;
 \<close>
 
-C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close>: selecting deeper sub-trees\<close> \<open>
+C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close>: pointing to deeper sub-trees in the stack\<close> \<open>
 int b = 7 / (3) * 50 /*@@@@ hook \<open>@{hook}\<close>
                       */;
 \<close>
@@ -109,6 +109,15 @@ int b = 7 / (3) * 50
                             \<open>int b = 7 / 5 * 2 + 3 * 50 //@ hook \<open>@{hook}\<close>
                              ;\<close>)\<close>
    */;
+\<close>
+
+C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close>: pointing to sub-trees situated after any part of the code\<close> \<open>
+int b = 7 / (3) * 50;
+/*@+++@ hook \<open>@{hook}\<close>*/
+long long f (int a) {
+  while (0) { return 0; }
+}
+int b = 7 / (3) * 50;
 \<close>
 
 C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>
