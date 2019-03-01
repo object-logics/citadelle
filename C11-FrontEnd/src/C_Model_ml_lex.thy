@@ -2505,6 +2505,23 @@ fun eval_antiquotes (ants, pos) opt_context =
         in ((begin_env @ ml_env @ end_env, ml_body), SOME ctxt') end;
   in ((ml_env, ml_body), opt_ctxt') end;
 
+fun print s =
+  app
+    (fn C_Lex.Token (_, (t as C_Lex.Directive d, _)) =>
+        let val _ = Output.state (s ^ @{make_string} t)
+        in print (s ^ "  ") (C_Lex.token_list_of d) end
+      | C_Lex.Token (_, t) => 
+        (case t of (C_Lex.Char _, _) => writeln "Text Char"
+                 | (C_Lex.String _, _) => writeln "Text String"
+                 | _ => let val t' = @{make_string} (#2 t)
+                        in
+                          if String.size t' <= 2 then Output.state (@{make_string} (#1 t))
+                          else
+                            Output.state (s ^ @{make_string} (#1 t) ^ " "
+                                         ^ (String.substring (t', 1, String.size t' - 2)
+                                            |> Markup.markup Markup.intensify))
+                        end))
+
 in
 
 fun eval flags pos ants =
@@ -2544,7 +2561,6 @@ fun eval flags pos ants =
       | _ => ());
   in () end;
 
-end;
 
 fun eval' accept flags pos (ants, ants') =
   let val _ = ML_Context.eval flags pos (case ML_Lex.read "(,)" of
@@ -2554,23 +2570,6 @@ fun eval' accept flags pos (ants, ants') =
                                 |> separate colon)
                                 @ [par_r, space]
                               | _ => [])
-      fun print s ants =
-            app
-              (fn C_Lex.Token (_, (t as C_Lex.Directive d, _)) =>
-                  let val _ = Output.state (s ^ @{make_string} t)
-                  in print (s ^ "  ") (C_Lex.token_list_of d) end
-                | C_Lex.Token (_, t) => 
-                  (case t of (C_Lex.Char _, _) => writeln "Text Char"
-                           | (C_Lex.String _, _) => writeln "Text String"
-                           | _ => let val t' = @{make_string} (#2 t)
-                                  in
-                                    if String.size t' <= 2 then Output.state (@{make_string} (#1 t))
-                                    else
-                                      Output.state (s ^ @{make_string} (#1 t) ^ " "
-                                                   ^ (String.substring (t', 1, String.size t' - 2)
-                                                      |> Markup.markup Markup.intensify))
-                                  end))
-              ants
       val context = Context.the_generic_context ()
       val () = if Config.get (Context.proof_of context) C_Options.source_trace
                then print "" (maps (fn C_ast_simple.Right x => [x] | _ => []) ants)
@@ -2578,6 +2577,8 @@ fun eval' accept flags pos (ants, ants') =
       val (_, context) = P.parse accept ants context
   in Context.put_generic_context (SOME context)
   end
+
+end;
 
 fun eval_source accept flags source =
   eval' accept flags (Input.pos_of source) (C_Lex.read_source source);
