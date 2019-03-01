@@ -480,7 +480,7 @@ structure List = struct
   val reverse = rev
 end
 
-type ('a, 'b) either = ('a, 'b) Either
+datatype ('a, 'b) either = Left of 'a | Right of 'b
 type cString = CString
 type cChar = CChar
 type cInteger = CInteger

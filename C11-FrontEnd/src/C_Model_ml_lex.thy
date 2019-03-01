@@ -1130,12 +1130,12 @@ fun gen_read pos text =
     fun read_ml0 (head, body) =
                   body
                   |> Token.read_no_commands (Thy_Header.get_keywords' @{context}) Parse.ML_source
-                  |> map (fn source => C_ast_simple.Left (head, Input.range_of source, ML_Lex.read_source false source))
+                  |> map (fn source => Left (head, Input.range_of source, ML_Lex.read_source false source))
 
     fun read_ml tok = case tok of
         Token (_, (Comment (C_Antiquote.ML_source {head = head, body = body, ...}), _)) => (read_ml0 (head, body))
-      | Token (_, (Directive _, _)) => maps read_ml0 (filter_ml tok) @ [C_ast_simple.Right tok]
-      | _ => [C_ast_simple.Right tok]
+      | Token (_, (Directive _, _)) => maps read_ml0 (filter_ml tok) @ [Right tok]
+      | _ => [Right tok]
 
     val input' = maps get_antiq input1;
 
@@ -1154,7 +1154,7 @@ fun read_source source =
     val pos = Input.pos_of source;
     val _ =
       if Position.is_reported_range pos
-      then Position.report pos (Markup.language_ML (Input.is_delimited source))
+      then Position.report pos (Markup.language' {name = "C", symbols = false, antiquotes = true} (Input.is_delimited source))
       else ();
   in gen_read pos (Input.text_of source) end;
 
@@ -1193,8 +1193,7 @@ struct
 end
 
 fun makeLexer input =
-  let open C_ast_simple
-      val s = Synchronized.var "input"
+  let val s = Synchronized.var "input"
                 (input 1024
                  |> map_filter (fn Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
                                  | Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
@@ -1265,7 +1264,7 @@ fun makeLexer input =
               return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
            | SOME (Right ((pos1, pos2), (C_Lex.Char (b, _), _))) => error "to do"
            | SOME (Right ((pos1, pos2), (C_Lex.String (b, s), _))) =>
-              return0 (StrictCLrVals.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2))
+              return0 (StrictCLrVals.Tokens.cstr (C_ast_simple.CString0 (From_string (implode s), b), pos1, pos2))
            | SOME (Right ((pos1, pos2), (C_Lex.Integer (i, repr, flag), _))) =>
               return0 (StrictCLrVals.Tokens.cint
                         ( CInteger i repr
@@ -1288,12 +1287,12 @@ fun makeLexer input =
               end
            | SOME (Right ((pos1, pos2), (_, s))) => 
                        token_of_string (Tokens.error (pos1, pos2))
-                                       (ClangCVersion0 (From_string s))
+                                       (C_ast_simple.ClangCVersion0 (From_string s))
                                        (CChar #"0" false)
                                        (CFloat (From_string s))
                                        (CInteger 0 DecRepr (Flags 0))
-                                       (CString0 (From_string s, false))
-                                       (Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0)))
+                                       (C_ast_simple.CString0 (From_string s, false))
+                                       (C_ast_simple.Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0)))
                                        s
                                        pos1
                                        pos2
@@ -2576,7 +2575,7 @@ fun eval' accept flags pos (ants, ants') =
                               | _ => [])
       val context = Context.the_generic_context ()
       val () = if Config.get (Context.proof_of context) C_Options.source_trace
-               then print "" (maps (fn C_ast_simple.Right x => [x] | _ => []) ants)
+               then print "" (maps (fn Right x => [x] | _ => []) ants)
                else ()
       val (_, context) = P.parse accept ants context
   in Context.put_generic_context (SOME context)
