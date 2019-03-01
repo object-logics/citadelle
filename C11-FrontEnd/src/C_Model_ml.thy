@@ -145,7 +145,24 @@ val Reversed = I
 
 val From_string = C_ast_simple.SS_base o C_ast_simple.ST
 
-datatype antiq_head = Setup | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *)
+
+type text_range = Symbol_Pos.text * Position.T
+type ml_source_range = ML_Lex.token Antiquote.antiquote list * Position.range
+
+datatype antiq_stack = Setup of ml_source_range
+                     | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *) * ml_source_range
+
+datatype antiq_hol = Invariant of string (* term *)
+                   | Fnspec of text_range (* ident *) * string (* term *)
+                   | Relspec of string (* term *)
+                   | Modifies of (bool (* true: [*] *) * text_range) list
+                   | Dont_translate
+                   | Auxupd of string (* term *)
+                   | Ghostupd of string (* term *)
+                   | Spec of string (* term *)
+                   | End_spec of string (* term *)
+                   | Calls of text_range list
+                   | Owned_by of text_range
 
 structure C_Env = struct
 type T = { tyidents : Symtab.set

@@ -69,7 +69,7 @@ ML\<open>
 structure C_Context = struct
 val eval_source =
   C_Context.eval_source
-    (fn (_, (res, _, _)) => fn context => 
+    (fn _ => fn (_, (res, _, _)) => fn context => 
       (Context.theory_name (Context.theory_of context), res)
       |> Symtab.update_list (op =)
       |> C11_core.map_tab

@@ -61,10 +61,10 @@ C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
  /*@con\
 text (**) */ // break of line activated everywhere (also in antiquotations)
 int a = 0; //\
-@ term \<open>a \
+@ \<open>term \<open>a \
           + b (* (**) *\      
 \     
-)\<close>
+)\<close>\<close>
 \<close>
 
 C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>

@@ -187,17 +187,13 @@ fun scan_cartouche_depth stop =
           else Scan.fail)
     | NONE => Scan.fail)));
 
-val scan_cartouche_depth_inline = scan_cartouche_depth Scanner.newline
-
-fun scan_cartouche_multi stop =
+fun scan_cartouche msg stop =
   Scan.ahead ($$ Symbol.open_) |--
-    !!! "unclosed text cartouche within the comment delimiter"
+    !!! ("unclosed text cartouche within " ^ msg)
       (Scan.provide is_none (SOME 0) (scan_cartouche_depth stop));
 
-val scan_cartouche_inline =
-  Scan.ahead ($$ Symbol.open_) |--
-    !!! "unclosed text cartouche within the same line"
-      (Scan.provide is_none (SOME 0) scan_cartouche_depth_inline);
+fun scan_cartouche_multi stop = scan_cartouche "the comment delimiter" stop;
+val scan_cartouche_inline = scan_cartouche "the same line" Scanner.newline;
 
 (* C-style comments *)
 
@@ -248,8 +244,7 @@ struct
 
 (* datatype antiquote *)
 
-type antiq = {start1: Position.T, start2: Position.T, stop: Position.T, range: Position.range, head: antiq_head, body: Symbol_Pos.T list};
-datatype 'a antiquote = Text of 'a | Control of Antiquote.control | Antiq of Antiquote.antiq | ML_source of antiq;
+type antiq = {explicit: bool, start: Position.T, stop: Position.T, range: Position.range, body: Symbol_Pos.T list}
 
 (* scan *)
 
@@ -265,17 +260,22 @@ val par_r = "/"
 val scan_body1 = $$$ "*" --| Scan.ahead (~$$$ par_r)
 val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
 
-val many_blank = Scanner.many Symbol.is_ascii_blank
-
 val scan_antiq_body_multi =
   Scan.trace (Symbol_Pos.scan_string_qq err_prefix || Symbol_Pos.scan_string_bq err_prefix) >> #2 ||
   C_Symbol_Pos.scan_cartouche_multi ($$$ "*" @@@ $$$ par_r) ||
   scan_body1 ||
   scan_body2;
 
+val scan_antiq_body_multi_recover =
+  scan_body1 ||
+  scan_body2;
+
 val scan_antiq_body_inline =
   Scan.trace (C_Symbol_Pos.scan_string_qq_inline || C_Symbol_Pos.scan_string_bq_inline) >> #2 ||
   C_Symbol_Pos.scan_cartouche_inline ||
+  Scanner.unless_eof Scanner.newline;
+
+val scan_antiq_body_inline_recover =
   Scanner.unless_eof Scanner.newline;
 
 fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
@@ -285,10 +285,19 @@ fun scan_antiq_multi scan =
     Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
       (Scan.repeats scan_antiq_body_multi -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos)))
 
+fun scan_antiq_multi_recover scan =
+  Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- scan -- Symbol_Pos.scan_pos --
+      (Scan.repeats scan_antiq_body_multi_recover -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos)))
+
 fun scan_antiq_inline scan =
   (Symbol_Pos.scan_pos --| $$ "/" --| $$ "/" -- scan
   -- Symbol_Pos.scan_pos
   -- Scan.repeats scan_antiq_body_inline -- Symbol_Pos.scan_pos)
+
+fun scan_antiq_inline_recover scan =
+  (Symbol_Pos.scan_pos --| $$ "/" --| $$ "/" -- scan
+  -- Symbol_Pos.scan_pos
+  -- Scan.repeats scan_antiq_body_inline_recover -- Symbol_Pos.scan_pos)
 
 in
 
@@ -307,45 +316,24 @@ val scan_control =
       {name = (control_name sym, pos), range = Symbol_Pos.range [(sym, pos)], body = []});
 
 val scan_antiq =
-  let val sym = $$ "@" in
-  scan_antiq_multi sym
-  >> (fn (pos1, ((_, pos2), ((body, pos3), pos4))) =>
-      {start = Position.range_position (pos1, pos2),
+  scan_antiq_multi ($$$ "@" >> K true || scan_body1 >> K false)
+  >> (fn (pos1, ((explicit, pos2), ((body, pos3), pos4))) =>
+      {explicit = explicit,
+       start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos4),
        range = Position.range (pos1, pos4),
        body = body}) ||
-  scan_antiq_inline sym
-  >> (fn ((((pos1, _), pos2), body), pos3) => 
-      {start = Position.range_position (pos1, pos2),
+  scan_antiq_inline ($$$ "@" >> K true || $$$ "*" >> K false)
+  >> (fn ((((pos1, explicit), pos2), body), pos3) => 
+      {explicit = explicit,
+       start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos3),
        range = Position.range (pos1, pos3),
        body = body})
-  end
 
-val scan_ml_source =
-  let val sym = $$ "@" |-- many_blank |--
-                Symbol_Pos.scan_pos --
-                (Scanner.this_string "setup" >> K Setup
-                 || (Scan.repeat ($$ "+") --| many_blank -- Scan.repeat ($$ "@") --| many_blank --| Scanner.this_string "hook") >> Hook)
-                --| Scanner.many Symbol.is_ascii_blank in
-  scan_antiq_multi sym
-  >> (fn (pos1, (((pos1', head), pos2), ((body, pos3), pos4))) =>
-      {start1 = Position.range_position (pos1, pos1'),
-       start2 = Position.range_position (pos1', pos2),
-       stop = Position.range_position (pos3, pos4),
-       range = Position.range (pos1, pos4),
-       head = head,
-       body = body}) ||
-  scan_antiq_inline sym
-  >> (fn ((((pos1, (pos1', head)), pos2), body), pos3) => 
-      {start1 = Position.range_position (pos1, pos1'),
-       start2 = Position.range_position (pos1', pos2),
-       stop = Position.range_position (pos3, pos3),
-       range = Position.range (pos1, pos3),
-       head = head,
-       body = body})
-
-  end
+val scan_antiq_recover =
+  scan_antiq_multi_recover ($$$ "@" >> K true || scan_body1 >> K false) >> (fn (_, ((explicit, _), _)) => explicit) ||
+  scan_antiq_inline_recover ($$$ "@" >> K true || $$$ "*" >> K false) >> (fn ((((_, explicit), _), _), _) => explicit)
 
 end;
 
@@ -550,7 +538,7 @@ datatype token_kind =
   String of bool * Symbol.symbol list |
   File of bool * Symbol.symbol list |
   (**)
-  Space | Comment of unit C_Antiquote.antiquote | Sharp of int |
+  Space | Comment of (C_Antiquote.antiq, (bool * string * ((Position.T * Markup.T) * string) list) option) either | Sharp of int |
   (**)
   Error of string * token_group | Directive of token_kind_directive | EOF
 
@@ -630,6 +618,7 @@ val warn = fn
     Token ((pos, _), (Char (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (String (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
+  | Token (_, (Comment (Right (SOME (explicit, msg, _))), _)) => (if explicit then warning else tracing) msg
   | _ => ();
 end
 
@@ -683,7 +672,7 @@ val token_kind_markup0 =
   | ClangC => (Markup.ML_numeral, "")
   | String _ => (Markup.ML_string, "")
   | File _ => (Markup.ML_string, "")
-  | Comment (C_Antiquote.Text ()) => (Markup.ML_comment, "")
+  | Comment (Right _) => (Markup.ML_comment, "")
   | Sharp _ => (Markup.antiquote, "")
   | Error (msg, _) => (Markup.bad (), msg)
   | _ => (Markup.empty, "");
@@ -925,12 +914,13 @@ fun token k ss = Token (Symbol_Pos.range ss, (k, Symbol_Pos.content ss));
 fun scan_token f1 f2 = Scan.trace f1 >> (fn (v, s) => token (f2 v) s)
 
 val comments =
-  let fun scan_anti f1 f2 = scan_token f1 (Comment o f2) in
-     scan_anti C_Antiquote.scan_ml_source C_Antiquote.ML_source
-  || scan_anti C_Antiquote.scan_control C_Antiquote.Control
-  || scan_anti C_Antiquote.scan_antiq C_Antiquote.Antiq
-  || C_Symbol_Pos.scan_comment_no_nest >> token (Comment (C_Antiquote.Text ()))
-  end
+     Scan.recover
+       (scan_token C_Antiquote.scan_antiq (Comment o Left))
+       (fn msg => Scan.ahead (C_Antiquote.scan_antiq_recover)
+                  -- C_Symbol_Pos.scan_comment_no_nest
+                  >> (fn (explicit, res) => token (Comment (Right (SOME (explicit, msg, [])))) res)
+               || Scan.fail_with (fn _ => fn _ => msg))
+  || C_Symbol_Pos.scan_comment_no_nest >> token (Comment (Right NONE))
 
 fun scan_fragment blanks =
      scan_token scan_char Char
@@ -1108,43 +1098,17 @@ fun gen_read pos text =
       |> (fn input => input @ termination);
 
     fun get_antiq tok = case tok of
-        Token (_, (Comment (C_Antiquote.Control c), _)) => [Antiquote.Control c]
-      | Token (_, (Comment (C_Antiquote.Antiq a), _)) => [Antiquote.Antiq a]
-      | Token (_, (Directive l, _)) => maps get_antiq (token_list_of l)
-      | _ => []
-
-    fun get_ml tok = case tok of
-        Token (_, (Comment (C_Antiquote.ML_source {start1, start2, stop, range = (pos, _), ...}), _)) =>
-                                          [(start1, Markup.antiquote),
-                                           (start2, Markup.keyword1),
-                                           (stop, Markup.antiquote),
-                                           (pos, Markup.language_antiquotation)]
-      | Token (_, (Directive l, _)) => maps get_ml (token_list_of l)
-      | _ => []
-
-    fun filter_ml tok = case tok of
-        Token (_, (Comment (C_Antiquote.ML_source {head = head, body = body, ...}), _)) => [(head, body)]
-      | Token (_, (Directive l, _)) => maps filter_ml (token_list_of l)
-      | _ => []
-
-    fun read_ml0 (head, body) =
-                  body
-                  |> Token.read_no_commands (Thy_Header.get_keywords' @{context}) Parse.ML_source
-                  |> map (fn source => Left (head, Input.range_of source, ML_Lex.read_source false source))
-
-    fun read_ml tok = case tok of
-        Token (_, (Comment (C_Antiquote.ML_source {head = head, body = body, ...}), _)) => (read_ml0 (head, body))
-      | Token (_, (Directive _, _)) => maps read_ml0 (filter_ml tok) @ [Right tok]
+        Token (pos, (Comment (Left antiq), cts)) => [Left (pos, antiq, cts)]
+      | Token (_, (Directive l, _)) =>
+          maps (get_antiq #> map_filter (fn Left x => SOME (Left x) | _ => NONE)) (token_list_of l)
+          @ [Right tok]
       | _ => [Right tok]
 
-    val input' = maps get_antiq input1;
-
-    val _ = Position.reports (Antiquote.antiq_reports input' @ maps get_ml input1);
     val _ = app (fn pos => Output.information ("Backslash newline" ^ Position.here pos)) input0
     val _ = Position.reports_text ( map (fn pos => ((pos, Markup.intensify), "")) input0
                                   @ maps token_report input1);
     val _ = check input1;
-  in (maps read_ml input1, input')
+  in maps get_antiq input1
 end;
 
 in
@@ -1222,7 +1186,7 @@ fun makeLexer input =
             fun return0 x = (x, ((stack, stack_ml, stack_pos), arg))
         in
           case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
-          of SOME (Left (Setup, range, ants)) =>
+          of SOME (Left (Setup (ants, range))) =>
                let val setup = "setup" in
                  #context arg
                  |> Context.map_theory (Stack_Data.put stack)
@@ -1234,7 +1198,7 @@ fun makeLexer input =
                       ants
                  |> (fn context => drain ((stack, stack_ml, stack_pos), C_Env.map_context (K context) arg))
                end
-           | SOME (Left (Hook (syms_shift, syms), range, ants)) =>
+           | SOME (Left (Hook (syms_shift, syms, (ants, range)))) =>
                drain ( (stack, stack_ml, stack_pos)
                      , C_Env.map_next_eval
                          (fn next_eval => 
@@ -1361,91 +1325,24 @@ struct
 
 (* token kind *)
 
-datatype kind =
-  (*immediate source*)
-  Command | Keyword | Ident | Long_Ident | Sym_Ident | Var | Type_Ident | Type_Var | Nat |
-  Float | Space |
-  (*delimited content*)
-  String | Alt_String | Verbatim | Cartouche | Comment |
-  (*special content*)
-  Error of string | EOF;
-
-val str_of_kind =
- fn Command => "command"
-  | Keyword => "keyword"
-  | Ident => "identifier"
-  | Long_Ident => "long identifier"
-  | Sym_Ident => "symbolic identifier"
-  | Var => "schematic variable"
-  | Type_Ident => "type variable"
-  | Type_Var => "schematic type variable"
-  | Nat => "natural number"
-  | Float => "floating-point number"
-  | Space => "white space"
-  | String => "quoted string"
-  | Alt_String => "back-quoted string"
-  | Verbatim => "verbatim text"
-  | Cartouche => "text cartouche"
-  | Comment => "comment text"
-  | Error _ => "bad input"
-  | EOF => "end-of-input";
-
-val immediate_kinds =
-  Vector.fromList
-    [Command, Keyword, Ident, Long_Ident, Sym_Ident, Var, Type_Ident, Type_Var, Nat, Float, Space];
-
-val delimited_kind = member (op =) [String, Alt_String, Verbatim, Cartouche, Comment];
-
+val delimited_kind = member (op =) [Token.String, Token.Alt_String, Token.Verbatim, Token.Cartouche, Token.Comment];
 
 (* datatype token *)
 
-(*The value slot assigns an (optional) internal value to a token,
-  usually as a side-effect of special scanner setup (see also
-  args.ML).  Note that an assignable ref designates an intermediate
-  state of internalization -- it is NOT meant to persist.*)
-
-type file = {src_path: Path.T, lines: string list, digest: SHA1.digest, pos: Position.T};
-
-type name_value = {name: string, kind: string, print: Proof.context -> Markup.T * xstring};
-
-datatype T = Token of (Symbol_Pos.text * Position.range) * (kind * string) * slot
-
-and slot =
-  Slot |
-  Value of value option |
-  Assignable of value option Unsynchronized.ref
-
-and value =
-  Source of T list |
-  Literal of bool * Markup.T |
-  Name of name_value * morphism |
-  Typ of typ |
-  Term of term |
-  Fact of string option * thm list |  (*optional name for dynamic fact, i.e. fact "variable"*)
-  Attribute of morphism -> attribute |
-  Declaration of declaration |
-  Files of file Exn.result list;
-
-type src = T list;
-
+datatype T = Token of (Symbol_Pos.text * Position.range) * (Token.kind * Symbol_Pos.T list);
 
 (* position *)
 
-fun pos_of (Token ((_, (pos, _)), _, _)) = pos;
-fun end_pos_of (Token ((_, (_, pos)), _, _)) = pos;
-
-fun range_of (toks as tok :: _) =
-      let val pos' = end_pos_of (List.last toks)
-      in Position.range (pos_of tok, pos') end
-  | range_of [] = Position.no_range;
+fun pos_of (Token ((_, (pos, _)), _)) = pos;
+fun end_pos_of (Token ((_, (_, pos)), _)) = pos;
 
 
 (* stopper *)
 
-fun mk_eof pos = Token (("", (pos, Position.none)), (EOF, ""), Slot);
+fun mk_eof pos = Token (("", (pos, Position.none)), (Token.EOF, []));
 val eof = mk_eof Position.none;
 
-fun is_eof (Token (_, (EOF, _), _)) = true
+fun is_eof (Token (_, (Token.EOF, _))) = true
   | is_eof _ = false;
 
 val not_eof = not o is_eof;
@@ -1456,55 +1353,39 @@ val stopper =
 
 (* kind of token *)
 
-fun kind_of (Token (_, (k, _), _)) = k;
-fun is_kind k (Token (_, (k', _), _)) = k = k';
+fun kind_of (Token (_, (k, _))) = k;
+fun is_kind k (Token (_, (k', _))) = k = k';
 
-val is_command = is_kind Command;
+val is_command = is_kind Token.Command;
+val is_ident = is_kind Token.Ident;
+val is_sym_ident = is_kind Token.Sym_Ident;
 
-fun keyword_with pred (Token (_, (Keyword, x), _)) = pred x
-  | keyword_with _ _ = false;
+val is_stack1 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "+") l
+                 | _ => false;
 
-val is_command_modifier = keyword_with (fn x => x = "private" orelse x = "qualified");
+val is_stack2 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "@") l
+                 | _ => false;
 
-fun ident_with pred (Token (_, (Ident, x), _)) = pred x
-  | ident_with _ _ = false;
+val is_modifies_star = fn Token (_, (Token.Sym_Ident, l)) => Symbol_Pos.content l = "[*]"
+                        | _ => false;
 
-fun is_proper (Token (_, (Space, _), _)) = false
-  | is_proper (Token (_, (Comment, _), _)) = false
+val is_colon = fn Token (_, (Token.Keyword, [(":", _)])) => true
+                | _ => false;
+
+fun is_proper (Token (_, (Token.Space, _))) = false
+  | is_proper (Token (_, (Token.Comment, _))) = false
   | is_proper _ = true;
 
-val is_improper = not o is_proper;
-
-fun is_comment (Token (_, (Comment, _), _)) = true
-  | is_comment _ = false;
-
-fun is_begin_ignore (Token (_, (Comment, "<"), _)) = true
-  | is_begin_ignore _ = false;
-
-fun is_end_ignore (Token (_, (Comment, ">"), _)) = true
-  | is_end_ignore _ = false;
-
-fun is_error (Token (_, (Error _, _), _)) = true
-  | is_error _ = false;
-
-
-(* blanks and newlines -- space tokens obey lines *)
-
-fun is_space (Token (_, (Space, _), _)) = true
-  | is_space _ = false;
-
-fun is_blank (Token (_, (Space, x), _)) = not (String.isSuffix "\n" x)
-  | is_blank _ = false;
-
-fun is_newline (Token (_, (Space, x), _)) = String.isSuffix "\n" x
-  | is_newline _ = false;
+fun is_error' (Token (_, (Token.Error msg, _))) = SOME msg
+  | is_error' _ = NONE;
 
 
 (* token content *)
 
-fun content_of (Token (_, (_, x), _)) = x;
+fun content_of (Token (_, (_, x))) = Symbol_Pos.content x;
+fun content_of' (Token (_, (_, x))) = x;
 
-fun input_of (Token ((source, range), (kind, _), _)) =
+fun input_of (Token ((source, range), (kind, _))) =
   Input.source (delimited_kind kind) source range;
 
 fun inner_syntax_of tok =
@@ -1517,15 +1398,15 @@ fun inner_syntax_of tok =
 local
 
 val token_kind_markup =
- fn Var => (Markup.var, "")
-  | Type_Ident => (Markup.tfree, "")
-  | Type_Var => (Markup.tvar, "")
-  | String => (Markup.string, "")
-  | Alt_String => (Markup.alt_string, "")
-  | Verbatim => (Markup.verbatim, "")
-  | Cartouche => (Markup.cartouche, "")
-  | Comment => (Markup.comment, "")
-  | Error msg => (Markup.bad (), msg)
+ fn Token.Var => (Markup.var, "")
+  | Token.Type_Ident => (Markup.tfree, "")
+  | Token.Type_Var => (Markup.tvar, "")
+  | Token.String => (Markup.string, "")
+  | Token.Alt_String => (Markup.alt_string, "")
+  | Token.Verbatim => (Markup.verbatim, "")
+  | Token.Cartouche => (Markup.cartouche, "")
+  | Token.Comment => (Markup.ML_comment, "")
+  | Token.Error msg => (Markup.bad (), msg)
   | _ => (Markup.empty, "");
 
 fun keyword_reports tok = map (fn markup => ((pos_of tok, markup), ""));
@@ -1544,14 +1425,16 @@ fun keyword_markup (important, keyword) x =
   if important orelse Symbol.is_ascii_identifier x then keyword else Markup.delimiter;
 
 fun completion_report tok =
-  if is_kind Keyword tok
+  if is_kind Token.Keyword tok
   then map (fn m => ((pos_of tok, m), "")) (Completion.suppress_abbrevs (content_of tok))
   else [];
 
 fun reports keywords tok =
   if is_command tok then
     keyword_reports tok (command_markups keywords (content_of tok))
-  else if is_kind Keyword tok then
+  else if is_stack1 tok orelse is_stack2 tok then
+    keyword_reports tok [Markup.keyword2 |> Markup.keyword_properties]
+  else if is_kind Token.Keyword tok then
     keyword_reports tok
       [keyword_markup (false, Markup.keyword2 |> Markup.keyword_properties) (content_of tok)]
   else
@@ -1565,21 +1448,21 @@ end;
 
 (* unparse *)
 
-fun unparse (Token (_, (kind, x), _)) =
-  (case kind of
-    String => Symbol_Pos.quote_string_qq x
-  | Alt_String => Symbol_Pos.quote_string_bq x
-  | Verbatim => enclose "{*" "*}" x
-  | Cartouche => cartouche x
-  | Comment => enclose "(*" "*)" x
-  | EOF => ""
-  | _ => x);
-
-fun print tok = Markup.markups (markups Keyword.empty_keywords tok) (unparse tok);
+fun unparse (Token (_, (kind, x))) =
+  let val x = Symbol_Pos.content x
+  in case kind of
+    Token.String => Symbol_Pos.quote_string_qq x
+  | Token.Alt_String => Symbol_Pos.quote_string_bq x
+  | Token.Verbatim => enclose "{*" "*}" x
+  | Token.Cartouche => cartouche x
+  | Token.Comment => enclose "(*" "*)" x
+  | Token.EOF => ""
+  | _ => x
+  end;
 
 fun text_of tok =
   let
-    val k = str_of_kind (kind_of tok);
+    val k = Token.str_of_kind (kind_of tok);
     val ms = markups Keyword.empty_keywords tok;
     val s = unparse tok;
   in
@@ -1591,185 +1474,6 @@ fun text_of tok =
 
 
 
-(** associated values **)
-
-(* inlined file content *)
-
-fun get_files (Token (_, _, Value (SOME (Files files)))) = files
-  | get_files _ = [];
-
-fun put_files [] tok = tok
-  | put_files files (Token (x, y, Slot)) = Token (x, y, Value (SOME (Files files)))
-  | put_files _ tok = raise Fail ("Cannot put inlined files here" ^ Position.here (pos_of tok));
-
-
-(* access values *)
-
-fun get_value (Token (_, _, Value v)) = v
-  | get_value _ = NONE;
-
-fun map_value f (Token (x, y, Value (SOME v))) = Token (x, y, Value (SOME (f v)))
-  | map_value _ tok = tok;
-
-
-(* reports of value *)
-
-fun get_assignable_value (Token (_, _, Assignable r)) = ! r
-  | get_assignable_value (Token (_, _, Value v)) = v
-  | get_assignable_value _ = NONE;
-
-fun reports_of_value tok =
-  (case get_assignable_value tok of
-    SOME (Literal markup) =>
-      let
-        val pos = pos_of tok;
-        val x = content_of tok;
-      in
-        if Position.is_reported pos then
-          map (pair pos) (keyword_markup markup x :: Completion.suppress_abbrevs x)
-        else []
-      end
-  | _ => []);
-
-
-(* name value *)
-
-fun name_value a = Name (a, Morphism.identity);
-
-fun get_name tok =
-  (case get_assignable_value tok of
-    SOME (Name (a, _)) => SOME a
-  | _ => NONE);
-
-
-(* maxidx *)
-
-fun declare_maxidx tok =
-  (case get_value tok of
-    SOME (Source src) => fold declare_maxidx src
-  | SOME (Typ T) => Variable.declare_maxidx (Term.maxidx_of_typ T)
-  | SOME (Term t) => Variable.declare_maxidx (Term.maxidx_of_term t)
-  | SOME (Fact (_, ths)) => fold (Variable.declare_maxidx o Thm.maxidx_of) ths
-  | SOME (Attribute _) => I  (* FIXME !? *)
-  | SOME (Declaration decl) =>
-      (fn ctxt =>
-        let val ctxt' = Context.proof_map (Morphism.form decl) ctxt
-        in Variable.declare_maxidx (Variable.maxidx_of ctxt') ctxt end)
-  | _ => I);
-
-
-(* fact values *)
-
-fun map_facts f =
-  map_value (fn v =>
-    (case v of
-      Source src => Source (map (map_facts f) src)
-    | Fact (a, ths) => Fact (a, f a ths)
-    | _ => v));
-
-
-(* transform *)
-
-fun transform phi =
-  map_value (fn v =>
-    (case v of
-      Source src => Source (map (transform phi) src)
-    | Literal _ => v
-    | Name (a, psi) => Name (a, psi $> phi)
-    | Typ T => Typ (Morphism.typ phi T)
-    | Term t => Term (Morphism.term phi t)
-    | Fact (a, ths) => Fact (a, Morphism.fact phi ths)
-    | Attribute att => Attribute (Morphism.transform phi att)
-    | Declaration decl => Declaration (Morphism.transform phi decl)
-    | Files _ => v));
-
-
-(* static binding *)
-
-(*1st stage: initialize assignable slots*)
-fun init_assignable tok =
-  (case tok of
-    Token (x, y, Slot) => Token (x, y, Assignable (Unsynchronized.ref NONE))
-  | Token (_, _, Value _) => tok
-  | Token (_, _, Assignable r) => (r := NONE; tok));
-
-(*2nd stage: assign values as side-effect of scanning*)
-fun assign v tok =
-  (case tok of
-    Token (x, y, Slot) => Token (x, y, Value v)
-  | Token (_, _, Value _) => tok
-  | Token (_, _, Assignable r) => (r := v; tok));
-
-fun evaluate mk eval arg =
-  let val x = eval arg in (assign (SOME (mk x)) arg; x) end;
-
-(*3rd stage: static closure of final values*)
-fun closure (Token (x, y, Assignable (Unsynchronized.ref v))) = Token (x, y, Value v)
-  | closure tok = tok;
-
-
-(* pretty *)
-
-fun pretty_value ctxt tok =
-  (case get_value tok of
-    SOME (Literal markup) =>
-      let val x = content_of tok
-      in Pretty.mark_str (keyword_markup markup x, x) end
-  | SOME (Name ({print, ...}, _)) => Pretty.quote (Pretty.mark_str (print ctxt))
-  | SOME (Typ T) => Syntax.pretty_typ ctxt T
-  | SOME (Term t) => Syntax.pretty_term ctxt t
-  | SOME (Fact (_, ths)) =>
-      Pretty.enclose "(" ")" (Pretty.breaks (map (Pretty.cartouche o Thm.pretty_thm ctxt) ths))
-  | _ => Pretty.marks_str (markups Keyword.empty_keywords tok, unparse tok));
-
-
-(* src *)
-
-fun dest_src ([]: src) = raise Fail "Empty token source"
-  | dest_src (head :: args) = (head, args);
-
-fun name_of_src src =
-  let
-    val head = #1 (dest_src src);
-    val name =
-      (case get_name head of
-        SOME {name, ...} => name
-      | NONE => content_of head);
-  in (name, pos_of head) end;
-
-val args_of_src = #2 o dest_src;
-
-fun pretty_src ctxt src =
-  let
-    val (head, args) = dest_src src;
-    val prt_name =
-      (case get_name head of
-        SOME {print, ...} => Pretty.mark_str (print ctxt)
-      | NONE => Pretty.str (content_of head));
-  in Pretty.block (Pretty.breaks (Pretty.quote prt_name :: map (pretty_value ctxt) args)) end;
-
-fun checked_src (head :: _) = is_some (get_name head)
-  | checked_src [] = true;
-
-fun check_src ctxt get_table src =
-  let
-    val (head, args) = dest_src src;
-    val table = get_table ctxt;
-  in
-    (case get_name head of
-      SOME {name, ...} => (src, Name_Space.get table name)
-    | NONE =>
-        let
-          val pos = pos_of head;
-          val (name, x) = Name_Space.check (Context.Proof ctxt) table (content_of head, pos);
-          val _ = Context_Position.report ctxt pos Markup.operator;
-          val kind = Name_Space.kind_of (Name_Space.space_of_table table);
-          fun print ctxt' =
-            Name_Space.markup_extern ctxt' (Name_Space.space_of_table (get_table ctxt')) name;
-          val value = name_value {name = name, kind = kind, print = print};
-          val head' = closure (assign (SOME value) head);
-        in (head' :: args, x) end)
-  end;
 
 
 
@@ -1777,43 +1481,7 @@ fun check_src ctxt get_table src =
 
 open Basic_Symbol_Pos;
 
-val err_prefix = "Outer lexical error: ";
-
-fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
-
-
-(* scan symbolic idents *)
-
-val scan_symid =
-  Scan.many1 (Symbol.is_symbolic_char o Symbol_Pos.symbol) ||
-  Scan.one (Symbol.is_symbolic o Symbol_Pos.symbol) >> single;
-
-fun is_symid str =
-  (case try Symbol.explode str of
-    SOME [s] => Symbol.is_symbolic s orelse Symbol.is_symbolic_char s
-  | SOME ss => forall Symbol.is_symbolic_char ss
-  | _ => false);
-
-fun ident_or_symbolic "begin" = false
-  | ident_or_symbolic ":" = true
-  | ident_or_symbolic "::" = true
-  | ident_or_symbolic s = Symbol_Pos.is_identifier s orelse is_symid s;
-
-
-(* scan verbatim text *)
-
-val scan_verb =
-  $$$ "*" --| Scan.ahead (~$$ "}") ||
-  Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single;
-
-val scan_verbatim =
-  Scan.ahead ($$ "{" -- $$ "*") |--
-    !!! "unclosed verbatim text"
-      ((Symbol_Pos.scan_pos --| $$ "{" --| $$ "*") --
-        (Scan.repeats scan_verb -- ($$ "*" |-- $$ "}" |-- Symbol_Pos.scan_pos)));
-
-val recover_verbatim =
-  $$$ "{" @@@ $$$ "*" @@@ Scan.repeats scan_verb;
+val err_prefix = "C outer lexical error: ";
 
 
 (* scan cartouche *)
@@ -1848,55 +1516,41 @@ local
 fun token_leq ((_, syms1), (_, syms2)) = length syms1 <= length syms2;
 
 fun token k ss =
-  Token ((Symbol_Pos.implode ss, Symbol_Pos.range ss), (k, Symbol_Pos.content ss), Slot);
+  Token ((Symbol_Pos.implode ss, Symbol_Pos.range ss), (k, ss));
 
 fun token_range k (pos1, (ss, pos2)) =
-  Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, Symbol_Pos.content ss), Slot);
+  Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, ss));
 
-fun scan_token keywords = !!! "bad input"
-  (Symbol_Pos.scan_string_qq err_prefix >> token_range String ||
-    Symbol_Pos.scan_string_bq err_prefix >> token_range Alt_String ||
-    scan_verbatim >> token_range Verbatim ||
-    scan_cartouche >> token_range Cartouche ||
-    scan_comment >> token_range Comment ||
-    scan_space >> token Space ||
+val keywords = Scan.make_lexicon (map raw_explode ["setup", "hook", "INVARIANT", "INV", "FNSPEC", "RELSPEC", "MODIFIES", "DONT_TRANSLATE", "AUXUPD", "GHOSTUPD", "SPEC", "END-SPEC", "CALLS", "OWNED_BY"])
+
+val scan_token = Scanner.!!! "bad input"
+  (Symbol_Pos.scan_string_qq err_prefix >> token_range Token.String ||
+    scan_cartouche >> token_range Token.Cartouche ||
+    scan_comment >> token_range Token.Comment ||
+    scan_space >> token Token.Space ||
     (Scan.max token_leq
-      (Scan.max token_leq
-        (Scan.literal (Keyword.major_keywords keywords) >> pair Command)
-        (Scan.literal (Keyword.minor_keywords keywords) >> pair Keyword))
-      (Lexicon.scan_longid >> pair Long_Ident ||
-        Lexicon.scan_id >> pair Ident ||
-        Lexicon.scan_var >> pair Var ||
-        Lexicon.scan_tid >> pair Type_Ident ||
-        Lexicon.scan_tvar >> pair Type_Var ||
-        Symbol_Pos.scan_float >> pair Float ||
-        Symbol_Pos.scan_nat >> pair Nat ||
-        scan_symid >> pair Sym_Ident) >> uncurry token));
+      (Scan.literal keywords >> pair Token.Command)
+      (C_Lex.scan_ident >> pair Token.Ident ||
+       $$$ ":" >> pair Token.Keyword ||
+       Scan.repeats1 ($$$ "+") >> pair Token.Sym_Ident ||
+       Scan.repeats1 ($$$ "@") >> pair Token.Sym_Ident ||
+       $$$ "[" @@@ $$$ "*" @@@ $$$ "]" >> pair Token.Sym_Ident)) >> uncurry token);
 
 fun recover msg =
-  (Symbol_Pos.recover_string_qq ||
-    Symbol_Pos.recover_string_bq ||
-    recover_verbatim ||
-    Symbol_Pos.recover_cartouche ||
-    Symbol_Pos.recover_comment ||
-    Scan.one (Symbol.not_eof o Symbol_Pos.symbol) >> single)
-  >> (single o token (Error msg));
+  (Scan.one (Symbol.not_eof o Symbol_Pos.symbol) >> single)
+  >> (single o token (Token.Error msg));
 
 in
 
-fun source' strict keywords =
+fun source' strict _ =
   let
-    val scan_strict = Scan.bulk (scan_token keywords);
+    val scan_strict = Scan.bulk scan_token;
     val scan = if strict then scan_strict else Scan.recover scan_strict recover;
   in Source.source Symbol_Pos.stopper scan end;
 
 fun source keywords pos src = Symbol_Pos.source pos src |> source' false keywords;
 fun source_strict keywords pos src = Symbol_Pos.source pos src |> source' true keywords;
 
-fun read_cartouche syms =
-  (case Scan.read Symbol_Pos.stopper (scan_cartouche >> token_range Cartouche) syms of
-    SOME tok => tok
-  | NONE => error ("Single cartouche expected" ^ Position.here (#1 (Symbol_Pos.range syms))));
 
 end;
 
@@ -1910,109 +1564,40 @@ fun explode keywords pos =
   Source.exhaust;
 
 
-(* print name in parsable form *)
-
-fun print_name keywords name =
-  ((case explode keywords Position.none name of
-    [tok] => not (member (op =) [Ident, Long_Ident, Sym_Ident, Nat] (kind_of tok))
-  | _ => true) ? Symbol_Pos.quote_string_qq) name;
-
-
-(* make *)
-
-fun make ((k, n), s) pos =
-  let
-    val pos' = Position.advance_offset n pos;
-    val range = Position.range (pos, pos');
-    val tok =
-      if 0 <= k andalso k < Vector.length immediate_kinds then
-        Token ((s, range), (Vector.sub (immediate_kinds, k), s), Slot)
-      else
-        (case explode Keyword.empty_keywords pos s of
-          [tok] => tok
-        | _ => Token ((s, range), (Error (err_prefix ^ "exactly one token expected"), s), Slot))
-  in (tok, pos') end;
-
-fun make_string (s, pos) =
-  let
-    val Token ((x, _), y, z) = #1 (make ((~1, 0), Symbol_Pos.quote_string_qq s) Position.none);
-    val pos' = Position.no_range_position pos;
-  in Token ((x, (pos', pos')), y, z) end;
-
-val make_int = explode Keyword.empty_keywords Position.none o signed_string_of_int;
-
-fun make_src a args = make_string a :: args;
 
 
 
 (** parsers **)
 
-type 'a parser = T list -> 'a * T list;
-type 'a context_parser = Context.generic * T list -> 'a * (Context.generic * T list);
 
 
 (* read antiquotation source *)
 
-fun read_no_commands keywords scan syms =
+fun read_no_commands'0 keywords syms =
   Source.of_list syms
-  |> source' true (Keyword.no_command_keywords keywords)
+  |> source' false (Keyword.no_command_keywords keywords)
+  |> Source.exhaust
+
+fun read_no_commands' keywords scan syms =
+  Source.of_list syms
+  |> source' false (Keyword.no_command_keywords keywords)
   |> source_proper
-  |> Source.source stopper (Scan.error (Scan.bulk scan))
+  |> Source.source
+       stopper
+       (Scan.recover
+         (Scan.bulk scan)
+         (fn msg => Scan.one (not o is_eof)
+                    >> (fn tok => [Right (pos_of tok, case is_error' tok of SOME msg0 => msg0 ^ " (" ^ msg ^ ")"
+                                                                          | NONE => msg)])))
   |> Source.exhaust;
 
-fun read_antiq keywords scan (syms, pos) =
-  let
-    fun err msg =
-      cat_error msg ("Malformed antiquotation" ^ Position.here pos ^ ":\n" ^
-        "@{" ^ Symbol_Pos.content syms ^ "}");
-    val res = read_no_commands keywords scan syms handle ERROR msg => err msg;
-  in (case res of [x] => x | _ => err "") end;
-
-
-(* wrapped syntax *)
-
-fun syntax_generic scan src context =
-  let
-    val (name, pos) = name_of_src src;
-    val old_reports = maps reports_of_value src;
-    val args1 = map init_assignable (args_of_src src);
-    fun reported_text () =
-      if Context_Position.is_visible_generic context then
-        let val new_reports = maps (reports_of_value o closure) args1 in
-          if old_reports <> new_reports then
-            map (fn (p, m) => Position.reported_text p m "") new_reports
-          else []
-        end
-      else [];
-  in
-    (case Scan.error (Scan.finite' stopper (Scan.option scan)) (context, args1) of
-      (SOME x, (context', [])) =>
-        let val _ = Output.report (reported_text ())
-        in (x, context') end
-    | (_, (context', args2)) =>
-        let
-          val print_name =
-            (case get_name (hd src) of
-              NONE => quote name
-            | SOME {kind, print, ...} =>
-                let
-                  val ctxt' = Context.proof_of context';
-                  val (markup, xname) = print ctxt';
-                in plain_words kind ^ " " ^ quote (Markup.markup markup xname) end);
-          val print_args =
-            if null args2 then "" else ":\n  " ^ space_implode " " (map print args2);
-        in
-          error ("Bad arguments for " ^ print_name ^ Position.here pos ^ print_args ^
-            Markup.markup_report (implode (reported_text ())))
-        end)
+fun read_antiq' keywords scan syms =
+  let val res = read_no_commands' keywords (scan >> Left) syms;
+  in if exists (fn Right _ => true | _ => false) res
+     then Right (map_filter (fn Right x => SOME x |_ => NONE) res)
+     else Left (map_filter (fn Left x => SOME x | _ => NONE) res)
   end;
-
-fun syntax scan src = apsnd Context.the_proof o syntax_generic scan src o Context.Proof;
-
-end;
-
-type 'a parser = 'a Token.parser;
-type 'a context_parser = 'a Token.context_parser;
+end
 \<close>
 
 ML\<open>
@@ -2033,12 +1618,12 @@ fun group s scan = scan || Scan.fail_with
   (fn [] => (fn () => s () ^ " expected,\nbut end-of-input was found")
     | tok :: _ =>
         (fn () =>
-          (case Token.text_of tok of
+          (case C_Token.text_of tok of
             (txt, "") =>
-              s () ^ " expected,\nbut " ^ txt ^ Position.here (Token.pos_of tok) ^
+              s () ^ " expected,\nbut " ^ txt ^ Position.here (C_Token.pos_of tok) ^
               " was found"
           | (txt1, txt2) =>
-              s () ^ " expected,\nbut " ^ txt1 ^ Position.here (Token.pos_of tok) ^
+              s () ^ " expected,\nbut " ^ txt1 ^ Position.here (C_Token.pos_of tok) ^
               " was found:\n" ^ txt2)));
 
 
@@ -2047,7 +1632,7 @@ fun group s scan = scan || Scan.fail_with
 fun cut kind scan =
   let
     fun get_pos [] = " (end-of-input)"
-      | get_pos (tok :: _) = Position.here (Token.pos_of tok);
+      | get_pos (tok :: _) = Position.here (C_Token.pos_of tok);
 
     fun err (toks, NONE) = (fn () => kind ^ get_pos toks)
       | err (toks, SOME msg) =
@@ -2058,34 +1643,26 @@ fun cut kind scan =
             end);
   in Scan.!! err scan end;
 
-fun !!! scan = cut "Outer syntax error" scan;
-fun !!!! scan = cut "Corrupted outer syntax in presentation" scan;
-
-
+fun !!! scan = cut "C outer syntax error" scan;
+fun !!!! scan = cut "Corrupted C outer syntax in presentation" scan;
 
 (** basic parsers **)
 
 (* tokens *)
 
 fun RESET_VALUE atom = (*required for all primitive parsers*)
-  Scan.ahead (Scan.one (K true)) -- atom >> (fn (arg, x) => (Token.assign NONE arg; x));
+  Scan.ahead (Scan.one (K true)) -- atom >> #2;
 
 
-val not_eof = RESET_VALUE (Scan.one Token.not_eof);
+val not_eof = RESET_VALUE (Scan.one C_Token.not_eof);
 
-fun token atom = Scan.ahead not_eof --| atom;
-
-fun range scan = (Scan.ahead not_eof >> (Token.range_of o single)) -- scan >> Library.swap;
-fun position scan = (Scan.ahead not_eof >> Token.pos_of) -- scan >> Library.swap;
-fun input atom = Scan.ahead atom |-- not_eof >> Token.input_of;
-fun inner_syntax atom = Scan.ahead atom |-- not_eof >> Token.inner_syntax_of;
+fun input atom = Scan.ahead atom |-- not_eof >> C_Token.input_of;
+fun inner_syntax atom = Scan.ahead atom |-- not_eof >> C_Token.inner_syntax_of;
 
 fun kind k =
   group (fn () => Token.str_of_kind k)
-    (RESET_VALUE (Scan.one (Token.is_kind k) >> Token.content_of));
+    (RESET_VALUE (Scan.one (C_Token.is_kind k) >> C_Token.content_of));
 
-val command_ = kind Token.Command;
-val keyword = kind Token.Keyword;
 val short_ident = kind Token.Ident;
 val long_ident = kind Token.Long_Ident;
 val sym_ident = kind Token.Sym_Ident;
@@ -2093,86 +1670,15 @@ val term_var = kind Token.Var;
 val type_ident = kind Token.Type_Ident;
 val type_var = kind Token.Type_Var;
 val number = kind Token.Nat;
-val float_number = kind Token.Float;
 val string = kind Token.String;
-val alt_string = kind Token.Alt_String;
 val verbatim = kind Token.Verbatim;
 val cartouche = kind Token.Cartouche;
 val eof = kind Token.EOF;
 
-fun command x =
-  group (fn () => Token.str_of_kind Token.Command ^ " " ^ quote x)
-    (RESET_VALUE (Scan.one (fn tok => Token.is_command tok andalso Token.content_of tok = x)))
-  >> Token.content_of;
-
-fun keyword_with pred = RESET_VALUE (Scan.one (Token.keyword_with pred) >> Token.content_of);
-
-fun keyword_markup markup x =
-  group (fn () => Token.str_of_kind Token.Keyword ^ " " ^ quote x)
-    (Scan.ahead not_eof -- keyword_with (fn y => x = y))
-  >> (fn (tok, x) => (Token.assign (SOME (Token.Literal markup)) tok; x));
-
-val keyword_improper = keyword_markup (true, Markup.improper);
-val $$$ = keyword_markup (false, Markup.quasi_keyword);
-
-fun reserved x =
-  group (fn () => "reserved identifier " ^ quote x)
-    (RESET_VALUE (Scan.one (Token.ident_with (fn y => x = y)) >> Token.content_of));
-
-val dots = sym_ident :-- (fn "\<dots>" => Scan.succeed () | _ => Scan.fail) >> #1;
-
-val minus = sym_ident :-- (fn "-" => Scan.succeed () | _ => Scan.fail) >> #1;
-
-val underscore = sym_ident :-- (fn "_" => Scan.succeed () | _ => Scan.fail) >> #1;
-fun maybe scan = underscore >> K NONE || scan >> SOME;
-
-val nat = number >> (#1 o Library.read_int o Symbol.explode);
-val int = Scan.optional (minus >> K ~1) 1 -- nat >> op *;
-val real = float_number >> Value.parse_real || int >> Real.fromInt;
-
-val tag_name = group (fn () => "tag name") (short_ident || string);
-val tags = Scan.repeat ($$$ "%" |-- !!! tag_name);
-
-fun opt_keyword s = Scan.optional ($$$ "(" |-- !!! (($$$ s >> K true) --| $$$ ")")) false;
-val opt_bang = Scan.optional ($$$ "!" >> K true) false;
-
-val begin = $$$ "begin";
-val opt_begin = Scan.optional (begin >> K true) false;
-
-
-(* enumerations *)
-
-fun enum1_positions sep scan =
-  scan -- Scan.repeat (position ($$$ sep) -- !!! scan) >>
-    (fn (x, ys) => (x :: map #2 ys, map (#2 o #1) ys));
-fun enum_positions sep scan =
-  enum1_positions sep scan || Scan.succeed ([], []);
-
-fun enum1 sep scan = scan ::: Scan.repeat ($$$ sep |-- !!! scan);
-fun enum sep scan = enum1 sep scan || Scan.succeed [];
-
-fun enum1' sep scan = scan ::: Scan.repeat (Scan.lift ($$$ sep) |-- scan);
-fun enum' sep scan = enum1' sep scan || Scan.succeed [];
-
-fun and_list1 scan = enum1 "and" scan;
-fun and_list scan = enum "and" scan;
-
-fun and_list1' scan = enum1' "and" scan;
-fun and_list' scan = enum' "and" scan;
-
-fun list1 scan = enum1 "," scan;
-fun list scan = enum "," scan;
-
-val properties = $$$ "(" |-- !!! (list (string -- ($$$ "=" |-- string)) --| $$$ ")");
 
 
 (* names and embedded content *)
 
-val name =
-  group (fn () => "name")
-    (short_ident || long_ident || sym_ident || number || string);
-
-val binding = position name >> Binding.make;
 
 val embedded =
   group (fn () => "embedded content")
@@ -2181,201 +1687,16 @@ val embedded =
 
 val text = group (fn () => "text") (embedded || verbatim);
 
-val path = group (fn () => "file name/path specification") embedded;
-
-val theory_name = group (fn () => "theory name") name;
-
-val liberal_name = keyword_with Token.ident_or_symbolic || name;
-
-val parname = Scan.optional ($$$ "(" |-- name --| $$$ ")") "";
-val parbinding = Scan.optional ($$$ "(" |-- binding --| $$$ ")") Binding.empty;
-
-
-(* type classes *)
-
-val class = group (fn () => "type class") (inner_syntax embedded);
-
-val sort = group (fn () => "sort") (inner_syntax embedded);
-
-val type_const = group (fn () => "type constructor") (inner_syntax embedded);
-
-val arity = type_const -- ($$$ "::" |-- !!!
-  (Scan.optional ($$$ "(" |-- !!! (list1 sort --| $$$ ")")) [] -- sort)) >> Scan.triple2;
-
-val multi_arity = and_list1 type_const -- ($$$ "::" |-- !!!
-  (Scan.optional ($$$ "(" |-- !!! (list1 sort --| $$$ ")")) [] -- sort)) >> Scan.triple2;
-
-
-(* types *)
-
-val typ = group (fn () => "type") (inner_syntax embedded);
-
-fun type_arguments arg =
-  arg >> single ||
-  $$$ "(" |-- !!! (list1 arg --| $$$ ")") ||
-  Scan.succeed [];
-
-val type_args = type_arguments type_ident;
-val type_args_constrained = type_arguments (type_ident -- Scan.option ($$$ "::" |-- !!! sort));
-
-
-(* mixfix annotations *)
-
-local
-
-val mfix =
-  input string --
-    !!! (Scan.optional ($$$ "[" |-- !!! (list nat --| $$$ "]")) [] -- Scan.optional nat 1000)
-  >> (fn (sy, (ps, p)) => fn range => Mixfix (sy, ps, p, range));
-
-val infx =
-  $$$ "infix" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infix (sy, p, range)));
-
-val infxl =
-  $$$ "infixl" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infixl (sy, p, range)));
-
-val infxr =
-  $$$ "infixr" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infixr (sy, p, range)));
-
-val strcture = $$$ "structure" >> K Structure;
-
-val binder =
-  $$$ "binder" |--
-    !!! (input string -- ($$$ "[" |-- nat --| $$$ "]" -- nat || nat >> (fn n => (n, n))))
-  >> (fn (sy, (p, q)) => fn range => Binder (sy, p, q, range));
-
-val mixfix_body = mfix || strcture || binder || infxl || infxr || infx;
-
-fun annotation guard body =
-  Scan.trace ($$$ "(" |-- guard (body --| $$$ ")"))
-    >> (fn (mx, toks) => mx (Token.range_of toks));
-
-fun opt_annotation guard body = Scan.optional (annotation guard body) NoSyn;
-
-in
-
-val mixfix = annotation !!! mixfix_body;
-val mixfix' = annotation I mixfix_body;
-val opt_mixfix = opt_annotation !!! mixfix_body;
-val opt_mixfix' = opt_annotation I mixfix_body;
-
-end;
-
-
-(* syntax mode *)
-
-val syntax_mode_spec =
-  ($$$ "output" >> K ("", false)) || name -- Scan.optional ($$$ "output" >> K false) true;
-
-val syntax_mode =
-  Scan.optional ($$$ "(" |-- !!! (syntax_mode_spec --| $$$ ")")) Syntax.mode_default;
-
-
-(* fixes *)
-
-val where_ = $$$ "where";
-
-val const_decl = name -- ($$$ "::" |-- !!! typ) -- opt_mixfix >> Scan.triple1;
-val const_binding = binding -- ($$$ "::" |-- !!! typ) -- opt_mixfix >> Scan.triple1;
-
-val param_mixfix = binding -- Scan.option ($$$ "::" |-- typ) -- mixfix' >> (single o Scan.triple1);
-
-val params =
-  (binding -- Scan.repeat binding) -- Scan.option ($$$ "::" |-- !!! (Scan.ahead typ -- embedded))
-    >> (fn ((x, ys), T) =>
-        (x, Option.map #1 T, NoSyn) :: map (fn y => (y, Option.map #2 T, NoSyn)) ys);
-
-val vars = and_list1 (param_mixfix || params) >> flat;
-
-val for_fixes = Scan.optional ($$$ "for" |-- !!! vars) [];
 
 
 (* embedded source text *)
 
 val ML_source = input (group (fn () => "ML source") text);
-val document_source = input (group (fn () => "document source") text);
-
+val antiq_source = input (group (fn () => "Antiquotation source") text);
 
 (* terms *)
 
-val const = group (fn () => "constant") (inner_syntax embedded);
 val term = group (fn () => "term") (inner_syntax embedded);
-val prop = group (fn () => "proposition") (inner_syntax embedded);
-
-val literal_fact = inner_syntax (group (fn () => "literal fact") (alt_string || cartouche));
-
-
-(* patterns *)
-
-val is_terms = Scan.repeat1 ($$$ "is" |-- term);
-val is_props = Scan.repeat1 ($$$ "is" |-- prop);
-
-val propp = prop -- Scan.optional ($$$ "(" |-- !!! (is_props --| $$$ ")")) [];
-val termp = term -- Scan.optional ($$$ "(" |-- !!! (is_terms --| $$$ ")")) [];
-
-
-(* target information *)
-
-val private = position ($$$ "private") >> #2;
-val qualified = position ($$$ "qualified") >> #2;
-
-val target = ($$$ "(" -- $$$ "in") |-- !!! (position name --| $$$ ")");
-val opt_target = Scan.option target;
-
-
-(* arguments within outer syntax *)
-
-local
-
-val argument_kinds =
- [Token.Ident, Token.Long_Ident, Token.Sym_Ident, Token.Var, Token.Type_Ident, Token.Type_Var,
-  Token.Nat, Token.Float, Token.String, Token.Alt_String, Token.Cartouche, Token.Verbatim];
-
-fun arguments is_symid =
-  let
-    fun argument blk =
-      group (fn () => "argument")
-        (Scan.one (fn tok =>
-          let val kind = Token.kind_of tok in
-            member (op =) argument_kinds kind orelse
-            Token.keyword_with is_symid tok orelse
-            (blk andalso Token.keyword_with (fn s => s = ",") tok)
-          end));
-
-    fun args blk x = Scan.optional (args1 blk) [] x
-    and args1 blk x =
-      (Scan.repeats1 (Scan.repeat1 (argument blk) || argsp "(" ")" || argsp "[" "]")) x
-    and argsp l r x = (token ($$$ l) ::: !!! (args true @@@ (token ($$$ r) >> single))) x;
-  in (args, args1) end;
-
-in
-
-val args = #1 (arguments Token.ident_or_symbolic) false;
-fun args1 is_symid = #2 (arguments is_symid) false;
-
-end;
-
-
-(* attributes *)
-
-val attrib = token liberal_name ::: !!! args;
-val attribs = $$$ "[" |-- list attrib --| $$$ "]";
-val opt_attribs = Scan.optional attribs [];
-
-
-(* theorem references *)
-
-val thm_sel = $$$ "(" |-- list1
- (nat --| minus -- nat >> Facts.FromTo ||
-  nat --| minus >> Facts.From ||
-  nat >> Facts.Single) --| $$$ ")";
-
-val thm =
-  $$$ "[" |-- attribs --| $$$ "]" >> pair (Facts.named "") ||
-  (literal_fact >> Facts.Fact ||
-    position name -- Scan.option thm_sel >> Facts.Named) -- opt_attribs;
-
-val thms1 = Scan.repeat1 thm;
 
 end;
 \<close>
@@ -2391,6 +1712,11 @@ structure C_Context =
 struct
 
 (** ML antiquotations **)
+
+datatype antiq_language = Antiq_ML of Antiquote.antiq
+                        | Antiq_stack of antiq_stack
+                        | Antiq_HOL of antiq_hol * string * Position.range
+                        | Antiq_none of C_Lex.token
 
 (* names for generated environment *)
 
@@ -2508,6 +1834,47 @@ fun eval_antiquotes (ants, pos) opt_context =
         in ((begin_env @ ml_env @ end_env, ml_body), SOME ctxt') end;
   in ((ml_env, ml_body), opt_ctxt') end;
 
+fun scan_antiq ctxt explicit src =
+  let fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> (fn x => C_Token.content_of' x)) []
+      val scan_source = C_Parse.ML_source >> (fn src => (ML_Lex.read_source false src, Input.range_of src))
+      fun scan_cmd cmd scan =
+        Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
+        Scan.option (Scan.one C_Token.is_colon) |--
+        scan
+      val src0 = Symbol_Pos.implode src
+      fun scan_cmd_hol cmd scan f =
+        Scan.trace (Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
+                    Scan.option (Scan.one C_Token.is_colon) |--
+                    scan)
+        >> (fn (x, l) => Antiq_HOL (f x, src0, Position.range (C_Token.pos_of (hd l), C_Token.end_pos_of (List.last l))))
+      val scan_ident = Scan.one C_Token.is_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
+      val scan_sym_ident = Scan.one C_Token.is_sym_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
+  in C_Token.read_antiq'
+       (Thy_Header.get_keywords' ctxt)
+       (C_Parse.!!! (   scan_stack C_Token.is_stack1 --
+                        scan_stack C_Token.is_stack2 --
+                        scan_cmd "hook" scan_source >> (fn ((stack1, stack2), src) => Antiq_stack (Hook (stack1, stack2, src)))
+                     || scan_cmd "setup" scan_source >> (Antiq_stack o Setup)
+                     || scan_cmd_hol "INVARIANT" C_Parse.term Invariant
+                     || scan_cmd_hol "INV" C_Parse.term Invariant
+                     || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
+                     || scan_cmd_hol "RELSPEC" C_Parse.term Relspec
+                     || scan_cmd_hol "MODIFIES" (Scan.repeat (   scan_sym_ident >> pair true
+                                                              || scan_ident >> pair false))
+                                                Modifies
+                     || scan_cmd_hol "DONT_TRANSLATE" (Scan.succeed ()) (K Dont_translate)
+                     || scan_cmd_hol "AUXUPD" C_Parse.term Auxupd
+                     || scan_cmd_hol "GHOSTUPD" C_Parse.term Ghostupd
+                     || scan_cmd_hol "SPEC" C_Parse.term Spec
+                     || scan_cmd_hol "END-SPEC" C_Parse.term End_spec
+                     || scan_cmd_hol "CALLS" (Scan.repeat scan_ident) Calls
+                     || scan_cmd_hol "OWNED_BY" scan_ident Owned_by
+                     || (if explicit
+                         then C_Parse.antiq_source >> (fn src => Antiq_ML {start = Position.none, stop = Position.none, range = Input.range_of src, body = Input.source_explode src})
+                         else Scan.fail)))
+       src
+  end
+
 fun print s =
   app
     (fn C_Lex.Token (_, (t as C_Lex.Directive d, _)) =>
@@ -2564,20 +1931,55 @@ fun eval flags pos ants =
       | _ => ());
   in () end;
 
+fun eval' accept flags pos ants =
+  let val context = Context.the_generic_context ()
+      val ctxt = Context.proof_of context
+      val keywords = Thy_Header.get_keywords' ctxt
 
-fun eval' accept flags pos (ants, ants') =
-  let val _ = ML_Context.eval flags pos (case ML_Lex.read "(,)" of
+      val ants =
+        maps (fn Left (pos, antiq as {explicit, body, ...}, cts) =>
+                 (case scan_antiq ctxt explicit body of
+                    Left res => [Left (SOME (C_Token.read_no_commands'0 keywords body, antiq), res)]
+                  | Right res =>
+                      ( explicit
+                      , cat_lines (map (fn (_, m) => m) res)
+                      , if explicit
+                        then maps (fn (pos, m) => [((pos, Markup.bad ()), m)]) res
+                        else [])
+                      |> (fn res => [Left (NONE, [Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) res, cts)))])]))
+               | Right tok => [Right tok])
+             ants
+
+      val ants_ml = maps (fn Left (_, l) => maps (fn Antiq_ML a => [Antiquote.Antiq a] | _ => []) l | _ => []) ants
+      val ants_stack = maps (fn Left (_, l) => maps (fn Antiq_stack x => [Left x] | _ => []) l | Right tok => [Right tok]) ants
+      val ants_hol = maps (fn Left (_, l) => maps (fn Antiq_HOL x => [x] | _ => []) l | _ => []) ants
+      val ants_none = maps (fn Left (_, l) => maps (fn Antiq_none x => [x] | _ => []) l | _ => []) ants
+
+      val _ = Position.reports (Antiquote.antiq_reports ants_ml
+                                @ maps (fn Left (SOME (_, {start, stop, range = (pos, _), ...}), _) =>
+                                            [(start, Markup.antiquote),
+                                             (stop, Markup.antiquote),
+                                             (pos, Markup.language_antiquotation)]
+                                         | _ => [])
+                                       ants);
+      val _ = Position.reports_text (maps C_Lex.token_report ants_none
+                                     @ maps (fn Left (SOME (l_tok, _ ), _) =>
+                                                  maps (C_Token.reports keywords) l_tok
+                                              | _ => [])
+                                            ants);
+      val _ = C_Lex.check ants_none;
+
+      val _ = ML_Context.eval flags pos (case ML_Lex.read "(,)" of
                               [par_l, colon, par_r, space] =>
                                 par_l ::
-                                (ants'
+                                (ants_ml
                                 |> separate colon)
                                 @ [par_r, space]
                               | _ => [])
-      val context = Context.the_generic_context ()
-      val () = if Config.get (Context.proof_of context) C_Options.source_trace
-               then print "" (maps (fn Right x => [x] | _ => []) ants)
+      val () = if Config.get ctxt C_Options.source_trace
+               then print "" (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
-      val (_, context) = P.parse accept ants context
+      val (_, context) = P.parse (accept ants_hol) ants_stack context
   in Context.put_generic_context (SOME context)
   end
 
