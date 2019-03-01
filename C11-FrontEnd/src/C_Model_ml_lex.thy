@@ -910,6 +910,15 @@ end;
 
 (* scan tokens *)
 
+fun check input =
+  case fold (fn tok =>
+              let val () = warn tok
+              in case check_error tok of SOME s => cons s | NONE => I end)
+            input
+            []
+  of [] => ()
+   | l => error (cat_lines (rev l))
+
 local
 
 fun token k ss = Token (Symbol_Pos.range ss, (k, Symbol_Pos.content ss));
@@ -1078,10 +1087,6 @@ fun gen_read pos text =
           val pos2 = Position.advance Symbol.space pos1;
         in [Token (Position.range (pos1, pos2), (Space, Symbol.space))] end;
 
-    fun check tok =
-      let val () = warn tok
-      in case check_error tok of SOME s => cons s | NONE => I end
-
     val backslash1 = $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ Scanner.newline
     val backslash2 = Scan.one (not o Symbol_Pos.is_eof)
 
@@ -1138,8 +1143,7 @@ fun gen_read pos text =
     val _ = app (fn pos => Output.information ("Backslash newline" ^ Position.here pos)) input0
     val _ = Position.reports_text ( map (fn pos => ((pos, Markup.intensify), "")) input0
                                   @ maps token_report input1);
-    val _ = case fold check input1 [] of [] => ()
-                                       | l => error (String.concatWith "\n" (rev l));
+    val _ = check input1;
   in (maps read_ml input1, input')
 end;
 
