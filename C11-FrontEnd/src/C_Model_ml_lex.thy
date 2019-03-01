@@ -1345,6 +1345,1039 @@ end
 section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>
 
 ML\<open>
+(*  Title:      Pure/Isar/token.ML
+    Author:     Markus Wenzel, TU Muenchen
+
+Outer token syntax for Isabelle/Isar.
+*)
+
+structure C_Token =
+struct
+
+(** tokens **)
+
+(* token kind *)
+
+datatype kind =
+  (*immediate source*)
+  Command | Keyword | Ident | Long_Ident | Sym_Ident | Var | Type_Ident | Type_Var | Nat |
+  Float | Space |
+  (*delimited content*)
+  String | Alt_String | Verbatim | Cartouche | Comment |
+  (*special content*)
+  Error of string | EOF;
+
+val str_of_kind =
+ fn Command => "command"
+  | Keyword => "keyword"
+  | Ident => "identifier"
+  | Long_Ident => "long identifier"
+  | Sym_Ident => "symbolic identifier"
+  | Var => "schematic variable"
+  | Type_Ident => "type variable"
+  | Type_Var => "schematic type variable"
+  | Nat => "natural number"
+  | Float => "floating-point number"
+  | Space => "white space"
+  | String => "quoted string"
+  | Alt_String => "back-quoted string"
+  | Verbatim => "verbatim text"
+  | Cartouche => "text cartouche"
+  | Comment => "comment text"
+  | Error _ => "bad input"
+  | EOF => "end-of-input";
+
+val immediate_kinds =
+  Vector.fromList
+    [Command, Keyword, Ident, Long_Ident, Sym_Ident, Var, Type_Ident, Type_Var, Nat, Float, Space];
+
+val delimited_kind = member (op =) [String, Alt_String, Verbatim, Cartouche, Comment];
+
+
+(* datatype token *)
+
+(*The value slot assigns an (optional) internal value to a token,
+  usually as a side-effect of special scanner setup (see also
+  args.ML).  Note that an assignable ref designates an intermediate
+  state of internalization -- it is NOT meant to persist.*)
+
+type file = {src_path: Path.T, lines: string list, digest: SHA1.digest, pos: Position.T};
+
+type name_value = {name: string, kind: string, print: Proof.context -> Markup.T * xstring};
+
+datatype T = Token of (Symbol_Pos.text * Position.range) * (kind * string) * slot
+
+and slot =
+  Slot |
+  Value of value option |
+  Assignable of value option Unsynchronized.ref
+
+and value =
+  Source of T list |
+  Literal of bool * Markup.T |
+  Name of name_value * morphism |
+  Typ of typ |
+  Term of term |
+  Fact of string option * thm list |  (*optional name for dynamic fact, i.e. fact "variable"*)
+  Attribute of morphism -> attribute |
+  Declaration of declaration |
+  Files of file Exn.result list;
+
+type src = T list;
+
+
+(* position *)
+
+fun pos_of (Token ((_, (pos, _)), _, _)) = pos;
+fun end_pos_of (Token ((_, (_, pos)), _, _)) = pos;
+
+fun range_of (toks as tok :: _) =
+      let val pos' = end_pos_of (List.last toks)
+      in Position.range (pos_of tok, pos') end
+  | range_of [] = Position.no_range;
+
+
+(* stopper *)
+
+fun mk_eof pos = Token (("", (pos, Position.none)), (EOF, ""), Slot);
+val eof = mk_eof Position.none;
+
+fun is_eof (Token (_, (EOF, _), _)) = true
+  | is_eof _ = false;
+
+val not_eof = not o is_eof;
+
+val stopper =
+  Scan.stopper (fn [] => eof | toks => mk_eof (end_pos_of (List.last toks))) is_eof;
+
+
+(* kind of token *)
+
+fun kind_of (Token (_, (k, _), _)) = k;
+fun is_kind k (Token (_, (k', _), _)) = k = k';
+
+val is_command = is_kind Command;
+
+fun keyword_with pred (Token (_, (Keyword, x), _)) = pred x
+  | keyword_with _ _ = false;
+
+val is_command_modifier = keyword_with (fn x => x = "private" orelse x = "qualified");
+
+fun ident_with pred (Token (_, (Ident, x), _)) = pred x
+  | ident_with _ _ = false;
+
+fun is_proper (Token (_, (Space, _), _)) = false
+  | is_proper (Token (_, (Comment, _), _)) = false
+  | is_proper _ = true;
+
+val is_improper = not o is_proper;
+
+fun is_comment (Token (_, (Comment, _), _)) = true
+  | is_comment _ = false;
+
+fun is_begin_ignore (Token (_, (Comment, "<"), _)) = true
+  | is_begin_ignore _ = false;
+
+fun is_end_ignore (Token (_, (Comment, ">"), _)) = true
+  | is_end_ignore _ = false;
+
+fun is_error (Token (_, (Error _, _), _)) = true
+  | is_error _ = false;
+
+
+(* blanks and newlines -- space tokens obey lines *)
+
+fun is_space (Token (_, (Space, _), _)) = true
+  | is_space _ = false;
+
+fun is_blank (Token (_, (Space, x), _)) = not (String.isSuffix "\n" x)
+  | is_blank _ = false;
+
+fun is_newline (Token (_, (Space, x), _)) = String.isSuffix "\n" x
+  | is_newline _ = false;
+
+
+(* token content *)
+
+fun content_of (Token (_, (_, x), _)) = x;
+
+fun input_of (Token ((source, range), (kind, _), _)) =
+  Input.source (delimited_kind kind) source range;
+
+fun inner_syntax_of tok =
+  let val x = content_of tok
+  in if YXML.detect x then x else Syntax.implode_input (input_of tok) end;
+
+
+(* markup reports *)
+
+local
+
+val token_kind_markup =
+ fn Var => (Markup.var, "")
+  | Type_Ident => (Markup.tfree, "")
+  | Type_Var => (Markup.tvar, "")
+  | String => (Markup.string, "")
+  | Alt_String => (Markup.alt_string, "")
+  | Verbatim => (Markup.verbatim, "")
+  | Cartouche => (Markup.cartouche, "")
+  | Comment => (Markup.comment, "")
+  | Error msg => (Markup.bad (), msg)
+  | _ => (Markup.empty, "");
+
+fun keyword_reports tok = map (fn markup => ((pos_of tok, markup), ""));
+
+fun command_markups keywords x =
+  if Keyword.is_theory_end keywords x then [Markup.keyword2 |> Markup.keyword_properties]
+  else
+    (if Keyword.is_proof_asm keywords x then [Markup.keyword3]
+     else if Keyword.is_improper keywords x then [Markup.keyword1, Markup.improper]
+     else [Markup.keyword1])
+    |> map Markup.command_properties;
+
+in
+
+fun keyword_markup (important, keyword) x =
+  if important orelse Symbol.is_ascii_identifier x then keyword else Markup.delimiter;
+
+fun completion_report tok =
+  if is_kind Keyword tok
+  then map (fn m => ((pos_of tok, m), "")) (Completion.suppress_abbrevs (content_of tok))
+  else [];
+
+fun reports keywords tok =
+  if is_command tok then
+    keyword_reports tok (command_markups keywords (content_of tok))
+  else if is_kind Keyword tok then
+    keyword_reports tok
+      [keyword_markup (false, Markup.keyword2 |> Markup.keyword_properties) (content_of tok)]
+  else
+    let val (m, text) = token_kind_markup (kind_of tok)
+    in [((pos_of tok, m), text)] end;
+
+fun markups keywords = map (#2 o #1) o reports keywords;
+
+end;
+
+
+(* unparse *)
+
+fun unparse (Token (_, (kind, x), _)) =
+  (case kind of
+    String => Symbol_Pos.quote_string_qq x
+  | Alt_String => Symbol_Pos.quote_string_bq x
+  | Verbatim => enclose "{*" "*}" x
+  | Cartouche => cartouche x
+  | Comment => enclose "(*" "*)" x
+  | EOF => ""
+  | _ => x);
+
+fun print tok = Markup.markups (markups Keyword.empty_keywords tok) (unparse tok);
+
+fun text_of tok =
+  let
+    val k = str_of_kind (kind_of tok);
+    val ms = markups Keyword.empty_keywords tok;
+    val s = unparse tok;
+  in
+    if s = "" then (k, "")
+    else if size s < 40 andalso not (exists_string (fn c => c = "\n") s)
+    then (k ^ " " ^ Markup.markups ms s, "")
+    else (k, Markup.markups ms s)
+  end;
+
+
+
+(** associated values **)
+
+(* inlined file content *)
+
+fun get_files (Token (_, _, Value (SOME (Files files)))) = files
+  | get_files _ = [];
+
+fun put_files [] tok = tok
+  | put_files files (Token (x, y, Slot)) = Token (x, y, Value (SOME (Files files)))
+  | put_files _ tok = raise Fail ("Cannot put inlined files here" ^ Position.here (pos_of tok));
+
+
+(* access values *)
+
+fun get_value (Token (_, _, Value v)) = v
+  | get_value _ = NONE;
+
+fun map_value f (Token (x, y, Value (SOME v))) = Token (x, y, Value (SOME (f v)))
+  | map_value _ tok = tok;
+
+
+(* reports of value *)
+
+fun get_assignable_value (Token (_, _, Assignable r)) = ! r
+  | get_assignable_value (Token (_, _, Value v)) = v
+  | get_assignable_value _ = NONE;
+
+fun reports_of_value tok =
+  (case get_assignable_value tok of
+    SOME (Literal markup) =>
+      let
+        val pos = pos_of tok;
+        val x = content_of tok;
+      in
+        if Position.is_reported pos then
+          map (pair pos) (keyword_markup markup x :: Completion.suppress_abbrevs x)
+        else []
+      end
+  | _ => []);
+
+
+(* name value *)
+
+fun name_value a = Name (a, Morphism.identity);
+
+fun get_name tok =
+  (case get_assignable_value tok of
+    SOME (Name (a, _)) => SOME a
+  | _ => NONE);
+
+
+(* maxidx *)
+
+fun declare_maxidx tok =
+  (case get_value tok of
+    SOME (Source src) => fold declare_maxidx src
+  | SOME (Typ T) => Variable.declare_maxidx (Term.maxidx_of_typ T)
+  | SOME (Term t) => Variable.declare_maxidx (Term.maxidx_of_term t)
+  | SOME (Fact (_, ths)) => fold (Variable.declare_maxidx o Thm.maxidx_of) ths
+  | SOME (Attribute _) => I  (* FIXME !? *)
+  | SOME (Declaration decl) =>
+      (fn ctxt =>
+        let val ctxt' = Context.proof_map (Morphism.form decl) ctxt
+        in Variable.declare_maxidx (Variable.maxidx_of ctxt') ctxt end)
+  | _ => I);
+
+
+(* fact values *)
+
+fun map_facts f =
+  map_value (fn v =>
+    (case v of
+      Source src => Source (map (map_facts f) src)
+    | Fact (a, ths) => Fact (a, f a ths)
+    | _ => v));
+
+
+(* transform *)
+
+fun transform phi =
+  map_value (fn v =>
+    (case v of
+      Source src => Source (map (transform phi) src)
+    | Literal _ => v
+    | Name (a, psi) => Name (a, psi $> phi)
+    | Typ T => Typ (Morphism.typ phi T)
+    | Term t => Term (Morphism.term phi t)
+    | Fact (a, ths) => Fact (a, Morphism.fact phi ths)
+    | Attribute att => Attribute (Morphism.transform phi att)
+    | Declaration decl => Declaration (Morphism.transform phi decl)
+    | Files _ => v));
+
+
+(* static binding *)
+
+(*1st stage: initialize assignable slots*)
+fun init_assignable tok =
+  (case tok of
+    Token (x, y, Slot) => Token (x, y, Assignable (Unsynchronized.ref NONE))
+  | Token (_, _, Value _) => tok
+  | Token (_, _, Assignable r) => (r := NONE; tok));
+
+(*2nd stage: assign values as side-effect of scanning*)
+fun assign v tok =
+  (case tok of
+    Token (x, y, Slot) => Token (x, y, Value v)
+  | Token (_, _, Value _) => tok
+  | Token (_, _, Assignable r) => (r := v; tok));
+
+fun evaluate mk eval arg =
+  let val x = eval arg in (assign (SOME (mk x)) arg; x) end;
+
+(*3rd stage: static closure of final values*)
+fun closure (Token (x, y, Assignable (Unsynchronized.ref v))) = Token (x, y, Value v)
+  | closure tok = tok;
+
+
+(* pretty *)
+
+fun pretty_value ctxt tok =
+  (case get_value tok of
+    SOME (Literal markup) =>
+      let val x = content_of tok
+      in Pretty.mark_str (keyword_markup markup x, x) end
+  | SOME (Name ({print, ...}, _)) => Pretty.quote (Pretty.mark_str (print ctxt))
+  | SOME (Typ T) => Syntax.pretty_typ ctxt T
+  | SOME (Term t) => Syntax.pretty_term ctxt t
+  | SOME (Fact (_, ths)) =>
+      Pretty.enclose "(" ")" (Pretty.breaks (map (Pretty.cartouche o Thm.pretty_thm ctxt) ths))
+  | _ => Pretty.marks_str (markups Keyword.empty_keywords tok, unparse tok));
+
+
+(* src *)
+
+fun dest_src ([]: src) = raise Fail "Empty token source"
+  | dest_src (head :: args) = (head, args);
+
+fun name_of_src src =
+  let
+    val head = #1 (dest_src src);
+    val name =
+      (case get_name head of
+        SOME {name, ...} => name
+      | NONE => content_of head);
+  in (name, pos_of head) end;
+
+val args_of_src = #2 o dest_src;
+
+fun pretty_src ctxt src =
+  let
+    val (head, args) = dest_src src;
+    val prt_name =
+      (case get_name head of
+        SOME {print, ...} => Pretty.mark_str (print ctxt)
+      | NONE => Pretty.str (content_of head));
+  in Pretty.block (Pretty.breaks (Pretty.quote prt_name :: map (pretty_value ctxt) args)) end;
+
+fun checked_src (head :: _) = is_some (get_name head)
+  | checked_src [] = true;
+
+fun check_src ctxt get_table src =
+  let
+    val (head, args) = dest_src src;
+    val table = get_table ctxt;
+  in
+    (case get_name head of
+      SOME {name, ...} => (src, Name_Space.get table name)
+    | NONE =>
+        let
+          val pos = pos_of head;
+          val (name, x) = Name_Space.check (Context.Proof ctxt) table (content_of head, pos);
+          val _ = Context_Position.report ctxt pos Markup.operator;
+          val kind = Name_Space.kind_of (Name_Space.space_of_table table);
+          fun print ctxt' =
+            Name_Space.markup_extern ctxt' (Name_Space.space_of_table (get_table ctxt')) name;
+          val value = name_value {name = name, kind = kind, print = print};
+          val head' = closure (assign (SOME value) head);
+        in (head' :: args, x) end)
+  end;
+
+
+
+(** scanners **)
+
+open Basic_Symbol_Pos;
+
+val err_prefix = "Outer lexical error: ";
+
+fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
+
+
+(* scan symbolic idents *)
+
+val scan_symid =
+  Scan.many1 (Symbol.is_symbolic_char o Symbol_Pos.symbol) ||
+  Scan.one (Symbol.is_symbolic o Symbol_Pos.symbol) >> single;
+
+fun is_symid str =
+  (case try Symbol.explode str of
+    SOME [s] => Symbol.is_symbolic s orelse Symbol.is_symbolic_char s
+  | SOME ss => forall Symbol.is_symbolic_char ss
+  | _ => false);
+
+fun ident_or_symbolic "begin" = false
+  | ident_or_symbolic ":" = true
+  | ident_or_symbolic "::" = true
+  | ident_or_symbolic s = Symbol_Pos.is_identifier s orelse is_symid s;
+
+
+(* scan verbatim text *)
+
+val scan_verb =
+  $$$ "*" --| Scan.ahead (~$$ "}") ||
+  Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single;
+
+val scan_verbatim =
+  Scan.ahead ($$ "{" -- $$ "*") |--
+    !!! "unclosed verbatim text"
+      ((Symbol_Pos.scan_pos --| $$ "{" --| $$ "*") --
+        (Scan.repeats scan_verb -- ($$ "*" |-- $$ "}" |-- Symbol_Pos.scan_pos)));
+
+val recover_verbatim =
+  $$$ "{" @@@ $$$ "*" @@@ Scan.repeats scan_verb;
+
+
+(* scan cartouche *)
+
+val scan_cartouche =
+  Symbol_Pos.scan_pos --
+    ((Symbol_Pos.scan_cartouche err_prefix >> Symbol_Pos.cartouche_content) -- Symbol_Pos.scan_pos);
+
+
+(* scan space *)
+
+fun space_symbol (s, _) = Symbol.is_blank s andalso s <> "\n";
+
+val scan_space =
+  Scan.many1 space_symbol @@@ Scan.optional ($$$ "\n") [] ||
+  Scan.many space_symbol @@@ $$$ "\n";
+
+
+(* scan comment *)
+
+val scan_comment =
+  Symbol_Pos.scan_pos -- (Symbol_Pos.scan_comment_body err_prefix -- Symbol_Pos.scan_pos);
+
+
+
+(** token sources **)
+
+fun source_proper src = src |> Source.filter is_proper;
+
+local
+
+fun token_leq ((_, syms1), (_, syms2)) = length syms1 <= length syms2;
+
+fun token k ss =
+  Token ((Symbol_Pos.implode ss, Symbol_Pos.range ss), (k, Symbol_Pos.content ss), Slot);
+
+fun token_range k (pos1, (ss, pos2)) =
+  Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, Symbol_Pos.content ss), Slot);
+
+fun scan_token keywords = !!! "bad input"
+  (Symbol_Pos.scan_string_qq err_prefix >> token_range String ||
+    Symbol_Pos.scan_string_bq err_prefix >> token_range Alt_String ||
+    scan_verbatim >> token_range Verbatim ||
+    scan_cartouche >> token_range Cartouche ||
+    scan_comment >> token_range Comment ||
+    scan_space >> token Space ||
+    (Scan.max token_leq
+      (Scan.max token_leq
+        (Scan.literal (Keyword.major_keywords keywords) >> pair Command)
+        (Scan.literal (Keyword.minor_keywords keywords) >> pair Keyword))
+      (Lexicon.scan_longid >> pair Long_Ident ||
+        Lexicon.scan_id >> pair Ident ||
+        Lexicon.scan_var >> pair Var ||
+        Lexicon.scan_tid >> pair Type_Ident ||
+        Lexicon.scan_tvar >> pair Type_Var ||
+        Symbol_Pos.scan_float >> pair Float ||
+        Symbol_Pos.scan_nat >> pair Nat ||
+        scan_symid >> pair Sym_Ident) >> uncurry token));
+
+fun recover msg =
+  (Symbol_Pos.recover_string_qq ||
+    Symbol_Pos.recover_string_bq ||
+    recover_verbatim ||
+    Symbol_Pos.recover_cartouche ||
+    Symbol_Pos.recover_comment ||
+    Scan.one (Symbol.not_eof o Symbol_Pos.symbol) >> single)
+  >> (single o token (Error msg));
+
+in
+
+fun source' strict keywords =
+  let
+    val scan_strict = Scan.bulk (scan_token keywords);
+    val scan = if strict then scan_strict else Scan.recover scan_strict recover;
+  in Source.source Symbol_Pos.stopper scan end;
+
+fun source keywords pos src = Symbol_Pos.source pos src |> source' false keywords;
+fun source_strict keywords pos src = Symbol_Pos.source pos src |> source' true keywords;
+
+fun read_cartouche syms =
+  (case Scan.read Symbol_Pos.stopper (scan_cartouche >> token_range Cartouche) syms of
+    SOME tok => tok
+  | NONE => error ("Single cartouche expected" ^ Position.here (#1 (Symbol_Pos.range syms))));
+
+end;
+
+
+(* explode *)
+
+fun explode keywords pos =
+  Symbol.explode #>
+  Source.of_list #>
+  source keywords pos #>
+  Source.exhaust;
+
+
+(* print name in parsable form *)
+
+fun print_name keywords name =
+  ((case explode keywords Position.none name of
+    [tok] => not (member (op =) [Ident, Long_Ident, Sym_Ident, Nat] (kind_of tok))
+  | _ => true) ? Symbol_Pos.quote_string_qq) name;
+
+
+(* make *)
+
+fun make ((k, n), s) pos =
+  let
+    val pos' = Position.advance_offset n pos;
+    val range = Position.range (pos, pos');
+    val tok =
+      if 0 <= k andalso k < Vector.length immediate_kinds then
+        Token ((s, range), (Vector.sub (immediate_kinds, k), s), Slot)
+      else
+        (case explode Keyword.empty_keywords pos s of
+          [tok] => tok
+        | _ => Token ((s, range), (Error (err_prefix ^ "exactly one token expected"), s), Slot))
+  in (tok, pos') end;
+
+fun make_string (s, pos) =
+  let
+    val Token ((x, _), y, z) = #1 (make ((~1, 0), Symbol_Pos.quote_string_qq s) Position.none);
+    val pos' = Position.no_range_position pos;
+  in Token ((x, (pos', pos')), y, z) end;
+
+val make_int = explode Keyword.empty_keywords Position.none o signed_string_of_int;
+
+fun make_src a args = make_string a :: args;
+
+
+
+(** parsers **)
+
+type 'a parser = T list -> 'a * T list;
+type 'a context_parser = Context.generic * T list -> 'a * (Context.generic * T list);
+
+
+(* read antiquotation source *)
+
+fun read_no_commands keywords scan syms =
+  Source.of_list syms
+  |> source' true (Keyword.no_command_keywords keywords)
+  |> source_proper
+  |> Source.source stopper (Scan.error (Scan.bulk scan))
+  |> Source.exhaust;
+
+fun read_antiq keywords scan (syms, pos) =
+  let
+    fun err msg =
+      cat_error msg ("Malformed antiquotation" ^ Position.here pos ^ ":\n" ^
+        "@{" ^ Symbol_Pos.content syms ^ "}");
+    val res = read_no_commands keywords scan syms handle ERROR msg => err msg;
+  in (case res of [x] => x | _ => err "") end;
+
+
+(* wrapped syntax *)
+
+fun syntax_generic scan src context =
+  let
+    val (name, pos) = name_of_src src;
+    val old_reports = maps reports_of_value src;
+    val args1 = map init_assignable (args_of_src src);
+    fun reported_text () =
+      if Context_Position.is_visible_generic context then
+        let val new_reports = maps (reports_of_value o closure) args1 in
+          if old_reports <> new_reports then
+            map (fn (p, m) => Position.reported_text p m "") new_reports
+          else []
+        end
+      else [];
+  in
+    (case Scan.error (Scan.finite' stopper (Scan.option scan)) (context, args1) of
+      (SOME x, (context', [])) =>
+        let val _ = Output.report (reported_text ())
+        in (x, context') end
+    | (_, (context', args2)) =>
+        let
+          val print_name =
+            (case get_name (hd src) of
+              NONE => quote name
+            | SOME {kind, print, ...} =>
+                let
+                  val ctxt' = Context.proof_of context';
+                  val (markup, xname) = print ctxt';
+                in plain_words kind ^ " " ^ quote (Markup.markup markup xname) end);
+          val print_args =
+            if null args2 then "" else ":\n  " ^ space_implode " " (map print args2);
+        in
+          error ("Bad arguments for " ^ print_name ^ Position.here pos ^ print_args ^
+            Markup.markup_report (implode (reported_text ())))
+        end)
+  end;
+
+fun syntax scan src = apsnd Context.the_proof o syntax_generic scan src o Context.Proof;
+
+end;
+
+type 'a parser = 'a Token.parser;
+type 'a context_parser = 'a Token.context_parser;
+\<close>
+
+ML\<open>
+(*  Title:      Pure/Isar/parse.ML
+    Author:     Markus Wenzel, TU Muenchen
+
+Generic parsers for Isabelle/Isar outer syntax.
+*)
+
+structure C_Parse =
+struct
+
+(** error handling **)
+
+(* group atomic parsers (no cuts!) *)
+
+fun group s scan = scan || Scan.fail_with
+  (fn [] => (fn () => s () ^ " expected,\nbut end-of-input was found")
+    | tok :: _ =>
+        (fn () =>
+          (case Token.text_of tok of
+            (txt, "") =>
+              s () ^ " expected,\nbut " ^ txt ^ Position.here (Token.pos_of tok) ^
+              " was found"
+          | (txt1, txt2) =>
+              s () ^ " expected,\nbut " ^ txt1 ^ Position.here (Token.pos_of tok) ^
+              " was found:\n" ^ txt2)));
+
+
+(* cut *)
+
+fun cut kind scan =
+  let
+    fun get_pos [] = " (end-of-input)"
+      | get_pos (tok :: _) = Position.here (Token.pos_of tok);
+
+    fun err (toks, NONE) = (fn () => kind ^ get_pos toks)
+      | err (toks, SOME msg) =
+          (fn () =>
+            let val s = msg () in
+              if String.isPrefix kind s then s
+              else kind ^ get_pos toks ^ ": " ^ s
+            end);
+  in Scan.!! err scan end;
+
+fun !!! scan = cut "Outer syntax error" scan;
+fun !!!! scan = cut "Corrupted outer syntax in presentation" scan;
+
+
+
+(** basic parsers **)
+
+(* tokens *)
+
+fun RESET_VALUE atom = (*required for all primitive parsers*)
+  Scan.ahead (Scan.one (K true)) -- atom >> (fn (arg, x) => (Token.assign NONE arg; x));
+
+
+val not_eof = RESET_VALUE (Scan.one Token.not_eof);
+
+fun token atom = Scan.ahead not_eof --| atom;
+
+fun range scan = (Scan.ahead not_eof >> (Token.range_of o single)) -- scan >> Library.swap;
+fun position scan = (Scan.ahead not_eof >> Token.pos_of) -- scan >> Library.swap;
+fun input atom = Scan.ahead atom |-- not_eof >> Token.input_of;
+fun inner_syntax atom = Scan.ahead atom |-- not_eof >> Token.inner_syntax_of;
+
+fun kind k =
+  group (fn () => Token.str_of_kind k)
+    (RESET_VALUE (Scan.one (Token.is_kind k) >> Token.content_of));
+
+val command_ = kind Token.Command;
+val keyword = kind Token.Keyword;
+val short_ident = kind Token.Ident;
+val long_ident = kind Token.Long_Ident;
+val sym_ident = kind Token.Sym_Ident;
+val term_var = kind Token.Var;
+val type_ident = kind Token.Type_Ident;
+val type_var = kind Token.Type_Var;
+val number = kind Token.Nat;
+val float_number = kind Token.Float;
+val string = kind Token.String;
+val alt_string = kind Token.Alt_String;
+val verbatim = kind Token.Verbatim;
+val cartouche = kind Token.Cartouche;
+val eof = kind Token.EOF;
+
+fun command x =
+  group (fn () => Token.str_of_kind Token.Command ^ " " ^ quote x)
+    (RESET_VALUE (Scan.one (fn tok => Token.is_command tok andalso Token.content_of tok = x)))
+  >> Token.content_of;
+
+fun keyword_with pred = RESET_VALUE (Scan.one (Token.keyword_with pred) >> Token.content_of);
+
+fun keyword_markup markup x =
+  group (fn () => Token.str_of_kind Token.Keyword ^ " " ^ quote x)
+    (Scan.ahead not_eof -- keyword_with (fn y => x = y))
+  >> (fn (tok, x) => (Token.assign (SOME (Token.Literal markup)) tok; x));
+
+val keyword_improper = keyword_markup (true, Markup.improper);
+val $$$ = keyword_markup (false, Markup.quasi_keyword);
+
+fun reserved x =
+  group (fn () => "reserved identifier " ^ quote x)
+    (RESET_VALUE (Scan.one (Token.ident_with (fn y => x = y)) >> Token.content_of));
+
+val dots = sym_ident :-- (fn "\<dots>" => Scan.succeed () | _ => Scan.fail) >> #1;
+
+val minus = sym_ident :-- (fn "-" => Scan.succeed () | _ => Scan.fail) >> #1;
+
+val underscore = sym_ident :-- (fn "_" => Scan.succeed () | _ => Scan.fail) >> #1;
+fun maybe scan = underscore >> K NONE || scan >> SOME;
+
+val nat = number >> (#1 o Library.read_int o Symbol.explode);
+val int = Scan.optional (minus >> K ~1) 1 -- nat >> op *;
+val real = float_number >> Value.parse_real || int >> Real.fromInt;
+
+val tag_name = group (fn () => "tag name") (short_ident || string);
+val tags = Scan.repeat ($$$ "%" |-- !!! tag_name);
+
+fun opt_keyword s = Scan.optional ($$$ "(" |-- !!! (($$$ s >> K true) --| $$$ ")")) false;
+val opt_bang = Scan.optional ($$$ "!" >> K true) false;
+
+val begin = $$$ "begin";
+val opt_begin = Scan.optional (begin >> K true) false;
+
+
+(* enumerations *)
+
+fun enum1_positions sep scan =
+  scan -- Scan.repeat (position ($$$ sep) -- !!! scan) >>
+    (fn (x, ys) => (x :: map #2 ys, map (#2 o #1) ys));
+fun enum_positions sep scan =
+  enum1_positions sep scan || Scan.succeed ([], []);
+
+fun enum1 sep scan = scan ::: Scan.repeat ($$$ sep |-- !!! scan);
+fun enum sep scan = enum1 sep scan || Scan.succeed [];
+
+fun enum1' sep scan = scan ::: Scan.repeat (Scan.lift ($$$ sep) |-- scan);
+fun enum' sep scan = enum1' sep scan || Scan.succeed [];
+
+fun and_list1 scan = enum1 "and" scan;
+fun and_list scan = enum "and" scan;
+
+fun and_list1' scan = enum1' "and" scan;
+fun and_list' scan = enum' "and" scan;
+
+fun list1 scan = enum1 "," scan;
+fun list scan = enum "," scan;
+
+val properties = $$$ "(" |-- !!! (list (string -- ($$$ "=" |-- string)) --| $$$ ")");
+
+
+(* names and embedded content *)
+
+val name =
+  group (fn () => "name")
+    (short_ident || long_ident || sym_ident || number || string);
+
+val binding = position name >> Binding.make;
+
+val embedded =
+  group (fn () => "embedded content")
+    (cartouche || string || short_ident || long_ident || sym_ident ||
+      term_var || type_ident || type_var || number);
+
+val text = group (fn () => "text") (embedded || verbatim);
+
+val path = group (fn () => "file name/path specification") embedded;
+
+val theory_name = group (fn () => "theory name") name;
+
+val liberal_name = keyword_with Token.ident_or_symbolic || name;
+
+val parname = Scan.optional ($$$ "(" |-- name --| $$$ ")") "";
+val parbinding = Scan.optional ($$$ "(" |-- binding --| $$$ ")") Binding.empty;
+
+
+(* type classes *)
+
+val class = group (fn () => "type class") (inner_syntax embedded);
+
+val sort = group (fn () => "sort") (inner_syntax embedded);
+
+val type_const = group (fn () => "type constructor") (inner_syntax embedded);
+
+val arity = type_const -- ($$$ "::" |-- !!!
+  (Scan.optional ($$$ "(" |-- !!! (list1 sort --| $$$ ")")) [] -- sort)) >> Scan.triple2;
+
+val multi_arity = and_list1 type_const -- ($$$ "::" |-- !!!
+  (Scan.optional ($$$ "(" |-- !!! (list1 sort --| $$$ ")")) [] -- sort)) >> Scan.triple2;
+
+
+(* types *)
+
+val typ = group (fn () => "type") (inner_syntax embedded);
+
+fun type_arguments arg =
+  arg >> single ||
+  $$$ "(" |-- !!! (list1 arg --| $$$ ")") ||
+  Scan.succeed [];
+
+val type_args = type_arguments type_ident;
+val type_args_constrained = type_arguments (type_ident -- Scan.option ($$$ "::" |-- !!! sort));
+
+
+(* mixfix annotations *)
+
+local
+
+val mfix =
+  input string --
+    !!! (Scan.optional ($$$ "[" |-- !!! (list nat --| $$$ "]")) [] -- Scan.optional nat 1000)
+  >> (fn (sy, (ps, p)) => fn range => Mixfix (sy, ps, p, range));
+
+val infx =
+  $$$ "infix" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infix (sy, p, range)));
+
+val infxl =
+  $$$ "infixl" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infixl (sy, p, range)));
+
+val infxr =
+  $$$ "infixr" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infixr (sy, p, range)));
+
+val strcture = $$$ "structure" >> K Structure;
+
+val binder =
+  $$$ "binder" |--
+    !!! (input string -- ($$$ "[" |-- nat --| $$$ "]" -- nat || nat >> (fn n => (n, n))))
+  >> (fn (sy, (p, q)) => fn range => Binder (sy, p, q, range));
+
+val mixfix_body = mfix || strcture || binder || infxl || infxr || infx;
+
+fun annotation guard body =
+  Scan.trace ($$$ "(" |-- guard (body --| $$$ ")"))
+    >> (fn (mx, toks) => mx (Token.range_of toks));
+
+fun opt_annotation guard body = Scan.optional (annotation guard body) NoSyn;
+
+in
+
+val mixfix = annotation !!! mixfix_body;
+val mixfix' = annotation I mixfix_body;
+val opt_mixfix = opt_annotation !!! mixfix_body;
+val opt_mixfix' = opt_annotation I mixfix_body;
+
+end;
+
+
+(* syntax mode *)
+
+val syntax_mode_spec =
+  ($$$ "output" >> K ("", false)) || name -- Scan.optional ($$$ "output" >> K false) true;
+
+val syntax_mode =
+  Scan.optional ($$$ "(" |-- !!! (syntax_mode_spec --| $$$ ")")) Syntax.mode_default;
+
+
+(* fixes *)
+
+val where_ = $$$ "where";
+
+val const_decl = name -- ($$$ "::" |-- !!! typ) -- opt_mixfix >> Scan.triple1;
+val const_binding = binding -- ($$$ "::" |-- !!! typ) -- opt_mixfix >> Scan.triple1;
+
+val param_mixfix = binding -- Scan.option ($$$ "::" |-- typ) -- mixfix' >> (single o Scan.triple1);
+
+val params =
+  (binding -- Scan.repeat binding) -- Scan.option ($$$ "::" |-- !!! (Scan.ahead typ -- embedded))
+    >> (fn ((x, ys), T) =>
+        (x, Option.map #1 T, NoSyn) :: map (fn y => (y, Option.map #2 T, NoSyn)) ys);
+
+val vars = and_list1 (param_mixfix || params) >> flat;
+
+val for_fixes = Scan.optional ($$$ "for" |-- !!! vars) [];
+
+
+(* embedded source text *)
+
+val ML_source = input (group (fn () => "ML source") text);
+val document_source = input (group (fn () => "document source") text);
+
+
+(* terms *)
+
+val const = group (fn () => "constant") (inner_syntax embedded);
+val term = group (fn () => "term") (inner_syntax embedded);
+val prop = group (fn () => "proposition") (inner_syntax embedded);
+
+val literal_fact = inner_syntax (group (fn () => "literal fact") (alt_string || cartouche));
+
+
+(* patterns *)
+
+val is_terms = Scan.repeat1 ($$$ "is" |-- term);
+val is_props = Scan.repeat1 ($$$ "is" |-- prop);
+
+val propp = prop -- Scan.optional ($$$ "(" |-- !!! (is_props --| $$$ ")")) [];
+val termp = term -- Scan.optional ($$$ "(" |-- !!! (is_terms --| $$$ ")")) [];
+
+
+(* target information *)
+
+val private = position ($$$ "private") >> #2;
+val qualified = position ($$$ "qualified") >> #2;
+
+val target = ($$$ "(" -- $$$ "in") |-- !!! (position name --| $$$ ")");
+val opt_target = Scan.option target;
+
+
+(* arguments within outer syntax *)
+
+local
+
+val argument_kinds =
+ [Token.Ident, Token.Long_Ident, Token.Sym_Ident, Token.Var, Token.Type_Ident, Token.Type_Var,
+  Token.Nat, Token.Float, Token.String, Token.Alt_String, Token.Cartouche, Token.Verbatim];
+
+fun arguments is_symid =
+  let
+    fun argument blk =
+      group (fn () => "argument")
+        (Scan.one (fn tok =>
+          let val kind = Token.kind_of tok in
+            member (op =) argument_kinds kind orelse
+            Token.keyword_with is_symid tok orelse
+            (blk andalso Token.keyword_with (fn s => s = ",") tok)
+          end));
+
+    fun args blk x = Scan.optional (args1 blk) [] x
+    and args1 blk x =
+      (Scan.repeats1 (Scan.repeat1 (argument blk) || argsp "(" ")" || argsp "[" "]")) x
+    and argsp l r x = (token ($$$ l) ::: !!! (args true @@@ (token ($$$ r) >> single))) x;
+  in (args, args1) end;
+
+in
+
+val args = #1 (arguments Token.ident_or_symbolic) false;
+fun args1 is_symid = #2 (arguments is_symid) false;
+
+end;
+
+
+(* attributes *)
+
+val attrib = token liberal_name ::: !!! args;
+val attribs = $$$ "[" |-- list attrib --| $$$ "]";
+val opt_attribs = Scan.optional attribs [];
+
+
+(* theorem references *)
+
+val thm_sel = $$$ "(" |-- list1
+ (nat --| minus -- nat >> Facts.FromTo ||
+  nat --| minus >> Facts.From ||
+  nat >> Facts.Single) --| $$$ ")";
+
+val thm =
+  $$$ "[" |-- attribs --| $$$ "]" >> pair (Facts.named "") ||
+  (literal_fact >> Facts.Fact ||
+    position name -- Scan.option thm_sel >> Facts.Named) -- opt_attribs;
+
+val thms1 = Scan.repeat1 thm;
+
+end;
+\<close>
+
+ML\<open>
 (*  Title:      Pure/ML/ml_context.ML
     Author:     Makarius
 
