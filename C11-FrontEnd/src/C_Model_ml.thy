@@ -149,8 +149,13 @@ val From_string = C_ast_simple.SS_base o C_ast_simple.ST
 type text_range = Symbol_Pos.text * Position.T
 type ml_source_range = ML_Lex.token Antiquote.antiquote list * Position.range
 
-datatype antiq_stack = Setup of ml_source_range
-                     | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *) * ml_source_range
+datatype 'ml_source_range antiq_stack0 = Setup of 'ml_source_range
+                                       | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *) * 'ml_source_range
+
+fun map_antiq_stack f = fn Setup x => Setup (f x)
+                         | Hook (l1, l2, x) => Hook (l1, l2, f x)
+
+type antiq_stack = ml_source_range antiq_stack0
 
 datatype antiq_hol = Invariant of string (* term *)
                    | Fnspec of text_range (* ident *) * string (* term *)

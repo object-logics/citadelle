@@ -1713,10 +1713,10 @@ struct
 
 (** ML antiquotations **)
 
-datatype antiq_language = Antiq_ML of Antiquote.antiq
-                        | Antiq_stack of antiq_stack
-                        | Antiq_HOL of antiq_hol * string * Position.range
-                        | Antiq_none of C_Lex.token
+datatype 'a antiq_language = Antiq_ML of Antiquote.antiq
+                           | Antiq_stack of 'a antiq_stack0
+                           | Antiq_HOL of antiq_hol * string * Position.range
+                           | Antiq_none of C_Lex.token
 
 (* names for generated environment *)
 
@@ -1836,7 +1836,6 @@ fun eval_antiquotes (ants, pos) opt_context =
 
 fun scan_antiq ctxt explicit src =
   let fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> (fn x => C_Token.content_of' x)) []
-      val scan_source = C_Parse.ML_source >> (fn src => (ML_Lex.read_source false src, Input.range_of src))
       fun scan_cmd cmd scan =
         Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
         Scan.option (Scan.one C_Token.is_colon) |--
@@ -1853,8 +1852,8 @@ fun scan_antiq ctxt explicit src =
        (Thy_Header.get_keywords' ctxt)
        (C_Parse.!!! (   scan_stack C_Token.is_stack1 --
                         scan_stack C_Token.is_stack2 --
-                        scan_cmd "hook" scan_source >> (fn ((stack1, stack2), src) => Antiq_stack (Hook (stack1, stack2, src)))
-                     || scan_cmd "setup" scan_source >> (Antiq_stack o Setup)
+                        scan_cmd "hook" C_Parse.ML_source >> (fn ((stack1, stack2), src) => Antiq_stack (Hook (stack1, stack2, src)))
+                     || scan_cmd "setup" C_Parse.ML_source >> (Antiq_stack o Setup)
                      || scan_cmd_hol "INVARIANT" C_Parse.term Invariant
                      || scan_cmd_hol "INV" C_Parse.term Invariant
                      || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
@@ -1951,7 +1950,7 @@ fun eval' accept flags pos ants =
              ants
 
       val ants_ml = maps (fn Left (_, l) => maps (fn Antiq_ML a => [Antiquote.Antiq a] | _ => []) l | _ => []) ants
-      val ants_stack = maps (fn Left (_, l) => maps (fn Antiq_stack x => [Left x] | _ => []) l | Right tok => [Right tok]) ants
+      val ants_stack = maps (fn Left (_, l) => maps (fn Antiq_stack x => [Left (map_antiq_stack (fn src => (ML_Lex.read_source false src, Input.range_of src)) x)] | _ => []) l | Right tok => [Right tok]) ants
       val ants_hol = maps (fn Left (_, l) => maps (fn Antiq_HOL x => [x] | _ => []) l | _ => []) ants
       val ants_none = maps (fn Left (_, l) => maps (fn Antiq_none x => [x] | _ => []) l | _ => []) ants
 
