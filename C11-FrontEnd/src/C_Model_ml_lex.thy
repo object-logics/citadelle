@@ -1848,7 +1848,7 @@ fun scan_antiq ctxt explicit src =
                     scan)
         >> (fn (x, l) => Antiq_HOL (f x, src0, Position.range (C_Token.pos_of (hd l), C_Token.end_pos_of (List.last l))))
       val scan_ident = Scan.one C_Token.is_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
-      val scan_sym_ident = Scan.one C_Token.is_sym_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
+      val scan_sym_ident_not_stack = Scan.one (fn c => C_Token.is_sym_ident c andalso not (C_Token.is_stack1 c) andalso not (C_Token.is_stack2 c)) >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
   in C_Token.read_antiq'
        (Thy_Header.get_keywords' ctxt)
        (C_Parse.!!! (   scan_stack C_Token.is_stack1 --
@@ -1859,7 +1859,7 @@ fun scan_antiq ctxt explicit src =
                      || scan_cmd_hol "INV" C_Parse.term Invariant
                      || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
                      || scan_cmd_hol "RELSPEC" C_Parse.term Relspec
-                     || scan_cmd_hol "MODIFIES" (Scan.repeat (   scan_sym_ident >> pair true
+                     || scan_cmd_hol "MODIFIES" (Scan.repeat (   scan_sym_ident_not_stack >> pair true
                                                               || scan_ident >> pair false))
                                                 Modifies
                      || scan_cmd_hol "DONT_TRANSLATE" (Scan.succeed ()) (K Dont_translate)
