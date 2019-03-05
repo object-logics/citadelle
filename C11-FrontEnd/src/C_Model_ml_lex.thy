@@ -672,7 +672,6 @@ val token_kind_markup0 =
   | ClangC => (Markup.ML_numeral, "")
   | String _ => (Markup.ML_string, "")
   | File _ => (Markup.ML_string, "")
-  | Comment (Right _) => (Markup.ML_comment, "")
   | Sharp _ => (Markup.antiquote, "")
   | Error (msg, _) => (Markup.bad (), msg)
   | _ => (Markup.empty, "");
@@ -711,6 +710,7 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
         :: ((pos, Markup.antiquoted), "")
         :: flat [ maps token_report1 toks1
                 , maps token_report0 toks2]
+   | Comment (Right c) => ((pos, Markup.ML_comment), "") :: (case c of NONE => [] | SOME (_, _, l) => l)
    | x => [let val (markup, txt) = token_kind_markup0 x in ((pos, markup), txt) end]
 
 and token_report0 tok = token_report' false tok
@@ -916,7 +916,7 @@ fun scan_token f1 f2 = Scan.trace f1 >> (fn (v, s) => token (f2 v) s)
 val comments =
      Scan.recover
        (scan_token C_Antiquote.scan_antiq (Comment o Left))
-       (fn msg => Scan.ahead (C_Antiquote.scan_antiq_recover)
+       (fn msg => Scan.ahead C_Antiquote.scan_antiq_recover
                   -- C_Symbol_Pos.scan_comment_no_nest
                   >> (fn (explicit, res) => token (Comment (Right (SOME (explicit, msg, [])))) res)
                || Scan.fail_with (fn _ => fn _ => msg))
@@ -1336,6 +1336,11 @@ datatype T = Token of (Symbol_Pos.text * Position.range) * (Token.kind * Symbol_
 fun pos_of (Token ((_, (pos, _)), _)) = pos;
 fun end_pos_of (Token ((_, (_, pos)), _)) = pos;
 
+fun range_of (toks as tok :: _) =
+      let val pos' = end_pos_of (List.last toks)
+      in Position.range (pos_of tok, pos') end
+  | range_of [] = Position.no_range;
+
 
 (* stopper *)
 
@@ -1375,6 +1380,8 @@ val is_colon = fn Token (_, (Token.Keyword, [(":", _)])) => true
 fun is_proper (Token (_, (Token.Space, _))) = false
   | is_proper (Token (_, (Token.Comment, _))) = false
   | is_proper _ = true;
+
+val is_improper = not o is_proper;
 
 fun is_error' (Token (_, (Token.Error msg, _))) = SOME msg
   | is_error' _ = NONE;
@@ -1510,6 +1517,7 @@ val scan_comment =
 (** token sources **)
 
 fun source_proper src = src |> Source.filter is_proper;
+fun source_improper src = src |> Source.filter is_improper;
 
 local
 
@@ -1576,9 +1584,10 @@ fun explode keywords pos =
 fun read_no_commands'0 keywords syms =
   Source.of_list syms
   |> source' false (Keyword.no_command_keywords keywords)
+  |> source_improper
   |> Source.exhaust
 
-fun read_no_commands' keywords scan syms =
+fun read_no_commands' keywords scan explicit syms =
   Source.of_list syms
   |> source' false (Keyword.no_command_keywords keywords)
   |> source_proper
@@ -1586,17 +1595,21 @@ fun read_no_commands' keywords scan syms =
        stopper
        (Scan.recover
          (Scan.bulk scan)
-         (fn msg => Scan.one (not o is_eof)
-                    >> (fn tok => [Right (pos_of tok, case is_error' tok of SOME msg0 => msg0 ^ " (" ^ msg ^ ")"
-                                                                          | NONE => msg)])))
+         (fn msg =>
+           Scan.one (not o is_eof)
+           >> (fn tok => [Right
+                           let
+                             val msg = case is_error' tok of SOME msg0 => msg0 ^ " (" ^ msg ^ ")"
+                                                           | NONE => msg
+                           in ( msg
+                              , if explicit
+                                then [((pos_of tok, Markup.bad ()), msg)]
+                                else []
+                              , tok)
+                           end])))
   |> Source.exhaust;
 
-fun read_antiq' keywords scan syms =
-  let val res = read_no_commands' keywords (scan >> Left) syms;
-  in if exists (fn Right _ => true | _ => false) res
-     then Right (map_filter (fn Right x => SOME x |_ => NONE) res)
-     else Left (map_filter (fn Left x => SOME x | _ => NONE) res)
-  end;
+fun read_antiq' keywords scan = read_no_commands' keywords (scan >> Left);
 end
 \<close>
 
@@ -1834,44 +1847,48 @@ fun eval_antiquotes (ants, pos) opt_context =
         in ((begin_env @ ml_env @ end_env, ml_body), SOME ctxt') end;
   in ((ml_env, ml_body), opt_ctxt') end;
 
-fun scan_antiq ctxt explicit src =
-  let fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> (fn x => C_Token.content_of' x)) []
+fun scan_antiq ctxt explicit syms =
+  let fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> C_Token.content_of') []
       fun scan_cmd cmd scan =
         Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
         Scan.option (Scan.one C_Token.is_colon) |--
         scan
-      val src0 = Symbol_Pos.implode src
+      val syms0 = Symbol_Pos.implode syms
       fun scan_cmd_hol cmd scan f =
         Scan.trace (Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
                     Scan.option (Scan.one C_Token.is_colon) |--
                     scan)
-        >> (fn (x, l) => Antiq_HOL (f x, src0, Position.range (C_Token.pos_of (hd l), C_Token.end_pos_of (List.last l))))
+        >> (fn (x, l) => (Antiq_HOL (f x, syms0, Position.range (C_Token.pos_of (hd l), C_Token.end_pos_of (List.last l))), l))
       val scan_ident = Scan.one C_Token.is_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
       val scan_sym_ident_not_stack = Scan.one (fn c => C_Token.is_sym_ident c andalso not (C_Token.is_stack1 c) andalso not (C_Token.is_stack2 c)) >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
-  in C_Token.read_antiq'
-       (Thy_Header.get_keywords' ctxt)
-       (C_Parse.!!! (   scan_stack C_Token.is_stack1 --
-                        scan_stack C_Token.is_stack2 --
-                        scan_cmd "hook" C_Parse.ML_source >> (fn ((stack1, stack2), src) => Antiq_stack (Hook (stack1, stack2, src)))
-                     || scan_cmd "setup" C_Parse.ML_source >> (Antiq_stack o Setup)
-                     || scan_cmd_hol "INVARIANT" C_Parse.term Invariant
-                     || scan_cmd_hol "INV" C_Parse.term Invariant
-                     || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
-                     || scan_cmd_hol "RELSPEC" C_Parse.term Relspec
-                     || scan_cmd_hol "MODIFIES" (Scan.repeat (   scan_sym_ident_not_stack >> pair true
-                                                              || scan_ident >> pair false))
-                                                Modifies
-                     || scan_cmd_hol "DONT_TRANSLATE" (Scan.succeed ()) (K Dont_translate)
-                     || scan_cmd_hol "AUXUPD" C_Parse.term Auxupd
-                     || scan_cmd_hol "GHOSTUPD" C_Parse.term Ghostupd
-                     || scan_cmd_hol "SPEC" C_Parse.term Spec
-                     || scan_cmd_hol "END-SPEC" C_Parse.term End_spec
-                     || scan_cmd_hol "CALLS" (Scan.repeat scan_ident) Calls
-                     || scan_cmd_hol "OWNED_BY" scan_ident Owned_by
-                     || (if explicit
-                         then C_Parse.antiq_source >> (fn src => Antiq_ML {start = Position.none, stop = Position.none, range = Input.range_of src, body = Input.source_explode src})
-                         else Scan.fail)))
-       src
+      val keywords = Thy_Header.get_keywords' ctxt
+  in ( C_Token.read_antiq'
+         keywords
+         (C_Parse.!!! (   Scan.trace
+                            (scan_stack C_Token.is_stack1 --
+                             scan_stack C_Token.is_stack2 --
+                             scan_cmd "hook" C_Parse.ML_source) >> (I #>> (fn ((stack1, stack2), syms) => Antiq_stack (Hook (stack1, stack2, syms))))
+                       || Scan.trace (scan_cmd "setup" C_Parse.ML_source) >> (I #>> (Antiq_stack o Setup))
+                       || scan_cmd_hol "INVARIANT" C_Parse.term Invariant
+                       || scan_cmd_hol "INV" C_Parse.term Invariant
+                       || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
+                       || scan_cmd_hol "RELSPEC" C_Parse.term Relspec
+                       || scan_cmd_hol "MODIFIES" (Scan.repeat (   scan_sym_ident_not_stack >> pair true
+                                                                || scan_ident >> pair false))
+                                                  Modifies
+                       || scan_cmd_hol "DONT_TRANSLATE" (Scan.succeed ()) (K Dont_translate)
+                       || scan_cmd_hol "AUXUPD" C_Parse.term Auxupd
+                       || scan_cmd_hol "GHOSTUPD" C_Parse.term Ghostupd
+                       || scan_cmd_hol "SPEC" C_Parse.term Spec
+                       || scan_cmd_hol "END-SPEC" C_Parse.term End_spec
+                       || scan_cmd_hol "CALLS" (Scan.repeat scan_ident) Calls
+                       || scan_cmd_hol "OWNED_BY" scan_ident Owned_by
+                       || (if explicit
+                           then Scan.trace C_Parse.antiq_source >> (I #>> (fn syms => Antiq_ML {start = Position.none, stop = Position.none, range = Input.range_of syms, body = Input.source_explode syms}))
+                           else Scan.fail)))
+         explicit
+         syms
+     , C_Token.read_no_commands'0 keywords syms)
   end
 
 fun print s =
@@ -1937,33 +1954,42 @@ fun eval' accept flags pos ants =
 
       val ants =
         maps (fn Left (pos, antiq as {explicit, body, ...}, cts) =>
-                 (case scan_antiq ctxt explicit body of
-                    Left res => [Left (SOME (C_Token.read_no_commands'0 keywords body, antiq), res)]
-                  | Right res =>
-                      ( explicit
-                      , cat_lines (map (fn (_, m) => m) res)
-                      , if explicit
-                        then maps (fn (pos, m) => [((pos, Markup.bad ()), m)]) res
-                        else [])
-                      |> (fn res => [Left (NONE, [Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) res, cts)))])]))
+                 let val (res, l_comm) = scan_antiq ctxt explicit body
+                 in 
+                   map (Left o pair (antiq, l_comm))
+                       (if forall (fn Right _ => true | _ => false) res then
+                          let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
+                              val (l_report, l_tok) = split_list res
+                          in [(Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, flat l_report), cts))), l_tok)] end
+                        else
+                          map (fn Left x => x
+                                | Right (msg, l_report, tok) =>
+                                    (Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o Right o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
+                              res)
+                 end
                | Right tok => [Right tok])
              ants
 
-      val ants_ml = maps (fn Left (_, l) => maps (fn Antiq_ML a => [Antiquote.Antiq a] | _ => []) l | _ => []) ants
-      val ants_stack = maps (fn Left (_, l) => maps (fn Antiq_stack x => [Left (map_antiq_stack (fn src => (ML_Lex.read_source false src, Input.range_of src)) x)] | _ => []) l | Right tok => [Right tok]) ants
-      val ants_hol = maps (fn Left (_, l) => maps (fn Antiq_HOL x => [x] | _ => []) l | _ => []) ants
-      val ants_none = maps (fn Left (_, l) => maps (fn Antiq_none x => [x] | _ => []) l | _ => []) ants
+      val ants_ml = maps (fn Left (_, (Antiq_ML a, _)) => [(Antiquote.Antiq a)] | _ => []) ants
+      val ants_stack = maps (fn Left (_, (Antiq_stack x, _)) => [Left (map_antiq_stack (fn src => (ML_Lex.read_source false src, Input.range_of src)) x)]
+                              | Right tok => [Right tok]
+                              | _ => [])
+                            ants
+      val ants_hol = maps (fn Left (_, (Antiq_HOL x, _)) => [x] | _ => []) ants
+      val ants_none = maps (fn Left (_, (Antiq_none x, _)) => [x] | _ => []) ants
 
       val _ = Position.reports (Antiquote.antiq_reports ants_ml
-                                @ maps (fn Left (SOME (_, {start, stop, range = (pos, _), ...}), _) =>
+                                @ maps (fn Left (_, (Antiq_none _, _)) => []
+                                         | Left (({start, stop, range = (pos, _), ...}, _), _) =>
                                             [(start, Markup.antiquote),
                                              (stop, Markup.antiquote),
                                              (pos, Markup.language_antiquotation)]
                                          | _ => [])
                                        ants);
       val _ = Position.reports_text (maps C_Lex.token_report ants_none
-                                     @ maps (fn Left (SOME (l_tok, _ ), _) =>
-                                                  maps (C_Token.reports keywords) l_tok
+                                     @ maps (fn Left (_, (Antiq_none _, _)) => []
+                                              | Left ((_, l_tok1), (_, l_tok2)) =>
+                                                  maps (maps (C_Token.reports keywords)) [l_tok1, l_tok2]
                                               | _ => [])
                                             ants);
       val _ = C_Lex.check ants_none;

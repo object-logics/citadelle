@@ -4,11 +4,7 @@ begin
 
 declare[[C_source_trace]]
 
-C\<open>
-int a;
-float b;
-int m() {return 0;}
-\<close>
+section \<open>Basic Coverage of C Code\<close>
 
 C \<comment> \<open>Nesting of comments \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
 /* inside /* inside */ int a = "outside";
@@ -57,6 +53,11 @@ _Pragma /\
 **/("a")
 \<close>
 *)
+
+section \<open>Antiquotations\<close>
+
+subsection \<open>Classic ML\<close>
+
 C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
  /*@con\
 text (**) */ // break of line activated everywhere (also in antiquotations)
@@ -67,13 +68,15 @@ int a = 0; //\
 )\<close>\<close>
 \<close>
 
-C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
+subsection \<open>Actions on the Parsing Stack\<close>
+
+C \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
 int a = (((0 //@ setup \<open>fn _ => fn thy => let in (* */ *) thy end\<close>
-             /*@ setup (*   * /   *) */
+             /*@ setup \<open>K I\<close> (*   * /   *) */
          )));
 \<close>
 
-C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>setup\<close> is executed during SHIFT actions\<close> \<open>
+C \<comment> \<open>\<^theory_text>\<open>setup\<close> is executed during SHIFT actions\<close> \<open>
 int a = (((0))); /*@ setup \<open>fn stack => fn thy =>
                             let
                               val () = warning ("SHIFT  " ^ @{make_string} (length stack - 1) ^ "    +1 ")
@@ -85,7 +88,7 @@ int a = (((0))); /*@ setup \<open>fn stack => fn thy =>
                             in thy end\<close> */
 \<close>
 
-C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close> is executed during REDUCE actions\<close> \<open>
+C \<comment> \<open>\<^theory_text>\<open>hook\<close> is executed during REDUCE actions\<close> \<open>
 int a = (((0
       + 5)))  /*@ hook \<open>fn (_, (value, pos1, pos2)) => fn thy =>
                           let
@@ -97,12 +100,12 @@ int a = (((0
 float b = 7 / 3;
 \<close>
 
-C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close>: pointing to deeper sub-trees in the stack\<close> \<open>
+C \<comment> \<open>Positional navigation: pointing to deeper sub-trees in the stack\<close> \<open>
 int b = 7 / (3) * 50 /*@@@@ hook \<open>@{hook}\<close>
                       */;
 \<close>
 
-C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close>: nesting parsed C code\<close> \<open>
+C \<comment> \<open>Nesting C code in ML\<close> \<open>
 int b = 7 / (3) * 50
   /*@@@@ hook \<open>(hook @{make_string} o tap)
                  (fn _ => C_Outer_Syntax.C
@@ -111,7 +114,7 @@ int b = 7 / (3) * 50
    */;
 \<close>
 
-C \<comment> \<open>Embedding ML in antiquotations\<close> \<comment> \<open>\<^theory_text>\<open>hook\<close>: pointing to sub-trees situated after any part of the code\<close> \<open>
+C \<comment> \<open>Positional navigation: pointing to sub-trees situated after any part of the code\<close> \<open>
 int b = 7 / (3) * 50;
 /*@+++@ hook \<open>@{hook}\<close>*/
 long long f (int a) {
@@ -119,6 +122,141 @@ long long f (int a) {
 }
 int b = 7 / (3) * 50;
 \<close>
+
+subsection \<open>User Defined Commands in the Semantic Verification Space\<close>
+
+C \<comment> \<open>Copyright\<close> \<open>
+/*
+ * Copyright 2014, NICTA
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(NICTA_BSD)
+ */
+\<close>
+
+C \<comment> \<open>\<open>INVARIANT\<close> Inserting an invariant after the \<open>while\<close> loop \<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/testfiles/breakcontinue.c\<close>\<close> \<open>
+int h(int e)
+{
+  while (e < 10)
+    /** INV: "\<lbrace> True \<rbrace>" */
+  {
+    if (e < -10) { continue; }
+    if (e < 0) { break; }
+    e = e - 1;
+  }
+  return e;
+}
+\<close>
+
+C \<comment> \<open>\<open>FNSPEC\<close> Providing a specification before a function \<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/testfiles/list_reverse.c\<close>\<close> \<open>
+typedef unsigned long word_t;
+
+/** FNSPEC reverse_spec:
+  "\<Gamma> \<turnstile>
+    \<lbrace> (list zs \<acute>i)\<^bsup>sep\<^esup> \<rbrace>
+      \<acute>ret__long :== PROC reverse(\<acute>i)
+    \<lbrace> (list (rev zs) (Ptr (scast \<acute>ret__long)))\<^bsup>sep\<^esup> \<rbrace>"
+*/
+
+long reverse(word_t *i)
+{
+  word_t j = 0;
+
+  while (i)
+    /** INV: "\<lbrace> \<exists>xs ys. (list xs \<acute>i \<and>\<^sup>* list ys (Ptr \<acute>j))\<^bsup>sep\<^esup> \<and> rev zs = (rev xs)@ys \<rbrace>" */
+
+  {
+    word_t /** @hook */*k = (word_t*)*i;
+
+    *i = j;
+    j = (word_t)i;
+    i = k;
+  }
+
+  return j;
+}
+\<close>
+
+C \<comment> \<open>\<open>AUXUPD\<close> \<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/testfiles/parse_auxupd.c\<close>\<close> \<open>
+int f(int x)
+{
+  for (int i = 0; i < 10; i++ /** AUXUPD: foo */) {
+    x = x + i;
+  }
+  return x;
+}
+\<close>
+
+C \<comment> \<open>\<open>GHOSTUPD\<close> \<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/testfiles/ghoststate2.c\<close>\<close> \<open>
+int f(int x)
+{
+  /** GHOSTUPD:
+        "(True, (%n. n + 1))" */
+  return x + 3;
+}
+\<close>
+
+C \<comment> \<open>\<open>SPEC\<close> \<open>END-SPEC\<close> \<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/testfiles/parse_spec.c\<close>\<close> \<open>
+int f(int m, int n)
+{
+  int i;
+  i = m;
+  /** SPEC: "\<tau> . \<lbrace> \<tau>. \<acute>i = \<^bsup>\<sigma> \<^esup>m \<rbrace>" */
+  m = n;
+  n = i;
+  /** END-SPEC: "\<lbrace> \<acute>m = \<^bsup>\<tau>\<^esup>n \<and> \<acute>n = \<^bsup>\<tau>\<^esup>i \<rbrace>" */
+  return m + n;
+}
+\<close>
+
+
+C \<comment> \<open>\<open>CALLS\<close> \<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/testfiles/fnptr.c\<close>\<close> \<open>
+int intcaller(int (*ipfn)(void) /** CALLS intcallable2 */)
+{
+  return ipfn();
+}
+\<close>
+
+C \<comment> \<open>\<open>OWNED_BY\<close> \<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/testfiles/jiraver313.c\<close>\<close> \<open>
+int x /** OWNED_BY foo */, y /** OWNED_BY bar */, z;
+
+/* reads/writes x, writes z */
+int f(int i)
+{
+  x += i;
+  z++;
+  return x;
+}
+
+/* reads x & z, writes y */
+int g(int i)
+{
+  y++;
+  return x + i + z;
+}
+\<close>
+
+subsection \<open>Mixing It All Together\<close>
+
+C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
+int x /** OWNED_BY foo */, hh /*@
+  MODIFIES: [*] x
+  hook \<open>fn x => fn thy => thy\<close>
+  setup \<open>fn x => fn thy => thy\<close>
+  OWNED_BY bar
+  theory
+  context
+  hook \<open>@{hook}\<close>
+  \<open>term "a + b"\<close>
+*/, z;
+
+int b = 0;
+\<close>
+
+section \<open>Miscellaneous\<close>
 
 C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>
 # /**/ include  <a\b\\c> // backslash rendered unescaped
