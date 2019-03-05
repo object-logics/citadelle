@@ -2,6 +2,16 @@ theory C2
   imports "../C11-Interface"
 begin
 
+C\<open>
+
+#include <stdio.h>
+#include <stdlib.h>
+
+\<close>
+ML\<open> 
+val (C_ast_simple.CTranslUnit0 (t,u))::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+\<close>
+
 
 C\<open>
 /* @ ensures \result >= x && \result >= y;
@@ -12,6 +22,9 @@ int max(int x, int y) {
 }
 \<close>
 
+ML\<open> 
+val (C_ast_simple.CTranslUnit0 (t,u))::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+\<close>
 
 
 C\<open>
