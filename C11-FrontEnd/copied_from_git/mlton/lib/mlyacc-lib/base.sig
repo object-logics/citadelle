@@ -207,8 +207,8 @@ signature ARG_LEXER1 =
                 type state
            end
         val makeLexer : (int -> (antiq_stack, UserDeclarations.token0) either list)
-                        -> (((UserDeclarations.state * (UserDeclarations.svalue0 * UserDeclarations.pos * UserDeclarations.pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (UserDeclarations.pos * UserDeclarations.pos) list) * UserDeclarations.arg)
-                        -> (UserDeclarations.svalue,UserDeclarations.pos) UserDeclarations.token * (((UserDeclarations.state * (UserDeclarations.svalue0 * UserDeclarations.pos * UserDeclarations.pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (UserDeclarations.pos * UserDeclarations.pos) list) * UserDeclarations.arg)
+                        -> (((UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0 * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (UserDeclarations.pos * UserDeclarations.pos) list) * UserDeclarations.arg)
+                        -> (UserDeclarations.svalue,UserDeclarations.pos) UserDeclarations.token * (((UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0 * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (UserDeclarations.pos * UserDeclarations.pos) list) * UserDeclarations.arg)
    end
 
 signature ARG_LEXER2 =
@@ -391,7 +391,7 @@ signature ARG_PARSER1 =
         type token0
 
         val makeLexer : (int -> (antiq_stack, token0) either list) -> arg
-                        -> ((svalue, pos) Token.token, ((Token.LrTable.state * (svalue0 * pos * pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg) Stream.stream * arg
+                        -> ((svalue, pos) Token.token, ((Token.LrTable.state, svalue0, pos) stack0 * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg) Stream.stream * arg
         val parse : int * ((Token.LrTable.state * (svalue0 * pos * pos)) list * pos * pos -> unit) * pos * (((int * (Token.LrTable.state * (svalue0 * pos * pos))) * (Position.range * ML_Lex.token Antiquote.antiquote list)) * arg -> arg) * (((Token.LrTable.state * (svalue0 * pos * pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg -> arg) * (((pos * pos) list * int) * arg -> arg) * (arg -> (pos * pos) option * arg)
                     -> ((((svalue, pos) Token.token, ((Token.LrTable.state * (svalue0 * pos * pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg) Stream.stream) * arg)
                     -> result * (((svalue, pos) Token.token, ((Token.LrTable.state * (svalue0 * pos * pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg) Stream.stream * arg)
