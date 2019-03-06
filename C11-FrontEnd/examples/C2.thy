@@ -24,6 +24,7 @@ int max(int x, int y) {
 
 ML\<open> 
 val (C_ast_simple.CTranslUnit0 (t,u))::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val u = Hsk_c_parser.decode u
 \<close>
 
 
@@ -256,6 +257,7 @@ open C_ast_simple;
 ML\<open>
 CTranslUnit0;
 val (CTranslUnit0 (t,u))::_ = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val u = Hsk_c_parser.decode u
 val CDeclExt0(x1)::_ = t;
 CDecl0;
  \<close>

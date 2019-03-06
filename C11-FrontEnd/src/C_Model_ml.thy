@@ -241,6 +241,7 @@ sig
 
   (* Language.C.Data.Node *)
   val mkNodeInfo' : Position -> PosLength -> Name -> NodeInfo
+  val decode : NodeInfo -> (class_Pos, string) Either
 
   (* Language.C.Data.Ident *)
   val mkIdent : Position -> string -> Name -> Ident
@@ -336,6 +337,13 @@ struct
   fun mkNodeInfoOnlyPos pos = OnlyPos pos (nopos, ~1)
   fun mkNodeInfo pos name = NodeInfo pos (nopos, ~1) name
   val mkNodeInfo' = NodeInfo
+  val decode =
+   (fn OnlyPos0 (position, _) => position
+     | NodeInfo0 (position, _, _) => position)
+   #> (fn Position0 (_, s, _, _) =>
+            (case C_Env.decode_positions (To_string0 s) of [pos1, pos2] => Left (pos1, pos2)
+                                                         | _ => Right "Expecting 2 elements")
+        | _ => Right "Invalid position")
 
   (* Language.C.Data.Ident *)
   local
