@@ -10,6 +10,7 @@ C\<open>
 \<close>
 ML\<open> 
 val (C_ast_simple.CTranslUnit0 (t,u))::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val u = Hsk_c_parser.decode u
 \<close>
 
 
