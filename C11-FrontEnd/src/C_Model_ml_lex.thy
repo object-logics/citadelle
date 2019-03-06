@@ -1247,8 +1247,7 @@ fun makeLexer input =
               let val (name, arg) = Hsk_c_parser.getNewName arg
                   val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' (pos1, pos2)) s name
               in ( (if Hsk_c_parser.isTypeIdent s arg then
-                     (Position.reports_text [((pos1, Markup.ML_keyword3 |> Markup.keyword_properties), "")];
-                      StrictCLrVals.Tokens.tyident (ident0, pos1, pos2))
+                      StrictCLrVals.Tokens.tyident (ident0, pos1, pos2)
                     else
                       StrictCLrVals.Tokens.ident (ident0, pos1, pos2))
                  , ((stack, stack_ml, stack_pos), arg))

@@ -171,9 +171,12 @@ datatype antiq_hol = Invariant of string (* term *)
 
 structure C_Env = struct
 
-type env = { tyidents : Symtab.set
+type env = { tyidents : Symtab.set (* approximative detection of types *)
            , scopes : Symtab.set list
            , namesupply : int }
+(* NOTE: The distinction between type variable or identifier may be inaccurate,
+         as we are just in a lexing process.
+         Another typing phase is afterwards required to further restrict the parsed language. *)
 
 type T = { env : env
          , context : Context.generic
@@ -223,7 +226,11 @@ fun get_namesupply env = #env env |> #namesupply
 
 val empty : env = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
 fun make context = {env = empty, context = context, pos_computed = NONE, pos_stack = ([], 0), next_eval = []}
-fun string_of (env : env) = @{make_string} env
+fun string_of (env : env) = 
+  let fun dest tab = Symtab.dest tab |> map #1
+  in @{make_string} ( ("tyidents", dest (#tyidents env))
+                    , ("scopes", map dest (#scopes env))
+                    , ("namesupply", #namesupply env)) end
 
 (**)
 

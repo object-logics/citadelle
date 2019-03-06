@@ -158,11 +158,19 @@ fun setup s make_string (stack, env) thy =
           |> app (fn (i, (value, pos1, pos2)) => writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
     val () = writeln ("ENV " ^ C_Env.string_of env)
   in thy end
+
+fun env s _ (stack, env) thy =
+  let
+    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
+    val () = writeln ("ENV " ^ C_Env.string_of env)
+  in thy end
 \<close>
 
 setup \<open>ML_Antiquotation.inline @{binding hook}
                                (Args.context >> K ("hook " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
 setup \<open>ML_Antiquotation.inline @{binding setup}
                                (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("setup " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
+setup \<open>ML_Antiquotation.inline @{binding env}
+                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("env " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
 
 end
