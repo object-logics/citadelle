@@ -4,7 +4,7 @@ begin
 
 declare[[C_source_trace]]
 
-section \<open>Basic Coverage of C Code\<close>
+section \<open>Regular C Code\<close>
 
 C \<comment> \<open>Nesting of comments \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
 /* inside /* inside */ int a = "outside";
@@ -232,16 +232,30 @@ int g(int i)
 
 subsection \<open>Mixing It All Together\<close>
 
+ML\<open>
+structure Example_Data = Theory_Data (type T = string list
+                                      val empty = [] val extend = I val merge = #2)
+fun add_ex s1 s2 =
+  Example_Data.map (cons s2)
+  #> (fn thy => let val () = warning (s1 ^ s2)
+                    val () = app (fn s => writeln ("  Data content: " ^ s)) (Example_Data.get thy)
+                in thy end)
+\<close>
+
+setup \<open>Example_Data.put []\<close>
+
+declare[[ML_source_trace]]
+
 C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
 int x /** OWNED_BY foo */, hh /*@
   MODIFIES: [*] x
-  setup \<open>@{setup "test_2"}\<close>
-  +++++@ hook \<open>@{hook}\<close>
+  setup \<open>@{setup "evaluation of 2_setup"}\<close>
+  +++++@ hook \<open>fn x => @{hook} x #> add_ex "evaluation of " "2_hook"\<close>
   OWNED_BY bar
   theory
   context
-  hook \<open>@{hook}\<close>
-  setup \<open>@{setup "test_1"}\<close>
+  hook \<open>fn x => @{hook} x #> add_ex "evaluation of " "1_hook"\<close>
+  setup \<open>@{setup "evaluation of 1_setup"}\<close>
   \<open>term "a + b"\<close>
 */, z;
 
