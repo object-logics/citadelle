@@ -170,37 +170,62 @@ datatype antiq_hol = Invariant of string (* term *)
                    | Owned_by of text_range
 
 structure C_Env = struct
-type T = { tyidents : Symtab.set
-         , scopes : Symtab.set list
-         , namesupply : int
+
+type env = { tyidents : Symtab.set
+           , scopes : Symtab.set list
+           , namesupply : int }
+
+type T = { env : env
          , context : Context.generic
          , pos_computed : class_Pos option
          , pos_stack : class_Pos list * int
          , next_eval : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list }
 
-fun map_tyidents f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {tyidents = f tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
+(**)
 
-fun map_scopes f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {tyidents = tyidents, scopes = f scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
+fun map_env f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {env = f env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
 
-fun map_namesupply f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {tyidents = tyidents, scopes = scopes, namesupply = f namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
+fun map_context f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {env = env, context = f context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
 
-fun map_context f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = f context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
+fun map_pos_computed f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {env = env, context = context, pos_computed = f pos_computed, pos_stack = pos_stack, next_eval = next_eval}
 
-fun map_pos_computed f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = f pos_computed, pos_stack = pos_stack, next_eval = next_eval}
+fun map_pos_stack f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {env = env, context = context, pos_computed = pos_computed, pos_stack = f pos_stack, next_eval = next_eval}
 
-fun map_pos_stack f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = f pos_stack, next_eval = next_eval}
+fun map_next_eval f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
+  {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = f next_eval}
 
-fun map_next_eval f {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = f next_eval}
+(**)
 
-fun make context =
-  {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), context = context, pos_computed = NONE, pos_stack = ([], 0), next_eval = []}
+fun map_env_tyidents f {tyidents = tyidents, scopes = scopes, namesupply = namesupply} =
+  {tyidents = f tyidents, scopes = scopes, namesupply = namesupply}
+
+fun map_env_scopes f {tyidents = tyidents, scopes = scopes, namesupply = namesupply} =
+  {tyidents = tyidents, scopes = f scopes, namesupply = namesupply}
+
+fun map_env_namesupply f {tyidents = tyidents, scopes = scopes, namesupply = namesupply} =
+  {tyidents = tyidents, scopes = scopes, namesupply = f namesupply}
+
+(**)
+
+fun map_tyidents f = map_env (map_env_tyidents f)
+fun map_scopes f = map_env (map_env_scopes f)
+fun map_namesupply f = map_env (map_env_namesupply f)
+
+fun get_tyidents env = #env env |> #tyidents
+fun get_scopes env = #env env |> #scopes
+fun get_namesupply env = #env env |> #namesupply
+
+(**)
+
+val empty : env = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
+fun make context = {env = empty, context = context, pos_computed = NONE, pos_stack = ([], 0), next_eval = []}
+fun string_of (env : env) = @{make_string} env
+
+(**)
 
 val encode_positions =
      map (Position.dest
@@ -377,18 +402,18 @@ struct
 
   (* Language.C.Parser.ParserMonad *)
   fun getNewName env =
-    (Name (#namesupply env), C_Env.map_namesupply (fn x => x + 1) env)
+    (Name (C_Env.get_namesupply env), C_Env.map_namesupply (fn x => x + 1) env)
   fun addTypedef (Ident0 (i,_,_)) env =
     ((), C_Env.map_tyidents (Symtab.update (To_string0 i, ())) env)
   fun shadowTypedef (Ident0 (i,_,_)) env =
     ((), C_Env.map_tyidents (Symtab.delete_safe (To_string0 i)) env)
-  fun isTypeIdent s0 {tyidents, ...} = Symtab.exists (fn (s1, _) => s0 = s1) tyidents
+  fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env.get_tyidents
   fun enterScope env =
-    ((), C_Env.map_scopes (cons (#tyidents env)) env)
+    ((), C_Env.map_scopes (cons (C_Env.get_tyidents env)) env)
   fun leaveScope env = 
-    case #scopes env of [] => error "leaveScope: already in global scope"
-                      | tyidents :: scopes => ((), env |> C_Env.map_scopes (K scopes)
-                                                       |> C_Env.map_tyidents (K tyidents))
+    case C_Env.get_scopes env of [] => error "leaveScope: already in global scope"
+                               | tyidents :: scopes => ((), env |> C_Env.map_scopes (K scopes)
+                                                                |> C_Env.map_tyidents (K tyidents))
   val getCurrentPosition = return NoPosition
 
   (* Language.C.Parser.Tokens *)
@@ -511,6 +536,8 @@ structure List = struct
 end
 
 datatype ('a, 'b) either = Left of 'a | Right of 'b
+type ('LrTable_state, 'a, 'Position_T) stack_elem0 = 'LrTable_state * ('a * 'Position_T * 'Position_T)
+type ('LrTable_state, 'a, 'Position_T) stack0 = ('LrTable_state, 'a, 'Position_T) stack_elem0 list
 type cString = CString
 type cChar = CChar
 type cInteger = CInteger

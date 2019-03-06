@@ -1132,13 +1132,13 @@ text\<open>The parser consists of a generic module @{file "../copied_from_git/ml
 which interprets a automata-like format generated from smlyacc.\<close>
 
 ML\<open>
-type 'a stack_elem = (LrTable.state * ('a * Position.T * Position.T))
+type 'a stack_elem = (LrTable.state, 'a, Position.T) stack_elem0
 
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
 structure Stack_Data = Theory_Data
-  (type T = StrictCLrVals.Tokens.svalue0 stack_elem list
-   val empty = []
+  (type T = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0 * C_Env.env
+   val empty = ([], C_Env.empty)
    val extend = I
    val merge = #2)
 
@@ -1190,16 +1190,18 @@ fun makeLexer input =
               drain
                 ( (stack, stack_ml, stack_pos)
                 , fold (fn Setup (ants, range) =>
-                           C_Env.map_context
-                             let val setup = "setup" in
-                               I #> Context.map_theory (Stack_Data.put stack)
-                                 #> ML_Context.expression
-                                      range
-                                      setup
-                                      "Stack_Data.T -> theory -> theory"
-                                      ("Context.map_theory (fn thy => " ^ setup ^ " (Stack_Data.get thy) thy)")
-                                      ants
-                             end
+                          (fn arg =>
+                             C_Env.map_context
+                               let val setup = "setup" in
+                                 I #> Context.map_theory (Stack_Data.put (stack, #env arg))
+                                   #> ML_Context.expression
+                                        range
+                                        setup
+                                        "Stack_Data.T -> theory -> theory"
+                                        ("Context.map_theory (fn thy => " ^ setup ^ " (Stack_Data.get thy) thy)")
+                                        ants
+                               end
+                               arg)
                          | Hook (syms_shift, syms, (ants, range)) =>
                            C_Env.map_next_eval
                                (fn next_eval => 
@@ -1291,17 +1293,19 @@ structure P = struct
             end
         , Position.none
         , uncurry (fn ((rule, stack0), (range, ants)) =>
+                   fn arg =>
                      C_Env.map_context
-                       let val stack = [stack0]
+                       let val stack = ([stack0], #env arg)
                            val hook = "hook" in
                          I #> Context.map_theory (Stack_Data.put stack)
                            #> ML_Context.expression
                                 range
                                 hook
                                 (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
-                                ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
+                                ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
                                 ants
-                       end)
+                       end
+                       arg)
         , uncurry (fn (stack, _, _) =>
             C_Env.map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
         , fn (stack, env) => env |> C_Env.map_pos_stack (K stack) |> C_Env.map_pos_computed (K NONE)

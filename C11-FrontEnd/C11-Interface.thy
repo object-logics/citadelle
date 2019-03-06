@@ -148,7 +148,7 @@ fun hook make_string f (_, (value, pos1, pos2)) thy =
                                     |> Position.range_position, Markup.intensify), "")]
   in f thy end
 
-fun setup s make_string stack thy =
+fun setup s make_string (stack, env) thy =
   let
     val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
     val () = stack
@@ -156,6 +156,7 @@ fun setup s make_string stack thy =
           |> #2
           |> map_index I
           |> app (fn (i, (value, pos1, pos2)) => writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
+    val () = writeln ("ENV " ^ C_Env.string_of env)
   in thy end
 \<close>
 
