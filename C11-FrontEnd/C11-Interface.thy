@@ -147,8 +147,21 @@ fun hook make_string f (_, (value, pos1, pos2)) thy =
     val () = Position.reports_text [((Position.range (pos1, pos2) 
                                     |> Position.range_position, Markup.intensify), "")]
   in f thy end
-\<close>
-setup\<open>ML_Antiquotation.inline @{binding hook} (Args.context >> K ("hook " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
 
+fun setup s make_string stack thy =
+  let
+    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
+    val () = stack
+          |> split_list
+          |> #2
+          |> map_index I
+          |> app (fn (i, (value, pos1, pos2)) => writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
+  in thy end
+\<close>
+
+setup \<open>ML_Antiquotation.inline @{binding hook}
+                               (Args.context >> K ("hook " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
+setup \<open>ML_Antiquotation.inline @{binding setup}
+                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("setup " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
 
 end

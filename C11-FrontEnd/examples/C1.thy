@@ -77,15 +77,7 @@ int a = (((0 //@ setup \<open>fn _ => fn thy => let in (* */ *) thy end\<close>
 \<close>
 
 C \<comment> \<open>\<^theory_text>\<open>setup\<close> is executed during SHIFT actions\<close> \<open>
-int a = (((0))); /*@ setup \<open>fn stack => fn thy =>
-                            let
-                              val () = warning ("SHIFT  " ^ @{make_string} (length stack - 1) ^ "    +1 ")
-                              val () = stack
-                                    |> split_list
-                                    |> #2
-                                    |> map_index I
-                                    |> app (fn (i, (value, pos1, pos2)) => writeln ("   " ^ @{make_string} (length stack - i) ^ " " ^ @{make_string} value ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
-                            in thy end\<close> */
+int a = (((0))); /*@ setup \<open>@{setup}\<close> */
 \<close>
 
 C \<comment> \<open>\<^theory_text>\<open>hook\<close> is executed during REDUCE actions\<close> \<open>
@@ -167,9 +159,8 @@ long reverse(word_t *i)
 
   while (i)
     /** INV: "\<lbrace> \<exists>xs ys. (list xs \<acute>i \<and>\<^sup>* list ys (Ptr \<acute>j))\<^bsup>sep\<^esup> \<and> rev zs = (rev xs)@ys \<rbrace>" */
-
   {
-    word_t /** @hook */*k = (word_t*)*i;
+    word_t *k = (word_t*)*i;
 
     *i = j;
     j = (word_t)i;
@@ -244,12 +235,13 @@ subsection \<open>Mixing It All Together\<close>
 C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
 int x /** OWNED_BY foo */, hh /*@
   MODIFIES: [*] x
-  hook \<open>fn x => fn thy => thy\<close>
-  setup \<open>fn x => fn thy => thy\<close>
+  setup \<open>@{setup "test_2"}\<close>
+  +++++@ hook \<open>@{hook}\<close>
   OWNED_BY bar
   theory
   context
   hook \<open>@{hook}\<close>
+  setup \<open>@{setup "test_1"}\<close>
   \<open>term "a + b"\<close>
 */, z;
 

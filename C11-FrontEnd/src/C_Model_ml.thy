@@ -155,7 +155,7 @@ datatype 'ml_source_range antiq_stack0 = Setup of 'ml_source_range
 fun map_antiq_stack f = fn Setup x => Setup (f x)
                          | Hook (l1, l2, x) => Hook (l1, l2, f x)
 
-type antiq_stack = ml_source_range antiq_stack0
+type antiq_stack = ml_source_range antiq_stack0 list
 
 datatype antiq_hol = Invariant of string (* term *)
                    | Fnspec of text_range (* ident *) * string (* term *)

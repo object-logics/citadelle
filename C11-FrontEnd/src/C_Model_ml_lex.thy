@@ -1186,34 +1186,36 @@ fun makeLexer input =
             fun return0 x = (x, ((stack, stack_ml, stack_pos), arg))
         in
           case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
-          of SOME (Left (Setup (ants, range))) =>
-               let val setup = "setup" in
-                 #context arg
-                 |> Context.map_theory (Stack_Data.put stack)
-                 |> ML_Context.expression
-                      range
-                      setup
-                      "Stack_Data.T -> theory -> theory"
-                      ("Context.map_theory (fn thy => " ^ setup ^ " (Stack_Data.get thy) thy)")
-                      ants
-                 |> (fn context => drain ((stack, stack_ml, stack_pos), C_Env.map_context (K context) arg))
-               end
-           | SOME (Left (Hook (syms_shift, syms, (ants, range)))) =>
-               drain ( (stack, stack_ml, stack_pos)
-                     , C_Env.map_next_eval
-                         (fn next_eval => 
-                          case
-                             fold (fn _ => fn (eval1, eval2) =>
-                                 (case eval2 of e2 :: eval2 => (e2, eval2)
-                                              | [] => ([], []))
-                                 |>> (fn e1 => e1 :: eval1))
-                               syms_shift
-                               ([], next_eval)
-                          of (eval1, eval2) => fold cons
-                                                    eval1
-                                                    (case eval2 of e :: es => ((syms_shift, syms, range, ants) :: e) :: es
-                                                                 | [] => [[(syms_shift, syms, range, ants)]]))
-                         arg)
+          of SOME (Left l_antiq) =>
+              drain
+                ( (stack, stack_ml, stack_pos)
+                , fold (fn Setup (ants, range) =>
+                           C_Env.map_context (
+                             let val setup = "setup" in
+                               I #> Context.map_theory (Stack_Data.put stack)
+                                 #> ML_Context.expression
+                                      range
+                                      setup
+                                      "Stack_Data.T -> theory -> theory"
+                                      ("Context.map_theory (fn thy => " ^ setup ^ " (Stack_Data.get thy) thy)")
+                                      ants
+                             end)
+                         | Hook (syms_shift, syms, (ants, range)) =>
+                           C_Env.map_next_eval
+                               (fn next_eval => 
+                                case
+                                   fold (fn _ => fn (eval1, eval2) =>
+                                       (case eval2 of e2 :: eval2 => (e2, eval2)
+                                                    | [] => ([], []))
+                                       |>> (fn e1 => e1 :: eval1))
+                                     syms_shift
+                                     ([], next_eval)
+                                of (eval1, eval2) => fold cons
+                                                          eval1
+                                                          (case eval2 of e :: es => ((syms_shift, syms, range, ants) :: e) :: es
+                                                                       | [] => [[(syms_shift, syms, range, ants)]])))
+                       l_antiq
+                       arg)
            | NONE => 
               let val () =
                     fold (uncurry
@@ -1956,40 +1958,46 @@ fun eval' accept flags pos ants =
         maps (fn Left (pos, antiq as {explicit, body, ...}, cts) =>
                  let val (res, l_comm) = scan_antiq ctxt explicit body
                  in 
-                   map (Left o pair (antiq, l_comm))
-                       (if forall (fn Right _ => true | _ => false) res then
-                          let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
-                              val (l_report, l_tok) = split_list res
-                          in [(Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, flat l_report), cts))), l_tok)] end
-                        else
-                          map (fn Left x => x
-                                | Right (msg, l_report, tok) =>
-                                    (Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o Right o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
-                              res)
+                   [ Left
+                       ( antiq
+                       , l_comm
+                       , if forall (fn Right _ => true | _ => false) res then
+                           let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
+                               val (l_report, l_tok) = split_list res
+                           in [(Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, flat l_report), cts))), l_tok)] end
+                         else
+                           map (fn Left x => x
+                                 | Right (msg, l_report, tok) =>
+                                     (Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o Right o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
+                               res) ]
                  end
                | Right tok => [Right tok])
              ants
 
-      val ants_ml = maps (fn Left (_, (Antiq_ML a, _)) => [(Antiquote.Antiq a)] | _ => []) ants
-      val ants_stack = maps (fn Left (_, (Antiq_stack x, _)) => [Left (map_antiq_stack (fn src => (ML_Lex.read_source false src, Input.range_of src)) x)]
-                              | Right tok => [Right tok]
-                              | _ => [])
-                            ants
-      val ants_hol = maps (fn Left (_, (Antiq_HOL x, _)) => [x] | _ => []) ants
-      val ants_none = maps (fn Left (_, (Antiq_none x, _)) => [x] | _ => []) ants
+      fun map_ants f1 f2 = maps (fn Left (_, _, l) => f1 l | Right tok => f2 tok) ants
+      fun map_ants' f1 = map_ants (maps f1) (K [])
+
+      val ants_ml = map_ants' (fn (Antiq_ML a, _) => [Antiquote.Antiq a] | _ => [])
+      val ants_stack =
+        map_ants (single o Left o maps (fn (Antiq_stack x, _) =>
+                                             [map_antiq_stack (fn src => (ML_Lex.read_source false src, Input.range_of src)) x]
+                                         | _ => []))
+                 (single o Right)
+      val ants_hol = map_ants' (fn (Antiq_HOL x, _) => [x] | _ => [])
+      val ants_none = map_ants' (fn (Antiq_none x, _) => [x] | _ => [])
 
       val _ = Position.reports (Antiquote.antiq_reports ants_ml
-                                @ maps (fn Left (_, (Antiq_none _, _)) => []
-                                         | Left (({start, stop, range = (pos, _), ...}, _), _) =>
+                                @ maps (fn Left (_, _, [(Antiq_none _, _)]) => []
+                                         | Left ({start, stop, range = (pos, _), ...}, _, _) =>
                                             [(start, Markup.antiquote),
                                              (stop, Markup.antiquote),
                                              (pos, Markup.language_antiquotation)]
                                          | _ => [])
                                        ants);
       val _ = Position.reports_text (maps C_Lex.token_report ants_none
-                                     @ maps (fn Left (_, (Antiq_none _, _)) => []
-                                              | Left ((_, l_tok1), (_, l_tok2)) =>
-                                                  maps (maps (C_Token.reports keywords)) [l_tok1, l_tok2]
+                                     @ maps (fn Left (_, _, [(Antiq_none _, _)]) => []
+                                              | Left (_, l, ls) =>
+                                                  maps (maps (C_Token.reports keywords)) (l :: map #2 ls)
                                               | _ => [])
                                             ants);
       val _ = C_Lex.check ants_none;
