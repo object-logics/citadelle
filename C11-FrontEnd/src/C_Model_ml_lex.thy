@@ -244,7 +244,13 @@ struct
 
 (* datatype antiquote *)
 
-type antiq = {explicit: bool, start: Position.T, stop: Position.T, range: Position.range, body: Symbol_Pos.T list}
+type antiq = { explicit: bool
+             , start: Position.T
+             , stop: Position.T
+             , range: Position.range
+             , body: Symbol_Pos.T list
+             , body_begin: Symbol_Pos.T list
+             , body_end: Symbol_Pos.T list }
 
 (* scan *)
 
@@ -281,16 +287,21 @@ val scan_antiq_body_inline_recover =
 fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
 
 fun scan_antiq_multi scan =
-  Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- scan -- Symbol_Pos.scan_pos --
-    Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
-      (Scan.repeats scan_antiq_body_multi -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos)))
+  Symbol_Pos.scan_pos
+  -- (Scan.trace ($$ par_l |-- $$ "*" |-- scan)
+      -- Symbol_Pos.scan_pos
+      -- Symbol_Pos.!!! (fn () => err_prefix ^ "missing closing antiquotation")
+                        (Scan.repeats scan_antiq_body_multi
+                         -- Symbol_Pos.scan_pos
+                         -- ($$$ "*" @@@ $$$ par_r)
+                         -- Symbol_Pos.scan_pos))
 
 fun scan_antiq_multi_recover scan =
   Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- scan -- Symbol_Pos.scan_pos --
       (Scan.repeats scan_antiq_body_multi_recover -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos)))
 
 fun scan_antiq_inline scan =
-  (Symbol_Pos.scan_pos --| $$ "/" --| $$ "/" -- scan
+  (Symbol_Pos.scan_pos -- Scan.trace ($$ "/" |-- $$ "/" |-- scan)
   -- Symbol_Pos.scan_pos
   -- Scan.repeats scan_antiq_body_inline -- Symbol_Pos.scan_pos)
 
@@ -317,19 +328,23 @@ val scan_control =
 
 val scan_antiq =
   scan_antiq_multi ($$$ "@" >> K true || scan_body1 >> K false)
-  >> (fn (pos1, ((explicit, pos2), ((body, pos3), pos4))) =>
+  >> (fn (pos1, (((explicit, body_begin), pos2), (((body, pos3), body_end), pos4))) =>
       {explicit = explicit,
        start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos4),
        range = Position.range (pos1, pos4),
-       body = body}) ||
+       body = body,
+       body_begin = body_begin,
+       body_end = body_end}) ||
   scan_antiq_inline ($$$ "@" >> K true || $$$ "*" >> K false)
-  >> (fn ((((pos1, explicit), pos2), body), pos3) => 
+  >> (fn ((((pos1, (explicit, body_begin)), pos2), body), pos3) => 
       {explicit = explicit,
        start = Position.range_position (pos1, pos2),
        stop = Position.range_position (pos3, pos3),
        range = Position.range (pos1, pos3),
-       body = body})
+       body = body,
+       body_begin = body_begin,
+       body_end = []})
 
 val scan_antiq_recover =
   scan_antiq_multi_recover ($$$ "@" >> K true || scan_body1 >> K false) >> (fn (_, ((explicit, _), _)) => explicit) ||

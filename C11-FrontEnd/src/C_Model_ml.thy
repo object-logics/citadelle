@@ -271,7 +271,7 @@ sig
   (* Language.C.Data.Position *)
   val posOf : 'a -> Position
   val posOf' : bool -> class_Pos -> Position * int
-  val make_comment : string -> Position.range -> Comment
+  val make_comment : Symbol_Pos.T list -> Symbol_Pos.T list -> Symbol_Pos.T list -> Position.range -> Comment
 
   (* Language.C.Data.Node *)
   val mkNodeInfo' : Position -> PosLength -> Name -> NodeInfo
@@ -370,8 +370,10 @@ struct
        , C_Env.map_pos_computed (K (SOME (pos1a, pos2b))) env) end
   val posOf''' = posOf'' o Left
   val internalPos = InternalPosition
-  fun make_comment comm pos =
-    Comment (posOf' false pos |> #1, From_string comm, MultiLine)
+  fun make_comment body_begin body body_end range =
+    Comment ( posOf' false range |> #1
+            , From_string (Symbol_Pos.implode (body_begin @ body @ body_end))
+            , case body_end of [] => SingleLine | _ => MultiLine)
 
   (* Language.C.Data.Node *)
   val undefNode = OnlyPos nopos (nopos, ~1)

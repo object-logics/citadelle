@@ -65,8 +65,8 @@ val eval_source =
   C_Context.eval_source
     (fn l_comm => fn (_, (res, _, _)) => fn context => 
       ( Context.theory_name (Context.theory_of context)
-      , (res, map (fn ({body = body, range = range, ...}, _) =>
-                     Hsk_c_parser.make_comment (Symbol_Pos.implode body) range)
+      , (res, map (fn ({body_begin, body, body_end, range, ...}, _) =>
+                     Hsk_c_parser.make_comment body_begin body body_end range)
                   l_comm))
       |> Symtab.update_list (op =)
       |> C11_core.map_tab
