@@ -110,7 +110,7 @@ type 'a Reversed = 'a
 datatype CDeclrR = CDeclrR0 of C_ast_simple.ident C_ast_simple.optiona * NodeInfo C_ast_simple.cDerivedDeclarator list Reversed * NodeInfo C_ast_simple.cStringLiteral C_ast_simple.optiona * NodeInfo C_ast_simple.cAttribute list * NodeInfo
 fun CDeclrR ide l s a n = CDeclrR0 (ide, l, s, a, n)
 type 'a Maybe = 'a C_ast_simple.optiona
-datatype 'a Located = Located of 'a * C_ast_simple.position
+datatype 'a Located = Located of 'a * (C_ast_simple.position * (C_ast_simple.position * int))
 type ClangCVersion = C_ast_simple.clangCVersion
 type Ident = C_ast_simple.ident
 type Position = C_ast_simple.position
@@ -128,6 +128,7 @@ type 'a CConstant = 'a C_ast_simple.cConstant
 type ('a, 'b) Either = ('a, 'b) C_ast_simple.either
 type CIntRepr = C_ast_simple.cIntRepr
 type CIntFlag = C_ast_simple.cIntFlag
+type Comment = C_ast_simple.comment
 (**)
 val reverse = rev
 val Nothing = C_ast_simple.None
@@ -269,14 +270,15 @@ sig
 
   (* Language.C.Data.Position *)
   val posOf : 'a -> Position
-  val posOf' : class_Pos -> Position
+  val posOf' : bool -> class_Pos -> Position * int
+  val make_comment : string -> Position.range -> Comment
 
   (* Language.C.Data.Node *)
   val mkNodeInfo' : Position -> PosLength -> Name -> NodeInfo
   val decode : NodeInfo -> (class_Pos, string) Either
 
   (* Language.C.Data.Ident *)
-  val mkIdent : Position -> string -> Name -> Ident
+  val mkIdent : Position * int -> string -> Name -> Ident
   val internalIdent : string -> Ident
 
   (* Language.C.Syntax.AST *)
@@ -354,27 +356,35 @@ struct
   (* Language.C.Data.Position *)
   val nopos = NoPosition
   fun posOf _ = NoPosition
-  fun posOf' (pos1, pos2) = Position 0 (From_string (C_Env.encode_positions [pos1, pos2])) 0 0
-  fun posOf'' i env =
+  fun posOf' mk_range =
+    (if mk_range then Position.range else I)
+    #> (fn (pos1, pos2) =>
+          let val {offset = offset, end_offset = end_offset, ...} = Position.dest pos1
+          in (Position offset (From_string (C_Env.encode_positions [pos1, pos2])) 0 0, end_offset - offset) end)
+  fun posOf'' node env =
     let val (stack, len) = #pos_stack env
-        val pos = if len <= 0 then (Position.none, Position.none) else nth stack (len - i - 1)
-    in (posOf' pos, C_Env.map_pos_computed (K (SOME pos)) env) end
+        val (mk_range, (pos1a, pos1b)) = case node of Left i => (true, nth stack (len - i - 1))
+                                                    | Right range => (false, range)
+        val (pos2a, pos2b) = nth stack 0
+    in ( (posOf' mk_range (pos1a, pos1b) |> #1, posOf' true (pos2a, pos2b))
+       , C_Env.map_pos_computed (K (SOME (pos1a, pos2b))) env) end
+  val posOf''' = posOf'' o Left
   val internalPos = InternalPosition
+  fun make_comment comm pos =
+    Comment (posOf' false pos |> #1, From_string comm, MultiLine)
 
   (* Language.C.Data.Node *)
-  val dest_node_first_pos =
-    fn OnlyPos0 (position, _) => position
-     | NodeInfo0 (position, _, _) => position
   val undefNode = OnlyPos nopos (nopos, ~1)
   fun mkNodeInfoOnlyPos pos = OnlyPos pos (nopos, ~1)
   fun mkNodeInfo pos name = NodeInfo pos (nopos, ~1) name
   val mkNodeInfo' = NodeInfo
   val decode =
-   (fn OnlyPos0 (position, _) => position
-     | NodeInfo0 (position, _, _) => position)
-   #> (fn Position0 (_, s, _, _) =>
-            (case C_Env.decode_positions (To_string0 s) of [pos1, pos2] => Left (pos1, pos2)
-                                                         | _ => Right "Expecting 2 elements")
+   (fn OnlyPos0 range => range
+     | NodeInfo0 (pos1, (pos2, len2), _) => (pos1, (pos2, len2)))
+   #> (fn (Position0 (_, s1, _, _), (Position0 (_, s2, _, _), _)) =>
+            (case (C_Env.decode_positions (To_string0 s1), C_Env.decode_positions (To_string0 s2))
+             of ([pos1, _], [_, pos2]) => Left (Position.range (pos1, pos2))
+              | _ => Right "Expecting 2 elements")
         | _ => Right "Invalid position")
 
   (* Language.C.Data.Ident *)
@@ -394,11 +404,10 @@ struct
                                      + ord c1)
                                     mod bits28)
                                    + (quad s mod bits28)
+    fun internalIdent0 pos s = Ident (From_string s, quad (Symbol.explode s), pos)
   in
-  fun mkIdent pos s name =
-    let val s' = Symbol.explode s
-    in Ident (From_string s, quad s', mkNodeInfo' pos (pos, length s') name) end
-  fun internalIdent s = Ident (From_string s, quad (Symbol.explode s), mkNodeInfoOnlyPos internalPos)
+  fun mkIdent (pos, len) s name = internalIdent0 (mkNodeInfo' pos (pos, len) name) s
+  val internalIdent = internalIdent0 (mkNodeInfoOnlyPos internalPos)
   end
 
   (* Language.C.Syntax.AST *)
@@ -431,20 +440,22 @@ struct
 
   (* Language.C.Parser.Parser *)
   fun reverseList x = rev x
-  fun L a i = posOf'' i #>> curry Located a
+  fun L a i = posOf''' i #>> curry Located a
   fun unL (Located (a, _)) = a
-  fun withNodeInfo0 pos mkAttrNode =
+  fun withNodeInfo0 (pos1, (pos2, len2)) mkAttrNode =
     bind
       getNewName
       (fn name =>
-        return (mkAttrNode (NodeInfo pos (NoPosition, 0) name)))
-  fun withNodeInfo node mkAttrNode env = let val (pos, env) = posOf'' node env
-                                         in withNodeInfo0 pos mkAttrNode env end
-  fun withNodeInfo_CExtDecl decl =
-    withNodeInfo0 (dest_node_first_pos (case decl of CDeclExt0 (CDecl0 (_, _, node)) => node
-                                                   | CDeclExt0 (CStaticAssert0 (_, _, node)) => node
-                                                   | CFDefExt0 (CFunDef0 (_, _, _, _, node)) => node
-                                                   | CAsmExt0 (_, node) => node))
+        return (mkAttrNode (NodeInfo pos1 (pos2, len2) name)))
+  fun withNodeInfo0' node mkAttrNode env = let val (range, env) = posOf'' node env
+                                           in withNodeInfo0 range mkAttrNode env end
+  fun withNodeInfo x = withNodeInfo0' (Left x)
+  fun withNodeInfo' x = withNodeInfo0' (Right (case decode x of Left x => x | Right msg => error msg))
+  fun withNodeInfo_CExtDecl x =
+   (withNodeInfo' o (fn CDeclExt0 (CDecl0 (_, _, node)) => node
+                      | CDeclExt0 (CStaticAssert0 (_, _, node)) => node
+                      | CFDefExt0 (CFunDef0 (_, _, _, _, node)) => node
+                      | CAsmExt0 (_, node) => node)) x
   val get_node_CExpr =
     fn CComma0 (_, a) => a | CAssign0 (_, _, _, a) => a | CCond0 (_, _, _, a) => a |
     CBinary0 (_, _, _, a) => a | CCast0 (_, _, a) => a | CUnary0 (_, _, a) => a | CSizeofExpr0 (_, a) => a | CSizeofType0 (_, a) => a | CAlignofExpr0 (_, a) => a | CAlignofType0 (_, a) => a | CComplexReal0 (_, a) => a | CComplexImag0 (_, a) => a | CIndex0 (_, _, a) => a |
@@ -455,7 +466,7 @@ struct
      of CBuiltinVaArg0 (_, _, a) => a
      | CBuiltinOffsetOf0 (_, _, a) => a
      | CBuiltinTypesCompatible0 (_, _, a) => a)
-  fun withNodeInfo_CExpr x = withNodeInfo0 (dest_node_first_pos (get_node_CExpr (hd x)))
+  fun withNodeInfo_CExpr x = (withNodeInfo' o get_node_CExpr o hd) x
   fun withLength x f = return (f x)
   fun reverseDeclr (CDeclrR0 (ide, reversedDDs, asmname, cattrs, at)) = CDeclr ide (rev reversedDDs) asmname cattrs at
   fun appendDeclrAttrs newAttrs (CDeclrR0 (ident, l, asmname, cattrs, at)) =
@@ -468,13 +479,13 @@ struct
       in CDeclrR ident (appendAttrs x :: xs) asmname cattrs at
       end
   fun withAttribute node cattrs mkDeclrNode =
-    bind (posOf'' node) (fn pos =>
+    bind (posOf''' node) (fn (pos, _) =>
     bind getNewName (fn name =>
         let val attrs = mkNodeInfo pos name
             val newDeclr = appendDeclrAttrs cattrs (mkDeclrNode attrs)
         in return newDeclr end))
   fun withAttributePF node cattrs mkDeclrCtor =
-    bind (posOf'' node) (fn pos =>
+    bind (posOf''' node) (fn (pos, _) =>
     bind getNewName (fn name =>
         let val attrs = mkNodeInfo pos name
             val newDeclr = appendDeclrAttrs cattrs o mkDeclrCtor attrs

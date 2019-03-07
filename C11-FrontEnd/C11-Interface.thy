@@ -19,7 +19,7 @@ struct
                    | global_func   of Position.T * serial
 
   type c_file_name      = string
-  type C11_struct       = { tab  : CTranslUnit list Symtab.table,
+  type C11_struct       = { tab  : (CTranslUnit * Comment list) list Symtab.table,
                             env  : id_kind list Symtab.table }
   val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
 
@@ -60,17 +60,14 @@ end
 \<close>
 
 ML\<open>
-open C11_core;
-
-
-\<close>
-
-ML\<open>
 structure C_Context = struct
 val eval_source =
   C_Context.eval_source
-    (fn _ => fn (_, (res, _, _)) => fn context => 
-      (Context.theory_name (Context.theory_of context), res)
+    (fn l_comm => fn (_, (res, _, _)) => fn context => 
+      ( Context.theory_name (Context.theory_of context)
+      , (res, map (fn ({body = body, range = range, ...}, _) =>
+                     Hsk_c_parser.make_comment (Symbol_Pos.implode body) range)
+                  l_comm))
       |> Symtab.update_list (op =)
       |> C11_core.map_tab
       |> (fn res => C11_core.Data.map res context))

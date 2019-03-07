@@ -1245,7 +1245,7 @@ fun makeLexer input =
                         , pos2))
            | SOME (Right ((pos1, pos2), (C_Lex.Ident, s))) => 
               let val (name, arg) = Hsk_c_parser.getNewName arg
-                  val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' (pos1, pos2)) s name
+                  val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' false (pos1, pos2)) s name
               in ( (if Hsk_c_parser.isTypeIdent s arg then
                       StrictCLrVals.Tokens.tyident (ident0, pos1, pos2)
                     else
@@ -1732,7 +1732,7 @@ struct
 
 datatype 'a antiq_language = Antiq_ML of Antiquote.antiq
                            | Antiq_stack of 'a antiq_stack0
-                           | Antiq_HOL of antiq_hol * string * Position.range
+                           | Antiq_HOL of antiq_hol
                            | Antiq_none of C_Lex.token
 
 (* names for generated environment *)
@@ -1857,12 +1857,11 @@ fun scan_antiq ctxt explicit syms =
         Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
         Scan.option (Scan.one C_Token.is_colon) |--
         scan
-      val syms0 = Symbol_Pos.implode syms
       fun scan_cmd_hol cmd scan f =
         Scan.trace (Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
                     Scan.option (Scan.one C_Token.is_colon) |--
                     scan)
-        >> (fn (x, l) => (Antiq_HOL (f x, syms0, Position.range (C_Token.pos_of (hd l), C_Token.end_pos_of (List.last l))), l))
+        >> (I #>> Antiq_HOL o f)
       val scan_ident = Scan.one C_Token.is_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
       val scan_sym_ident_not_stack = Scan.one (fn c => C_Token.is_sym_ident c andalso not (C_Token.is_stack1 c) andalso not (C_Token.is_stack2 c)) >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
       val keywords = Thy_Header.get_keywords' ctxt
@@ -1976,16 +1975,18 @@ fun eval' accept flags pos ants =
                | Right tok => [Right tok])
              ants
 
-      fun map_ants f1 f2 = maps (fn Left (_, _, l) => f1 l | Right tok => f2 tok) ants
-      fun map_ants' f1 = map_ants (maps f1) (K [])
+      fun map_ants f1 f2 = maps (fn Left x => f1 x | Right tok => f2 tok) ants
+      fun map_ants' f1 = map_ants (fn (_, _, l) => maps f1 l) (K [])
 
       val ants_ml = map_ants' (fn (Antiq_ML a, _) => [Antiquote.Antiq a] | _ => [])
       val ants_stack =
         map_ants (single o Left o maps (fn (Antiq_stack x, _) =>
                                              [map_antiq_stack (fn src => (ML_Lex.read_source false src, Input.range_of src)) x]
-                                         | _ => []))
+                                         | _ => [])
+                                o (fn (_, _, l) => l))
                  (single o Right)
-      val ants_hol = map_ants' (fn (Antiq_HOL x, _) => [x] | _ => [])
+      val ants_hol = map_ants (fn (a, _, l) => [(a, maps (fn (Antiq_HOL x, _) => [x] | _ => []) l)])
+                              (K [])
       val ants_none = map_ants' (fn (Antiq_none x, _) => [x] | _ => [])
 
       val _ = Position.reports (Antiquote.antiq_reports ants_ml

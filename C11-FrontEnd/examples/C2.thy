@@ -9,7 +9,7 @@ C\<open>
 
 \<close>
 ML\<open> 
-val (C_ast_simple.CTranslUnit0 (t,u))::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val (C_ast_simple.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
 val u = Hsk_c_parser.decode u
 \<close>
 
@@ -24,7 +24,7 @@ int max(int x, int y) {
 \<close>
 
 ML\<open> 
-val (C_ast_simple.CTranslUnit0 (t,u))::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val (C_ast_simple.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
 val u = Hsk_c_parser.decode u
 \<close>
 
@@ -252,13 +252,14 @@ ML\<open>
 (C11_core.dest_list @{theory})
 \<close>
 
-ML\<open> 
-open C_ast_simple;
-\<close>
 ML\<open>
-CTranslUnit0;
-val (CTranslUnit0 (t,u))::_ = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+local open C_ast_simple in
+val _ = CTranslUnit0
+val (CTranslUnit0 (t,u), v)::_ = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
 val u = Hsk_c_parser.decode u
 val CDeclExt0(x1)::_ = t;
-CDecl0;
- \<close>
+val _ = CDecl0
+end
+\<close>
+
+end
