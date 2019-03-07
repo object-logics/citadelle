@@ -388,6 +388,9 @@ struct
              of ([pos1, _], [_, pos2]) => Left (Position.range (pos1, pos2))
               | _ => Right "Expecting 2 elements")
         | _ => Right "Invalid position")
+  fun decode_error x = Right (case decode x of Left x => x | Right msg => error msg)
+  val nameOfNode = fn OnlyPos0 _ => NONE
+                    | NodeInfo0 (_, _, name) => SOME name
 
   (* Language.C.Data.Ident *)
   local
@@ -444,20 +447,18 @@ struct
   fun reverseList x = rev x
   fun L a i = posOf''' i #>> curry Located a
   fun unL (Located (a, _)) = a
-  fun withNodeInfo0 (pos1, (pos2, len2)) mkAttrNode =
-    bind
-      getNewName
-      (fn name =>
-        return (mkAttrNode (NodeInfo pos1 (pos2, len2) name)))
+  fun withNodeInfo00 (pos1, (pos2, len2)) mkAttrNode name =
+    return (mkAttrNode (NodeInfo pos1 (pos2, len2) name))
+  fun withNodeInfo0 x = x |> bind getNewName oo withNodeInfo00
   fun withNodeInfo0' node mkAttrNode env = let val (range, env) = posOf'' node env
                                            in withNodeInfo0 range mkAttrNode env end
-  fun withNodeInfo x = withNodeInfo0' (Left x)
-  fun withNodeInfo' x = withNodeInfo0' (Right (case decode x of Left x => x | Right msg => error msg))
-  fun withNodeInfo_CExtDecl x =
-   (withNodeInfo' o (fn CDeclExt0 (CDecl0 (_, _, node)) => node
+  fun withNodeInfo x = x |> withNodeInfo0' o Left
+  fun withNodeInfo' x = x |> withNodeInfo0' o decode_error
+  fun withNodeInfo_CExtDecl x = x |>
+    withNodeInfo' o (fn CDeclExt0 (CDecl0 (_, _, node)) => node
                       | CDeclExt0 (CStaticAssert0 (_, _, node)) => node
                       | CFDefExt0 (CFunDef0 (_, _, _, _, node)) => node
-                      | CAsmExt0 (_, node) => node)) x
+                      | CAsmExt0 (_, node) => node)
   val get_node_CExpr =
     fn CComma0 (_, a) => a | CAssign0 (_, _, _, a) => a | CCond0 (_, _, _, a) => a |
     CBinary0 (_, _, _, a) => a | CCast0 (_, _, a) => a | CUnary0 (_, _, a) => a | CSizeofExpr0 (_, a) => a | CSizeofType0 (_, a) => a | CAlignofExpr0 (_, a) => a | CAlignofType0 (_, a) => a | CComplexReal0 (_, a) => a | CComplexImag0 (_, a) => a | CIndex0 (_, _, a) => a |
@@ -468,8 +469,11 @@ struct
      of CBuiltinVaArg0 (_, _, a) => a
      | CBuiltinOffsetOf0 (_, _, a) => a
      | CBuiltinTypesCompatible0 (_, _, a) => a)
-  fun withNodeInfo_CExpr x = (withNodeInfo' o get_node_CExpr o hd) x
-  fun withLength x f = return (f x)
+  fun withNodeInfo_CExpr x = x |> withNodeInfo' o get_node_CExpr o hd
+  fun withLength node mkAttrNode =
+    bind (posOf'' (decode_error node)) (fn range => 
+      withNodeInfo00 range mkAttrNode (case nameOfNode node of NONE => error "nameOfNode"
+                                                             | SOME name => name))
   fun reverseDeclr (CDeclrR0 (ide, reversedDDs, asmname, cattrs, at)) = CDeclr ide (rev reversedDDs) asmname cattrs at
   fun appendDeclrAttrs newAttrs (CDeclrR0 (ident, l, asmname, cattrs, at)) =
     case l of
