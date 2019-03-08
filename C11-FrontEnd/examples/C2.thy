@@ -37,16 +37,20 @@
 theory C2
   imports "../C11-Interface"
 begin
+ML\<open> @{file "$ISABELLE_HOME/src/Pure/ROOT.ML"}                \<close>
 
 C\<open>
 
 #include <stdio.h>
-#include <stdlib.h>
-
+#include /*sdfsdf */ <stdlib.h>
+#define a B
+#define b(C) 
+#pragma
 \<close>
 ML\<open> 
 val (C_ast_simple.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
-val u = Hsk_c_parser.decode u
+val u = Hsk_c_parser.decode u; 
+C_ast_simple.CTypeSpec0;
 \<close>
 
 
@@ -293,9 +297,11 @@ local open C_ast_simple in
 val _ = CTranslUnit0
 val (CTranslUnit0 (t,u), v)::_ = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
 val u = Hsk_c_parser.decode u
+val _ = case  u of Left (p1,p2) => writeln (Position.here p1 ^ " " ^ Position.here p2)
 val CDeclExt0(x1)::_ = t;
 val _ = CDecl0
 end
 \<close>
+
 
 end
