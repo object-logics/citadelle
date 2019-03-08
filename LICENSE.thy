@@ -42,17 +42,11 @@ country us where \<open>USA\<close>
 
 holder brucker :: de where \<open>Achim D. Brucker\<close>
 holder cam :: uk where \<open>University of Cambridge\<close>
-holder chakravarty where \<open>Manuel M T Chakravarty\<close>
 holder contributors where \<open>Contributors (in the changeset history)\<close>
-holder coutts where \<open>Duncan Coutts\<close>
 holder ethz :: ch where \<open>ETH Zurich\<close>
-holder huber where \<open>Benedikt Huber\<close>
-holder hulette where \<open>Geoff Hulette\<close>
 holder "irt-systemx" :: fr where \<open>IRT SystemX\<close>
 holder ntu :: sg where \<open>Nanyang Technological University\<close>
-holder roskind where \<open>James A. Roskind\<close>
 holder sheffield :: uk where \<open>The University of Sheffield\<close>
-holder tum :: de where \<open>Technische Universität München\<close>
 holder "u-psud" :: fr where \<open>Université Paris-Saclay\<close>, \<open>Univ. Paris-Sud\<close>
 holder vt :: us where \<open>Virginia Tech\<close>
 holder wolff :: fr where \<open>B. Wolff\<close>, \<open>Univ. Paris-Saclay\<close>, \<open>Univ. Paris-Sud\<close>
@@ -93,31 +87,24 @@ project Isabelle :: "3-Clause BSD" where \<open>
 ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
 \<close> defines 1986-2019 contributors
 
-project Haskabelle :: "3-Clause BSD" where \<open>
-Haskabelle --- Converting Haskell Source Files to Isabelle/HOL Theories.
-               http://isabelle.in.tum.de/repos/haskabelle
-\<close> defines 2007-2015 tum
-          2017-2018 vt
+project Haskabelle_HOL :: "3-Clause BSD" where \<open>
+A Meta-Model of Haskabelle in HOL
+\<close> defines 2017-2018 vt
           2018-2019 "u-psud"
 
 project "HOL-OCL" :: "3-Clause BSD" where \<open>HOL-OCL\<close> imports default
 
 project "HOL-TOY" :: "3-Clause BSD" where \<open>HOL-TOY\<close> imports default
 
-project C11 :: "3-Clause BSD" where \<open>
-Language.C
-https://hackage.haskell.org/package/language-c
-\<close> defines 1999-2017 chakravarty, coutts, huber
-          portions 1989,1990 roskind
-                              where \<open>
-Language.C.Comments
-https://hackage.haskell.org/package/language-c-comments
-\<close> defines 2010-2014 hulette
-                              where \<open>
-Securify & Orca
+project C11_HOL :: "3-Clause BSD" where \<open>
+A Meta-Model of Language.C in HOL
 \<close> defines 2016-2017 ntu
           2017-2018 vt
           2018-2019 "u-psud"
+
+project C11_ML :: "3-Clause BSD" where \<open>
+Generation of Language.C Grammar with ML Interface Binding
+\<close> defines 2018-2019 "u-psud"
 
 project Miscellaneous_Monads :: "3-Clause BSD" where \<open>
 HOL-TestGen --- theorem-prover based test case generation
@@ -144,7 +131,8 @@ check_license ROOT
               Haskabelle
               "HOL-OCL"
               "HOL-TOY"
-              C11
+              C11_HOL
+              C11_ML
   in "."
 insert_license
 map_license
