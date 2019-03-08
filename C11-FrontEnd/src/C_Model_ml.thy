@@ -1,27 +1,7 @@
 (******************************************************************************
- * Language.C
- * https://hackage.haskell.org/package/language-c
+ * Generation of Language.C Grammar with ML Interface Binding
  *
- * Copyright (c) 1999-2017 Manuel M T Chakravarty
- *                         Duncan Coutts
- *                         Benedikt Huber
- * Portions Copyright (c) 1989,1990 James A. Roskind
- *
- *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
- *
- * Language.C.Comments
- * https://hackage.haskell.org/package/language-c-comments
- *
- * Copyright (c) 2010-2014 Geoff Hulette
- *
- *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
- *
- * Securify & Orca
- *
- * Copyright (c) 2016-2017 Nanyang Technological University, Singapore
- *               2017-2018 Virginia Tech, USA
- *
- *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+ * Copyright (c) 2018-2019 Université Paris-Saclay, Univ. Paris-Sud, France
  *
  * All rights reserved.
  *
@@ -328,6 +308,22 @@ end
 
 structure Hsk_c_parser : HSK_C_PARSER =
 struct
+(******************************************************************************
+ * Language.C
+ * https://hackage.haskell.org/package/language-c
+ *
+ * Copyright (c) 1999-2017 Manuel M T Chakravarty
+ *                         Duncan Coutts
+ *                         Benedikt Huber
+ * Portions Copyright (c) 1989,1990 James A. Roskind
+ *
+ *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+ *
+ * Language.C.Comments
+ * https://hackage.haskell.org/package/language-c-comments
+ *
+ * Copyright (c) 2010-2014 Geoff Hulette
+*)
   open C_ast_simple
   type arg = C_Env.T
   type 'a p = arg -> 'a * arg
