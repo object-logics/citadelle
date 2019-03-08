@@ -54,9 +54,37 @@ struct
                    | local_id      of Position.T * serial
                    | global_func   of Position.T * serial
 
+
+  type new_env_type  = { 
+                        cpp_id       :  unit Name_Space.table,
+                        cpp_macro    :  unit Name_Space.table,
+                        builtin_id   : unit Name_Space.table,
+                        builtin_func : unit Name_Space.table,
+                        global_var   : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table,
+                        local_var    : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table,
+                        global_func  : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table
+  }
+
+  val mt_env = {cpp_id       = Name_Space.empty_table "cpp_id",
+                cpp_macro    = Name_Space.empty_table "cpp_macro", 
+                builtin_id   = Name_Space.empty_table "builtin_id",
+                builtin_func = Name_Space.empty_table "builtin_func",
+                global_var   = Name_Space.empty_table "global_var",
+                local_var    = Name_Space.empty_table "local_var",
+                global_func  = Name_Space.empty_table "global_func"
+  }
+
+
   type c_file_name      = string
-  type C11_struct       = { tab  : (CTranslUnit * (Comment, Position.range * C_Lex.token_kind_directive) either list) list Symtab.table,
+  type C11_struct       = { tab  : (CTranslUnit * Comment list) list Symtab.table,
                             env  : id_kind list Symtab.table }
+(*
+  type C11_struct       = { tab  : (CTranslUnit * Comment list) list Symtab.table,
+                            env  : unit Name_Space.table }
+*)
+
+
+
   val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
 
   fun map_tab f {tab, env} = {tab = f tab, env=env}
@@ -102,8 +130,8 @@ val eval_source =
     (fn l_comm => fn (_, (res, _, _)) => fn context => 
       ( Context.theory_name (Context.theory_of context)
       , (res, map (fn Left ({body_begin, body, body_end, range, ...}, _) =>
-                        Left (Hsk_c_parser.make_comment body_begin body body_end range)
-                    | Right x => Right x)
+                     Left(Hsk_c_parser.make_comment body_begin body body_end range)
+                   | Right x => Right x)
                   l_comm))
       |> Symtab.update_list (op =)
       |> C11_core.map_tab
