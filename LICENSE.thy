@@ -128,7 +128,7 @@ check_license ROOT
               Citadelle
               Isabelle_Meta_Model
               Isabelle
-              Haskabelle
+              Haskabelle_HOL
               "HOL-OCL"
               "HOL-TOY"
               C11_HOL
