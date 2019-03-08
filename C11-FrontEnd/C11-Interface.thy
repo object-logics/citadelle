@@ -55,7 +55,7 @@ struct
                    | global_func   of Position.T * serial
 
   type c_file_name      = string
-  type C11_struct       = { tab  : (CTranslUnit * Comment list) list Symtab.table,
+  type C11_struct       = { tab  : (CTranslUnit * (Comment, Position.range * C_Lex.token_kind_directive) either list) list Symtab.table,
                             env  : id_kind list Symtab.table }
   val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
 
@@ -101,8 +101,9 @@ val eval_source =
   C_Context.eval_source
     (fn l_comm => fn (_, (res, _, _)) => fn context => 
       ( Context.theory_name (Context.theory_of context)
-      , (res, map (fn ({body_begin, body, body_end, range, ...}, _) =>
-                     Hsk_c_parser.make_comment body_begin body body_end range)
+      , (res, map (fn Left ({body_begin, body, body_end, range, ...}, _) =>
+                        Left (Hsk_c_parser.make_comment body_begin body body_end range)
+                    | Right x => Right x)
                   l_comm))
       |> Symtab.update_list (op =)
       |> C11_core.map_tab

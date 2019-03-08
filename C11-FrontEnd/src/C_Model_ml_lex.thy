@@ -1981,8 +1981,9 @@ fun eval' accept flags pos ants =
                                          | _ => [])
                                 o (fn (_, _, l) => l))
                  (single o Right)
-      val ants_hol = map_ants (fn (a, _, l) => [(a, maps (fn (Antiq_HOL x, _) => [x] | _ => []) l)])
-                              (K [])
+      val ants_hol = map_ants (fn (a, _, l) => [Left (a, maps (fn (Antiq_HOL x, _) => [x] | _ => []) l)])
+                              (fn C_Lex.Token (pos, (C_Lex.Directive l, _)) => [Right (pos, l)]
+                                | _ => [])
       val ants_none = map_ants' (fn (Antiq_none x, _) => [x] | _ => [])
 
       val _ = Position.reports (Antiquote.antiq_reports ants_ml
