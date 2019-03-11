@@ -76,15 +76,8 @@ struct
 
 
   type c_file_name      = string
-  type C11_struct       = { tab  : (CTranslUnit * Comment list) list Symtab.table,
+  type C11_struct       = { tab  : (CTranslUnit * (Comment, Position.range * C_Lex.token_kind_directive) either list) list Symtab.table,
                             env  : id_kind list Symtab.table }
-(*
-  type C11_struct       = { tab  : (CTranslUnit * Comment list) list Symtab.table,
-                            env  : unit Name_Space.table }
-*)
-
-
-
   val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
 
   fun map_tab f {tab, env} = {tab = f tab, env=env}
@@ -130,8 +123,8 @@ val eval_source =
     (fn l_comm => fn (_, (res, _, _)) => fn context => 
       ( Context.theory_name (Context.theory_of context)
       , (res, map (fn Left ({body_begin, body, body_end, range, ...}, _) =>
-                     Left(Hsk_c_parser.make_comment body_begin body body_end range)
-                   | Right x => Right x)
+                        Left (Hsk_c_parser.make_comment body_begin body body_end range)
+                    | Right x => Right x)
                   l_comm))
       |> Symtab.update_list (op =)
       |> C11_core.map_tab
