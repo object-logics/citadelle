@@ -167,41 +167,31 @@ type T = { env : env
 
 (**)
 
-fun map_env f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+fun map_env f {env, context, rule_output, rule_input, next_eval} =
   {env = f env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_context f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+fun map_context f {env, context, rule_output, rule_input, next_eval} =
   {env = env, context = f context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_rule_output f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+fun map_rule_output f {env, context, rule_output, rule_input, next_eval} =
   {env = env, context = context, rule_output = f rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_rule_input f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+fun map_rule_input f {env, context, rule_output, rule_input, next_eval} =
   {env = env, context = context, rule_output = rule_output, rule_input = f rule_input, next_eval = next_eval}
 
-fun map_next_eval f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+fun map_next_eval f {env, context, rule_output, rule_input, next_eval} =
   {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = f next_eval}
 
 (**)
 
-fun map_env_tyidents f {tyidents = tyidents, scopes = scopes, namesupply = namesupply} =
+fun map_tyidents f {tyidents, scopes, namesupply} =
   {tyidents = f tyidents, scopes = scopes, namesupply = namesupply}
 
-fun map_env_scopes f {tyidents = tyidents, scopes = scopes, namesupply = namesupply} =
+fun map_scopes f {tyidents, scopes, namesupply} =
   {tyidents = tyidents, scopes = f scopes, namesupply = namesupply}
 
-fun map_env_namesupply f {tyidents = tyidents, scopes = scopes, namesupply = namesupply} =
+fun map_namesupply f {tyidents, scopes, namesupply} =
   {tyidents = tyidents, scopes = scopes, namesupply = f namesupply}
-
-(**)
-
-fun map_tyidents f = map_env (map_env_tyidents f)
-fun map_scopes f = map_env (map_env_scopes f)
-fun map_namesupply f = map_env (map_env_namesupply f)
-
-fun get_tyidents env = #env env |> #tyidents
-fun get_scopes env = #env env |> #scopes
-fun get_namesupply env = #env env |> #namesupply
 
 (**)
 
@@ -228,6 +218,19 @@ val decode_positions =
            {line = line, offset = offset, end_offset = end_offset, props = props})
           #> Position.make)
 
+end
+
+structure C_Env' =
+struct
+fun map_tyidents f = C_Env.map_env (C_Env.map_tyidents f)
+fun map_scopes f = C_Env.map_env (C_Env.map_scopes f)
+fun map_namesupply f = C_Env.map_env (C_Env.map_namesupply f)
+
+(**)
+
+fun get_tyidents env = #env env |> #tyidents
+fun get_scopes env = #env env |> #scopes
+fun get_namesupply env = #env env |> #namesupply
 end
 
 signature HSK_C_PARSER =
@@ -419,18 +422,18 @@ struct
 
   (* Language.C.Parser.ParserMonad *)
   fun getNewName env =
-    (Name (C_Env.get_namesupply env), C_Env.map_namesupply (fn x => x + 1) env)
+    (Name (C_Env'.get_namesupply env), C_Env'.map_namesupply (fn x => x + 1) env)
   fun addTypedef (Ident0 (i,_,_)) env =
-    ((), C_Env.map_tyidents (Symtab.update (To_string0 i, ())) env)
+    ((), C_Env'.map_tyidents (Symtab.update (To_string0 i, ())) env)
   fun shadowTypedef (Ident0 (i,_,_)) env =
-    ((), C_Env.map_tyidents (Symtab.delete_safe (To_string0 i)) env)
-  fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env.get_tyidents
+    ((), C_Env'.map_tyidents (Symtab.delete_safe (To_string0 i)) env)
+  fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env'.get_tyidents
   fun enterScope env =
-    ((), C_Env.map_scopes (cons (C_Env.get_tyidents env)) env)
+    ((), C_Env'.map_scopes (cons (C_Env'.get_tyidents env)) env)
   fun leaveScope env = 
-    case C_Env.get_scopes env of [] => error "leaveScope: already in global scope"
-                               | tyidents :: scopes => ((), env |> C_Env.map_scopes (K scopes)
-                                                                |> C_Env.map_tyidents (K tyidents))
+    case C_Env'.get_scopes env of [] => error "leaveScope: already in global scope"
+                               | tyidents :: scopes => ((), env |> C_Env'.map_scopes (K scopes)
+                                                                |> C_Env'.map_tyidents (K tyidents))
   val getCurrentPosition = return NoPosition
 
   (* Language.C.Parser.Tokens *)

@@ -1305,7 +1305,7 @@ structure P = struct
             C_Env.map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
         , fn (stack, env) => env |> C_Env.map_rule_input (K stack) |> C_Env.map_rule_output (K NONE)
         , fn env => (#rule_output env, env))
-   ##> (fn (_, {context = context, ...}) => context)
+   ##> (fn (_, {context, ...}) => context)
 end
 \<close>
 
