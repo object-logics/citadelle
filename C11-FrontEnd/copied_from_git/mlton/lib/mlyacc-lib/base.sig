@@ -1,3 +1,7 @@
+(* Modified by Frédéric Tuong
+ * Generation of Language.C Grammar with ML Interface Binding
+ * (c) 2018-2019 Université Paris-Saclay, Univ. Paris-Sud, France
+ *)
 (* ML-Yacc Parser Generator (c) 1989 Andrew W. Appel, David R. Tarditi *)
 
 (* base.sig: Base signature file for SML-Yacc.  This file contains signatures

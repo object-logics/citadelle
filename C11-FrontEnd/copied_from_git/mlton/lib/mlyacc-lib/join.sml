@@ -1,3 +1,7 @@
+(* Modified by Frédéric Tuong
+ * Generation of Language.C Grammar with ML Interface Binding
+ * (c) 2018-2019 Université Paris-Saclay, Univ. Paris-Sud, France
+ *)
 (* ML-Yacc Parser Generator (c) 1989 Andrew W. Appel, David R. Tarditi *)
 
 (* functor Join creates a user parser by putting together a Lexer structure,
