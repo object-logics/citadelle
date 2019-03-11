@@ -1152,6 +1152,11 @@ struct
   type state = StrictCLrVals.ParserData.LrTable.state
 end
 
+type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0
+           * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+           * (UserDeclarations.pos * UserDeclarations.pos) list
+           * (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) C_Env.rule_ml C_Env.tree list
+
 fun makeLexer input =
   let val s = Synchronized.var "input"
                 (input 1024
@@ -1160,7 +1165,7 @@ fun makeLexer input =
                                  | Right (C_Lex.Token (_, (C_Lex.Directive _, _))) => NONE
                                  | Right (C_Lex.Token s) => SOME (Right s)
                                  | Left ml => SOME (Left ml)))
-      fun drain ((stack, stack_ml, stack_pos), arg) =
+      fun drain ((stack, stack_ml, stack_pos, stack_tree), arg) =
         let val (arg, stack_ml) =
               case #next_eval arg
               of l :: ls =>
@@ -1179,12 +1184,12 @@ fun makeLexer input =
                            l
                            stack_ml)
                | [] => (arg, stack_ml)
-            fun return0 x = (x, ((stack, stack_ml, stack_pos), arg))
+            fun return0 x = (x, ((stack, stack_ml, stack_pos, stack_tree), arg))
         in
           case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
           of SOME (Left l_antiq) =>
               drain
-                ( (stack, stack_ml, stack_pos)
+                ( (stack, stack_ml, stack_pos, stack_tree)
                 , fold (fn Setup (ants, range) =>
                           (fn arg =>
                              C_Env.map_context
@@ -1246,7 +1251,7 @@ fun makeLexer input =
                       StrictCLrVals.Tokens.tyident (ident0, pos1, pos2)
                     else
                       StrictCLrVals.Tokens.ident (ident0, pos1, pos2))
-                 , ((stack, stack_ml, stack_pos), arg))
+                 , ((stack, stack_ml, stack_pos, stack_tree), arg))
               end
            | SOME (Right ((pos1, pos2), (_, s))) => 
                        token_of_string (Tokens.error (pos1, pos2))
@@ -1287,23 +1292,35 @@ structure P = struct
                           [("", range_pos (pos1, pos2))]
             end
         , Position.none
-        , uncurry (fn ((rule, stack0), (range, ants)) =>
-                   fn arg =>
-                     C_Env.map_context
-                       let val stack = ([stack0], #env arg)
-                           val hook = "hook" in
-                         I #> Context.map_theory (Stack_Data.put stack)
-                           #> ML_Context.expression
-                                range
-                                hook
-                                (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
-                                ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
-                                ants
-                       end
-                       arg)
-        , uncurry (fn (stack, _, _) =>
-            C_Env.map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
-        , fn (stack, env) => env |> C_Env.map_rule_input (K stack) |> C_Env.map_rule_output (K NONE)
+        , uncurry (fn (stack, _, _, stack_tree) =>
+            let open C_Env
+                fun exec_tree (Tree ({rule_reduce, rule_static, rule_antiq}, l_tree)) =
+                  (fn env =>
+                    let val ctxt = Context.proof_of (#context env)
+                        val () = if Config.get ctxt ML_Options.source_trace andalso Context_Position.is_visible ctxt
+                                 then tracing (case rule_reduce of NONE => "(NONE)" | SOME i => "REDUCE " ^ Int.toString i ^ " " ^ MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i)
+                                 else ()
+                    in env end)
+                  #> (case rule_static of SOME rule_static => map_env_context rule_static | NONE => I)
+                  #> fold (fn ((rule, stack0), (range, ants)) => fn arg =>
+                             map_context
+                               let val stack = ([stack0], #env arg)
+                                   val hook = "hook" in
+                                 I #> Context.map_theory (Stack_Data.put stack)
+                                   #> ML_Context.expression
+                                        range
+                                        hook
+                                        (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
+                                        ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
+                                        ants
+                               end
+                               arg)
+                          rule_antiq
+                  #> fold exec_tree l_tree
+            in exec_tree (stack_tree |> hd)
+               #> map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0)) end)
+        , fn (stack, env) => env |> C_Env.map_rule_input (K stack)
+                                 |> C_Env.map_rule_output (K C_Env.empty_rule_output)
         , fn env => (#rule_output env, env))
    ##> (fn (_, {context, ...}) => context)
 end

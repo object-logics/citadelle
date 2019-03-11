@@ -159,9 +159,24 @@ type env = { tyidents : Symtab.set (* approximative detection of types *)
          as we are just in a lexing process.
          Another typing phase is afterwards required to further restrict the parsed language. *)
 
+type rule_static = (env -> Context.generic -> env * Context.generic) option
+
+type ('LrTable_state, 'svalue0, 'pos) rule_ml =
+  { rule_reduce : int option
+  , rule_static : rule_static
+  , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)))
+                  * (Position.range * ML_Lex.token Antiquote.antiquote list)) list }
+
+datatype 'a tree = Tree of 'a * 'a tree list
+
+type 'class_Pos rule_output0 = { output_pos : 'class_Pos option
+                               , output_env : rule_static }
+
+type rule_output = class_Pos rule_output0
+
 type T = { env : env
          , context : Context.generic
-         , rule_output : class_Pos option
+         , rule_output : rule_output
          , rule_input : class_Pos list * int
          , next_eval : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list }
 
@@ -184,6 +199,20 @@ fun map_next_eval f {env, context, rule_output, rule_input, next_eval} =
 
 (**)
 
+fun map_env_context f {env, context, rule_output, rule_input, next_eval} =
+  let val (env, context) = f env context
+  in {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} end
+
+(**)
+
+fun map_output_pos f {output_pos, output_env} =
+  {output_pos = f output_pos, output_env = output_env}
+
+fun map_output_env f {output_pos, output_env} =
+  {output_pos = output_pos, output_env = f output_env}
+
+(**)
+
 fun map_tyidents f {tyidents, scopes, namesupply} =
   {tyidents = f tyidents, scopes = scopes, namesupply = namesupply}
 
@@ -196,7 +225,8 @@ fun map_namesupply f {tyidents, scopes, namesupply} =
 (**)
 
 val empty_env : env = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
-fun make context = {env = empty_env, context = context, rule_output = NONE, rule_input = ([], 0), next_eval = []}
+val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
+fun make context = {env = empty_env, context = context, rule_output = empty_rule_output, rule_input = ([], 0), next_eval = []}
 fun string_of (env : env) = 
   let fun dest tab = Symtab.dest tab |> map #1
   in @{make_string} ( ("tyidents", dest (#tyidents env))
@@ -231,6 +261,14 @@ fun map_namesupply f = C_Env.map_env (C_Env.map_namesupply f)
 fun get_tyidents env = #env env |> #tyidents
 fun get_scopes env = #env env |> #scopes
 fun get_namesupply env = #env env |> #namesupply
+
+(**)
+fun map_output_pos f = C_Env.map_rule_output (C_Env.map_output_pos f)
+fun map_output_env f = C_Env.map_rule_output (C_Env.map_output_env f)
+
+(**)
+
+fun get_output_pos (env : C_Env.T) = #rule_output env |> #output_pos
 end
 
 signature HSK_C_PARSER =
@@ -241,6 +279,7 @@ sig
   (**)
   val return : 'a -> 'a p
   val bind : 'a p -> ('a -> 'b p) -> 'b p
+  val bind' : 'b p -> ('b -> unit p) -> 'b p
   val >> : unit p * 'a p -> 'a p
 
   (* Language.C.Data.RList *)
@@ -338,6 +377,7 @@ struct
   (**)
   val return = pair
   fun bind f g = f #-> g
+  fun bind' f g = bind f (fn r => bind (g r) (fn () => return r))
   fun a >> b = a #> b o #2
   fun sequence_ f = fn [] => return ()
                      | x :: xs => f x >> sequence_ f xs
@@ -366,7 +406,7 @@ struct
                                                     | Right range => (false, range)
         val (pos2a, pos2b) = nth stack 0
     in ( (posOf' mk_range (pos1a, pos1b) |> #1, posOf' true (pos2a, pos2b))
-       , C_Env.map_rule_output (K (SOME (pos1a, pos2b))) env) end
+       , C_Env'.map_output_pos (K (SOME (pos1a, pos2b))) env) end
   val posOf''' = posOf'' o Left
   val internalPos = InternalPosition
   fun make_comment body_begin body body_end range =
@@ -566,6 +606,7 @@ type cChar = CChar
 type cInteger = CInteger
 type cFloat = CFloat
 type ident = Ident
+val return = Hsk_c_parser.return
 \<close>
 
 section \<open>Loading of Generated Grammar\<close>
