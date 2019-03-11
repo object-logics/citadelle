@@ -1134,7 +1134,7 @@ fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
 structure Stack_Data = Theory_Data
   (type T = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0 * C_Env.env
-   val empty = ([], C_Env.empty)
+   val empty = ([], C_Env.empty_env)
    val extend = I
    val merge = #2)
 
