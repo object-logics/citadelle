@@ -161,26 +161,26 @@ type env = { tyidents : Symtab.set (* approximative detection of types *)
 
 type T = { env : env
          , context : Context.generic
-         , pos_computed : class_Pos option
-         , pos_stack : class_Pos list * int
+         , rule_output : class_Pos option
+         , rule_input : class_Pos list * int
          , next_eval : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list }
 
 (**)
 
-fun map_env f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {env = f env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
+fun map_env f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+  {env = f env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_context f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {env = env, context = f context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval}
+fun map_context f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+  {env = env, context = f context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_pos_computed f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {env = env, context = context, pos_computed = f pos_computed, pos_stack = pos_stack, next_eval = next_eval}
+fun map_rule_output f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+  {env = env, context = context, rule_output = f rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_pos_stack f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {env = env, context = context, pos_computed = pos_computed, pos_stack = f pos_stack, next_eval = next_eval}
+fun map_rule_input f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+  {env = env, context = context, rule_output = rule_output, rule_input = f rule_input, next_eval = next_eval}
 
-fun map_next_eval f {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = next_eval} =
-  {env = env, context = context, pos_computed = pos_computed, pos_stack = pos_stack, next_eval = f next_eval}
+fun map_next_eval f {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} =
+  {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = f next_eval}
 
 (**)
 
@@ -206,7 +206,7 @@ fun get_namesupply env = #env env |> #namesupply
 (**)
 
 val empty : env = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
-fun make context = {env = empty, context = context, pos_computed = NONE, pos_stack = ([], 0), next_eval = []}
+fun make context = {env = empty, context = context, rule_output = NONE, rule_input = ([], 0), next_eval = []}
 fun string_of (env : env) = 
   let fun dest tab = Symtab.dest tab |> map #1
   in @{make_string} ( ("tyidents", dest (#tyidents env))
@@ -358,12 +358,12 @@ struct
           let val {offset = offset, end_offset = end_offset, ...} = Position.dest pos1
           in (Position offset (From_string (C_Env.encode_positions [pos1, pos2])) 0 0, end_offset - offset) end)
   fun posOf'' node env =
-    let val (stack, len) = #pos_stack env
+    let val (stack, len) = #rule_input env
         val (mk_range, (pos1a, pos1b)) = case node of Left i => (true, nth stack (len - i - 1))
                                                     | Right range => (false, range)
         val (pos2a, pos2b) = nth stack 0
     in ( (posOf' mk_range (pos1a, pos1b) |> #1, posOf' true (pos2a, pos2b))
-       , C_Env.map_pos_computed (K (SOME (pos1a, pos2b))) env) end
+       , C_Env.map_rule_output (K (SOME (pos1a, pos2b))) env) end
   val posOf''' = posOf'' o Left
   val internalPos = InternalPosition
   fun make_comment body_begin body body_end range =
