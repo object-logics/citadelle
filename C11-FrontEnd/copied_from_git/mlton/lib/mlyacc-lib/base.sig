@@ -8,7 +8,7 @@
 
 signature STREAM1 =
  sig type ('xa, 'xb) stream
-     val streamify : ((('stack * 'stack_ml * 'stack_pos) * 'arg) -> '_a * (('stack * 'stack_ml * 'stack_pos) * 'arg)) -> 'arg -> ('_a, (('stack * 'stack_ml * 'stack_pos) * 'arg)) stream * 'arg
+     val streamify : ((('stack * 'stack_ml * 'stack_pos * 'stack_tree) * 'arg) -> '_a * (('stack * 'stack_ml * 'stack_pos * 'stack_tree) * 'arg)) -> 'arg -> ('_a, (('stack * 'stack_ml * 'stack_pos * 'stack_tree) * 'arg)) stream * 'arg
      val cons : '_a * (('_a, '_b) stream * '_b) -> ('_a, '_b) stream * '_b
      val get : ('_a, '_b) stream * '_b -> '_a * (('_a, '_b) stream * '_b)
  end
@@ -102,6 +102,13 @@ signature LR_PARSER1 =
 
         exception ParseError
 
+        type ('_b, '_c) stack = (LrTable.state * ('_b * '_c * '_c)) list
+                              * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+                              * ('_c * '_c) list
+                              * (LrTable.state, '_b, '_c) C_Env.rule_ml C_Env.tree list
+
+        type ('_b, '_c, 'arg) lexer = (('arg -> '_b * 'arg,'_c) Token.token, ('_b, '_c) stack * 'arg) Stream.stream * 'arg
+
         val parse : {table : LrTable.table,
                      saction : int *
                                '_c *
@@ -112,10 +119,9 @@ signature LR_PARSER1 =
                                      (LrTable.state * ('_b * '_c * '_c)) list,
                      void : 'arg -> '_b * 'arg,
                      void_position : '_c,
-                     reduce : ((int * (LrTable.state * ('_b * '_c * '_c))) * (Position.range * ML_Lex.token Antiquote.antiquote list)) * 'arg -> 'arg,
-                     accept : ((LrTable.state * ('_b * '_c * '_c)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * ('_c * '_c) list) * 'arg -> 'arg,
-                     position_init : (('_c * '_c) list * int) * 'arg -> 'arg,
-                     position_get : 'arg -> ('_c * '_c) option * 'arg,
+                     accept : ('_b, '_c) stack * 'arg -> 'arg,
+                     reduce_init : (('_c * '_c) list * int) * 'arg -> 'arg,
+                     reduce_get : 'arg -> ('_c * '_c) C_Env.rule_output0 * 'arg,
                      ec : { is_keyword : LrTable.term -> bool,
                             noShift : LrTable.term -> bool,
                             preferred_change : (LrTable.term list * LrTable.term list) list,
@@ -127,8 +133,8 @@ signature LR_PARSER1 =
                      lookahead : int  (* max amount of lookahead used in *)
                                       (* error correction *)
                     }
-                    -> ((('arg -> '_b * 'arg,'_c) Token.token, ((LrTable.state * ('_b * '_c * '_c)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * ('_c * '_c) list) * 'arg) Stream.stream * 'arg)
-                    -> '_b * ((('arg -> '_b * 'arg,'_c) Token.token, ((LrTable.state * ('_b * '_c * '_c)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * ('_c * '_c) list) * 'arg) Stream.stream * 'arg)
+                    -> ('_b, '_c, 'arg) lexer
+                    -> '_b * ('_b, '_c, 'arg) lexer
     end
 
 signature LR_PARSER2 =
@@ -206,9 +212,14 @@ signature ARG_LEXER1 =
                 type svalue = arg -> svalue0 * arg
                 type state
            end
+        type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0
+                   * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+                   * (UserDeclarations.pos * UserDeclarations.pos) list
+                   * (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) C_Env.rule_ml C_Env.tree list
         val makeLexer : (int -> (antiq_stack, UserDeclarations.token0) either list)
-                        -> (((UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0 * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (UserDeclarations.pos * UserDeclarations.pos) list) * UserDeclarations.arg)
-                        -> (UserDeclarations.svalue,UserDeclarations.pos) UserDeclarations.token * (((UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0 * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (UserDeclarations.pos * UserDeclarations.pos) list) * UserDeclarations.arg)
+                        -> (stack * UserDeclarations.arg)
+                        -> (UserDeclarations.svalue, UserDeclarations.pos) UserDeclarations.token
+                         * (stack * UserDeclarations.arg)
    end
 
 signature ARG_LEXER2 =
@@ -390,13 +401,23 @@ signature ARG_PARSER1 =
         type svalue = arg -> svalue0 * arg
         type token0
 
-        val makeLexer : (int -> (antiq_stack, token0) either list) -> arg
-                        -> ((svalue, pos) Token.token, ((Token.LrTable.state, svalue0, pos) stack0 * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg) Stream.stream * arg
-        val parse : int * ((Token.LrTable.state * (svalue0 * pos * pos)) list * pos * pos -> unit) * pos * (((int * (Token.LrTable.state * (svalue0 * pos * pos))) * (Position.range * ML_Lex.token Antiquote.antiquote list)) * arg -> arg) * (((Token.LrTable.state * (svalue0 * pos * pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg -> arg) * (((pos * pos) list * int) * arg -> arg) * (arg -> (pos * pos) option * arg)
-                    -> ((((svalue, pos) Token.token, ((Token.LrTable.state * (svalue0 * pos * pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg) Stream.stream) * arg)
-                    -> result * (((svalue, pos) Token.token, ((Token.LrTable.state * (svalue0 * pos * pos)) list * (Position.range * ML_Lex.token Antiquote.antiquote list) list list * (pos * pos) list) * arg) Stream.stream * arg)
-        val sameToken : (svalue, pos) Token.token * (svalue,pos) Token.token
-                        -> bool
+        type stack = (Token.LrTable.state, svalue0, pos) stack0
+                   * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+                   * (pos * pos) list
+                   * (Token.LrTable.state, svalue0, pos) C_Env.rule_ml C_Env.tree list
+
+        type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
+
+        val makeLexer : (int -> (antiq_stack, token0) either list) -> arg -> arg lexer
+        val parse :   int
+                    * ((Token.LrTable.state, svalue0, pos) stack0 * pos * pos -> unit)
+                    * pos
+                    * (stack * arg -> arg)
+                    * (((pos * pos) list * int) * arg -> arg)
+                    * (arg -> (pos * pos) C_Env.rule_output0 * arg)
+                   -> arg lexer
+                   -> result * arg lexer
+        val sameToken : (svalue, pos) Token.token * (svalue, pos) Token.token -> bool
      end
 
 signature ARG_PARSER2 =

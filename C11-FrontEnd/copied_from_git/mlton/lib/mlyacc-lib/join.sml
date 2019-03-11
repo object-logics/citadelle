@@ -75,18 +75,24 @@ struct
     type svalue = arg -> svalue0 * arg
     type token0 = Lex.UserDeclarations.token0
 
+    type stack = (Token.LrTable.state, svalue0, pos) stack0
+               * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+               * (pos * pos) list
+               * (Token.LrTable.state, svalue0, pos) C_Env.rule_ml C_Env.tree list
+
+    type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
+
     val makeLexer = LrParser.Stream.streamify o Lex.makeLexer
 
-    val parse = fn (lookahead, error, void_position, reduce, accept, position_init, position_get) =>
+    val parse = fn (lookahead, error, void_position, accept, reduce_init, reduce_get) =>
       LrParser.parse {table = ParserData.table,
                       lookahead = lookahead,
                       saction = ParserData.Actions.actions,
                       void = ParserData.Actions.void,
                       void_position = void_position,
-                      reduce = reduce,
                       accept = accept,
-                      position_init = position_init,
-                      position_get = position_get,
+                      reduce_init = reduce_init,
+                      reduce_get = reduce_get,
                       ec = {is_keyword = ParserData.EC.is_keyword,
                             noShift = ParserData.EC.noShift,
                             preferred_change = ParserData.EC.preferred_change,
