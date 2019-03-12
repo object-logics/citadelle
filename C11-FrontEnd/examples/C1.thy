@@ -38,7 +38,7 @@ theory C1
   imports "../C11-Interface"
 begin
 
-declare[[C_source_trace]]
+declare[[C_lexer_trace]]
 
 section \<open>Regular C Code\<close>
 
@@ -281,6 +281,7 @@ fun add_ex s1 s2 =
 setup \<open>Example_Data.put []\<close>
 
 declare[[ML_source_trace]]
+declare[[C_parser_trace]]
 
 C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
 int x /** OWNED_BY foo */, hh /*@

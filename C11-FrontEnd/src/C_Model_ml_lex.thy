@@ -226,7 +226,7 @@ struct
 
 type antiq = { explicit: bool
              , start: Position.T
-             , stop: Position.T
+             , stop: Position.T option
              , range: Position.range
              , body: Symbol_Pos.T list
              , body_begin: Symbol_Pos.T list
@@ -311,7 +311,7 @@ val scan_antiq =
   >> (fn (pos1, (((explicit, body_begin), pos2), (((body, pos3), body_end), pos4))) =>
       {explicit = explicit,
        start = Position.range_position (pos1, pos2),
-       stop = Position.range_position (pos3, pos4),
+       stop = SOME (Position.range_position (pos3, pos4)),
        range = Position.range (pos1, pos4),
        body = body,
        body_begin = body_begin,
@@ -320,7 +320,7 @@ val scan_antiq =
   >> (fn ((((pos1, (explicit, body_begin)), pos2), body), pos3) => 
       {explicit = explicit,
        start = Position.range_position (pos1, pos2),
-       stop = Position.range_position (pos3, pos3),
+       stop = NONE,
        range = Position.range (pos1, pos3),
        body = body,
        body_begin = body_begin,
@@ -347,7 +347,8 @@ struct
 
 (* source trace *)
 
-val source_trace = Attrib.setup_config_bool @{binding C_source_trace} (fn _ => false);
+val lexer_trace = Attrib.setup_config_bool @{binding C_lexer_trace} (fn _ => false);
+val parser_trace = Attrib.setup_config_bool @{binding C_parser_trace} (fn _ => false);
 
 end
 \<close>
@@ -1297,8 +1298,10 @@ structure P = struct
                 fun exec_tree (Tree ({rule_reduce, rule_static, rule_antiq}, l_tree)) =
                   (fn env =>
                     let val ctxt = Context.proof_of (#context env)
-                        val () = if Config.get ctxt ML_Options.source_trace andalso Context_Position.is_visible ctxt
-                                 then tracing (case rule_reduce of NONE => "(NONE)" | SOME i => "REDUCE " ^ Int.toString i ^ " " ^ MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i)
+                        val () = if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
+                                 then tracing (case rule_reduce of
+                                                 NONE => "(NONE)"
+                                               | SOME i => "REDUCE " ^ Int.toString i ^ " " ^ MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i)
                                  else ()
                     in env end)
                   #> (case rule_static of SOME rule_static => map_env_context rule_static | NONE => I)
@@ -1907,22 +1910,23 @@ fun scan_antiq ctxt explicit syms =
      , C_Token.read_no_commands'0 keywords syms)
   end
 
-fun print s =
-  app
+fun print0 s =
+  maps
     (fn C_Lex.Token (_, (t as C_Lex.Directive d, _)) =>
-        let val _ = Output.state (s ^ @{make_string} t)
-        in print (s ^ "  ") (C_Lex.token_list_of d) end
+        (s ^ @{make_string} t) :: print0 (s ^ "  ") (C_Lex.token_list_of d)
       | C_Lex.Token (_, t) => 
-        (case t of (C_Lex.Char _, _) => writeln "Text Char"
-                 | (C_Lex.String _, _) => writeln "Text String"
+        [case t of (C_Lex.Char _, _) => "Text Char"
+                 | (C_Lex.String _, _) => "Text String"
                  | _ => let val t' = @{make_string} (#2 t)
                         in
-                          if String.size t' <= 2 then Output.state (@{make_string} (#1 t))
+                          if String.size t' <= 2 then @{make_string} (#1 t)
                           else
-                            Output.state (s ^ @{make_string} (#1 t) ^ " "
-                                         ^ (String.substring (t', 1, String.size t' - 2)
-                                            |> Markup.markup Markup.intensify))
-                        end))
+                            s ^ @{make_string} (#1 t) ^ " "
+                              ^ (String.substring (t', 1, String.size t' - 2)
+                                 |> Markup.markup Markup.intensify)
+                        end])
+
+val print = tracing o cat_lines o print0 ""
 
 in
 
@@ -2006,9 +2010,10 @@ fun eval' accept flags pos ants =
       val _ = Position.reports (Antiquote.antiq_reports ants_ml
                                 @ maps (fn Left (_, _, [(Antiq_none _, _)]) => []
                                          | Left ({start, stop, range = (pos, _), ...}, _, _) =>
-                                            [(start, Markup.antiquote),
-                                             (stop, Markup.antiquote),
-                                             (pos, Markup.language_antiquotation)]
+                                            (case stop of SOME stop => cons (stop, Markup.antiquote)
+                                                        | NONE => I)
+                                              [(start, Markup.antiquote),
+                                               (pos, Markup.language_antiquotation)]
                                          | _ => [])
                                        ants);
       val _ = Position.reports_text (maps C_Lex.token_report ants_none
@@ -2019,15 +2024,16 @@ fun eval' accept flags pos ants =
                                             ants);
       val _ = C_Lex.check ants_none;
 
-      val _ = ML_Context.eval flags pos (case ML_Lex.read "(,)" of
-                              [par_l, colon, par_r, space] =>
-                                par_l ::
-                                (ants_ml
-                                |> separate colon)
-                                @ [par_r, space]
-                              | _ => [])
-      val () = if Config.get ctxt C_Options.source_trace
-               then print "" (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
+      val _ = ML_Context.eval (ML_Compiler.verbose false flags)
+                              pos
+                              (case ML_Lex.read "(,)" of [par_l, colon, par_r, space] =>
+                                                           par_l ::
+                                                           (ants_ml
+                                                           |> separate colon)
+                                                           @ [par_r, space]
+                                                       | _ => [])
+      val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
+               then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
       val (_, context) = P.parse (accept ants_hol) ants_stack context
   in Context.put_generic_context (SOME context)
