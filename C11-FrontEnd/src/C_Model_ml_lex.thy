@@ -1323,7 +1323,7 @@ fun parse accept s =
               val () = Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
                                                 , Markup.bad ())
                                               , "")]
-          in fold (exec_tree' (K o tracing)) stack_tree
+          in fold (exec_tree' (K o tracing)) (rev stack_tree)
                #> (fn _ => Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
                                       [("", range_pos (pos1, pos2))])
           end)
