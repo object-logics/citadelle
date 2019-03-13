@@ -1283,9 +1283,9 @@ structure P = struct
 
 open C_Env
 
-fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_static, rule_antiq}, l_tree)) =
+fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_static, rule_antiq}, l_tree)) =
   (tap
-    (#context
+    (I
      #> Context.proof_of 
      #> write
           let val (s1, s2) =
@@ -1293,24 +1293,23 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_static, rul
                             | Shift => ("SHIFT", NONE)
                             | Reduce i => ("REDUCE " ^ Int.toString i, SOME (MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i))
           in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end))
-  #> (case rule_static of SOME rule_static => map_env_context rule_static | NONE => I)
-  #> fold (fn ((rule, stack0), (range, ants)) => fn arg =>
-             map_context
-               let val stack = ([stack0], #env arg)
-                   val hook = "hook" in
-                 I #> Context.map_theory (Stack_Data.put stack)
-                   #> ML_Context.expression
-                        range
-                        hook
-                        (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
-                        ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
-                        ants
-               end
-               arg)
-          rule_antiq
+  #> (case rule_static of SOME rule_static => rule_static rule_env | NONE => pair rule_env)
+  #-> (fn env =>
+        fold (fn ((rule, stack0), (range, ants)) =>
+                   let val stack = ([stack0], env)
+                       val hook = "hook" in
+                     I #> Context.map_theory (Stack_Data.put stack)
+                       #> ML_Context.expression
+                            range
+                            hook
+                            (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
+                            ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
+                            ants
+                   end)
+             rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
 
-val exec_tree' = exec_tree ""
+val exec_tree' = fold o exec_tree ""
 
 fun parse accept s =
  make
@@ -1323,20 +1322,21 @@ fun parse accept s =
               val () = Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
                                                 , Markup.bad ())
                                               , "")]
-          in fold (exec_tree' (K o tracing)) (rev stack_tree)
+          in map_context (exec_tree' (K o tracing) (rev stack_tree))
                #> (fn _ => Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
                                       [("", range_pos (pos1, pos2))])
           end)
       , Position.none
       , uncurry (fn (stack, _, _, stack_tree) =>
-          fold (exec_tree' (fn s => fn ctxt =>
+          map_context (exec_tree' (fn s => fn ctxt =>
                               if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
-                              then tracing s else ()))
-               stack_tree
-            #> map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
-      , fn (stack, env) => env |> map_rule_input (K stack)
+                              then tracing s else ())
+                            stack_tree
+                       #> accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
+      , fn (stack, arg) => arg |> map_rule_input (K stack)
                                |> map_rule_output (K empty_rule_output)
-      , fn env => (#rule_output env, env))
+      , fn arg => (#rule_output arg, arg)
+      , #env)
  ##> (fn (_, {context, ...}) => context)
 end
 \<close>

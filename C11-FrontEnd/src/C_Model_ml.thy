@@ -168,6 +168,7 @@ datatype rule_type = Void
 type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   { rule_pos : 'pos * 'pos
   , rule_type : rule_type
+  , rule_env : env
   , rule_static : rule_static
   , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)))
                   * (Position.range * ML_Lex.token Antiquote.antiquote list)) list }
@@ -204,9 +205,9 @@ fun map_next_eval f {env, context, rule_output, rule_input, next_eval} =
 
 (**)
 
-fun map_env_context f {env, context, rule_output, rule_input, next_eval} =
-  let val (env, context) = f env context
-  in {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval} end
+fun map_context' f {env, context, rule_output, rule_input, next_eval} =
+  let val (res, context) = f context
+  in (res, {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}) end
 
 (**)
 
