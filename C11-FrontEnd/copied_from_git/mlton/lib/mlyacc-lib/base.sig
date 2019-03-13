@@ -132,7 +132,7 @@ signature LR_PARSER1 =
                             errtermvalue : LrTable.term -> 'arg -> '_b * 'arg,
                             showTerminal : LrTable.term -> string,
                             terms: LrTable.term list,
-                            error : (LrTable.state * ('_b * '_c * '_c)) list * '_c * '_c -> unit
+                            error : ('_b, '_c) stack * 'arg -> unit
                            },
                      lookahead : int  (* max amount of lookahead used in *)
                                       (* error correction *)
@@ -414,7 +414,7 @@ signature ARG_PARSER1 =
 
         val makeLexer : (int -> (antiq_stack, token0) either list) -> arg -> arg lexer
         val parse :   int
-                    * ((Token.LrTable.state, svalue0, pos) stack0 * pos * pos -> unit)
+                    * (stack * arg -> unit)
                     * pos
                     * (stack * arg -> arg)
                     * (((pos * pos) list * int) * arg -> arg)

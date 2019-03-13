@@ -41,7 +41,8 @@ type ('_b, '_c) stack = (LrTable.state * ('_b * '_c * '_c)) list
 
 type ('_b, '_c, 'arg) lexer = (('arg -> '_b * 'arg,'_c) Token.token, ('_b, '_c) stack * 'arg) Stream.stream * 'arg
 
-val empty_tree = C_Env.Tree ({rule_reduce = NONE, rule_static = NONE, rule_antiq = []}, [])
+fun empty_tree rule_pos rule_type =
+  C_Env.Tree ({rule_pos = rule_pos, rule_type = rule_type, rule_static = NONE, rule_antiq = []}, [])
 
 val showState = fn (STATE s) => "STATE " ^ Int.toString s
 
@@ -85,7 +86,7 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                            ||> (f_val #>> (fn value => add_stack ((s, (value, leftPos, rightPos)), stack)
                                                                  stack_ml
                                                                  ((leftPos, rightPos), stack_pos)
-                                                                 (empty_tree, stack_tree)))
+                                                                 (empty_tree (leftPos, rightPos) C_Env.Shift, stack_tree)))
                            |> Stream.get
                            |> parseStep
               | REDUCE i =>
@@ -101,15 +102,21 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                            |>> (fn st0 => fold (fold (cons o pair (i, goto0))) st0 [])
                          , drop dist stack_pos
                          , chop dist stack_tree)
+                       val pos = case #output_pos goto0' of NONE => (p1, p2) | SOME pos => pos
                    in ( add_stack
                           (goto0, stack')
                           stack_ml
-                          ((case #output_pos goto0' of NONE => (p1, p2) | SOME pos => pos), stack_pos)
-                          (C_Env.Tree ({rule_reduce = SOME i, rule_static = #output_env goto0', rule_antiq = l_ml}, rev l_tree), stack_tree)
+                          (pos, stack_pos)
+                          ( C_Env.Tree ( { rule_pos = pos
+                                         , rule_type = C_Env.Reduce i
+                                         , rule_static = #output_env goto0'
+                                         , rule_antiq = l_ml }
+                                       , rev l_tree )
+                          , stack_tree)
                       , arg) end
                  | _ => raise (ParseImpossible 197))
                 |> (fn stack_arg => parseStep (token, (lexer, stack_arg)))
-              | ERROR => (error (stack,leftPos,rightPos);
+              | ERROR => (error ((stack, stack_ml, stack_pos, stack_tree), arg);
                           raise ParseError)
               | ACCEPT => (lexer, ((stack, stack_ml, stack_pos, stack_tree), arg))
                           |> Stream.cons o pair token
@@ -123,7 +130,7 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
      ##> (void #>> (fn void' => add_stack ((initialState table, (void', void_position, void_position)), [])
                                           []
                                           ((void_position, void_position), [])
-                                          (empty_tree, [])))
+                                          (empty_tree (void_position, void_position) C_Env.Void, [])))
      #> Stream.get 
      #> parseStep 
 end
