@@ -611,6 +611,7 @@ type cChar = CChar
 type cInteger = CInteger
 type cFloat = CFloat
 type ident = Ident
+type 'a monad = 'a Hsk_c_parser.p
 val return = Hsk_c_parser.return
 \<close>
 
