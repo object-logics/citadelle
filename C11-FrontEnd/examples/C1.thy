@@ -118,7 +118,7 @@ int a = (((0))); /*@ setup \<open>@{setup}\<close> */
 
 C \<comment> \<open>\<^theory_text>\<open>hook\<close> is executed during REDUCE actions\<close> \<open>
 int a = (((0
-      + 5)))  /*@ hook \<open>fn (_, (value, pos1, pos2)) => fn thy =>
+      + 5)))  /*@ hook \<open>fn (_, (value, pos1, pos2)) => fn _ => fn thy =>
                           let
                             val () = writeln (@{make_string} value)
                             val () = Position.reports_text [((Position.range (pos1, pos2) |> Position.range_position, Markup.intensify), "")]
@@ -266,7 +266,7 @@ int g(int i)
 }
 \<close>
 
-subsection \<open>Mixing It All Together\<close>
+subsection \<open>Mixing Together Any Types of Antiquotations\<close>
 
 ML\<open>
 structure Example_Data = Theory_Data (type T = string list
@@ -287,16 +287,36 @@ C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
 int x /** OWNED_BY foo */, hh /*@
   MODIFIES: [*] x
   setup \<open>@{setup "evaluation of 2_setup"}\<close>
-  +++++@ hook \<open>fn x => @{hook} x #> add_ex "evaluation of " "2_hook"\<close>
+  +++++@ hook \<open>fn x => fn env => @{hook} x env #> add_ex "evaluation of " "2_hook"\<close>
   OWNED_BY bar
   theory
   context
-  hook \<open>fn x => @{hook} x #> add_ex "evaluation of " "1_hook"\<close>
+  hook \<open>fn x => fn env => @{hook} x env #> add_ex "evaluation of " "1_hook"\<close>
   setup \<open>@{setup "evaluation of 1_setup"}\<close>
   \<open>term "a + b"\<close>
 */, z;
 
 int b = 0;
+\<close>
+
+subsection \<open>Reporting of Positions and Contextual Update of Environment\<close>
+
+declare [[ML_source_trace = false]]
+declare [[C_lexer_trace = false]]
+
+C\<open>
+typedef int i, j;
+  /*@ hook \<open>@{hook'}\<close> */ //@ +++++ hook \<open>@{hook'}\<close>
+int j = 0;
+typedef int i, j;
+j jj = 0;
+j jj = 0;
+j j = 0;
+typedef i j;
+typedef i j;
+typedef i j;
+i jj = 0;
+j j = 0;
 \<close>
 
 section \<open>Miscellaneous\<close>

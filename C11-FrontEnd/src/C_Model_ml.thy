@@ -152,12 +152,14 @@ datatype antiq_hol = Invariant of string (* term *)
 
 structure C_Env = struct
 
-type env = { tyidents : Symtab.set (* approximative detection of types *)
-           , scopes : Symtab.set list
+type tyidents = (Position.T list * serial) Symtab.table
+
+type env = { tyidents : tyidents
+           , scopes : tyidents list
            , namesupply : int }
-(* NOTE: The distinction between type variable or identifier may be inaccurate,
-         as we are just in a lexing process.
-         Another typing phase is afterwards required to further restrict the parsed language. *)
+(* NOTE: The distinction between type variable or identifier can not be solely made
+         during the lexing process.
+         Another pass on the parsed tree is required. *)
 
 type rule_static = (env -> Context.generic -> env * Context.generic) option
 
@@ -288,6 +290,13 @@ sig
   val bind' : 'b p -> ('b -> unit p) -> 'b p
   val >> : unit p * 'a p -> 'a p
 
+  (**)
+  val get_reports : unit -> Position.report_text list
+  val init_reports : unit -> unit
+  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> unit
+  val append_reports : Position.report list -> unit
+  val markup_tvar : bool -> Position.T list -> string * serial -> Markup.T list
+
   (* Language.C.Data.RList *)
   val empty : 'a list Reversed
   val singleton : 'a -> 'a list Reversed
@@ -304,6 +313,7 @@ sig
   (* Language.C.Data.Node *)
   val mkNodeInfo' : Position -> PosLength -> Name -> NodeInfo
   val decode : NodeInfo -> (class_Pos, string) Either
+  val decode_error' : NodeInfo -> Position.range
 
   (* Language.C.Data.Ident *)
   val mkIdent : Position * int -> string -> Name -> Ident
@@ -380,6 +390,22 @@ struct
   val To_string0 = String.implode o to_list
   fun reverse l = rev l
 
+  val reports = Unsynchronized.ref ([]: Position.report_text list)
+  fun report xs = Position.store_reports reports xs
+  val append_reports = Position.append_reports reports
+  fun get_reports () = !reports
+  fun init_reports () = Unsynchronized.change reports (K [])
+  fun markup_tvar def ps (name, id) =
+    let 
+      fun markup_elem name = (name, (name, []): Markup.T);
+      val (tvarN, tvar) = markup_elem "C tvar";
+      val entity = Markup.entity tvarN name
+    in
+      tvar ::
+      (if def then I else cons (Markup.keyword_properties Markup.ML_keyword3))
+        (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
+    end
+
   (**)
   val return = pair
   fun bind f g = f #-> g
@@ -433,7 +459,8 @@ struct
              of ([pos1, _], [_, pos2]) => Left (Position.range (pos1, pos2))
               | _ => Right "Expecting 2 elements")
         | _ => Right "Invalid position")
-  fun decode_error x = Right (case decode x of Left x => x | Right msg => error msg)
+  fun decode_error' x = case decode x of Left x => x | Right msg => error msg
+  fun decode_error x = Right (decode_error' x)
   val nameOfNode = fn OnlyPos0 _ => NONE
                     | NodeInfo0 (_, _, name) => SOME name
 
@@ -469,9 +496,14 @@ struct
   (* Language.C.Parser.ParserMonad *)
   fun getNewName env =
     (Name (C_Env'.get_namesupply env), C_Env'.map_namesupply (fn x => x + 1) env)
-  fun addTypedef (Ident0 (i,_,_)) env =
-    ((), C_Env'.map_tyidents (Symtab.update (To_string0 i, ())) env)
-  fun shadowTypedef (Ident0 (i,_,_)) env =
+  fun addTypedef (Ident0 (i, _, node)) env =
+    let val (pos1, _) = decode_error' node
+        val id = serial ()
+        val name = To_string0 i
+        val pos = [pos1]
+        val _ = report pos (markup_tvar true pos) (name, id);
+    in ((), C_Env'.map_tyidents (Symtab.update (name, (pos, id))) env) end
+  fun shadowTypedef (Ident0 (i, _, _)) env =
     ((), C_Env'.map_tyidents (Symtab.delete_safe (To_string0 i)) env)
   fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env'.get_tyidents
   fun enterScope env =
@@ -626,6 +658,35 @@ ML_file "../copied_from_git/mlton/lib/mlyacc-lib/stream.sml"
   ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser2.sml"*)
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser1.sml"
 ML_file "../generated/language_c.grm.sig"
+
+ML\<open>
+structure MlyValueM' = struct
+open Hsk_c_parser
+val To_string0 = String.implode o C_ast_simple.to_list
+fun update_env f x = pair () ##> C_Env'.map_output_env (K (SOME (f x)))
+
+val specifier3 : (CDeclSpec list) -> unit monad = update_env (fn l => fn env => fn context =>
+  let open C_ast_simple
+      val () = app (fn CTypeSpec0 (CTypeDef0 (Ident0 (i, _, node), _)) =>
+                      let val name = To_string0 i
+                          val pos1 = [decode_error' node |> #1]
+                          val _ = case Symtab.lookup (#tyidents env) name of
+                                    NONE => ()
+                                  | SOME (pos0, id) => report pos1 (markup_tvar false pos0) (name, id)
+                      in () end
+                     | _ => ())
+                   l
+  in (env, context) end)
+val declaration_specifier3 : (CDeclSpec list) -> unit monad = specifier3
+val type_specifier3 : (CDeclSpec list) -> unit monad = specifier3
+end
+
+structure MlyValueM = struct
+  open MlyValueM
+  open MlyValueM'
+end
+\<close>
+
 ML_file "../generated/language_c.grm.sml"
 
 ML\<open>

@@ -1302,18 +1302,20 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_s
                        #> ML_Context.expression
                             range
                             hook
-                            (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
-                            ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
+                            (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env -> theory -> theory")
+                            ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") (Stack_Data.get thy |> #2) thy)")
                             ants
                    end)
              rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
 
-val exec_tree' = fold o exec_tree ""
+fun exec_tree' f l = fold (exec_tree "" f) l
+                  #> tap (fn _ => Position.reports_text (Hsk_c_parser.get_reports ()))
 
 fun parse accept s =
  make
  #> StrictCParser.makeLexer (fn _ => s)
+ #> tap (fn _ => Hsk_c_parser.init_reports ())
  #> StrictCParser.parse
       ( 0
       , uncurry (fn (stack, _, _, stack_tree) =>
