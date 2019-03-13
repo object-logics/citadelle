@@ -161,8 +161,13 @@ type env = { tyidents : Symtab.set (* approximative detection of types *)
 
 type rule_static = (env -> Context.generic -> env * Context.generic) option
 
+datatype rule_type = Void
+                   | Shift
+                   | Reduce of int
+
 type ('LrTable_state, 'svalue0, 'pos) rule_ml =
-  { rule_reduce : int option
+  { rule_pos : 'pos * 'pos
+  , rule_type : rule_type
   , rule_static : rule_static
   , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)))
                   * (Position.range * ML_Lex.token Antiquote.antiquote list)) list }

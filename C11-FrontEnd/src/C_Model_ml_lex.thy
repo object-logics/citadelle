@@ -1278,54 +1278,66 @@ structure StrictCParser =
   JoinWithArg1(structure LrParser = LrParser1
                structure ParserData = StrictCLrVals.ParserData
                structure Lex = StrictCLex)
+
 structure P = struct
-  fun parse accept s =
-   C_Env.make
-   #> StrictCParser.makeLexer (fn _ => s)
-   #> StrictCParser.parse
-        ( 0
-        , fn (stack, pos1, pos2) =>
-            let val range_pos = I #> Position.range #> Position.range_position
-                val () = Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
-                                                  , Markup.bad ())
-                                                , "")]
-            in Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
-                          [("", range_pos (pos1, pos2))]
-            end
-        , Position.none
-        , uncurry (fn (stack, _, _, stack_tree) =>
-            let open C_Env
-                fun exec_tree (Tree ({rule_reduce, rule_static, rule_antiq}, l_tree)) =
-                  (fn env =>
-                    let val ctxt = Context.proof_of (#context env)
-                        val () = if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
-                                 then tracing (case rule_reduce of
-                                                 NONE => "(NONE)"
-                                               | SOME i => "REDUCE " ^ Int.toString i ^ " " ^ MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i)
-                                 else ()
-                    in env end)
-                  #> (case rule_static of SOME rule_static => map_env_context rule_static | NONE => I)
-                  #> fold (fn ((rule, stack0), (range, ants)) => fn arg =>
-                             map_context
-                               let val stack = ([stack0], #env arg)
-                                   val hook = "hook" in
-                                 I #> Context.map_theory (Stack_Data.put stack)
-                                   #> ML_Context.expression
-                                        range
-                                        hook
-                                        (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
-                                        ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
-                                        ants
-                               end
-                               arg)
-                          rule_antiq
-                  #> fold exec_tree l_tree
-            in exec_tree (stack_tree |> hd)
-               #> map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0)) end)
-        , fn (stack, env) => env |> C_Env.map_rule_input (K stack)
-                                 |> C_Env.map_rule_output (K C_Env.empty_rule_output)
-        , fn env => (#rule_output env, env))
-   ##> (fn (_, {context, ...}) => context)
+
+open C_Env
+
+fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_static, rule_antiq}, l_tree)) =
+  (tap
+    (#context
+     #> Context.proof_of 
+     #> write
+          let val (s1, s2) =
+            case rule_type of Void => ("VOID", NONE)
+                            | Shift => ("SHIFT", NONE)
+                            | Reduce i => ("REDUCE " ^ Int.toString i, SOME (MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i))
+          in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end))
+  #> (case rule_static of SOME rule_static => map_env_context rule_static | NONE => I)
+  #> fold (fn ((rule, stack0), (range, ants)) => fn arg =>
+             map_context
+               let val stack = ([stack0], #env arg)
+                   val hook = "hook" in
+                 I #> Context.map_theory (Stack_Data.put stack)
+                   #> ML_Context.expression
+                        range
+                        hook
+                        (MlyValue.type_reduce rule ^ " stack_elem -> theory -> theory")
+                        ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") thy)")
+                        ants
+               end
+               arg)
+          rule_antiq
+  #> fold (exec_tree (msg ^ " ") write) l_tree
+
+val exec_tree' = exec_tree ""
+
+fun parse accept s =
+ make
+ #> StrictCParser.makeLexer (fn _ => s)
+ #> StrictCParser.parse
+      ( 0
+      , uncurry (fn (stack, _, _, stack_tree) =>
+          let val (pos1, pos2) = case stack_tree of Tree ({rule_pos, ...}, _) :: _ => rule_pos | _ => (Position.none, Position.none)
+              val range_pos = I #> Position.range #> Position.range_position
+              val () = Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
+                                                , Markup.bad ())
+                                              , "")]
+          in fold (exec_tree' (K o tracing)) stack_tree
+               #> (fn _ => Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
+                                      [("", range_pos (pos1, pos2))])
+          end)
+      , Position.none
+      , uncurry (fn (stack, _, _, stack_tree) =>
+          fold (exec_tree' (fn s => fn ctxt =>
+                              if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
+                              then tracing s else ()))
+               stack_tree
+            #> map_context (accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
+      , fn (stack, env) => env |> map_rule_input (K stack)
+                               |> map_rule_output (K empty_rule_output)
+      , fn env => (#rule_output env, env))
+ ##> (fn (_, {context, ...}) => context)
 end
 \<close>
 
