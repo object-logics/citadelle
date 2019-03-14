@@ -89,6 +89,17 @@ _Pragma /\
 **/("a")
 \<close>
 *)
+C \<comment> \<open>Directive: macro\<close> \<open>
+#define a zz
+#define a(x1,x2) z erz(( zz
+#define a (x1,x2) z erz(( zz
+#undef z
+#if
+#define a zz
+#define a(x1,x2) z erz(( zz
+#define a (x1,x2) z erz(( zz
+#endif
+\<close>
 
 section \<open>Antiquotations\<close>
 

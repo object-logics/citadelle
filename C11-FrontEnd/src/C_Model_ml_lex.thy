@@ -540,13 +540,18 @@ datatype token_kind =
 
 and token_kind_directive = Inline of token_group (* a not yet analyzed directive *)
                          | Include of token_group
+                         | Define of token_group (* define *)
+                                   * token_group (* name *)
+                                   * token_group option (* functional arguments *)
+                                   * token_group (* rewrite body *)
+                         | Undef of token_group (* name *)
                          | Conditional of token_group (* if *)
                                         * token_group list (* elif *)
                                         * token_group option (* else *)
                                         * token_group (* endif *)
 
 and token_group = Group1 of token list (* spaces and comments filtered from the directive *)
-                          * token list (* directive: raw without spaces and comments *)
+                          * token list (* directive: raw data *)
                 | Group2 of token list (* spaces and comments filtered from the directive *)
                           * token list (* directive: function *)
                           * token list (* directive: arguments (same line) *)
@@ -588,6 +593,8 @@ fun kind_of (Token (_, (k, _))) = k;
 val group_list_of = fn
    Inline g => [g]
  | Include g => [g]
+ | Define (g1, g2, o_g3, g4) => flat [[g1], [g2], the_list o_g3, [g4]]
+ | Undef g => [g]
  | Conditional (g1, gs2, o_g3, g4) => flat [[g1], gs2, the_list o_g3, [g4]]
 
 fun content_of (Token (_, (_, x))) = x;
@@ -705,6 +712,23 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
        :: flat [ maps token_report1 toks1
                , maps token_report0 toks2
                , maps token_report0 toks_bl ]
+   | Directive (Define (Group1 (toks_bl1, toks1), Group1 (toks_bl2, toks2), toks3, Group1 (toks_bl4, toks4))) =>
+       let val (toks_bl3, toks3) = case toks3 of SOME (Group1 x) => x | _ => ([], [])
+       in ((pos, Markup.antiquoted), "")
+         :: ((range_list_of0 toks4 |> #1, Markup.intensify), "")
+         :: flat [ maps token_report1 toks1
+                 , maps token_report0 toks2
+                 , maps token_report0 toks3
+                 , maps token_report0 toks4
+                 , maps token_report0 toks_bl1
+                 , maps token_report0 toks_bl2
+                 , map (fn tok => ((pos_of tok, Markup.antiquote), "")) toks_bl3
+                 , maps token_report0 toks_bl4 ] end
+   | Directive (Undef (Group2 (toks_bl, toks1, toks2))) =>
+       ((pos, Markup.antiquoted), "")
+       :: flat [ maps token_report1 toks1
+               , maps token_report0 toks2
+               , maps token_report0 toks_bl ]
    | Directive (Conditional (c1, cs2, c3, c4)) =>
        maps (fn Group3 (((pos, _), toks_bl, toks1, toks2), ((pos3, _), toks3)) => 
                 ((pos, Markup.antiquoted), "")
@@ -715,6 +739,12 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
                         , maps token_report0 toks_bl ]
               | _ => error "Only expecting Group3")
             (flat [[c1], cs2, the_list c3, [c4]])
+   | Error (msg, Group2 (toks_bl, toks1, toks2)) =>
+        ((range_list_of0 toks1 |> #1, Markup.bad ()), msg)
+        :: ((pos, Markup.antiquoted), "")
+        :: flat [ maps token_report1 toks1
+                , maps token_report0 toks2
+                , maps token_report0 toks_bl ]
    | Error (msg, Group3 ((_, toks_bl, toks1, toks2), _)) =>
         ((range_list_of0 toks1 |> #1, Markup.bad ()), msg)
         :: ((pos, Markup.antiquoted), "")
@@ -1000,9 +1030,54 @@ val not_cond =
      >> (fn Token (pos, ( Directive (Inline (Group1 ( toks_bl
                                                     , (tok1 as Token (_, (Sharp _, _)))
                                                       :: (tok2 as Token (_, (Ident, "include")))
-                                                      :: (toks as [Token (_, (File _, _))]))))
+                                                      :: toks)))
                         , s)) =>
-              Token (pos, (Directive (Include (Group2 (toks_bl, [tok1, tok2], toks))), s))
+              Token (pos, ( case toks of [Token (_, (File _, _))] =>
+                              Directive (Include (Group2 (toks_bl, [tok1, tok2], toks)))
+                            | _ => Error ("Expecting at least and at most one file" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
+                          , s))
+          | Token (pos, ( Directive (Inline (Group1 ( toks_bl
+                                                    , (tok1 as Token (_, (Sharp _, _)))
+                                                      :: (tok2 as Token (_, (Ident, "define")))
+                                                      :: toks)))
+                        , s)) =>
+             Token (pos, ( case toks of
+                            (tok3 as Token (_, (Ident, _))) :: toks =>
+                            (case
+                               case toks of
+                                 (tok3' as Token (pos, (Keyword, "("(*)*)))) :: toks => 
+                                   if Position.offset_of (end_pos_of tok3) = Position.offset_of (pos_of tok3')
+                                   then let fun take_prefix' toks_bl toks_acc pos = fn
+                                               (tok1 as Token (_, (Ident, _))) :: (tok2 as Token (pos2, (Keyword, key))) :: toks =>
+                                                 if key = ","
+                                                 then take_prefix' (tok2 :: toks_bl) (tok1 :: toks_acc) pos2 toks
+                                                 else if key = (*( *)")" then Left (rev (tok2 :: toks_bl), rev (tok1 :: toks_acc), toks)
+                                                 else Right ("Expecting a colon delimiter or a closing parenthesis" ^ Position.here (#1 pos2))
+                                             | Token (pos1, (Ident, _)) :: _ => Right ("Expecting a colon delimiter or a closing parenthesis" ^ Position.here (#2 pos1))
+                                             | _ => Right ("Expecting an identifier" ^ Position.here (#2 pos))
+                                        in case
+                                            case toks of
+                                              (tok1 as Token (_, (Ident, _))) :: (tok2 as Token (_, (Keyword, (*( *)")"))) :: toks => Left ([tok2], [tok1], toks)
+                                            | _ => take_prefix' [] [] pos toks
+                                           of Left (toks_bl, toks_acc, toks) => Left (SOME (Group1 (tok3' :: toks_bl, toks_acc)), Group1 ([], toks))
+                                            | Right x => Right x
+                                        end
+                                   else Left (NONE, Group1 ([], tok3' :: toks))
+                               | _ => Left (NONE, Group1 ([], toks))
+                             of Left (gr1, gr2) =>
+                                  Directive (Define (Group1 (toks_bl, [tok1, tok2]), Group1 ([], [tok3]), gr1, gr2))
+                              | Right msg => Error (msg, Group2 (toks_bl, [tok1, tok2], tok3 :: toks)))
+                           | _ => Error ("Expecting at least one identifier" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
+                         , s))
+          | Token (pos, ( Directive (Inline (Group1 ( toks_bl
+                                                    , (tok1 as Token (_, (Sharp _, _)))
+                                                      :: (tok2 as Token (_, (Ident, "undef")))
+                                                      :: toks)))
+                        , s)) =>
+              Token (pos, ( case toks of
+                              [Token (_, (Ident, _))] => Directive (Undef (Group2 (toks_bl, [tok1, tok2], toks)))
+                            | _ => Error ("Expecting at least and at most one identifier" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
+                          , s))
           | x => x))
 
 fun scan_cond xs = xs |>
