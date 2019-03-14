@@ -1285,9 +1285,7 @@ open C_Env
 
 fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_static, rule_antiq}, l_tree)) =
   (tap
-    (I
-     #> Context.proof_of 
-     #> write
+    (fn _ => write
           let val (s1, s2) =
             case rule_type of Void => ("VOID", NONE)
                             | Shift => ("SHIFT", NONE)
@@ -1309,8 +1307,12 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_s
              rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
 
-fun exec_tree' f l = fold (exec_tree "" f) l
-                  #> tap (fn _ => Position.reports_text (Hsk_c_parser.get_reports ()))
+fun exec_tree' l context =
+  context |> fold (exec_tree "" let val ctxt = Context.proof_of context
+                                in if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
+                                   then tracing else K () end)
+                  l
+          |> tap (fn _ => Position.reports_text (Hsk_c_parser.get_reports ()))
 
 fun parse accept s =
  make
@@ -1324,16 +1326,13 @@ fun parse accept s =
               val () = Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
                                                 , Markup.bad ())
                                               , "")]
-          in map_context (exec_tree' (K o tracing) (rev stack_tree))
+          in map_context (exec_tree' (rev stack_tree))
                #> (fn _ => Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
                                       [("", range_pos (pos1, pos2))])
           end)
       , Position.none
       , uncurry (fn (stack, _, _, stack_tree) =>
-          map_context (exec_tree' (fn s => fn ctxt =>
-                              if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
-                              then tracing s else ())
-                            stack_tree
+          map_context (exec_tree' stack_tree
                        #> accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
       , fn (stack, arg) => arg |> map_rule_input (K stack)
                                |> map_rule_output (K empty_rule_output)
