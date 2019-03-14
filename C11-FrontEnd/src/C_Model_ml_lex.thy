@@ -547,7 +547,6 @@ and token_kind_directive = Inline of token list (* spaces and comments firstly f
                                         * token_group (* endif *)
 
 and token_group = Group0 of token list (* not yet analyzed *)
-                | Group1 of (Position.range * token list) (* function *)
                 | Group2 of (Position.range * token list) (* function *)
                           * (Position.range * token list) (* arguments (same line) *)
                 | Group3 of (Position.range * token list) (* function *)
@@ -620,7 +619,6 @@ end
 
 val token_list_of = group_list_of #> maps (fn
     Group0 l => l
-  | Group1 (_, l) => l
   | Group2 ((_, l1), (_, l2)) => flat [l1, l2]
   | Group3 ((_, l1), (_, l2), (_, l3)) => flat [l1, l2, l3])
 
