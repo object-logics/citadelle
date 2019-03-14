@@ -602,29 +602,6 @@ fun is_ident (Token (_, (Ident, _))) = true
 fun is_delimiter (Token (_, (Keyword, x))) = not (C_Symbol.is_ascii_identifier x)
   | is_delimiter _ = false;
 
-local
-  fun warn0 pos l s =
-    if exists (not o Symbol.is_printable) l then
-      app (fn (s, pos) =>
-            if Symbol.is_printable s
-            then ()
-            else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
-                                    (Symbol_Pos.explode (s, pos))
-    else ()
-in
-val warn = fn
-    Token ((pos, _), (Char (_, l), s)) => warn0 pos l s
-  | Token ((pos, _), (String (_, l), s)) => warn0 pos l s
-  | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
-  | Token (_, (Comment (Right (SOME (explicit, msg, _))), _)) => (if explicit then warning else tracing) msg
-  | _ => ();
-end
-
-fun check_error tok =
-  case kind_of tok of
-    Error (msg, _) => SOME msg
-  | _ => NONE;
-
 (* range *)
 
 val range_list_of0 =
@@ -665,6 +642,33 @@ val token_list_of =
       | Group3 ((_, toks_bl, xs1, xs2), (_, xs3)) => flat [merge_blank' toks_bl xs1 xs2, [xs3]])
     #> flat
   end
+
+local
+  fun warn0 pos l s =
+    if exists (not o Symbol.is_printable) l then
+      app (fn (s, pos) =>
+            if Symbol.is_printable s
+            then ()
+            else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
+                                    (Symbol_Pos.explode (s, pos))
+    else ()
+in
+val warn = fn
+    Token ((pos, _), (Char (_, l), s)) => warn0 pos l s
+  | Token ((pos, _), (String (_, l), s)) => warn0 pos l s
+  | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
+  | Token (_, (Comment (Right (SOME (explicit, msg, _))), _)) => (if explicit then warning else tracing) msg
+  | Token ((pos, _), (Directive (Inline _), _)) => warning ("Ignored directive" ^ Position.here pos)
+  | Token (_, (Directive (kind as Conditional _), _)) => 
+      app (fn Token (_, (Error (msg, _), _)) => warning msg | _ => ())
+          (token_list_of kind)
+  | _ => ();
+end
+
+fun check_error tok =
+  case kind_of tok of
+    Error (msg, _) => SOME msg
+  | _ => NONE;
 
 (* markup *)
 
