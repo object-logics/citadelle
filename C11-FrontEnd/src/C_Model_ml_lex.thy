@@ -1284,13 +1284,13 @@ structure P = struct
 open C_Env
 
 fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_static, rule_antiq}, l_tree)) =
-  (tap
-    (fn _ => write
-          let val (s1, s2) =
-            case rule_type of Void => ("VOID", NONE)
-                            | Shift => ("SHIFT", NONE)
-                            | Reduce i => ("REDUCE " ^ Int.toString i, SOME (MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i))
-          in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end))
+  write
+    (fn _ =>
+      let val (s1, s2) =
+        case rule_type of Void => ("VOID", NONE)
+                        | Shift => ("SHIFT", NONE)
+                        | Reduce i => ("REDUCE " ^ Int.toString i, SOME (MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i))
+      in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end)
   #> (case rule_static of SOME rule_static => rule_static rule_env | NONE => pair rule_env)
   #-> (fn env =>
         fold (fn ((rule, stack0), (range, ants)) =>
@@ -1310,7 +1310,7 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_s
 fun exec_tree' l context =
   context |> fold (exec_tree "" let val ctxt = Context.proof_of context
                                 in if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
-                                   then tracing else K () end)
+                                   then fn f => tap (tracing o f) else K I end)
                   l
           |> tap (fn _ => Position.reports_text (Hsk_c_parser.get_reports ()))
 
