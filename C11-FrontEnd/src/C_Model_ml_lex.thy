@@ -548,11 +548,12 @@ and token_kind_directive = Inline of token_group (* a not yet analyzed directive
 and token_group = Group0 of token list (* spaces and comments filtered from the directive *)
                           * token list (* directive: raw without spaces and comments *)
                 | Group2 of token list (* spaces and comments filtered from the directive *)
-                          * (Position.range * token list) (* directive: function *)
-                          * (Position.range * token list) (* directive: arguments (same line) *)
-                | Group3 of (  token list (* spaces and comments filtered from the directive *)
-                             * (Position.range * token list) (* directive: function *)
-                             * (Position.range * token list) (* directive: arguments (same line) *))
+                          * token list (* directive: function *)
+                          * token list (* directive: arguments (same line) *)
+                | Group3 of (  Position.range (* full directive (with blanks) *)
+                             * token list (* spaces and comments filtered from the directive *)
+                             * token list (* directive: function *)
+                             * token list (* directive: arguments (same line) *))
                           * (Position.range * token list) (* C code or directive: arguments (following lines) *)
 
 and token = Token of Position.range * (token_kind * string);
@@ -651,13 +652,6 @@ fun merge_blank toks_bl xs1 xs2 =
   in ( range_list_of (merge_pos (xs1, filter cmp_tok2 toks_bl))
      , range_list_of (merge_pos (xs2, filter_out cmp_tok2 toks_bl)))
   end
-
-fun merge_blank_only_pos toks_bl xs1 xs2 =
-  let val cmp_tok2 = cmp_pos (List.last xs1)
-  in ( toks_bl
-     , range_list_of' (merge_pos (xs1, filter cmp_tok2 toks_bl)) xs1
-     , range_list_of' (merge_pos (xs2, filter_out cmp_tok2 toks_bl)) xs2)
-  end
 end
 
 val token_list_of = 
@@ -667,8 +661,8 @@ val token_list_of =
   in group_list_of
     #> maps (fn
         Group0 (toks_bl, xs1) => merge_blank' toks_bl xs1 []
-      | Group2 (toks_bl, (_, xs1), (_, xs2)) => merge_blank' toks_bl xs1 xs2
-      | Group3 ((toks_bl, (_, xs1), (_, xs2)), (_, xs3)) => flat [merge_blank' toks_bl xs1 xs2, [xs3]])
+      | Group2 (toks_bl, xs1, xs2) => merge_blank' toks_bl xs1 xs2
+      | Group3 ((_, toks_bl, xs1, xs2), (_, xs3)) => flat [merge_blank' toks_bl xs1 xs2, [xs3]])
     #> flat
   end
 
@@ -701,16 +695,14 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
     case kind of
      Directive (tokens as Inline _) =>
        ((pos, Markup.antiquoted), "") :: maps token_report0 (token_list_of tokens)
-   | Directive (Include (Group2 (toks_bl, ((pos1, _), toks1), ((pos2, _), toks2)))) =>
-       ((pos1, Markup.antiquoted), "")
-       :: ((pos2, Markup.antiquoted), "")
+   | Directive (Include (Group2 (toks_bl, toks1, toks2))) =>
+       ((pos, Markup.antiquoted), "")
        :: flat [ maps token_report1 toks1
                , maps token_report0 toks2
                , maps token_report0 toks_bl ]
    | Directive (Conditional (c1, cs2, c3, c4)) =>
-       maps (fn Group3 ((toks_bl, ((pos1, _), toks1), ((pos2, _), toks2)), ((pos3, _), toks3)) => 
-                ((pos1, Markup.antiquoted), "")
-                :: ((pos2, Markup.antiquoted), "")
+       maps (fn Group3 (((pos, _), toks_bl, toks1, toks2), ((pos3, _), toks3)) => 
+                ((pos, Markup.antiquoted), "")
                 :: ((pos3, Markup.intensify), "")
                 :: flat [ maps token_report1 toks1
                         , maps token_report0 toks2
@@ -718,8 +710,8 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
                         , maps token_report0 toks_bl ]
               | _ => error "Only expecting Group3")
             (flat [[c1], cs2, the_list c3, [c4]])
-   | Error (msg, Group3 ((toks_bl, ((pos1, _), toks1), (_, toks2)), _)) =>
-        ((pos1, Markup.bad ()), msg)
+   | Error (msg, Group3 ((_, toks_bl, toks1, toks2), _)) =>
+        ((range_list_of0 toks1 |> #1, Markup.bad ()), msg)
         :: ((pos, Markup.antiquoted), "")
         :: flat [ maps token_report1 toks1
                 , maps token_report0 toks2
@@ -984,8 +976,8 @@ fun one_directive f =
   Scan.one (fn Token (_, (Directive (Inline (Group0 (_, Token (_, (Sharp 1, _)) :: Token (_, s) :: _))), _)) => f s
              | _ => false)
 
-val get_cond = fn Token (_, (Directive (Inline (Group0 (toks_bl, tok1 :: tok2 :: toks))), _)) =>
-                    (fn t3 => Group3 (merge_blank_only_pos toks_bl [tok1, tok2] toks, range_list_of t3))
+val get_cond = fn Token (pos, (Directive (Inline (Group0 (toks_bl, tok1 :: tok2 :: toks))), _)) =>
+                    (fn t3 => Group3 ((pos, toks_bl, [tok1, tok2], toks), range_list_of t3))
                 | _ => error "Inline directive expected"
 
 val one_start_cond = one_directive (fn (Keyword, "if") => true
@@ -1005,7 +997,7 @@ val not_cond =
                                                       :: (tok2 as Token (_, (Ident, "include")))
                                                       :: (toks as [Token (_, (File _, _))]))))
                         , s)) =>
-              Token (pos, (Directive (Include (Group2 (merge_blank_only_pos toks_bl [tok1, tok2] toks))), s))
+              Token (pos, (Directive (Include (Group2 (toks_bl, [tok1, tok2], toks))), s))
           | x => x))
 
 fun scan_cond xs = xs |>
@@ -1062,14 +1054,8 @@ end
 
 (* scan tokens, main *)
 
-val scan_ml =
- (scan_directive
-  >> (fn tokens =>
-        let val tokens' = token_list_of tokens in
-          Token ( range_list_of0 tokens'
-                , (Directive tokens, String.concatWith "" (map content_of tokens')))
-        end)
-  || scan_fragment scan_blanks1);
+val scan_ml = scan_token scan_directive Directive
+           || scan_fragment scan_blanks1;
 
 fun recover msg =
  (recover_char ||
