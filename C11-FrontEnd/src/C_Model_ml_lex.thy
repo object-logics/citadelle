@@ -637,7 +637,8 @@ val token_list_of =
     in [l1, l2] end
   in group_list_of
     #> maps (fn
-        Group1 (toks_bl, xs1) => merge_blank' toks_bl xs1 []
+        Group1 (toks_bl, []) => [toks_bl]
+      | Group1 (toks_bl, xs1) => merge_blank' toks_bl xs1 []
       | Group2 (toks_bl, xs1, xs2) => merge_blank' toks_bl xs1 xs2
       | Group3 ((_, toks_bl, xs1, xs2), (_, xs3)) => flat [merge_blank' toks_bl xs1 xs2, [xs3]])
     #> flat
