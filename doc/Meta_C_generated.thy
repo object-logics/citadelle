@@ -84,15 +84,11 @@ type defined for the corresponding object representations as follows: \<close>
 
 (* 15 ************************************ 13 + 2 *)  (* term Floor1_infra.print_infra_datatype_class_1 *)
 datatype ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "oid"
-
 datatype ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "ty\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
-
 
 (* 16 ************************************ 15 + 2 *)  (* term Floor1_infra.print_infra_datatype_class_2 *)
 datatype ty2\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk2\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y 
-
 datatype ty2oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = mk2oid\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "oid" "ty2\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
-
 
 (* 17 ************************************ 17 + 2 *)  (* term Floor1_infra.print_infra_datatype_equiv_2of1 *)
 definition "class_ty_ext_equiv_2of1_aux\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y = (\<lambda>oid. (\<lambda> (mk2\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ) \<Rightarrow> (mk\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y ((mk\<E>\<X>\<T>\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y (oid))))))"
@@ -111,7 +107,6 @@ for all respective type-variables. \<close>
 
 (* 20 ************************************ 23 + 1 *)  (* term Floor1_infra.print_infra_datatype_universe *)
 datatype \<AA> = in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y "ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y"
-
 
 (* 21 ************************************ 24 + 1 *)
 text \<open>
@@ -595,212 +590,366 @@ lemmas [simp,code_unfold] = state.defs
 (* 146 ************************************ 140 + 1 *)
 section \<open>Haskell\<close>
 
-(* 147 ************************************ 141 + 53 *)  (* term Floor1_haskabelle.print_haskell *)
-atomic_old_datatype Position = Position "int" "string" "int" "int"
-                        | NoPosition 
-                        | BuiltinPosition 
-                        | InternalPosition 
-
+(* 147 ************************************ 141 + 230 *)  (* term Floor1_haskabelle.print_haskell *)
+old_datatype Position = Position0 "int" "string" "int" "int"
+                        | NoPosition0 
+                        | BuiltinPosition0 
+                        | InternalPosition0 
+definition "Position = Position0"
+definition "NoPosition = NoPosition0"
+definition "BuiltinPosition = BuiltinPosition0"
+definition "InternalPosition = InternalPosition0"
 type_synonym PosLength = "(Position, int) Product_Type.prod"
-atomic_old_datatype Name = Name "int"
-
-atomic_old_datatype NodeInfo = OnlyPos "Position" "PosLength"
-                        | NodeInfo "Position" "PosLength" "Name"
-
-atomic_old_datatype Ident = Ident "string" "int" "NodeInfo"
-
-atomic_old_datatype SUERef = AnonymousRef "Name"
-                        | NamedRef "Ident"
-
-atomic_old_datatype CChar = CChar "char" "HOL.bool"
-                        | CChars "char List.list" "HOL.bool"
-
-atomic_old_datatype CIntRepr = DecRepr 
-                        | HexRepr 
-                        | OctalRepr 
-
-atomic_old_datatype CIntFlag = FlagUnsigned 
-                        | FlagLong 
-                        | FlagLongLong 
-                        | FlagImag 
-
-atomic_old_datatype CFloat = CFloat "string"
-
-atomic_old_datatype ClangCVersion = ClangCVersion "string"
-
-atomic_old_datatype CString = CString "string" "HOL.bool"
-
-atomic_old_datatype 'f Flags = Flags "int"
-
-atomic_old_datatype CInteger = CInteger "int" "CIntRepr" "CIntFlag Flags"
-
-atomic_old_datatype CAssignOp = CAssignOp 
-                        | CMulAssOp 
-                        | CDivAssOp 
-                        | CRmdAssOp 
-                        | CAddAssOp 
-                        | CSubAssOp 
-                        | CShlAssOp 
-                        | CShrAssOp 
-                        | CAndAssOp 
-                        | CXorAssOp 
-                        | COrAssOp 
-
-atomic_old_datatype CBinaryOp = CMulOp 
-                        | CDivOp 
-                        | CRmdOp 
-                        | CAddOp 
-                        | CSubOp 
-                        | CShlOp 
-                        | CShrOp 
-                        | CLeOp 
-                        | CGrOp 
-                        | CLeqOp 
-                        | CGeqOp 
-                        | CEqOp 
-                        | CNeqOp 
-                        | CAndOp 
-                        | CXorOp 
-                        | COrOp 
-                        | CLndOp 
-                        | CLorOp 
-
-atomic_old_datatype CUnaryOp = CPreIncOp 
-                        | CPreDecOp 
-                        | CPostIncOp 
-                        | CPostDecOp 
-                        | CAdrOp 
-                        | CIndOp 
-                        | CPlusOp 
-                        | CMinOp 
-                        | CCompOp 
-                        | CNegOp 
-
-atomic_old_datatype 'a CStorageSpecifier = CAuto "'a"
-                        | CRegister "'a"
-                        | CStatic "'a"
-                        | CExtern "'a"
-                        | CTypedef "'a"
-                        | CThread "'a"
-
+old_datatype Name = Name0 "int"
+definition "Name = Name0"
+old_datatype NodeInfo = OnlyPos0 "Position" "PosLength"
+                        | NodeInfo0 "Position" "PosLength" "Name"
+definition "OnlyPos = OnlyPos0"
+definition "NodeInfo = NodeInfo0"
+old_datatype Ident = Ident0 "string" "int" "NodeInfo"
+definition "Ident = Ident0"
+old_datatype SUERef = AnonymousRef0 "Name"
+                        | NamedRef0 "Ident"
+definition "AnonymousRef = AnonymousRef0"
+definition "NamedRef = NamedRef0"
+old_datatype CChar = CChar0 "char" "HOL.bool"
+                        | CChars0 "char List.list" "HOL.bool"
+definition "CChar = CChar0"
+definition "CChars = CChars0"
+old_datatype CIntRepr = DecRepr0 
+                        | HexRepr0 
+                        | OctalRepr0 
+definition "DecRepr = DecRepr0"
+definition "HexRepr = HexRepr0"
+definition "OctalRepr = OctalRepr0"
+old_datatype CIntFlag = FlagUnsigned0 
+                        | FlagLong0 
+                        | FlagLongLong0 
+                        | FlagImag0 
+definition "FlagUnsigned = FlagUnsigned0"
+definition "FlagLong = FlagLong0"
+definition "FlagLongLong = FlagLongLong0"
+definition "FlagImag = FlagImag0"
+old_datatype CFloat = CFloat0 "string"
+definition "CFloat = CFloat0"
+old_datatype ClangCVersion = ClangCVersion0 "string"
+definition "ClangCVersion = ClangCVersion0"
+old_datatype CString = CString0 "string" "HOL.bool"
+definition "CString = CString0"
+old_datatype 'f Flags = Flags0 "int"
+definition "Flags = Flags0"
+old_datatype CInteger = CInteger0 "int" "CIntRepr" "CIntFlag Flags"
+definition "CInteger = CInteger0"
+old_datatype CAssignOp = CAssignOp0 
+                        | CMulAssOp0 
+                        | CDivAssOp0 
+                        | CRmdAssOp0 
+                        | CAddAssOp0 
+                        | CSubAssOp0 
+                        | CShlAssOp0 
+                        | CShrAssOp0 
+                        | CAndAssOp0 
+                        | CXorAssOp0 
+                        | COrAssOp0 
+definition "CAssignOp = CAssignOp0"
+definition "CMulAssOp = CMulAssOp0"
+definition "CDivAssOp = CDivAssOp0"
+definition "CRmdAssOp = CRmdAssOp0"
+definition "CAddAssOp = CAddAssOp0"
+definition "CSubAssOp = CSubAssOp0"
+definition "CShlAssOp = CShlAssOp0"
+definition "CShrAssOp = CShrAssOp0"
+definition "CAndAssOp = CAndAssOp0"
+definition "CXorAssOp = CXorAssOp0"
+definition "COrAssOp = COrAssOp0"
+old_datatype CBinaryOp = CMulOp0 
+                        | CDivOp0 
+                        | CRmdOp0 
+                        | CAddOp0 
+                        | CSubOp0 
+                        | CShlOp0 
+                        | CShrOp0 
+                        | CLeOp0 
+                        | CGrOp0 
+                        | CLeqOp0 
+                        | CGeqOp0 
+                        | CEqOp0 
+                        | CNeqOp0 
+                        | CAndOp0 
+                        | CXorOp0 
+                        | COrOp0 
+                        | CLndOp0 
+                        | CLorOp0 
+definition "CMulOp = CMulOp0"
+definition "CDivOp = CDivOp0"
+definition "CRmdOp = CRmdOp0"
+definition "CAddOp = CAddOp0"
+definition "CSubOp = CSubOp0"
+definition "CShlOp = CShlOp0"
+definition "CShrOp = CShrOp0"
+definition "CLeOp = CLeOp0"
+definition "CGrOp = CGrOp0"
+definition "CLeqOp = CLeqOp0"
+definition "CGeqOp = CGeqOp0"
+definition "CEqOp = CEqOp0"
+definition "CNeqOp = CNeqOp0"
+definition "CAndOp = CAndOp0"
+definition "CXorOp = CXorOp0"
+definition "COrOp = COrOp0"
+definition "CLndOp = CLndOp0"
+definition "CLorOp = CLorOp0"
+old_datatype CUnaryOp = CPreIncOp0 
+                        | CPreDecOp0 
+                        | CPostIncOp0 
+                        | CPostDecOp0 
+                        | CAdrOp0 
+                        | CIndOp0 
+                        | CPlusOp0 
+                        | CMinOp0 
+                        | CCompOp0 
+                        | CNegOp0 
+definition "CPreIncOp = CPreIncOp0"
+definition "CPreDecOp = CPreDecOp0"
+definition "CPostIncOp = CPostIncOp0"
+definition "CPostDecOp = CPostDecOp0"
+definition "CAdrOp = CAdrOp0"
+definition "CIndOp = CIndOp0"
+definition "CPlusOp = CPlusOp0"
+definition "CMinOp = CMinOp0"
+definition "CCompOp = CCompOp0"
+definition "CNegOp = CNegOp0"
+old_datatype 'a CStorageSpecifier = CAuto0 "'a"
+                        | CRegister0 "'a"
+                        | CStatic0 "'a"
+                        | CExtern0 "'a"
+                        | CTypedef0 "'a"
+                        | CThread0 "'a"
+definition "CAuto = CAuto0"
+definition "CRegister = CRegister0"
+definition "CStatic = CStatic0"
+definition "CExtern = CExtern0"
+definition "CTypedef = CTypedef0"
+definition "CThread = CThread0"
 type_synonym CStorageSpec = "NodeInfo CStorageSpecifier"
-atomic_old_datatype 'a CFunctionSpecifier = CInlineQual "'a"
-                        | CNoreturnQual "'a"
-
+old_datatype 'a CFunctionSpecifier = CInlineQual0 "'a"
+                        | CNoreturnQual0 "'a"
+definition "CInlineQual = CInlineQual0"
+definition "CNoreturnQual = CNoreturnQual0"
 type_synonym CFunSpec = "NodeInfo CFunctionSpecifier"
-atomic_old_datatype CStructTag = CStructTag 
-                        | CUnionTag 
-
-atomic_old_datatype 'a CConstant = CIntConst "CInteger" "'a"
-                        | CCharConst "CChar" "'a"
-                        | CFloatConst "CFloat" "'a"
-                        | CStrConst "CString" "'a"
-
+old_datatype CStructTag = CStructTag0 
+                        | CUnionTag0 
+definition "CStructTag = CStructTag0"
+definition "CUnionTag = CUnionTag0"
+old_datatype 'a CConstant = CIntConst0 "CInteger" "'a"
+                        | CCharConst0 "CChar" "'a"
+                        | CFloatConst0 "CFloat" "'a"
+                        | CStrConst0 "CString" "'a"
+definition "CIntConst = CIntConst0"
+definition "CCharConst = CCharConst0"
+definition "CFloatConst = CFloatConst0"
+definition "CStrConst = CStrConst0"
 type_synonym CConst = "NodeInfo CConstant"
-atomic_old_datatype 'a CStringLiteral = CStrLit "CString" "'a"
-
-atomic_old_datatype 'a CFunctionDef = CFunDef "'a CDeclarationSpecifier List.list" "'a CDeclarator" "'a CDeclaration List.list" "'a CStatement" "'a"
-and 'a CDeclaration = CDecl "'a CDeclarationSpecifier List.list" "(('a CDeclarator C_Model_init.option, 'a CInitializer C_Model_init.option) Product_Type.prod, 'a CExpression C_Model_init.option) Product_Type.prod List.list" "'a"
-                        | CStaticAssert "'a CExpression" "'a CStringLiteral" "'a"
-and 'a CDeclarator = CDeclr "Ident C_Model_init.option" "'a CDerivedDeclarator List.list" "'a CStringLiteral C_Model_init.option" "'a CAttribute List.list" "'a"
-and 'a CDerivedDeclarator = CPtrDeclr "'a CTypeQualifier List.list" "'a"
-                        | CArrDeclr "'a CTypeQualifier List.list" "'a CArraySize" "'a"
-                        | CFunDeclr "(Ident List.list, ('a CDeclaration List.list, HOL.bool) Product_Type.prod) C_Model_init.Either" "'a CAttribute List.list" "'a"
-and 'a CArraySize = CNoArrSize "HOL.bool"
-                        | CArrSize "HOL.bool" "'a CExpression"
-and 'a CStatement = CLabel "Ident" "'a CStatement" "'a CAttribute List.list" "'a"
-                        | CCase "'a CExpression" "'a CStatement" "'a"
-                        | CCases "'a CExpression" "'a CExpression" "'a CStatement" "'a"
-                        | CDefault "'a CStatement" "'a"
-                        | CExpr "'a CExpression C_Model_init.option" "'a"
-                        | CCompound "Ident List.list" "'a CCompoundBlockItem List.list" "'a"
-                        | CIf "'a CExpression" "'a CStatement" "'a CStatement C_Model_init.option" "'a"
-                        | CSwitch "'a CExpression" "'a CStatement" "'a"
-                        | CWhile "'a CExpression" "'a CStatement" "HOL.bool" "'a"
-                        | CFor "('a CExpression C_Model_init.option, 'a CDeclaration) C_Model_init.Either" "'a CExpression C_Model_init.option" "'a CExpression C_Model_init.option" "'a CStatement" "'a"
-                        | CGoto "Ident" "'a"
-                        | CGotoPtr "'a CExpression" "'a"
-                        | CCont "'a"
-                        | CBreak "'a"
-                        | CReturn "'a CExpression C_Model_init.option" "'a"
-                        | CAsm "'a CAssemblyStatement" "'a"
-and 'a CAssemblyStatement = CAsmStmt "'a CTypeQualifier C_Model_init.option" "'a CStringLiteral" "'a CAssemblyOperand List.list" "'a CAssemblyOperand List.list" "'a CStringLiteral List.list" "'a"
-and 'a CAssemblyOperand = CAsmOperand "Ident C_Model_init.option" "'a CStringLiteral" "'a CExpression" "'a"
-and 'a CCompoundBlockItem = CBlockStmt "'a CStatement"
-                        | CBlockDecl "'a CDeclaration"
-                        | CNestedFunDef "'a CFunctionDef"
-and 'a CDeclarationSpecifier = CStorageSpec "'a CStorageSpecifier"
-                        | CTypeSpec "'a CTypeSpecifier"
-                        | CTypeQual "'a CTypeQualifier"
-                        | CFunSpec "'a CFunctionSpecifier"
-                        | CAlignSpec "'a CAlignmentSpecifier"
-and 'a CTypeSpecifier = CVoidType "'a"
-                        | CCharType "'a"
-                        | CShortType "'a"
-                        | CIntType "'a"
-                        | CLongType "'a"
-                        | CFloatType "'a"
-                        | CDoubleType "'a"
-                        | CSignedType "'a"
-                        | CUnsigType "'a"
-                        | CBoolType "'a"
-                        | CComplexType "'a"
-                        | CInt128Type "'a"
-                        | CSUType "'a CStructureUnion" "'a"
-                        | CEnumType "'a CEnumeration" "'a"
-                        | CTypeDef "Ident" "'a"
-                        | CTypeOfExpr "'a CExpression" "'a"
-                        | CTypeOfType "'a CDeclaration" "'a"
-                        | CAtomicType "'a CDeclaration" "'a"
-and 'a CTypeQualifier = CConstQual "'a"
-                        | CVolatQual "'a"
-                        | CRestrQual "'a"
-                        | CAtomicQual "'a"
-                        | CAttrQual "'a CAttribute"
-                        | CNullableQual "'a"
-                        | CNonnullQual "'a"
-and 'a CAlignmentSpecifier = CAlignAsType "'a CDeclaration" "'a"
-                        | CAlignAsExpr "'a CExpression" "'a"
-and 'a CStructureUnion = CStruct "CStructTag" "Ident C_Model_init.option" "'a CDeclaration List.list C_Model_init.option" "'a CAttribute List.list" "'a"
-and 'a CEnumeration = CEnum "Ident C_Model_init.option" "(Ident, 'a CExpression C_Model_init.option) Product_Type.prod List.list C_Model_init.option" "'a CAttribute List.list" "'a"
-and 'a CInitializer = CInitExpr "'a CExpression" "'a"
-                        | CInitList "('a CPartDesignator List.list, 'a CInitializer) Product_Type.prod List.list" "'a"
-and 'a CPartDesignator = CArrDesig "'a CExpression" "'a"
-                        | CMemberDesig "Ident" "'a"
-                        | CRangeDesig "'a CExpression" "'a CExpression" "'a"
-and 'a CAttribute = CAttr "Ident" "'a CExpression List.list" "'a"
-and 'a CExpression = CComma "'a CExpression List.list" "'a"
-                        | CAssign "CAssignOp" "'a CExpression" "'a CExpression" "'a"
-                        | CCond "'a CExpression" "'a CExpression C_Model_init.option" "'a CExpression" "'a"
-                        | CBinary "CBinaryOp" "'a CExpression" "'a CExpression" "'a"
-                        | CCast "'a CDeclaration" "'a CExpression" "'a"
-                        | CUnary "CUnaryOp" "'a CExpression" "'a"
-                        | CSizeofExpr "'a CExpression" "'a"
-                        | CSizeofType "'a CDeclaration" "'a"
-                        | CAlignofExpr "'a CExpression" "'a"
-                        | CAlignofType "'a CDeclaration" "'a"
-                        | CComplexReal "'a CExpression" "'a"
-                        | CComplexImag "'a CExpression" "'a"
-                        | CIndex "'a CExpression" "'a CExpression" "'a"
-                        | CCall "'a CExpression" "'a CExpression List.list" "'a"
-                        | CMember "'a CExpression" "Ident" "HOL.bool" "'a"
-                        | CVar "Ident" "'a"
-                        | CConst "'a CConstant"
-                        | CCompoundLit "'a CDeclaration" "('a CPartDesignator List.list, 'a CInitializer) Product_Type.prod List.list" "'a"
-                        | CGenericSelection "'a CExpression" "('a CDeclaration C_Model_init.option, 'a CExpression) Product_Type.prod List.list" "'a"
-                        | CStatExpr "'a CStatement" "'a"
-                        | CLabAddrExpr "Ident" "'a"
-                        | CBuiltinExpr "'a CBuiltinThing"
-and 'a CBuiltinThing = CBuiltinVaArg "'a CExpression" "'a CDeclaration" "'a"
-                        | CBuiltinOffsetOf "'a CDeclaration" "'a CPartDesignator List.list" "'a"
-                        | CBuiltinTypesCompatible "'a CDeclaration" "'a CDeclaration" "'a"
+old_datatype 'a CStringLiteral = CStrLit0 "CString" "'a"
+definition "CStrLit = CStrLit0"
+old_datatype 'a CFunctionDef = CFunDef0 "'a CDeclarationSpecifier List.list" "'a CDeclarator" "'a CDeclaration List.list" "'a CStatement" "'a"
+and 'a CDeclaration = CDecl0 "'a CDeclarationSpecifier List.list" "(('a CDeclarator C_Model_init.option, 'a CInitializer C_Model_init.option) Product_Type.prod, 'a CExpression C_Model_init.option) Product_Type.prod List.list" "'a"
+                        | CStaticAssert0 "'a CExpression" "'a CStringLiteral" "'a"
+and 'a CDeclarator = CDeclr0 "Ident C_Model_init.option" "'a CDerivedDeclarator List.list" "'a CStringLiteral C_Model_init.option" "'a CAttribute List.list" "'a"
+and 'a CDerivedDeclarator = CPtrDeclr0 "'a CTypeQualifier List.list" "'a"
+                        | CArrDeclr0 "'a CTypeQualifier List.list" "'a CArraySize" "'a"
+                        | CFunDeclr0 "(Ident List.list, ('a CDeclaration List.list, HOL.bool) Product_Type.prod) C_Model_init.Either" "'a CAttribute List.list" "'a"
+and 'a CArraySize = CNoArrSize0 "HOL.bool"
+                        | CArrSize0 "HOL.bool" "'a CExpression"
+and 'a CStatement = CLabel0 "Ident" "'a CStatement" "'a CAttribute List.list" "'a"
+                        | CCase0 "'a CExpression" "'a CStatement" "'a"
+                        | CCases0 "'a CExpression" "'a CExpression" "'a CStatement" "'a"
+                        | CDefault0 "'a CStatement" "'a"
+                        | CExpr0 "'a CExpression C_Model_init.option" "'a"
+                        | CCompound0 "Ident List.list" "'a CCompoundBlockItem List.list" "'a"
+                        | CIf0 "'a CExpression" "'a CStatement" "'a CStatement C_Model_init.option" "'a"
+                        | CSwitch0 "'a CExpression" "'a CStatement" "'a"
+                        | CWhile0 "'a CExpression" "'a CStatement" "HOL.bool" "'a"
+                        | CFor0 "('a CExpression C_Model_init.option, 'a CDeclaration) C_Model_init.Either" "'a CExpression C_Model_init.option" "'a CExpression C_Model_init.option" "'a CStatement" "'a"
+                        | CGoto0 "Ident" "'a"
+                        | CGotoPtr0 "'a CExpression" "'a"
+                        | CCont0 "'a"
+                        | CBreak0 "'a"
+                        | CReturn0 "'a CExpression C_Model_init.option" "'a"
+                        | CAsm0 "'a CAssemblyStatement" "'a"
+and 'a CAssemblyStatement = CAsmStmt0 "'a CTypeQualifier C_Model_init.option" "'a CStringLiteral" "'a CAssemblyOperand List.list" "'a CAssemblyOperand List.list" "'a CStringLiteral List.list" "'a"
+and 'a CAssemblyOperand = CAsmOperand0 "Ident C_Model_init.option" "'a CStringLiteral" "'a CExpression" "'a"
+and 'a CCompoundBlockItem = CBlockStmt0 "'a CStatement"
+                        | CBlockDecl0 "'a CDeclaration"
+                        | CNestedFunDef0 "'a CFunctionDef"
+and 'a CDeclarationSpecifier = CStorageSpec0 "'a CStorageSpecifier"
+                        | CTypeSpec0 "'a CTypeSpecifier"
+                        | CTypeQual0 "'a CTypeQualifier"
+                        | CFunSpec0 "'a CFunctionSpecifier"
+                        | CAlignSpec0 "'a CAlignmentSpecifier"
+and 'a CTypeSpecifier = CVoidType0 "'a"
+                        | CCharType0 "'a"
+                        | CShortType0 "'a"
+                        | CIntType0 "'a"
+                        | CLongType0 "'a"
+                        | CFloatType0 "'a"
+                        | CDoubleType0 "'a"
+                        | CSignedType0 "'a"
+                        | CUnsigType0 "'a"
+                        | CBoolType0 "'a"
+                        | CComplexType0 "'a"
+                        | CInt128Type0 "'a"
+                        | CSUType0 "'a CStructureUnion" "'a"
+                        | CEnumType0 "'a CEnumeration" "'a"
+                        | CTypeDef0 "Ident" "'a"
+                        | CTypeOfExpr0 "'a CExpression" "'a"
+                        | CTypeOfType0 "'a CDeclaration" "'a"
+                        | CAtomicType0 "'a CDeclaration" "'a"
+and 'a CTypeQualifier = CConstQual0 "'a"
+                        | CVolatQual0 "'a"
+                        | CRestrQual0 "'a"
+                        | CAtomicQual0 "'a"
+                        | CAttrQual0 "'a CAttribute"
+                        | CNullableQual0 "'a"
+                        | CNonnullQual0 "'a"
+and 'a CAlignmentSpecifier = CAlignAsType0 "'a CDeclaration" "'a"
+                        | CAlignAsExpr0 "'a CExpression" "'a"
+and 'a CStructureUnion = CStruct0 "CStructTag" "Ident C_Model_init.option" "'a CDeclaration List.list C_Model_init.option" "'a CAttribute List.list" "'a"
+and 'a CEnumeration = CEnum0 "Ident C_Model_init.option" "(Ident, 'a CExpression C_Model_init.option) Product_Type.prod List.list C_Model_init.option" "'a CAttribute List.list" "'a"
+and 'a CInitializer = CInitExpr0 "'a CExpression" "'a"
+                        | CInitList0 "('a CPartDesignator List.list, 'a CInitializer) Product_Type.prod List.list" "'a"
+and 'a CPartDesignator = CArrDesig0 "'a CExpression" "'a"
+                        | CMemberDesig0 "Ident" "'a"
+                        | CRangeDesig0 "'a CExpression" "'a CExpression" "'a"
+and 'a CAttribute = CAttr0 "Ident" "'a CExpression List.list" "'a"
+and 'a CExpression = CComma0 "'a CExpression List.list" "'a"
+                        | CAssign0 "CAssignOp" "'a CExpression" "'a CExpression" "'a"
+                        | CCond0 "'a CExpression" "'a CExpression C_Model_init.option" "'a CExpression" "'a"
+                        | CBinary0 "CBinaryOp" "'a CExpression" "'a CExpression" "'a"
+                        | CCast0 "'a CDeclaration" "'a CExpression" "'a"
+                        | CUnary0 "CUnaryOp" "'a CExpression" "'a"
+                        | CSizeofExpr0 "'a CExpression" "'a"
+                        | CSizeofType0 "'a CDeclaration" "'a"
+                        | CAlignofExpr0 "'a CExpression" "'a"
+                        | CAlignofType0 "'a CDeclaration" "'a"
+                        | CComplexReal0 "'a CExpression" "'a"
+                        | CComplexImag0 "'a CExpression" "'a"
+                        | CIndex0 "'a CExpression" "'a CExpression" "'a"
+                        | CCall0 "'a CExpression" "'a CExpression List.list" "'a"
+                        | CMember0 "'a CExpression" "Ident" "HOL.bool" "'a"
+                        | CVar0 "Ident" "'a"
+                        | CConst0 "'a CConstant"
+                        | CCompoundLit0 "'a CDeclaration" "('a CPartDesignator List.list, 'a CInitializer) Product_Type.prod List.list" "'a"
+                        | CGenericSelection0 "'a CExpression" "('a CDeclaration C_Model_init.option, 'a CExpression) Product_Type.prod List.list" "'a"
+                        | CStatExpr0 "'a CStatement" "'a"
+                        | CLabAddrExpr0 "Ident" "'a"
+                        | CBuiltinExpr0 "'a CBuiltinThing"
+and 'a CBuiltinThing = CBuiltinVaArg0 "'a CExpression" "'a CDeclaration" "'a"
+                        | CBuiltinOffsetOf0 "'a CDeclaration" "'a CPartDesignator List.list" "'a"
+                        | CBuiltinTypesCompatible0 "'a CDeclaration" "'a CDeclaration" "'a"
+definition "CFunDef = CFunDef0"
+definition "CDecl = CDecl0"
+definition "CStaticAssert = CStaticAssert0"
+definition "CDeclr = CDeclr0"
+definition "CPtrDeclr = CPtrDeclr0"
+definition "CArrDeclr = CArrDeclr0"
+definition "CFunDeclr = CFunDeclr0"
+definition "CNoArrSize = CNoArrSize0"
+definition "CArrSize = CArrSize0"
+definition "CLabel = CLabel0"
+definition "CCase = CCase0"
+definition "CCases = CCases0"
+definition "CDefault = CDefault0"
+definition "CExpr = CExpr0"
+definition "CCompound = CCompound0"
+definition "CIf = CIf0"
+definition "CSwitch = CSwitch0"
+definition "CWhile = CWhile0"
+definition "CFor = CFor0"
+definition "CGoto = CGoto0"
+definition "CGotoPtr = CGotoPtr0"
+definition "CCont = CCont0"
+definition "CBreak = CBreak0"
+definition "CReturn = CReturn0"
+definition "CAsm = CAsm0"
+definition "CAsmStmt = CAsmStmt0"
+definition "CAsmOperand = CAsmOperand0"
+definition "CBlockStmt = CBlockStmt0"
+definition "CBlockDecl = CBlockDecl0"
+definition "CNestedFunDef = CNestedFunDef0"
+definition "CStorageSpec = CStorageSpec0"
+definition "CTypeSpec = CTypeSpec0"
+definition "CTypeQual = CTypeQual0"
+definition "CFunSpec = CFunSpec0"
+definition "CAlignSpec = CAlignSpec0"
+definition "CVoidType = CVoidType0"
+definition "CCharType = CCharType0"
+definition "CShortType = CShortType0"
+definition "CIntType = CIntType0"
+definition "CLongType = CLongType0"
+definition "CFloatType = CFloatType0"
+definition "CDoubleType = CDoubleType0"
+definition "CSignedType = CSignedType0"
+definition "CUnsigType = CUnsigType0"
+definition "CBoolType = CBoolType0"
+definition "CComplexType = CComplexType0"
+definition "CInt128Type = CInt128Type0"
+definition "CSUType = CSUType0"
+definition "CEnumType = CEnumType0"
+definition "CTypeDef = CTypeDef0"
+definition "CTypeOfExpr = CTypeOfExpr0"
+definition "CTypeOfType = CTypeOfType0"
+definition "CAtomicType = CAtomicType0"
+definition "CConstQual = CConstQual0"
+definition "CVolatQual = CVolatQual0"
+definition "CRestrQual = CRestrQual0"
+definition "CAtomicQual = CAtomicQual0"
+definition "CAttrQual = CAttrQual0"
+definition "CNullableQual = CNullableQual0"
+definition "CNonnullQual = CNonnullQual0"
+definition "CAlignAsType = CAlignAsType0"
+definition "CAlignAsExpr = CAlignAsExpr0"
+definition "CStruct = CStruct0"
+definition "CEnum = CEnum0"
+definition "CInitExpr = CInitExpr0"
+definition "CInitList = CInitList0"
+definition "CArrDesig = CArrDesig0"
+definition "CMemberDesig = CMemberDesig0"
+definition "CRangeDesig = CRangeDesig0"
+definition "CAttr = CAttr0"
+definition "CComma = CComma0"
+definition "CAssign = CAssign0"
+definition "CCond = CCond0"
+definition "CBinary = CBinary0"
+definition "CCast = CCast0"
+definition "CUnary = CUnary0"
+definition "CSizeofExpr = CSizeofExpr0"
+definition "CSizeofType = CSizeofType0"
+definition "CAlignofExpr = CAlignofExpr0"
+definition "CAlignofType = CAlignofType0"
+definition "CComplexReal = CComplexReal0"
+definition "CComplexImag = CComplexImag0"
+definition "CIndex = CIndex0"
+definition "CCall = CCall0"
+definition "CMember = CMember0"
+definition "CVar = CVar0"
+definition "CConst = CConst0"
+definition "CCompoundLit = CCompoundLit0"
+definition "CGenericSelection = CGenericSelection0"
+definition "CStatExpr = CStatExpr0"
+definition "CLabAddrExpr = CLabAddrExpr0"
+definition "CBuiltinExpr = CBuiltinExpr0"
+definition "CBuiltinVaArg = CBuiltinVaArg0"
+definition "CBuiltinOffsetOf = CBuiltinOffsetOf0"
+definition "CBuiltinTypesCompatible = CBuiltinTypesCompatible0"
 type_synonym 'a CInitializerList = "('a CPartDesignator List.list, 'a CInitializer) Product_Type.prod List.list"
-atomic_old_datatype 'a CExternalDeclaration = CDeclExt "'a CDeclaration"
-                        | CFDefExt "'a CFunctionDef"
-                        | CAsmExt "'a CStringLiteral" "'a"
-
-atomic_old_datatype 'a CTranslationUnit = CTranslUnit "'a CExternalDeclaration List.list" "'a"
-
+old_datatype 'a CExternalDeclaration = CDeclExt0 "'a CDeclaration"
+                        | CFDefExt0 "'a CFunctionDef"
+                        | CAsmExt0 "'a CStringLiteral" "'a"
+definition "CDeclExt = CDeclExt0"
+definition "CFDefExt = CFDefExt0"
+definition "CAsmExt = CAsmExt0"
+old_datatype 'a CTranslationUnit = CTranslUnit0 "'a CExternalDeclaration List.list" "'a"
+definition "CTranslUnit = CTranslUnit0"
 type_synonym CTranslUnit = "NodeInfo CTranslationUnit"
 type_synonym CExtDecl = "NodeInfo CExternalDeclaration"
 type_synonym CFunDef = "NodeInfo CFunctionDef"
