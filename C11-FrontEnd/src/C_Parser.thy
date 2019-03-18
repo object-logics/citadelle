@@ -105,24 +105,28 @@ type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : class_Pos list * int
-         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list }
+         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list
+         , stream_lang : (antiq_stack, Position.range * (C_Lex.token_kind * string)) either list }
 
 (**)
 
-fun map_env_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
-  {env_lang = f env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook}
+fun map_env_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+  {env_lang = f env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
-fun map_env_tree f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
-  {env_lang = env_lang, env_tree = f env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook}
+fun map_env_tree f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+  {env_lang = env_lang, env_tree = f env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
-fun map_rule_output f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = f rule_output, rule_input = rule_input, stream_hook = stream_hook}
+fun map_rule_output f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = f rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
-fun map_rule_input f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = f rule_input, stream_hook = stream_hook}
+fun map_rule_input f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = f rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
-fun map_stream_hook f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = f stream_hook}
+fun map_stream_hook f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = f stream_hook, stream_lang = stream_lang}
+
+fun map_stream_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = f stream_lang}
 
 (**)
 
@@ -156,7 +160,18 @@ fun map_reports f {context, reports} =
 val empty_env_lang : env_lang = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
 fun empty_env_tree context : env_tree = {context = context, reports = []}
 val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
-fun make env_lang env_tree = {env_lang = env_lang, env_tree = env_tree, rule_output = empty_rule_output, rule_input = ([], 0), stream_hook = []}
+fun make env_lang stream_lang env_tree =
+  { env_lang = env_lang
+  , env_tree = env_tree
+  , rule_output = empty_rule_output
+  , rule_input = ([], 0)
+  , stream_hook = []
+  , stream_lang = map_filter (fn Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
+                               | Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
+                               | Right (C_Lex.Token (_, (C_Lex.Directive _, _))) => NONE
+                               | Right (C_Lex.Token s) => SOME (Right s)
+                               | Left ml => SOME (Left ml))
+                             stream_lang }
 fun string_of (env_lang : env_lang) = 
   let fun dest tab = Symtab.dest tab |> map #1
   in @{make_string} ( ("tyidents", dest (#tyidents env_lang))
@@ -210,6 +225,12 @@ fun map_reports f = C_Env.map_env_tree (C_Env.map_reports f)
 (**)
 
 fun get_reports (t : C_Env.T) = #env_tree t |> #reports
+
+(**)
+
+fun map_stream_lang' f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+  let val (res, stream_lang) = f stream_lang
+  in (res, {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}) end
 
 end
 
@@ -856,7 +877,6 @@ struct
   type arg = Tokens.arg
   type svalue0 = Tokens.svalue0
   type svalue = arg -> svalue0 * arg
-  type token0 = C_Lex.token
   type state = StrictCLrVals.ParserData.LrTable.state
 end
 
@@ -865,117 +885,108 @@ type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations
            * (UserDeclarations.pos * UserDeclarations.pos) list
            * (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) C_Env.rule_ml C_Env.tree list
 
-fun makeLexer input =
-  let val s = Synchronized.var "input"
-                (input 1024
-                 |> map_filter (fn Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
-                                 | Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
-                                 | Right (C_Lex.Token (_, (C_Lex.Directive _, _))) => NONE
-                                 | Right (C_Lex.Token s) => SOME (Right s)
-                                 | Left ml => SOME (Left ml)))
-      fun drain ((stack, stack_ml, stack_pos, stack_tree), arg) =
-        let val (arg, stack_ml) =
-              case #stream_hook arg
-              of l :: ls =>
-                ( C_Env.map_stream_hook (K ls) arg
-                , fold_rev (fn (_, syms, range, ants) => fn stack_ml =>
-                             let
-                               val () =
-                                 if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
-                                   warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (range |> Position.range_position))
-                                 else ()
-                               val () =
-                                 if length stack_ml - length syms <= 0 then
-                                   error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
-                                 else ()
-                             in nth_map (length syms) (fn xs => (range, ants) :: xs) stack_ml end)
-                           l
-                           stack_ml)
-               | [] => (arg, stack_ml)
-            fun return0 x = (x, ((stack, stack_ml, stack_pos, stack_tree), arg))
-        in
-          case Synchronized.change_result s (fn [] => (NONE, []) | x :: xs => (SOME x, xs))
-          of SOME (Left l_antiq) =>
-              drain
-                ( (stack, stack_ml, stack_pos, stack_tree)
-                , fold (fn Setup (ants, range) =>
-                          (fn arg =>
-                             C_Env'.map_context
-                               let val setup = "setup" in
-                                 I #> Stack_Data_Lang.put (stack, #env_lang arg)
-                                   #> ML_Context.expression
-                                        range
-                                        setup
-                                        "Stack_Data_Lang.T -> Context.generic -> Context.generic"
-                                        ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
-                                        ants
-                               end
-                               arg)
-                         | Hook (syms_shift, syms, (ants, range)) =>
-                           C_Env.map_stream_hook
-                               (fn stream_hook => 
-                                case
-                                   fold (fn _ => fn (eval1, eval2) =>
-                                       (case eval2 of e2 :: eval2 => (e2, eval2)
-                                                    | [] => ([], []))
-                                       |>> (fn e1 => e1 :: eval1))
-                                     syms_shift
-                                     ([], stream_hook)
-                                of (eval1, eval2) => fold cons
-                                                          eval1
-                                                          (case eval2 of e :: es => ((syms_shift, syms, range, ants) :: e) :: es
-                                                                       | [] => [[(syms_shift, syms, range, ants)]])))
-                       l_antiq
-                       arg)
-           | NONE => 
-              let val () =
-                    fold (uncurry
-                           (fn pos => 
-                             fold_rev (fn (syms, _, _, _) => fn () =>
-                                        let val () = error ("Maximum depth reached (" ^ Int.toString (pos + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
-                                        in () end)))
-                         (map_index I (#stream_hook arg))
-                         ()
-              in return0 (Tokens.x25_eof (Position.none, Position.none)) end
-           | SOME (Right ((pos1, pos2), (C_Lex.Char (b, [c]), _))) =>
-              return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
-           | SOME (Right ((pos1, pos2), (C_Lex.Char (b, _), _))) => error "to do"
-           | SOME (Right ((pos1, pos2), (C_Lex.String (b, s), _))) =>
-              return0 (StrictCLrVals.Tokens.cstr (C_ast_simple.CString0 (From_string (implode s), b), pos1, pos2))
-           | SOME (Right ((pos1, pos2), (C_Lex.Integer (i, repr, flag), _))) =>
-              return0 (StrictCLrVals.Tokens.cint
-                        ( CInteger i repr
-                            (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
-                                                  flag
-                                                  ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
-                                             |> map #1)
-                             |> Flags)
-                        , pos1
-                        , pos2))
-           | SOME (Right ((pos1, pos2), (C_Lex.Ident, s))) => 
-              let val (name, arg) = Hsk_c_parser.getNewName arg
-                  val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' false (pos1, pos2)) s name
-              in ( (if Hsk_c_parser.isTypeIdent s arg then
-                      StrictCLrVals.Tokens.tyident (ident0, pos1, pos2)
-                    else
-                      StrictCLrVals.Tokens.ident (ident0, pos1, pos2))
-                 , ((stack, stack_ml, stack_pos, stack_tree), arg))
-              end
-           | SOME (Right ((pos1, pos2), (_, s))) => 
-                       token_of_string (Tokens.error (pos1, pos2))
-                                       (C_ast_simple.ClangCVersion0 (From_string s))
-                                       (CChar #"0" false)
-                                       (CFloat (From_string s))
-                                       (CInteger 0 DecRepr (Flags 0))
-                                       (C_ast_simple.CString0 (From_string s, false))
-                                       (C_ast_simple.Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0)))
-                                       s
-                                       pos1
-                                       pos2
-                                       s
-                       |> return0
+fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
+  let val (arg, stack_ml) =
+        case #stream_hook arg
+        of l :: ls =>
+          ( C_Env.map_stream_hook (K ls) arg
+          , fold_rev (fn (_, syms, range, ants) => fn stack_ml =>
+                       let
+                         val () =
+                           if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
+                             warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (range |> Position.range_position))
+                           else ()
+                         val () =
+                           if length stack_ml - length syms <= 0 then
+                             error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
+                           else ()
+                       in nth_map (length syms) (fn xs => (range, ants) :: xs) stack_ml end)
+                     l
+                     stack_ml)
+         | [] => (arg, stack_ml)
+      val (token, arg) = C_Env'.map_stream_lang' (fn [] => (NONE, []) | x :: xs => (SOME x, xs)) arg
+      fun return0 x = (x, ((stack, stack_ml, stack_pos, stack_tree), arg))
+  in
+    case token
+    of SOME (Left l_antiq) =>
+        makeLexer
+          ( (stack, stack_ml, stack_pos, stack_tree)
+          , fold (fn Setup (ants, range) =>
+                    (fn arg =>
+                       C_Env'.map_context
+                         let val setup = "setup" in
+                           I #> Stack_Data_Lang.put (stack, #env_lang arg)
+                             #> ML_Context.expression
+                                  range
+                                  setup
+                                  "Stack_Data_Lang.T -> Context.generic -> Context.generic"
+                                  ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
+                                  ants
+                         end
+                         arg)
+                   | Hook (syms_shift, syms, (ants, range)) =>
+                     C_Env.map_stream_hook
+                         (fn stream_hook => 
+                          case
+                             fold (fn _ => fn (eval1, eval2) =>
+                                 (case eval2 of e2 :: eval2 => (e2, eval2)
+                                              | [] => ([], []))
+                                 |>> (fn e1 => e1 :: eval1))
+                               syms_shift
+                               ([], stream_hook)
+                          of (eval1, eval2) => fold cons
+                                                    eval1
+                                                    (case eval2 of e :: es => ((syms_shift, syms, range, ants) :: e) :: es
+                                                                 | [] => [[(syms_shift, syms, range, ants)]])))
+                 l_antiq
+                 arg)
+     | NONE => 
+        let val () =
+              fold (uncurry
+                     (fn pos => 
+                       fold_rev (fn (syms, _, _, _) => fn () =>
+                                  let val () = error ("Maximum depth reached (" ^ Int.toString (pos + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
+                                  in () end)))
+                   (map_index I (#stream_hook arg))
+                   ()
+        in return0 (Tokens.x25_eof (Position.none, Position.none)) end
+     | SOME (Right ((pos1, pos2), (C_Lex.Char (b, [c]), _))) =>
+        return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
+     | SOME (Right ((pos1, pos2), (C_Lex.Char (b, _), _))) => error "to do"
+     | SOME (Right ((pos1, pos2), (C_Lex.String (b, s), _))) =>
+        return0 (StrictCLrVals.Tokens.cstr (C_ast_simple.CString0 (From_string (implode s), b), pos1, pos2))
+     | SOME (Right ((pos1, pos2), (C_Lex.Integer (i, repr, flag), _))) =>
+        return0 (StrictCLrVals.Tokens.cint
+                  ( CInteger i repr
+                      (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
+                                            flag
+                                            ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
+                                       |> map #1)
+                       |> Flags)
+                  , pos1
+                  , pos2))
+     | SOME (Right ((pos1, pos2), (C_Lex.Ident, s))) => 
+        let val (name, arg) = Hsk_c_parser.getNewName arg
+            val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' false (pos1, pos2)) s name
+        in ( (if Hsk_c_parser.isTypeIdent s arg then
+                StrictCLrVals.Tokens.tyident (ident0, pos1, pos2)
+              else
+                StrictCLrVals.Tokens.ident (ident0, pos1, pos2))
+           , ((stack, stack_ml, stack_pos, stack_tree), arg))
         end
-  in drain
+     | SOME (Right ((pos1, pos2), (_, s))) => 
+                 token_of_string (Tokens.error (pos1, pos2))
+                                 (C_ast_simple.ClangCVersion0 (From_string s))
+                                 (CChar #"0" false)
+                                 (CFloat (From_string s))
+                                 (CInteger 0 DecRepr (Flags 0))
+                                 (C_ast_simple.CString0 (From_string s, false))
+                                 (C_ast_simple.Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0)))
+                                 s
+                                 pos1
+                                 pos2
+                                 s
+                 |> return0
   end
 end
 \<close>
@@ -1028,9 +1039,9 @@ fun exec_tree' l env_tree = env_tree
 
 fun uncurry_context f = uncurry (map_env_tree o f)
 
-fun parse env_lang err accept s =
- make env_lang
- #> StrictCParser.makeLexer (fn _ => s)
+fun parse env_lang err accept stream_lang =
+ make env_lang stream_lang
+ #> StrictCParser.makeLexer
  #> StrictCParser.parse
       ( 0
       , uncurry_context (fn (stack, _, _, stack_tree) =>
