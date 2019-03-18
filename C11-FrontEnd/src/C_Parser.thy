@@ -34,8 +34,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory C_Model_ml_lex
-  imports C_Model_ml
+theory C_Parser
+  imports C_Lexer
 begin
 
 section \<open>Instantiation of the Parser with the Lexer\<close>

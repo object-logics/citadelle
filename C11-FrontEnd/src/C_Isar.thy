@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C_Isar
-  imports C_Model_ml_lex
+  imports C_Parser
 begin
 
 section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>
