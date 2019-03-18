@@ -395,10 +395,10 @@ int j = 0;
 typedef int i, j;
 j jj = 0;
 j jj = 0; /*@ hook \<open>fn _ => fn _ => show_env "POSITION 0"\<close> hook \<open>@{hook'}\<close> */
-typedef int k; /*@ hook \<open>fn _ => fn env => fn context =>
-                          (C' env \<open>k jj = 0; //@ hook \<open>@{hook'}\<close>
+typedef int k; /*@ hook \<open>fn _ => fn env =>
+                          C' env \<open>k jj = 0; //@ hook \<open>@{hook'}\<close>
                                   typedef k l; //@ hook \<open>@{hook'}\<close>\<close>
-                          #> show_env "POSITION 1") context\<close> */
+                          #> show_env "POSITION 1"\<close> */
 j j = 0; //@ hook \<open>@{hook'}\<close>
 typedef i j; /*@ hook \<open>fn _ => fn _ => show_env "POSITION 2"\<close> */
 typedef i j;
