@@ -141,6 +141,34 @@ val eval_source =
 end
 \<close>
 
+section \<open>The Isar Binding to the C11 Interface.\<close>
+
+ML\<open>
+
+structure C_Outer_Syntax =
+struct
+
+val C = C_Context'.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
+fun C' err env_lang src context =
+  {context = context, reports = Stack_Data_Tree.get context}
+  |> C_Context.eval_source'
+       env_lang
+       err
+       C_Context'.accept
+       (ML_Compiler.verbose true ML_Compiler.flags)
+       src
+  |> (fn {context, reports} => Stack_Data_Tree.put reports context)
+
+val _ =
+  Outer_Syntax.command @{command_keyword C} ""
+    (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
+      Toplevel.generic_theory
+        (ML_Context.exec (fn () =>
+            C source) #>
+          Local_Theory.propagate_ml_env)));
+end
+\<close>
+
 section\<open>Definition of the Command "C_file"\<close>
 
 ML\<open>
@@ -175,32 +203,9 @@ val C : bool option ->
 end;
 \<close>
 
-section \<open>The Isar Binding to the C11 Interface.\<close>
+section \<open>Pure\<close>
 
 ML\<open>
-
-structure C_Outer_Syntax =
-struct
-
-val C = C_Context'.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
-fun C' err env_lang src context =
-  {context = context, reports = Stack_Data_Tree.get context}
-  |> C_Context.eval_source'
-       env_lang
-       err
-       C_Context'.accept
-       (ML_Compiler.verbose true ML_Compiler.flags)
-       src
-  |> (fn {context, reports} => Stack_Data_Tree.put reports context)
-
-val _ =
-  Outer_Syntax.command @{command_keyword C} ""
-    (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
-      Toplevel.generic_theory
-        (ML_Context.exec (fn () =>
-            C source) #>
-          Local_Theory.propagate_ml_env)));
-
 local
 
 val semi = Scan.option @{keyword ";"};
@@ -210,8 +215,9 @@ val _ =
     (Resources.parse_files "C_file" --| semi >> C_File.C NONE);
 
 in end
-end
 \<close>
+
+section \<open>\<close>
 
 ML\<open>
 fun hook make_string f (_, (value, pos1, pos2)) _ thy =
