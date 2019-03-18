@@ -154,14 +154,19 @@ structure C_Env = struct
 
 type tyidents = (Position.T list * serial) Symtab.table
 
-type env = { tyidents : tyidents
-           , scopes : tyidents list
-           , namesupply : int }
+type env_lang = { tyidents : tyidents
+                , scopes : tyidents list
+                , namesupply : int }
 (* NOTE: The distinction between type variable or identifier can not be solely made
          during the lexing process.
          Another pass on the parsed tree is required. *)
 
-type rule_static = (env -> Context.generic -> env * Context.generic) option
+type reports = Position.report_text list
+
+type env_tree = { context : Context.generic
+                , reports : reports }
+
+type rule_static = (env_lang -> env_tree -> env_lang * env_tree) option
 
 datatype rule_type = Void
                    | Shift
@@ -170,7 +175,7 @@ datatype rule_type = Void
 type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   { rule_pos : 'pos * 'pos
   , rule_type : rule_type
-  , rule_env : env
+  , rule_env_lang : env_lang
   , rule_static : rule_static
   , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)))
                   * (Position.range * ML_Lex.token Antiquote.antiquote list)) list }
@@ -182,34 +187,28 @@ type 'class_Pos rule_output0 = { output_pos : 'class_Pos option
 
 type rule_output = class_Pos rule_output0
 
-type T = { env : env
-         , context : Context.generic
+type T = { env_lang : env_lang
+         , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : class_Pos list * int
          , next_eval : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list }
 
 (**)
 
-fun map_env f {env, context, rule_output, rule_input, next_eval} =
-  {env = f env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
+fun map_env_lang f {env_lang, env_tree, rule_output, rule_input, next_eval} =
+  {env_lang = f env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_context f {env, context, rule_output, rule_input, next_eval} =
-  {env = env, context = f context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
+fun map_env_tree f {env_lang, env_tree, rule_output, rule_input, next_eval} =
+  {env_lang = env_lang, env_tree = f env_tree, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_rule_output f {env, context, rule_output, rule_input, next_eval} =
-  {env = env, context = context, rule_output = f rule_output, rule_input = rule_input, next_eval = next_eval}
+fun map_rule_output f {env_lang, env_tree, rule_output, rule_input, next_eval} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = f rule_output, rule_input = rule_input, next_eval = next_eval}
 
-fun map_rule_input f {env, context, rule_output, rule_input, next_eval} =
-  {env = env, context = context, rule_output = rule_output, rule_input = f rule_input, next_eval = next_eval}
+fun map_rule_input f {env_lang, env_tree, rule_output, rule_input, next_eval} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = f rule_input, next_eval = next_eval}
 
-fun map_next_eval f {env, context, rule_output, rule_input, next_eval} =
-  {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = f next_eval}
-
-(**)
-
-fun map_context' f {env, context, rule_output, rule_input, next_eval} =
-  let val (res, context) = f context
-  in (res, {env = env, context = context, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}) end
+fun map_next_eval f {env_lang, env_tree, rule_output, rule_input, next_eval} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, next_eval = f next_eval}
 
 (**)
 
@@ -232,14 +231,23 @@ fun map_namesupply f {tyidents, scopes, namesupply} =
 
 (**)
 
-val empty_env : env = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
+fun map_context f {context, reports} =
+  {context = f context, reports = reports}
+
+fun map_reports f {context, reports} =
+  {context = context, reports = f reports}
+
+(**)
+
+val empty_env_lang : env_lang = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
+fun empty_env_tree context : env_tree = {context = context, reports = []}
 val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
-fun make env context = {env = env, context = context, rule_output = empty_rule_output, rule_input = ([], 0), next_eval = []}
-fun string_of (env : env) = 
+fun make env_lang env_tree = {env_lang = env_lang, env_tree = env_tree, rule_output = empty_rule_output, rule_input = ([], 0), next_eval = []}
+fun string_of (env_lang : env_lang) = 
   let fun dest tab = Symtab.dest tab |> map #1
-  in @{make_string} ( ("tyidents", dest (#tyidents env))
-                    , ("scopes", map dest (#scopes env))
-                    , ("namesupply", #namesupply env)) end
+  in @{make_string} ( ("tyidents", dest (#tyidents env_lang))
+                    , ("scopes", map dest (#scopes env_lang))
+                    , ("namesupply", #namesupply env_lang)) end
 
 (**)
 
@@ -260,23 +268,35 @@ end
 
 structure C_Env' =
 struct
-fun map_tyidents f = C_Env.map_env (C_Env.map_tyidents f)
-fun map_scopes f = C_Env.map_env (C_Env.map_scopes f)
-fun map_namesupply f = C_Env.map_env (C_Env.map_namesupply f)
+
+fun map_tyidents f = C_Env.map_env_lang (C_Env.map_tyidents f)
+fun map_scopes f = C_Env.map_env_lang (C_Env.map_scopes f)
+fun map_namesupply f = C_Env.map_env_lang (C_Env.map_namesupply f)
 
 (**)
 
-fun get_tyidents env = #env env |> #tyidents
-fun get_scopes env = #env env |> #scopes
-fun get_namesupply env = #env env |> #namesupply
+fun get_tyidents t = #env_lang t |> #tyidents
+fun get_scopes t = #env_lang t |> #scopes
+fun get_namesupply t = #env_lang t |> #namesupply
 
 (**)
+
 fun map_output_pos f = C_Env.map_rule_output (C_Env.map_output_pos f)
 fun map_output_env f = C_Env.map_rule_output (C_Env.map_output_env f)
 
 (**)
 
-fun get_output_pos (env : C_Env.T) = #rule_output env |> #output_pos
+fun get_output_pos (t : C_Env.T) = #rule_output t |> #output_pos
+
+(**)
+
+fun map_context f = C_Env.map_env_tree (C_Env.map_context f)
+fun map_reports f = C_Env.map_env_tree (C_Env.map_reports f)
+
+(**)
+
+fun get_reports (t : C_Env.T) = #env_tree t |> #reports
+
 end
 
 signature HSK_C_PARSER =
@@ -291,10 +311,7 @@ sig
   val >> : unit p * 'a p -> 'a p
 
   (**)
-  val get_reports : unit -> Position.report_text list
-  val init_reports : unit -> unit
-  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> unit
-  val append_reports : Position.report list -> unit
+  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Env.reports -> C_Env.reports
   val markup_tvar : bool -> Position.T list -> string * serial -> Markup.T list
 
   (* Language.C.Data.RList *)
@@ -390,11 +407,11 @@ struct
   val To_string0 = String.implode o to_list
   fun reverse l = rev l
 
-  val reports = Unsynchronized.ref ([]: Position.report_text list)
-  fun report xs = Position.store_reports reports xs
-  val append_reports = Position.append_reports reports
-  fun get_reports () = !reports
-  fun init_reports () = Unsynchronized.change reports (K [])
+  fun report [] _ _ = I
+    | report ps markup x =
+        let val ms = markup x
+        in fold (fn p => fold (fn m => cons ((p, m), "")) ms) ps end
+
   fun markup_tvar def ps (name, id) =
     let 
       fun markup_elem name = (name, (name, []): Markup.T);
@@ -501,8 +518,8 @@ struct
         val id = serial ()
         val name = To_string0 i
         val pos = [pos1]
-        val _ = report pos (markup_tvar true pos) (name, id);
-    in ((), C_Env'.map_tyidents (Symtab.update (name, (pos, id))) env) end
+    in ((), env |> C_Env'.map_tyidents (Symtab.update (name, (pos, id)))
+                |> C_Env'.map_reports (report pos (markup_tvar true pos) (name, id))) end
   fun shadowTypedef (Ident0 (i, _, _)) env =
     ((), C_Env'.map_tyidents (Symtab.delete_safe (To_string0 i)) env)
   fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env'.get_tyidents
@@ -665,18 +682,20 @@ open Hsk_c_parser
 val To_string0 = String.implode o C_ast_simple.to_list
 fun update_env f x = pair () ##> C_Env'.map_output_env (K (SOME (f x)))
 
-val specifier3 : (CDeclSpec list) -> unit monad = update_env (fn l => fn env => fn context =>
-  let open C_ast_simple
-      val () = app (fn CTypeSpec0 (CTypeDef0 (Ident0 (i, _, node), _)) =>
-                      let val name = To_string0 i
-                          val pos1 = [decode_error' node |> #1]
-                          val _ = case Symtab.lookup (#tyidents env) name of
-                                    NONE => ()
-                                  | SOME (pos0, id) => report pos1 (markup_tvar false pos0) (name, id)
-                      in () end
-                     | _ => ())
-                   l
-  in (env, context) end)
+val specifier3 : (CDeclSpec list) -> unit monad = update_env (fn l => fn env_lang => fn env_tree =>
+  ( env_lang
+  , fold
+      let open C_ast_simple
+      in fn CTypeSpec0 (CTypeDef0 (Ident0 (i, _, node), _)) =>
+            let val name = To_string0 i
+                val pos1 = [decode_error' node |> #1]
+            in case Symtab.lookup (#tyidents env_lang) name of
+                 NONE => I
+               | SOME (pos0, id) => C_Env.map_reports (report pos1 (markup_tvar false pos0) (name, id)) end
+          | _ => I
+      end
+      l
+      env_tree))
 val declaration_specifier3 : (CDeclSpec list) -> unit monad = specifier3
 val type_specifier3 : (CDeclSpec list) -> unit monad = specifier3
 end

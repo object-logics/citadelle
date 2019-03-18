@@ -1216,9 +1216,15 @@ type 'a stack_elem = (LrTable.state, 'a, Position.T) stack_elem0
 
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
-structure Stack_Data = Generic_Data
-  (type T = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0 * C_Env.env
-   val empty = ([], C_Env.empty_env)
+structure Stack_Data_Lang = Generic_Data
+  (type T = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0 * C_Env.env_lang
+   val empty = ([], C_Env.empty_env_lang)
+   val extend = I
+   val merge = #2)
+
+structure Stack_Data_Tree = Generic_Data
+  (type T = C_Env.reports
+   val empty = []
    val extend = I
    val merge = #2)
 
@@ -1276,14 +1282,14 @@ fun makeLexer input =
                 ( (stack, stack_ml, stack_pos, stack_tree)
                 , fold (fn Setup (ants, range) =>
                           (fn arg =>
-                             C_Env.map_context
+                             C_Env'.map_context
                                let val setup = "setup" in
-                                 I #> Stack_Data.put (stack, #env arg)
+                                 I #> Stack_Data_Lang.put (stack, #env_lang arg)
                                    #> ML_Context.expression
                                         range
                                         setup
-                                        "Stack_Data.T -> Context.generic -> Context.generic"
-                                        ("fn context => " ^ setup ^ " (Stack_Data.get context) context")
+                                        "Stack_Data_Lang.T -> Context.generic -> Context.generic"
+                                        ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
                                         ants
                                end
                                arg)
@@ -1366,7 +1372,7 @@ structure P = struct
 
 open C_Env
 
-fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_static, rule_antiq}, l_tree)) =
+fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env_lang = env_lang, rule_static, rule_antiq}, l_tree)) =
   write
     (fn _ =>
       let val (s1, s2) =
@@ -1374,35 +1380,39 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_s
                         | Shift => ("SHIFT", NONE)
                         | Reduce i => ("REDUCE " ^ Int.toString i, SOME (MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i))
       in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end)
-  #> (case rule_static of SOME rule_static => rule_static rule_env | NONE => pair rule_env)
-  #-> (fn env =>
+  #> (case rule_static of SOME rule_static => rule_static env_lang | NONE => pair env_lang)
+  #-> (fn env_lang =>
         fold (fn ((rule, stack0), (range, ants)) =>
-                   let val stack = ([stack0], env)
-                       val hook = "hook" in
-                     I #> Stack_Data.put stack
-                       #> ML_Context.expression
-                            range
-                            hook
-                            (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env -> Context.generic -> Context.generic")
-                            ("fn context => " ^ hook ^ " (Stack_Data.get context |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") (Stack_Data.get context |> #2) context")
-                            ants
-                   end)
+               let val stack = ([stack0], env_lang)
+                   val hook = "hook"
+               in C_Env.map_context
+                   (I #> Stack_Data_Lang.put stack
+                      #> ML_Context.expression
+                           range
+                           hook
+                           (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+                           ("fn context => \
+                              \let val (stack, env_lang) = Stack_Data_Lang.get context \
+                              \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
+                           ants)
+               end)
              rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
 
-fun exec_tree' l context =
-  context |> fold (exec_tree "" let val ctxt = Context.proof_of context
-                                in if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
-                                   then fn f => tap (tracing o f) else K I end)
-                  l
-          |> tap (fn _ => Position.reports_text (Hsk_c_parser.get_reports ()))
+fun exec_tree' l env_tree = env_tree
+  |> C_Env.map_context (Stack_Data_Tree.put [])
+  |> fold (exec_tree "" let val ctxt = Context.proof_of (#context env_tree)
+                        in if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
+                           then fn f => tap (tracing o f) else K I end)
+          l
+  |> (fn env_tree =>
+       env_tree |> C_Env.map_reports (append (Stack_Data_Tree.get (#context env_tree))))
 
-fun uncurry_context f = uncurry (map_context o f)
+fun uncurry_context f = uncurry (map_env_tree o f)
 
-fun parse env err accept s =
- make env
+fun parse env_lang err accept s =
+ make env_lang
  #> StrictCParser.makeLexer (fn _ => s)
- #> tap (fn _ => Hsk_c_parser.init_reports ())
  #> StrictCParser.parse
       ( 0
       , uncurry_context (fn (stack, _, _, stack_tree) =>
@@ -1420,9 +1430,9 @@ fun parse env err accept s =
       , fn (stack, arg) => arg |> map_rule_input (K stack)
                                |> map_rule_output (K empty_rule_output)
       , fn arg => (#rule_output arg, arg)
-      , #env)
+      , #env_lang)
  #> snd
- #> #context
+ #> #env_tree
 end
 \<close>
 
@@ -2061,7 +2071,7 @@ fun eval flags pos ants =
       | _ => ());
   in () end;
 
-fun eval'0 env err accept flags pos ants context =
+fun eval'0 env err accept flags pos ants {context, reports} =
   let val ctxt = Context.proof_of context
       val keywords = Thy_Header.get_keywords' ctxt
 
@@ -2128,9 +2138,14 @@ fun eval'0 env err accept flags pos ants context =
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
-  in P.parse env (err ants_hol) (accept ants_hol) ants_stack context end
+  in P.parse env (err ants_hol) (accept ants_hol) ants_stack {context = context, reports = reports} end
 
-fun eval' env err accept flags pos ants = Context.>> (eval'0 env err accept flags pos ants)
+fun eval' env err accept flags pos ants =
+  Context.>> (C_Env.empty_env_tree
+              #> eval'0 env err accept flags pos ants
+              #> (fn {context, reports} =>
+                   let val _ = Position.reports_text reports
+                   in context end))
 
 end;
 

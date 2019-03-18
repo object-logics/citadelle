@@ -119,19 +119,21 @@ end
 ML\<open>
 structure C_Context' = struct
 
-fun accept l_comm (_, (res, _, _)) context =
-  ( Context.theory_name (Context.theory_of context)
-  , (res, map (fn Left ({body_begin, body, body_end, range, ...}, _) =>
-                    Left (Hsk_c_parser.make_comment body_begin body body_end range)
-                | Right x => Right x)
-              l_comm))
-  |> Symtab.update_list (op =)
-  |> C11_core.map_tab
-  |> (fn map_tab => C11_core.Data.map map_tab context)
+fun accept l_comm (_, (res, _, _)) =
+  (fn context =>
+    ( Context.theory_name (Context.theory_of context)
+    , (res, map (fn Left ({body_begin, body, body_end, range, ...}, _) =>
+                      Left (Hsk_c_parser.make_comment body_begin body body_end range)
+                  | Right x => Right x)
+                l_comm))
+    |> Symtab.update_list (op =)
+    |> C11_core.map_tab
+    |> (fn map_tab => C11_core.Data.map map_tab context))
+  |> C_Env.map_context
 
 val eval_source =
   C_Context.eval_source
-    C_Env.empty_env
+    C_Env.empty_env_lang
     (fn _ => fn _ => fn pos =>
       Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
                  [("", pos)])
@@ -181,12 +183,15 @@ structure C_Outer_Syntax =
 struct
 
 val C = C_Context'.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
-fun C' err env =
-  C_Context.eval_source'
-    env
-    err
-    C_Context'.accept
-    (ML_Compiler.verbose true ML_Compiler.flags)
+fun C' err env_lang src context =
+  {context = context, reports = Stack_Data_Tree.get context}
+  |> C_Context.eval_source'
+       env_lang
+       err
+       C_Context'.accept
+       (ML_Compiler.verbose true ML_Compiler.flags)
+       src
+  |> (fn {context, reports} => Stack_Data_Tree.put reports context)
 
 val _ =
   Outer_Syntax.command @{command_keyword C} ""
