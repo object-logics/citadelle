@@ -234,7 +234,7 @@ fun map_namesupply f {tyidents, scopes, namesupply} =
 
 val empty_env : env = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
 val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
-fun make context = {env = empty_env, context = context, rule_output = empty_rule_output, rule_input = ([], 0), next_eval = []}
+fun make env context = {env = env, context = context, rule_output = empty_rule_output, rule_input = ([], 0), next_eval = []}
 fun string_of (env : env) = 
   let fun dest tab = Symtab.dest tab |> map #1
   in @{make_string} ( ("tyidents", dest (#tyidents env))

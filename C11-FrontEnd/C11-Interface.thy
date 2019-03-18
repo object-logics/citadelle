@@ -117,18 +117,25 @@ end
 \<close>
 
 ML\<open>
-structure C_Context = struct
+structure C_Context' = struct
+
+fun accept l_comm (_, (res, _, _)) context =
+  ( Context.theory_name (Context.theory_of context)
+  , (res, map (fn Left ({body_begin, body, body_end, range, ...}, _) =>
+                    Left (Hsk_c_parser.make_comment body_begin body body_end range)
+                | Right x => Right x)
+              l_comm))
+  |> Symtab.update_list (op =)
+  |> C11_core.map_tab
+  |> (fn map_tab => C11_core.Data.map map_tab context)
+
 val eval_source =
   C_Context.eval_source
-    (fn l_comm => fn (_, (res, _, _)) => fn context => 
-      ( Context.theory_name (Context.theory_of context)
-      , (res, map (fn Left ({body_begin, body, body_end, range, ...}, _) =>
-                        Left (Hsk_c_parser.make_comment body_begin body body_end range)
-                    | Right x => Right x)
-                  l_comm))
-      |> Symtab.update_list (op =)
-      |> C11_core.map_tab
-      |> (fn res => C11_core.Data.map res context))
+    C_Env.empty_env
+    (fn _ => fn _ => fn pos =>
+      Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
+                 [("", pos)])
+    accept
 end
 \<close>
 
@@ -154,7 +161,7 @@ fun command SML debug files = Toplevel.generic_theory (fn gthy =>
         debug = debug, writeln = writeln, warning = warning};
   in
     gthy
-    |> ML_Context.exec (fn () => C_Context.eval_source flags source)
+    |> ML_Context.exec (fn () => C_Context'.eval_source flags source)
     |> Local_Theory.propagate_ml_env
     |> Context.mapping provide (Local_Theory.background_theory provide)
   end);
@@ -173,7 +180,13 @@ ML\<open>
 structure C_Outer_Syntax =
 struct
 
-val C = C_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
+val C = C_Context'.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
+fun C' err env =
+  C_Context.eval_source'
+    env
+    err
+    C_Context'.accept
+    (ML_Compiler.verbose true ML_Compiler.flags)
 
 val _ =
   Outer_Syntax.command @{command_keyword C} ""
@@ -210,7 +223,7 @@ fun hook' _ f (_, (_, pos1, pos2)) env thy =
     val () = writeln ("ENV " ^ C_Env.string_of env)
   in f thy end
 
-fun setup s make_string (stack, env) thy =
+fun setup s make_string (stack, _) thy =
   let
     val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
     val () = stack

@@ -1216,7 +1216,7 @@ type 'a stack_elem = (LrTable.state, 'a, Position.T) stack_elem0
 
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
-structure Stack_Data = Theory_Data
+structure Stack_Data = Generic_Data
   (type T = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0 * C_Env.env
    val empty = ([], C_Env.empty_env)
    val extend = I
@@ -1278,12 +1278,12 @@ fun makeLexer input =
                           (fn arg =>
                              C_Env.map_context
                                let val setup = "setup" in
-                                 I #> Context.map_theory (Stack_Data.put (stack, #env arg))
+                                 I #> Stack_Data.put (stack, #env arg)
                                    #> ML_Context.expression
                                         range
                                         setup
-                                        "Stack_Data.T -> theory -> theory"
-                                        ("Context.map_theory (fn thy => " ^ setup ^ " (Stack_Data.get thy) thy)")
+                                        "Stack_Data.T -> Context.generic -> Context.generic"
+                                        ("fn context => " ^ setup ^ " (Stack_Data.get context) context")
                                         ants
                                end
                                arg)
@@ -1379,12 +1379,12 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env, rule_s
         fold (fn ((rule, stack0), (range, ants)) =>
                    let val stack = ([stack0], env)
                        val hook = "hook" in
-                     I #> Context.map_theory (Stack_Data.put stack)
+                     I #> Stack_Data.put stack
                        #> ML_Context.expression
                             range
                             hook
-                            (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env -> theory -> theory")
-                            ("Context.map_theory (fn thy => " ^ hook ^ " (Stack_Data.get thy |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") (Stack_Data.get thy |> #2) thy)")
+                            (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env -> Context.generic -> Context.generic")
+                            ("fn context => " ^ hook ^ " (Stack_Data.get context |> #1 |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") (Stack_Data.get context |> #2) context")
                             ants
                    end)
              rule_antiq)
@@ -1397,31 +1397,32 @@ fun exec_tree' l context =
                   l
           |> tap (fn _ => Position.reports_text (Hsk_c_parser.get_reports ()))
 
-fun parse accept s =
- make
+fun uncurry_context f = uncurry (map_context o f)
+
+fun parse env err accept s =
+ make env
  #> StrictCParser.makeLexer (fn _ => s)
  #> tap (fn _ => Hsk_c_parser.init_reports ())
  #> StrictCParser.parse
       ( 0
-      , uncurry (fn (stack, _, _, stack_tree) =>
-          let val (pos1, pos2) = case stack_tree of Tree ({rule_pos, ...}, _) :: _ => rule_pos | _ => (Position.none, Position.none)
-              val range_pos = I #> Position.range #> Position.range_position
-              val () = Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
-                                                , Markup.bad ())
-                                              , "")]
-          in map_context (exec_tree' (rev stack_tree))
-               #> (fn _ => Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
-                                      [("", range_pos (pos1, pos2))])
+      , uncurry_context (fn (stack, _, _, stack_tree) =>
+          let val range_pos = I #> Position.range #> Position.range_position
+          in tap (fn _ => Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
+                                                   , Markup.bad ())
+                                                 , "")])
+             #> exec_tree' (rev stack_tree)
+             #> err stack (range_pos (case stack_tree of Tree ({rule_pos, ...}, _) :: _ => rule_pos | _ => (Position.none, Position.none)))
           end)
       , Position.none
-      , uncurry (fn (stack, _, _, stack_tree) =>
-          map_context (exec_tree' stack_tree
-                       #> accept (stack |> hd |> map_svalue0 MlyValue.reduce0)))
+      , uncurry_context (fn (stack, _, _, stack_tree) =>
+          exec_tree' stack_tree
+          #> accept (stack |> hd |> map_svalue0 MlyValue.reduce0))
       , fn (stack, arg) => arg |> map_rule_input (K stack)
                                |> map_rule_output (K empty_rule_output)
       , fn arg => (#rule_output arg, arg)
       , #env)
- ##> (fn (_, {context, ...}) => context)
+ #> snd
+ #> #context
 end
 \<close>
 
@@ -2063,9 +2064,8 @@ fun eval flags pos ants =
       | _ => ());
   in () end;
 
-fun eval' accept flags pos ants =
-  let val context = Context.the_generic_context ()
-      val ctxt = Context.proof_of context
+fun eval'0 env err accept flags pos ants context =
+  let val ctxt = Context.proof_of context
       val keywords = Thy_Header.get_keywords' ctxt
 
       val ants =
@@ -2131,14 +2131,17 @@ fun eval' accept flags pos ants =
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
-      val (_, context) = P.parse (accept ants_hol) ants_stack context
-  in Context.put_generic_context (SOME context)
-  end
+  in P.parse env (err ants_hol) (accept ants_hol) ants_stack context end
+
+fun eval' env err accept flags pos ants = Context.>> (eval'0 env err accept flags pos ants)
 
 end;
 
-fun eval_source accept flags source =
-  eval' accept flags (Input.pos_of source) (C_Lex.read_source source);
+fun eval_source env err accept flags source =
+  eval' env err accept flags (Input.pos_of source) (C_Lex.read_source source);
+
+fun eval_source' env err accept flags source =
+  eval'0 env err accept flags (Input.pos_of source) (C_Lex.read_source source);
 
 end
 \<close>

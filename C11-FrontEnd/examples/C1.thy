@@ -118,7 +118,7 @@ int a = 0; //\
 subsection \<open>Actions on the Parsing Stack\<close>
 
 C \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
-int a = (((0 //@ setup \<open>fn _ => fn thy => let in (* */ *) thy end\<close>
+int a = (((0 //@ setup \<open>fn _ => fn context => let in (* */ *) context end\<close>
              /*@ setup \<open>K I\<close> (*   * /   *) */
          )));
 \<close>
@@ -129,11 +129,11 @@ int a = (((0))); /*@ setup \<open>@{setup}\<close> */
 
 C \<comment> \<open>\<^theory_text>\<open>hook\<close> is executed during REDUCE actions\<close> \<open>
 int a = (((0
-      + 5)))  /*@ hook \<open>fn (_, (value, pos1, pos2)) => fn _ => fn thy =>
+      + 5)))  /*@ hook \<open>fn (_, (value, pos1, pos2)) => fn _ => fn context =>
                           let
                             val () = writeln (@{make_string} value)
                             val () = Position.reports_text [((Position.range (pos1, pos2) |> Position.range_position, Markup.intensify), "")]
-                          in thy end\<close>
+                          in context end\<close>
                */
       * 4; 
 float b = 7 / 3;
@@ -280,16 +280,16 @@ int g(int i)
 subsection \<open>Mixing Together Any Types of Antiquotations\<close>
 
 ML\<open>
-structure Example_Data = Theory_Data (type T = string list
+structure Example_Data = Generic_Data (type T = string list
                                       val empty = [] val extend = I val merge = #2)
 fun add_ex s1 s2 =
   Example_Data.map (cons s2)
-  #> (fn thy => let val () = warning (s1 ^ s2)
-                    val () = app (fn s => writeln ("  Data content: " ^ s)) (Example_Data.get thy)
-                in thy end)
+  #> (fn context => let val () = warning (s1 ^ s2)
+                        val () = app (fn s => writeln ("  Data content: " ^ s)) (Example_Data.get context)
+                    in context end)
 \<close>
 
-setup \<open>Example_Data.put []\<close>
+setup \<open>Context.theory_map (Example_Data.put [])\<close>
 
 declare[[ML_source_trace]]
 declare[[C_parser_trace]]
@@ -312,10 +312,12 @@ int b = 0;
 
 subsection \<open>Reporting of Positions and Contextual Update of Environment\<close>
 
+subsubsection \<open>1\<close>
+
 declare [[ML_source_trace = false]]
 declare [[C_lexer_trace = false]]
 
-C\<open>
+C \<comment> \<open>Reporting of Positions\<close> \<open>
 typedef int i, j;
   /*@ hook \<open>@{hook'}\<close> */ //@ +++++ hook \<open>@{hook'}\<close>
 int j = 0;
@@ -329,6 +331,42 @@ typedef i j;
 i jj = 0;
 j j = 0;
 \<close>
+
+subsubsection \<open>2\<close>
+
+declare [[C_parser_trace = false]]
+
+ML\<open>
+fun show_env0 make_string f msg context =
+  warning ("(" ^ msg ^ ") "
+           ^ make_string (f (the (Symtab.lookup (#tab (C11_core.Data.get context))
+                                                (Context.theory_name (Context.theory_of context))))))
+
+val show_env = tap o show_env0 @{make_string} length
+
+val C' = C_Outer_Syntax.C' (fn _ => fn v => fn pos =>
+                             tap (fn _ => warning ("ERROR " ^ @{make_string} v ^ Position.here pos)))
+\<close>
+
+C \<comment> \<open>Propagation of Updates\<close> \<open>
+typedef int i, j;
+int j = 0;
+typedef int i, j;
+j jj = 0;
+j jj = 0; /*@ hook \<open>fn _ => fn _ => show_env "POSITION 0"\<close> hook \<open>@{hook'}\<close> */
+typedef int k; /*@ hook \<open>fn _ => fn env => fn context =>
+                          (C' env \<open>k jj = 0; //@ hook \<open>@{hook'}\<close>
+                                  typedef k l; //@ hook \<open>@{hook'}\<close>\<close>
+                          #> show_env "POSITION 1") context\<close> */
+j j = 0; //@ hook \<open>@{hook'}\<close>
+typedef i j; /*@ hook \<open>fn _ => fn _ => show_env "POSITION 2"\<close> */
+typedef i j;
+typedef i j;
+i jj = 0;
+j j = 0;
+\<close>
+
+ML\<open>show_env "POSITION 3" (Context.Theory @{theory})\<close>
 
 section \<open>Miscellaneous\<close>
 
