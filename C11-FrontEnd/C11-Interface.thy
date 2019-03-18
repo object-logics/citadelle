@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory "C11-Interface"
-  imports "src/C_Model_ml_lex"
+  imports "src/C_Isar"
   keywords "C" :: thy_decl
        and "C_file" :: thy_load % "ML"
 begin
