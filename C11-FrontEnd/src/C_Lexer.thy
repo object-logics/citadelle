@@ -547,6 +547,7 @@ and token_kind_directive = Inline of token_group (* a not yet analyzed directive
                                    * token_group option (* functional arguments *)
                                    * token_group (* rewrite body *)
                          | Undef of token_group (* name *)
+                         | Cpp of token_group
                          | Conditional of token_group (* if *)
                                         * token_group list (* elif *)
                                         * token_group option (* else *)
@@ -597,6 +598,7 @@ val group_list_of = fn
  | Include g => [g]
  | Define (g1, g2, o_g3, g4) => flat [[g1], [g2], the_list o_g3, [g4]]
  | Undef g => [g]
+ | Cpp g => [g]
  | Conditional (g1, gs2, o_g3, g4) => flat [[g1], gs2, the_list o_g3, [g4]]
 
 fun content_of (Token (_, (_, x))) = x;
@@ -607,6 +609,9 @@ fun is_keyword (Token (_, (Keyword, _))) = true
 
 fun is_ident (Token (_, (Ident, _))) = true
   | is_ident _ = false;
+
+fun is_integer (Token (_, (Integer _, _))) = true
+  | is_integer _ = false;
 
 fun is_delimiter (Token (_, (Keyword, x))) = not (C_Symbol.is_ascii_identifier x)
   | is_delimiter _ = false;
@@ -727,6 +732,11 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
                  , map (fn tok => ((pos_of tok, Markup.antiquote), "")) toks_bl3
                  , maps token_report0 toks_bl4 ] end
    | Directive (Undef (Group2 (toks_bl, toks1, toks2))) =>
+       ((pos, Markup.antiquoted), "")
+       :: flat [ maps token_report1 toks1
+               , maps token_report0 toks2
+               , maps token_report0 toks_bl ]
+   | Directive (Cpp (Group2 (toks_bl, toks1, toks2))) =>
        ((pos, Markup.antiquoted), "")
        :: flat [ maps token_report1 toks1
                , maps token_report0 toks2
@@ -1079,6 +1089,16 @@ val not_cond =
               Token (pos, ( case toks of
                               [Token (_, (Ident, _))] => Directive (Undef (Group2 (toks_bl, [tok1, tok2], toks)))
                             | _ => Error ("Expecting at least and at most one identifier" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
+                          , s))
+          | Token (pos, ( Directive (Inline (Group1 ( toks_bl
+                                                    , (tok1 as Token (_, (Sharp _, _)))
+                                                      :: (tok2 as Token (_, (Integer _, _)))
+                                                      :: (tok3 as Token (_, (String _, _)))
+                                                      :: toks)))
+                        , s)) =>
+              Token (pos, ( if forall is_integer toks then
+                              Directive (Cpp (Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks)))
+                            else Error ("Expecting an integer" ^ Position.here (take_prefix is_integer toks |> #2 |> hd |> pos_of), Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks))
                           , s))
           | x => x))
 
