@@ -50,9 +50,9 @@ fun printStack(stack: ('a,'b) stack0, n: int) =
            )
       | nil => ()
 
-fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get, get_env, ec = {showTerminal, error, ...}, ...} =
+fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get, get_env_lang, ec = {showTerminal, error, ...}, ...} =
   let fun empty_tree rule_pos rule_type arg =
-        C_Env.Tree ({rule_pos = rule_pos, rule_type = rule_type, rule_env = get_env arg, rule_static = NONE, rule_antiq = []}, [])
+        C_Env.Tree ({rule_pos = rule_pos, rule_type = rule_type, rule_env_lang = get_env_lang arg, rule_static = NONE, rule_antiq = []}, [])
 
       fun prAction(stack as (state, _) :: _, (TOKEN (term,_),_), action) =
              (writeln "Parse: state stack:";
@@ -108,7 +108,7 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                           (pos, stack_pos)
                           ( C_Env.Tree ( { rule_pos = pos
                                          , rule_type = C_Env.Reduce i
-                                         , rule_env = get_env arg
+                                         , rule_env_lang = get_env_lang arg
                                          , rule_static = #output_env goto0'
                                          , rule_antiq = l_ml }
                                        , rev l_tree )
