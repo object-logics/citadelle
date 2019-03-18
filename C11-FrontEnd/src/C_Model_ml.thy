@@ -191,24 +191,24 @@ type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : class_Pos list * int
-         , next_eval : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list }
+         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list }
 
 (**)
 
-fun map_env_lang f {env_lang, env_tree, rule_output, rule_input, next_eval} =
-  {env_lang = f env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
+fun map_env_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
+  {env_lang = f env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook}
 
-fun map_env_tree f {env_lang, env_tree, rule_output, rule_input, next_eval} =
-  {env_lang = env_lang, env_tree = f env_tree, rule_output = rule_output, rule_input = rule_input, next_eval = next_eval}
+fun map_env_tree f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
+  {env_lang = env_lang, env_tree = f env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook}
 
-fun map_rule_output f {env_lang, env_tree, rule_output, rule_input, next_eval} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = f rule_output, rule_input = rule_input, next_eval = next_eval}
+fun map_rule_output f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = f rule_output, rule_input = rule_input, stream_hook = stream_hook}
 
-fun map_rule_input f {env_lang, env_tree, rule_output, rule_input, next_eval} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = f rule_input, next_eval = next_eval}
+fun map_rule_input f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = f rule_input, stream_hook = stream_hook}
 
-fun map_next_eval f {env_lang, env_tree, rule_output, rule_input, next_eval} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, next_eval = f next_eval}
+fun map_stream_hook f {env_lang, env_tree, rule_output, rule_input, stream_hook} =
+  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = f stream_hook}
 
 (**)
 
@@ -242,7 +242,7 @@ fun map_reports f {context, reports} =
 val empty_env_lang : env_lang = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
 fun empty_env_tree context : env_tree = {context = context, reports = []}
 val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
-fun make env_lang env_tree = {env_lang = env_lang, env_tree = env_tree, rule_output = empty_rule_output, rule_input = ([], 0), next_eval = []}
+fun make env_lang env_tree = {env_lang = env_lang, env_tree = env_tree, rule_output = empty_rule_output, rule_input = ([], 0), stream_hook = []}
 fun string_of (env_lang : env_lang) = 
   let fun dest tab = Symtab.dest tab |> map #1
   in @{make_string} ( ("tyidents", dest (#tyidents env_lang))

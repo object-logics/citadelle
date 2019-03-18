@@ -1257,9 +1257,9 @@ fun makeLexer input =
                                  | Left ml => SOME (Left ml)))
       fun drain ((stack, stack_ml, stack_pos, stack_tree), arg) =
         let val (arg, stack_ml) =
-              case #next_eval arg
+              case #stream_hook arg
               of l :: ls =>
-                ( C_Env.map_next_eval (K ls) arg
+                ( C_Env.map_stream_hook (K ls) arg
                 , fold_rev (fn (_, syms, range, ants) => fn stack_ml =>
                              let
                                val () =
@@ -1294,15 +1294,15 @@ fun makeLexer input =
                                end
                                arg)
                          | Hook (syms_shift, syms, (ants, range)) =>
-                           C_Env.map_next_eval
-                               (fn next_eval => 
+                           C_Env.map_stream_hook
+                               (fn stream_hook => 
                                 case
                                    fold (fn _ => fn (eval1, eval2) =>
                                        (case eval2 of e2 :: eval2 => (e2, eval2)
                                                     | [] => ([], []))
                                        |>> (fn e1 => e1 :: eval1))
                                      syms_shift
-                                     ([], next_eval)
+                                     ([], stream_hook)
                                 of (eval1, eval2) => fold cons
                                                           eval1
                                                           (case eval2 of e :: es => ((syms_shift, syms, range, ants) :: e) :: es
@@ -1316,7 +1316,7 @@ fun makeLexer input =
                              fold_rev (fn (syms, _, _, _) => fn () =>
                                         let val () = error ("Maximum depth reached (" ^ Int.toString (pos + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
                                         in () end)))
-                         (map_index I (#next_eval arg))
+                         (map_index I (#stream_hook arg))
                          ()
               in return0 (Tokens.x25_eof (Position.none, Position.none)) end
            | SOME (Right ((pos1, pos2), (C_Lex.Char (b, [c]), _))) =>
