@@ -104,8 +104,6 @@ signature LR_PARSER1 =
 
         sharing LrTable = Token.LrTable
 
-        exception ParseError
-
         type ('_b, '_c) stack = (LrTable.state * ('_b * '_c * '_c)) list
                               * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
                               * ('_c * '_c) list
@@ -133,13 +131,13 @@ signature LR_PARSER1 =
                             errtermvalue : LrTable.term -> 'arg -> '_b * 'arg,
                             showTerminal : LrTable.term -> string,
                             terms: LrTable.term list,
-                            error : ('_b, '_c) stack * 'arg -> unit
+                            error : ('_b, '_c) stack * 'arg -> 'arg
                            },
                      lookahead : int  (* max amount of lookahead used in *)
                                       (* error correction *)
                     }
                     -> ('_b, '_c, 'arg) lexer
-                    -> '_b * ('_b, '_c, 'arg) lexer
+                    -> ('_b, '_c, 'arg) lexer
     end
 
 signature LR_PARSER2 =
@@ -397,11 +395,9 @@ signature ARG_PARSER1 =
     sig
         structure Token : TOKEN
         structure Stream : STREAM1
-        exception ParseError
 
         type arg
         type pos
-        type result
         type svalue0
         type svalue = arg -> svalue0 * arg
         type token0
@@ -415,14 +411,14 @@ signature ARG_PARSER1 =
 
         val makeLexer : (int -> (antiq_stack, token0) either list) -> arg -> arg lexer
         val parse :   int
-                    * (stack * arg -> unit)
+                    * (stack * arg -> arg)
                     * pos
                     * (stack * arg -> arg)
                     * (((pos * pos) list * int) * arg -> arg)
                     * (arg -> (pos * pos) C_Env.rule_output0 * arg)
                     * (arg -> C_Env.env)
                    -> arg lexer
-                   -> result * arg lexer
+                   -> arg lexer
         val sameToken : (svalue, pos) Token.token * (svalue, pos) Token.token -> bool
      end
 

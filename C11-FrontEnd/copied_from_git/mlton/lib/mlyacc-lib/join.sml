@@ -70,11 +70,8 @@ struct
     structure Token = ParserData.Token
     structure Stream = LrParser.Stream
 
-    exception ParseError = LrParser.ParseError
-
     type arg = ParserData.arg
     type pos = ParserData.pos
-    type result = ParserData.result
     type svalue0 = ParserData.svalue0
     type svalue = arg -> svalue0 * arg
     type token0 = Lex.UserDeclarations.token0
@@ -105,7 +102,6 @@ struct
                             error=error,
                             showTerminal = ParserData.EC.showTerminal,
                             terms = ParserData.EC.terms}}
-      #>> ParserData.Actions.extract
 
     val sameToken = Token.sameToken
 end

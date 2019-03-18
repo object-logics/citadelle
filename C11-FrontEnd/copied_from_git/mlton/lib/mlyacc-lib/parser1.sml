@@ -29,7 +29,6 @@ open LrTable
 open Token
 
 val DEBUG1 = false
-exception ParseError
 exception ParseImpossible of int
 
 type ('a,'b) stack0 = (state * ('a * 'b * 'b)) list
@@ -117,14 +116,12 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                       , arg) end
                  | _ => raise (ParseImpossible 197))
                 |> (fn stack_arg => parseStep (token, (lexer, stack_arg)))
-              | ERROR => (error ((stack, stack_ml, stack_pos, stack_tree), arg);
-                          raise ParseError)
+              | ERROR => (lexer, ((stack, stack_ml, stack_pos, stack_tree), arg))
+                         |> Stream.cons o pair token
+                         ||> error
               | ACCEPT => (lexer, ((stack, stack_ml, stack_pos, stack_tree), arg))
                           |> Stream.cons o pair token
-                          |> (fn (lexer, ((stack, stack_ml, stack_pos, stack_tree), arg)) =>
-                              case stack
-                              of (_,(topvalue,_,_)) :: _ => pair topvalue (lexer, accept ((stack, stack_ml, stack_pos, stack_tree), arg))
-                               | _ => raise (ParseImpossible 202))
+                          ||> accept
           end
         | parseStep _ = raise (ParseImpossible 204)
   in I
