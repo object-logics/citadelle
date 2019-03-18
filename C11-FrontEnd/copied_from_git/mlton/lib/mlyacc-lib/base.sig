@@ -207,7 +207,6 @@ signature ARG_LEXER1 =
    sig
        structure UserDeclarations :
            sig
-                type token0
                 type ('a,'b) token
                 type pos
                 type arg
@@ -219,8 +218,7 @@ signature ARG_LEXER1 =
                    * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
                    * (UserDeclarations.pos * UserDeclarations.pos) list
                    * (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) C_Env.rule_ml C_Env.tree list
-        val makeLexer : (int -> (antiq_stack, UserDeclarations.token0) either list)
-                        -> (stack * UserDeclarations.arg)
+        val makeLexer : (stack * UserDeclarations.arg)
                         -> (UserDeclarations.svalue, UserDeclarations.pos) UserDeclarations.token
                          * (stack * UserDeclarations.arg)
    end
@@ -400,7 +398,6 @@ signature ARG_PARSER1 =
         type pos
         type svalue0
         type svalue = arg -> svalue0 * arg
-        type token0
 
         type stack = (Token.LrTable.state, svalue0, pos) stack0
                    * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
@@ -409,7 +406,7 @@ signature ARG_PARSER1 =
 
         type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
 
-        val makeLexer : (int -> (antiq_stack, token0) either list) -> arg -> arg lexer
+        val makeLexer : arg -> arg lexer
         val parse :   int
                     * (stack * arg -> arg)
                     * pos

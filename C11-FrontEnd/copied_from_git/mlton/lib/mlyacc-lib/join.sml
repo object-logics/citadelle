@@ -74,7 +74,6 @@ struct
     type pos = ParserData.pos
     type svalue0 = ParserData.svalue0
     type svalue = arg -> svalue0 * arg
-    type token0 = Lex.UserDeclarations.token0
 
     type stack = (Token.LrTable.state, svalue0, pos) stack0
                * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
@@ -83,7 +82,7 @@ struct
 
     type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
 
-    val makeLexer = LrParser.Stream.streamify o Lex.makeLexer
+    val makeLexer = LrParser.Stream.streamify Lex.makeLexer
 
     val parse = fn (lookahead, error, void_position, accept, reduce_init, reduce_get, get_env_lang) =>
       LrParser.parse {table = ParserData.table,
