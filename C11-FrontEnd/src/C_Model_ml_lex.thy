@@ -1704,7 +1704,7 @@ fun read_no_commands'0 keywords syms =
   |> source_improper
   |> Source.exhaust
 
-fun read_no_commands' keywords scan explicit syms =
+fun read_no_commands' keywords scan syms =
   Source.of_list syms
   |> source' false (Keyword.no_command_keywords keywords)
   |> source_proper
@@ -1719,9 +1719,7 @@ fun read_no_commands' keywords scan explicit syms =
                              val msg = case is_error' tok of SOME msg0 => msg0 ^ " (" ^ msg ^ ")"
                                                            | NONE => msg
                            in ( msg
-                              , if explicit
-                                then [((pos_of tok, Markup.bad ()), msg)]
-                                else []
+                              , [((pos_of tok, Markup.bad ()), msg)]
                               , tok)
                            end])))
   |> Source.exhaust;
@@ -2002,7 +2000,6 @@ fun scan_antiq ctxt explicit syms =
                        || (if explicit
                            then Scan.trace C_Parse.antiq_source >> (I #>> (fn syms => Antiq_ML {start = Position.none, stop = Position.none, range = Input.range_of syms, body = Input.source_explode syms}))
                            else Scan.fail)))
-         explicit
          syms
      , C_Token.read_no_commands'0 keywords syms)
   end
@@ -2078,7 +2075,7 @@ fun eval'0 env err accept flags pos ants context =
                        , if forall (fn Right _ => true | _ => false) res then
                            let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
                                val (l_report, l_tok) = split_list res
-                           in [(Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, flat l_report), cts))), l_tok)] end
+                           in [(Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, if explicit then flat l_report else []), cts))), l_tok)] end
                          else
                            map (fn Left x => x
                                  | Right (msg, l_report, tok) =>

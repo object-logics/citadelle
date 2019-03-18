@@ -162,6 +162,24 @@ long long f (int a) {
 int b = 7 / (3) * 50;
 \<close>
 
+C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
+int a = 0;
+  /*@ context (* Native interpretation of ML antiquotations *)
+   */
+  /** context (* No support for free-form calls to ML antiquotations,
+                 but implementing a specific delimiter to recognize
+                 ML antiquotations (for example \<open>//* ML\<open>\<close>\<close>) would be possible *)
+   */
+
+  /*@ hook (* Explicit warning + Explicit markup reporting *)
+   */
+  /** hook (* Errors are turned into tracing report information *)
+   */
+
+  /** hook \<open>fn _ => fn _ => I\<close> (* An example of correct syntax accepted as usual *)
+   */
+\<close>
+
 subsection \<open>User Defined Commands in the Semantic Verification Space\<close>
 
 C \<comment> \<open>Copyright\<close> \<open>
@@ -278,6 +296,29 @@ int g(int i)
 \<close>
 
 subsection \<open>Mixing Together Any Types of Antiquotations\<close>
+
+C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
+int a = 0;
+  /*@ hook \<open>fn _ => fn _ => I\<close>
+      hook (* Parsing error of a single command does not propagate to other commands *)
+      hook \<open>fn _ => fn _ => I\<close>
+      context
+   */
+  /** hook \<open>fn _ => fn _ => I\<close>
+      hook (* Parsing error of a single command does not propagate to other commands *)
+      hook \<open>fn _ => fn _ => I\<close>
+      context
+   */
+  
+  /*@ hook (* Errors in all commands are all rendered *)
+      hook (* Errors in all commands are all rendered *)
+      hook (* Errors in all commands are all rendered *)
+   */
+  /** hook (* Errors in all commands makes the whole comment considered as an usual comment *)
+      hook (* Errors in all commands makes the whole comment considered as an usual comment *)
+      hook (* Errors in all commands makes the whole comment considered as an usual comment *)
+   */
+\<close>
 
 ML\<open>
 structure Example_Data = Generic_Data (type T = string list
