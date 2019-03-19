@@ -34,7 +34,7 @@ exception ParseImpossible of int
 type ('a,'b) stack0 = (state * ('a * 'b * 'b)) list
 
 type ('_b, '_c) stack = (LrTable.state * ('_b * '_c * '_c)) list
-                      * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+                      * ml_source_range list list
                       * ('_c * '_c) list
                       * (LrTable.state, '_b, '_c) C_Env.rule_ml C_Env.tree list
 

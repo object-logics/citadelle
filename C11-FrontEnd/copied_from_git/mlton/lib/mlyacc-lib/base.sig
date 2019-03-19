@@ -105,7 +105,7 @@ signature LR_PARSER1 =
         sharing LrTable = Token.LrTable
 
         type ('_b, '_c) stack = (LrTable.state * ('_b * '_c * '_c)) list
-                              * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+                              * ml_source_range list list
                               * ('_c * '_c) list
                               * (LrTable.state, '_b, '_c) C_Env.rule_ml C_Env.tree list
 
@@ -215,7 +215,7 @@ signature ARG_LEXER1 =
                 type state
            end
         type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0
-                   * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+                   * ml_source_range list list
                    * (UserDeclarations.pos * UserDeclarations.pos) list
                    * (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) C_Env.rule_ml C_Env.tree list
         val makeLexer : (stack * UserDeclarations.arg)
@@ -400,7 +400,7 @@ signature ARG_PARSER1 =
         type svalue = arg -> svalue0 * arg
 
         type stack = (Token.LrTable.state, svalue0, pos) stack0
-                   * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+                   * ml_source_range list list
                    * (pos * pos) list
                    * (Token.LrTable.state, svalue0, pos) C_Env.rule_ml C_Env.tree list
 

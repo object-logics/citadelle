@@ -76,7 +76,7 @@ struct
     type svalue = arg -> svalue0 * arg
 
     type stack = (Token.LrTable.state, svalue0, pos) stack0
-               * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+               * ml_source_range list list
                * (pos * pos) list
                * (Token.LrTable.state, svalue0, pos) C_Env.rule_ml C_Env.tree list
 
