@@ -457,10 +457,6 @@ struct
 
 (** ML antiquotations **)
 
-datatype antiq_language = Antiq_ML of Antiquote.antiq
-                        | Antiq_stack of antiq_stack0
-                        | Antiq_HOL of antiq_hol
-                        | Antiq_none of C_Lex.token
 
 (* names for generated environment *)
 
@@ -713,12 +709,8 @@ fun eval'0 env err accept flags pos ants {context, reports} =
 
       val ants_ml = map_ants' (fn (Antiq_ML a, _) => [Antiquote.Antiq a] | _ => [])
       val ants_stack =
-        map_ants (single o Left o maps (fn (Antiq_stack x, _) => [x] | _ => [])
-                                o (fn (_, _, l) => l))
+        map_ants (single o Left o maps (single o #1) o #3)
                  (single o Right)
-      val ants_hol = map_ants (fn (a, _, l) => [Left (a, maps (fn (Antiq_HOL x, _) => [x] | _ => []) l)])
-                              (fn C_Lex.Token (pos, (C_Lex.Directive l, _)) => [Right (pos, l)]
-                                | _ => [])
       val ants_none = map_ants' (fn (Antiq_none x, _) => [x] | _ => [])
 
       val _ = Position.reports (Antiquote.antiq_reports ants_ml
@@ -749,7 +741,7 @@ fun eval'0 env err accept flags pos ants {context, reports} =
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
-  in P.parse env (err ants_hol) (accept ants_hol) ants_stack {context = context, reports = reports} end
+  in P.parse env err accept ants_stack {context = context, reports = reports} end
 
 fun eval' env err accept flags pos ants =
   Context.>> (C_Env.empty_env_tree

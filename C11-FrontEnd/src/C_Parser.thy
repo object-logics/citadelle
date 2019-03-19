@@ -61,13 +61,21 @@ datatype antiq_hol = Invariant of string (* term *)
                    | Calls of text_range list
                    | Owned_by of text_range
 
+datatype antiq_language = Antiq_ML of Antiquote.antiq
+                        | Antiq_stack of antiq_stack0
+                        | Antiq_HOL of antiq_hol
+                        | Antiq_none of C_Lex.token
+
 structure C_Env = struct
 
 type tyidents = (Position.T list * serial) Symtab.table
 
+type stream = (antiq_language list, C_Lex.token) either list
+
 type env_lang = { tyidents : tyidents
                 , scopes : tyidents list
-                , namesupply : int }
+                , namesupply : int
+                , stream_ignored : stream }
 (* NOTE: The distinction between type variable or identifier can not be solely made
          during the lexing process.
          Another pass on the parsed tree is required. *)
@@ -103,7 +111,7 @@ type T = { env_lang : env_lang
          , rule_output : rule_output
          , rule_input : class_Pos list * int
          , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * ml_source_range) list list
-         , stream_lang : (antiq_stack, Position.range * (C_Lex.token_kind * string)) either list }
+         , stream_lang : stream }
 
 (**)
 
@@ -135,14 +143,17 @@ fun map_output_env f {output_pos, output_env} =
 
 (**)
 
-fun map_tyidents f {tyidents, scopes, namesupply} =
-  {tyidents = f tyidents, scopes = scopes, namesupply = namesupply}
+fun map_tyidents f {tyidents, scopes, namesupply, stream_ignored} =
+  {tyidents = f tyidents, scopes = scopes, namesupply = namesupply, stream_ignored = stream_ignored}
 
-fun map_scopes f {tyidents, scopes, namesupply} =
-  {tyidents = tyidents, scopes = f scopes, namesupply = namesupply}
+fun map_scopes f {tyidents, scopes, namesupply, stream_ignored} =
+  {tyidents = tyidents, scopes = f scopes, namesupply = namesupply, stream_ignored = stream_ignored}
 
-fun map_namesupply f {tyidents, scopes, namesupply} =
-  {tyidents = tyidents, scopes = scopes, namesupply = f namesupply}
+fun map_namesupply f {tyidents, scopes, namesupply, stream_ignored} =
+  {tyidents = tyidents, scopes = scopes, namesupply = f namesupply, stream_ignored = stream_ignored}
+
+fun map_stream_ignored f {tyidents, scopes, namesupply, stream_ignored} =
+  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, stream_ignored = f stream_ignored}
 
 (**)
 
@@ -154,7 +165,7 @@ fun map_reports f {context, reports} =
 
 (**)
 
-val empty_env_lang : env_lang = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*)}
+val empty_env_lang : env_lang = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
 fun empty_env_tree context : env_tree = {context = context, reports = []}
 val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
 fun make env_lang stream_lang env_tree =
@@ -165,15 +176,15 @@ fun make env_lang stream_lang env_tree =
   , stream_hook = []
   , stream_lang = map_filter (fn Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
                                | Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
-                               | Right (C_Lex.Token (_, (C_Lex.Directive _, _))) => NONE
-                               | Right (C_Lex.Token s) => SOME (Right s)
-                               | Left ml => SOME (Left ml))
+                               | Right tok => SOME (Right tok)
+                               | Left antiq => SOME (Left antiq))
                              stream_lang }
 fun string_of (env_lang : env_lang) = 
   let fun dest tab = Symtab.dest tab |> map #1
   in @{make_string} ( ("tyidents", dest (#tyidents env_lang))
                     , ("scopes", map dest (#scopes env_lang))
-                    , ("namesupply", #namesupply env_lang)) end
+                    , ("namesupply", #namesupply env_lang)
+                    , ("stream_ignored", #stream_ignored env_lang)) end
 
 (**)
 
@@ -198,6 +209,7 @@ struct
 fun map_tyidents f = C_Env.map_env_lang (C_Env.map_tyidents f)
 fun map_scopes f = C_Env.map_env_lang (C_Env.map_scopes f)
 fun map_namesupply f = C_Env.map_env_lang (C_Env.map_namesupply f)
+fun map_stream_ignored f = C_Env.map_env_lang (C_Env.map_stream_ignored f)
 
 (**)
 
@@ -905,39 +917,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
       fun return0 x = (x, ((stack, stack_ml, stack_pos, stack_tree), arg))
   in
     case token
-    of SOME (Left l_antiq) =>
-        makeLexer
-          ( (stack, stack_ml, stack_pos, stack_tree)
-          , fold (fn Setup (ML_src src) =>
-                    (fn arg =>
-                       C_Env'.map_context
-                         let val setup = "setup" in
-                           I #> Stack_Data_Lang.put (stack, #env_lang arg)
-                             #> ML_Context.expression
-                                  (Input.range_of src)
-                                  setup
-                                  "Stack_Data_Lang.T -> Context.generic -> Context.generic"
-                                  ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
-                                  (ML_Lex.read_source false src)
-                         end
-                         arg)
-                   | Hook (syms_shift, syms, ml_src) =>
-                     C_Env.map_stream_hook
-                         (fn stream_hook => 
-                          case
-                             fold (fn _ => fn (eval1, eval2) =>
-                                 (case eval2 of e2 :: eval2 => (e2, eval2)
-                                              | [] => ([], []))
-                                 |>> (fn e1 => e1 :: eval1))
-                               syms_shift
-                               ([], stream_hook)
-                          of (eval1, eval2) => fold cons
-                                                    eval1
-                                                    (case eval2 of e :: es => ((syms_shift, syms, ml_src) :: e) :: es
-                                                                 | [] => [[(syms_shift, syms, ml_src)]])))
-                 l_antiq
-                 arg)
-     | NONE => 
+    of NONE => 
         let val () =
               fold (uncurry
                      (fn pos => 
@@ -947,43 +927,83 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                    (map_index I (#stream_hook arg))
                    ()
         in return0 (Tokens.x25_eof (Position.none, Position.none)) end
-     | SOME (Right ((pos1, pos2), (C_Lex.Char (b, [c]), _))) =>
-        return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
-     | SOME (Right ((pos1, pos2), (C_Lex.Char (b, _), _))) => error "to do"
-     | SOME (Right ((pos1, pos2), (C_Lex.String (b, s), _))) =>
-        return0 (StrictCLrVals.Tokens.cstr (C_ast_simple.CString0 (From_string (implode s), b), pos1, pos2))
-     | SOME (Right ((pos1, pos2), (C_Lex.Integer (i, repr, flag), _))) =>
-        return0 (StrictCLrVals.Tokens.cint
-                  ( CInteger i repr
-                      (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
-                                            flag
-                                            ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
-                                       |> map #1)
-                       |> Flags)
-                  , pos1
-                  , pos2))
-     | SOME (Right ((pos1, pos2), (C_Lex.Ident, s))) => 
-        let val (name, arg) = Hsk_c_parser.getNewName arg
-            val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' false (pos1, pos2)) s name
-        in ( (if Hsk_c_parser.isTypeIdent s arg then
-                StrictCLrVals.Tokens.tyident (ident0, pos1, pos2)
-              else
-                StrictCLrVals.Tokens.ident (ident0, pos1, pos2))
-           , ((stack, stack_ml, stack_pos, stack_tree), arg))
-        end
-     | SOME (Right ((pos1, pos2), (_, s))) => 
-                 token_of_string (Tokens.error (pos1, pos2))
-                                 (C_ast_simple.ClangCVersion0 (From_string s))
-                                 (CChar #"0" false)
-                                 (CFloat (From_string s))
-                                 (CInteger 0 DecRepr (Flags 0))
-                                 (C_ast_simple.CString0 (From_string s, false))
-                                 (C_ast_simple.Ident (From_string s, 0, OnlyPos NoPosition (NoPosition, 0)))
-                                 s
-                                 pos1
-                                 pos2
-                                 s
-                 |> return0
+     | SOME (Left l_antiq) =>
+        makeLexer
+          ( (stack, stack_ml, stack_pos, stack_tree)
+          , (arg, [])
+             |> fold (fn Antiq_stack (Setup (ML_src src)) =>
+                         I #>>
+                         (fn arg =>
+                           C_Env'.map_context
+                             let val setup = "setup" in
+                               I #> Stack_Data_Lang.put (stack, #env_lang arg)
+                                 #> ML_Context.expression
+                                      (Input.range_of src)
+                                      setup
+                                      "Stack_Data_Lang.T -> Context.generic -> Context.generic"
+                                      ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
+                                      (ML_Lex.read_source false src)
+                             end
+                             arg)
+                       | Antiq_stack (Hook (syms_shift, syms, ml_src)) =>
+                         I #>>
+                           (C_Env.map_stream_hook
+                             (fn stream_hook => 
+                              case
+                                 fold (fn _ => fn (eval1, eval2) =>
+                                     (case eval2 of e2 :: eval2 => (e2, eval2)
+                                                  | [] => ([], []))
+                                     |>> (fn e1 => e1 :: eval1))
+                                   syms_shift
+                                   ([], stream_hook)
+                              of (eval1, eval2) => fold cons
+                                                        eval1
+                                                        (case eval2 of e :: es => ((syms_shift, syms, ml_src) :: e) :: es
+                                                                     | [] => [[(syms_shift, syms, ml_src)]])))
+                       | x => I ##> cons x)
+                     l_antiq
+             |> (fn (arg, []) => arg
+                  | (arg, l_ignored) => C_Env'.map_stream_ignored (cons (Left (rev l_ignored))) arg))
+     | SOME (tok as Right (C_Lex.Token (_, (C_Lex.Directive _, _)))) =>
+        makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env'.map_stream_ignored (cons tok) arg)
+     | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
+       case tok of
+         C_Lex.Char (b, [c]) =>
+          return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
+       | C_Lex.String (b, s) =>
+          return0 (StrictCLrVals.Tokens.cstr (C_ast_simple.CString0 (From_string (implode s), b), pos1, pos2))
+       | C_Lex.Integer (i, repr, flag) =>
+          return0 (StrictCLrVals.Tokens.cint
+                    ( CInteger i repr
+                        (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
+                                              flag
+                                              ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
+                                         |> map #1)
+                         |> Flags)
+                    , pos1
+                    , pos2))
+       | C_Lex.Ident => 
+          let val (name, arg) = Hsk_c_parser.getNewName arg
+              val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' false (pos1, pos2)) src name
+          in ( (if Hsk_c_parser.isTypeIdent src arg then
+                  StrictCLrVals.Tokens.tyident (ident0, pos1, pos2)
+                else
+                  StrictCLrVals.Tokens.ident (ident0, pos1, pos2))
+             , ((stack, stack_ml, stack_pos, stack_tree), arg))
+          end
+       | _ => 
+          token_of_string (Tokens.error (pos1, pos2))
+                          (C_ast_simple.ClangCVersion0 (From_string src))
+                          (CChar #"0" false)
+                          (CFloat (From_string src))
+                          (CInteger 0 DecRepr (Flags 0))
+                          (C_ast_simple.CString0 (From_string src, false))
+                          (C_ast_simple.Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
+                          src
+                          pos1
+                          pos2
+                          src
+          |> return0
   end
 end
 \<close>
@@ -1034,25 +1054,25 @@ fun exec_tree' l env_tree = env_tree
   |> (fn env_tree =>
        env_tree |> C_Env.map_reports (append (Stack_Data_Tree.get (#context env_tree))))
 
-fun uncurry_context f = uncurry (map_env_tree o f)
+fun uncurry_context f = uncurry (fn x => fn arg => map_env_tree (f x (#env_lang arg)) arg)
 
 fun parse env_lang err accept stream_lang =
  make env_lang stream_lang
  #> StrictCParser.makeLexer
  #> StrictCParser.parse
       ( 0
-      , uncurry_context (fn (stack, _, _, stack_tree) =>
+      , uncurry_context (fn (stack, _, _, stack_tree) => fn env_lang =>
           let val range_pos = I #> Position.range #> Position.range_position
           in tap (fn _ => Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
                                                    , Markup.bad ())
                                                  , "")])
              #> exec_tree' (rev stack_tree)
-             #> err stack (range_pos (case stack_tree of Tree ({rule_pos, ...}, _) :: _ => rule_pos | _ => (Position.none, Position.none)))
+             #> err env_lang stack (range_pos (case stack_tree of Tree ({rule_pos, ...}, _) :: _ => rule_pos | _ => (Position.none, Position.none)))
           end)
       , Position.none
-      , uncurry_context (fn (stack, _, _, stack_tree) =>
+      , uncurry_context (fn (stack, _, _, stack_tree) => fn env_lang =>
           exec_tree' stack_tree
-          #> accept (stack |> hd |> map_svalue0 MlyValue.reduce0))
+          #> accept env_lang (stack |> hd |> map_svalue0 MlyValue.reduce0))
       , fn (stack, arg) => arg |> map_rule_input (K stack)
                                |> map_rule_output (K empty_rule_output)
       , fn arg => (#rule_output arg, arg)
