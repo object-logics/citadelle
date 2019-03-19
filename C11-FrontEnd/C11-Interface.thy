@@ -76,7 +76,7 @@ struct
 
 
   type c_file_name      = string
-  type C11_struct       = { tab  : (CTranslUnit * C_Env.stream) list Symtab.table,
+  type C11_struct       = { tab  : (CTranslUnit * antiq_hol C_Env.stream) list Symtab.table,
                             env  : id_kind list Symtab.table }
   val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
 

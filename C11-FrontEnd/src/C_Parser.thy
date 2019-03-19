@@ -70,12 +70,12 @@ structure C_Env = struct
 
 type tyidents = (Position.T list * serial) Symtab.table
 
-type stream = (antiq_language list, C_Lex.token) either list
+type 'antiq_language stream = ('antiq_language list, C_Lex.token) either list
 
 type env_lang = { tyidents : tyidents
                 , scopes : tyidents list
                 , namesupply : int
-                , stream_ignored : stream }
+                , stream_ignored : antiq_hol stream }
 (* NOTE: The distinction between type variable or identifier can not be solely made
          during the lexing process.
          Another pass on the parsed tree is required. *)
@@ -111,7 +111,7 @@ type T = { env_lang : env_lang
          , rule_output : rule_output
          , rule_input : class_Pos list * int
          , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * ml_source_range) list list
-         , stream_lang : stream }
+         , stream_lang : antiq_language stream }
 
 (**)
 
@@ -960,12 +960,13 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                                                         eval1
                                                         (case eval2 of e :: es => ((syms_shift, syms, ml_src) :: e) :: es
                                                                      | [] => [[(syms_shift, syms, ml_src)]])))
-                       | x => I ##> cons x)
+                       | Antiq_HOL x => I ##> cons x
+                       | _ => I)
                      l_antiq
              |> (fn (arg, []) => arg
                   | (arg, l_ignored) => C_Env'.map_stream_ignored (cons (Left (rev l_ignored))) arg))
-     | SOME (tok as Right (C_Lex.Token (_, (C_Lex.Directive _, _)))) =>
-        makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env'.map_stream_ignored (cons tok) arg)
+     | SOME (Right (tok as C_Lex.Token (_, (C_Lex.Directive _, _)))) =>
+        makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env'.map_stream_ignored (cons (Right tok)) arg)
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
        case tok of
          C_Lex.Char (b, [c]) =>
