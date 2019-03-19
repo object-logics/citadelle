@@ -220,21 +220,21 @@ in end
 section \<open>\<close>
 
 ML\<open>
-fun hook make_string f (_, (value, pos1, pos2)) _ thy =
+fun reduce make_string f (_, (value, pos1, pos2)) _ thy =
   let
     val () = writeln (make_string value)
     val () = Position.reports_text [((Position.range (pos1, pos2) 
                                     |> Position.range_position, Markup.intensify), "")]
   in f thy end
 
-fun hook' _ f (_, (_, pos1, pos2)) env thy =
+fun reduce' _ f (_, (_, pos1, pos2)) env thy =
   let
     val () = Position.reports_text [((Position.range (pos1, pos2) 
                                     |> Position.range_position, Markup.intensify), "")]
     val () = writeln ("ENV " ^ C_Env.string_of env)
   in f thy end
 
-fun setup s make_string (stack, _) thy =
+fun shift s make_string (stack, _) thy =
   let
     val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
     val () = stack
@@ -244,20 +244,20 @@ fun setup s make_string (stack, _) thy =
           |> app (fn (i, (value, pos1, pos2)) => writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
   in thy end
 
-fun setup' s _ (stack, env) thy =
+fun shift' s _ (stack, env) thy =
   let
     val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
     val () = writeln ("ENV " ^ C_Env.string_of env)
   in thy end
 \<close>
 
-setup \<open>ML_Antiquotation.inline @{binding hook}
-                               (Args.context >> K ("hook " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
-setup \<open>ML_Antiquotation.inline @{binding hook'}
-                               (Args.context >> K ("hook' " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
-setup \<open>ML_Antiquotation.inline @{binding setup}
-                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("setup " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
-setup \<open>ML_Antiquotation.inline @{binding setup'}
-                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("setup' " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
+setup \<open>ML_Antiquotation.inline @{binding reduce}
+                               (Args.context >> K ("reduce " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
+setup \<open>ML_Antiquotation.inline @{binding reduce'}
+                               (Args.context >> K ("reduce' " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
+setup \<open>ML_Antiquotation.inline @{binding shift}
+                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("shift " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
+setup \<open>ML_Antiquotation.inline @{binding shift'}
+                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("shift' " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
 
 end

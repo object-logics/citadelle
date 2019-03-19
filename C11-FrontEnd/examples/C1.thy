@@ -118,18 +118,18 @@ int a = 0; //\
 subsection \<open>Actions on the Parsing Stack\<close>
 
 C \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
-int a = (((0 //@ setup \<open>fn _ => fn context => let in (* */ *) context end\<close>
-             /*@ setup \<open>K I\<close> (*   * /   *) */
+int a = (((0 //@ !ML \<open>fn _ => fn context => let in (* */ *) context end\<close>
+             /*@ !ML \<open>K I\<close> (*   * /   *) */
          )));
 \<close>
 
-C \<comment> \<open>\<^theory_text>\<open>setup\<close> is executed during SHIFT actions\<close> \<open>
-int a = (((0))); /*@ setup \<open>@{setup}\<close> */
+C \<comment> \<open>\<open>!\<close> makes the command executing during SHIFT actions\<close> \<open>
+int a = (((0))); /*@ !ML \<open>@{shift}\<close> */
 \<close>
 
-C \<comment> \<open>\<^theory_text>\<open>hook\<close> is executed during REDUCE actions\<close> \<open>
+C \<comment> \<open>By default, the command is executed during REDUCE actions\<close> \<open>
 int a = (((0
-      + 5)))  /*@ hook \<open>fn (_, (value, pos1, pos2)) => fn _ => fn context =>
+      + 5)))  /*@ ML \<open>fn (_, (value, pos1, pos2)) => fn _ => fn context =>
                           let
                             val () = writeln (@{make_string} value)
                             val () = Position.reports_text [((Position.range (pos1, pos2) |> Position.range_position, Markup.intensify), "")]
@@ -140,22 +140,22 @@ float b = 7 / 3;
 \<close>
 
 C \<comment> \<open>Positional navigation: pointing to deeper sub-trees in the stack\<close> \<open>
-int b = 7 / (3) * 50 /*@@@@ hook \<open>@{hook}\<close>
+int b = 7 / (3) * 50 /*@@@@ ML \<open>@{reduce}\<close>
                       */;
 \<close>
 
 C \<comment> \<open>Nesting C code in ML\<close> \<open>
 int b = 7 / (3) * 50
-  /*@@@@ hook \<open>(hook @{make_string} o tap)
+  /*@@@@ ML \<open>(reduce @{make_string} o tap)
                  (fn _ => C_Outer_Syntax.C
-                            \<open>int b = 7 / 5 * 2 + 3 * 50 //@ hook \<open>@{hook}\<close>
+                            \<open>int b = 7 / 5 * 2 + 3 * 50 //@ ML \<open>@{reduce}\<close>
                              ;\<close>)\<close>
    */;
 \<close>
 
 C \<comment> \<open>Positional navigation: pointing to sub-trees situated after any part of the code\<close> \<open>
 int b = 7 / (3) * 50;
-/*@+++@ hook \<open>@{hook}\<close>*/
+/*@+++@ ML \<open>@{reduce}\<close>*/
 long long f (int a) {
   while (0) { return 0; }
 }
@@ -171,12 +171,12 @@ int a = 0;
                  ML antiquotations (for example \<open>//* ML\<open>\<close>\<close>) would be possible *)
    */
 
-  /*@ hook (* Explicit warning + Explicit markup reporting *)
+  /*@ ML (* Explicit warning + Explicit markup reporting *)
    */
-  /** hook (* Errors are turned into tracing report information *)
+  /** ML (* Errors are turned into tracing report information *)
    */
 
-  /** hook \<open>fn _ => fn _ => I\<close> (* An example of correct syntax accepted as usual *)
+  /** ML \<open>fn _ => fn _ => I\<close> (* An example of correct syntax accepted as usual *)
    */
 \<close>
 
@@ -299,24 +299,24 @@ subsection \<open>Mixing Together Any Types of Antiquotations\<close>
 
 C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
 int a = 0;
-  /*@ hook \<open>fn _ => fn _ => I\<close>
-      hook (* Parsing error of a single command does not propagate to other commands *)
-      hook \<open>fn _ => fn _ => I\<close>
+  /*@ ML \<open>fn _ => fn _ => I\<close>
+      ML (* Parsing error of a single command does not propagate to other commands *)
+      ML \<open>fn _ => fn _ => I\<close>
       context
    */
-  /** hook \<open>fn _ => fn _ => I\<close>
-      hook (* Parsing error of a single command does not propagate to other commands *)
-      hook \<open>fn _ => fn _ => I\<close>
+  /** ML \<open>fn _ => fn _ => I\<close>
+      ML (* Parsing error of a single command does not propagate to other commands *)
+      ML \<open>fn _ => fn _ => I\<close>
       context
    */
   
-  /*@ hook (* Errors in all commands are all rendered *)
-      hook (* Errors in all commands are all rendered *)
-      hook (* Errors in all commands are all rendered *)
+  /*@ ML (* Errors in all commands are all rendered *)
+      ML (* Errors in all commands are all rendered *)
+      ML (* Errors in all commands are all rendered *)
    */
-  /** hook (* Errors in all commands makes the whole comment considered as an usual comment *)
-      hook (* Errors in all commands makes the whole comment considered as an usual comment *)
-      hook (* Errors in all commands makes the whole comment considered as an usual comment *)
+  /** ML (* Errors in all commands makes the whole comment considered as an usual comment *)
+      ML (* Errors in all commands makes the whole comment considered as an usual comment *)
+      ML (* Errors in all commands makes the whole comment considered as an usual comment *)
    */
 \<close>
 
@@ -338,13 +338,13 @@ declare[[C_parser_trace]]
 C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
 int x /** OWNED_BY foo */, hh /*@
   MODIFIES: [*] x
-  setup \<open>@{setup "evaluation of 2_setup"}\<close>
-  +++++@ hook \<open>fn x => fn env => @{hook} x env #> add_ex "evaluation of " "2_hook"\<close>
+  !ML \<open>@{shift "evaluation of 2_shift"}\<close>
+  +++++@ ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "2_reduce"\<close>
   OWNED_BY bar
   theory
   context
-  hook \<open>fn x => fn env => @{hook} x env #> add_ex "evaluation of " "1_hook"\<close>
-  setup \<open>@{setup "evaluation of 1_setup"}\<close>
+  ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "1_reduce"\<close>
+  !ML \<open>@{shift "evaluation of 1_shift"}\<close>
   \<open>term "a + b"\<close>
 */, z;
 
@@ -360,7 +360,7 @@ declare [[C_lexer_trace = false]]
 
 C \<comment> \<open>Reporting of Positions\<close> \<open>
 typedef int i, j;
-  /*@ hook \<open>@{hook'}\<close> */ //@ +++++ hook \<open>@{hook'}\<close>
+  /*@ ML \<open>@{reduce'}\<close> */ //@ +++++ ML \<open>@{reduce'}\<close>
 int j = 0;
 typedef int i, j;
 j jj = 0;
@@ -394,13 +394,13 @@ typedef int i, j;
 int j = 0;
 typedef int i, j;
 j jj = 0;
-j jj = 0; /*@ hook \<open>fn _ => fn _ => show_env "POSITION 0"\<close> hook \<open>@{hook'}\<close> */
-typedef int k; /*@ hook \<open>fn _ => fn env =>
-                          C' env \<open>k jj = 0; //@ hook \<open>@{hook'}\<close>
-                                  typedef k l; //@ hook \<open>@{hook'}\<close>\<close>
+j jj = 0; /*@ ML \<open>fn _ => fn _ => show_env "POSITION 0"\<close> ML \<open>@{reduce'}\<close> */
+typedef int k; /*@ ML \<open>fn _ => fn env =>
+                          C' env \<open>k jj = 0; //@ ML \<open>@{reduce'}\<close>
+                                  typedef k l; //@ ML \<open>@{reduce'}\<close>\<close>
                           #> show_env "POSITION 1"\<close> */
-j j = 0; //@ hook \<open>@{hook'}\<close>
-typedef i j; /*@ hook \<open>fn _ => fn _ => show_env "POSITION 2"\<close> */
+j j = 0; //@ ML \<open>@{reduce'}\<close>
+typedef i j; /*@ ML \<open>fn _ => fn _ => show_env "POSITION 2"\<close> */
 typedef i j;
 typedef i j;
 i jj = 0;

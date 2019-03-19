@@ -100,6 +100,9 @@ val is_stack1 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "
 val is_stack2 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "@") l
                  | _ => false;
 
+val is_exec_shift = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "!") l
+                     | _ => false;
+
 val is_modifies_star = fn Token (_, (Token.Sym_Ident, l)) => Symbol_Pos.content l = "[*]"
                         | _ => false;
 
@@ -168,7 +171,7 @@ fun completion_report tok =
 fun reports keywords tok =
   if is_command tok then
     keyword_reports tok (command_markups keywords (content_of tok))
-  else if is_stack1 tok orelse is_stack2 tok then
+  else if is_stack1 tok orelse is_stack2 tok orelse is_exec_shift tok then
     keyword_reports tok [Markup.keyword2 |> Markup.keyword_properties]
   else if is_kind Token.Keyword tok then
     keyword_reports tok
@@ -258,7 +261,7 @@ fun token k ss =
 fun token_range k (pos1, (ss, pos2)) =
   Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, ss));
 
-val keywords = Scan.make_lexicon (map raw_explode ["setup", "hook", "INVARIANT", "INV", "FNSPEC", "RELSPEC", "MODIFIES", "DONT_TRANSLATE", "AUXUPD", "GHOSTUPD", "SPEC", "END-SPEC", "CALLS", "OWNED_BY"])
+val keywords = Scan.make_lexicon (map raw_explode ["ML", "INVARIANT", "INV", "FNSPEC", "RELSPEC", "MODIFIES", "DONT_TRANSLATE", "AUXUPD", "GHOSTUPD", "SPEC", "END-SPEC", "CALLS", "OWNED_BY"])
 
 val scan_token = Scanner.!!! "bad input"
   (Symbol_Pos.scan_string_qq err_prefix >> token_range Token.String ||
@@ -271,6 +274,7 @@ val scan_token = Scanner.!!! "bad input"
        $$$ ":" >> pair Token.Keyword ||
        Scan.repeats1 ($$$ "+") >> pair Token.Sym_Ident ||
        Scan.repeats1 ($$$ "@") >> pair Token.Sym_Ident ||
+       $$$ "!" >> pair Token.Sym_Ident ||
        $$$ "[" @@@ $$$ "*" @@@ $$$ "]" >> pair Token.Sym_Ident)) >> uncurry token);
 
 fun recover msg =
@@ -586,15 +590,22 @@ fun scan_antiq ctxt explicit syms =
                     scan)
         >> (I #>> Antiq_HOL o f)
       val scan_ident = Scan.one C_Token.is_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
-      val scan_sym_ident_not_stack = Scan.one (fn c => C_Token.is_sym_ident c andalso not (C_Token.is_stack1 c) andalso not (C_Token.is_stack2 c)) >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
+      val scan_sym_ident_not_stack =
+        Scan.one (fn c => C_Token.is_sym_ident c andalso
+                          not (C_Token.is_stack1 c) andalso
+                          not (C_Token.is_stack2 c) andalso
+                          not (C_Token.is_exec_shift c))
+        >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
       val keywords = Thy_Header.get_keywords' ctxt
   in ( C_Token.read_antiq'
          keywords
          (C_Parse.!!! (   Scan.trace
                             (scan_stack C_Token.is_stack1 --
                              scan_stack C_Token.is_stack2 --
-                             scan_cmd "hook" C_Parse.ML_source) >> (I #>> (fn ((stack1, stack2), syms) => Antiq_stack (Hook (stack1, stack2, ML_src syms))))
-                       || Scan.trace (scan_cmd "setup" C_Parse.ML_source) >> (I #>> (Antiq_stack o Setup o ML_src))
+                             scan_cmd "ML" C_Parse.ML_source)
+                          >> (I #>> (fn ((stack1, stack2), syms) => Antiq_stack (Hook (stack1, stack2, ML_src syms))))
+                       || Scan.trace (Scan.one C_Token.is_exec_shift |-- scan_cmd "ML" C_Parse.ML_source)
+                          >> (I #>> (Antiq_stack o Setup o ML_src))
                        || scan_cmd_hol "INVARIANT" C_Parse.term Invariant
                        || scan_cmd_hol "INV" C_Parse.term Invariant
                        || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
