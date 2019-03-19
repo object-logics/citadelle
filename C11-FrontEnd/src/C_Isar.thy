@@ -703,7 +703,7 @@ fun eval'0 env err accept flags pos ants {context, reports} =
       val ants_ml = map_ants' (fn (Antiq_ML a, _) => [Antiquote.Antiq a] | _ => [])
       val ants_stack =
         map_ants (single o Left o maps (fn (Antiq_stack x, _) =>
-                                             [map_antiq_stack (fn src => (ML_Lex.read_source false src, Input.range_of src)) x]
+                                             [map_antiq_stack (fn src => ML_src (ML_Lex.read_source false src, Input.range_of src)) x]
                                          | _ => [])
                                 o (fn (_, _, l) => l))
                  (single o Right)

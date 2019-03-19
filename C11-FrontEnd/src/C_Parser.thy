@@ -42,7 +42,7 @@ section \<open>Instantiation of the Parser with the Lexer\<close>
 
 ML\<open>
 type text_range = Symbol_Pos.text * Position.T
-type ml_source_range = ML_Lex.token Antiquote.antiquote list * Position.range
+datatype ml_source_range = ML_src of ML_Lex.token Antiquote.antiquote list * Position.range
 
 datatype 'ml_source_range antiq_stack0 = Setup of 'ml_source_range
                                        | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *) * 'ml_source_range
@@ -92,7 +92,7 @@ type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   , rule_env_lang : env_lang
   , rule_static : rule_static
   , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)))
-                  * (Position.range * ML_Lex.token Antiquote.antiquote list)) list }
+                  * ml_source_range) list }
 
 datatype 'a tree = Tree of 'a * 'a tree list
 
@@ -105,7 +105,7 @@ type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : class_Pos list * int
-         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * Position.range * ML_Lex.token Antiquote.antiquote list) list list
+         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * ml_source_range) list list
          , stream_lang : (antiq_stack, Position.range * (C_Lex.token_kind * string)) either list }
 
 (**)
@@ -881,7 +881,7 @@ struct
 end
 
 type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0
-           * (Position.range * ML_Lex.token Antiquote.antiquote list) list list
+           * ml_source_range list list
            * (UserDeclarations.pos * UserDeclarations.pos) list
            * (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) C_Env.rule_ml C_Env.tree list
 
@@ -890,7 +890,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         case #stream_hook arg
         of l :: ls =>
           ( C_Env.map_stream_hook (K ls) arg
-          , fold_rev (fn (_, syms, range, ants) => fn stack_ml =>
+          , fold_rev (fn (_, syms, ml_src as ML_src (ants, range)) => fn stack_ml =>
                        let
                          val () =
                            if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
@@ -900,7 +900,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                            if length stack_ml - length syms <= 0 then
                              error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
                            else ()
-                       in nth_map (length syms) (fn xs => (range, ants) :: xs) stack_ml end)
+                       in nth_map (length syms) (cons ml_src) stack_ml end)
                      l
                      stack_ml)
          | [] => (arg, stack_ml)
@@ -911,7 +911,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
     of SOME (Left l_antiq) =>
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
-          , fold (fn Setup (ants, range) =>
+          , fold (fn Setup (ML_src (ants, range)) =>
                     (fn arg =>
                        C_Env'.map_context
                          let val setup = "setup" in
@@ -924,7 +924,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                                   ants
                          end
                          arg)
-                   | Hook (syms_shift, syms, (ants, range)) =>
+                   | Hook (syms_shift, syms, ml_src) =>
                      C_Env.map_stream_hook
                          (fn stream_hook => 
                           case
@@ -936,15 +936,15 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                                ([], stream_hook)
                           of (eval1, eval2) => fold cons
                                                     eval1
-                                                    (case eval2 of e :: es => ((syms_shift, syms, range, ants) :: e) :: es
-                                                                 | [] => [[(syms_shift, syms, range, ants)]])))
+                                                    (case eval2 of e :: es => ((syms_shift, syms, ml_src) :: e) :: es
+                                                                 | [] => [[(syms_shift, syms, ml_src)]])))
                  l_antiq
                  arg)
      | NONE => 
         let val () =
               fold (uncurry
                      (fn pos => 
-                       fold_rev (fn (syms, _, _, _) => fn () =>
+                       fold_rev (fn (syms, _, _) => fn () =>
                                   let val () = error ("Maximum depth reached (" ^ Int.toString (pos + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
                                   in () end)))
                    (map_index I (#stream_hook arg))
@@ -1011,7 +1011,7 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env_lang = 
       in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end)
   #> (case rule_static of SOME rule_static => rule_static env_lang | NONE => pair env_lang)
   #-> (fn env_lang =>
-        fold (fn ((rule, stack0), (range, ants)) =>
+        fold (fn ((rule, stack0), ML_src (ants, range)) =>
                let val stack = ([stack0], env_lang)
                    val hook = "hook"
                in C_Env.map_context
