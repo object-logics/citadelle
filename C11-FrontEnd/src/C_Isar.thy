@@ -453,10 +453,10 @@ struct
 
 (** ML antiquotations **)
 
-datatype 'a antiq_language = Antiq_ML of Antiquote.antiq
-                           | Antiq_stack of 'a antiq_stack0
-                           | Antiq_HOL of antiq_hol
-                           | Antiq_none of C_Lex.token
+datatype antiq_language = Antiq_ML of Antiquote.antiq
+                        | Antiq_stack of antiq_stack0
+                        | Antiq_HOL of antiq_hol
+                        | Antiq_none of C_Lex.token
 
 (* names for generated environment *)
 
@@ -593,8 +593,8 @@ fun scan_antiq ctxt explicit syms =
          (C_Parse.!!! (   Scan.trace
                             (scan_stack C_Token.is_stack1 --
                              scan_stack C_Token.is_stack2 --
-                             scan_cmd "hook" C_Parse.ML_source) >> (I #>> (fn ((stack1, stack2), syms) => Antiq_stack (Hook (stack1, stack2, syms))))
-                       || Scan.trace (scan_cmd "setup" C_Parse.ML_source) >> (I #>> (Antiq_stack o Setup))
+                             scan_cmd "hook" C_Parse.ML_source) >> (I #>> (fn ((stack1, stack2), syms) => Antiq_stack (Hook (stack1, stack2, ML_src syms))))
+                       || Scan.trace (scan_cmd "setup" C_Parse.ML_source) >> (I #>> (Antiq_stack o Setup o ML_src))
                        || scan_cmd_hol "INVARIANT" C_Parse.term Invariant
                        || scan_cmd_hol "INV" C_Parse.term Invariant
                        || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
@@ -702,9 +702,7 @@ fun eval'0 env err accept flags pos ants {context, reports} =
 
       val ants_ml = map_ants' (fn (Antiq_ML a, _) => [Antiquote.Antiq a] | _ => [])
       val ants_stack =
-        map_ants (single o Left o maps (fn (Antiq_stack x, _) =>
-                                             [map_antiq_stack (fn src => ML_src (ML_Lex.read_source false src, Input.range_of src)) x]
-                                         | _ => [])
+        map_ants (single o Left o maps (fn (Antiq_stack x, _) => [x] | _ => [])
                                 o (fn (_, _, l) => l))
                  (single o Right)
       val ants_hol = map_ants (fn (a, _, l) => [Left (a, maps (fn (Antiq_HOL x, _) => [x] | _ => []) l)])

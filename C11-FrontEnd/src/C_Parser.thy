@@ -42,15 +42,12 @@ section \<open>Instantiation of the Parser with the Lexer\<close>
 
 ML\<open>
 type text_range = Symbol_Pos.text * Position.T
-datatype ml_source_range = ML_src of ML_Lex.token Antiquote.antiquote list * Position.range
+datatype ml_source_range = ML_src of Input.source
 
-datatype 'ml_source_range antiq_stack0 = Setup of 'ml_source_range
-                                       | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *) * 'ml_source_range
+datatype antiq_stack0 = Setup of ml_source_range
+                      | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *) * ml_source_range
 
-fun map_antiq_stack f = fn Setup x => Setup (f x)
-                         | Hook (l1, l2, x) => Hook (l1, l2, f x)
-
-type antiq_stack = ml_source_range antiq_stack0 list
+type antiq_stack = antiq_stack0 list
 
 datatype antiq_hol = Invariant of string (* term *)
                    | Fnspec of text_range (* ident *) * string (* term *)
@@ -890,11 +887,11 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         case #stream_hook arg
         of l :: ls =>
           ( C_Env.map_stream_hook (K ls) arg
-          , fold_rev (fn (_, syms, ml_src as ML_src (ants, range)) => fn stack_ml =>
+          , fold_rev (fn (_, syms, ml_src as ML_src src) => fn stack_ml =>
                        let
                          val () =
                            if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
-                             warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (range |> Position.range_position))
+                             warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (Input.range_of src |> Position.range_position))
                            else ()
                          val () =
                            if length stack_ml - length syms <= 0 then
@@ -911,17 +908,17 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
     of SOME (Left l_antiq) =>
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
-          , fold (fn Setup (ML_src (ants, range)) =>
+          , fold (fn Setup (ML_src src) =>
                     (fn arg =>
                        C_Env'.map_context
                          let val setup = "setup" in
                            I #> Stack_Data_Lang.put (stack, #env_lang arg)
                              #> ML_Context.expression
-                                  range
+                                  (Input.range_of src)
                                   setup
                                   "Stack_Data_Lang.T -> Context.generic -> Context.generic"
                                   ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
-                                  ants
+                                  (ML_Lex.read_source false src)
                          end
                          arg)
                    | Hook (syms_shift, syms, ml_src) =>
@@ -1011,19 +1008,19 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env_lang = 
       in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end)
   #> (case rule_static of SOME rule_static => rule_static env_lang | NONE => pair env_lang)
   #-> (fn env_lang =>
-        fold (fn ((rule, stack0), ML_src (ants, range)) =>
+        fold (fn ((rule, stack0), ML_src src) =>
                let val stack = ([stack0], env_lang)
                    val hook = "hook"
                in C_Env.map_context
                    (I #> Stack_Data_Lang.put stack
                       #> ML_Context.expression
-                           range
+                           (Input.range_of src)
                            hook
                            (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
                            ("fn context => \
                               \let val (stack, env_lang) = Stack_Data_Lang.get context \
                               \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
-                           ants)
+                           (ML_Lex.read_source false src))
                end)
              rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
