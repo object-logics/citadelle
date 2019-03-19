@@ -42,9 +42,13 @@ section \<open>Instantiation of the Parser with the Lexer\<close>
 
 ML\<open>
 type text_range = Symbol_Pos.text * Position.T
-datatype ml_source_range = ML_src of Input.source
 
-datatype antiq_stack0 = Setup of ml_source_range
+type ml_shift = Context.generic -> Context.generic
+type ml_reduce = int -> Context.generic -> Context.generic
+
+type ml_source_range = Position.range * ml_reduce
+
+datatype antiq_stack0 = Setup of Position.range * ml_shift
                       | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *) * ml_source_range
 
 type antiq_stack = antiq_stack0 list
@@ -899,17 +903,17 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         case #stream_hook arg
         of l :: ls =>
           ( C_Env.map_stream_hook (K ls) arg
-          , fold_rev (fn (_, syms, ml_src as ML_src src) => fn stack_ml =>
+          , fold_rev (fn (_, syms, ml_exec) => fn stack_ml =>
                        let
                          val () =
                            if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
-                             warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (Input.range_of src |> Position.range_position))
+                             warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (ml_exec |> #1 |> Position.range_position))
                            else ()
                          val () =
                            if length stack_ml - length syms <= 0 then
                              error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
                            else ()
-                       in nth_map (length syms) (cons ml_src) stack_ml end)
+                       in nth_map (length syms) (cons ml_exec) stack_ml end)
                      l
                      stack_ml)
          | [] => (arg, stack_ml)
@@ -931,21 +935,13 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, [])
-             |> fold (fn Antiq_stack (Setup (ML_src src)) =>
+             |> fold (fn Antiq_stack (Setup (_, exec)) =>
                          I #>>
                          (fn arg =>
-                           C_Env'.map_context
-                             let val setup = "setup" in
-                               I #> Stack_Data_Lang.put (stack, #env_lang arg)
-                                 #> ML_Context.expression
-                                      (Input.range_of src)
-                                      setup
-                                      "Stack_Data_Lang.T -> Context.generic -> Context.generic"
-                                      ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
-                                      (ML_Lex.read_source false src)
-                             end
+                           C_Env'.map_context (I #> Stack_Data_Lang.put (stack, #env_lang arg)
+                                                 #> exec)
                              arg)
-                       | Antiq_stack (Hook (syms_shift, syms, ml_src)) =>
+                       | Antiq_stack (Hook (syms_shift, syms, ml_exec)) =>
                          I #>>
                            (C_Env.map_stream_hook
                              (fn stream_hook => 
@@ -958,8 +954,8 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                                    ([], stream_hook)
                               of (eval1, eval2) => fold cons
                                                         eval1
-                                                        (case eval2 of e :: es => ((syms_shift, syms, ml_src) :: e) :: es
-                                                                     | [] => [[(syms_shift, syms, ml_src)]])))
+                                                        (case eval2 of e :: es => ((syms_shift, syms, ml_exec) :: e) :: es
+                                                                     | [] => [[(syms_shift, syms, ml_exec)]])))
                        | Antiq_HOL x => I ##> cons x
                        | _ => I)
                      l_antiq
@@ -1029,20 +1025,9 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env_lang = 
       in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end)
   #> (case rule_static of SOME rule_static => rule_static env_lang | NONE => pair env_lang)
   #-> (fn env_lang =>
-        fold (fn ((rule, stack0), ML_src src) =>
-               let val stack = ([stack0], env_lang)
-                   val hook = "hook"
-               in C_Env.map_context
-                   (I #> Stack_Data_Lang.put stack
-                      #> ML_Context.expression
-                           (Input.range_of src)
-                           hook
-                           (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
-                           ("fn context => \
-                              \let val (stack, env_lang) = Stack_Data_Lang.get context \
-                              \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
-                           (ML_Lex.read_source false src))
-               end)
+        fold (fn ((rule, stack0), (_, exec)) =>
+               C_Env.map_context (I #> Stack_Data_Lang.put ([stack0], env_lang)
+                                    #> exec rule))
              rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
 

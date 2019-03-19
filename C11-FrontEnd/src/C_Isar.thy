@@ -41,6 +41,93 @@ begin
 section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>
 
 ML\<open>
+(*  Title:      Pure/Isar/keyword.ML
+    Author:     Makarius
+
+Isar keyword classification.
+*)
+
+structure C_Keyword =
+struct
+val before_command = "before_command";
+val quasi_command = "quasi_command";
+
+
+type entry =
+ {pos: Position.T,
+  id: serial,
+  kind: string,
+  files: string list,  (*extensions of embedded files*)
+  tags: string list};
+
+fun check_spec pos ((kind, files), tags) : entry =
+  {pos = pos, id = serial (), kind = kind, files = files, tags = tags};
+
+
+(** keyword tables **)
+
+(* type keywords *)
+
+datatype keywords = Keywords of
+ {minor: Scan.lexicon,
+  major: Scan.lexicon,
+  commands: entry Symtab.table};
+
+fun major_keywords (Keywords {major, ...}) = major;
+
+fun make_keywords (minor, major, commands) =
+  Keywords {minor = minor, major = major, commands = commands};
+
+fun map_keywords f (Keywords {minor, major, commands}) =
+  make_keywords (f (minor, major, commands));
+
+
+
+(* build keywords *)
+
+val empty_keywords =
+  make_keywords (Scan.empty_lexicon, Scan.empty_lexicon, Symtab.empty);
+
+fun merge_keywords
+  (Keywords {minor = minor1, major = major1, commands = commands1},
+    Keywords {minor = minor2, major = major2, commands = commands2}) =
+  make_keywords
+   (Scan.merge_lexicons (minor1, minor2),
+    Scan.merge_lexicons (major1, major2),
+    Symtab.merge (K true) (commands1, commands2));
+
+val add_keywords =
+  fold (fn ((name, pos), spec as ((kind, _), _)) => map_keywords (fn (minor, major, commands) =>
+    if kind = "" orelse kind = before_command orelse kind = quasi_command then
+      let
+        val minor' = Scan.extend_lexicon (Symbol.explode name) minor;
+      in (minor', major, commands) end
+    else
+      let
+        val entry = check_spec pos spec;
+        val major' = Scan.extend_lexicon (Symbol.explode name) major;
+        val commands' = Symtab.update (name, entry) commands;
+      in (minor, major', commands') end));
+
+
+(* keyword status *)
+
+fun is_command (Keywords {commands, ...}) = Symtab.defined commands;
+
+
+(* command keywords *)
+
+fun lookup_command (Keywords {commands, ...}) = Symtab.lookup commands;
+
+fun command_markup keywords name =
+  lookup_command keywords name
+  |> Option.map (fn {pos, id, ...} =>
+      Markup.properties (Position.entity_properties_of false id pos)
+        (Markup.entity Markup.command_keywordN name));
+end
+\<close>
+
+ML\<open>
 (*  Title:      Pure/Isar/token.ML
     Author:     Markus Wenzel, TU Muenchen
 
@@ -150,12 +237,8 @@ val token_kind_markup =
 
 fun keyword_reports tok = map (fn markup => ((pos_of tok, markup), ""));
 
-fun command_markups keywords x =
-  if Keyword.is_theory_end keywords x then [Markup.keyword2 |> Markup.keyword_properties]
-  else
-    (if Keyword.is_proof_asm keywords x then [Markup.keyword3]
-     else if Keyword.is_improper keywords x then [Markup.keyword1, Markup.improper]
-     else [Markup.keyword1])
+fun command_markups _ _ =
+    [Markup.keyword1]
     |> map Markup.command_properties;
 
 in
@@ -222,6 +305,7 @@ open Basic_Symbol_Pos;
 
 val err_prefix = "C outer lexical error: ";
 
+fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> content_of') []
 
 (* scan cartouche *)
 
@@ -261,15 +345,13 @@ fun token k ss =
 fun token_range k (pos1, (ss, pos2)) =
   Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, ss));
 
-val keywords = Scan.make_lexicon (map raw_explode ["ML", "INVARIANT", "INV", "FNSPEC", "RELSPEC", "MODIFIES", "DONT_TRANSLATE", "AUXUPD", "GHOSTUPD", "SPEC", "END-SPEC", "CALLS", "OWNED_BY"])
-
-val scan_token = Scanner.!!! "bad input"
+fun scan_token keywords = Scanner.!!! "bad input"
   (Symbol_Pos.scan_string_qq err_prefix >> token_range Token.String ||
     scan_cartouche >> token_range Token.Cartouche ||
     scan_comment >> token_range Token.Comment ||
     scan_space >> token Token.Space ||
     (Scan.max token_leq
-      (Scan.literal keywords >> pair Token.Command)
+      (Scan.literal (C_Keyword.major_keywords keywords) >> pair Token.Command)
       (C_Lex.scan_ident >> pair Token.Ident ||
        $$$ ":" >> pair Token.Keyword ||
        Scan.repeats1 ($$$ "+") >> pair Token.Sym_Ident ||
@@ -283,9 +365,9 @@ fun recover msg =
 
 in
 
-fun source' strict _ =
+fun source' strict keywords =
   let
-    val scan_strict = Scan.bulk scan_token;
+    val scan_strict = Scan.bulk (scan_token keywords);
     val scan = if strict then scan_strict else Scan.recover scan_strict recover;
   in Source.source Symbol_Pos.stopper scan end;
 
@@ -310,19 +392,21 @@ fun explode keywords pos =
 
 (** parsers **)
 
+type 'a parser = T list -> 'a * T list;
+type 'a context_parser = Context.generic * T list -> 'a * (Context.generic * T list);
 
 
 (* read antiquotation source *)
 
-fun read_no_commands'0 keywords syms =
+fun read_with_commands'0 keywords syms =
   Source.of_list syms
-  |> source' false (Keyword.no_command_keywords keywords)
+  |> source' false keywords
   |> source_improper
   |> Source.exhaust
 
-fun read_no_commands' keywords scan syms =
+fun read_with_commands' keywords scan syms =
   Source.of_list syms
-  |> source' false (Keyword.no_command_keywords keywords)
+  |> source' false keywords
   |> source_proper
   |> Source.source
        stopper
@@ -340,8 +424,11 @@ fun read_no_commands' keywords scan syms =
                            end])))
   |> Source.exhaust;
 
-fun read_antiq' keywords scan = read_no_commands' keywords (scan >> Left);
+fun read_antiq' keywords scan = read_with_commands' keywords (scan >> Left);
 end
+
+type 'a c_parser = 'a C_Token.parser;
+type 'a c_context_parser = 'a C_Token.context_parser;
 \<close>
 
 ML\<open>
@@ -400,6 +487,8 @@ fun RESET_VALUE atom = (*required for all primitive parsers*)
 
 val not_eof = RESET_VALUE (Scan.one C_Token.not_eof);
 
+fun range scan = (Scan.ahead not_eof >> (C_Token.range_of o single)) -- scan >> Library.swap;
+fun position scan = (Scan.ahead not_eof >> C_Token.pos_of) -- scan >> Library.swap;
 fun input atom = Scan.ahead atom |-- not_eof >> C_Token.input_of;
 fun inner_syntax atom = Scan.ahead atom |-- not_eof >> C_Token.inner_syntax_of;
 
@@ -407,6 +496,7 @@ fun kind k =
   group (fn () => Token.str_of_kind k)
     (RESET_VALUE (Scan.one (C_Token.is_kind k) >> C_Token.content_of));
 
+val command_ = kind Token.Command;
 val short_ident = kind Token.Ident;
 val long_ident = kind Token.Long_Ident;
 val sym_ident = kind Token.Sym_Ident;
@@ -443,6 +533,179 @@ val antiq_source = input (group (fn () => "Antiquotation source") text);
 val term = group (fn () => "term") (inner_syntax embedded);
 
 end;
+\<close>
+
+ML\<open>
+(*  Title:      Pure/Thy/thy_header.ML
+    Author:     Makarius
+
+Static theory header information.
+*)
+
+structure C_Thy_Header =
+struct
+val bootstrap_keywords =
+  C_Keyword.empty_keywords
+  |> C_Keyword.add_keywords
+    [(("INVARIANT", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("INV", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("FNSPEC", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("RELSPEC", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("MODIFIES", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("DONT_TRANSLATE", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("AUXUPD", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("GHOSTUPD", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("SPEC", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("END-SPEC", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("CALLS", \<^here>), ((Keyword.thy_decl, []), [])),
+     (("OWNED_BY", \<^here>), ((Keyword.thy_decl, []), []))]
+
+
+(* theory data *)
+
+structure Data = Theory_Data
+(
+  type T = C_Keyword.keywords;
+  val empty = bootstrap_keywords;
+  val extend = I;
+  val merge = C_Keyword.merge_keywords;
+);
+
+val add_keywords = Data.map o C_Keyword.add_keywords;
+
+val get_keywords = Data.get;
+val get_keywords' = get_keywords o Proof_Context.theory_of;
+
+end
+\<close>
+
+ML\<open>
+(*  Title:      Pure/Isar/outer_syntax.ML
+    Author:     Markus Wenzel, TU Muenchen
+
+Isabelle/Isar outer syntax.
+*)
+
+structure C0_Outer_Syntax =
+struct
+
+(** outer syntax **)
+
+(* errors *)
+
+fun err_command msg name ps =
+  error (msg ^ quote (Markup.markup Markup.keyword1 name) ^ Position.here_list ps);
+
+fun err_dup_command name ps =
+  err_command "Duplicate C outer syntax command " name ps;
+
+
+(* command parsers *)
+
+type command0 = (Symbol_Pos.T list * Symbol_Pos.T list,
+      C_Token.T)
+      either -> antiq_stack0 c_parser
+
+datatype command_parser =
+  Parser of command0;
+
+datatype command = Command of
+ {comment: string,
+  command_parser: command_parser,
+  pos: Position.T,
+  id: serial};
+
+fun eq_command (Command {id = id1, ...}, Command {id = id2, ...}) = id1 = id2;
+
+fun new_command comment command_parser pos =
+  Command {comment = comment, command_parser = command_parser, pos = pos, id = serial ()};
+
+fun command_pos (Command {pos, ...}) = pos;
+
+fun command_markup def (name, Command {pos, id, ...}) =
+  Markup.properties (Position.entity_properties_of def id pos)
+    (Markup.entity Markup.commandN name);
+
+
+
+(* theory data *)
+
+structure Data = Theory_Data
+(
+  type T = command Symtab.table;
+  val empty = Symtab.empty;
+  val extend = I;
+  fun merge data : T =
+    data |> Symtab.join (fn name => fn (cmd1, cmd2) =>
+      if eq_command (cmd1, cmd2) then raise Symtab.SAME
+      else err_dup_command name [command_pos cmd1, command_pos cmd2]);
+);
+
+val get_commands = Data.get;
+val dest_commands = get_commands #> Symtab.dest #> sort_by #1;
+val lookup_commands = Symtab.lookup o get_commands;
+
+
+(* maintain commands *)
+
+fun add_command name cmd thy =
+    let
+      val _ =
+        C_Keyword.is_command (C_Thy_Header.get_keywords thy) name orelse
+          err_command "Undeclared outer syntax command " name [command_pos cmd];
+      val _ =
+        (case lookup_commands thy name of
+          NONE => ()
+        | SOME cmd' => err_dup_command name [command_pos cmd, command_pos cmd']);
+      val _ =
+        Context_Position.report_generic (Context.the_generic_context ())
+          (command_pos cmd) (command_markup true (name, cmd));
+    in Data.map (Symtab.update (name, cmd)) thy end;
+
+
+
+(* implicit theory setup *)
+
+type command_keyword = string * Position.T;
+
+fun raw_command0 (name, pos) comment command_parser =
+  C_Thy_Header.add_keywords [((name, pos), ((Keyword.thy_decl, []), [name]))]
+  #> add_command name (new_command comment command_parser pos);
+
+fun raw_command (name, pos) comment command_parser =
+  let val setup = add_command name (new_command comment command_parser pos)
+  in Context.>> (Context.mapping setup (Local_Theory.background_theory setup)) end;
+
+fun command (name, pos) comment parse =
+  raw_command (name, pos) comment (Parser parse);
+
+fun command' (name, pos) comment parse =
+  raw_command0 (name, pos) comment (Parser parse);
+
+
+
+(** toplevel parsing **)
+
+(* parse commands *)
+
+val before_command =
+  Scan.one C_Token.is_exec_shift >> Right
+  || C_Token.scan_stack C_Token.is_stack1 -- C_Token.scan_stack C_Token.is_stack2 >> Left
+
+fun parse_command thy =
+  Scan.ahead (before_command |-- C_Parse.position C_Parse.command_) :|-- (fn (name, _) =>
+    let val command_tags = before_command --| C_Parse.command_;
+    in
+      case lookup_commands thy name of
+        SOME (Command {command_parser = Parser parse, ...}) =>
+          C_Parse.!!! (command_tags :|-- parse)
+      | NONE =>
+          Scan.fail_with (fn _ => fn _ =>
+            let
+              val msg = "undefined command ";
+            in msg ^ quote (Markup.markup Markup.keyword1 name) end)
+    end)
+end
 \<close>
 
 ML\<open>
@@ -574,13 +837,8 @@ fun eval_antiquotes (ants, pos) opt_context =
         in ((begin_env @ ml_env @ end_env, ml_body), SOME ctxt') end;
   in ((ml_env, ml_body), opt_ctxt') end;
 
-fun scan_antiq ctxt explicit syms =
-  let fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> C_Token.content_of') []
-      fun scan_cmd cmd scan =
-        Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
-        Scan.option (Scan.one C_Token.is_colon) |--
-        scan
-      fun scan_cmd_hol cmd scan f =
+fun scan_antiq context explicit syms =
+  let fun scan_cmd_hol cmd scan f =
         Scan.trace (Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
                     Scan.option (Scan.one C_Token.is_colon) |--
                     scan)
@@ -592,16 +850,11 @@ fun scan_antiq ctxt explicit syms =
                           not (C_Token.is_stack2 c) andalso
                           not (C_Token.is_exec_shift c))
         >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
-      val keywords = Thy_Header.get_keywords' ctxt
+      val keywords = C_Thy_Header.get_keywords' (Context.proof_of context)
   in ( C_Token.read_antiq'
          keywords
-         (C_Parse.!!! (   Scan.trace
-                            (scan_stack C_Token.is_stack1 --
-                             scan_stack C_Token.is_stack2 --
-                             scan_cmd "ML" C_Parse.ML_source)
-                          >> (I #>> (fn ((stack1, stack2), syms) => Antiq_stack (Hook (stack1, stack2, ML_src syms))))
-                       || Scan.trace (Scan.one C_Token.is_exec_shift |-- scan_cmd "ML" C_Parse.ML_source)
-                          >> (I #>> (Antiq_stack o Setup o ML_src))
+         (C_Parse.!!! (   Scan.trace (C0_Outer_Syntax.parse_command (Context.theory_of context))
+                          >> (I #>> Antiq_stack)
                        || scan_cmd_hol "INVARIANT" C_Parse.term Invariant
                        || scan_cmd_hol "INV" C_Parse.term Invariant
                        || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
@@ -620,7 +873,7 @@ fun scan_antiq ctxt explicit syms =
                            then Scan.trace C_Parse.antiq_source >> (I #>> (fn syms => Antiq_ML {start = Position.none, stop = Position.none, range = Input.range_of syms, body = Input.source_explode syms}))
                            else Scan.fail)))
          syms
-     , C_Token.read_no_commands'0 keywords syms)
+     , C_Token.read_with_commands'0 keywords syms)
   end
 
 fun print0 s =
@@ -681,12 +934,9 @@ fun eval flags pos ants =
   in () end;
 
 fun eval'0 env err accept flags pos ants {context, reports} =
-  let val ctxt = Context.proof_of context
-      val keywords = Thy_Header.get_keywords' ctxt
-
-      val ants =
+  let val ants =
         maps (fn Left (pos, antiq as {explicit, body, ...}, cts) =>
-                 let val (res, l_comm) = scan_antiq ctxt explicit body
+                 let val (res, l_comm) = scan_antiq context explicit body
                  in 
                    [ Left
                        ( antiq
@@ -725,7 +975,7 @@ fun eval'0 env err accept flags pos ants {context, reports} =
       val _ = Position.reports_text (maps C_Lex.token_report ants_none
                                      @ maps (fn Left (_, _, [(Antiq_none _, _)]) => []
                                               | Left (_, l, ls) =>
-                                                  maps (maps (C_Token.reports keywords)) (l :: map #2 ls)
+                                                  maps (maps (C_Token.reports ())) (l :: map #2 ls)
                                               | _ => [])
                                             ants);
       val _ = C_Lex.check ants_none;
@@ -738,6 +988,7 @@ fun eval'0 env err accept flags pos ants {context, reports} =
                                                            |> separate colon)
                                                            @ [par_r, space]
                                                        | _ => [])
+      val ctxt = Context.proof_of context
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
@@ -759,6 +1010,38 @@ fun eval_source' env err accept flags source =
   eval'0 env err accept flags (Input.pos_of source) (C_Lex.read_source source);
 
 end
+\<close>
+
+section \<open>\<close>
+
+setup \<open>
+C0_Outer_Syntax.command' ("ML", \<^here>) ""
+  (fn Left (stack1, stack2) =>
+    C_Parse.range C_Parse.ML_source >>
+      (fn (src, range) =>
+        (fn f => Hook (stack1, stack2, (range, f)))
+          (fn rule => 
+            let val hook = "hook"
+            in ML_Context.expression
+                (Input.range_of src)
+                hook
+                (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+                ("fn context => \
+                   \let val (stack, env_lang) = Stack_Data_Lang.get context \
+                   \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
+                (ML_Lex.read_source false src)
+            end))
+    | Right _ =>
+    C_Parse.range C_Parse.ML_source >>
+    (fn (src, range) =>
+      (Setup o pair range)
+        let val setup = "setup"
+        in ML_Context.expression
+            (Input.range_of src)
+            setup
+            "Stack_Data_Lang.T -> Context.generic -> Context.generic"
+            ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
+            (ML_Lex.read_source false src) end))
 \<close>
 
 end
