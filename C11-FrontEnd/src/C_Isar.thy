@@ -602,9 +602,7 @@ fun err_dup_command name ps =
 
 (* command parsers *)
 
-type command0 = (Symbol_Pos.T list * Symbol_Pos.T list,
-      C_Token.T)
-      either -> antiq_stack0 c_parser
+type command0 = (Symbol_Pos.T list * Symbol_Pos.T list, C_Token.T) either -> antiq_stack0 c_parser
 
 datatype command_parser =
   Parser of command0;
