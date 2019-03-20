@@ -526,7 +526,6 @@ val text = group (fn () => "text") (embedded || verbatim);
 (* embedded source text *)
 
 val ML_source = input (group (fn () => "ML source") text);
-val antiq_source = input (group (fn () => "Antiquotation source") text);
 
 (* terms *)
 
@@ -833,7 +832,7 @@ fun eval_antiquotes (ants, pos) opt_context =
         in ((begin_env @ ml_env @ end_env, ml_body), SOME ctxt') end;
   in ((ml_env, ml_body), opt_ctxt') end;
 
-fun scan_antiq context explicit syms =
+fun scan_antiq context syms =
   let fun scan_cmd_hol cmd scan f =
         Scan.trace (Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
                     Scan.option (Scan.one C_Token.is_colon) |--
@@ -864,10 +863,7 @@ fun scan_antiq context explicit syms =
                        || scan_cmd_hol "SPEC" C_Parse.term Spec
                        || scan_cmd_hol "END-SPEC" C_Parse.term End_spec
                        || scan_cmd_hol "CALLS" (Scan.repeat scan_ident) Calls
-                       || scan_cmd_hol "OWNED_BY" scan_ident Owned_by
-                       || (if explicit
-                           then Scan.trace C_Parse.antiq_source >> (I #>> (fn syms => Antiq_ML {start = Position.none, stop = Position.none, range = Input.range_of syms, body = Input.source_explode syms}))
-                           else Scan.fail)))
+                       || scan_cmd_hol "OWNED_BY" scan_ident Owned_by))
          syms
      , C_Token.read_with_commands'0 keywords syms)
   end
@@ -929,10 +925,10 @@ fun eval flags pos ants =
       | _ => ());
   in () end;
 
-fun eval'0 env err accept flags pos ants {context, reports_text} =
+fun eval'0 env err accept ants {context, reports_text} =
   let val ants =
         maps (fn Left (pos, antiq as {explicit, body, ...}, cts) =>
-                 let val (res, l_comm) = scan_antiq context explicit body
+                 let val (res, l_comm) = scan_antiq context body
                  in 
                    [ Left
                        ( antiq
@@ -953,21 +949,19 @@ fun eval'0 env err accept flags pos ants {context, reports_text} =
       fun map_ants f1 f2 = maps (fn Left x => f1 x | Right tok => f2 tok) ants
       fun map_ants' f1 = map_ants (fn (_, _, l) => maps f1 l) (K [])
 
-      val ants_ml = map_ants' (fn (Antiq_ML a, _) => [Antiquote.Antiq a] | _ => [])
       val ants_stack =
         map_ants (single o Left o maps (single o #1) o #3)
                  (single o Right)
       val ants_none = map_ants' (fn (Antiq_none x, _) => [x] | _ => [])
 
-      val _ = Position.reports (Antiquote.antiq_reports ants_ml
-                                @ maps (fn Left (_, _, [(Antiq_none _, _)]) => []
-                                         | Left ({start, stop, range = (pos, _), ...}, _, _) =>
-                                            (case stop of SOME stop => cons (stop, Markup.antiquote)
-                                                        | NONE => I)
-                                              [(start, Markup.antiquote),
-                                               (pos, Markup.language_antiquotation)]
-                                         | _ => [])
-                                       ants);
+      val _ = Position.reports (maps (fn Left (_, _, [(Antiq_none _, _)]) => []
+                                       | Left ({start, stop, range = (pos, _), ...}, _, _) =>
+                                          (case stop of SOME stop => cons (stop, Markup.antiquote)
+                                                      | NONE => I)
+                                            [(start, Markup.antiquote),
+                                             (pos, Markup.language_antiquotation)]
+                                       | _ => [])
+                                     ants);
       val _ = Position.reports_text (maps C_Lex.token_report ants_none
                                      @ maps (fn Left (_, _, [(Antiq_none _, _)]) => []
                                               | Left (_, l, ls) =>
@@ -976,34 +970,26 @@ fun eval'0 env err accept flags pos ants {context, reports_text} =
                                             ants);
       val _ = C_Lex.check ants_none;
 
-      val _ = ML_Context.eval (ML_Compiler.verbose false flags)
-                              pos
-                              (case ML_Lex.read "(,)" of [par_l, colon, par_r, space] =>
-                                                           par_l ::
-                                                           (ants_ml
-                                                           |> separate colon)
-                                                           @ [par_r, space]
-                                                       | _ => [])
       val ctxt = Context.proof_of context
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
   in P.parse env err accept ants_stack {context = context, reports_text = reports_text} end
 
-fun eval' env err accept flags pos ants =
+fun eval' env err accept ants =
   Context.>> (C_Env.empty_env_tree
-              #> eval'0 env err accept flags pos ants
+              #> eval'0 env err accept ants
               #> (fn {context, reports_text} =>
                    let val _ = Position.reports_text reports_text
                    in context end))
 
 end;
 
-fun eval_source env err accept flags source =
-  eval' env err accept flags (Input.pos_of source) (C_Lex.read_source source);
+fun eval_source env err accept source =
+  eval' env err accept (C_Lex.read_source source);
 
-fun eval_source' env err accept flags source =
-  eval'0 env err accept flags (Input.pos_of source) (C_Lex.read_source source);
+fun eval_source' env err accept source =
+  eval'0 env err accept (C_Lex.read_source source);
 
 end
 \<close>

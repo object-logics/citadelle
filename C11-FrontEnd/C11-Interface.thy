@@ -148,14 +148,13 @@ ML\<open>
 structure C_Outer_Syntax =
 struct
 
-val C = C_Context'.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
+val C = C_Context'.eval_source
 fun C' err env_lang src context =
   {context = context, reports_text = Stack_Data_Tree.get context}
   |> C_Context.eval_source'
        env_lang
        err
        C_Context'.accept
-       (ML_Compiler.verbose true ML_Compiler.flags)
        src
   |> (fn {context, reports_text} => Stack_Data_Tree.put reports_text context)
 
@@ -181,24 +180,20 @@ Commands to load ML files.
 structure C_File =
 struct
 
-fun command SML debug files = Toplevel.generic_theory (fn gthy =>
+fun command files = Toplevel.generic_theory (fn gthy =>
   let
     val [{src_path, lines, digest, pos}: Token.file] = files (Context.theory_of gthy);
     val provide = Resources.provide (src_path, digest);
     val source = Input.source true (cat_lines lines) (pos, pos);
-    val flags =
-      {SML = SML, exchange = false, redirect = true, verbose = true,
-        debug = debug, writeln = writeln, warning = warning};
   in
     gthy
-    |> ML_Context.exec (fn () => C_Context'.eval_source flags source)
+    |> ML_Context.exec (fn () => C_Context'.eval_source source)
     |> Local_Theory.propagate_ml_env
     |> Context.mapping provide (Local_Theory.background_theory provide)
   end);
 
-val C : bool option ->
-      (theory -> Token.file list) ->
-        Toplevel.transition -> Toplevel.transition = command false;
+val C : (theory -> Token.file list) ->
+        Toplevel.transition -> Toplevel.transition = command;
 
 end;
 \<close>
@@ -212,7 +207,7 @@ val semi = Scan.option @{keyword ";"};
 
 val _ =
   Outer_Syntax.command @{command_keyword C_file} "read and evaluate C file"
-    (Resources.parse_files "C_file" --| semi >> C_File.C NONE);
+    (Resources.parse_files "C_file" --| semi >> C_File.C);
 
 in end
 \<close>

@@ -60,8 +60,7 @@ datatype antiq_hol = Invariant of string (* term *)
                    | Calls of text_range list
                    | Owned_by of text_range
 
-datatype antiq_language = Antiq_ML of Antiquote.antiq
-                        | Antiq_stack of eval_time
+datatype antiq_language = Antiq_stack of eval_time
                         | Antiq_HOL of antiq_hol
                         | Antiq_none of C_Lex.token
 

@@ -103,31 +103,19 @@ C \<comment> \<open>Directive: macro\<close> \<open>
 
 section \<open>Antiquotations\<close>
 
-subsection \<open>Classic ML\<close>
-
-C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
- /*@con\
-text (**) */ // break of line activated everywhere (also in antiquotations)
-int a = 0; //\
-@ \<open>term \<open>a \
-          + b (* (**) *\      
-\     
-)\<close>\<close>
-\<close>
-
 subsection \<open>Actions on the Parsing Stack\<close>
 
 C \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
-int a = (((0 //@ !ML \<open>fn _ => fn context => let in (* */ *) context end\<close>
+int a = (((0 //@ (* inline *) !ML \<open>fn _ => fn context => let in (* */ *) context end\<close>
              /*@ !ML \<open>K I\<close> (*   * /   *) */
          )));
 \<close>
 
-C \<comment> \<open>\<open>!\<close> makes the command executing during SHIFT actions\<close> \<open>
+C \<comment> \<open>With \<open>!\<close>, execution during SHIFT actions\<close> \<open>
 int a = (((0))); /*@ !ML \<open>@{shift}\<close> */
 \<close>
 
-C \<comment> \<open>By default, the command is executed during REDUCE actions\<close> \<open>
+C \<comment> \<open>Without \<open>!\<close>, execution during REDUCE actions\<close> \<open>
 int a = (((0
       + 5)))  /*@ ML \<open>fn (_, (value, pos1, pos2)) => fn _ => fn context =>
                           let
@@ -137,6 +125,16 @@ int a = (((0
                */
       * 4; 
 float b = 7 / 3;
+\<close>
+
+C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
+ /*@ !ML\<open>K (fn x => K x @{con\
+text (**)})\<close> */ // break of line activated everywhere (also in antiquotations)
+int a = 0; //\
+@ !ML\<open>K (fn x => K x @{term \<open>a \
+          + b (* (**) *\      
+\     
+)\<close>})\<close>
 \<close>
 
 C \<comment> \<open>Positional navigation: pointing to deeper sub-trees in the stack\<close> \<open>
@@ -164,16 +162,9 @@ int b = 7 / (3) * 50;
 
 C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
 int a = 0;
-  /*@ context (* Native interpretation of ML antiquotations *)
+  /*@ ML (* Errors: Explicit warning + Explicit markup reporting *)
    */
-  /** context (* No support for free-form calls to ML antiquotations,
-                 but implementing a specific delimiter to recognize
-                 ML antiquotations (for example \<open>//* ML\<open>\<close>\<close>) would be possible *)
-   */
-
-  /*@ ML (* Explicit warning + Explicit markup reporting *)
-   */
-  /** ML (* Errors are turned into tracing report information *)
+  /** ML (* Errors: Turned into tracing report information *)
    */
 
   /** ML \<open>fn _ => fn _ => I\<close> (* An example of correct syntax accepted as usual *)
@@ -341,11 +332,8 @@ int x /** OWNED_BY foo */, hh /*@
   !ML \<open>@{shift "evaluation of 2_shift"}\<close>
   +++++@ ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "2_reduce"\<close>
   OWNED_BY bar
-  theory
-  context
   ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "1_reduce"\<close>
   !ML \<open>@{shift "evaluation of 1_shift"}\<close>
-  \<open>term "a + b"\<close>
 */, z;
 
 int b = 0;
