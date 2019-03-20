@@ -41,39 +41,25 @@ begin
 section \<open>Instantiation of the Parser with the Lexer\<close>
 
 ML\<open>
-type text_range = Symbol_Pos.text * Position.T
-
 type eval_at_reduce = Position.range * (int (*reduce rule number*) -> Context.generic -> Context.generic)
 
 datatype eval_time = Shift of Position.range * (Context.generic -> Context.generic)
                    | Reduce of (Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *)) * eval_at_reduce
-
-datatype antiq_hol = Invariant of string (* term *)
-                   | Fnspec of text_range (* ident *) * string (* term *)
-                   | Relspec of string (* term *)
-                   | Modifies of (bool (* true: [*] *) * text_range) list
-                   | Dont_translate
-                   | Auxupd of string (* term *)
-                   | Ghostupd of string (* term *)
-                   | Spec of string (* term *)
-                   | End_spec of string (* term *)
-                   | Calls of text_range list
-                   | Owned_by of text_range
+                   | Never
 
 datatype antiq_language = Antiq_stack of eval_time
-                        | Antiq_HOL of antiq_hol
                         | Antiq_none of C_Lex.token
 
 structure C_Env = struct
 
 type tyidents = (Position.T list * serial) Symtab.table
 
-type 'antiq_language stream = ('antiq_language list, C_Lex.token) either list
+type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) either list
 
 type env_lang = { tyidents : tyidents
                 , scopes : tyidents list
                 , namesupply : int
-                , stream_ignored : antiq_hol stream }
+                , stream_ignored : C_Antiquote.antiq stream }
 (* NOTE: The distinction between type variable or identifier can not be solely made
          during the lexing process.
          Another pass on the parsed tree is required. *)
@@ -109,7 +95,7 @@ type T = { env_lang : env_lang
          , rule_output : rule_output
          , rule_input : class_Pos list * int
          , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_at_reduce) list list
-         , stream_lang : antiq_language stream }
+         , stream_lang : (C_Antiquote.antiq * antiq_language list) stream }
 
 (**)
 
@@ -927,10 +913,10 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                    (map_index I (#stream_hook arg))
                    ()
         in return0 (Tokens.x25_eof (Position.none, Position.none)) end
-     | SOME (Left l_antiq) =>
+     | SOME (Left (antiq_raw, l_antiq)) =>
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
-          , (arg, [])
+          , (arg, false)
              |> fold (fn Antiq_stack (Shift (_, exec)) =>
                          I #>>
                          (fn arg =>
@@ -952,11 +938,11 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                                                         eval1
                                                         (case eval2 of e :: es => ((syms_shift, syms, ml_exec) :: e) :: es
                                                                      | [] => [[(syms_shift, syms, ml_exec)]])))
-                       | Antiq_HOL x => I ##> cons x
+                       | Antiq_stack Never => I ##> K true
                        | _ => I)
                      l_antiq
-             |> (fn (arg, []) => arg
-                  | (arg, l_ignored) => C_Env'.map_stream_ignored (cons (Left (rev l_ignored))) arg))
+             |> (fn (arg, false) => arg
+                  | (arg, true) => C_Env'.map_stream_ignored (cons (Left antiq_raw)) arg))
      | SOME (Right (tok as C_Lex.Token (_, (C_Lex.Directive _, _)))) =>
         makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env'.map_stream_ignored (cons (Right tok)) arg)
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>

@@ -543,22 +543,7 @@ Static theory header information.
 
 structure C_Thy_Header =
 struct
-val bootstrap_keywords =
-  C_Keyword.empty_keywords
-  |> C_Keyword.add_keywords
-    [(("INVARIANT", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("INV", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("FNSPEC", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("RELSPEC", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("MODIFIES", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("DONT_TRANSLATE", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("AUXUPD", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("GHOSTUPD", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("SPEC", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("END-SPEC", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("CALLS", \<^here>), ((Keyword.thy_decl, []), [])),
-     (("OWNED_BY", \<^here>), ((Keyword.thy_decl, []), []))]
-
+val bootstrap_keywords = C_Keyword.empty_keywords
 
 (* theory data *)
 
@@ -833,37 +818,11 @@ fun eval_antiquotes (ants, pos) opt_context =
   in ((ml_env, ml_body), opt_ctxt') end;
 
 fun scan_antiq context syms =
-  let fun scan_cmd_hol cmd scan f =
-        Scan.trace (Scan.one (fn tok => C_Token.is_command tok andalso C_Token.content_of tok = cmd) |--
-                    Scan.option (Scan.one C_Token.is_colon) |--
-                    scan)
-        >> (I #>> Antiq_HOL o f)
-      val scan_ident = Scan.one C_Token.is_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
-      val scan_sym_ident_not_stack =
-        Scan.one (fn c => C_Token.is_sym_ident c andalso
-                          not (C_Token.is_stack1 c) andalso
-                          not (C_Token.is_stack2 c) andalso
-                          not (C_Token.is_exec_shift c))
-        >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
-      val keywords = C_Thy_Header.get_keywords' (Context.proof_of context)
+  let val keywords = C_Thy_Header.get_keywords' (Context.proof_of context)
   in ( C_Token.read_antiq'
          keywords
-         (C_Parse.!!! (   Scan.trace (C0_Outer_Syntax.parse_command (Context.theory_of context))
-                          >> (I #>> Antiq_stack)
-                       || scan_cmd_hol "INVARIANT" C_Parse.term Invariant
-                       || scan_cmd_hol "INV" C_Parse.term Invariant
-                       || scan_cmd_hol "FNSPEC" (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
-                       || scan_cmd_hol "RELSPEC" C_Parse.term Relspec
-                       || scan_cmd_hol "MODIFIES" (Scan.repeat (   scan_sym_ident_not_stack >> pair true
-                                                                || scan_ident >> pair false))
-                                                  Modifies
-                       || scan_cmd_hol "DONT_TRANSLATE" (Scan.succeed ()) (K Dont_translate)
-                       || scan_cmd_hol "AUXUPD" C_Parse.term Auxupd
-                       || scan_cmd_hol "GHOSTUPD" C_Parse.term Ghostupd
-                       || scan_cmd_hol "SPEC" C_Parse.term Spec
-                       || scan_cmd_hol "END-SPEC" C_Parse.term End_spec
-                       || scan_cmd_hol "CALLS" (Scan.repeat scan_ident) Calls
-                       || scan_cmd_hol "OWNED_BY" scan_ident Owned_by))
+         (C_Parse.!!! (Scan.trace (C0_Outer_Syntax.parse_command (Context.theory_of context))
+                       >> (I #>> Antiq_stack)))
          syms
      , C_Token.read_with_commands'0 keywords syms)
   end
@@ -950,7 +909,7 @@ fun eval'0 env err accept ants {context, reports_text} =
       fun map_ants' f1 = map_ants (fn (_, _, l) => maps f1 l) (K [])
 
       val ants_stack =
-        map_ants (single o Left o maps (single o #1) o #3)
+        map_ants (single o Left o (fn (a, _, l) => (a, maps (single o #1) l)))
                  (single o Right)
       val ants_none = map_ants' (fn (Antiq_none x, _) => [x] | _ => [])
 

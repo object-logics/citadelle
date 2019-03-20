@@ -76,15 +76,12 @@ struct
 
 
   type c_file_name      = string
-  type C11_struct       = { tab  : (CTranslUnit * antiq_hol C_Env.stream) list Symtab.table,
+  type C11_struct       = { tab  : (CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table,
                             env  : id_kind list Symtab.table }
   val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
 
   fun map_tab f {tab, env} = {tab = f tab, env=env}
   fun map_env f {tab, env} = {tab = tab, env=f env}
-
-  fun cmp_either (x1, x2) = fst x1 = fst x2
-  fun cmp_tab (x1, x2) = map #1 x1 = map #1 x2
 
   (* registrating data of the Isa_DOF component *)
   structure Data = Generic_Data
@@ -92,7 +89,7 @@ struct
     type T =     C11_struct
     val empty = C11_struct_empty
     val extend =  I
-    fun merge(t1,t2) = { tab = Symtab.merge cmp_tab (#tab t1, #tab t2),
+    fun merge(t1,t2) = { tab = Symtab.merge (op =) (#tab t1, #tab t2),
                          env = Symtab.merge (op =) (#env t1, #env t2)}
   );
 
@@ -126,7 +123,7 @@ fun accept env_lang (_, (res, _, _)) =
   (fn context =>
     ( Context.theory_name (Context.theory_of context)
     , (res, #stream_ignored env_lang |> rev))
-    |> Symtab.update_list C11_core.cmp_either
+    |> Symtab.update_list (op =)
     |> C11_core.map_tab
     |> (fn map_tab => C11_core.Data.map map_tab context))
   |> C_Env.map_context
