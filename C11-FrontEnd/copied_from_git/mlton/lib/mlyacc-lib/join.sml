@@ -75,10 +75,7 @@ struct
     type svalue0 = ParserData.svalue0
     type svalue = arg -> svalue0 * arg
 
-    type stack = (Token.LrTable.state, svalue0, pos) stack0
-               * ml_source_range list list
-               * (pos * pos) list
-               * (Token.LrTable.state, svalue0, pos) C_Env.rule_ml C_Env.tree list
+    type stack = (Token.LrTable.state, svalue0, pos) stack'
 
     type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
 

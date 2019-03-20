@@ -104,10 +104,7 @@ signature LR_PARSER1 =
 
         sharing LrTable = Token.LrTable
 
-        type ('_b, '_c) stack = (LrTable.state * ('_b * '_c * '_c)) list
-                              * ml_source_range list list
-                              * ('_c * '_c) list
-                              * (LrTable.state, '_b, '_c) C_Env.rule_ml C_Env.tree list
+        type ('_b, '_c) stack = (LrTable.state, '_b, '_c) stack'
 
         type ('_b, '_c, 'arg) lexer = (('arg -> '_b * 'arg,'_c) Token.token, ('_b, '_c) stack * 'arg) Stream.stream * 'arg
 
@@ -214,10 +211,7 @@ signature ARG_LEXER1 =
                 type svalue = arg -> svalue0 * arg
                 type state
            end
-        type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0
-                   * ml_source_range list list
-                   * (UserDeclarations.pos * UserDeclarations.pos) list
-                   * (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) C_Env.rule_ml C_Env.tree list
+        type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack'
         val makeLexer : (stack * UserDeclarations.arg)
                         -> (UserDeclarations.svalue, UserDeclarations.pos) UserDeclarations.token
                          * (stack * UserDeclarations.arg)
@@ -399,10 +393,7 @@ signature ARG_PARSER1 =
         type svalue0
         type svalue = arg -> svalue0 * arg
 
-        type stack = (Token.LrTable.state, svalue0, pos) stack0
-                   * ml_source_range list list
-                   * (pos * pos) list
-                   * (Token.LrTable.state, svalue0, pos) C_Env.rule_ml C_Env.tree list
+        type stack = (Token.LrTable.state, svalue0, pos) stack'
 
         type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
 
