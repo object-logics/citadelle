@@ -43,15 +43,10 @@ section \<open>Instantiation of the Parser with the Lexer\<close>
 ML\<open>
 type text_range = Symbol_Pos.text * Position.T
 
-type ml_shift = Context.generic -> Context.generic
-type ml_reduce = int -> Context.generic -> Context.generic
+type eval_at_reduce = Position.range * (int (*reduce rule number*) -> Context.generic -> Context.generic)
 
-type ml_source_range = Position.range * ml_reduce
-
-datatype antiq_stack0 = Setup of Position.range * ml_shift
-                      | Hook of Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *) * ml_source_range
-
-type antiq_stack = antiq_stack0 list
+datatype eval_time = Shift of Position.range * (Context.generic -> Context.generic)
+                   | Reduce of (Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *)) * eval_at_reduce
 
 datatype antiq_hol = Invariant of string (* term *)
                    | Fnspec of text_range (* ident *) * string (* term *)
@@ -66,7 +61,7 @@ datatype antiq_hol = Invariant of string (* term *)
                    | Owned_by of text_range
 
 datatype antiq_language = Antiq_ML of Antiquote.antiq
-                        | Antiq_stack of antiq_stack0
+                        | Antiq_stack of eval_time
                         | Antiq_HOL of antiq_hol
                         | Antiq_none of C_Lex.token
 
@@ -84,10 +79,10 @@ type env_lang = { tyidents : tyidents
          during the lexing process.
          Another pass on the parsed tree is required. *)
 
-type reports = Position.report_text list
+type reports_text = Position.report_text list
 
 type env_tree = { context : Context.generic
-                , reports : reports }
+                , reports_text : reports_text }
 
 type rule_static = (env_lang -> env_tree -> env_lang * env_tree) option
 
@@ -101,7 +96,7 @@ type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   , rule_env_lang : env_lang
   , rule_static : rule_static
   , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)))
-                  * ml_source_range) list }
+                  * eval_at_reduce) list }
 
 datatype 'a tree = Tree of 'a * 'a tree list
 
@@ -114,7 +109,7 @@ type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : class_Pos list * int
-         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * ml_source_range) list list
+         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_at_reduce) list list
          , stream_lang : antiq_language stream }
 
 (**)
@@ -161,16 +156,16 @@ fun map_stream_ignored f {tyidents, scopes, namesupply, stream_ignored} =
 
 (**)
 
-fun map_context f {context, reports} =
-  {context = f context, reports = reports}
+fun map_context f {context, reports_text} =
+  {context = f context, reports_text = reports_text}
 
-fun map_reports f {context, reports} =
-  {context = context, reports = f reports}
+fun map_reports_text f {context, reports_text} =
+  {context = context, reports_text = f reports_text}
 
 (**)
 
 val empty_env_lang : env_lang = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
-fun empty_env_tree context : env_tree = {context = context, reports = []}
+fun empty_env_tree context : env_tree = {context = context, reports_text = []}
 val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
 fun make env_lang stream_lang env_tree =
   { env_lang = env_lang
@@ -233,11 +228,11 @@ fun get_output_pos (t : C_Env.T) = #rule_output t |> #output_pos
 (**)
 
 fun map_context f = C_Env.map_env_tree (C_Env.map_context f)
-fun map_reports f = C_Env.map_env_tree (C_Env.map_reports f)
+fun map_reports_text f = C_Env.map_env_tree (C_Env.map_reports_text f)
 
 (**)
 
-fun get_reports (t : C_Env.T) = #env_tree t |> #reports
+fun get_reports_text (t : C_Env.T) = #env_tree t |> #reports_text
 
 (**)
 
@@ -259,7 +254,7 @@ sig
   val >> : unit p * 'a p -> 'a p
 
   (**)
-  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Env.reports -> C_Env.reports
+  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Env.reports_text -> C_Env.reports_text
   val markup_tvar : bool -> Position.T list -> string * serial -> Markup.T list
 
   (* Language.C.Data.RList *)
@@ -467,7 +462,7 @@ struct
         val name = To_string0 i
         val pos = [pos1]
     in ((), env |> C_Env'.map_tyidents (Symtab.update (name, (pos, id)))
-                |> C_Env'.map_reports (report pos (markup_tvar true pos) (name, id))) end
+                |> C_Env'.map_reports_text (report pos (markup_tvar true pos) (name, id))) end
   fun shadowTypedef (Ident0 (i, _, _)) env =
     ((), C_Env'.map_tyidents (Symtab.delete_safe (To_string0 i)) env)
   fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env'.get_tyidents
@@ -603,6 +598,11 @@ end
 
 type ('LrTable_state, 'a, 'Position_T) stack_elem0 = 'LrTable_state * ('a * 'Position_T * 'Position_T)
 type ('LrTable_state, 'a, 'Position_T) stack0 = ('LrTable_state, 'a, 'Position_T) stack_elem0 list
+type ('LrTable_state, 'a, 'Position_T) stack' =
+     ('LrTable_state, 'a, 'Position_T) stack0
+   * eval_at_reduce list list
+   * ('Position_T * 'Position_T) list
+   * ('LrTable_state, 'a, 'Position_T) C_Env.rule_ml C_Env.tree list
 type cString = CString
 type cChar = CChar
 type cInteger = CInteger
@@ -638,7 +638,7 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env (fn l => fn env_lan
                 val pos1 = [decode_error' node |> #1]
             in case Symtab.lookup (#tyidents env_lang) name of
                  NONE => I
-               | SOME (pos0, id) => C_Env.map_reports (report pos1 (markup_tvar false pos0) (name, id)) end
+               | SOME (pos0, id) => C_Env.map_reports_text (report pos1 (markup_tvar false pos0) (name, id)) end
           | _ => I
       end
       l
@@ -875,7 +875,7 @@ structure Stack_Data_Lang = Generic_Data
    val merge = #2)
 
 structure Stack_Data_Tree = Generic_Data
-  (type T = C_Env.reports
+  (type T = C_Env.reports_text
    val empty = []
    val extend = I
    val merge = #2)
@@ -893,10 +893,7 @@ struct
   type state = StrictCLrVals.ParserData.LrTable.state
 end
 
-type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack0
-           * ml_source_range list list
-           * (UserDeclarations.pos * UserDeclarations.pos) list
-           * (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) C_Env.rule_ml C_Env.tree list
+type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack'
 
 fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
   let val (arg, stack_ml) =
@@ -935,13 +932,13 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, [])
-             |> fold (fn Antiq_stack (Setup (_, exec)) =>
+             |> fold (fn Antiq_stack (Shift (_, exec)) =>
                          I #>>
                          (fn arg =>
                            C_Env'.map_context (I #> Stack_Data_Lang.put (stack, #env_lang arg)
                                                  #> exec)
                              arg)
-                       | Antiq_stack (Hook (syms_shift, syms, ml_exec)) =>
+                       | Antiq_stack (Reduce ((syms_shift, syms), ml_exec)) =>
                          I #>>
                            (C_Env.map_stream_hook
                              (fn stream_hook => 
@@ -1038,7 +1035,7 @@ fun exec_tree' l env_tree = env_tree
                            then fn f => tap (tracing o f) else K I end)
           l
   |> (fn env_tree =>
-       env_tree |> C_Env.map_reports (append (Stack_Data_Tree.get (#context env_tree))))
+       env_tree |> C_Env.map_reports_text (append (Stack_Data_Tree.get (#context env_tree))))
 
 fun uncurry_context f = uncurry (fn x => fn arg => map_env_tree (f x (#env_lang arg)) arg)
 

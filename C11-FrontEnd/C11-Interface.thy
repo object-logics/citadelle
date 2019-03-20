@@ -150,14 +150,14 @@ struct
 
 val C = C_Context'.eval_source (ML_Compiler.verbose true ML_Compiler.flags)
 fun C' err env_lang src context =
-  {context = context, reports = Stack_Data_Tree.get context}
+  {context = context, reports_text = Stack_Data_Tree.get context}
   |> C_Context.eval_source'
        env_lang
        err
        C_Context'.accept
        (ML_Compiler.verbose true ML_Compiler.flags)
        src
-  |> (fn {context, reports} => Stack_Data_Tree.put reports context)
+  |> (fn {context, reports_text} => Stack_Data_Tree.put reports_text context)
 
 val _ =
   Outer_Syntax.command @{command_keyword C} ""

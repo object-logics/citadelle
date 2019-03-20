@@ -602,10 +602,8 @@ fun err_dup_command name ps =
 
 (* command parsers *)
 
-type command0 = (Symbol_Pos.T list * Symbol_Pos.T list, C_Token.T) either -> antiq_stack0 c_parser
-
 datatype command_parser =
-  Parser of command0;
+  Parser of (Symbol_Pos.T list * Symbol_Pos.T list, C_Token.T) either -> eval_time c_parser;
 
 datatype command = Command of
  {comment: string,
@@ -931,7 +929,7 @@ fun eval flags pos ants =
       | _ => ());
   in () end;
 
-fun eval'0 env err accept flags pos ants {context, reports} =
+fun eval'0 env err accept flags pos ants {context, reports_text} =
   let val ants =
         maps (fn Left (pos, antiq as {explicit, body, ...}, cts) =>
                  let val (res, l_comm) = scan_antiq context explicit body
@@ -990,13 +988,13 @@ fun eval'0 env err accept flags pos ants {context, reports} =
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
-  in P.parse env err accept ants_stack {context = context, reports = reports} end
+  in P.parse env err accept ants_stack {context = context, reports_text = reports_text} end
 
 fun eval' env err accept flags pos ants =
   Context.>> (C_Env.empty_env_tree
               #> eval'0 env err accept flags pos ants
-              #> (fn {context, reports} =>
-                   let val _ = Position.reports_text reports
+              #> (fn {context, reports_text} =>
+                   let val _ = Position.reports_text reports_text
                    in context end))
 
 end;
@@ -1014,10 +1012,10 @@ section \<open>\<close>
 
 setup \<open>
 C0_Outer_Syntax.command' ("ML", \<^here>) ""
-  (fn Left (stack1, stack2) =>
+  (fn Left stack =>
     C_Parse.range C_Parse.ML_source >>
       (fn (src, range) =>
-        (fn f => Hook (stack1, stack2, (range, f)))
+        (fn f => Reduce (stack, (range, f)))
           (fn rule => 
             let val hook = "hook"
             in ML_Context.expression
@@ -1032,7 +1030,7 @@ C0_Outer_Syntax.command' ("ML", \<^here>) ""
     | Right _ =>
     C_Parse.range C_Parse.ML_source >>
     (fn (src, range) =>
-      (Setup o pair range)
+      (Shift o pair range)
         let val setup = "setup"
         in ML_Context.expression
             (Input.range_of src)
