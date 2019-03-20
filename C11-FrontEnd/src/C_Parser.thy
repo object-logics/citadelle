@@ -702,7 +702,7 @@ val primary_expression1 : (CExpr) -> unit monad = update_env (fn e => fn env_lan
           let val name = To_string0 i
               val pos1 = decode_error' node |> #1
           in case Symtab.lookup (#var_table env_lang |> #idents) name of
-               NONE => let val _ = warning ("Value or constructor has not been declared" ^ Position.here pos1)
+               NONE => let val _ = Output.information ("Value or constructor has not been declared" ^ Position.here pos1)
                        in C_Env.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ()) end
              | SOME (pos0, id, global, _, _) => C_Env.map_reports_text (report [pos1] (markup_var false global pos0) (name, id)) end
         | _ => I
