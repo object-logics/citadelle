@@ -394,14 +394,14 @@ typedef int i, j;
   /*@ ML \<open>@{reduce'}\<close> */ //@ +++++ ML \<open>@{reduce'}\<close>
 int j = 0;
 typedef int i, j;
-j jj = 0;
-j jj = 0;
-j j = 0;
+j jj1 = 0;
+j jj = jj1;
+j j = jj1 + jj;
 typedef i j;
 typedef i j;
 typedef i j;
-i jj = 0;
-j j = 0;
+i jj = jj;
+j j = jj;
 \<close>
 
 subsubsection \<open>2\<close>
@@ -424,21 +424,34 @@ C \<comment> \<open>Propagation of Updates\<close> \<open>
 typedef int i, j;
 int j = 0;
 typedef int i, j;
-j jj = 0;
-j jj = 0; /*@ ML \<open>fn _ => fn _ => show_env "POSITION 0"\<close> ML \<open>@{reduce'}\<close> */
+j jj1 = 0;
+j jj = jj1; /*@ ML \<open>fn _ => fn _ => show_env "POSITION 0"\<close> ML \<open>@{reduce'}\<close> */
 typedef int k; /*@ ML \<open>fn _ => fn env =>
-                          C' env \<open>k jj = 0; //@ ML \<open>@{reduce'}\<close>
+                          C' env \<open>k jj = jj; //@ ML \<open>@{reduce'}\<close>
+                                  k jj = jj + jj;
                                   typedef k l; //@ ML \<open>@{reduce'}\<close>\<close>
                           #> show_env "POSITION 1"\<close> */
-j j = 0; //@ ML \<open>@{reduce'}\<close>
+j j = jj1 + jj; //@ ML \<open>@{reduce'}\<close>
 typedef i j; /*@ ML \<open>fn _ => fn _ => show_env "POSITION 2"\<close> */
 typedef i j;
 typedef i j;
-i jj = 0;
-j j = 0;
+i jj = jj;
+j j = jj;
 \<close>
 
 ML\<open>show_env "POSITION 3" (Context.Theory @{theory})\<close>
+
+C \<comment> \<open>Propagation of Updates\<close> \<open>
+int a = 0;
+int b = a * a + 0;
+int jjj = b;
+int main (void main(int *x,int *y),int *jjj) {
+  return a + jjj + main(); }
+int main2 () {
+  int main3 () { main2() + main(); }
+  int main () { main2() + main(); }
+  return a + jjj + main3() + main(); }
+\<close>
 
 section \<open>Miscellaneous\<close>
 

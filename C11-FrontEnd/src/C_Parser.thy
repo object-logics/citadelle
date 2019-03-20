@@ -51,13 +51,14 @@ datatype antiq_language = Antiq_stack of eval_time
                         | Antiq_none of C_Lex.token
 
 structure C_Env = struct
-
-type tyidents = (Position.T list * serial) Symtab.table
+datatype 'a parse_status = Parsed of 'a | Previous_in_stack
+type var_table = { tyidents : (Position.T list * serial) Symtab.table
+                 , idents : (Position.T list * serial * bool (*true: global*) * CDerivedDeclr list * CDeclSpec list parse_status) Symtab.table }
 
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) either list
 
-type env_lang = { tyidents : tyidents
-                , scopes : tyidents list
+type env_lang = { var_table : var_table
+                , scopes : var_table list
                 , namesupply : int
                 , stream_ignored : C_Antiquote.antiq stream }
 (* NOTE: The distinction between type variable or identifier can not be solely made
@@ -127,17 +128,25 @@ fun map_output_env f {output_pos, output_env} =
 
 (**)
 
-fun map_tyidents f {tyidents, scopes, namesupply, stream_ignored} =
-  {tyidents = f tyidents, scopes = scopes, namesupply = namesupply, stream_ignored = stream_ignored}
+fun map_tyidents f {tyidents, idents} =
+  {tyidents = f tyidents, idents = idents}
 
-fun map_scopes f {tyidents, scopes, namesupply, stream_ignored} =
-  {tyidents = tyidents, scopes = f scopes, namesupply = namesupply, stream_ignored = stream_ignored}
+fun map_idents f {tyidents, idents} =
+  {tyidents = tyidents, idents = f idents}
 
-fun map_namesupply f {tyidents, scopes, namesupply, stream_ignored} =
-  {tyidents = tyidents, scopes = scopes, namesupply = f namesupply, stream_ignored = stream_ignored}
+(**)
 
-fun map_stream_ignored f {tyidents, scopes, namesupply, stream_ignored} =
-  {tyidents = tyidents, scopes = scopes, namesupply = namesupply, stream_ignored = f stream_ignored}
+fun map_var_table f {var_table, scopes, namesupply, stream_ignored} =
+  {var_table = f var_table, scopes = scopes, namesupply = namesupply, stream_ignored = stream_ignored}
+
+fun map_scopes f {var_table, scopes, namesupply, stream_ignored} =
+  {var_table = var_table, scopes = f scopes, namesupply = namesupply, stream_ignored = stream_ignored}
+
+fun map_namesupply f {var_table, scopes, namesupply, stream_ignored} =
+  {var_table = var_table, scopes = scopes, namesupply = f namesupply, stream_ignored = stream_ignored}
+
+fun map_stream_ignored f {var_table, scopes, namesupply, stream_ignored} =
+  {var_table = var_table, scopes = scopes, namesupply = namesupply, stream_ignored = f stream_ignored}
 
 (**)
 
@@ -149,7 +158,7 @@ fun map_reports_text f {context, reports_text} =
 
 (**)
 
-val empty_env_lang : env_lang = {tyidents = Symtab.make [], scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
+val empty_env_lang : env_lang = {var_table = {tyidents = Symtab.make [], idents = Symtab.make []}, scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
 fun empty_env_tree context : env_tree = {context = context, reports_text = []}
 val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
 fun make env_lang stream_lang env_tree =
@@ -164,8 +173,9 @@ fun make env_lang stream_lang env_tree =
                                | Left antiq => SOME (Left antiq))
                              stream_lang }
 fun string_of (env_lang : env_lang) = 
-  let fun dest tab = Symtab.dest tab |> map #1
-  in @{make_string} ( ("tyidents", dest (#tyidents env_lang))
+  let fun dest0 x = x |> Symtab.dest |> map #1
+      fun dest {tyidents, idents} = (dest0 tyidents, dest0 idents)
+  in @{make_string} ( ("var_table", dest (#var_table env_lang))
                     , ("scopes", map dest (#scopes env_lang))
                     , ("namesupply", #namesupply env_lang)
                     , ("stream_ignored", #stream_ignored env_lang)) end
@@ -190,14 +200,23 @@ end
 structure C_Env' =
 struct
 
-fun map_tyidents f = C_Env.map_env_lang (C_Env.map_tyidents f)
+fun map_tyidents f = C_Env.map_env_lang (C_Env.map_var_table (C_Env.map_tyidents f))
+fun map_idents f = C_Env.map_env_lang (C_Env.map_var_table (C_Env.map_idents f))
+
+(**)
+
+fun map_var_table f = C_Env.map_env_lang (C_Env.map_var_table f)
 fun map_scopes f = C_Env.map_env_lang (C_Env.map_scopes f)
 fun map_namesupply f = C_Env.map_env_lang (C_Env.map_namesupply f)
 fun map_stream_ignored f = C_Env.map_env_lang (C_Env.map_stream_ignored f)
 
 (**)
 
-fun get_tyidents t = #env_lang t |> #tyidents
+fun get_tyidents t = #env_lang t |> #var_table |> #tyidents
+
+(**)
+
+fun get_var_table t = #env_lang t |> #var_table
 fun get_scopes t = #env_lang t |> #scopes
 fun get_namesupply t = #env_lang t |> #namesupply
 
@@ -241,6 +260,7 @@ sig
   (**)
   val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Env.reports_text -> C_Env.reports_text
   val markup_tvar : bool -> Position.T list -> string * serial -> Markup.T list
+  val markup_var : bool -> bool -> Position.T list -> string * serial -> Markup.T list
 
   (* Language.C.Data.RList *)
   val empty : 'a list Reversed
@@ -351,6 +371,19 @@ struct
         (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
     end
 
+  fun markup_var def global ps (name, id) =
+    let 
+      fun markup_elem name = (name, (name, []): Markup.T);
+      val (varN, var) = markup_elem "C var";
+      val entity = Markup.entity varN name
+    in
+      var ::
+      (if global
+       then if def then cons (Markup.keyword_properties Markup.free) else I (*black constant*)
+       else cons (Markup.keyword_properties Markup.bound))
+        (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
+    end
+
   (**)
   val return = pair
   fun bind f g = f #-> g
@@ -448,15 +481,32 @@ struct
         val pos = [pos1]
     in ((), env |> C_Env'.map_tyidents (Symtab.update (name, (pos, id)))
                 |> C_Env'.map_reports_text (report pos (markup_tvar true pos) (name, id))) end
-  fun shadowTypedef (Ident0 (i, _, _)) env =
-    ((), C_Env'.map_tyidents (Symtab.delete_safe (To_string0 i)) env)
+  fun shadowTypedef0 ret global f (Ident0 (i, _, node), params) env =
+    let val (pos1, _) = decode_error' node
+        val id = serial ()
+        val name = To_string0 i
+        val pos = [pos1]
+        val update_id = Symtab.update (name, (pos, id, global, params, ret))
+    in ((), env |> C_Env'.map_tyidents (Symtab.delete_safe (To_string0 i))
+                |> C_Env'.map_idents update_id
+                |> f update_id
+                |> C_Env'.map_reports_text (report pos (markup_var true global pos) (name, id))) end
+  fun shadowTypedef_fun ident env =
+    shadowTypedef0 C_Env.Previous_in_stack
+                   (case C_Env'.get_scopes env of _ :: [] => true | _ => false)
+                   (fn update_id => C_Env'.map_scopes (fn x :: xs => C_Env.map_idents update_id x :: xs
+                                                        | [] => error "Not expecting an empty scope"))
+                   ident
+                   env
+  fun shadowTypedef (i, params, ret) env =
+    shadowTypedef0 (C_Env.Parsed ret) (List.null (C_Env'.get_scopes env)) (K I) (i, params) env
   fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env'.get_tyidents
   fun enterScope env =
-    ((), C_Env'.map_scopes (cons (C_Env'.get_tyidents env)) env)
+    ((), C_Env'.map_scopes (cons (C_Env'.get_var_table env)) env)
   fun leaveScope env = 
     case C_Env'.get_scopes env of [] => error "leaveScope: already in global scope"
-                               | tyidents :: scopes => ((), env |> C_Env'.map_scopes (K scopes)
-                                                                |> C_Env'.map_tyidents (K tyidents))
+                                | var_table :: scopes => ((), env |> C_Env'.map_scopes (K scopes)
+                                                                  |> C_Env'.map_var_table (K var_table))
   val getCurrentPosition = return NoPosition
 
   (* Language.C.Parser.Tokens *)
@@ -558,19 +608,27 @@ struct
     | _ => rappend declspecs (liftCAttrs new_attrs)
   val emptyDeclr = CDeclrR Nothing empty Nothing [] undefNode
   fun mkVarDeclr ident = CDeclrR (Some ident) empty Nothing []
-  fun doDeclIdent declspecs (CDeclrR0 (mIdent, _, _, _, _)) =
-    case mIdent of None => return ()
-                 | Some ident =>
-                     if exists (fn CStorageSpec0 (CTypedef0 _) => true | _ => false) declspecs
-                     then addTypedef ident
-                     else shadowTypedef ident
+  fun doDeclIdent declspecs (decl as CDeclrR0 (mIdent, _, _, _, _)) =
+    case mIdent of
+      None => return ()
+    | Some ident =>
+       if exists (fn CStorageSpec0 (CTypedef0 _) => true | _ => false) declspecs
+       then addTypedef ident
+       else shadowTypedef ( ident
+                          , case reverseDeclr decl of CDeclr0 (_, params, _, _, _) => params
+                          , declspecs)
   val doFuncParamDeclIdent =
-    fn CDeclr0 (_, (CFunDeclr0 (Right (params, _), _, _) :: _), _, _, _) =>
+    fn CDeclr0 (mIdent0, param0 as CFunDeclr0 (Right (params, _), _, _) :: _, _, _, _) =>
+        (case mIdent0 of None => return ()
+                       | Some mIdent0 => shadowTypedef_fun (mIdent0, param0))
+        >>
         sequence_
           shadowTypedef
-          (maps (fn CDecl0 (_,l,_) => maps (fn ((Some (CDeclr0 (Some mIdent, _, _, _, _)),_),_) => [mIdent]
-                                             | _ => [])
-                                           l
+          (maps (fn CDecl0 (ret, l, _) =>
+                       maps (fn ((Some (CDeclr0 (Some mIdent, params, _, _, _)),_),_) =>
+                                  [(mIdent, params, ret)]
+                              | _ => [])
+                            l
                   | _ => [])
                 params)
      | _ => return ()
@@ -614,6 +672,9 @@ open Hsk_c_parser
 val To_string0 = String.implode o C_ast_simple.to_list
 fun update_env f x = pair () ##> C_Env'.map_output_env (K (SOME (f x)))
 
+
+(*type variable definition*)
+
 val specifier3 : (CDeclSpec list) -> unit monad = update_env (fn l => fn env_lang => fn env_tree =>
   ( env_lang
   , fold
@@ -621,7 +682,7 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env (fn l => fn env_lan
       in fn CTypeSpec0 (CTypeDef0 (Ident0 (i, _, node), _)) =>
             let val name = To_string0 i
                 val pos1 = [decode_error' node |> #1]
-            in case Symtab.lookup (#tyidents env_lang) name of
+            in case Symtab.lookup (#var_table env_lang |> #tyidents) name of
                  NONE => I
                | SOME (pos0, id) => C_Env.map_reports_text (report pos1 (markup_tvar false pos0) (name, id)) end
           | _ => I
@@ -630,6 +691,24 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env (fn l => fn env_lan
       env_tree))
 val declaration_specifier3 : (CDeclSpec list) -> unit monad = specifier3
 val type_specifier3 : (CDeclSpec list) -> unit monad = specifier3
+
+
+(*basic variable definition*)
+
+val primary_expression1 : (CExpr) -> unit monad = update_env (fn e => fn env_lang => fn env_tree =>
+  ( env_lang
+  , let open C_ast_simple
+    in fn CVar0 (Ident0 (i, _, node), _) =>
+          let val name = To_string0 i
+              val pos1 = decode_error' node |> #1
+          in case Symtab.lookup (#var_table env_lang |> #idents) name of
+               NONE => let val _ = warning ("Value or constructor has not been declared" ^ Position.here pos1)
+                       in C_Env.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ()) end
+             | SOME (pos0, id, global, _, _) => C_Env.map_reports_text (report [pos1] (markup_var false global pos0) (name, id)) end
+        | _ => I
+    end
+      e
+      env_tree))
 end
 
 structure MlyValueM = struct
