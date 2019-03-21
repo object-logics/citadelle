@@ -416,8 +416,8 @@ fun show_env0 make_string f msg context =
 
 val show_env = tap o show_env0 @{make_string} length
 
-val C' = C_Outer_Syntax.C' (fn _ => fn v => fn pos =>
-                             tap (fn _ => warning ("ERROR " ^ @{make_string} v ^ Position.here pos)))
+val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
+                             tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
 \<close>
 
 C \<comment> \<open>Propagation of Updates\<close> \<open>

@@ -936,12 +936,13 @@ fun eval'0 env err accept ants {context, reports_text} =
   in P.parse env err accept ants_stack {context = context, reports_text = reports_text} end
 
 fun eval' env err accept ants =
-  Context.>> (C_Env.empty_env_tree
-              #> eval'0 env err accept ants
-              #> (fn {context, reports_text} =>
-                   let val _ = Position.reports_text reports_text
-                   in context end))
-
+  Context.>> (C_Env'.context_map
+               let val tap_report = tap (Position.reports_text o #reports_text)
+               in eval'0 env
+                         (fn env_lang => fn stack => fn pos => tap_report #> err env_lang stack pos)
+                         (fn env_lang => fn stack => accept env_lang stack #> tap_report)
+                         ants
+               end)
 end;
 
 fun eval_source env err accept source =

@@ -159,7 +159,6 @@ fun map_reports_text f {context, reports_text} =
 (**)
 
 val empty_env_lang : env_lang = {var_table = {tyidents = Symtab.make [], idents = Symtab.make []}, scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
-fun empty_env_tree context : env_tree = {context = context, reports_text = []}
 val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
 fun make env_lang stream_lang env_tree =
   { env_lang = env_lang
@@ -243,6 +242,11 @@ fun get_reports_text (t : C_Env.T) = #env_tree t |> #reports_text
 fun map_stream_lang' f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
   let val (res, stream_lang) = f stream_lang
   in (res, {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}) end
+
+(**)
+
+fun context_map (f : C_Env.env_tree -> C_Env.env_tree) context =
+  {context = context, reports_text = []} |> f |> #context
 
 end
 
@@ -702,8 +706,7 @@ val primary_expression1 : (CExpr) -> unit monad = update_env (fn e => fn env_lan
           let val name = To_string0 i
               val pos1 = decode_error' node |> #1
           in case Symtab.lookup (#var_table env_lang |> #idents) name of
-               NONE => let val _ = Output.information ("Value or constructor has not been declared" ^ Position.here pos1)
-                       in C_Env.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ()) end
+               NONE => C_Env.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ())
              | SOME (pos0, id, global, _, _) => C_Env.map_reports_text (report [pos1] (markup_var false global pos0) (name, id)) end
         | _ => I
     end
@@ -1101,23 +1104,31 @@ fun exec_tree' l env_tree = env_tree
   |> (fn env_tree =>
        env_tree |> C_Env.map_reports_text (append (Stack_Data_Tree.get (#context env_tree))))
 
-fun uncurry_context f = uncurry (fn x => fn arg => map_env_tree (f x (#env_lang arg)) arg)
+fun uncurry_context f pos = uncurry (fn x => fn arg => map_env_tree (f pos x (#env_lang arg)) arg)
 
 fun parse env_lang err accept stream_lang =
  make env_lang stream_lang
  #> StrictCParser.makeLexer
  #> StrictCParser.parse
       ( 0
-      , uncurry_context (fn (stack, _, _, stack_tree) => fn env_lang =>
-          let val range_pos = I #> Position.range #> Position.range_position
-          in tap (fn _ => Position.reports_text [( ( range_pos (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
-                                                   , Markup.bad ())
-                                                 , "")])
-             #> exec_tree' (rev stack_tree)
-             #> err env_lang stack (range_pos (case stack_tree of Tree ({rule_pos, ...}, _) :: _ => rule_pos | _ => (Position.none, Position.none)))
-          end)
+      , uncurry_context (fn (next_pos1, next_pos2) => fn (stack, _, _, stack_tree) => fn env_lang =>
+          C_Env.map_reports_text
+            (cons ( ( Position.range_position (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
+                    , Markup.bad ())
+                  , "")
+            #> (case rev (tl stack) of
+                  _ :: _ :: stack =>
+                 append
+                   (map_filter (fn (pos1, pos2) =>
+                                if Position.offset_of pos1 = Position.offset_of pos2
+                                then NONE
+                                else SOME ((Position.range_position (pos1, pos2), Markup.intensify), ""))
+                              ((next_pos1, next_pos2) :: map (fn (_, (_, pos1, pos2)) => (pos1, pos2)) stack))
+                | _ => I))
+          #> exec_tree' (rev stack_tree)
+          #> err env_lang stack (Position.range_position (case hd stack_tree of Tree ({rule_pos = (rule_pos1, _), ...}, _) => (rule_pos1, next_pos2))))
       , Position.none
-      , uncurry_context (fn (stack, _, _, stack_tree) => fn env_lang =>
+      , uncurry_context (fn _ => fn (stack, _, _, stack_tree) => fn env_lang =>
           exec_tree' stack_tree
           #> accept env_lang (stack |> hd |> map_svalue0 MlyValue.reduce0))
       , fn (stack, arg) => arg |> map_rule_input (K stack)

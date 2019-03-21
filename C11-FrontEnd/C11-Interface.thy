@@ -131,9 +131,8 @@ fun accept env_lang (_, (res, _, _)) =
 val eval_source =
   C_Context.eval_source
     C_Env.empty_env_lang
-    (fn _ => fn _ => fn pos =>
-      Scan.error (Symbol_Pos.!!! (K "Syntax error") Scan.fail)
-                 [("", pos)])
+    (fn _ => fn _ => fn pos => fn _ =>
+      error ("Parser: No matching grammar rule" ^ Position.here pos))
     accept
 end
 \<close>
