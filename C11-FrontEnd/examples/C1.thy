@@ -142,15 +142,6 @@ int b = 7 / (3) * 50 /*@@@@ ML \<open>@{reduce}\<close>
                       */;
 \<close>
 
-C \<comment> \<open>Nesting C code in ML\<close> \<open>
-int b = 7 / (3) * 50
-  /*@@@@ ML \<open>(reduce @{make_string} o tap)
-                 (fn _ => C_Outer_Syntax.C
-                            \<open>int b = 7 / 5 * 2 + 3 * 50 //@ ML \<open>@{reduce}\<close>
-                             ;\<close>)\<close>
-   */;
-\<close>
-
 C \<comment> \<open>Positional navigation: pointing to sub-trees situated after any part of the code\<close> \<open>
 int b = 7 / (3) * 50;
 /*@+++@ ML \<open>@{reduce}\<close>*/
@@ -382,6 +373,11 @@ int x /** OWNED_BY foo */, hh /*@
 int b = 0;
 \<close>
 
+C \<comment> \<open>Arbitrary interleaving of effects: \<open>ML\<close> vs \<open>ML'\<close>\<close> \<open>
+int b,c,d/*@ ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "3_reduce"\<close> */,e = 0; /*@ ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "4_reduce"\<close> */
+int b,c,d/*@ ML' \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "6_reduce"\<close> */,e = 0; /*@ ML' \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "5_reduce"\<close> */
+\<close>
+
 subsection \<open>Reporting of Positions and Contextual Update of Environment\<close>
 
 subsubsection \<open>1\<close>
@@ -416,8 +412,25 @@ fun show_env0 make_string f msg context =
 
 val show_env = tap o show_env0 @{make_string} length
 
+fun C src = tap (fn _ => C_Outer_Syntax.C src)
 val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
                              tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
+\<close>
+
+C \<comment> \<open>Nesting C code without propagating the C environment\<close> \<open>
+int a = 0;
+int b = 7 / (3) * 50
+  /*@@@@ ML \<open>fn _ => fn _ =>
+               C      \<open>int b = a + a + a + a + a + a + a
+                       ;\<close> \<close> */;
+\<close>
+
+C \<comment> \<open>Nesting C code and propagating the C environment\<close> \<open>
+int a = 0;
+int b = 7 / (3) * 50
+  /*@@@@ ML \<open>fn _ => fn env =>
+               C' env \<open>int b = a + a + a + a + a + a + a
+                       ;\<close> \<close> */;
 \<close>
 
 C \<comment> \<open>Propagation of Updates\<close> \<open>
@@ -428,7 +441,7 @@ j jj1 = 0;
 j jj = jj1; /*@ ML \<open>fn _ => fn _ => show_env "POSITION 0"\<close> ML \<open>@{reduce'}\<close> */
 typedef int k; /*@ ML \<open>fn _ => fn env =>
                           C' env \<open>k jj = jj; //@ ML \<open>@{reduce'}\<close>
-                                  k jj = jj + jj;
+                                  k jj = jj + jj1;
                                   typedef k l; //@ ML \<open>@{reduce'}\<close>\<close>
                           #> show_env "POSITION 1"\<close> */
 j j = jj1 + jj; //@ ML \<open>@{reduce'}\<close>

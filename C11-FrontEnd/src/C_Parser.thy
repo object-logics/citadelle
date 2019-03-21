@@ -41,9 +41,12 @@ begin
 section \<open>Instantiation of the Parser with the Lexer\<close>
 
 ML\<open>
-type eval_at_reduce = Position.range * (int (*reduce rule number*) -> Context.generic -> Context.generic)
+datatype eval_tree = Bottom_up (*during parsing*) | Top_down (*after parsing*)
 
-datatype eval_time = Shift of Position.range * (Context.generic -> Context.generic)
+type 'fun eval_at = Position.range * eval_tree * 'fun
+type eval_at_reduce = (int (*reduce rule number*) -> Context.generic -> Context.generic) eval_at
+
+datatype eval_time = Shift of (Context.generic -> Context.generic) eval_at
                    | Reduce of (Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *)) * eval_at_reduce
                    | Never
 
@@ -76,12 +79,14 @@ datatype rule_type = Void
                    | Shift
                    | Reduce of int
 
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce =
+  ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)) * env_lang) * eval_at_reduce) list
+
 type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   { rule_pos : 'pos * 'pos
   , rule_type : rule_type
   , rule_static : rule_static
-  , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)) * env_lang)
-                  * eval_at_reduce) list }
+  , rule_antiq : ('LrTable_state, 'svalue0, 'pos) rule_reduce }
 
 datatype 'a tree = Tree of 'a * 'a tree list
 
@@ -673,12 +678,14 @@ ML\<open>
 structure MlyValueM' = struct
 open Hsk_c_parser
 val To_string0 = String.implode o C_ast_simple.to_list
-fun update_env f x = pair () ##> (fn arg => C_Env'.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
 
+val update_env =
+ fn Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_tree (f x (#env_lang arg) #> #2) arg))
+  | Top_down => fn f => fn x => pair () ##> (fn arg => C_Env'.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
 
 (*type variable definition*)
 
-val specifier3 : (CDeclSpec list) -> unit monad = update_env (fn l => fn env_lang => fn env_tree =>
+val specifier3 : (CDeclSpec list) -> unit monad = update_env Bottom_up (fn l => fn env_lang => fn env_tree =>
   ( env_lang
   , fold
       let open C_ast_simple
@@ -698,7 +705,7 @@ val type_specifier3 : (CDeclSpec list) -> unit monad = specifier3
 
 (*basic variable definition*)
 
-val primary_expression1 : (CExpr) -> unit monad = update_env (fn e => fn env_lang => fn env_tree =>
+val primary_expression1 : (CExpr) -> unit monad = update_env Bottom_up (fn e => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_ast_simple
     in fn CVar0 (Ident0 (i, _, node), _) =>
@@ -998,11 +1005,16 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, false)
-             |> fold (fn Antiq_stack (Shift (_, exec)) =>
+             |> fold (fn Antiq_stack (Shift (_, Bottom_up, exec)) =>
                          I #>>
                          (fn arg =>
                            C_Env'.map_context (I #> Stack_Data_Lang.put (stack, #env_lang arg)
                                                  #> exec)
+                             arg)
+                       | Antiq_stack (Shift ((pos, _), Top_down, _)) =>
+                         I #>>
+                         (fn arg =>
+                           C_Env'.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos))
                              arg)
                        | Antiq_stack (Reduce ((syms_shift, syms), ml_exec)) =>
                          I #>>
@@ -1088,14 +1100,14 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_static, rul
       in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end)
   #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
   #-> (fn env_lang =>
-        fold (fn ((rule0, stack0, env_lang0), (_, exec)) =>
-               C_Env.map_context (I #> Stack_Data_Lang.put ([stack0], Option.getOpt (env_lang, env_lang0))
-                                    #> exec rule0))
+        fold (fn ((rule0, stack0, env_lang0), (_, Top_down, exec)) =>
+                 C_Env.map_context (I #> Stack_Data_Lang.put ([stack0], Option.getOpt (env_lang, env_lang0))
+                                      #> exec rule0)
+               | _ => I)
              rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
 
 fun exec_tree' l env_tree = env_tree
-  |> C_Env.map_context (Stack_Data_Tree.put [])
   |> fold (exec_tree "" let val ctxt = Context.proof_of (#context env_tree)
                         in if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
                            then fn f => tap (tracing o f) else K I end)
@@ -1132,7 +1144,14 @@ fun parse env_lang err accept stream_lang =
           #> accept env_lang (stack |> hd |> map_svalue0 MlyValue.reduce0))
       , fn (stack, arg) => arg |> map_rule_input (K stack)
                                |> map_rule_output (K empty_rule_output)
-      , fn arg => (#rule_output arg, arg)
+      , fn rule_antiq => fn arg =>
+          ( #rule_output arg
+          , fold (fn ((rule0, stack0, env_lang0), (_, Bottom_up, exec)) =>
+                     C_Env'.map_context (I #> Stack_Data_Lang.put ([stack0], env_lang0)
+                                           #> exec rule0)
+                   | _ => I)
+                 rule_antiq
+                 arg)
       , #env_lang)
  #> snd
  #> #env_tree

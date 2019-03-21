@@ -956,34 +956,41 @@ end
 
 section \<open>\<close>
 
-setup \<open>
-C0_Outer_Syntax.command' ("ML", \<^here>) ""
-  (fn Left stack =>
-    C_Parse.range C_Parse.ML_source >>
+ML\<open>
+local
+fun command dir name =
+  C0_Outer_Syntax.command' name ""
+    (fn Left stack =>
+      C_Parse.range C_Parse.ML_source >>
+        (fn (src, range) =>
+          (fn f => Reduce (stack, (range, dir, f)))
+            (fn rule => 
+              let val hook = "hook"
+              in ML_Context.expression
+                  (Input.range_of src)
+                  hook
+                  (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+                  ("fn context => \
+                     \let val (stack, env_lang) = Stack_Data_Lang.get context \
+                     \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
+                  (ML_Lex.read_source false src)
+              end))
+      | Right _ =>
+      C_Parse.range C_Parse.ML_source >>
       (fn (src, range) =>
-        (fn f => Reduce (stack, (range, f)))
-          (fn rule => 
-            let val hook = "hook"
-            in ML_Context.expression
-                (Input.range_of src)
-                hook
-                (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
-                ("fn context => \
-                   \let val (stack, env_lang) = Stack_Data_Lang.get context \
-                   \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
-                (ML_Lex.read_source false src)
-            end))
-    | Right _ =>
-    C_Parse.range C_Parse.ML_source >>
-    (fn (src, range) =>
-      (Shift o pair range)
-        let val setup = "setup"
-        in ML_Context.expression
-            (Input.range_of src)
-            setup
-            "Stack_Data_Lang.T -> Context.generic -> Context.generic"
-            ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
-            (ML_Lex.read_source false src) end))
+        (Shift o (fn x => (range, dir, x)))
+          let val setup = "setup"
+          in ML_Context.expression
+              (Input.range_of src)
+              setup
+              "Stack_Data_Lang.T -> Context.generic -> Context.generic"
+              ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
+              (ML_Lex.read_source false src) end))
+
+in
+val _ = Theory.setup (   command Bottom_up ("ML", \<^here>)
+                      #> command Top_down ("ML'", \<^here>))
+end
 \<close>
 
 end
