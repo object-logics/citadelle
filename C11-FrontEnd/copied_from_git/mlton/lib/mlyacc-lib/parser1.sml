@@ -115,10 +115,10 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                 |> (fn stack_arg => parseStep (token, (lexer, stack_arg)))
               | ERROR => (lexer, ((stack, stack_ml, stack_pos, stack_tree), arg))
                          |> Stream.cons o pair token
-                         ||> error
+                         ||> error (leftPos, rightPos)
               | ACCEPT => (lexer, ((stack, stack_ml, stack_pos, stack_tree), arg))
                           |> Stream.cons o pair token
-                          ||> accept
+                          ||> accept (leftPos, rightPos)
           end
         | parseStep _ = raise (ParseImpossible 204)
   in I

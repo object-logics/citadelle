@@ -118,7 +118,7 @@ signature LR_PARSER1 =
                                      (LrTable.state * ('_b * '_c * '_c)) list,
                      void : 'arg -> '_b * 'arg,
                      void_position : '_c,
-                     accept : ('_b, '_c) stack * 'arg -> 'arg,
+                     accept : '_c * '_c -> ('_b, '_c) stack * 'arg -> 'arg,
                      reduce_init : (('_c * '_c) list * int) * 'arg -> 'arg,
                      reduce_get : 'arg -> ('_c * '_c) C_Env.rule_output0 * 'arg,
                      get_env_lang : 'arg -> C_Env.env_lang,
@@ -128,7 +128,7 @@ signature LR_PARSER1 =
                             errtermvalue : LrTable.term -> 'arg -> '_b * 'arg,
                             showTerminal : LrTable.term -> string,
                             terms: LrTable.term list,
-                            error : ('_b, '_c) stack * 'arg -> 'arg
+                            error : '_c * '_c -> ('_b, '_c) stack * 'arg -> 'arg
                            },
                      lookahead : int  (* max amount of lookahead used in *)
                                       (* error correction *)
@@ -399,9 +399,9 @@ signature ARG_PARSER1 =
 
         val makeLexer : arg -> arg lexer
         val parse :   int
-                    * (stack * arg -> arg)
+                    * (pos * pos -> stack * arg -> arg)
                     * pos
-                    * (stack * arg -> arg)
+                    * (pos * pos -> stack * arg -> arg)
                     * (((pos * pos) list * int) * arg -> arg)
                     * (arg -> (pos * pos) C_Env.rule_output0 * arg)
                     * (arg -> C_Env.env_lang)
