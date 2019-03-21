@@ -70,7 +70,7 @@ type reports_text = Position.report_text list
 type env_tree = { context : Context.generic
                 , reports_text : reports_text }
 
-type rule_static = (env_lang -> env_tree -> env_lang * env_tree) option
+type rule_static = (env_tree -> env_lang * env_tree) option
 
 datatype rule_type = Void
                    | Shift
@@ -79,9 +79,8 @@ datatype rule_type = Void
 type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   { rule_pos : 'pos * 'pos
   , rule_type : rule_type
-  , rule_env_lang : env_lang
   , rule_static : rule_static
-  , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)))
+  , rule_antiq : ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)) * env_lang)
                   * eval_at_reduce) list }
 
 datatype 'a tree = Tree of 'a * 'a tree list
@@ -674,7 +673,7 @@ ML\<open>
 structure MlyValueM' = struct
 open Hsk_c_parser
 val To_string0 = String.implode o C_ast_simple.to_list
-fun update_env f x = pair () ##> C_Env'.map_output_env (K (SOME (f x)))
+fun update_env f x = pair () ##> (fn arg => C_Env'.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
 
 
 (*type variable definition*)
@@ -1079,7 +1078,7 @@ structure P = struct
 
 open C_Env
 
-fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env_lang = env_lang, rule_static, rule_antiq}, l_tree)) =
+fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_static, rule_antiq}, l_tree)) =
   write
     (fn _ =>
       let val (s1, s2) =
@@ -1087,11 +1086,11 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_env_lang = 
                         | Shift => ("SHIFT", NONE)
                         | Reduce i => ("REDUCE " ^ Int.toString i, SOME (MlyValue.string_reduce i ^ " " ^ MlyValue.type_reduce i))
       in msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => "") end)
-  #> (case rule_static of SOME rule_static => rule_static env_lang | NONE => pair env_lang)
+  #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
   #-> (fn env_lang =>
-        fold (fn ((rule, stack0), (_, exec)) =>
-               C_Env.map_context (I #> Stack_Data_Lang.put ([stack0], env_lang)
-                                    #> exec rule))
+        fold (fn ((rule0, stack0, env_lang0), (_, exec)) =>
+               C_Env.map_context (I #> Stack_Data_Lang.put ([stack0], Option.getOpt (env_lang, env_lang0))
+                                    #> exec rule0))
              rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
 
