@@ -958,6 +958,14 @@ section \<open>\<close>
 
 ML\<open>
 local
+fun expression range name constraint body ants context = context |>
+  ML_Context.exec let val verbose = Config.get (Context.proof_of context) C_Options.ML_verbose
+                  in fn () =>
+    ML_Context.eval (ML_Compiler.verbose verbose ML_Compiler.flags) (#1 range)
+     (ML_Lex.read "Context.put_generic_context (SOME (let val " @ ML_Lex.read_set_range range name @
+      ML_Lex.read (": " ^ constraint ^ " =") @ ants @
+      ML_Lex.read ("in " ^ body ^ " end (Context.the_generic_context ())));")) end;
+
 fun command dir name =
   C0_Outer_Syntax.command' name ""
     (fn Left stack =>
@@ -966,7 +974,7 @@ fun command dir name =
           (fn f => Reduce (stack, (range, dir, f)))
             (fn rule => 
               let val hook = "hook"
-              in ML_Context.expression
+              in expression
                   (Input.range_of src)
                   hook
                   (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
@@ -980,7 +988,7 @@ fun command dir name =
       (fn (src, range) =>
         (Shift o (fn x => (range, dir, x)))
           let val setup = "setup"
-          in ML_Context.expression
+          in expression
               (Input.range_of src)
               setup
               "Stack_Data_Lang.T -> Context.generic -> Context.generic"
