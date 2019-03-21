@@ -91,7 +91,6 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                    let val dist = length stack - length stack'
                        val arg = reduce_init ((stack_pos, dist), arg)
                        val (value, arg) = reduce_exec arg
-                       val (goto0', arg) = reduce_get arg
                        val goto0 = (goto (state, nonterm), (value, p1, p2))
                        val ((l_ml, stack_ml), stack_pos, (l_tree, stack_tree)) =
                          ( chop dist stack_ml
@@ -99,6 +98,7 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                                in fn st0 => fold (fold (cons o pair env)) st0 [] end
                          , drop dist stack_pos
                          , chop dist stack_tree)
+                       val (goto0', arg) = reduce_get l_ml arg
                        val pos = case #output_pos goto0' of NONE => (p1, p2) | SOME pos => pos
                    in ( add_stack
                           (goto0, stack')
