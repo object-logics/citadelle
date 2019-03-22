@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C2
-  imports "../C11-Interface"
+  imports "../C_Main"
 begin
 ML\<open> @{file "$ISABELLE_HOME/src/Pure/ROOT.ML"}                \<close>
 

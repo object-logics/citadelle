@@ -38,13 +38,15 @@ theory C_Env
   imports C_Lexer
 begin
 
-section \<open>The Generic Annotation Interface\<close>
+section \<open>The C Annotation Result Interface\<close>
 
 text\<open>The key element of this following structure is the type \verb+eval_time+ which is relevant for
 the generic annotation module. \<close>
 
 ML\<open>
 
+structure C_Annot_Result =
+struct
 
 datatype eval_tree = Bottom_up (*during parsing*) | Top_down (*after parsing*)
 
@@ -59,10 +61,14 @@ datatype eval_time = Shift of (Context.generic -> Context.generic) eval_at
 
 datatype antiq_language = Antiq_stack of eval_time
                         | Antiq_none of C_Lex.token
+end;
 
+open C_Annot_Result; (* Temporary hack --- to be removed *)
 \<close>
 
+section \<open>The Lexing-based C Environment\<close>
 
+text\<open>It comes in two parts: a basic core tstructure and a (thin) layer of utilities. \<close>
 
 ML\<open>
 structure C_Env_base = struct
@@ -281,8 +287,6 @@ fun context_map (f : C_Env_base.env_tree -> C_Env_base.env_tree) context =
 
 
 end 
-
-
 
 \<close>
 

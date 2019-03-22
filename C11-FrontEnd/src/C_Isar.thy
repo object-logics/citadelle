@@ -936,7 +936,7 @@ fun eval'0 env err accept ants {context, reports_text} =
   in P.parse env err accept ants_stack {context = context, reports_text = reports_text} end
 
 fun eval' env err accept ants =
-  Context.>> (C_Env'.context_map
+  Context.>> (C_Env.context_map
                let val tap_report = tap (Position.reports_text o #reports_text)
                in eval'0 env
                          (fn env_lang => fn stack => fn pos => tap_report #> err env_lang stack pos)
@@ -977,7 +977,7 @@ fun command dir name =
               in expression
                   (Input.range_of src)
                   hook
-                  (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+                  (MlyValue.type_reduce rule ^ " stack_elem -> C_Env_base.env_lang -> Context.generic -> Context.generic")
                   ("fn context => \
                      \let val (stack, env_lang) = Stack_Data_Lang.get context \
                      \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")

@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C1
-  imports "../C11-Interface"
+  imports "../C_Main"
 begin
 
 declare[[C_lexer_trace]]
@@ -120,7 +120,8 @@ int a = (((0
       + 5)))  /*@ ML \<open>fn (_, (value, pos1, pos2)) => fn _ => fn context =>
                           let
                             val () = writeln (@{make_string} value)
-                            val () = Position.reports_text [((Position.range (pos1, pos2) |> Position.range_position, Markup.intensify), "")]
+                            val () = Position.reports_text [((Position.range (pos1, pos2) 
+                                                            |> Position.range_position, Markup.intensify), "")]
                           in context end\<close>
                */
       * 4; 

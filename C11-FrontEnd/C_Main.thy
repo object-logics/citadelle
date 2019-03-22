@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory "C11-Interface"
+theory "C_Main"
   imports "src/C_Isar"
   keywords "C" :: thy_decl
        and "C_import" :: thy_load % "ML"
