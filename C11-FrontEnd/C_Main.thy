@@ -56,11 +56,11 @@ fun accept env_lang (_, (res, _, _)) =
     |> Symtab.update_list (op =)
     |> C11_core.map_tab
     |> (fn map_tab => C11_core.Data.map map_tab context))
-  |> C_Env_base.map_context
+  |> C_Env.map_context
 
 val eval_source =
   C_Context.eval_source
-    C_Env_base.empty_env_lang
+    C_Env.empty_env_lang
     (fn _ => fn _ => fn pos => fn _ =>
       error ("Parser: No matching grammar rule" ^ Position.here pos))
     accept
@@ -157,7 +157,7 @@ fun reduce' _ f (_, (_, pos1, pos2)) env thy =
   let
     val () = Position.reports_text [((Position.range (pos1, pos2) 
                                     |> Position.range_position, Markup.intensify), "")]
-    val () = writeln ("ENV " ^ C_Env_base.string_of env)
+    val () = writeln ("ENV " ^ C_Env.string_of env)
   in f thy end
 
 fun shift s make_string (stack, _) thy =
@@ -173,7 +173,7 @@ fun shift s make_string (stack, _) thy =
 fun shift' s _ (stack, env) thy =
   let
     val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
-    val () = writeln ("ENV " ^ C_Env_base.string_of env)
+    val () = writeln ("ENV " ^ C_Env.string_of env)
   in thy end
 \<close>
 
