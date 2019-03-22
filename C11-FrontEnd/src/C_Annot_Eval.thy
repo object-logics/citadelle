@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory C_Isar
+theory C_Annot_Eval
   imports C_Parser
 begin
 
@@ -570,7 +570,7 @@ ML\<open>
 Isabelle/Isar outer syntax.
 *)
 
-structure C0_Outer_Syntax =
+structure C_Annot_Syntax =
 struct
 
 (** outer syntax **)
@@ -821,7 +821,7 @@ fun scan_antiq context syms =
   let val keywords = C_Thy_Header.get_keywords' (Context.proof_of context)
   in ( C_Token.read_antiq'
          keywords
-         (C_Parse.!!! (Scan.trace (C0_Outer_Syntax.parse_command (Context.theory_of context))
+         (C_Parse.!!! (Scan.trace (C_Annot_Syntax.parse_command (Context.theory_of context))
                        >> (I #>> Antiq_stack)))
          syms
      , C_Token.read_with_commands'0 keywords syms)
@@ -967,7 +967,7 @@ fun expression range name constraint body ants context = context |>
       ML_Lex.read ("in " ^ body ^ " end (Context.the_generic_context ())));")) end;
 
 fun command dir name =
-  C0_Outer_Syntax.command' name ""
+  C_Annot_Syntax.command' name ""
     (fn Left stack =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
