@@ -42,7 +42,7 @@ section \<open>The Construction of an C-Context (analogously to the standard ML 
 
 ML\<open>
 (*  Title:      Pure/Isar/keyword.ML
-    Author:     Makarius
+    Author:     Frederic Tuong, Makarius
 
 Isar keyword classification.
 *)
@@ -536,7 +536,7 @@ end;
 
 ML\<open>
 (*  Title:      Pure/Thy/thy_header.ML
-    Author:     Makarius
+    Author:     Frederic Tuong, Makarius
 
 Static theory header information.
 *)
@@ -565,6 +565,7 @@ end
 
 ML\<open>
 (*  Title:      Pure/Isar/outer_syntax.ML
+    Author:     Frederic Tuong, Univ. Paris-Saclay
     Author:     Markus Wenzel, TU Muenchen
 
 Isabelle/Isar outer syntax.
@@ -690,7 +691,7 @@ end
 
 ML\<open>
 (*  Title:      Pure/ML/ml_context.ML
-    Author:     Makarius
+    Author:     Frederic Tuong, Makarius
 
 ML context and antiquotations.
 *)
