@@ -441,7 +441,7 @@ type ('LrTable_state, 'a, 'Position_T) stack_elem0 = 'LrTable_state * ('a * 'Pos
 type ('LrTable_state, 'a, 'Position_T) stack0 = ('LrTable_state, 'a, 'Position_T) stack_elem0 list
 type ('LrTable_state, 'a, 'Position_T) stack' =
      ('LrTable_state, 'a, 'Position_T) stack0
-   * eval_at_reduce list list
+   * eval_node list list
    * ('Position_T * 'Position_T) list
    * ('LrTable_state, 'a, 'Position_T) C_Env.rule_ml C_Env.tree list
 type cString = CString
@@ -728,11 +728,13 @@ which interprets a automata-like format generated from smlyacc.\<close>
 
 ML\<open>
 type 'a stack_elem = (LrTable.state, 'a, Position.T) stack_elem0
+type stack_data = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0
+type stack_data_elem = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack_elem0
 
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
 structure Stack_Data_Lang = Generic_Data
-  (type T = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0 * C_Env.env_lang
+  (type T = stack_data * C_Env.env_lang
    val empty = ([], C_Env.empty_env_lang)
    val extend = I
    val merge = #2)
@@ -762,20 +764,37 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
   let val (arg, stack_ml) =
         case #stream_hook arg
         of l :: ls =>
-          ( C_Env.map_stream_hook (K ls) arg
-          , fold_rev (fn (_, syms, ml_exec) => fn stack_ml =>
-                       let
-                         val () =
-                           if length stack_ml = 1 orelse length stack_ml - length syms = 1 then
-                             warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (ml_exec |> #1 |> Position.range_position))
-                           else ()
-                         val () =
-                           if length stack_ml - length syms <= 0 then
-                             error ("Maximum depth reached (" ^ Int.toString (length syms - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
-                           else ()
-                       in nth_map (length syms) (cons ml_exec) stack_ml end)
-                     l
-                     stack_ml)
+           (arg, stack_ml)
+           |> fold_rev 
+             (fn (_, syms, ml_exec) => fn (arg, stack_ml) =>
+               let
+                 val len = length syms
+               in
+                 if len = 0 then
+                   case ml_exec of
+                     (_, Bottom_up, exec) =>
+                       ( C_Env_Ext.map_context (I #> Stack_Data_Lang.put (stack, #env_lang arg)
+                                                  #> exec NONE)
+                                               arg
+                       , stack_ml)
+                   | ((pos, _), _, _) =>
+                       ( C_Env_Ext.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos)) arg
+                       , stack_ml)
+                 else
+                 let
+                   val len = len - 1
+                   val () =
+                     if length stack_ml = 1 orelse length stack_ml - len = 1 then
+                       warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (ml_exec |> #1 |> Position.range_position))
+                     else ()
+                   val () =
+                     if length stack_ml - len <= 0 then
+                       error ("Maximum depth reached (" ^ Int.toString (len - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
+                     else ()
+                 in (arg, nth_map len (cons ml_exec) stack_ml) end
+               end)
+             l
+           |>> C_Env.map_stream_hook (K ls)
          | [] => (arg, stack_ml)
       val (token, arg) = C_Env_Ext.map_stream_lang' (fn [] => (NONE, []) | x :: xs => (SOME x, xs)) arg
       fun return0 x = (x, ((stack, stack_ml, stack_pos, stack_tree), arg))
@@ -795,18 +814,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, false)
-             |> fold (fn Antiq_stack (Shift (_, Bottom_up, exec)) =>
-                         I #>>
-                         (fn arg =>
-                           C_Env_Ext.map_context (I #> Stack_Data_Lang.put (stack, #env_lang arg)
-                                                 #> exec)
-                             arg)
-                       | Antiq_stack (Shift ((pos, _), Top_down, _)) =>
-                         I #>>
-                         (fn arg =>
-                           C_Env_Ext.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos))
-                             arg)
-                       | Antiq_stack (Reduce ((syms_shift, syms), ml_exec)) =>
+             |> fold (fn Antiq_stack (Once ((syms_shift, syms), ml_exec)) =>
                          I #>>
                            (C_Env.map_stream_hook
                              (fn stream_hook => 
@@ -892,7 +900,7 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_static, rul
   #-> (fn env_lang =>
         fold (fn ((rule0, stack0, env_lang0), (_, Top_down, exec)) =>
                  C_Env.map_context (I #> Stack_Data_Lang.put ([stack0], Option.getOpt (env_lang, env_lang0))
-                                      #> exec rule0)
+                                      #> exec (SOME rule0))
                | _ => I)
              rule_antiq)
   #> fold (exec_tree (msg ^ " ") write) l_tree
@@ -938,7 +946,7 @@ fun parse env_lang err accept stream_lang =
           ( #rule_output arg
           , fold (fn ((rule0, stack0, env_lang0), (_, Bottom_up, exec)) =>
                      C_Env_Ext.map_context (I #> Stack_Data_Lang.put ([stack0], env_lang0)
-                                           #> exec rule0)
+                                              #> exec (SOME rule0))
                    | _ => I)
                  rule_antiq
                  arg)

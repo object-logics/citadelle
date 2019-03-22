@@ -187,9 +187,6 @@ val is_stack1 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "
 val is_stack2 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "@") l
                  | _ => false;
 
-val is_exec_shift = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "!") l
-                     | _ => false;
-
 val is_modifies_star = fn Token (_, (Token.Sym_Ident, l)) => Symbol_Pos.content l = "[*]"
                         | _ => false;
 
@@ -254,7 +251,7 @@ fun completion_report tok =
 fun reports keywords tok =
   if is_command tok then
     keyword_reports tok (command_markups keywords (content_of tok))
-  else if is_stack1 tok orelse is_stack2 tok orelse is_exec_shift tok then
+  else if is_stack1 tok orelse is_stack2 tok then
     keyword_reports tok [Markup.keyword2 |> Markup.keyword_properties]
   else if is_kind Token.Keyword tok then
     keyword_reports tok
@@ -356,7 +353,6 @@ fun scan_token keywords = Scanner.!!! "bad input"
        $$$ ":" >> pair Token.Keyword ||
        Scan.repeats1 ($$$ "+") >> pair Token.Sym_Ident ||
        Scan.repeats1 ($$$ "@") >> pair Token.Sym_Ident ||
-       $$$ "!" >> pair Token.Sym_Ident ||
        $$$ "[" @@@ $$$ "*" @@@ $$$ "]" >> pair Token.Sym_Ident)) >> uncurry token);
 
 fun recover msg =
@@ -588,7 +584,7 @@ fun err_dup_command name ps =
 (* command parsers *)
 
 datatype command_parser =
-  Parser of (Symbol_Pos.T list * Symbol_Pos.T list, C_Token.T) either -> eval_time c_parser;
+  Parser of Symbol_Pos.T list * Symbol_Pos.T list -> eval_time c_parser;
 
 datatype command = Command of
  {comment: string,
@@ -670,8 +666,7 @@ fun command' (name, pos) comment parse =
 (* parse commands *)
 
 val before_command =
-  Scan.one C_Token.is_exec_shift >> Right
-  || C_Token.scan_stack C_Token.is_stack1 -- C_Token.scan_stack C_Token.is_stack2 >> Left
+  C_Token.scan_stack C_Token.is_stack1 -- C_Token.scan_stack C_Token.is_stack2
 
 fun parse_command thy =
   Scan.ahead (before_command |-- C_Parse.position C_Parse.command_) :|-- (fn (name, _) =>
@@ -969,36 +964,35 @@ fun expression range name constraint body ants context = context |>
 
 fun command dir name =
   C_Annot_Syntax.command' name ""
-    (fn Left stack =>
+    (fn stack =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          (fn f => Reduce (stack, (range, dir, f)))
-            (fn rule => 
-              let val hook = "hook"
-              in expression
-                  (Input.range_of src)
-                  hook
-                  (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
-                  ("fn context => \
-                     \let val (stack, env_lang) = Stack_Data_Lang.get context \
-                     \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
-                  (ML_Lex.read_source false src)
-              end))
-      | Right _ =>
-      C_Parse.range C_Parse.ML_source >>
-      (fn (src, range) =>
-        (Shift o (fn x => (range, dir, x)))
-          let val setup = "setup"
-          in expression
-              (Input.range_of src)
-              setup
-              "Stack_Data_Lang.T -> Context.generic -> Context.generic"
-              ("fn context => " ^ setup ^ " (Stack_Data_Lang.get context) context")
-              (ML_Lex.read_source false src) end))
+          (fn f => Once (stack, (range, dir, f)))
+            (fn NONE =>
+                let val setup = "setup"
+                in expression
+                    (Input.range_of src)
+                    setup
+                    "stack_data -> stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic"
+                    ("fn context => \
+                       \let val (stack, env_lang) = Stack_Data_Lang.get context \
+                       \in " ^ setup ^ " stack (stack |> hd) env_lang end context")
+                    (ML_Lex.read_source false src) end
+              | SOME rule => 
+                let val hook = "hook"
+                in expression
+                    (Input.range_of src)
+                    hook
+                    ("stack_data -> " ^ MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+                    ("fn context => \
+                       \let val (stack, env_lang) = Stack_Data_Lang.get context \
+                       \in " ^ hook ^ " stack (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
+                    (ML_Lex.read_source false src)
+                end)))
 
 in
 val _ = Theory.setup (   command Bottom_up ("ML", \<^here>)
-                      #> command Top_down ("ML'", \<^here>))
+                      #> command Top_down ("ML_reverse", \<^here>))
 end
 \<close>
 

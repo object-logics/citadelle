@@ -48,16 +48,17 @@ ML\<open>
 structure C_Annot_Result =
 struct
 
-datatype eval_tree = Bottom_up (*during parsing*) | Top_down (*after parsing*)
+datatype env_propagation = Bottom_up (*during parsing*) | Top_down (*after parsing*)
 
-type 'fun eval_at = Position.range * eval_tree * 'fun
-type eval_at_reduce = (int (*reduce rule number*) -> Context.generic -> Context.generic) eval_at
+type eval_node = Position.range
+                 * env_propagation
+                 * (int (*reduce rule number*) option (* NONE: shift action *)
+                    -> Context.generic -> Context.generic)
 
-datatype eval_time = Shift of (Context.generic -> Context.generic) eval_at
-                   | Reduce of (Symbol_Pos.T list (* length = number of tokens to advance *) 
-                               * Symbol_Pos.T list (* length = number of steps back in stack *)) 
-                               * eval_at_reduce
-                   | Never
+datatype eval_time = Once of (Symbol_Pos.T list (* length = number of tokens to advance *) 
+                             * Symbol_Pos.T list (* length = number of steps back in stack *)) 
+                             * eval_node
+                   | Never (* to be manually treated by the semantic back-end, and analyzed there *)
 
 datatype antiq_language = Antiq_stack of eval_time
                         | Antiq_none of C_Lex.token
@@ -99,7 +100,7 @@ datatype rule_type = Void
                    | Reduce of int
 
 type ('LrTable_state, 'svalue0, 'pos) rule_reduce =
-  ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)) * env_lang) * eval_at_reduce) list
+  ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)) * env_lang) * eval_node) list
 
 type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   { rule_pos : 'pos * 'pos
@@ -118,7 +119,7 @@ type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : class_Pos list * int
-         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_at_reduce) list list
+         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_node) list list
          , stream_lang : (C_Antiquote.antiq * antiq_language list) stream }
 
 (**)

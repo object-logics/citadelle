@@ -106,18 +106,18 @@ section \<open>Antiquotations\<close>
 subsection \<open>Actions on the Parsing Stack\<close>
 
 C \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
-int a = (((0 //@ (* inline *) !ML \<open>fn _ => fn context => let in (* */ *) context end\<close>
-             /*@ !ML \<open>K I\<close> (*   * /   *) */
+int a = (((0 //@ (* inline *) ML \<open>fn _ => fn _ => fn _ => fn context => let in (* */ *) context end\<close>
+             /*@ ML \<open>(K o K o K) I\<close> (*   * /   *) */
          )));
 \<close>
 
 C \<comment> \<open>With \<open>!\<close>, execution during SHIFT actions\<close> \<open>
-int a = (((0))); /*@ !ML \<open>@{shift}\<close> */
+int a = (((0))); /*@ ML \<open>@{print_stack}\<close> */
 \<close>
 
 C \<comment> \<open>Without \<open>!\<close>, execution during REDUCE actions\<close> \<open>
 int a = (((0
-      + 5)))  /*@ ML \<open>fn (_, (value, pos1, pos2)) => fn _ => fn context =>
+      + 5)))  /*@@ ML \<open>fn _ => fn (_, (value, pos1, pos2)) => fn _ => fn context =>
                           let
                             val () = writeln (@{make_string} value)
                             val () = Position.reports_text [((Position.range (pos1, pos2) 
@@ -129,23 +129,23 @@ float b = 7 / 3;
 \<close>
 
 C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
- /*@ !ML\<open>K (fn x => K x @{con\
+ /*@ ML\<open>(K o K o K) (fn x => K x @{con\
 text (**)})\<close> */ // break of line activated everywhere (also in antiquotations)
 int a = 0; //\
-@ !ML\<open>K (fn x => K x @{term \<open>a \
+@ ML\<open>(K o K o K) (fn x => K x @{term \<open>a \
           + b (* (**) *\      
 \     
 )\<close>})\<close>
 \<close>
 
 C \<comment> \<open>Positional navigation: pointing to deeper sub-trees in the stack\<close> \<open>
-int b = 7 / (3) * 50 /*@@@@ ML \<open>@{reduce}\<close>
+int b = 7 / (3) * 50 /*@@@@@ ML \<open>@{print_top}\<close>
                       */;
 \<close>
 
 C \<comment> \<open>Positional navigation: pointing to sub-trees situated after any part of the code\<close> \<open>
 int b = 7 / (3) * 50;
-/*@+++@ ML \<open>@{reduce}\<close>*/
+/*@+++@@ ML \<open>@{print_top}\<close>*/
 long long f (int a) {
   while (0) { return 0; }
 }
@@ -159,7 +159,7 @@ int a = 0;
   /** ML (* Errors: Turned into tracing report information *)
    */
 
-  /** ML \<open>fn _ => fn _ => I\<close> (* An example of correct syntax accepted as usual *)
+  /** ML \<open>fn _ => fn _ => fn _ => I\<close> (* An example of correct syntax accepted as usual *)
    */
 \<close>
 
@@ -184,8 +184,7 @@ datatype antiq_hol = Invariant of string (* term *)
 val scan_ident = Scan.one C_Token.is_ident >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
 val scan_sym_ident_not_stack = Scan.one (fn c => C_Token.is_sym_ident c andalso
                                                  not (C_Token.is_stack1 c) andalso
-                                                 not (C_Token.is_stack2 c) andalso
-                                                 not (C_Token.is_exec_shift c))
+                                                 not (C_Token.is_stack2 c))
                                >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
 fun command cmd scan f =
   C_Annot_Syntax.command' cmd "" (K (Scan.option (Scan.one C_Token.is_colon) -- (scan >> f)
@@ -325,14 +324,14 @@ subsection \<open>Mixing Together Any Types of Antiquotations\<close>
 
 C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
 int a = 0;
-  /*@ ML \<open>fn _ => fn _ => I\<close>
+  /*@ ML \<open>fn _ => fn _ => fn _ => I\<close>
       ML (* Parsing error of a single command does not propagate to other commands *)
-      ML \<open>fn _ => fn _ => I\<close>
+      ML \<open>fn _ => fn _ => fn _ => I\<close>
       context
    */
-  /** ML \<open>fn _ => fn _ => I\<close>
+  /** ML \<open>fn _ => fn _ => fn _ => I\<close>
       ML (* Parsing error of a single command does not propagate to other commands *)
-      ML \<open>fn _ => fn _ => I\<close>
+      ML \<open>fn _ => fn _ => fn _ => I\<close>
       context
    */
   
@@ -364,19 +363,19 @@ declare[[C_parser_trace]]
 C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
 int x /** OWNED_BY foo */, hh /*@
   MODIFIES: [*] x
-  !ML \<open>@{shift "evaluation of 2_shift"}\<close>
-  +++++@ ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "2_reduce"\<close>
+  ML \<open>@{print_stack "evaluation of 2_print_stack"}\<close>
+  +++++@@ ML \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "2_print_top"\<close>
   OWNED_BY bar
-  ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "1_reduce"\<close>
-  !ML \<open>@{shift "evaluation of 1_shift"}\<close>
+  @ML \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "1_print_top"\<close>
+  ML \<open>@{print_stack "evaluation of 1_print_stack"}\<close>
 */, z;
 
 int b = 0;
 \<close>
 
-C \<comment> \<open>Arbitrary interleaving of effects: \<open>ML\<close> vs \<open>ML'\<close>\<close> \<open>
-int b,c,d/*@ ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "3_reduce"\<close> */,e = 0; /*@ ML \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "4_reduce"\<close> */
-int b,c,d/*@ ML' \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "6_reduce"\<close> */,e = 0; /*@ ML' \<open>fn x => fn env => @{reduce} x env #> add_ex "evaluation of " "5_reduce"\<close> */
+C \<comment> \<open>Arbitrary interleaving of effects: \<open>ML\<close> vs \<open>ML_reverse\<close>\<close> \<open>
+int b,c,d/*@@ ML \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "3_print_top"\<close> */,e = 0; /*@@ ML \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "4_print_top"\<close> */
+int b,c,d/*@@ ML_reverse \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "6_print_top"\<close> */,e = 0; /*@@ ML_reverse \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "5_print_top"\<close> */
 \<close>
 
 subsection \<open>Reporting of Positions and Contextual Update of Environment\<close>
@@ -388,7 +387,7 @@ declare [[C_lexer_trace = false]]
 
 C \<comment> \<open>Reporting of Positions\<close> \<open>
 typedef int i, j;
-  /*@ ML \<open>@{reduce'}\<close> */ //@ +++++ ML \<open>@{reduce'}\<close>
+  /*@@ ML \<open>@{print_top'}\<close> */ //@ +++++@ ML \<open>@{print_top'}\<close>
 int j = 0;
 typedef int i, j;
 j jj1 = 0;
@@ -421,7 +420,7 @@ val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
 C \<comment> \<open>Nesting C code without propagating the C environment\<close> \<open>
 int a = 0;
 int b = 7 / (3) * 50
-  /*@@@@ ML \<open>fn _ => fn _ =>
+  /*@@@@@ ML \<open>fn _ => fn _ => fn _ =>
                C      \<open>int b = a + a + a + a + a + a + a
                        ;\<close> \<close> */;
 \<close>
@@ -429,7 +428,7 @@ int b = 7 / (3) * 50
 C \<comment> \<open>Nesting C code and propagating the C environment\<close> \<open>
 int a = 0;
 int b = 7 / (3) * 50
-  /*@@@@ ML \<open>fn _ => fn env =>
+  /*@@@@@ ML \<open>fn _ => fn _ => fn env =>
                C' env \<open>int b = a + a + a + a + a + a + a
                        ;\<close> \<close> */;
 \<close>
@@ -439,14 +438,14 @@ typedef int i, j;
 int j = 0;
 typedef int i, j;
 j jj1 = 0;
-j jj = jj1; /*@ ML \<open>fn _ => fn _ => show_env "POSITION 0"\<close> ML \<open>@{reduce'}\<close> */
-typedef int k; /*@ ML \<open>fn _ => fn env =>
-                          C' env \<open>k jj = jj; //@ ML \<open>@{reduce'}\<close>
+j jj = jj1; /*@@ ML \<open>fn _ => fn _ => fn _ => show_env "POSITION 0"\<close> @ML \<open>@{print_top'}\<close> */
+typedef int k; /*@@ ML \<open>fn _ => fn _ => fn env =>
+                          C' env \<open>k jj = jj; //@@ ML \<open>@{print_top'}\<close>
                                   k jj = jj + jj1;
-                                  typedef k l; //@ ML \<open>@{reduce'}\<close>\<close>
+                                  typedef k l; //@@ ML \<open>@{print_top'}\<close>\<close>
                           #> show_env "POSITION 1"\<close> */
-j j = jj1 + jj; //@ ML \<open>@{reduce'}\<close>
-typedef i j; /*@ ML \<open>fn _ => fn _ => show_env "POSITION 2"\<close> */
+j j = jj1 + jj; //@@ ML \<open>@{print_top'}\<close>
+typedef i j; /*@@ ML \<open>fn _ => fn _ => fn _ => show_env "POSITION 2"\<close> */
 typedef i j;
 typedef i j;
 i jj = jj;
