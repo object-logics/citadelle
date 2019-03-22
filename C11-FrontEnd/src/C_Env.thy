@@ -71,7 +71,7 @@ section \<open>The Lexing-based C Environment\<close>
 text\<open>It comes in two parts: a basic core tstructure and a (thin) layer of utilities. \<close>
 
 ML\<open>
-structure C_Env_base = struct
+structure C_Env = struct
 datatype 'a parse_status = Parsed of 'a | Previous_in_stack
 type var_table = { tyidents : (Position.T list * serial) Symtab.table
                  , idents : (Position.T list * serial * bool (*true: global*) * CDerivedDeclr list 
@@ -232,46 +232,46 @@ val decode_positions =
 
 end
 
-structure C_Env =
+structure C_Env_Ext =
 struct
 
-fun map_tyidents f = C_Env_base.map_env_lang (C_Env_base.map_var_table (C_Env_base.map_tyidents f))
-fun map_idents f = C_Env_base.map_env_lang (C_Env_base.map_var_table (C_Env_base.map_idents f))
+fun map_tyidents f = C_Env.map_env_lang (C_Env.map_var_table (C_Env.map_tyidents f))
+fun map_idents f = C_Env.map_env_lang (C_Env.map_var_table (C_Env.map_idents f))
 
 (**)
 
-fun map_var_table f = C_Env_base.map_env_lang (C_Env_base.map_var_table f)
-fun map_scopes f = C_Env_base.map_env_lang (C_Env_base.map_scopes f)
-fun map_namesupply f = C_Env_base.map_env_lang (C_Env_base.map_namesupply f)
-fun map_stream_ignored f = C_Env_base.map_env_lang (C_Env_base.map_stream_ignored f)
+fun map_var_table f = C_Env.map_env_lang (C_Env.map_var_table f)
+fun map_scopes f = C_Env.map_env_lang (C_Env.map_scopes f)
+fun map_namesupply f = C_Env.map_env_lang (C_Env.map_namesupply f)
+fun map_stream_ignored f = C_Env.map_env_lang (C_Env.map_stream_ignored f)
 
 (**)
 
-fun get_tyidents (t:C_Env_base.T) = #env_lang t |> #var_table |> #tyidents
+fun get_tyidents (t:C_Env.T) = #env_lang t |> #var_table |> #tyidents
 
 (**)
 
-fun get_var_table (t:C_Env_base.T) = #env_lang t |> #var_table
-fun get_scopes (t:C_Env_base.T) = #env_lang t |> #scopes
-fun get_namesupply (t:C_Env_base.T) = #env_lang t |> #namesupply
+fun get_var_table (t:C_Env.T) = #env_lang t |> #var_table
+fun get_scopes (t:C_Env.T) = #env_lang t |> #scopes
+fun get_namesupply (t:C_Env.T) = #env_lang t |> #namesupply
 
 (**)
 
-fun map_output_pos f = C_Env_base.map_rule_output (C_Env_base.map_output_pos f)
-fun map_output_env f = C_Env_base.map_rule_output (C_Env_base.map_output_env f)
+fun map_output_pos f = C_Env.map_rule_output (C_Env.map_output_pos f)
+fun map_output_env f = C_Env.map_rule_output (C_Env.map_output_env f)
 
 (**)
 
-fun get_output_pos (t : C_Env_base.T) = #rule_output t |> #output_pos
+fun get_output_pos (t : C_Env.T) = #rule_output t |> #output_pos
 
 (**)
 
-fun map_context f = C_Env_base.map_env_tree (C_Env_base.map_context f)
-fun map_reports_text f = C_Env_base.map_env_tree (C_Env_base.map_reports_text f)
+fun map_context f = C_Env.map_env_tree (C_Env.map_context f)
+fun map_reports_text f = C_Env.map_env_tree (C_Env.map_reports_text f)
 
 (**)
 
-fun get_reports_text (t : C_Env_base.T) = #env_tree t |> #reports_text
+fun get_reports_text (t : C_Env.T) = #env_tree t |> #reports_text
 
 (**)
 
@@ -282,7 +282,7 @@ fun map_stream_lang' f {env_lang, env_tree, rule_output, rule_input, stream_hook
 
 (**)
 
-fun context_map (f : C_Env_base.env_tree -> C_Env_base.env_tree) context =
+fun context_map (f : C_Env.env_tree -> C_Env.env_tree) context =
   {context = context, reports_text = []} |> f |> #context
 
 
@@ -328,7 +328,7 @@ struct
 
 
   type c_file_name      = string
-  type C11_struct       = { tab  : (CTranslUnit * C_Antiquote.antiq C_Env_base.stream) list Symtab.table,
+  type C11_struct       = { tab  : (CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table,
                             env  : id_kind list Symtab.table }
   val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
 
