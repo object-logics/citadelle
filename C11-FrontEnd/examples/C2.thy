@@ -158,7 +158,7 @@ C\<open>
 int linearsearch(int x, int t[], int n) {
   int i = 0;
 
-  /* @ loop invariant 0<=i<=n;
+  /* @ loop invariant 0<=i<=n;  
     @ loop invariant \forall integer j; 0<=j<i ==> (t[j] != x);
     @ loop assigns i;
     @ loop variant n-i;

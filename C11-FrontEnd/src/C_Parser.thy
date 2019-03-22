@@ -35,228 +35,15 @@
  ******************************************************************************)
 
 theory C_Parser
-  imports C_Lexer
+  imports C_Env
 begin
 
 section \<open>Instantiation of the Parser with the Lexer\<close>
 
 ML\<open>
-datatype eval_tree = Bottom_up (*during parsing*) | Top_down (*after parsing*)
-
-type 'fun eval_at = Position.range * eval_tree * 'fun
-type eval_at_reduce = (int (*reduce rule number*) -> Context.generic -> Context.generic) eval_at
-
-datatype eval_time = Shift of (Context.generic -> Context.generic) eval_at
-                   | Reduce of (Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *)) * eval_at_reduce
-                   | Never
-
-datatype antiq_language = Antiq_stack of eval_time
-                        | Antiq_none of C_Lex.token
-
-structure C_Env = struct
-datatype 'a parse_status = Parsed of 'a | Previous_in_stack
-type var_table = { tyidents : (Position.T list * serial) Symtab.table
-                 , idents : (Position.T list * serial * bool (*true: global*) * CDerivedDeclr list * CDeclSpec list parse_status) Symtab.table }
-
-type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) either list
-
-type env_lang = { var_table : var_table
-                , scopes : var_table list
-                , namesupply : int
-                , stream_ignored : C_Antiquote.antiq stream }
-(* NOTE: The distinction between type variable or identifier can not be solely made
-         during the lexing process.
-         Another pass on the parsed tree is required. *)
-
-type reports_text = Position.report_text list
-
-type env_tree = { context : Context.generic
-                , reports_text : reports_text }
-
-type rule_static = (env_tree -> env_lang * env_tree) option
-
-datatype rule_type = Void
-                   | Shift
-                   | Reduce of int
-
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce =
-  ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)) * env_lang) * eval_at_reduce) list
-
-type ('LrTable_state, 'svalue0, 'pos) rule_ml =
-  { rule_pos : 'pos * 'pos
-  , rule_type : rule_type
-  , rule_static : rule_static
-  , rule_antiq : ('LrTable_state, 'svalue0, 'pos) rule_reduce }
-
-datatype 'a tree = Tree of 'a * 'a tree list
-
-type 'class_Pos rule_output0 = { output_pos : 'class_Pos option
-                               , output_env : rule_static }
-
-type rule_output = class_Pos rule_output0
-
-type T = { env_lang : env_lang
-         , env_tree : env_tree
-         , rule_output : rule_output
-         , rule_input : class_Pos list * int
-         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_at_reduce) list list
-         , stream_lang : (C_Antiquote.antiq * antiq_language list) stream }
-
-(**)
-
-fun map_env_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-  {env_lang = f env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
-
-fun map_env_tree f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-  {env_lang = env_lang, env_tree = f env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
-
-fun map_rule_output f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = f rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
-
-fun map_rule_input f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = f rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
-
-fun map_stream_hook f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = f stream_hook, stream_lang = stream_lang}
-
-fun map_stream_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-  {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = f stream_lang}
-
-(**)
-
-fun map_output_pos f {output_pos, output_env} =
-  {output_pos = f output_pos, output_env = output_env}
-
-fun map_output_env f {output_pos, output_env} =
-  {output_pos = output_pos, output_env = f output_env}
-
-(**)
-
-fun map_tyidents f {tyidents, idents} =
-  {tyidents = f tyidents, idents = idents}
-
-fun map_idents f {tyidents, idents} =
-  {tyidents = tyidents, idents = f idents}
-
-(**)
-
-fun map_var_table f {var_table, scopes, namesupply, stream_ignored} =
-  {var_table = f var_table, scopes = scopes, namesupply = namesupply, stream_ignored = stream_ignored}
-
-fun map_scopes f {var_table, scopes, namesupply, stream_ignored} =
-  {var_table = var_table, scopes = f scopes, namesupply = namesupply, stream_ignored = stream_ignored}
-
-fun map_namesupply f {var_table, scopes, namesupply, stream_ignored} =
-  {var_table = var_table, scopes = scopes, namesupply = f namesupply, stream_ignored = stream_ignored}
-
-fun map_stream_ignored f {var_table, scopes, namesupply, stream_ignored} =
-  {var_table = var_table, scopes = scopes, namesupply = namesupply, stream_ignored = f stream_ignored}
-
-(**)
-
-fun map_context f {context, reports_text} =
-  {context = f context, reports_text = reports_text}
-
-fun map_reports_text f {context, reports_text} =
-  {context = context, reports_text = f reports_text}
-
-(**)
-
-val empty_env_lang : env_lang = {var_table = {tyidents = Symtab.make [], idents = Symtab.make []}, scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
-val empty_rule_output : rule_output = {output_pos = NONE, output_env = NONE}
-fun make env_lang stream_lang env_tree =
-  { env_lang = env_lang
-  , env_tree = env_tree
-  , rule_output = empty_rule_output
-  , rule_input = ([], 0)
-  , stream_hook = []
-  , stream_lang = map_filter (fn Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
-                               | Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
-                               | Right tok => SOME (Right tok)
-                               | Left antiq => SOME (Left antiq))
-                             stream_lang }
-fun string_of (env_lang : env_lang) = 
-  let fun dest0 x = x |> Symtab.dest |> map #1
-      fun dest {tyidents, idents} = (dest0 tyidents, dest0 idents)
-  in @{make_string} ( ("var_table", dest (#var_table env_lang))
-                    , ("scopes", map dest (#scopes env_lang))
-                    , ("namesupply", #namesupply env_lang)
-                    , ("stream_ignored", #stream_ignored env_lang)) end
-
-(**)
-
-val encode_positions =
-     map (Position.dest
-       #> (fn pos => ((#line pos, #offset pos, #end_offset pos), #props pos)))
-  #> let open XML.Encode in list (pair (triple int int int) properties) end
-  #> YXML.string_of_body
-  
-val decode_positions =
-     YXML.parse_body
-  #> let open XML.Decode in list (pair (triple int int int) properties) end
-  #> map ((fn ((line, offset, end_offset), props) =>
-           {line = line, offset = offset, end_offset = end_offset, props = props})
-          #> Position.make)
-
-end
-
-structure C_Env' =
-struct
-
-fun map_tyidents f = C_Env.map_env_lang (C_Env.map_var_table (C_Env.map_tyidents f))
-fun map_idents f = C_Env.map_env_lang (C_Env.map_var_table (C_Env.map_idents f))
-
-(**)
-
-fun map_var_table f = C_Env.map_env_lang (C_Env.map_var_table f)
-fun map_scopes f = C_Env.map_env_lang (C_Env.map_scopes f)
-fun map_namesupply f = C_Env.map_env_lang (C_Env.map_namesupply f)
-fun map_stream_ignored f = C_Env.map_env_lang (C_Env.map_stream_ignored f)
-
-(**)
-
-fun get_tyidents t = #env_lang t |> #var_table |> #tyidents
-
-(**)
-
-fun get_var_table t = #env_lang t |> #var_table
-fun get_scopes t = #env_lang t |> #scopes
-fun get_namesupply t = #env_lang t |> #namesupply
-
-(**)
-
-fun map_output_pos f = C_Env.map_rule_output (C_Env.map_output_pos f)
-fun map_output_env f = C_Env.map_rule_output (C_Env.map_output_env f)
-
-(**)
-
-fun get_output_pos (t : C_Env.T) = #rule_output t |> #output_pos
-
-(**)
-
-fun map_context f = C_Env.map_env_tree (C_Env.map_context f)
-fun map_reports_text f = C_Env.map_env_tree (C_Env.map_reports_text f)
-
-(**)
-
-fun get_reports_text (t : C_Env.T) = #env_tree t |> #reports_text
-
-(**)
-
-fun map_stream_lang' f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-  let val (res, stream_lang) = f stream_lang
-  in (res, {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}) end
-
-(**)
-
-fun context_map (f : C_Env.env_tree -> C_Env.env_tree) context =
-  {context = context, reports_text = []} |> f |> #context
-
-end
-
 signature HSK_C_PARSER =
 sig
-  type arg = C_Env.T
+  type arg = C_Env_base.T
   type 'a p (* name of the monad, similar as the one declared in Parser.y *) = arg -> 'a * arg
 
   (**)
@@ -266,7 +53,7 @@ sig
   val >> : unit p * 'a p -> 'a p
 
   (**)
-  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Env.reports_text -> C_Env.reports_text
+  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Env_base.reports_text -> C_Env_base.reports_text
   val markup_tvar : bool -> Position.T list -> string * serial -> Markup.T list
   val markup_var : bool -> bool -> Position.T list -> string * serial -> Markup.T list
 
@@ -337,6 +124,9 @@ sig
   val doFuncParamDeclIdent : CDeclr -> unit p
 end
 
+\<close>
+ML\<open>
+
 structure Hsk_c_parser : HSK_C_PARSER =
 struct
 (******************************************************************************
@@ -356,7 +146,7 @@ struct
  * Copyright (c) 2010-2014 Geoff Hulette
 *)
   open C_ast_simple
-  type arg = C_Env.T
+  type arg = C_Env_base.T
   type 'a p = arg -> 'a * arg
 
   (**)
@@ -417,14 +207,14 @@ struct
     (if mk_range then Position.range else I)
     #> (fn (pos1, pos2) =>
           let val {offset = offset, end_offset = end_offset, ...} = Position.dest pos1
-          in (Position offset (From_string (C_Env.encode_positions [pos1, pos2])) 0 0, end_offset - offset) end)
+          in (Position offset (From_string (C_Env_base.encode_positions [pos1, pos2])) 0 0, end_offset - offset) end)
   fun posOf'' node env =
     let val (stack, len) = #rule_input env
         val (mk_range, (pos1a, pos1b)) = case node of Left i => (true, nth stack (len - i - 1))
                                                     | Right range => (false, range)
         val (pos2a, pos2b) = nth stack 0
     in ( (posOf' mk_range (pos1a, pos1b) |> #1, posOf' true (pos2a, pos2b))
-       , C_Env'.map_output_pos (K (SOME (pos1a, pos2b))) env) end
+       , C_Env.map_output_pos (K (SOME (pos1a, pos2b))) env) end
   val posOf''' = posOf'' o Left
   val internalPos = InternalPosition
   fun make_comment body_begin body body_end range =
@@ -441,7 +231,7 @@ struct
    (fn OnlyPos0 range => range
      | NodeInfo0 (pos1, (pos2, len2), _) => (pos1, (pos2, len2)))
    #> (fn (Position0 (_, s1, _, _), (Position0 (_, s2, _, _), _)) =>
-            (case (C_Env.decode_positions (To_string0 s1), C_Env.decode_positions (To_string0 s2))
+            (case (C_Env_base.decode_positions (To_string0 s1), C_Env_base.decode_positions (To_string0 s2))
              of ([pos1, _], [_, pos2]) => Left (Position.range (pos1, pos2))
               | _ => Right "Expecting 2 elements")
         | _ => Right "Invalid position")
@@ -481,40 +271,40 @@ struct
 
   (* Language.C.Parser.ParserMonad *)
   fun getNewName env =
-    (Name (C_Env'.get_namesupply env), C_Env'.map_namesupply (fn x => x + 1) env)
+    (Name (C_Env.get_namesupply env), C_Env.map_namesupply (fn x => x + 1) env)
   fun addTypedef (Ident0 (i, _, node)) env =
     let val (pos1, _) = decode_error' node
         val id = serial ()
         val name = To_string0 i
         val pos = [pos1]
-    in ((), env |> C_Env'.map_tyidents (Symtab.update (name, (pos, id)))
-                |> C_Env'.map_reports_text (report pos (markup_tvar true pos) (name, id))) end
+    in ((), env |> C_Env.map_tyidents (Symtab.update (name, (pos, id)))
+                |> C_Env.map_reports_text (report pos (markup_tvar true pos) (name, id))) end
   fun shadowTypedef0 ret global f (Ident0 (i, _, node), params) env =
     let val (pos1, _) = decode_error' node
         val id = serial ()
         val name = To_string0 i
         val pos = [pos1]
         val update_id = Symtab.update (name, (pos, id, global, params, ret))
-    in ((), env |> C_Env'.map_tyidents (Symtab.delete_safe (To_string0 i))
-                |> C_Env'.map_idents update_id
+    in ((), env |> C_Env.map_tyidents (Symtab.delete_safe (To_string0 i))
+                |> C_Env.map_idents update_id
                 |> f update_id
-                |> C_Env'.map_reports_text (report pos (markup_var true global pos) (name, id))) end
+                |> C_Env.map_reports_text (report pos (markup_var true global pos) (name, id))) end
   fun shadowTypedef_fun ident env =
-    shadowTypedef0 C_Env.Previous_in_stack
-                   (case C_Env'.get_scopes env of _ :: [] => true | _ => false)
-                   (fn update_id => C_Env'.map_scopes (fn x :: xs => C_Env.map_idents update_id x :: xs
+    shadowTypedef0 C_Env_base.Previous_in_stack
+                   (case C_Env.get_scopes env of _ :: [] => true | _ => false)
+                   (fn update_id => C_Env.map_scopes (fn x :: xs => C_Env_base.map_idents update_id x :: xs
                                                         | [] => error "Not expecting an empty scope"))
                    ident
                    env
   fun shadowTypedef (i, params, ret) env =
-    shadowTypedef0 (C_Env.Parsed ret) (List.null (C_Env'.get_scopes env)) (K I) (i, params) env
-  fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env'.get_tyidents
+    shadowTypedef0 (C_Env_base.Parsed ret) (List.null (C_Env.get_scopes env)) (K I) (i, params) env
+  fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env.get_tyidents
   fun enterScope env =
-    ((), C_Env'.map_scopes (cons (C_Env'.get_var_table env)) env)
+    ((), C_Env.map_scopes (cons (C_Env.get_var_table env)) env)
   fun leaveScope env = 
-    case C_Env'.get_scopes env of [] => error "leaveScope: already in global scope"
-                                | var_table :: scopes => ((), env |> C_Env'.map_scopes (K scopes)
-                                                                  |> C_Env'.map_var_table (K var_table))
+    case C_Env.get_scopes env of [] => error "leaveScope: already in global scope"
+                                | var_table :: scopes => ((), env |> C_Env.map_scopes (K scopes)
+                                                                  |> C_Env.map_var_table (K var_table))
   val getCurrentPosition = return NoPosition
 
   (* Language.C.Parser.Tokens *)
@@ -653,7 +443,7 @@ type ('LrTable_state, 'a, 'Position_T) stack' =
      ('LrTable_state, 'a, 'Position_T) stack0
    * eval_at_reduce list list
    * ('Position_T * 'Position_T) list
-   * ('LrTable_state, 'a, 'Position_T) C_Env.rule_ml C_Env.tree list
+   * ('LrTable_state, 'a, 'Position_T) C_Env_base.rule_ml C_Env_base.tree list
 type cString = CString
 type cChar = CChar
 type cInteger = CInteger
@@ -680,8 +470,8 @@ open Hsk_c_parser
 val To_string0 = String.implode o C_ast_simple.to_list
 
 val update_env =
- fn Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_tree (f x (#env_lang arg) #> #2) arg))
-  | Top_down => fn f => fn x => pair () ##> (fn arg => C_Env'.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
+ fn Bottom_up => (fn f => fn x => fn arg => ((), C_Env_base.map_env_tree (f x (#env_lang arg) #> #2) arg))
+  | Top_down => fn f => fn x => pair () ##> (fn arg => C_Env.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
 
 (*type variable definition*)
 
@@ -694,7 +484,7 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env Bottom_up (fn l => 
                 val pos1 = [decode_error' node |> #1]
             in case Symtab.lookup (#var_table env_lang |> #tyidents) name of
                  NONE => I
-               | SOME (pos0, id) => C_Env.map_reports_text (report pos1 (markup_tvar false pos0) (name, id)) end
+               | SOME (pos0, id) => C_Env_base.map_reports_text (report pos1 (markup_tvar false pos0) (name, id)) end
           | _ => I
       end
       l
@@ -712,8 +502,8 @@ val primary_expression1 : (CExpr) -> unit monad = update_env Bottom_up (fn e => 
           let val name = To_string0 i
               val pos1 = decode_error' node |> #1
           in case Symtab.lookup (#var_table env_lang |> #idents) name of
-               NONE => C_Env.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ())
-             | SOME (pos0, id, global, _, _) => C_Env.map_reports_text (report [pos1] (markup_var false global pos0) (name, id)) end
+               NONE => C_Env_base.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ())
+             | SOME (pos0, id, global, _, _) => C_Env_base.map_reports_text (report [pos1] (markup_var false global pos0) (name, id)) end
         | _ => I
     end
       e
@@ -942,13 +732,13 @@ type 'a stack_elem = (LrTable.state, 'a, Position.T) stack_elem0
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
 structure Stack_Data_Lang = Generic_Data
-  (type T = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0 * C_Env.env_lang
-   val empty = ([], C_Env.empty_env_lang)
+  (type T = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) stack0 * C_Env_base.env_lang
+   val empty = ([], C_Env_base.empty_env_lang)
    val extend = I
    val merge = #2)
 
 structure Stack_Data_Tree = Generic_Data
-  (type T = C_Env.reports_text
+  (type T = C_Env_base.reports_text
    val empty = []
    val extend = I
    val merge = #2)
@@ -972,7 +762,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
   let val (arg, stack_ml) =
         case #stream_hook arg
         of l :: ls =>
-          ( C_Env.map_stream_hook (K ls) arg
+          ( C_Env_base.map_stream_hook (K ls) arg
           , fold_rev (fn (_, syms, ml_exec) => fn stack_ml =>
                        let
                          val () =
@@ -987,7 +777,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                      l
                      stack_ml)
          | [] => (arg, stack_ml)
-      val (token, arg) = C_Env'.map_stream_lang' (fn [] => (NONE, []) | x :: xs => (SOME x, xs)) arg
+      val (token, arg) = C_Env.map_stream_lang' (fn [] => (NONE, []) | x :: xs => (SOME x, xs)) arg
       fun return0 x = (x, ((stack, stack_ml, stack_pos, stack_tree), arg))
   in
     case token
@@ -1008,17 +798,17 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
              |> fold (fn Antiq_stack (Shift (_, Bottom_up, exec)) =>
                          I #>>
                          (fn arg =>
-                           C_Env'.map_context (I #> Stack_Data_Lang.put (stack, #env_lang arg)
+                           C_Env.map_context (I #> Stack_Data_Lang.put (stack, #env_lang arg)
                                                  #> exec)
                              arg)
                        | Antiq_stack (Shift ((pos, _), Top_down, _)) =>
                          I #>>
                          (fn arg =>
-                           C_Env'.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos))
+                           C_Env.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos))
                              arg)
                        | Antiq_stack (Reduce ((syms_shift, syms), ml_exec)) =>
                          I #>>
-                           (C_Env.map_stream_hook
+                           (C_Env_base.map_stream_hook
                              (fn stream_hook => 
                               case
                                  fold (fn _ => fn (eval1, eval2) =>
@@ -1035,9 +825,9 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                        | _ => I)
                      l_antiq
              |> (fn (arg, false) => arg
-                  | (arg, true) => C_Env'.map_stream_ignored (cons (Left antiq_raw)) arg))
+                  | (arg, true) => C_Env.map_stream_ignored (cons (Left antiq_raw)) arg))
      | SOME (Right (tok as C_Lex.Token (_, (C_Lex.Directive _, _)))) =>
-        makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env'.map_stream_ignored (cons (Right tok)) arg)
+        makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env.map_stream_ignored (cons (Right tok)) arg)
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
        case tok of
          C_Lex.Char (b, [c]) =>
@@ -1088,7 +878,7 @@ structure StrictCParser =
 
 structure P = struct
 
-open C_Env
+open C_Env_base
 
 fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_static, rule_antiq}, l_tree)) =
   write
@@ -1101,7 +891,7 @@ fun exec_tree msg write (Tree ({rule_pos = (p1, p2), rule_type, rule_static, rul
   #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
   #-> (fn env_lang =>
         fold (fn ((rule0, stack0, env_lang0), (_, Top_down, exec)) =>
-                 C_Env.map_context (I #> Stack_Data_Lang.put ([stack0], Option.getOpt (env_lang, env_lang0))
+                 C_Env_base.map_context (I #> Stack_Data_Lang.put ([stack0], Option.getOpt (env_lang, env_lang0))
                                       #> exec rule0)
                | _ => I)
              rule_antiq)
@@ -1113,7 +903,7 @@ fun exec_tree' l env_tree = env_tree
                            then fn f => tap (tracing o f) else K I end)
           l
   |> (fn env_tree =>
-       env_tree |> C_Env.map_reports_text (append (Stack_Data_Tree.get (#context env_tree))))
+       env_tree |> C_Env_base.map_reports_text (append (Stack_Data_Tree.get (#context env_tree))))
 
 fun uncurry_context f pos = uncurry (fn x => fn arg => map_env_tree (f pos x (#env_lang arg)) arg)
 
@@ -1123,7 +913,7 @@ fun parse env_lang err accept stream_lang =
  #> StrictCParser.parse
       ( 0
       , uncurry_context (fn (next_pos1, next_pos2) => fn (stack, _, _, stack_tree) => fn env_lang =>
-          C_Env.map_reports_text
+          C_Env_base.map_reports_text
             (cons ( ( Position.range_position (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
                     , Markup.bad ())
                   , "")
@@ -1147,7 +937,7 @@ fun parse env_lang err accept stream_lang =
       , fn rule_antiq => fn arg =>
           ( #rule_output arg
           , fold (fn ((rule0, stack0, env_lang0), (_, Bottom_up, exec)) =>
-                     C_Env'.map_context (I #> Stack_Data_Lang.put ([stack0], env_lang0)
+                     C_Env.map_context (I #> Stack_Data_Lang.put ([stack0], env_lang0)
                                            #> exec rule0)
                    | _ => I)
                  rule_antiq

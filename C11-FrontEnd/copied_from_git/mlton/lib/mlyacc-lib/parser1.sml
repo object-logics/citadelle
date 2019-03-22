@@ -49,7 +49,7 @@ fun printStack(stack: ('a,'b) stack0, n: int) =
 
 fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get, get_env_lang, ec = {showTerminal, error, ...}, ...} =
   let fun empty_tree rule_pos rule_type =
-        C_Env.Tree ({rule_pos = rule_pos, rule_type = rule_type, rule_static = NONE, rule_antiq = []}, [])
+        C_Env_base.Tree ({rule_pos = rule_pos, rule_type = rule_type, rule_static = NONE, rule_antiq = []}, [])
 
       fun prAction(stack as (state, _) :: _, (TOKEN (term,_),_), action) =
              (writeln "Parse: state stack:";
@@ -82,7 +82,7 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                            ||> (f_val #>> (fn value => add_stack ((s, (value, leftPos, rightPos)), stack)
                                                                  stack_ml
                                                                  ((leftPos, rightPos), stack_pos)
-                                                                 (empty_tree (leftPos, rightPos) C_Env.Shift, stack_tree)))
+                                                                 (empty_tree (leftPos, rightPos) C_Env_base.Shift, stack_tree)))
                            |> Stream.get
                            |> parseStep
               | REDUCE i =>
@@ -104,8 +104,8 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                           (goto0, stack')
                           stack_ml
                           (pos, stack_pos)
-                          ( C_Env.Tree ( { rule_pos = pos
-                                         , rule_type = C_Env.Reduce i
+                          ( C_Env_base.Tree ( { rule_pos = pos
+                                         , rule_type = C_Env_base.Reduce i
                                          , rule_static = #output_env goto0'
                                          , rule_antiq = l_ml }
                                        , rev l_tree )
@@ -126,7 +126,7 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
             |>> (fn void' => add_stack ((initialState table, (void', void_position, void_position)), [])
                                        []
                                        ((void_position, void_position), [])
-                                       (empty_tree (void_position, void_position) C_Env.Void, [])))
+                                       (empty_tree (void_position, void_position) C_Env_base.Void, [])))
      #> Stream.get 
      #> parseStep 
 end
