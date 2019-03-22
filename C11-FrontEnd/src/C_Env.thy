@@ -38,7 +38,10 @@ theory C_Env
   imports C_Lexer
 begin
 
-section \<open>Instantiation of the Parser with the Lexer\<close>
+section \<open>The Generic Annotation Interface\<close>
+
+text\<open>The key element of this following structure is the type \verb+eval_time+ which is relevant for
+the generic annotation module. \<close>
 
 ML\<open>
 
@@ -49,13 +52,17 @@ type 'fun eval_at = Position.range * eval_tree * 'fun
 type eval_at_reduce = (int (*reduce rule number*) -> Context.generic -> Context.generic) eval_at
 
 datatype eval_time = Shift of (Context.generic -> Context.generic) eval_at
-                   | Reduce of (Symbol_Pos.T list (* length = number of tokens to advance *) * Symbol_Pos.T list (* length = number of steps back in stack *)) * eval_at_reduce
+                   | Reduce of (Symbol_Pos.T list (* length = number of tokens to advance *) 
+                               * Symbol_Pos.T list (* length = number of steps back in stack *)) 
+                               * eval_at_reduce
                    | Never
 
 datatype antiq_language = Antiq_stack of eval_time
                         | Antiq_none of C_Lex.token
 
 \<close>
+
+
 
 ML\<open>
 structure C_Env_base = struct
@@ -279,5 +286,83 @@ end
 
 \<close>
 
+
+section \<open>Old C11 Env - deprecated?\<close>
+
+ML\<open>
+structure C11_core = 
+struct
+  datatype id_kind = cpp_id        of Position.T * serial
+                   | cpp_macro     of Position.T * serial
+                   | builtin_id  
+                   | builtin_func 
+                   | imported_id   of Position.T * serial
+                   | imported_func of Position.T * serial 
+                   | global_id     of Position.T * serial
+                   | local_id      of Position.T * serial
+                   | global_func   of Position.T * serial
+
+
+  type new_env_type  = { 
+                        cpp_id       :  unit Name_Space.table,
+                        cpp_macro    :  unit Name_Space.table,
+                        builtin_id   : unit Name_Space.table,
+                        builtin_func : unit Name_Space.table,
+                        global_var   : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table,
+                        local_var    : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table,
+                        global_func  : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table
+  }
+
+  val mt_env = {cpp_id       = Name_Space.empty_table "cpp_id",
+                cpp_macro    = Name_Space.empty_table "cpp_macro", 
+                builtin_id   = Name_Space.empty_table "builtin_id",
+                builtin_func = Name_Space.empty_table "builtin_func",
+                global_var   = Name_Space.empty_table "global_var",
+                local_var    = Name_Space.empty_table "local_var",
+                global_func  = Name_Space.empty_table "global_func"
+  }
+
+
+  type c_file_name      = string
+  type C11_struct       = { tab  : (CTranslUnit * C_Antiquote.antiq C_Env_base.stream) list Symtab.table,
+                            env  : id_kind list Symtab.table }
+  val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
+
+  fun map_tab f {tab, env} = {tab = f tab, env=env}
+  fun map_env f {tab, env} = {tab = tab, env=f env}
+
+  (* registrating data of the Isa_DOF component *)
+  structure Data = Generic_Data
+  (
+    type T =     C11_struct
+    val empty = C11_struct_empty
+    val extend =  I
+    fun merge(t1,t2) = { tab = Symtab.merge (op =) (#tab t1, #tab t2),
+                         env = Symtab.merge (op =) (#env t1, #env t2)}
+  );
+
+  val get_global      = Data.get o Context.Theory
+  fun put_global x    = Data.put x;
+  val map_data        = Context.theory_map o Data.map;
+  val map_data_global = Context.theory_map o Data.map
+  
+  val trans_tab_of    = #tab o get_global
+  val dest_list       = Symtab.dest_list o trans_tab_of
+
+  fun push_env(k,a) tab = case Symtab.lookup tab k of
+                        NONE => Symtab.update(k,[a])(tab)
+                     |  SOME S => Symtab.update(k,a::S)(tab)
+  fun pop_env(k) tab = case Symtab.lookup tab k of
+                       SOME (a::S) => Symtab.update(k,S)(tab)
+                     | _ => error("internal error - illegal break of scoping rules")
+  
+  fun push_global (k,a) =  (map_data_global o map_env) (push_env (k,a)) 
+  fun push (k,a)        =  (map_data        o map_env) (push_env (k,a)) 
+  fun pop_global (k)    =  (map_data_global o map_env) (pop_env k) 
+  fun pop (k)           =  (map_data        o map_env) (pop_env k) 
+
+end
+
+\<close>
 
 end
