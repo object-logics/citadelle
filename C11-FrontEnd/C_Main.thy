@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory "C_Main"
-  imports "src/C_Isar"
+  imports "src/C_Annotation"
   keywords "C" :: thy_decl
        and "C_import" :: thy_load % "ML"
        and "C_export" :: thy_load % "ML"
