@@ -471,8 +471,8 @@ section \<open>Miscellaneous\<close>
 C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>
 # /**/ include  <a\b\\c> // backslash rendered unescaped
 f(){0 +  0;} /**/  // val _ : theory => 'a => theory
-# /*@ context */ if if elif
-#include
+# /* context */ if if elif
+#include <stdio.h>
 if then else ;
 # /* zzz */  elif /**/
 #else\

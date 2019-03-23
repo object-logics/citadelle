@@ -94,14 +94,9 @@ val _ =
 end
 \<close>
 
-section\<open>Definition of the Command "C_file"\<close>
+section\<open>The Command "C_file"\<close>
 
 ML\<open>
-(*  Title:      Pure/ML/ml_file.ML
-    Author:     Makarius
-
-Commands to load ML files.
-*)
 
 structure C_File =
 struct
@@ -124,7 +119,7 @@ val C : (theory -> Token.file list) ->
 end;
 \<close>
 
-section \<open>Pure\<close>
+section \<open>Reading and Writing C-Files\<close>
 
 ML\<open>
 local
@@ -143,7 +138,7 @@ val _ =
 in end
 \<close>
 
-section \<open>\<close>
+section \<open>ML-Antiquotations for Debugging\<close>
 
 ML\<open>
 fun print_top make_string f _ (_, (value, pos1, pos2)) _ thy =
