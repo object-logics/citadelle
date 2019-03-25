@@ -47,9 +47,9 @@ fun printStack(stack: ('a,'b) stack0, n: int) =
            )
       | nil => ()
 
-fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get, get_env_lang, ec = {showTerminal, error, ...}, ...} =
+fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get, ec = {showTerminal, error, ...}, ...} =
   let fun empty_tree rule_pos rule_type =
-        C_Env.Tree ({rule_pos = rule_pos, rule_type = rule_type, rule_static = NONE, rule_antiq = []}, [])
+        C_Env.Tree ({rule_pos = rule_pos, rule_type = rule_type}, [])
 
       fun prAction(stack as (state, _) :: _, (TOKEN (term,_),_), action) =
              (writeln "Parse: state stack:";
@@ -69,8 +69,8 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
       val action = LrTable.action table
       val goto = LrTable.goto table
 
-      fun add_stack (value, stack_value) stack_ml (pos, stack_pos) (tree, stack_tree) =
-        (value :: stack_value, [] :: stack_ml, pos :: stack_pos, tree :: stack_tree)
+      fun add_stack (value, stack_value) (ml, stack_ml) (pos, stack_pos) (tree, stack_tree) =
+        (value :: stack_value, ml :: stack_ml, pos :: stack_pos, tree :: stack_tree)
 
       fun parseStep ( (token as TOKEN (terminal, (f_val,leftPos,rightPos)))
                     , (lexer, (((stack as (state,_) :: _), stack_ml, stack_pos, stack_tree), arg))) =
@@ -80,7 +80,7 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
           in case nextAction
              of SHIFT s => (lexer, arg)
                            ||> (f_val #>> (fn value => add_stack ((s, (value, leftPos, rightPos)), stack)
-                                                                 stack_ml
+                                                                 ([], stack_ml)
                                                                  ((leftPos, rightPos), stack_pos)
                                                                  (empty_tree (leftPos, rightPos) C_Env.Shift, stack_tree)))
                            |> Stream.get
@@ -92,22 +92,18 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                        val arg = reduce_init ((stack_pos, dist), arg)
                        val (value, arg) = reduce_exec arg
                        val goto0 = (goto (state, nonterm), (value, p1, p2))
-                       val ((l_ml, stack_ml), stack_pos, (l_tree, stack_tree)) =
+                       val ((pre_ml, stack_ml), stack_pos, (l_tree, stack_tree)) =
                          ( chop dist stack_ml
-                           |>> let val env = (i, goto0, get_env_lang arg)
-                               in fn st0 => fold (fold (cons o pair env)) st0 [] end
                          , drop dist stack_pos
                          , chop dist stack_tree)
-                       val (goto0', arg) = reduce_get l_ml arg
+                       val ((ml_delayed, ml_actual, goto0'), arg) = reduce_get (i, goto0 :: stack', pre_ml) arg
                        val pos = case #output_pos goto0' of NONE => (p1, p2) | SOME pos => pos
                    in ( add_stack
                           (goto0, stack')
-                          stack_ml
+                          (flat ml_delayed, stack_ml)
                           (pos, stack_pos)
                           ( C_Env.Tree ( { rule_pos = pos
-                                         , rule_type = C_Env.Reduce i
-                                         , rule_static = #output_env goto0'
-                                         , rule_antiq = l_ml }
+                                         , rule_type = C_Env.Reduce (#output_env goto0', (i, #output_vacuous goto0', ml_actual)) }
                                        , rev l_tree )
                           , stack_tree)
                       , arg) end
@@ -124,7 +120,7 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
   in I
      ##> (fn arg => void arg
             |>> (fn void' => add_stack ((initialState table, (void', void_position, void_position)), [])
-                                       []
+                                       ([], [])
                                        ((void_position, void_position), [])
                                        (empty_tree (void_position, void_position) C_Env.Void, [])))
      #> Stream.get 

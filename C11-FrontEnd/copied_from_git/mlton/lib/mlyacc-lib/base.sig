@@ -120,8 +120,7 @@ signature LR_PARSER1 =
                      void_position : '_c,
                      accept : '_c * '_c -> ('_b, '_c) stack * 'arg -> 'arg,
                      reduce_init : (('_c * '_c) list * int) * 'arg -> 'arg,
-                     reduce_get : (LrTable.state, '_b, '_c) C_Env.rule_reduce -> 'arg -> ('_c * '_c) C_Env.rule_output0 * 'arg,
-                     get_env_lang : 'arg -> C_Env.env_lang,
+                     reduce_get : (LrTable.state, '_b, '_c) C_Env.rule_reduce -> 'arg -> (LrTable.state, '_b, '_c) C_Env.rule_output0 * 'arg,
                      ec : { is_keyword : LrTable.term -> bool,
                             noShift : LrTable.term -> bool,
                             preferred_change : (LrTable.term list * LrTable.term list) list,
@@ -403,8 +402,7 @@ signature ARG_PARSER1 =
                     * pos
                     * (pos * pos -> stack * arg -> arg)
                     * (((pos * pos) list * int) * arg -> arg)
-                    * ((Token.LrTable.state, svalue0, pos) C_Env.rule_reduce -> arg -> (pos * pos) C_Env.rule_output0 * arg)
-                    * (arg -> C_Env.env_lang)
+                    * ((Token.LrTable.state, svalue0, pos) C_Env.rule_reduce -> arg -> (Token.LrTable.state, svalue0, pos) C_Env.rule_output0 * arg)
                    -> arg lexer
                    -> arg lexer
         val sameToken : (svalue, pos) Token.token * (svalue, pos) Token.token -> bool
