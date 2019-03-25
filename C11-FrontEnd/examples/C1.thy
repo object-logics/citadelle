@@ -101,21 +101,25 @@ C \<comment> \<open>Directive: macro\<close> \<open>
 #endif
 \<close>
 
-section \<open>Antiquotations\<close>
+section \<open>C Annotations\<close>
 
 subsection \<open>Actions on the Parsing Stack\<close>
 
-C \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
-int a = (((0 //@ (* inline *) ML \<open>fn _ => fn _ => fn _ => fn context => let in (* */ *) context end\<close>
-             /*@ ML \<open>(K o K o K) I\<close> (*   * /   *) */
-         )));
-\<close>
-
-C \<comment> \<open>With \<open>!\<close>, execution during SHIFT actions\<close> \<open>
+C \<comment> \<open>Nesting ML code in C comments\<close> \<open>
 int a = (((0))); /*@ ML \<open>@{print_stack}\<close> */
+                 /*@ ML \<open>@{print_top}\<close> */
 \<close>
 
-C \<comment> \<open>Without \<open>!\<close>, execution during REDUCE actions\<close> \<open>
+text \<open>In terms of execution order, nested ML code are not pre-filtered out of the C code, but
+executed when the C parser is in an intermediate parsing state of having already read all previous
+tokens, constructed for each read token a respective temporary parsed subtree
+(to be included in the final value), and about to read the ML code.
+
+Moreover, the ML code can get access to the current parsing state (represented as a stack of parsed
+values). Because values in the state are changing depending on where the ML code is situated,
+we can conveniently use ML antiquotations for printing and reporting actions.\<close>
+
+C \<comment> \<open>Positional navigation: referring to any previous parsed sub-tree in the stack\<close> \<open>
 int a = (((0
       + 5)))  /*@@ ML \<open>fn _ => fn (_, (value, pos1, pos2)) => fn _ => fn context =>
                           let
@@ -128,6 +132,52 @@ int a = (((0
 float b = 7 / 3;
 \<close>
 
+text \<open>The special \<open>@\<close> symbol makes the command be executed whenever the first element \<open>E\<close>
+ in the stack is about to be irremediably replaced by a more structured parent element (having \<open>E\<close>
+as one of its direct children). It is the parent element which is provided to the ML code.
+
+Instead of always referring to the first element of the stack, 
+\<open>N\<close> consecutive occurrences of \<open>@\<close> will make the ML code getting as argument the direct parent
+of the \<open>N\<close>-th element.\<close>
+
+C \<comment> \<open>Positional navigation: referring to any previous parsed sub-tree in the stack\<close> \<open>
+int a = (((0 + 5)))  /*@@ ML \<open>@{print_top}\<close> */
+      * 4;
+
+int a = (((0 + 5)))  /*@& ML \<open>@{print_top}\<close> */
+      * 4;
+
+int a = (((0 + 5)))  /*@@@@@ ML \<open>@{print_top}\<close> */
+      * 4;
+
+int a = (((0 + 5)))  /*@&&&& ML \<open>@{print_top}\<close> */
+      * 4;
+\<close>
+
+text \<open>\<open>&\<close> behaves as \<open>@\<close>, but instead of always giving the designated direct parent to the ML code,
+it finds the first parent ancestor making non-trivial changes in the respective grammar rule
+(a non-trivial change can be for example the registration of the position of the current AST node
+being built).\<close>
+
+C \<comment> \<open>Positional navigation: moving the comment after a number of C token\<close> \<open>
+int b = 7 / (3) * 50;
+/*@+++@@ ML \<open>@{print_top}\<close>*/
+long long f (int a) {
+  while (0) { return 0; }
+}
+int b = 7 / (3) * 50;
+\<close>
+
+text \<open>\<open>N\<close> consecutive occurrences of \<open>+\<close> will delay the interpretation of the comment,
+which is ignored at the place it is written. The comment is only really considered after the
+C parser has treated \<open>N\<close> more tokens.\<close>
+
+C \<comment> \<open>Closing C comments \<open>*/\<close> must close anything, even when editing ML code\<close> \<open>
+int a = (((0 //@ (* inline *) ML \<open>fn _ => fn _ => fn _ => fn context => let in (* */ *) context end\<close>
+             /*@ ML \<open>(K o K o K) I\<close> (*   * /   *) */
+         )));
+\<close>
+
 C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
  /*@ ML\<open>(K o K o K) (fn x => K x @{con\
 text (**)})\<close> */ // break of line activated everywhere (also in antiquotations)
@@ -136,20 +186,6 @@ int a = 0; //\
           + b (* (**) *\      
 \     
 )\<close>})\<close>
-\<close>
-
-C \<comment> \<open>Positional navigation: pointing to deeper sub-trees in the stack\<close> \<open>
-int b = 7 / (3) * 50 /*@@@@@ ML \<open>@{print_top}\<close>
-                      */;
-\<close>
-
-C \<comment> \<open>Positional navigation: pointing to sub-trees situated after any part of the code\<close> \<open>
-int b = 7 / (3) * 50;
-/*@+++@@ ML \<open>@{print_top}\<close>*/
-long long f (int a) {
-  while (0) { return 0; }
-}
-int b = 7 / (3) * 50;
 \<close>
 
 C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
@@ -190,18 +226,26 @@ fun command cmd scan f =
   C_Annotation.command' cmd "" (K (Scan.option (Scan.one C_Token.is_colon) -- (scan >> f)
                                       >> K Never))
 in
-val _ = Theory.setup (   command ("INVARIANT", \<^here>) C_Parse.term Invariant
+val _ = Theory.setup ((* 1 '@' *)
+                         command ("INVARIANT", \<^here>) C_Parse.term Invariant
                       #> command ("INV", \<^here>) C_Parse.term Invariant
+
+                      (* '+' until being at the position of the first ident
+                        then 2 '@' *)
                       #> command ("FNSPEC", \<^here>) (scan_ident --| Scan.option (Scan.one C_Token.is_colon) -- C_Parse.term) Fnspec
                       #> command ("RELSPEC", \<^here>) C_Parse.term Relspec
                       #> command ("MODIFIES", \<^here>) (Scan.repeat (   scan_sym_ident_not_stack >> pair true
                                                                 || scan_ident >> pair false))
                                                   Modifies
                       #> command ("DONT_TRANSLATE", \<^here>) (Scan.succeed ()) (K Dont_translate)
+
+                      (**)
                       #> command ("AUXUPD", \<^here>) C_Parse.term Auxupd
                       #> command ("GHOSTUPD", \<^here>) C_Parse.term Ghostupd
                       #> command ("SPEC", \<^here>) C_Parse.term Spec
                       #> command ("END-SPEC", \<^here>) C_Parse.term End_spec
+
+                      (**)
                       #> command ("CALLS", \<^here>) (Scan.repeat scan_ident) Calls
                       #> command ("OWNED_BY", \<^here>) scan_ident Owned_by);
 end

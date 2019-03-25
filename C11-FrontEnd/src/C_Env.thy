@@ -52,6 +52,7 @@ datatype env_propagation = Bottom_up (*during parsing*) | Top_down (*after parsi
 
 type eval_node = Position.range
                  * env_propagation
+                 * bool (* true: skip vacuous reduce rules *)
                  * (int (*reduce rule number*) option (* NONE: shift action *)
                     -> Context.generic -> Context.generic)
 
@@ -95,25 +96,38 @@ type env_tree = { context : Context.generic
 
 type rule_static = (env_tree -> env_lang * env_tree) option
 
-datatype rule_type = Void
-                   | Shift
-                   | Reduce of int
+(**)
 
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce =
-  ((int * ('LrTable_state * ('svalue0 * 'pos * 'pos)) * env_lang) * eval_node) list
+type ('LrTable_state, 'a, 'Position_T) stack_elem0 = 'LrTable_state * ('a * 'Position_T * 'Position_T)
+type ('LrTable_state, 'a, 'Position_T) stack0 = ('LrTable_state, 'a, 'Position_T) stack_elem0 list
+
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce0 = (('LrTable_state, 'svalue0, 'pos) stack0 * env_lang * eval_node) list
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce = int * ('LrTable_state, 'svalue0, 'pos) stack0 * eval_node list list
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce' = int * bool (*vacuous*) * ('LrTable_state, 'svalue0, 'pos) rule_reduce0
+
+datatype ('LrTable_state, 'svalue0, 'pos) rule_type =
+                     Void
+                   | Shift
+                   | Reduce of rule_static * ('LrTable_state, 'svalue0, 'pos) rule_reduce'
 
 type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   { rule_pos : 'pos * 'pos
-  , rule_type : rule_type
-  , rule_static : rule_static
-  , rule_antiq : ('LrTable_state, 'svalue0, 'pos) rule_reduce }
+  , rule_type : ('LrTable_state, 'svalue0, 'pos) rule_type }
 
-datatype 'a tree = Tree of 'a * 'a tree list
+(**)
 
-type 'class_Pos rule_output0 = { output_pos : 'class_Pos option
-                               , output_env : rule_static }
+type 'class_Pos rule_output0' = { output_pos : 'class_Pos option
+                                , output_vacuous : bool
+                                , output_env : rule_static }
 
-type rule_output = class_Pos rule_output0
+type ('LrTable_state, 'svalue0, 'pos) rule_output0 =
+                                 eval_node list list (* delayed *)
+                               * ('LrTable_state, 'svalue0, 'pos) rule_reduce0 (* actual *)
+                               * ('pos * 'pos) rule_output0'
+
+type rule_output = class_Pos rule_output0'
+
+(**)
 
 type T = { env_lang : env_lang
          , env_tree : env_tree
@@ -121,6 +135,8 @@ type T = { env_lang : env_lang
          , rule_input : class_Pos list * int
          , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_node) list list
          , stream_lang : (C_Antiquote.antiq * antiq_language list) stream }
+
+datatype 'a tree = Tree of 'a * 'a tree list
 
 (**)
 
@@ -150,11 +166,14 @@ fun map_stream_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook,
 
 (**)
 
-fun map_output_pos f {output_pos, output_env} =
-                     {output_pos = f output_pos, output_env = output_env}
+fun map_output_pos f {output_pos, output_vacuous, output_env} =
+              {output_pos = f output_pos, output_vacuous = output_vacuous, output_env = output_env}
 
-fun map_output_env f {output_pos, output_env} =
-                     {output_pos = output_pos, output_env = f output_env}
+fun map_output_vacuous f {output_pos, output_vacuous, output_env} =
+              {output_pos = output_pos, output_vacuous = f output_vacuous, output_env = output_env}
+
+fun map_output_env f {output_pos, output_vacuous, output_env} =
+              {output_pos = output_pos, output_vacuous = output_vacuous, output_env = f output_env}
 
 (**)
 
@@ -196,7 +215,7 @@ val empty_env_lang : env_lang =
         {var_table = {tyidents = Symtab.make [], idents = Symtab.make []}, 
          scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
 val empty_rule_output : rule_output = 
-        {output_pos = NONE, output_env = NONE}
+        {output_pos = NONE, output_vacuous = true, output_env = NONE}
 fun make env_lang stream_lang env_tree =
          { env_lang = env_lang
          , env_tree = env_tree
@@ -259,6 +278,7 @@ fun get_namesupply (t:C_Env.T) = #env_lang t |> #namesupply
 (**)
 
 fun map_output_pos f = C_Env.map_rule_output (C_Env.map_output_pos f)
+fun map_output_vacuous f = C_Env.map_rule_output (C_Env.map_output_vacuous f)
 fun map_output_env f = C_Env.map_rule_output (C_Env.map_output_env f)
 
 (**)

@@ -187,6 +187,9 @@ val is_stack1 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "
 val is_stack2 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "@") l
                  | _ => false;
 
+val is_stack3 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "&") l
+                 | _ => false;
+
 val is_modifies_star = fn Token (_, (Token.Sym_Ident, l)) => Symbol_Pos.content l = "[*]"
                         | _ => false;
 
@@ -251,7 +254,7 @@ fun completion_report tok =
 fun reports keywords tok =
   if is_command tok then
     keyword_reports tok (command_markups keywords (content_of tok))
-  else if is_stack1 tok orelse is_stack2 tok then
+  else if is_stack1 tok orelse is_stack2 tok orelse is_stack3 tok then
     keyword_reports tok [Markup.keyword2 |> Markup.keyword_properties]
   else if is_kind Token.Keyword tok then
     keyword_reports tok
@@ -353,6 +356,7 @@ fun scan_token keywords = Scanner.!!! "bad input"
        $$$ ":" >> pair Token.Keyword ||
        Scan.repeats1 ($$$ "+") >> pair Token.Sym_Ident ||
        Scan.repeats1 ($$$ "@") >> pair Token.Sym_Ident ||
+       Scan.repeats1 ($$$ "&") >> pair Token.Sym_Ident ||
        $$$ "[" @@@ $$$ "*" @@@ $$$ "]" >> pair Token.Sym_Ident)) >> uncurry token);
 
 fun recover msg =
@@ -584,7 +588,7 @@ fun err_dup_command name ps =
 (* command parsers *)
 
 datatype command_parser =
-  Parser of Symbol_Pos.T list * Symbol_Pos.T list -> eval_time c_parser;
+  Parser of Symbol_Pos.T list * (bool * Symbol_Pos.T list) -> eval_time c_parser;
 
 datatype command = Command of
  {comment: string,
@@ -665,8 +669,15 @@ fun command' (name, pos) comment parse =
 
 (* parse commands *)
 
+local
+fun scan_stack' f b = Scan.one f >> (pair b o C_Token.content_of')
+in
 val before_command =
-  C_Token.scan_stack C_Token.is_stack1 -- C_Token.scan_stack C_Token.is_stack2
+  C_Token.scan_stack C_Token.is_stack1
+  -- Scan.optional (   scan_stack' C_Token.is_stack2 false
+                    || scan_stack' C_Token.is_stack3 true)
+                   (pair false [])
+end
 
 fun parse_command thy =
   Scan.ahead (before_command |-- C_Parse.position C_Parse.command_) :|-- (fn (name, _) =>
@@ -964,10 +975,10 @@ fun expression range name constraint body ants context = context |>
 
 fun command dir name =
   C_Annotation.command' name ""
-    (fn stack =>
+    (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          (fn f => Once (stack, (range, dir, f)))
+          (fn f => Once ((stack1, stack2), (range, dir, to_delay, f)))
             (fn NONE =>
                 let val setup = "setup"
                 in expression
