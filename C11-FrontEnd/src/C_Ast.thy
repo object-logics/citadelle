@@ -38,7 +38,7 @@ theory C_Ast
   imports Main
 begin
 
-ML_file \<open>../generated/Ast_C.ML\<close>
+ML_file \<open>../generated/C_Ast.ML\<close>
 
 ML\<open>
 structure C_ast_simple = struct
