@@ -61,7 +61,9 @@ datatype eval_time = Once of (Symbol_Pos.T list (* length = number of tokens to 
                              * eval_node
                    | Never (* to be manually treated by the semantic back-end, and analyzed there *)
 
-datatype antiq_language = Antiq_stack of eval_time
+type reports_text = Position.report_text list
+
+datatype antiq_language = Antiq_stack of reports_text * eval_time
                         | Antiq_none of C_Lex.token
 end;
 
@@ -88,8 +90,6 @@ type env_lang = { var_table : var_table
 (* NOTE: The distinction between type variable or identifier can not be solely made
          during the lexing process.
          Another pass on the parsed tree is required. *)
-
-type reports_text = Position.report_text list
 
 type env_tree = { context : Context.generic
                 , reports_text : reports_text }

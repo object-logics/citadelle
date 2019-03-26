@@ -680,12 +680,13 @@ val before_command =
 end
 
 fun parse_command thy =
-  Scan.ahead (before_command |-- C_Parse.position C_Parse.command_) :|-- (fn (name, _) =>
+  Scan.ahead (before_command |-- C_Parse.position C_Parse.command_) :|-- (fn (name, pos) =>
     let val command_tags = before_command --| C_Parse.command_;
     in
       case lookup_commands thy name of
-        SOME (Command {command_parser = Parser parse, ...}) =>
+        SOME (cmd as Command {command_parser = Parser parse, ...}) =>
           C_Parse.!!! (command_tags :|-- parse)
+          >> (pair [((pos, command_markup false (name, cmd)), "")])
       | NONE =>
           Scan.fail_with (fn _ => fn _ =>
             let
@@ -931,7 +932,8 @@ fun eval'0 env err accept ants {context, reports_text} =
       val _ = Position.reports_text (maps C_Lex.token_report ants_none
                                      @ maps (fn Left (_, _, [(Antiq_none _, _)]) => []
                                               | Left (_, l, ls) =>
-                                                  maps (maps (C_Token.reports ())) (l :: map #2 ls)
+                                                  maps (fn (Antiq_stack (pos, _), _) => pos | _ => []) ls
+                                                  @ maps (maps (C_Token.reports ())) (l :: map #2 ls)
                                               | _ => [])
                                             ants);
       val _ = C_Lex.check ants_none;

@@ -53,7 +53,7 @@ sig
   val >> : unit p * 'a p -> 'a p
 
   (**)
-  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Env.reports_text -> C_Env.reports_text
+  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> reports_text -> reports_text
   val markup_tvar : bool -> Position.T list -> string * serial -> Markup.T list
   val markup_var : bool -> bool -> Position.T list -> string * serial -> Markup.T list
 
@@ -739,7 +739,7 @@ structure Stack_Data_Lang = Generic_Data
    val merge = #2)
 
 structure Stack_Data_Tree = Generic_Data
-  (type T = C_Env.reports_text
+  (type T = reports_text
    val empty = []
    val extend = I
    val merge = #2)
@@ -822,7 +822,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, false)
-             |> fold (fn Antiq_stack (Once ((syms_shift, syms), ml_exec)) =>
+             |> fold (fn Antiq_stack (_, Once ((syms_shift, syms), ml_exec)) =>
                          I #>>
                            (C_Env.map_stream_hook
                              (fn stream_hook => 
@@ -837,7 +837,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                                                         eval1
                                                         (case eval2 of e :: es => ((syms_shift, syms, ml_exec) :: e) :: es
                                                                      | [] => [[(syms_shift, syms, ml_exec)]])))
-                       | Antiq_stack Never => I ##> K true
+                       | Antiq_stack (_, Never) => I ##> K true
                        | _ => I)
                      l_antiq
              |> (fn (arg, false) => arg
