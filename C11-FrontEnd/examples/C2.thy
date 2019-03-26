@@ -175,6 +175,12 @@ int linearsearch(int x, int t[], int n) {
 }
 \<close>
 
+ML\<open>
+val p  = @{here};
+open Position;
+ML_Syntax.print_position p;
+writeln it;
+\<close>
 
 section\<open>Some realistic Selection sort with Input and Output\<close>
 C\<open>
@@ -189,8 +195,7 @@ int main()
  
   printf("Enter %d integers\n", n);
  
-  for (c = 0; c < n; c++)
-    scanf("%d", &array[c]);
+  for (c = 0; c < n; c++) scanf("%d", &array[c]);
  
   for (c = 0; c < (n - 1); c++)
   {
