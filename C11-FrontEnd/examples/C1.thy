@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C1
-  imports "../C_Main"
+  imports "../semantic-backends/AutoCorres/AC_Command"
 begin
 
 declare[[C_lexer_trace]]
@@ -311,6 +311,46 @@ int b = 7 / (3) * 50
                C' env \<open>int b = a + a + a + a + a + a + a
                        ;\<close> \<close> */;
 \<close>
+
+subsubsection \<open>3\<close>
+
+ML\<open>
+local
+fun command dir f_cmd name =
+  C_Annotation.command' name ""
+    (fn (stack1, (to_delay, stack2)) =>
+      C_Parse.range C_Parse.ML_source >>
+        (fn (src, range) =>
+          (fn f => Once ((stack1, stack2), (range, dir, to_delay, f)))
+            (fn _ => fn context => f_cmd (Stack_Data_Lang.get context |> #2) src context)))
+in
+val _ = Theory.setup (   command Bottom_up (K C) ("C", \<^here>)
+                      #> command Top_down (K C) ("C_reverse", \<^here>)
+                      #> command Bottom_up C' ("C'", \<^here>)
+                      #> command Top_down C' ("C'_reverse", \<^here>))
+end
+\<close>
+
+C \<comment> \<open>Nesting C code without propagating the C environment\<close> \<open>
+int f (int a) {
+  int b = 7 / (3) * 50 /*@ C  \<open>int b = a + a + a + a + a + a + a;\<close> */;
+  int c = b + a + a + a + a + a + a;
+} \<close>
+
+C \<comment> \<open>Nesting C code and propagating the C environment\<close> \<open>
+int f (int a) {
+  int b = 7 / (3) * 50 /*@ C' \<open>int b = a + a + a + a + a + a + a;\<close> */;
+  int c = b + b + b + b + a + a + a + a + a + a;
+} \<close>
+
+C \<comment> \<open>Miscellaneous\<close> \<open>
+int f (int a) {
+  int b = 7 / (3) * 50 /*@ C  \<open>int b = a + a + a + a + a; //@ C' \<open>int c = b + b + b + b + a;\<close> \<close> */;
+  int b = 7 / (3) * 50 /*@ C' \<open>int b = a + a + a + a + a; //@ C' \<open>int c = b + b + b + b + a;\<close> \<close> */;
+  int c = b + b + b + b + a + a + a + a + a + a;
+} \<close>
+
+subsubsection \<open>4\<close>
 
 C \<comment> \<open>Propagation of Updates\<close> \<open>
 typedef int i, j;
