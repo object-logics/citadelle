@@ -197,7 +197,7 @@ int a = 0;
    */
 
   /** ML \<open>fn _ => fn _ => fn _ => I\<close> (* An example of correct syntax accepted as usual *)
-   */   
+   */
 \<close>
 
 subsection \<open>Mixing Together Any Types of Antiquotations\<close>

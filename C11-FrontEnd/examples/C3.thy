@@ -101,9 +101,6 @@ unsigned int is_prime(unsigned int n)
 
     /* No factors. */
     return 1;
-}
-
-
-\<close>
+}\<close>
 
 end
