@@ -145,15 +145,20 @@ fun print_top make_string (_, (value, pos1, pos2)) thy =
   in thy end
 \<close>
 
-C \<open>int f (int a) { /*@ (*1*) @ ML \<open>fn _ => fn _ => fn env =>
- C (SOME env)
-  \<open>int c = b * 2 + 1 //@ && C \<open>int d = c; //@ @ ML_rev \<open>@{C_def \<up> C'}\<close>            \
-                                              @ C      \<open>int b = c + b; //* C' \<open>\<close>\<close> \
-                                              @ C_rev  \<open>int a = c + a; //* C' \<open>\<close>\<close>\<close>
-                     //@ && ML \<open>fn stack => fn top => fn _ =>                     \
-                                tap (print_top @{make_string} top)                \
-                                #> C NONE \<open>int b = a; //@ C' \<open>int d = c + a;\<close>\<close>   \<close>
-;\<close>\<close> (*2*) ML \<open>@{C_def \<up> C}\<close> (*3*) ML \<open>@{C_def \<down> C_rev}\<close>
-                                       (*4*) ++@@ ML \<open>@{print_top'}\<close> */ return 0; }\<close>
+C \<open>int f (int a) 
+   { /*@ (*1*) @ ML \<open>fn _ => fn _ => fn env =>
+                     C (SOME env)
+                       \<open>int c = b * 2 + 1 //@ && C \<open>int d = c; //@ @ ML_rev \<open>@{C_def \<up> C'}\<close>      \
+                                                                   @ C \<open>int b = c + b; //* C'\<open>\<close>\<close> \
+                                                                   @ C_rev\<open>int a = c + a; //* C'\<open>\<close>\<close>\<close>
+                                          //@ && ML \<open>fn stack => fn top => fn _ =>               \
+                                                         tap (print_top @{make_string} top)      \
+                                                         #> C NONE \<open>int b = a; //@ C' \<open>int d = c + a;\<close>\<close>\<close>
+                       ;\<close>\<close> 
+         (*2*) ML \<open>@{C_def \<up> C}\<close> 
+         (*3*) ML \<open>@{C_def \<down> C_rev}\<close>
+         (*4*) ++@@ ML \<open>@{print_top'}\<close> 
+      */ 
+     return 0; }\<close>
 
 end

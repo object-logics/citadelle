@@ -132,7 +132,7 @@ val _ =
 
 val _ =
   Outer_Syntax.command @{command_keyword C_export} "read and evaluate C file"
-    (Resources.parse_files "C_file" --| semi >> C_File.C);   (* HACK TO BE DONE *)
+    (Resources.parse_files "C_file" --| semi >> C_File.C);   (* HACK: TO BE DONE *)
 
 
 in end
