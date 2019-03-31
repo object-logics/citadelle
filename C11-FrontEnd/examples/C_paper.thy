@@ -152,8 +152,8 @@ C \<open>int f (int a)
                                                                    @ C \<open>int b = c + b; //* C'\<open>\<close>\<close> \
                                                                    @ C_rev\<open>int a = c + a; //* C'\<open>\<close>\<close>\<close>
                                           //@ && ML \<open>fn stack => fn top => fn _ =>               \
-                                                         tap (print_top @{make_string} top)      \
-                                                         #> C NONE \<open>int b = a; //@ C' \<open>int d = c + a;\<close>\<close>\<close>
+                                                        tap (print_top @{make_string} top)      \
+                                                        #> C NONE \<open>int b = a; //@ C' \<open>int d = c + a;\<close>\<close>\<close>
                        ;\<close>\<close> 
          (*2*) ML \<open>@{C_def \<up> C}\<close> 
          (*3*) ML \<open>@{C_def \<down> C_rev}\<close>
