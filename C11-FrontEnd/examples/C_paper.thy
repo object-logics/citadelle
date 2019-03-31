@@ -48,6 +48,34 @@ fun expression range name constraint body ants context = context |>
       ML_Lex.read (": " ^ constraint ^ " =") @ ants @
       ML_Lex.read ("in " ^ body ^ " end (Context.the_generic_context ())));")) end;
 
+fun command0 dir name =
+  C_Annotation.command' name ""
+    (fn (stack1, (to_delay, stack2)) =>
+      C_Parse.range C_Parse.ML_source >>
+        (fn (src, range) =>
+          (fn f => Once ((stack1, stack2), (range, dir, to_delay, f)))
+            (fn NONE =>
+                let val setup = "setup"
+                in expression
+                    (Input.range_of src)
+                    setup
+                    "stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic"
+                    ("fn context => \
+                       \let val (stack, env_lang) = Stack_Data_Lang.get context \
+                       \in " ^ setup ^ " (stack |> hd) env_lang end context")
+                    (ML_Lex.read_source false src) end
+              | SOME rule => 
+                let val hook = "hook"
+                in expression
+                    (Input.range_of src)
+                    hook
+                    (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+                    ("fn context => \
+                       \let val (stack, env_lang) = Stack_Data_Lang.get context \
+                       \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
+                    (ML_Lex.read_source false src)
+                end)))
+
 fun command dir name =
   C_Annotation.command' name ""
     (fn (stack1, (to_delay, stack2)) =>
@@ -77,9 +105,12 @@ fun command dir name =
                 end)))
 
 in
-val _ = Theory.setup (   command Bottom_up ("ML\<up>", \<^here>)
-                      #> command Top_down ("ML_rev", \<^here>)
-                      #> command Top_down ("ML\<down>", \<^here>))
+val _ = Theory.setup (   command0 Bottom_up ("ML_setup", \<^here>)
+                      #> command0 Top_down ("ML_setup\<Down>", \<^here>))
+val _ = Theory.setup (   command Bottom_up ("ML\<Up>", \<^here>)
+                      #> command Bottom_up ("setup1", \<^here>)
+                      #> command Top_down ("setup1_rev", \<^here>)
+                      #> command Top_down ("ML\<Down>", \<^here>))
 end
 \<close>
 
@@ -91,14 +122,13 @@ fun show_env0 make_string f msg context =
 
 val show_env = tap o show_env0 @{make_string} length
 
-fun C src = tap (fn _ => C_Outer_Syntax.C src)
 val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
                              tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
 \<close>
 
 
 ML\<open>
-fun command_c' name _ _ _ =
+fun command_c' name _ _ =
   Context.map_theory 
     (C_Annotation.command' name ""
       (fn (stack1, (to_delay, stack2)) =>
@@ -107,7 +137,7 @@ fun command_c' name _ _ _ =
             (fn f => Once ((stack1, stack2), (range, Bottom_up, to_delay, f)))
               (fn _ => fn context => C' (Stack_Data_Lang.get context |> #2) src context))))
 
-fun command_c'' name _ _ _ =
+fun command_c'' name _ _ =
   Context.map_theory 
     (C_Annotation.command' name ""
       (fn (stack1, (to_delay, stack2)) =>
@@ -125,15 +155,14 @@ fun fun_decl a v s ctxt =
   in (decl, ctxt') end;
 
 val _ = Theory.setup
-  (ML_Antiquotation.declaration (Binding.make ("C_def", \<^here>)) (Scan.lift (Parse.sym_ident
+  (ML_Antiquotation.declaration (Binding.make ("C_define", \<^here>)) (Scan.lift (Parse.sym_ident
  -- Parse.position Parse.name))
     (fn _ => fn (top_down, (name, pos)) =>
       tap (fn ctxt => Context_Position.reports ctxt [(pos, Markup.keyword1)]) #>
-      fun_decl "cmd" "x" ((case top_down of "\<up>" => "command_c'" | "\<down>" => "command_c''" | _ => error "Illegal symbol") ^ " (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))
+      fun_decl "cmd" "x" ((case top_down of "\<Up>" => "command_c'" | "\<Down>" => "command_c''" | _ => error "Illegal symbol") ^ " (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))
 
-fun C2 src = tap (fn _ => C_Outer_Syntax.C src)
-val C1 = C'
-fun C opt = case opt of NONE => C2 | SOME env => C1 env
+fun C opt = case opt of NONE => (fn src => tap (fn _ => C_Outer_Syntax.C src))
+                      | SOME env => C' env
 \<close>
 
 ML\<open>
@@ -143,22 +172,36 @@ fun print_top make_string (_, (value, pos1, pos2)) thy =
     val () = Position.reports_text [((Position.range (pos1, pos2) 
                                     |> Position.range_position, Markup.intensify), "")]
   in thy end
+
+fun highlight (_, (_, pos1, pos2)) thy =
+  let
+    val () = Position.reports_text [((Position.range (pos1, pos2) 
+                                    |> Position.range_position, Markup.intensify), "")]
+  in thy end
 \<close>
 
-C \<open>int f (int a) 
-   { /*@ (*1*) @ ML \<open>fn _ => fn _ => fn env =>
-                     C (SOME env)
-                       \<open>int c = b * 2 + 1 //@ && C \<open>int d = c; //@ @ ML_rev \<open>@{C_def \<up> C'}\<close>      \
-                                                                   @ C \<open>int b = c + b; //* C'\<open>\<close>\<close> \
-                                                                   @ C_rev\<open>int a = c + a; //* C'\<open>\<close>\<close>\<close>
-                                          //@ && ML \<open>fn stack => fn top => fn _ =>               \
-                                                        tap (print_top @{make_string} top)      \
-                                                        #> C NONE \<open>int b = a; //@ C' \<open>int d = c + a;\<close>\<close>\<close>
-                       ;\<close>\<close> 
-         (*2*) ML \<open>@{C_def \<up> C}\<close> 
-         (*3*) ML \<open>@{C_def \<down> C_rev}\<close>
-         (*4*) ++@@ ML \<open>@{print_top'}\<close> 
-      */ 
-     return 0; }\<close>
+setup \<open>ML_Antiquotation.inline @{binding highlight}
+                               (Args.context >> K ("highlight " ^ " "))\<close>
+
+C (*NONE*) \<comment> \<open> the command starts with a default empty environment \<close>
+\<open>int f (int a)
+  //@ ++& ML_setup \<open>fn stack_top => fn env => highlight stack_top\<close>
+  { /*@ @ ML_setup \<open>fn stack_top => fn env =>
+                    C (SOME env) (* the command starts with some provided environment *)
+                     \<open>int b = b //@ && C1 \<open>int d = c; //@ @ ML_setup\<Down> \<open>@{C_define \<Up> C2}\<close>      \
+                                                          @ C1  \<open>int b = c + b; //* C2\<open>\<close>\<close>     \
+                                                          @ C1\<Down> \<open>int a = c + a; //* C2\<open>\<close>\<close>    \<close>
+                                //@ && ML_setup \<open>fn stack_top => fn env =>                    \
+                                                 C NONE \<open>int b = a; //@ C2 \<open>int d = c + a;\<close>\<close> \<close>
+                    ;\<close> \<close>
+          ML_setup \<open>@{C_define \<Up> (* bottom-up *)  C1  }\<close>
+          ML_setup \<open>@{C_define \<Down> (* top-down  *) "C1\<Down>"}\<close>
+     */
+    return c; /* explicit highlighting */ }\<close>
+
+
+
+declare [[C_parser_trace]]
+C\<open>int f (int a) { return c; } \<close>
 
 end
