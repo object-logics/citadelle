@@ -1004,8 +1004,8 @@ fun command dir name =
                 end)))
 
 in
-val _ = Theory.setup (   command Bottom_up ("ML", @{here})
-                      #> command Top_down ("ML_reverse", @{here}))
+val _ = Theory.setup (   command Bottom_up ("ML", \<^here>)
+                      #> command Top_down ("ML_reverse", \<^here>))
 end
 \<close>
 

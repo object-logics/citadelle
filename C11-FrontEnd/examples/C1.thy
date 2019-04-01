@@ -54,7 +54,6 @@ inside
 int a = "outside";
 \<close>
 
-
 C \<comment> \<open>Backslash newline\<close> \<open>
 i\    
 n\                

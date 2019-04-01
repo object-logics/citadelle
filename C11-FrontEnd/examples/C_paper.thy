@@ -188,20 +188,18 @@ C (*NONE*) \<comment> \<open> the command starts with a default empty environmen
   //@ ++& ML_setup \<open>fn stack_top => fn env => highlight stack_top\<close>
   { /*@ @ ML_setup \<open>fn stack_top => fn env =>
                     C (SOME env) (* the command starts with some provided environment *)
-                     \<open>int b = b //@ && C1 \<open>int d = c; //@ @ ML_setup\<Down> \<open>@{C_define \<Up> C2}\<close>      \
-                                                          @ C1  \<open>int b = c + b; //* C2\<open>\<close>\<close>     \
-                                                          @ C1\<Down> \<open>int a = c + a; //* C2\<open>\<close>\<close>    \<close>
-                                //@ && ML_setup \<open>fn stack_top => fn env =>                    \
-                                                 C NONE \<open>int b = a; //@ C2 \<open>int d = c + a;\<close>\<close> \<close>
-                    ;\<close> \<close>
+                     \<open>int b = a + b; //@ C1 \<open>int c; //@ @ ML_setup\<Down> \<open>@{C_define \<Up> C2}\<close> \
+                                                        @ C1  \<open>//* C2 \<open>int d;\<close>\<close>        \
+                                                        @ C1\<Down> \<open>//* C2 \<open>int d;\<close>\<close>        \<close>
+                      int b = a + b + c + d;\<close>\<close>
+        @ ML_setup \<open>fn stack_top => fn env => C NONE \<open>int b = a + b; //* C2 \<open>int c = b;\<close>\<close>\<close>
           ML_setup \<open>@{C_define \<Up> (* bottom-up *)  C1  }\<close>
           ML_setup \<open>@{C_define \<Down> (* top-down  *) "C1\<Down>"}\<close>
      */
-    return c; /* explicit highlighting */ }\<close>
-
+    return a + b + c + d; /* explicit highlighting */ }\<close>
 
 
 declare [[C_parser_trace]]
-C\<open>int f (int a) { return c; } \<close>
+C\<open>int f (int a) { return a + b + c + d; } \<close>
 
 end
