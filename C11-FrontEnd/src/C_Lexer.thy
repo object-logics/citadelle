@@ -77,6 +77,7 @@ section \<open>Instantiation of the Scanner with C Lexems \<close>
 
 text\<open>Basically copied and modified from files in Pure General of Isabelle.\<close>
 ML\<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/symbol.ML
     Author:     Makarius
 
@@ -111,6 +112,7 @@ end
 \<close>
 
 ML\<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/symbol_pos.ML
     Author:     Makarius
 
@@ -215,6 +217,7 @@ end
 \<close>
 
 ML\<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/antiquote.ML
     Author:     Makarius
 
@@ -338,6 +341,7 @@ end;
 \<close>
 
 ML\<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/ML/ml_options.ML
     Author:     Makarius
 
@@ -357,6 +361,7 @@ end
 \<close>
 
 ML\<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/ML/ml_lex.ML
     Author:     Makarius
 
