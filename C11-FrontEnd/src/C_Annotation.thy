@@ -947,6 +947,7 @@ fun eval'0 env err accept ants {context, reports_text} =
 fun eval' env err accept ants =
   Context.>> (C_Env_Ext.context_map
                let val tap_report = tap (Position.reports_text o #reports_text)
+                                    #> (C_Env.empty_env_tree o #context)
                in eval'0 env
                          (fn env_lang => fn stack => fn pos => tap_report #> err env_lang stack pos)
                          (fn env_lang => fn stack => accept env_lang stack #> tap_report)

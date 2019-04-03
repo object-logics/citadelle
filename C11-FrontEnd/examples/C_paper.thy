@@ -114,7 +114,7 @@ val _ = Theory.setup
                          ^ " (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))
 end
 
-fun C opt = case opt of NONE => (fn src => tap (fn _ => C_Outer_Syntax.C src))
+fun C opt = case opt of NONE => tap o C_Outer_Syntax.C
                       | SOME env => C' env
 
 fun highlight (_, (_, pos1, pos2)) =

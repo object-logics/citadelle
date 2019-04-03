@@ -74,23 +74,23 @@ ML\<open>
 structure C_Outer_Syntax =
 struct
 
-val C = C_Context'.eval_source
-fun C' err env_lang src context =
-  {context = context, reports_text = Stack_Data_Tree.get context}
-  |> C_Context.eval_source'
+fun C source = 
+  ML_Context.exec (fn () => C_Context'.eval_source source)
+  #> Local_Theory.propagate_ml_env
+
+fun C' err env_lang src =
+  C_Env.empty_env_tree
+  #> C_Context.eval_source'
        env_lang
        err
        C_Context'.accept
        src
-  |> (fn {context, reports_text} => Stack_Data_Tree.put reports_text context)
+  #> (fn {context, reports_text} => Stack_Data_Tree.map (append reports_text) context)
 
 val _ =
   Outer_Syntax.command @{command_keyword C} ""
-    (Parse.input (Parse.group (fn () => "C source") Parse.text) >> (fn source =>
-      Toplevel.generic_theory
-        (ML_Context.exec (fn () =>
-            C source) #>
-          Local_Theory.propagate_ml_env)));
+    (Parse.input (Parse.group (fn () => "C source") Parse.text)
+     >> (Toplevel.generic_theory o C));
 end
 \<close>
 

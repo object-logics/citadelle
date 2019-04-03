@@ -291,7 +291,7 @@ fun show_env0 make_string f msg context =
 
 val show_env = tap o show_env0 @{make_string} length
 
-fun C src = tap (fn _ => C_Outer_Syntax.C src)
+val C = tap o C_Outer_Syntax.C
 val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
                              tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
 \<close>

@@ -214,6 +214,8 @@ fun map_reports_text f {context, reports_text} =
 val empty_env_lang : env_lang = 
         {var_table = {tyidents = Symtab.make [], idents = Symtab.make []}, 
          scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
+fun empty_env_tree context =
+        {context = context, reports_text = []}
 val empty_rule_output : rule_output = 
         {output_pos = NONE, output_vacuous = true, output_env = NONE}
 fun make env_lang stream_lang env_tree =
@@ -303,8 +305,8 @@ fun map_stream_lang' f {env_lang, env_tree, rule_output, rule_input, stream_hook
 
 (**)
 
-fun context_map (f : C_Env.env_tree -> C_Env.env_tree) context =
-  {context = context, reports_text = []} |> f |> #context
+fun context_map (f : C_Env.env_tree -> C_Env.env_tree) =
+  C_Env.empty_env_tree #> f #> #context
 
 
 end 
