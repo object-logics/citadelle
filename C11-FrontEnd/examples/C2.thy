@@ -48,7 +48,7 @@ C\<open>
 #pragma
 \<close>
 ML\<open> 
-val (C_ast_simple.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val (C_ast_simple.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) (Context.theory_name @{theory}));
 val u = Hsk_c_parser.decode u; 
 C_ast_simple.CTypeSpec0;
 \<close>
@@ -64,7 +64,7 @@ int max(int x, int y) {
 \<close>
 
 ML\<open> 
-val (C_ast_simple.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val (C_ast_simple.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) (Context.theory_name @{theory}));
 val u = Hsk_c_parser.decode u
 \<close>
 
@@ -300,7 +300,7 @@ ML\<open>
 ML\<open>
 local open C_ast_simple in
 val _ = CTranslUnit0
-val (CTranslUnit0 (t,u), v)::_ = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) "C2");
+val (CTranslUnit0 (t,u), v)::_ = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) (Context.theory_name @{theory}));
 val u = Hsk_c_parser.decode u
 val _ = case  u of Left (p1,p2) => writeln (Position.here p1 ^ " " ^ Position.here p2)
 val CDeclExt0(x1)::_ = t;
