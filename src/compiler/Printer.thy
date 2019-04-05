@@ -81,16 +81,16 @@ definition "write_file env =
                  l))"
 end
 
-definition "print f = f (String.implode o String.to_list) (ToNat integer_of_natural)"
+definition "print f = f String.meta_of_logic (ToNat integer_of_natural)"
 definition "write_file0 = print Print.write_file0"
 definition "write_file = print Print.write_file"
 
 lemmas [code] =
-  (* def *)
+  \<comment> \<open>def\<close>
   Print.write_file0_def
   Print.write_file_def
 
-  (* fun *)
+  \<comment> \<open>fun\<close>
 
 section\<open>Miscellaneous: Garbage Collection of Notations\<close>
 

@@ -28,10 +28,10 @@ sig
   val local_theory_to_proof: command_keyword -> string ->
     (local_theory -> Proof.state) parser -> unit
   val bootstrap: bool Config.T
-  val parse: theory -> Proof.state option -> Position.T -> string -> Toplevel.transitions list
   val parse_tokens: theory -> Proof.state option -> Token.T list -> Toplevel.transitions list
+  val parse: theory -> Proof.state option -> Position.T -> string -> Toplevel.transitions list
   val parse_spans: Token.T list -> Command_Span.span list
-  val side_comments: Token.T list -> Token.T list
+  val make_span: Token.T list -> Command_Span.span
   val command_reports: theory -> Token.T -> Position.report_text list
   val check_command: Proof.context -> command_keyword -> string
 end;
@@ -201,10 +201,10 @@ val before_command =
   Scan.option (Parse.position (Parse.private >> K true || Parse.qualified >> K false));
 
 fun parse_command thy st =
-  Scan.ahead (before_command |-- Parse.position Parse.command_) :|-- (fn (name, pos) =>
+  Scan.ahead (before_command |-- Parse.position Parse.command) :|-- (fn (name, pos) =>
     let
       val keywords = Thy_Header.get_keywords thy;
-      val command_tags = Parse.command_ -- Parse.tags;
+      val command_tags = Parse.command -- Parse.tags;
       fun tr0 name =
         Toplevel.empty
         |> Toplevel.name name
@@ -228,27 +228,18 @@ fun parse_command thy st =
             in msg ^ quote (Markup.markup Markup.keyword1 name) end))
     end);
 
-val parse_cmt = (Parse.$$$ "--" || Parse.$$$ Symbol.comment) -- Parse.!!! Parse.document_source;
-
-fun commands_source thy st =
-  Token.source_proper #>
-  Source.source Token.stopper (Scan.bulk (parse_cmt >> K NONE || Parse.not_eof >> SOME)) #>
-  Source.map_filter I #>
-  Source.source Token.stopper (Scan.bulk (fn xs => Parse.!!! (parse_command thy st) xs));
-
 in
 
-fun parse thy st pos =
-  Symbol.explode
+fun parse_tokens thy st =
+  filter Token.is_proper
   #> Source.of_list
-  #> Token.source (Thy_Header.get_keywords thy) pos
-  #> commands_source thy st
+  #> Source.source Token.stopper (Scan.bulk (fn xs => Parse.!!! (parse_command thy st) xs))
   #> Source.exhaust;
 
-fun parse_tokens thy st =
-  Source.of_list
-  #> commands_source thy st
-  #> Source.exhaust;
+fun parse thy st pos text =
+  Symbol_Pos.explode (text, pos)
+  |> Token.tokenize (Thy_Header.get_keywords thy) {strict = false}
+  |> parse_tokens thy st;
 
 end;
 
@@ -260,7 +251,7 @@ local
 fun ship span =
   let
     val kind =
-      if forall Token.is_improper span then Command_Span.Ignored_Span
+      if forall Token.is_ignored span then Command_Span.Ignored_Span
       else if exists Token.is_error span then Command_Span.Malformed_Span
       else
         (case find_first Token.is_command span of
@@ -268,18 +259,18 @@ fun ship span =
         | SOME cmd => Command_Span.Command_Span (Token.content_of cmd, Token.pos_of cmd));
   in cons (Command_Span.Span (kind, span)) end;
 
-fun flush (result, content, improper) =
+fun flush (result, content, ignored) =
   result
   |> not (null content) ? ship (rev content)
-  |> not (null improper) ? ship (rev improper);
+  |> not (null ignored) ? ship (rev ignored);
 
-fun parse tok (result, content, improper) =
-  if Token.is_improper tok then (result, content, tok :: improper)
+fun parse tok (result, content, ignored) =
+  if Token.is_ignored tok then (result, content, tok :: ignored)
   else if Token.is_command_modifier tok orelse
     Token.is_command tok andalso
       (not (exists Token.is_command_modifier content) orelse exists Token.is_command content)
-  then (flush (result, content, improper), [tok], [])
-  else (result, tok :: (improper @ content), []);
+  then (flush (result, content, ignored), [tok], [])
+  else (result, tok :: (ignored @ content), []);
 
 in
 
@@ -288,15 +279,10 @@ fun parse_spans toks =
 
 end;
 
-
-(* side-comments *)
-
-fun cmts (t1 :: t2 :: toks) =
-      if Token.keyword_with (fn s => s = "--" orelse s = Symbol.comment) t1 then t2 :: cmts toks
-      else cmts (t2 :: toks)
-  | cmts _ = [];
-
-val side_comments = filter Token.is_proper #> cmts;
+fun make_span toks =
+  (case parse_spans toks of
+    [span] => span
+  | _ => Command_Span.Span (Command_Span.Malformed_Span, toks));
 
 
 (* check commands *)
@@ -318,7 +304,7 @@ fun check_command ctxt (name, pos) =
     if Keyword.is_command keywords name then
       let
         val markup =
-          Token.explode keywords Position.none name
+          Token.explode0 keywords name
           |> maps (command_reports thy)
           |> map (#2 o #1);
         val _ = Context_Position.reports ctxt (map (pair pos) markup);

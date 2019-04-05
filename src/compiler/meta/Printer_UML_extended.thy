@@ -98,7 +98,7 @@ definition "of_ocl_def_state_core l =
   String_concat \<open>, \<close> (L.map (\<lambda> OclDefCoreBinding s \<Rightarrow> To_string s
                              | OclDefCoreAdd ocli \<Rightarrow> of_ocl_instance_single ocli) l)"
 
-definition "of_ocl_def_state _ (floor :: (* polymorphism weakening needed by code_reflect *)
+definition "of_ocl_def_state _ (floor :: \<comment> \<open>polymorphism weakening needed by \<^theory_text>\<open>code_reflect\<close>\<close>
                                          String.literal) = (\<lambda> OclDefSt n l \<Rightarrow>
   \<open>State%s %s = [ %s ]\<close>
     floor
@@ -108,7 +108,7 @@ definition "of_ocl_def_state _ (floor :: (* polymorphism weakening needed by cod
 definition "of_ocl_def_pp_core = (\<lambda> OclDefPPCoreBinding s \<Rightarrow> To_string s
                                   | OclDefPPCoreAdd l \<Rightarrow> \<open>[ %s ]\<close> (of_ocl_def_state_core l))"
 
-definition "of_ocl_def_transition _ (floor :: (* polymorphism weakening needed by code_reflect *)
+definition "of_ocl_def_transition _ (floor :: \<comment> \<open>polymorphism weakening needed by \<^theory_text>\<open>code_reflect\<close>\<close>
                                             String.literal) = (\<lambda> OclDefPP n s_pre s_post \<Rightarrow>
   \<open>Transition%s %s%s%s\<close>
     floor
@@ -119,7 +119,7 @@ definition "of_ocl_def_transition _ (floor :: (* polymorphism weakening needed b
 end
 
 lemmas [code] =
-  (* def *)
+  \<comment> \<open>def\<close>
   Print.To_oid_def
   Print.of_ocl_def_base_def
   Print.of_ocl_instance_single_def
@@ -129,7 +129,7 @@ lemmas [code] =
   Print.of_ocl_def_pp_core_def
   Print.of_ocl_def_transition_def
 
-  (* fun *)
+  \<comment> \<open>fun\<close>
   Print.of_ocl_list_attr.simps
   Print.of_ocl_data_shallow.simps
 

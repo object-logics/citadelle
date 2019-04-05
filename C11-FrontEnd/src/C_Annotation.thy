@@ -142,7 +142,13 @@ struct
 
 (* token kind *)
 
-val delimited_kind = member (op =) [Token.String, Token.Alt_String, Token.Verbatim, Token.Cartouche, Token.Comment];
+val delimited_kind =
+  (fn Token.String => true
+    | Token.Alt_String => true
+    | Token.Verbatim => true
+    | Token.Cartouche => true
+    | Token.Comment _ => true
+    | _ => false);
 
 (* datatype token *)
 
@@ -198,7 +204,7 @@ val is_colon = fn Token (_, (Token.Keyword, [(":", _)])) => true
                 | _ => false;
 
 fun is_proper (Token (_, (Token.Space, _))) = false
-  | is_proper (Token (_, (Token.Comment, _))) = false
+  | is_proper (Token (_, (Token.Comment _, _))) = false
   | is_proper _ = true;
 
 val is_improper = not o is_proper;
@@ -211,6 +217,7 @@ fun is_error' (Token (_, (Token.Error msg, _))) = SOME msg
 
 fun content_of (Token (_, (_, x))) = Symbol_Pos.content x;
 fun content_of' (Token (_, (_, x))) = x;
+fun source_of (Token ((source, _), _)) = source;
 
 fun input_of (Token ((source, range), (kind, _))) =
   Input.source (delimited_kind kind) source range;
@@ -232,7 +239,7 @@ val token_kind_markup =
   | Token.Alt_String => (Markup.alt_string, "")
   | Token.Verbatim => (Markup.verbatim, "")
   | Token.Cartouche => (Markup.cartouche, "")
-  | Token.Comment => (Markup.ML_comment, "")
+  | Token.Comment _ => (Markup.ML_comment, "")
   | Token.Error msg => (Markup.bad (), msg)
   | _ => (Markup.empty, "");
 
@@ -261,8 +268,11 @@ fun reports keywords tok =
     keyword_reports tok
       [keyword_markup (false, Markup.keyword2 |> Markup.keyword_properties) (content_of tok)]
   else
-    let val (m, text) = token_kind_markup (kind_of tok)
-    in [((pos_of tok, m), text)] end;
+    let
+      val pos = pos_of tok;
+      val (m, text) = token_kind_markup (kind_of tok);
+      val delete = #2 (Symbol_Pos.explode_delete (source_of tok, pos));
+    in ((pos, m), text) :: map (fn p => ((p, Markup.delete), "")) delete end;
 
 fun markups keywords = map (#2 o #1) o reports keywords;
 
@@ -278,7 +288,7 @@ fun unparse (Token (_, (kind, x))) =
   | Token.Alt_String => Symbol_Pos.quote_string_bq x
   | Token.Verbatim => enclose "{*" "*}" x
   | Token.Cartouche => cartouche x
-  | Token.Comment => enclose "(*" "*)" x
+  | Token.Comment NONE => enclose "(*" "*)" x
   | Token.EOF => ""
   | _ => x
   end;
@@ -349,7 +359,8 @@ fun token_range k (pos1, (ss, pos2)) =
 fun scan_token keywords = Scanner.!!! "bad input"
   (Symbol_Pos.scan_string_qq err_prefix >> token_range Token.String ||
     scan_cartouche >> token_range Token.Cartouche ||
-    scan_comment >> token_range Token.Comment ||
+    scan_comment >> token_range (Token.Comment NONE) ||
+    Comment.scan >> (fn (k, ss) => token (Token.Comment (SOME k)) ss) ||
     scan_space >> token Token.Space ||
     (Scan.max token_leq
       (Scan.literal (C_Keyword.major_keywords keywords) >> pair Token.Command)
@@ -366,26 +377,24 @@ fun recover msg =
 
 in
 
-fun source' strict keywords =
+fun make_source keywords {strict} =
   let
     val scan_strict = Scan.bulk (scan_token keywords);
     val scan = if strict then scan_strict else Scan.recover scan_strict recover;
   in Source.source Symbol_Pos.stopper scan end;
-
-fun source keywords pos src = Symbol_Pos.source pos src |> source' false keywords;
-fun source_strict keywords pos src = Symbol_Pos.source pos src |> source' true keywords;
-
 
 end;
 
 
 (* explode *)
 
-fun explode keywords pos =
-  Symbol.explode #>
-  Source.of_list #>
-  source keywords pos #>
-  Source.exhaust;
+fun tokenize keywords strict syms =
+  Source.of_list syms |> make_source keywords strict |> Source.exhaust;
+
+fun explode keywords pos text =
+  Symbol_Pos.explode (text, pos) |> tokenize keywords {strict = false};
+
+fun explode0 keywords = explode keywords Position.none;
 
 
 
@@ -401,13 +410,13 @@ type 'a context_parser = Context.generic * T list -> 'a * (Context.generic * T l
 
 fun read_with_commands'0 keywords syms =
   Source.of_list syms
-  |> source' false keywords
+  |> make_source keywords {strict = false}
   |> source_improper
   |> Source.exhaust
 
 fun read_with_commands' keywords scan syms =
   Source.of_list syms
-  |> source' false keywords
+  |> make_source keywords {strict = false}
   |> source_proper
   |> Source.source
        stopper
@@ -497,7 +506,7 @@ fun kind k =
   group (fn () => Token.str_of_kind k)
     (RESET_VALUE (Scan.one (C_Token.is_kind k) >> C_Token.content_of));
 
-val command_ = kind Token.Command;
+val command = kind Token.Command;
 val short_ident = kind Token.Ident;
 val long_ident = kind Token.Long_Ident;
 val sym_ident = kind Token.Sym_Ident;
@@ -682,8 +691,8 @@ val before_command =
 end
 
 fun parse_command thy =
-  Scan.ahead (before_command |-- C_Parse.position C_Parse.command_) :|-- (fn (name, pos) =>
-    let val command_tags = before_command --| C_Parse.command_;
+  Scan.ahead (before_command |-- C_Parse.position C_Parse.command) :|-- (fn (name, pos) =>
+    let val command_tags = before_command --| C_Parse.command;
     in
       case lookup_commands thy name of
         SOME (cmd as Command {command_parser = Parser parse, ...}) =>

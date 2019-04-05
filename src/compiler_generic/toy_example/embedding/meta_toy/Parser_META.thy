@@ -159,7 +159,7 @@ section\<open>Finalizing the Parser\<close>
 text\<open>It should be feasible to invent a meta-command (e.g., @{text "datatype'"})
 to automatically generate the previous recursors in @{text Parse}.
 
-Otherwise as an extra check, one can also overload polymorphic cartouches in @{theory Init}
+Otherwise as an extra check, one can also overload polymorphic cartouches in @{theory Isabelle_Meta_Model.Init}
 to really check that all the given constructor exists at the time of editing
 (similarly as writing @{verbatim "@{term ...}"},
 when it is embedded in a @{verbatim "text"} command).\<close>
@@ -175,7 +175,7 @@ definition "Of_Cons = \<open>Cons\<close>"
 definition "Of_None = \<open>None\<close>"
 definition "Of_Some = \<open>Some\<close>"
 
-(* recursor types *)
+\<comment> \<open>recursor types\<close>
 
 definition "of_pair a b f1 f2 = (\<lambda>f. \<lambda>(c, d) \<Rightarrow> f c d)
   (ap2 a (b Of_Pair) f1 f2)"
@@ -188,7 +188,7 @@ definition "of_option a b f = rec_option
   (b Of_None)
   (ap1 a (b Of_Some) f)"
 
-(* ground types *)
+\<comment> \<open>ground types\<close>
 
 definition "of_unit b = case_unit
   (b \<open>()\<close>)"
@@ -199,8 +199,7 @@ definition of_bool where "of_bool b = case_bool
 
 definition "of_string_gen s_flatten s_st0 s_st a b s =
   b (let s = textstr_of_str (\<lambda>c. \<open>(\<close> @@ s_flatten @@ \<open> \<close> @@ c @@ \<open>)\<close>)
-                            (\<lambda>c \<Rightarrow>
-                                 s_st0 (S.flatten [\<open> (\<close>, \<open>CHR 0x\<close>, String.char_to_digit16 c, \<open>)\<close>]))
+                            (\<lambda>c \<Rightarrow> s_st0 (S.flatten [\<open> 0x\<close>, String.integer_to_digit16 c]))
                             (\<lambda>c. s_st (S.flatten [\<open> (\<close>, c, \<open>)\<close>]))
                             s in
      S.flatten [ \<open>(\<close>, s, \<open>)\<close> ])"
@@ -299,11 +298,11 @@ definition of_bool where "of_bool b = case_bool
   (b \<open>false\<close>)"
 
 definition \<open>sml_escape =
-  String.replace_chars (\<lambda>x. if x = CHR 0x0A then \<open>\n\<close>
-                            else if x = CHR 0x05 then \<open>\005\<close>
-                            else if x = CHR 0x06 then \<open>\006\<close>
-                            else if x = CHR 0x7F then \<open>\127\<close>
-                            else \<degree>x\<degree>)\<close>
+  String.replace_integers (\<lambda>x. if x = 0x0A then \<open>\n\<close>
+                               else if x = 0x05 then \<open>\005\<close>
+                               else if x = 0x06 then \<open>\006\<close>
+                               else if x = 0x7F then \<open>\127\<close>
+                               else \<degree>x\<degree>)\<close>
 
 definition \<open>of_string a b =
  (\<lambda>x. b (S.flatten [ \<open>(META.SS_base (META.ST "\<close>

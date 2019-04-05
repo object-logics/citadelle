@@ -116,9 +116,9 @@ definition "of_boot_setup_env env = (\<lambda> Boot_setup_env e \<Rightarrow>
             \<open>K\<close>
             [ SML.let_open
                 \<open>META\<close>
-                ((* Instead of using
-                    (*sml_of_compiler_env_config SML_apply (\<lambda>x. SML_basic [x]) e*)
-                    the following allows to 'automatically' return an uncurried expression: *)
+                (\<comment> \<open>Instead of using\<close>
+                 \<comment> \<open>\<open>sml_of_compiler_env_config SML_apply (\<lambda>x. SML_basic [x]) e\<close>\<close>
+                 \<comment> \<open>the following allows to 'automatically' return an uncurried expression:\<close>
                  SML_basic [sml_of_compiler_env_config sml_apply id e])]])))"
 
 declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
@@ -134,7 +134,7 @@ definition "of_all_meta_lists env l_thy =
    | Some (name, fic_import, fic_import_boot) \<Rightarrow>
        ( [ \<open>theory %s imports %s begin\<close>
              (To_string name)
-             (of_semi__term (term_binop \<langle>'' ''\<rangle>
+             (of_semi__term (term_binop \<langle>STR '' ''\<rangle>
                                         (L.map Term_string
                                                (fic_import @@@@ (if D_output_header_force env
                                                                   | D_output_auto_bootstrap env then
@@ -148,7 +148,7 @@ definition "of_all_meta_lists env l_thy =
             let (l_thy, lg) = L.mapM (\<lambda>l n. (of_all_meta env l, Succ n)) l 0 in
             (( \<open>\<close>
              # \<open>%s(* %d ************************************ %d + %d *)%s\<close>
-                 (To_string (if compiler_env_config.more env then \<langle>''''\<rangle> else \<degree>char_escape\<degree>))
+                 (To_string (if compiler_env_config.more env then \<langle>STR ''''\<rangle> else \<degree>integer_escape\<degree>))
                  (To_nat (Succ i))
                  (To_nat cpt)
                  (To_nat lg)
@@ -158,7 +158,7 @@ definition "of_all_meta_lists env l_thy =
 end
 
 lemmas [code] =
-  (* def *)
+  \<comment> \<open>def\<close>
   Print.of\<^sub>e\<^sub>n\<^sub>v_section_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theory_def
   Print.of\<^sub>e\<^sub>n\<^sub>v_semi__theories_def
@@ -170,6 +170,6 @@ lemmas [code] =
   Print.of_all_meta_def
   Print.of_all_meta_lists_def
 
-  (* fun *)
+  \<comment> \<open>fun\<close>
 
 end

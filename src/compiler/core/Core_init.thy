@@ -202,7 +202,7 @@ definition "find_class_ass env =
                | META_ass_class Floor1 (OclAssClass _ class) \<Rightarrow> f class
                | META_class_synonym _ \<Rightarrow> True
                | _ \<Rightarrow> False) (l_all_meta) in
-  ( L.flatten [ (* generate a set of 'Class' from 'Tree _ _' *)
+  ( L.flatten [ \<comment> \<open>generate a set of \<open>Class\<close> from \<open>Tree _ _\<close>\<close>
                 L.map (let mk = \<lambda>n1 n2.
                          META_class_raw Floor1 (ocl_class_raw.make
                            (OclTyObj (OclTyCore_pre n1)
@@ -244,8 +244,8 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
       ; l_class = List.map_filter (\<lambda> META_class_raw Floor1 cflat \<Rightarrow> Some cflat
                                    | META_ass_class Floor1 (OclAssClass _ cflat) \<Rightarrow> Some cflat
                                    | _ \<Rightarrow> None) l_c
-      ; l_class = (* map classes: change the (enumeration) type of every attributes to 'raw'
-                                instead of the default 'object' type *)
+      ; l_class = \<comment> \<open>map classes: change the (enumeration) type of every attributes to \<open>raw\<close>\<close>
+                  \<comment> \<open>instead of the default \<open>object\<close> type\<close>
         L.map
           (\<lambda> cflat \<Rightarrow>
             cflat \<lparr> ClassRaw_own :=
@@ -257,9 +257,9 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
       ; OclMult = \<lambda>l set. ocl_multiplicity_ext l None set ()
       ; (l_class, l_ass0) =
           if with_optim_ass then
-            (* move from classes to associations:
-                 attributes of object types
-                 + those constructed with at most 1 recursive call to OclTy_collection *)
+            \<comment> \<open>move from classes to associations:\<close>
+            \<comment> \<open>attributes of object types\<close>
+            \<comment> \<open>+ those constructed with at most 1 recursive call to \<open>OclTy_collection\<close>\<close>
             map_prod rev rev (List.fold
                   (\<lambda>c (l_class, l_ass).
                     let default = [Set]
@@ -281,8 +281,8 @@ definition "arrange_ass with_aggreg with_optim_ass l_c l_enum =
             (l_class, [])
       ; (l_class, l_ass) =
           if with_aggreg then
-            (* move from associations to classes:
-                 attributes of aggregation form *)
+            \<comment> \<open>move from associations to classes:\<close>
+            \<comment> \<open>attributes of aggregation form\<close>
             map_prod rev rev (List.fold
             (\<lambda>ass (l_class, l_ass).
               if OclAss_type ass = OclAssTy_aggregation then
@@ -331,7 +331,7 @@ As general remark, all the future translating steps
 will extensively use Isabelle expressions,
 represented by its Meta-Model, for example lots of functions will use @{term "Term_app"}...
 So the overall can be simplified by the use of polymorphic cartouches.
-It looks feasible to add a new front-end for cartouches in @{theory "Init"}
+It looks feasible to add a new front-end for cartouches in @{theory "FOCL.Init"}
 supporting the use of Isabelle syntax in cartouches,
 then we could obtain at the end a parsed Isabelle Meta-Model in Isabelle.\<close>
 
@@ -354,9 +354,9 @@ definition "start_map'''' f fl = (\<lambda> env. start_map f (fl (D_ocl_semantic
 definition "start_map''''' f fl = (\<lambda> env. start_map f (fl (D_output_sorry_dirty env) (D_ocl_semantics env)) env)"
 definition "start_map'''''' f fl = (\<lambda> env. start_map f (fl (\<lambda>s. (case D_output_header_thy env of
                                                                    Some (n_thy, _, _) \<Rightarrow>
-                                                                     String.replace_chars
-                                                                       (\<lambda> x. if x = CHR 0x5F then \<open>-\<close>
-                                                                             else \<degree>x\<degree>)
+                                                                     String.replace_integers
+                                                                       (\<lambda> n. if n = 0x5F then \<open>-\<close>
+                                                                             else \<degree>n\<degree>)
                                                                        n_thy
                                                                  | None \<Rightarrow> \<open>\<close>) @@ s)
                                                          (D_ocl_semantics env)) env)"
@@ -406,7 +406,7 @@ definition "oid s = (\<lambda>Oid n \<Rightarrow> basic [s @@ String.natural_to_
 end
 
 lemmas [code] =
-  (*def*)
+  \<comment> \<open>def\<close>
   SML.oid_def
 
 definition "Term_oid s = (\<lambda>Oid n \<Rightarrow> Term_basic [s @@ String.natural_to_digit10 n])"

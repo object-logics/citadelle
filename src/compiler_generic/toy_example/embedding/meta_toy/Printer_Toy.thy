@@ -55,7 +55,7 @@ definition "concatWith l =
  (if l = [] then
     id
   else
-    sprint2 \<prec>''(%s. (%s))''\<succ>\<acute> (To_string (String_concatWith \<open> \<close> (\<open>\<lambda>\<close> # rev l))))"
+    sprint2 STR ''(%s. (%s))''\<acute> (To_string (String_concatWith \<open> \<close> (\<open>\<lambda>\<close> # rev l))))"
 
 declare[[cartouche_type' = "fun\<^sub>p\<^sub>r\<^sub>i\<^sub>n\<^sub>t\<^sub>f"]]
 
@@ -66,7 +66,7 @@ fun of_ctxt2_term_aux where "of_ctxt2_term_aux l e =
   | T_lambda s c \<Rightarrow> of_ctxt2_term_aux (s # l) c) e"
 definition "of_ctxt2_term = of_ctxt2_term_aux []"
 
-definition \<open>of_toy_ctxt _ (floor :: (* polymorphism weakening needed by code_reflect *)
+definition \<open>of_toy_ctxt _ (floor :: \<comment> \<open>polymorphism weakening needed by \<^theory_text>\<open>code_reflect\<close>\<close>
                                      String.literal) ctxt =
  (let f_inv = \<lambda> T_inv b (ToyProp_ctxt n s) \<Rightarrow> \<open>  %sInv %s : "%s"\<close>
               (if b then \<open>Existential\<close> else \<open>\<close>)
@@ -105,11 +105,11 @@ definition \<open>of_toy_ctxt _ (floor :: (* polymorphism weakening needed by co
 end
 
 lemmas [code] =
-  (* def *)
+  \<comment> \<open>def\<close>
   Print.concatWith_def
   Print.of_ctxt2_term_def
   Print.of_toy_ctxt_def
-  (* fun *)
+  \<comment> \<open>fun\<close>
   Print.of_ctxt2_term_aux.simps
 
 end

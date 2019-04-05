@@ -636,7 +636,8 @@ fun range_list_of toks = (range_list_of0 toks, toks)
 fun range_list_of' toks1 toks2 = (range_list_of0 toks1, toks2)
 
 local
-fun cmp_pos x2 x1 = Position.distance_of (pos_of x2) (pos_of x1) < 0
+fun cmp_pos x2 x1 = case Position.distance_of (pos_of x2, pos_of x1) of SOME dist => dist < 0
+                                                                      | NONE => error "cmp_pos"
 
 fun merge_pos xs = case xs of (xs1, []) => xs1
                             | ([], xs2) => xs2
@@ -876,7 +877,7 @@ val scan_int = scan_inthex
              
 val scan_float = scan_floatdec
               || scan_floathex
-              || scan_floatfail >> !!! "Hexadecimal floating constant requires an exponent" Scan.fail
+              || scan_floatfail @@@ !!! "Hexadecimal floating constant requires an exponent" Scan.fail
 
 val scan_clangversion = many1_digit @@@ $$$ "." @@@ many1_digit @@@ $$$ "." @@@ many1_digit
 
@@ -1104,7 +1105,7 @@ val not_cond =
                         , s)) =>
               Token (pos, ( if forall is_integer toks then
                               Directive (Cpp (Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks)))
-                            else Error ("Expecting an integer" ^ Position.here (take_prefix is_integer toks |> #2 |> hd |> pos_of), Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks))
+                            else Error ("Expecting an integer" ^ Position.here (drop_prefix is_integer toks |> hd |> pos_of), Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks))
                           , s))
           | x => x))
 
