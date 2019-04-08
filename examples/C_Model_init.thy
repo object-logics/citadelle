@@ -55,8 +55,8 @@
  ******************************************************************************)
 
 theory C_Model_init
-  imports "../src/compiler_generic/meta_isabelle/Printer_init"
-          "~~/src/HOL/Library/Old_Datatype"
+  imports "FOCL.Printer_init"
+          "FOCL.Old_Datatype"
 begin
 
 type_synonym int = integer

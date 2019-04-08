@@ -55,7 +55,7 @@
  ******************************************************************************)
 
 theory C_Model_ml
-  imports C_Model_core
+  imports "Citadelle_C_shallow-dirty.C_Model_core"
 begin
 
 section \<open>Convert\<close>

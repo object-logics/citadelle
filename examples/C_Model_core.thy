@@ -58,9 +58,9 @@ section \<open>Acknowledgements\<close>
 
 theory C_Model_core
   imports "$HASKABELLE_HOME_USER/default/Prelude"
-          "../src/UML_Main"
-          "../src/compiler/Generator_dynamic_concurrent"
-          C_Model_init
+          "FOCL.UML_Main"
+          "Citadelle.Generator_dynamic_concurrent"
+          "Citadelle_C_init.C_Model_init"
 begin
 
 subsection \<open>\<^file>\<open>$HASKABELLE_HOME/ex/language-c/AUTHORS.c2hs\<close>\<close>
@@ -121,8 +121,8 @@ declare [[syntax_ambiguity_warning = false]]
 
 generation_syntax [ deep
                       (THEORY Meta_C_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static", "../examples/C_Model_init"]
-                               "../src/compiler/Generator_dynamic_concurrent")
+                      (IMPORTS ["FOCL.UML_Main", "FOCL.Static", "Citadelle_C_init.C_Model_init"]
+                               "Citadelle.Generator_dynamic_concurrent")
                       SECTION
                       SORRY
                       [ in self ]

@@ -140,7 +140,7 @@ record compiler_env_config =  D_output_disable_thy :: bool
                                                   ocl_def_state_core) list) list"
                                                \<comment> \<open>state namespace environment\<close>
                               D_output_header_force :: bool \<comment> \<open>true : the header should import the compiler for bootstrapping\<close>
-                              D_output_auto_bootstrap :: bool \<comment> \<open>true : add the generation_syntax command\<close>
+                              D_output_auto_bootstrap :: bool \<comment> \<open>true : add the \<open>generation_syntax\<close> command\<close>
                               D_ocl_accessor :: " string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<comment> \<open>name of the constant added\<close> list \<comment> \<open>pre\<close>
                                                 \<times> string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<comment> \<open>name of the constant added\<close> list \<comment> \<open>post\<close>"
                               D_ocl_HO_type :: "(string\<^sub>b\<^sub>a\<^sub>s\<^sub>e \<comment> \<open>raw HOL name (as key for rbt)\<close>) list"

@@ -446,7 +446,7 @@ definition "print_access_dot_lemma_cp = start_map O.lemma o
                 (print_access_dot_lemma_cp_name isub_name dot_at_when attr_ty isup_attr)
                 [Term_app \<open>cp\<close> [Term_lam \<open>X\<close> (\<lambda>var_x. dot_attr (Term_annot_ocl (Term_basic [var_x]) name)) ]]
                 []
-                (if print_access_dot_cp_lemmas_set = [] then C.sorry \<comment> \<open>fold l_hierarchy, take only subclass, unfold the corresponding definition\<close>
+                (if print_access_dot_cp_lemmas_set = [] then C.sorry \<comment> \<open>fold \<open>l_hierarchy\<close>, take only subclass, unfold the corresponding definition\<close>
                  else C.by [auto []]) ]))"
 
 definition "print_access_dot_lemmas_cp = start_map O.lemmas o (\<lambda>expr.

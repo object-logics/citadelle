@@ -55,7 +55,7 @@
  ******************************************************************************)
 
 theory C_Model_ex_hol
-  imports C_Model_core
+  imports "Citadelle_C_shallow-dirty.C_Model_core"
 begin
 
 section \<open>Type definition (at ML level)\<close>
