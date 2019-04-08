@@ -1,6 +1,7 @@
 theory LICENSE imports LICENSE0 begin license "3-Clause BSD" where \<open>
 
-Copyright (c) 2017-2018 Virginia Tech, USA \<close>\<open>
+Copyright (c) 2017-2018 Virginia Tech, USA
+              2018-2019 Université Paris-Saclay, Univ. Paris-Sud, France \<close>\<open>
 
 All rights reserved.
 

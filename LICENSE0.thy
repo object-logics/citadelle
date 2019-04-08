@@ -2,6 +2,7 @@
  * LICENSE
  *
  * Copyright (c) 2017-2018 Virginia Tech, USA
+ *               2018-2019 Université Paris-Saclay, Univ. Paris-Sud, France
  *
  * All rights reserved.
  *

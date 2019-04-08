@@ -1,27 +1,9 @@
 (******************************************************************************
- * Language.C
- * https://hackage.haskell.org/package/language-c
- *
- * Copyright (c) 1999-2017 Manuel M T Chakravarty
- *                         Duncan Coutts
- *                         Benedikt Huber
- * Portions Copyright (c) 1989,1990 James A. Roskind
- *
- *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
- *
- * Language.C.Comments
- * https://hackage.haskell.org/package/language-c-comments
- *
- * Copyright (c) 2010-2014 Geoff Hulette
- *
- *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
- *
- * Securify & Orca
+ * A Meta-Model for the Language.C Haskell Library
  *
  * Copyright (c) 2016-2017 Nanyang Technological University, Singapore
  *               2017-2018 Virginia Tech, USA
- *
- *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+ *               2018-2019 Université Paris-Saclay, Univ. Paris-Sud, France
  *
  * All rights reserved.
  *
@@ -54,8 +36,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Acknowledgements\<close>
-
 theory C_Model_core
   imports "$HASKABELLE_HOME_USER/default/Prelude"
           "FOCL.UML_Main"
@@ -63,57 +43,12 @@ theory C_Model_core
           "Citadelle_C_init.C_Model_init"
 begin
 
-subsection \<open>\<^file>\<open>$HASKABELLE_HOME/ex/language-c/AUTHORS.c2hs\<close>\<close>
-text \<open>
-  Manuel M T Chakravarty	<chak@cse.unsw.edu.au>
-  Duncan Coutts		<duncan@haskell.org>
-  
-  with contributions from (alphabetical order)
-  
-  Bertram Felgenhauer	<int-e@gmx.de>
-  Ian Lynagh		<igloo@earth.li>
-  André Pang		<ozone@algorithm.com.au>
-  Jens-Ulrik Petersen	<petersen@haskell.org>
-  Armin Sander		<armin@mindwalker.org>
-  Sean Seefried		<sseefried@cse.unsw.edu.au>
-  Udo Stenzel		<u.stenzel@web.de>
-  Axel Simon              <A.Simon@ukc.ac.uk>
-  Michael Weber		<michaelw@debian.org>
-  
-  Thanks for comments and suggestions to 
-  
-  Roman Leshchinskiy	<rl@cs.tu-berlin.de>
-  Jan Kort		<kort@science.uva.nl>
-  Seth Kurtzberg		<seth@cql.com>
-  Simon Marlow		<simonmar@microsoft.com>
-  Matthias Neubauer	<neubauer@informatik.uni-freiburg.de>
-  Sven Panne		<sven.panne@aedion.de>
-  Simon L. Peyton Jones	<simonpj@microsoft.com>
-  Volker Wysk		<post@volker-wysk.de>
-\<close>
+section \<open>Acknowledgements\<close>
 
-subsection \<open>\<^file>\<open>$HASKABELLE_HOME/ex/language-c/AUTHORS\<close>\<close>
-text \<open>
-  Benedikt Huber          <benedikt.huber@gmail.com>
-  Manuel M T Chakravarty  <chak@cse.unsw.edu.au>
-  Duncan Coutts           <duncan@haskell.org>
-  Bertram Felgenhauer     <int-e@gmx.de>
-  
-  with code contributions and patches from
-  
-  Iavor Diatchki          <iavor.diatchki@gmail.com>
-  Kevin Charter           <kcharter@gmail.com>
-  Aleksey Kliger
-  
-  This project originated from the C parser component of c2hs,
-  for many additional contributors see AUTHORS.c2hs.
-  
-  Special thanks for their great support, comments and suggestions to:
-  
-  Duncan Coutts           <duncan@haskell.org>
-  Iavor Diatchki          <iavor.diatchki@gmail.com>
-  Don Steward             <dons@galois.com>
-\<close>
+text \<open>\<^url>\<open>https://hackage.haskell.org/package/language-c\<close>\<close>
+text \<open>\<^url>\<open>https://hackage.haskell.org/package/language-c-comments\<close>\<close>
+text \<open>\<^file>\<open>$HASKABELLE_HOME/ex/language-c/AUTHORS.c2hs\<close>\<close>
+text \<open>\<^file>\<open>$HASKABELLE_HOME/ex/language-c/AUTHORS\<close>\<close>
 
 section \<open>Initialization of the generator\<close>
 

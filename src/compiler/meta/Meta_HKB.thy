@@ -1,9 +1,9 @@
 (******************************************************************************
- * Haskabelle --- Converting Haskell Source Files to Isabelle/HOL Theories.
- *                http://isabelle.in.tum.de/repos/haskabelle
+ * A Meta-Model for the Haskabelle API
  *
  * Copyright (c) 2007-2015 Technische Universität München, Germany
  *               2017-2018 Virginia Tech, USA
+ *               2018-2019 Université Paris-Saclay, Univ. Paris-Sud, France
  *
  * All rights reserved.
  *
