@@ -128,6 +128,9 @@ This file is part of HOL-TestGen.
 check_license Miscellaneous_Monads
   in file "examples/archive/Monads.thy"
 (*
+check_license C_ML
+  in "../C11-FrontEnd"
+*)(*
 check_license ROOT
               LICENSE0
               LICENSE
@@ -140,8 +143,8 @@ check_license ROOT
               "HOL-TOY"
               "HOL-HKB"
               C_Meta_Model
-              C_ML
   in "."
+*)(*
 insert_license
 map_license
 *)
