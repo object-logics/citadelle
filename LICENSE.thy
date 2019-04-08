@@ -47,6 +47,7 @@ holder ethz :: ch where \<open>ETH Zurich\<close>
 holder "irt-systemx" :: fr where \<open>IRT SystemX\<close>
 holder ntu :: sg where \<open>Nanyang Technological University\<close>
 holder sheffield :: uk where \<open>The University of Sheffield\<close>
+holder tum :: de where \<open>Technische Universität München\<close>
 holder "u-psud" :: fr where \<open>Université Paris-Saclay\<close>, \<open>Univ. Paris-Sud\<close>
 holder vt :: us where \<open>Virginia Tech\<close>
 holder wolff :: fr where \<open>B. Wolff\<close>, \<open>Univ. Paris-Saclay\<close>, \<open>Univ. Paris-Sud\<close>
@@ -85,24 +86,30 @@ project Isabelle_Meta_Model :: "3-Clause BSD" where \<open>A Meta-Model for the 
 
 project Isabelle :: "3-Clause BSD" where \<open>
 ISABELLE COPYRIGHT NOTICE, LICENCE AND DISCLAIMER.
-\<close> defines 1986-2019 contributors
+\<close> defines 1986-2019 cam
+          1986-2019 tum
+          1986-2019 contributors
 
-project Haskabelle_HOL :: "3-Clause BSD" where \<open>
-A Meta-Model of Haskabelle in HOL
-\<close> defines 2017-2018 vt
+project Haskabelle_Meta_Model :: "3-Clause BSD" where \<open>
+A Meta-Model for the Haskabelle API
+\<close> defines 2007-2015 tum
+          2017-2018 vt
           2018-2019 "u-psud"
 
 project "HOL-OCL" :: "3-Clause BSD" where \<open>HOL-OCL\<close> imports default
 
 project "HOL-TOY" :: "3-Clause BSD" where \<open>HOL-TOY\<close> imports default
 
-project C11_HOL :: "3-Clause BSD" where \<open>
-A Meta-Model of Language.C in HOL
+project "HOL-HKB" :: "3-Clause BSD" where \<open>HOL-HKB\<close> defines 2017-2018 vt
+                                                            2018-2019 "u-psud"
+
+project C_Meta_Model :: "3-Clause BSD" where \<open>
+A Meta-Model for the Language.C Haskell Library
 \<close> defines 2016-2017 ntu
           2017-2018 vt
           2018-2019 "u-psud"
 
-project C11_ML :: "3-Clause BSD" where \<open>
+project C_ML :: "3-Clause BSD" where \<open>
 Generation of Language.C Grammar with ML Interface Binding
 \<close> defines 2018-2019 "u-psud"
 
@@ -128,11 +135,12 @@ check_license ROOT
               Citadelle
               Isabelle_Meta_Model
               Isabelle
-              Haskabelle_HOL
+              Haskabelle_Meta_Model
               "HOL-OCL"
               "HOL-TOY"
-              C11_HOL
-              C11_ML
+              "HOL-HKB"
+              C_Meta_Model
+              C_ML
   in "."
 insert_license
 map_license
