@@ -58,6 +58,55 @@ theory C_Model_ex_hol
   imports C_Model_core
 begin
 
+section \<open>Type definition (at ML level)\<close>
+
+meta_command' \<comment>\<open>\<^theory_text>\<open>code_reflect' open META2 functions SingleLine MultiLine Comment\<close>\<close> \<open>
+let
+  open META
+  fun meta_command {shallow, deep = _, syntax_print = _} =
+    [(META_semi_theories o Theories_one o Theory_code_reflect)
+      (Code_reflect
+        ( true
+        , From.string "META2"
+        , map From.string [ "SingleLine", "MultiLine", "Comment" ]
+         @ (shallow
+            |> hd
+            |> fst
+            |> d_hsk_constr
+            |> map (flattenb (From.string "C_Model_core.") o to_String))))]
+in meta_command
+end
+\<close>
+
+meta_command'\<open>
+let
+  open META
+  fun b s = SML_basic [s]
+  fun meta_command {shallow, deep = _, syntax_print = _} =
+    [(META_semi_theories o Theories_one o Theory_ML o SMLa o SML_top)
+      (shallow
+       |> hd
+       |> fst
+       |> d_hsk_constr
+       |> map_filter
+            (fn s =>
+              let val s' = s |> to_String |> To_string0 in
+              if List.exists (fn s0 => s0 = s') ["ClangCVersion", "CString"] then NONE
+              else
+                  SOME
+                    (SML_val_fun
+                      ( SOME Sval
+                      , SML_rewrite ( b (to_String s)
+                                    , From.string "="
+                                    , b (case String.explode s' of
+                                           c :: s => c :: s |> String.implode |> (fn x => "META2." ^ x ^ "0") |> From.string))))
+              end))]
+in meta_command
+end
+\<close>
+
+ML\<open>open META2\<close>
+
 section \<open>Initialization of the parsing code\<close>
 
 meta_language C
@@ -67,8 +116,6 @@ meta_language C
           (load \<open>Importer.Conversion.Haskell\<close>)
           (load \<open>Importer.Conversion.Haskell.C\<close>)
   where defines \<open>\s -> do { (r, acc) <- parseC' (inputStreamFromString s) ; return (gshows r "", acc) }\<close>
-
-ML \<open>val String = META.Stringa\<close>
 
 section \<open>Parsing\<close>
 
