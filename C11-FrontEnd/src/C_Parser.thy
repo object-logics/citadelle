@@ -744,14 +744,23 @@ structure Stack_Data_Tree = Generic_Data
    val extend = I
    val merge = #2)
 
+structure Stack_Data_Tree' = Generic_Data
+  (type T = C_Lex.token Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = #2)
+
 fun setmp_tree f context =
   let val x = Stack_Data_Tree.get context
       val context = f (Stack_Data_Tree.put [] context)
   in (Stack_Data_Tree.get context, Stack_Data_Tree.put x context) end
 
-fun stack_exec data_put f {context, reports_text} =
-  let val (r, context) = setmp_tree (Stack_Data_Lang.put data_put #> f) context
-  in {context = context, reports_text = append r reports_text} end
+fun stack_exec0 f {context, reports_text} =
+  let val (reports_text', context) = setmp_tree f context
+  in {context = context, reports_text = append reports_text' reports_text} end
+
+fun stack_exec env_dir data_put f =
+  stack_exec0 (Stack_Data_Lang.put (apsnd (C_Env.map_env_directives (K env_dir)) data_put) #> f)
 
 structure StrictCLex : ARG_LEXER1 =
 struct
@@ -779,10 +788,10 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
         if len = 0 then
           I #>>
           (case ml_exec of
-             (_, Bottom_up, _, exec) =>
-              (fn arg => C_Env.map_env_tree (stack_exec (stack, #env_lang arg) (exec NONE))
+             (_, Bottom_up, env_dir, _, exec) =>
+              (fn arg => C_Env.map_env_tree (stack_exec env_dir (stack, #env_lang arg) (exec NONE))
                                             arg)
-           | ((pos, _), _, _, _) =>
+           | ((pos, _), _, _, _, _) =>
               C_Env_Ext.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos)))
         else
           I ##>
@@ -830,7 +839,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, false)
-             |> fold (fn Antiq_stack (_, Once ((syms_shift, syms), ml_exec)) =>
+             |> fold (fn Antiq_stack (_, Parsing ((syms_shift, syms), ml_exec)) =>
                          I #>>
                            (C_Env.map_stream_hook
                              (fn stream_hook => 
@@ -912,8 +921,8 @@ fun exec_tree write msg (Tree ({rule_pos, rule_type}, l_tree)) =
       write msg rule_pos ("REDUCE " ^ Int.toString rule0 ^ " " ^ (if vacuous then "X" else "O")) (SOME (MlyValue.string_reduce rule0 ^ " " ^ MlyValue.type_reduce rule0))
       #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
       #-> (fn env_lang =>
-            fold (fn (stack0, env_lang0, (_, Top_down, _, exec)) =>
-                     stack_exec (stack0, Option.getOpt (env_lang, env_lang0)) (exec (SOME rule0))
+            fold (fn (stack0, env_lang0, (_, Top_down, env_dir, _, exec)) =>
+                     stack_exec env_dir (stack0, Option.getOpt (env_lang, env_lang0)) (exec (SOME rule0))
                    | _ => I)
                  rule_antiq)
       #> fold (exec_tree write (msg ^ " ")) l_tree
@@ -963,14 +972,14 @@ fun parse env_lang err accept stream_lang =
               val env_lang = #env_lang arg
               val (delayed, actual) =
                 if #output_vacuous rule_output
-                then let fun f (_, _, to_delay, _) = to_delay
+                then let fun f (_, _, _, to_delay, _) = to_delay
                      in (map (filter f) pre_ml, map (filter_out f) pre_ml) end
                 else ([], pre_ml)
               val actual = flat (map rev actual)
           in
             ( (delayed, map (fn x => (stack0, env_lang, x)) actual, rule_output)
-            , fold (fn (_, Bottom_up, _, exec) =>
-                       C_Env.map_env_tree (stack_exec (stack0, env_lang) (exec (SOME rule0)))
+            , fold (fn (_, Bottom_up, env_dir, _, exec) =>
+                       C_Env.map_env_tree (stack_exec env_dir (stack0, env_lang) (exec (SOME rule0)))
                      | _ => I)
                    actual
                    arg)

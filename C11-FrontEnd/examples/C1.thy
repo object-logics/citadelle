@@ -321,7 +321,7 @@ fun command dir f_cmd name =
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          (fn f => Once ((stack1, stack2), (range, dir, to_delay, f)))
+          (fn f => Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
             (fn _ => fn context => f_cmd (Stack_Data_Lang.get context |> #2) src context)))
 in
 val _ = Theory.setup (   command Bottom_up (K C) ("C", \<^here>)
@@ -366,6 +366,24 @@ int c = 0; /*@ \<approx>setup \<open>fn _ => fn _ => fn env =>
 int e = a + b + c + d;
 }\<close>
 
+C \<comment> \<open>Propagation of directive environment (evaluated before parsing)
+      to any other annotations (evaluated at parsing time)\<close> \<open>
+#undef int
+#define int(a,b) int
+#define int int
+int a;
+int f (int b) {
+int c = 0; /*@ \<approx>setup \<open>fn _ => fn _ => fn env =>
+     C' env \<open>int d = a + b + c + d; //@ \<approx>setup \<open>C_env \<open>int e = a + b + c + d;\<close>\<close>\<close>
+  #> C      \<open>int d = a + b + c + d; //@ \<approx>setup \<open>C_env \<open>int e = a + b + c + d;\<close>\<close>\<close>
+  #> C' env \<open>int d = a + b + c + d; //@ \<approx>setup \<open>C_env \<open>int e = a + b + c + d;\<close>\<close>\<close>
+  #> C      \<open>int d = a + b + c + d; //@ \<approx>setup \<open>C_env \<open>int e = a + b + c + d;\<close>\<close>\<close>
+\<close> */
+#undef int
+int e = a + b + c + d;
+}
+\<close>
+
 subsubsection \<open>5\<close>
 
 ML\<open>
@@ -375,7 +393,7 @@ fun command_c' name _ _ _ =
       (fn (stack1, (to_delay, stack2)) =>
         C_Parse.range C_Parse.ML_source >>
           (fn (src, range) =>
-            (fn f => Once ((stack1, stack2), (range, Bottom_up, to_delay, f)))
+            (fn f => Parsing ((stack1, stack2), (range, Bottom_up, Symtab.empty, to_delay, f)))
               (fn _ => fn context => C' (Stack_Data_Lang.get context |> #2) src context))))
 
 fun fun_decl a v s ctxt =

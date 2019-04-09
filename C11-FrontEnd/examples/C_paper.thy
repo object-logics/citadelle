@@ -38,6 +38,8 @@ theory C_paper
   imports "../C_Main"
 begin
 
+section \<open>\<close>
+
 ML\<open>
 local
 fun expression range name constraint body ants context = context |>
@@ -53,7 +55,7 @@ fun command0 dir name =
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          (fn f => Once ((stack1, stack2), (range, dir, to_delay, f)))
+          (fn f => Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
             (fn NONE =>
                 let val setup = "setup"
                 in expression
@@ -89,7 +91,7 @@ fun C_define dir name _ _ =
       (fn (stack1, (to_delay, stack2)) =>
         C_Parse.range C_Parse.ML_source >>
           (fn (src, range) =>
-            (fn f => Once ((stack1, stack2), (range, dir, to_delay, f)))
+            (fn f => Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
               (fn _ => fn context => C' (Stack_Data_Lang.get context |> #2) src context))))
 
 local
@@ -122,6 +124,8 @@ fun highlight (_, (_, pos1, pos2)) =
                                         |> Position.range_position, Markup.intensify), "")])
 \<close>
 
+section \<open>\<close>
+
 C (*NONE*) \<comment> \<open> the command starts with a default empty environment \<close>
 \<open>int f (int a)
   //@ ++& ML_setup \<open>fn stack_top => fn env => highlight stack_top\<close>
@@ -131,7 +135,8 @@ C (*NONE*) \<comment> \<open> the command starts with a default empty environmen
                                                         @ C1  \<open>//* C2 \<open>int d;\<close>\<close>        \
                                                         @ C1\<Down> \<open>//* C2 \<open>int d;\<close>\<close>        \<close>
                       int b = a + b + c + d;\<close>\<close>
-        @ ML_setup \<open>fn stack_top => fn env => C NONE \<open>int b = a + b; //* C2 \<open>int c = b;\<close>\<close>\<close>
+        @ ML_setup \<open>fn stack_top => fn env => C NONE \<open>#define int int
+                                                      int b = a + b; //* C2 \<open>int c = b;\<close>\<close>\<close>
           ML_setup \<open>@{C_define \<Up> (* bottom-up *)  C1  }\<close>
           ML_setup \<open>@{C_define \<Down> (* top-down  *) "C1\<Down>"}\<close>
      */

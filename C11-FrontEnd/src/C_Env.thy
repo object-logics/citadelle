@@ -48,17 +48,24 @@ ML\<open>
 structure C_Annot_Result =
 struct
 
+datatype comment_style = Comment_directive
+                       | Comment_language
+
 datatype env_propagation = Bottom_up (*during parsing*) | Top_down (*after parsing*)
+
+type env_directives = (Position.T list * serial * C_Lex.token list) Symtab.table
 
 type eval_node = Position.range
                  * env_propagation
+                 * env_directives
                  * bool (* true: skip vacuous reduce rules *)
                  * (int (*reduce rule number*) option (* NONE: shift action *)
                     -> Context.generic -> Context.generic)
 
-datatype eval_time = Once of (Symbol_Pos.T list (* length = number of tokens to advance *) 
-                             * Symbol_Pos.T list (* length = number of steps back in stack *)) 
-                             * eval_node
+datatype eval_time = Lexing of Position.range * (comment_style -> Context.generic -> Context.generic)
+                   | Parsing of (Symbol_Pos.T list (* length = number of tokens to advance *) 
+                                 * Symbol_Pos.T list (* length = number of steps back in stack *)) 
+                                 * eval_node
                    | Never (* to be manually treated by the semantic back-end, and analyzed there *)
 
 type reports_text = Position.report_text list
@@ -86,7 +93,8 @@ type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) either li
 type env_lang = { var_table : var_table
                 , scopes : var_table list
                 , namesupply : int
-                , stream_ignored : C_Antiquote.antiq stream }
+                , stream_ignored : C_Antiquote.antiq stream
+                , env_directives : env_directives }
 (* NOTE: The distinction between type variable or identifier can not be solely made
          during the lexing process.
          Another pass on the parsed tree is required. *)
@@ -185,21 +193,25 @@ fun map_idents f {tyidents, idents} =
 
 (**)
 
-fun map_var_table f {var_table, scopes, namesupply, stream_ignored} =
+fun map_var_table f {var_table, scopes, namesupply, stream_ignored, env_directives} =
                     {var_table = f var_table, scopes = scopes, namesupply = namesupply, 
-                     stream_ignored = stream_ignored}
+                     stream_ignored = stream_ignored, env_directives = env_directives}
 
-fun map_scopes f {var_table, scopes, namesupply, stream_ignored} =
+fun map_scopes f {var_table, scopes, namesupply, stream_ignored, env_directives} =
                      {var_table = var_table, scopes = f scopes, namesupply = namesupply, 
-                      stream_ignored = stream_ignored}
+                      stream_ignored = stream_ignored, env_directives = env_directives}
 
-fun map_namesupply f {var_table, scopes, namesupply, stream_ignored} =
+fun map_namesupply f {var_table, scopes, namesupply, stream_ignored, env_directives} =
                      {var_table = var_table, scopes = scopes, namesupply = f namesupply, 
-                      stream_ignored = stream_ignored}
+                      stream_ignored = stream_ignored, env_directives = env_directives}
 
-fun map_stream_ignored f {var_table, scopes, namesupply, stream_ignored} =
+fun map_stream_ignored f {var_table, scopes, namesupply, stream_ignored, env_directives} =
                      {var_table = var_table, scopes = scopes, namesupply = namesupply, 
-                      stream_ignored = f stream_ignored}
+                      stream_ignored = f stream_ignored, env_directives = env_directives}
+
+fun map_env_directives f {var_table, scopes, namesupply, stream_ignored, env_directives} =
+                     {var_table = var_table, scopes = scopes, namesupply = namesupply, 
+                      stream_ignored = stream_ignored, env_directives = f env_directives}
 
 (**)
 
@@ -213,7 +225,8 @@ fun map_reports_text f {context, reports_text} =
 
 val empty_env_lang : env_lang = 
         {var_table = {tyidents = Symtab.make [], idents = Symtab.make []}, 
-         scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = []}
+         scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = [],
+         env_directives = Symtab.empty}
 fun empty_env_tree context =
         {context = context, reports_text = []}
 val empty_rule_output : rule_output = 
@@ -295,6 +308,13 @@ fun map_reports_text f = C_Env.map_env_tree (C_Env.map_reports_text f)
 (**)
 
 fun get_reports_text (t : C_Env.T) = #env_tree t |> #reports_text
+
+(**)
+
+fun map_env_directives' f {var_table, scopes, namesupply, stream_ignored, env_directives} =
+  let val (res, env_directives) = f env_directives
+  in (res, {var_table = var_table, scopes = scopes, namesupply = namesupply, 
+                      stream_ignored = stream_ignored, env_directives = env_directives}) end
 
 (**)
 

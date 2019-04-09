@@ -764,6 +764,21 @@ structure Antiquotations = Theory_Data
   fun merge data : T = Name_Space.merge_tables data;
 );
 
+type env_direct = env_directives * C_Env.env_tree
+
+structure Directives = Generic_Data
+  (type T = (Position.T list
+             * serial
+             * (C_Lex.token_kind_directive
+                -> env_direct
+                -> int option (* result path of conditional directive to choose *)
+                   * antiq_language list (* nested annotations from the input *)
+                   * env_direct (*NOTE: remove the possibility of returning a too modified env?*)))
+            Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = #2);
+
 val get_antiquotations = Antiquotations.get o Proof_Context.theory_of;
 
 fun check_antiquotation ctxt =
@@ -867,6 +882,34 @@ val print = tracing o cat_lines o print0 ""
 
 in
 
+fun markup_directive_command def ps (name, id) =
+  let 
+    fun markup_elem name = (name, (name, []): Markup.T);
+    val (varN, var) = markup_elem "directive command";
+    val entity = Markup.entity varN name
+  in
+    var ::
+    ((if def then I else cons (Markup.keyword_properties Markup.keyword1)))
+      (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
+  end
+
+fun directive_update (name, pos) f tab =
+  let val pos = [pos]
+      val id = serial ()
+      val _ = markup_directive_command true pos (name, id)
+  in Symtab.update (name, (pos, id, f)) tab end
+
+fun markup_directive_define def in_direct ps (name, id) =
+  let 
+    fun markup_elem name = (name, (name, []): Markup.T);
+    val (varN, var) = markup_elem "directive define";
+    val entity = Markup.entity varN name
+  in
+    var ::
+    (cons (Markup.keyword_properties (if def orelse in_direct then Markup.operator else Markup.antiquote)))
+      (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
+  end
+
 fun eval flags pos ants =
   let
     val non_verbose = ML_Compiler.verbose false flags;
@@ -905,36 +948,35 @@ fun eval flags pos ants =
   in () end;
 
 fun eval'0 env err accept ants {context, reports_text} =
-  let val ants =
-        maps (fn Left (pos, antiq as {explicit, body, ...}, cts) =>
-                 let val (res, l_comm) = scan_antiq context body
-                 in 
-                   [ Left
-                       ( antiq
-                       , l_comm
-                       , if forall (fn Right _ => true | _ => false) res then
-                           let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
-                               val (l_report, l_tok) = split_list res
-                           in [(Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, if explicit then flat l_report else []), cts))), l_tok)] end
-                         else
-                           map (fn Left x => x
-                                 | Right (msg, l_report, tok) =>
-                                     (Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o Right o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
-                               res) ]
-                 end
-               | Right tok => [Right tok])
-             ants
+  let fun scan_comment tag pos (antiq as {explicit, body, ...}) cts =
+           let val (res, l_comm) = scan_antiq context body
+           in 
+             Left
+                 ( tag
+                 , antiq
+                 , l_comm
+                 , if forall (fn Right _ => true | _ => false) res then
+                     let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
+                         val (l_report, l_tok) = split_list res
+                     in [(Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, if explicit then flat l_report else []), cts))), l_tok)] end
+                   else
+                     map (fn Left x => x
+                           | Right (msg, l_report, tok) =>
+                               (Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o Right o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
+                         res)
+           end
 
-      fun map_ants f1 f2 = maps (fn Left x => f1 x | Right tok => f2 tok) ants
-      fun map_ants' f1 = map_ants (fn (_, _, l) => maps f1 l) (K [])
+      val ants = map (fn C_Lex.Token (pos, (C_Lex.Comment (Left antiq), cts)) =>
+                          scan_comment Comment_language pos antiq cts
+                       | tok => Right tok)
+                     ants
 
-      val ants_stack =
-        map_ants (single o Left o (fn (a, _, l) => (a, maps (single o #1) l)))
-                 (single o Right)
-      val ants_none = map_ants' (fn (Antiq_none x, _) => [x] | _ => [])
+      fun map_ants f1 f2 = maps (fn Left x => f1 x | Right tok => f2 tok)
 
-      val _ = Position.reports (maps (fn Left (_, _, [(Antiq_none _, _)]) => []
-                                       | Left ({start, stop, range = (pos, _), ...}, _, _) =>
+      val ants_none = map_ants (fn (_, _, _, l) => maps (fn (Antiq_none x, _) => [x] | _ => []) l) (K []) ants
+
+      val _ = Position.reports (maps (fn Left (_, _, _, [(Antiq_none _, _)]) => []
+                                       | Left (_, {start, stop, range = (pos, _), ...}, _, _) =>
                                           (case stop of SOME stop => cons (stop, Markup.antiquote)
                                                       | NONE => I)
                                             [(start, Markup.antiquote),
@@ -942,14 +984,83 @@ fun eval'0 env err accept ants {context, reports_text} =
                                        | _ => [])
                                      ants);
       val _ = Position.reports_text (maps C_Lex.token_report ants_none
-                                     @ maps (fn Left (_, _, [(Antiq_none _, _)]) => []
-                                              | Left (_, l, ls) =>
+                                     @ maps (fn Left (_, _, _, [(Antiq_none _, _)]) => []
+                                              | Left (_, _, l, ls) =>
                                                   maps (fn (Antiq_stack (pos, _), _) => pos | _ => []) ls
                                                   @ maps (maps (C_Token.reports ())) (l :: map #2 ls)
                                               | _ => [])
                                             ants);
       val _ = C_Lex.check ants_none;
 
+      val ((ants, {context, reports_text}), env) =
+        C_Env_Ext.map_env_directives'
+          (fn env_dir =>
+            let val (ants, (env_dir, env_tree)) =
+              fold_map
+                let
+                  fun subst_directive tok (range1 as (pos1, _)) name (env_dir, env_tree) =
+                    case Symtab.lookup env_dir name of
+                      NONE => (Right (Left tok), (env_dir, env_tree))
+                    | SOME (pos0, id, toks) =>
+                        let val _ = Position.reports [(pos1, Markup.language_antiquotation)]
+                        in
+                          ( Right (Right (pos1, map (C_Lex.set_range range1) toks))
+                          , (env_dir, C_Env.map_reports_text (Hsk_c_parser.report [pos1] (markup_directive_define false false pos0) (name, id)) env_tree))
+                        end
+                in
+                 fn Left (tag, antiq, toks, l_antiq) =>
+                      fold_map (fn antiq as (Antiq_stack (_, Lexing (_, exec)), _) =>
+                                     apsnd (stack_exec0 (exec Comment_language)) #> pair antiq
+                                 | (Antiq_stack (rep, Parsing (syms, (range, env1, _, skip, exec))), toks) =>
+                                     (fn env as (env_dir, _) =>
+                                       ((Antiq_stack (rep, Parsing (syms, (range, env1, env_dir, skip, exec))), toks), env))
+                                 | antiq => pair antiq)
+                               l_antiq
+                      #> apfst (fn l_antiq => Left (tag, antiq, toks, l_antiq))
+                  | Right tok =>
+                  case tok of
+                    C_Lex.Token (_, (C_Lex.Directive dir, _)) =>
+                      (case C_Lex.directive_first_cmd_of dir of
+                         NONE => I
+                       | SOME dir_tok =>
+                         apsnd (C_Env.map_reports_text (append (map (fn tok => ((C_Lex.pos_of tok, Markup.antiquote), "")) (C_Lex.directive_tail_cmds_of dir))))
+                         #>
+                         let val name = C_Lex.content_of dir_tok
+                             val pos1 = C_Lex.pos_of dir_tok
+                         in
+                           case Symtab.lookup (Directives.get context) name of
+                             NONE => apsnd (C_Env.map_reports_text (cons ((pos1, Markup.antiquote), "")))
+                           | SOME (pos0, id, exec) =>
+                               apsnd (C_Env.map_reports_text (Hsk_c_parser.report [pos1] (markup_directive_command false pos0) (name, id)))
+                               #> exec dir
+                               #> (fn (_, _, env) => env)
+                         end)
+                      #> tap
+                           (fn _ =>
+                             app (fn C_Lex.Token ((pos, _), (C_Lex.Comment (Left _), _)) =>
+                                     (Position.reports_text [((pos, Markup.ML_comment), "")];
+                                      (* not yet implemented *)
+                                      warning ("Ignored annotation in directive" ^ Position.here pos))
+                                   | _ => ())
+                                 (C_Lex.token_list_of dir))
+                      #> pair (Right (Left tok))
+                  | C_Lex.Token (pos, (C_Lex.Keyword, cts)) => subst_directive tok pos cts
+                  | C_Lex.Token (pos, (C_Lex.Ident, cts)) => subst_directive tok pos cts
+                  | _ => pair (Right (Left tok))
+                end
+                ants
+                (env_dir, {context = context, reports_text = reports_text})
+            in ((ants, env_tree), env_dir) end)
+          env
+
+      val ants_stack =
+        map_ants (single o Left o (fn (_, a, _, l) => (a, maps (single o #1) l)))
+                 (map Right o (fn Left tok => [tok] | Right (_, toks) => toks))
+                 ants
+      val _ = Position.reports_text (maps (fn Right (Left tok) => C_Lex.token_report tok
+                                            | Right (Right (pos, [])) => [((pos, Markup.intensify), "")]
+                                            | _ => [])
+                                          ants);
       val ctxt = Context.proof_of context
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
@@ -977,6 +1088,7 @@ end
 \<close>
 
 section \<open>\<close>
+subsection \<open>\<close>
 
 ML\<open>
 local
@@ -1033,14 +1145,14 @@ fun command0 f dir name =
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          Once ((stack1, stack2), (range, dir, to_delay, K (f src)))))
+          Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, K (f src)))))
 
 fun command f dir name =
   C_Annotation.command' name ""
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          Once ((stack1, stack2), (range, dir, to_delay, f src))))
+          Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
 
 in
 val _ = Theory.setup (   command (C_Toplevel.generic_theory oo C_Isar_Cmd.setup) Bottom_up ("\<approx>setup", \<^here>)
@@ -1051,6 +1163,49 @@ val _ = Theory.setup (   command (C_Toplevel.generic_theory oo C_Isar_Cmd.setup)
                       #> command0 (C_Toplevel.generic_theory o Isar_Cmd0.ML) Top_down ("ML\<Down>", \<^here>))
 end
 
+\<close>
+
+subsection \<open>\<close>
+
+ML\<open>
+val _ =
+  Theory.setup
+  (Context.theory_map
+    (C_Context.Directives.map
+      (C_Context.directive_update ("define", \<^here>)
+        (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
+            (fn (env_dir, env_tree) =>
+              ( NONE
+              , []
+              , let val name = C_Lex.content_of tok3
+                    val id = serial ()
+                    val pos = [C_Lex.pos_of tok3]
+                in
+                  ( Symtab.update (name, (pos, id, toks)) env_dir
+                  , C_Env.map_reports_text (Hsk_c_parser.report pos (C_Context.markup_directive_define true false pos) (name, id))
+                                           env_tree)
+                end))
+         | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
+             tap (fn _ => (* not yet implemented *)
+                          warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
+             #> (fn env => (NONE, [], env))
+         | _ => fn env => (NONE, [], env))
+       #>
+       C_Context.directive_update ("undef", \<^here>)
+        (fn C_Lex.Undef (C_Lex.Group2 (_, _, [tok])) =>
+            (fn (env_dir, env_tree) =>
+              ( NONE
+              , []
+              , let val name = C_Lex.content_of tok
+                    val pos1 = C_Lex.pos_of tok
+                in case Symtab.lookup env_dir name of
+                     NONE => (env_dir, C_Env.map_reports_text (cons ((pos1, Markup.intensify), "")) env_tree)
+                   | SOME (pos0, id, _) =>
+                       ( Symtab.delete name env_dir
+                       , C_Env.map_reports_text (Hsk_c_parser.report [pos1] (C_Context.markup_directive_define false true pos0) (name, id))
+                                                env_tree)
+                end))
+         | _ => fn env => (NONE, [], env)))))
 \<close>
 
 end
