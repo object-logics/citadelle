@@ -746,7 +746,7 @@ structure Stack_Data_Tree = Generic_Data
 
 fun setmp_tree f context =
   let val x = Stack_Data_Tree.get context
-      val context = f context
+      val context = f (Stack_Data_Tree.put [] context)
   in (Stack_Data_Tree.get context, Stack_Data_Tree.put x context) end
 
 fun stack_exec data_put f {context, reports_text} =

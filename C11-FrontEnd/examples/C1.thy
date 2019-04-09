@@ -352,6 +352,22 @@ int f (int a) {
 
 subsubsection \<open>4\<close>
 
+C \<comment> \<open>Propagation of report environment while manually composing at ML level (with \<open>#>\<close>)\<close>
+  \<comment> \<open>In \<open>c1 #> c2\<close>, \<open>c1\<close> and \<open>c2\<close> should not interfere each other.\<close> \<open>
+//@ ML \<open>fun C_env src _ _ env = C' env src\<close>
+int a;
+int f (int b) {
+int c = 0; /*@ \<approx>setup \<open>fn _ => fn _ => fn env =>
+     C' env \<open>int d = a + b + c + d; //@ \<approx>setup \<open>C_env \<open>int e = a + b + c + d;\<close>\<close>\<close>
+  #> C      \<open>int d = a + b + c + d; //@ \<approx>setup \<open>C_env \<open>int e = a + b + c + d;\<close>\<close>\<close>
+  #> C' env \<open>int d = a + b + c + d; //@ \<approx>setup \<open>C_env \<open>int e = a + b + c + d;\<close>\<close>\<close>
+  #> C      \<open>int d = a + b + c + d; //@ \<approx>setup \<open>C_env \<open>int e = a + b + c + d;\<close>\<close>\<close>
+\<close> */
+int e = a + b + c + d;
+}\<close>
+
+subsubsection \<open>5\<close>
+
 ML\<open>
 fun command_c' name _ _ _ =
   Context.map_theory 
@@ -389,7 +405,7 @@ int f (int a) {
      */;
 } \<close>
 
-subsubsection \<open>5\<close>
+subsubsection \<open>6\<close>
 
 C \<comment> \<open>Propagation of Updates\<close> \<open>
 typedef int i, j;
