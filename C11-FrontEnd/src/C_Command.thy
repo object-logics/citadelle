@@ -36,9 +36,11 @@
 
 theory C_Command
   imports C_Annotation
-  keywords "C" :: thy_decl
+  keywords "C" :: thy_decl % "ML"
        and "C_file" :: thy_load % "ML"
-       and "C_dump" :: thy_load % "ML"
+       and "C_export" :: thy_decl % "ML"
+       and "C_prf" :: prf_decl % "proof"  (* FIXME % "ML" ?? *)
+       and "C_val" "C_dump" :: diag % "ML"
 begin
 
 section \<open>The Global C11-Module State\<close>
@@ -65,13 +67,38 @@ end
 \<close>
 
 section \<open>The Isar Binding to the C11 Interface.\<close>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
+(*  Title:      Pure/Pure.thy
+    Author:     Makarius
+
+The Pure theory, with definitions of Isar commands and some lemmas.
+*)
+
+subsection \<open>\<close>
 
 ML\<open>
+structure C_Outer_Parse =
+struct
+  val C_source = Parse.input (Parse.group (fn () => "C source") Parse.text)
+end
+\<close>
 
+ML\<open>
 structure C_Outer_Syntax =
 struct
 
-fun C source = 
+fun C_prf source =
+  Proof.map_context (Context.proof_map (ML_Context.exec (fn () => C_Context'.eval_source source)))
+  #> Proof.propagate_ml_env
+
+fun C_export source context =
+  context
+  |> ML_Env.set_bootstrap true
+  |> ML_Context.exec (fn () => C_Context'.eval_source source)
+  |> ML_Env.restore_bootstrap context
+  |> Local_Theory.propagate_ml_env
+
+fun C source =
   ML_Context.exec (fn () => C_Context'.eval_source source)
   #> Local_Theory.propagate_ml_env
 
@@ -85,17 +112,45 @@ fun C' err env_lang src =
   #> (fn {context, reports_text} => Stack_Data_Tree.map (append reports_text) context)
 
 val _ =
-  Outer_Syntax.command @{command_keyword C} ""
-    (Parse.input (Parse.group (fn () => "C source") Parse.text)
-     >> (Toplevel.generic_theory o C));
+  Outer_Syntax.command \<^command_keyword>\<open>C\<close> ""
+    (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C));
+
 end
 \<close>
 
-section \<open>The Command @{command C_file}\<close>
+ML\<open>
+structure C_Outer_Isar_Cmd =
+struct
+(* diagnostic ML evaluation *)
+
+structure Diag_State = Proof_Data
+(
+  type T = Toplevel.state;
+  fun init _ = Toplevel.toplevel;
+);
+
+fun C_diag source state =
+  let
+    val opt_ctxt =
+      try Toplevel.generic_theory_of state
+      |> Option.map (Context.proof_of #> Diag_State.put state);
+  in Context.setmp_generic_context (Option.map Context.Proof opt_ctxt)
+    (fn () => C_Context'.eval_source source) () end;
+
+val diag_state = Diag_State.get;
+val diag_goal = Proof.goal o Toplevel.proof_of o diag_state;
+
+val _ = Theory.setup
+  (ML_Antiquotation.value (Binding.qualify true "Isar" \<^binding>\<open>C_state\<close>)
+    (Scan.succeed "C_Outer_Isar_Cmd.diag_state ML_context") #>
+   ML_Antiquotation.value (Binding.qualify true "Isar" \<^binding>\<open>C_goal\<close>)
+    (Scan.succeed "C_Outer_Isar_Cmd.diag_goal ML_context"));
+
+end
+\<close>
 
 ML\<open>
-
-structure C_File =
+structure C_Outer_File =
 struct
 
 fun command0 ({src_path, lines, digest, pos}: Token.file) =
@@ -106,30 +161,40 @@ fun command0 ({src_path, lines, digest, pos}: Token.file) =
     #> Context.mapping provide (Local_Theory.background_theory provide)
   end;
 
-fun command files =
-  Toplevel.generic_theory
-    (fn gthy => command0 (hd (files (Context.theory_of gthy))) gthy);
+fun command files gthy =
+  command0 (hd (files (Context.theory_of gthy))) gthy;
 
 end;
 \<close>
 
-section \<open>Reading and Writing C-Files\<close>
+subsection \<open>Reading and Writing C-Files\<close>
 
 ML\<open>
 local
 
-val semi = Scan.option @{keyword ";"};
+val semi = Scan.option \<^keyword>\<open>;\<close>;
 
 val _ =
-  Outer_Syntax.command @{command_keyword C_file} "read and evaluate C file"
-    (Resources.parse_files "C_file" --| semi >> C_File.command);
+  Outer_Syntax.command \<^command_keyword>\<open>C_file\<close> "read and evaluate Isabelle/C file"
+    (Resources.parse_files "C_file" --| semi >> (Toplevel.generic_theory o C_Outer_File.command));
 
 val _ =
-  Outer_Syntax.command @{command_keyword C_dump} "read and evaluate C file"
-    (Resources.parse_files "C_file" --| semi >> C_File.command);   (* HACK: TO BE DONE *)
+  Outer_Syntax.command \<^command_keyword>\<open>C_export\<close>
+    "C text within theory or local theory, and export to bootstrap environment"
+    (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C_Outer_Syntax.C_export));
 
+val _ =
+  Outer_Syntax.command \<^command_keyword>\<open>C_prf\<close> "C text within proof"
+    (C_Outer_Parse.C_source >> (Toplevel.proof o C_Outer_Syntax.C_prf));
 
-in end
-\<close>
+val _ =
+  Outer_Syntax.command \<^command_keyword>\<open>C_val\<close> "diagnostic C text"
+    (C_Outer_Parse.C_source >> (Toplevel.keep o C_Outer_Isar_Cmd.C_diag));
+
+val _ =
+  Outer_Syntax.command \<^command_keyword>\<open>C_dump\<close> "diagnostic C text"
+    (C_Outer_Parse.C_source >> (Toplevel.keep o C_Outer_Isar_Cmd.C_diag));   (* HACK: TO BE DONE *)
+
+in end\<close>
 
 end
