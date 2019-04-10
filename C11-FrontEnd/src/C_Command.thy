@@ -43,6 +43,49 @@ theory C_Command
        and "C_val" "C_dump" :: diag % "ML"
 begin
 
+section \<open>Definitions of Directive Commands\<close>
+
+ML\<open>
+val _ =
+  Theory.setup
+  (Context.theory_map
+    (C_Context.Directives.map
+      (C_Context.directive_update ("define", \<^here>)
+        (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
+            (fn (env_dir, env_tree) =>
+              ( NONE
+              , []
+              , let val name = C_Lex.content_of tok3
+                    val id = serial ()
+                    val pos = [C_Lex.pos_of tok3]
+                in
+                  ( Symtab.update (name, (pos, id, toks)) env_dir
+                  , C_Env.map_reports_text (Hsk_c_parser.report pos (C_Context.markup_directive_define true false pos) (name, id))
+                                           env_tree)
+                end))
+         | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
+             tap (fn _ => (* not yet implemented *)
+                          warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
+             #> (fn env => (NONE, [], env))
+         | _ => fn env => (NONE, [], env))
+       #>
+       C_Context.directive_update ("undef", \<^here>)
+        (fn C_Lex.Undef (C_Lex.Group2 (_, _, [tok])) =>
+            (fn (env_dir, env_tree) =>
+              ( NONE
+              , []
+              , let val name = C_Lex.content_of tok
+                    val pos1 = C_Lex.pos_of tok
+                in case Symtab.lookup env_dir name of
+                     NONE => (env_dir, C_Env.map_reports_text (cons ((pos1, Markup.intensify), "")) env_tree)
+                   | SOME (pos0, id, _) =>
+                       ( Symtab.delete name env_dir
+                       , C_Env.map_reports_text (Hsk_c_parser.report [pos1] (C_Context.markup_directive_define false true pos0) (name, id))
+                                                env_tree)
+                end))
+         | _ => fn env => (NONE, [], env)))))
+\<close>
+
 section \<open>Definitions of Annotation Commands\<close>
 
 ML\<open>
@@ -117,49 +160,6 @@ val _ = Theory.setup (   command (C_Inner_Toplevel.generic_theory oo C_Inner_Isa
                       #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) Bottom_up ("ML", \<^here>)
                       #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) Top_down ("ML\<Down>", \<^here>))
 end
-\<close>
-
-section \<open>Definitions of Directive Commands\<close>
-
-ML\<open>
-val _ =
-  Theory.setup
-  (Context.theory_map
-    (C_Context.Directives.map
-      (C_Context.directive_update ("define", \<^here>)
-        (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
-            (fn (env_dir, env_tree) =>
-              ( NONE
-              , []
-              , let val name = C_Lex.content_of tok3
-                    val id = serial ()
-                    val pos = [C_Lex.pos_of tok3]
-                in
-                  ( Symtab.update (name, (pos, id, toks)) env_dir
-                  , C_Env.map_reports_text (Hsk_c_parser.report pos (C_Context.markup_directive_define true false pos) (name, id))
-                                           env_tree)
-                end))
-         | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
-             tap (fn _ => (* not yet implemented *)
-                          warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
-             #> (fn env => (NONE, [], env))
-         | _ => fn env => (NONE, [], env))
-       #>
-       C_Context.directive_update ("undef", \<^here>)
-        (fn C_Lex.Undef (C_Lex.Group2 (_, _, [tok])) =>
-            (fn (env_dir, env_tree) =>
-              ( NONE
-              , []
-              , let val name = C_Lex.content_of tok
-                    val pos1 = C_Lex.pos_of tok
-                in case Symtab.lookup env_dir name of
-                     NONE => (env_dir, C_Env.map_reports_text (cons ((pos1, Markup.intensify), "")) env_tree)
-                   | SOME (pos0, id, _) =>
-                       ( Symtab.delete name env_dir
-                       , C_Env.map_reports_text (Hsk_c_parser.report [pos1] (C_Context.markup_directive_define false true pos0) (name, id))
-                                                env_tree)
-                end))
-         | _ => fn env => (NONE, [], env)))))
 \<close>
 
 section \<open>Definitions of Outer Commands\<close>
