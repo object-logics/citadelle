@@ -43,8 +43,7 @@ theory C_Command
        and "C_val" "C_dump" :: diag % "ML"
 begin
 
-section \<open>\<close>
-subsection \<open>\<close>
+section \<open>Definitions of Annotation Commands\<close>
 
 ML\<open>
 local
@@ -118,10 +117,9 @@ val _ = Theory.setup (   command (C_Inner_Toplevel.generic_theory oo C_Inner_Isa
                       #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) Bottom_up ("ML", \<^here>)
                       #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) Top_down ("ML\<Down>", \<^here>))
 end
-
 \<close>
 
-subsection \<open>\<close>
+section \<open>Definitions of Directive Commands\<close>
 
 ML\<open>
 val _ =
@@ -164,7 +162,8 @@ val _ =
          | _ => fn env => (NONE, [], env)))))
 \<close>
 
-section \<open>The Global C11-Module State\<close>
+section \<open>Definitions of Outer Commands\<close>
+subsection \<open>The Global C11-Module State\<close>
 
 ML\<open>
 structure C11_core = (*Old C11 Env - deprecated?*)
@@ -262,15 +261,13 @@ val eval_source =
 end
 \<close>
 
-section \<open>The Isar Binding to the C11 Interface.\<close>
+subsection \<open>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Pure.thy
     Author:     Makarius
 
 The Pure theory, with definitions of Isar commands and some lemmas.
 *)
-
-subsection \<open>\<close>
 
 ML\<open>
 structure C_Outer_Parse =
@@ -363,7 +360,7 @@ fun command files gthy =
 end;
 \<close>
 
-subsection \<open>Reading and Writing C-Files\<close>
+subsubsection \<open>Reading and Writing C-Files\<close>
 
 ML\<open>
 local
