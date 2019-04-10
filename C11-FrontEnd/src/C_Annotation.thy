@@ -314,7 +314,7 @@ fun text_of tok =
 
 open Basic_Symbol_Pos;
 
-val err_prefix = "C outer lexical error: ";
+val err_prefix = "Annotation lexical error: ";
 
 fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> content_of') []
 
@@ -484,8 +484,8 @@ fun cut kind scan =
             end);
   in Scan.!! err scan end;
 
-fun !!! scan = cut "C outer syntax error" scan;
-fun !!!! scan = cut "Corrupted C outer syntax in presentation" scan;
+fun !!! scan = cut "Annotation syntax error" scan;
+fun !!!! scan = cut "Corrupted annotation syntax in presentation" scan;
 
 (** basic parsers **)
 
@@ -593,7 +593,7 @@ fun err_command msg name ps =
   error (msg ^ quote (Markup.markup Markup.keyword1 name) ^ Position.here_list ps);
 
 fun err_dup_command name ps =
-  err_command "Duplicate C outer syntax command " name ps;
+  err_command "Duplicate annotation syntax command " name ps;
 
 
 (* command parsers *)
