@@ -129,7 +129,11 @@ ML\<open>
 
 structure Hsk_c_parser : HSK_C_PARSER =
 struct
-(******************************************************************************
+(*
+ * Modified by Frédéric Tuong, Université Paris-Saclay
+ *
+ *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+ *
  * Language.C
  * https://hackage.haskell.org/package/language-c
  *
@@ -144,7 +148,7 @@ struct
  * https://hackage.haskell.org/package/language-c-comments
  *
  * Copyright (c) 2010-2014 Geoff Hulette
-*)
+ *)
   open C_ast_simple
   type arg = C_Env.T
   type 'a p = arg -> 'a * arg
