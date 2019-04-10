@@ -35,8 +35,8 @@
  ******************************************************************************)
 
 theory C_Eval
-  imports C_Parser
-          C_Annotation
+  imports C_Parser_Lang
+          C_Parser_Annot
 begin
 
 section \<open>\<close>
