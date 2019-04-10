@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C_Command
-  imports C_Annotation
+  imports C_Eval
   keywords "C" :: thy_decl % "ML"
        and "C_file" :: thy_load % "ML"
        and "C_export" :: thy_decl % "ML"
