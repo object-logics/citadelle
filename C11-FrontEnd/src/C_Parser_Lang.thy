@@ -519,11 +519,11 @@ end
 ML_file "../generated/language_c.grm.sml"
 
 ML\<open>
-structure StrictCLrVals = StrictCLrValsFun(structure Token = LrParser1.Token)
+structure C_Grammar = StrictCLrValsFun(structure Token = LrParser1.Token)
 \<close>
 
 ML\<open>
-local open StrictCLrVals.Tokens in
+local open C_Grammar.Tokens in
   fun token_of_string error ty_ClangCVersion ty_cChar ty_cFloat ty_cInteger ty_cString ty_ident ty_string a1 a2 = fn
      "(" => x28 (ty_string, a1, a2)
     | ")" => x29 (ty_string, a1, a2)

@@ -46,8 +46,8 @@ which interprets a automata-like format generated from smlyacc.\<close>
 
 ML\<open>
 type 'a stack_elem = (LrTable.state, 'a, Position.T) C_Env.stack_elem0
-type stack_data = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) C_Env.stack0
-type stack_data_elem = (LrTable.state, StrictCLrVals.Tokens.svalue0, Position.T) C_Env.stack_elem0
+type stack_data = (LrTable.state, C_Grammar.Tokens.svalue0, Position.T) C_Env.stack0
+type stack_data_elem = (LrTable.state, C_Grammar.Tokens.svalue0, Position.T) C_Env.stack_elem0
 
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
@@ -81,9 +81,9 @@ fun stack_exec0 f {context, reports_text} =
 fun stack_exec env_dir data_put f =
   stack_exec0 (Stack_Data_Lang.put (apsnd (C_Env.map_env_directives (K env_dir)) data_put) #> f)
 
-structure StrictCLex : ARG_LEXER1 =
+structure C_Grammar_Lexer : ARG_LEXER1 =
 struct
-structure Tokens = StrictCLrVals.Tokens
+structure Tokens = C_Grammar.Tokens
 structure UserDeclarations =
 struct
   type ('a,'b) token = ('a, 'b) Tokens.token
@@ -91,7 +91,7 @@ struct
   type arg = Tokens.arg
   type svalue0 = Tokens.svalue0
   type svalue = arg -> svalue0 * arg
-  type state = StrictCLrVals.ParserData.LrTable.state
+  type state = C_Grammar.ParserData.LrTable.state
 end
 
 type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack'
@@ -183,11 +183,11 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
        case tok of
          C_Lex.Char (b, [c]) =>
-          return0 (StrictCLrVals.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
+          return0 (C_Grammar.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
        | C_Lex.String (b, s) =>
-          return0 (StrictCLrVals.Tokens.cstr (C_ast_simple.CString0 (From_string (implode s), b), pos1, pos2))
+          return0 (C_Grammar.Tokens.cstr (C_ast_simple.CString0 (From_string (implode s), b), pos1, pos2))
        | C_Lex.Integer (i, repr, flag) =>
-          return0 (StrictCLrVals.Tokens.cint
+          return0 (C_Grammar.Tokens.cint
                     ( CInteger i repr
                         (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
                                               flag
@@ -201,9 +201,9 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
               val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' false (pos1, pos2)) src name
           in return0
                (if Hsk_c_parser.isTypeIdent src arg then
-                  StrictCLrVals.Tokens.tyident (ident0, pos1, pos2)
+                  C_Grammar.Tokens.tyident (ident0, pos1, pos2)
                 else
-                  StrictCLrVals.Tokens.ident (ident0, pos1, pos2))
+                  C_Grammar.Tokens.ident (ident0, pos1, pos2))
           end
        | _ => 
           token_of_string (Tokens.error (pos1, pos2))
@@ -223,12 +223,12 @@ end
 \<close>
 text\<open>This is where the instatiation of the Parser Functor with the Lexer actually happens ...\<close>
 ML\<open>
-structure StrictCParser =
+structure C_Grammar_Parser =
   JoinWithArg1(structure LrParser = LrParser1
-               structure ParserData = StrictCLrVals.ParserData
-               structure Lex = StrictCLex)
+               structure ParserData = C_Grammar.ParserData
+               structure Lex = C_Grammar_Lexer)
 
-structure P = struct
+structure C_Language = struct
 
 open C_Env
 
@@ -259,10 +259,10 @@ fun exec_tree' l env_tree = env_tree
 
 fun uncurry_context f pos = uncurry (fn x => fn arg => map_env_tree (f pos x (#env_lang arg)) arg)
 
-fun parse env_lang err accept stream_lang =
+fun eval env_lang err accept stream_lang =
  make env_lang stream_lang
- #> StrictCParser.makeLexer
- #> StrictCParser.parse
+ #> C_Grammar_Parser.makeLexer
+ #> C_Grammar_Parser.parse
       ( 0
       , uncurry_context (fn (next_pos1, next_pos2) => fn (stack, _, _, stack_tree) => fn env_lang =>
           C_Env.map_reports_text
@@ -401,7 +401,7 @@ fun markup_directive_define def in_direct ps (name, id) =
       (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
   end
 
-fun eval'0 env err accept ants {context, reports_text} =
+fun eval env err accept ants {context, reports_text} =
   let fun scan_comment tag pos (antiq as {explicit, body, ...}) cts =
            let val (res, l_comm) = scan_antiq context body
            in 
@@ -519,7 +519,7 @@ fun eval'0 env err accept ants {context, reports_text} =
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
-  in P.parse env err accept ants_stack {context = context, reports_text = reports_text} end
+  in C_Language.eval env err accept ants_stack {context = context, reports_text = reports_text} end
 
 
 (* derived versions *)
@@ -528,10 +528,10 @@ fun eval' env err accept ants =
   Context.>> (C_Env_Ext.context_map
                let val tap_report = tap (Position.reports_text o #reports_text)
                                     #> (C_Env.empty_env_tree o #context)
-               in eval'0 env
-                         (fn env_lang => fn stack => fn pos => tap_report #> err env_lang stack pos)
-                         (fn env_lang => fn stack => accept env_lang stack #> tap_report)
-                         ants
+               in eval env
+                       (fn env_lang => fn stack => fn pos => tap_report #> err env_lang stack pos)
+                       (fn env_lang => fn stack => accept env_lang stack #> tap_report)
+                       ants
                end)
 end;
 
@@ -539,7 +539,7 @@ fun eval_source env err accept source =
   eval' env err accept (C_Lex.read_source source);
 
 fun eval_source' env err accept source =
-  eval'0 env err accept (C_Lex.read_source source);
+  eval env err accept (C_Lex.read_source source);
 
 end
 \<close>
