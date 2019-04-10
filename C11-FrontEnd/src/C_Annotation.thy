@@ -1102,7 +1102,7 @@ fun expression range name constraint body ants context = context |>
       ML_Lex.read (": " ^ constraint ^ " =") @ ants @
       ML_Lex.read ("in " ^ body ^ " end (Context.the_generic_context ())));")) end;
 
-structure C_Toplevel =
+structure C_Inner_Toplevel =
 struct
 val theory = Context.map_theory
 val generic_theory = I
@@ -1115,7 +1115,7 @@ fun ML source =  ML_Context.exec (fn () =>
                   Local_Theory.propagate_ml_env
 end
 
-structure C_Isar_Cmd = 
+structure C_Inner_Isar_Cmd = 
 struct
 fun setup src =
  fn NONE =>
@@ -1157,12 +1157,12 @@ fun command f dir name =
           Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
 
 in
-val _ = Theory.setup (   command (C_Toplevel.generic_theory oo C_Isar_Cmd.setup) Bottom_up ("\<approx>setup", \<^here>)
-                      #> command (C_Toplevel.generic_theory oo C_Isar_Cmd.setup) Top_down ("\<approx>setup\<Down>", \<^here>)
-                      #> command0 (C_Toplevel.theory o Isar_Cmd.setup) Bottom_up ("setup", \<^here>)
-                      #> command0 (C_Toplevel.theory o Isar_Cmd.setup) Top_down ("setup\<Down>", \<^here>)
-                      #> command0 (C_Toplevel.generic_theory o Isar_Cmd0.ML) Bottom_up ("ML", \<^here>)
-                      #> command0 (C_Toplevel.generic_theory o Isar_Cmd0.ML) Top_down ("ML\<Down>", \<^here>))
+val _ = Theory.setup (   command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) Bottom_up ("\<approx>setup", \<^here>)
+                      #> command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) Top_down ("\<approx>setup\<Down>", \<^here>)
+                      #> command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) Bottom_up ("setup", \<^here>)
+                      #> command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) Top_down ("setup\<Down>", \<^here>)
+                      #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) Bottom_up ("ML", \<^here>)
+                      #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) Top_down ("ML\<Down>", \<^here>))
 end
 
 \<close>
