@@ -129,6 +129,7 @@ end
 \<close>
 
 ML\<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Isar/token.ML
     Author:     Markus Wenzel, TU Muenchen
 
@@ -442,6 +443,7 @@ type 'a c_context_parser = 'a C_Token.context_parser;
 \<close>
 
 ML\<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Isar/parse.ML
     Author:     Markus Wenzel, TU Muenchen
 
