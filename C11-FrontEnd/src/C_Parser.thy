@@ -124,9 +124,6 @@ sig
   val doFuncParamDeclIdent : CDeclr -> unit p
 end
 
-\<close>
-ML\<open>
-
 structure Hsk_c_parser : HSK_C_PARSER =
 struct
 (*

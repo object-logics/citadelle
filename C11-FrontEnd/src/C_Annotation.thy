@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C_Annotation
-  imports C_Parser
+  imports C_Env
 begin
 
 section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>

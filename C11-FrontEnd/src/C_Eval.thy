@@ -35,7 +35,8 @@
  ******************************************************************************)
 
 theory C_Eval
-  imports C_Annotation
+  imports C_Parser
+          C_Annotation
 begin
 
 ML\<open>
