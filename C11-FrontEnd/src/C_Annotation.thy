@@ -575,8 +575,8 @@ end
 \<close>
 
 ML\<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Isar/outer_syntax.ML
-    Author:     Frederic Tuong, Univ. Paris-Saclay
     Author:     Markus Wenzel, TU Muenchen
 
 Isabelle/Isar outer syntax.
