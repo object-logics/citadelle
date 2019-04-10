@@ -37,8 +37,8 @@
 theory C_Command
   imports C_Annotation
   keywords "C" :: thy_decl
-       and "C_import" :: thy_load % "ML"
-       and "C_export" :: thy_load % "ML"
+       and "C_file" :: thy_load % "ML"
+       and "C_dump" :: thy_load % "ML"
 begin
 
 section \<open>The Global C11-Module State\<close>
@@ -91,7 +91,7 @@ val _ =
 end
 \<close>
 
-section \<open>The Command @{command C_import}\<close>
+section \<open>The Command @{command C_file}\<close>
 
 ML\<open>
 
@@ -121,11 +121,11 @@ local
 val semi = Scan.option @{keyword ";"};
 
 val _ =
-  Outer_Syntax.command @{command_keyword C_import} "read and evaluate C file"
+  Outer_Syntax.command @{command_keyword C_file} "read and evaluate C file"
     (Resources.parse_files "C_file" --| semi >> C_File.command);
 
 val _ =
-  Outer_Syntax.command @{command_keyword C_export} "read and evaluate C file"
+  Outer_Syntax.command @{command_keyword C_dump} "read and evaluate C file"
     (Resources.parse_files "C_file" --| semi >> C_File.command);   (* HACK: TO BE DONE *)
 
 
