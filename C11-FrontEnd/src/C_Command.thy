@@ -90,13 +90,6 @@ section \<open>Definitions of Annotation Commands\<close>
 
 ML\<open>
 local
-fun expression range name constraint body ants context = context |>
-  ML_Context.exec let val verbose = Config.get (Context.proof_of context) C_Options.ML_verbose
-                  in fn () =>
-    ML_Context.eval (ML_Compiler.verbose verbose ML_Compiler.flags) (#1 range)
-     (ML_Lex.read "Context.put_generic_context (SOME (let val " @ ML_Lex.read_set_range range name @
-      ML_Lex.read (": " ^ constraint ^ " =") @ ants @
-      ML_Lex.read ("in " ^ body ^ " end (Context.the_generic_context ())));")) end;
 
 structure C_Inner_Toplevel =
 struct
@@ -116,7 +109,7 @@ struct
 fun setup src =
  fn NONE =>
     let val setup = "setup"
-    in expression
+    in C_Context.expression
         (Input.range_of src)
         setup
         "stack_data -> stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic"
@@ -126,7 +119,7 @@ fun setup src =
         (ML_Lex.read_source false src) end
   | SOME rule => 
     let val hook = "hook"
-    in expression
+    in C_Context.expression
         (Input.range_of src)
         hook
         ("stack_data -> " ^ C_Grammar_Rule.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")

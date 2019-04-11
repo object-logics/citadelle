@@ -540,6 +540,13 @@ fun eval_source env err accept source =
 fun eval_source' env err accept source =
   eval env err accept (C_Lex.read_source source);
 
+fun expression range name constraint body ants context = context |>
+  ML_Context.exec let val verbose = Config.get (Context.proof_of context) C_Options.ML_verbose
+                  in fn () =>
+    ML_Context.eval (ML_Compiler.verbose verbose ML_Compiler.flags) (#1 range)
+     (ML_Lex.read "Context.put_generic_context (SOME (let val " @ ML_Lex.read_set_range range name @
+      ML_Lex.read (": " ^ constraint ^ " =") @ ants @
+      ML_Lex.read ("in " ^ body ^ " end (Context.the_generic_context ())));")) end;
 end
 \<close>
 
