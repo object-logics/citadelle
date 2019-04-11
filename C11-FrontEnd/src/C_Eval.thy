@@ -205,7 +205,8 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                   C_Grammar.Tokens.ident (ident0, pos1, pos2))
           end
        | _ => 
-          token_of_string (C_Grammar.Tokens.error (pos1, pos2))
+          C_Grammar_Tokens.token_of_string
+                          (C_Grammar.Tokens.error (pos1, pos2))
                           (C_Ast.ClangCVersion0 (From_string src))
                           (CChar #"0" false)
                           (CFloat (From_string src))

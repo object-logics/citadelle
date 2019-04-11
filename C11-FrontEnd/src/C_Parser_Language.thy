@@ -454,13 +454,12 @@ ML_file "../copied_from_git/mlton/lib/mlyacc-lib/base.sig"
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/join.sml"
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/lrtable.sml"
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/stream.sml"
-(*ML\<open>val foldl = List.foldl val foldr = List.foldr\<close>
-  ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser2.sml"*)
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser1.sml"
+
 ML_file "../generated/c_grammar_fun.grm.sig"
 
 ML\<open>
-structure C_Grammar_Rule_Wrap' = struct
+structure C_Grammar_Rule_Wrap_Overloading = struct
 open C_Grammar_Rule_Lib
 val To_string0 = String.implode o C_Ast.to_list
 
@@ -507,7 +506,7 @@ end
 
 structure C_Grammar_Rule_Wrap = struct
   open C_Grammar_Rule_Wrap
-  open C_Grammar_Rule_Wrap'
+  open C_Grammar_Rule_Wrap_Overloading
 end
 \<close>
 
@@ -518,6 +517,8 @@ structure C_Grammar = C_Grammar_Fun (structure Token = LALR_Parser_Eval.Token)
 \<close>
 
 ML\<open>
+structure C_Grammar_Tokens =
+struct
 local open C_Grammar.Tokens in
   fun token_of_string error ty_ClangCVersion ty_cChar ty_cFloat ty_cInteger ty_cString ty_ident ty_string a1 a2 = fn
      "(" => x28 (ty_string, a1, a2)
@@ -713,6 +714,7 @@ local open C_Grammar.Tokens in
     | "while" => while0
     | _ => error
     end
+end
 end
 \<close>
 
