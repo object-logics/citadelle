@@ -60,7 +60,7 @@ val _ =
                     val pos = [C_Lex.pos_of tok3]
                 in
                   ( Symtab.update (name, (pos, id, toks)) env_dir
-                  , C_Env.map_reports_text (Hsk_c_parser.report pos (C_Context.markup_directive_define true false pos) (name, id))
+                  , C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos (C_Context.markup_directive_define true false pos) (name, id))
                                            env_tree)
                 end))
          | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
@@ -80,7 +80,7 @@ val _ =
                      NONE => (env_dir, C_Env.map_reports_text (cons ((pos1, Markup.intensify), "")) env_tree)
                    | SOME (pos0, id, _) =>
                        ( Symtab.delete name env_dir
-                       , C_Env.map_reports_text (Hsk_c_parser.report [pos1] (C_Context.markup_directive_define false true pos0) (name, id))
+                       , C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (C_Context.markup_directive_define false true pos0) (name, id))
                                                 env_tree)
                 end))
          | _ => fn env => (NONE, [], env)))))
@@ -129,10 +129,10 @@ fun setup src =
     in expression
         (Input.range_of src)
         hook
-        ("stack_data -> " ^ MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+        ("stack_data -> " ^ C_Grammar_Rule.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
         ("fn context => \
            \let val (stack, env_lang) = Stack_Data_Lang.get context \
-           \in " ^ hook ^ " stack (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
+           \in " ^ hook ^ " stack (stack |> hd |> map_svalue0 C_Grammar_Rule.reduce" ^ Int.toString rule ^ ") env_lang end context")
         (ML_Lex.read_source false src)
     end
 
@@ -184,9 +184,9 @@ struct
                         cpp_macro    :  unit Name_Space.table,
                         builtin_id   : unit Name_Space.table,
                         builtin_func : unit Name_Space.table,
-                        global_var   : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table,
-                        local_var    : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table,
-                        global_func  : (NodeInfo C_ast_simple.cTypeSpecifier) Name_Space.table
+                        global_var   : (NodeInfo C_Ast.cTypeSpecifier) Name_Space.table,
+                        local_var    : (NodeInfo C_Ast.cTypeSpecifier) Name_Space.table,
+                        global_func  : (NodeInfo C_Ast.cTypeSpecifier) Name_Space.table
   }
 
   val mt_env = {cpp_id       = Name_Space.empty_table "cpp_id",

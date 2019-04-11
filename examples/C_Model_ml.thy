@@ -53,14 +53,14 @@ declare [[default_code_width = 236]]
 
 code_reserved SML Ident error
 
-meta_command' \<comment>\<open>\<^theory_text>\<open>code_reflect' open C_ast_simple functions main String.to_list S.flatten\<close>\<close> \<open>
+meta_command' \<comment>\<open>\<^theory_text>\<open>code_reflect' open C_Ast functions main String.to_list S.flatten\<close>\<close> \<open>
 let
   open META
   fun meta_command {shallow, deep = _, syntax_print = _} =
     [(META_semi_theories o Theories_one o Theory_code_reflect)
       (Code_reflect
         ( true
-        , From.string "C_ast_simple"
+        , From.string "C_Ast"
         , map From.string [ "main", "String.to_list", "S.flatten" ]
          @ (shallow
             |> hd
@@ -72,15 +72,15 @@ end
 \<close>
 
 ML\<open>
-structure C_ast_simple = struct
-  open C_ast_simple
+structure C_Ast = struct
+  open C_Ast
   val Ident = Ident0
 end
 \<close>
 
 section \<open>Language.C Haskell parsing in ML\<close>
 
-ML\<open>open C_ast_simple\<close>
+ML\<open>open C_Ast\<close>
 
 meta_command'\<open>
 let
@@ -103,7 +103,7 @@ let
                       , SML_rewrite ( b (to_String s)
                                     , From.string "="
                                     , b (case String.explode s' of
-                                           c :: s => Char.toLower c :: s |> String.implode |> (fn x => "C_ast_simple." ^ x) |> From.string))))
+                                           c :: s => Char.toLower c :: s |> String.implode |> (fn x => "C_Ast." ^ x) |> From.string))))
               end))]
 in meta_command
 end

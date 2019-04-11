@@ -71,10 +71,10 @@ fun command0 dir name =
                 in expression
                     (Input.range_of src)
                     hook
-                    (MlyValue.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+                    (C_Grammar_Rule.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
                     ("fn context => \
                        \let val (stack, env_lang) = Stack_Data_Lang.get context \
-                       \in " ^ hook ^ " (stack |> hd |> map_svalue0 MlyValue.reduce" ^ Int.toString rule ^ ") env_lang end context")
+                       \in " ^ hook ^ " (stack |> hd |> map_svalue0 C_Grammar_Rule.reduce" ^ Int.toString rule ^ ") env_lang end context")
                     (ML_Lex.read_source false src)
                 end)))
 in

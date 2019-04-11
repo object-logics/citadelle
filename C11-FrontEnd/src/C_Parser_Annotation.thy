@@ -34,8 +34,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory C_Parser_Annot
-  imports C_Env
+theory C_Parser_Annotation
+  imports C_Environment
 begin
 
 section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>

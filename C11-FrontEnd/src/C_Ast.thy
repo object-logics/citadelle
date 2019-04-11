@@ -38,11 +38,11 @@ theory C_Ast
   imports Main
 begin
 
-ML_file \<open>../generated/C_Ast.ML\<close>
+ML_file \<open>../generated/c_ast.ML\<close>
 
 ML\<open>
-structure C_ast_simple = struct
-  open C_ast_simple
+structure C_Ast = struct
+  open C_Ast
   val Ident = Ident0
 end
 \<close>
@@ -54,77 +54,77 @@ ML \<open>val Position = C_ast_simple.position val NoPosition = C_ast_simple.noP
 ML\<open>type class_Pos = Position.T * Position.T\<close>
 
 ML\<open>
-type NodeInfo = C_ast_simple.nodeInfo
-type CStorageSpec = NodeInfo C_ast_simple.cStorageSpecifier
-type CFunSpec = NodeInfo C_ast_simple.cFunctionSpecifier
-type CConst = NodeInfo C_ast_simple.cConstant
-type 'a CInitializerList = ('a C_ast_simple.cPartDesignator List.list * 'a C_ast_simple.cInitializer) List.list
-type CTranslUnit = NodeInfo C_ast_simple.cTranslationUnit
-type CExtDecl = NodeInfo C_ast_simple.cExternalDeclaration
-type CFunDef = NodeInfo C_ast_simple.cFunctionDef
-type CDecl = NodeInfo C_ast_simple.cDeclaration
-type CDeclr = NodeInfo C_ast_simple.cDeclarator
-type CDerivedDeclr = NodeInfo C_ast_simple.cDerivedDeclarator
-type CArrSize = NodeInfo C_ast_simple.cArraySize
-type CStat = NodeInfo C_ast_simple.cStatement
-type CAsmStmt = NodeInfo C_ast_simple.cAssemblyStatement
-type CAsmOperand = NodeInfo C_ast_simple.cAssemblyOperand
-type CBlockItem = NodeInfo C_ast_simple.cCompoundBlockItem
-type CDeclSpec = NodeInfo C_ast_simple.cDeclarationSpecifier
-type CTypeSpec = NodeInfo C_ast_simple.cTypeSpecifier
-type CTypeQual = NodeInfo C_ast_simple.cTypeQualifier
-type CAlignSpec = NodeInfo C_ast_simple.cAlignmentSpecifier
-type CStructUnion = NodeInfo C_ast_simple.cStructureUnion
-type CEnum = NodeInfo C_ast_simple.cEnumeration
-type CInit = NodeInfo C_ast_simple.cInitializer
+type NodeInfo = C_Ast.nodeInfo
+type CStorageSpec = NodeInfo C_Ast.cStorageSpecifier
+type CFunSpec = NodeInfo C_Ast.cFunctionSpecifier
+type CConst = NodeInfo C_Ast.cConstant
+type 'a CInitializerList = ('a C_Ast.cPartDesignator List.list * 'a C_Ast.cInitializer) List.list
+type CTranslUnit = NodeInfo C_Ast.cTranslationUnit
+type CExtDecl = NodeInfo C_Ast.cExternalDeclaration
+type CFunDef = NodeInfo C_Ast.cFunctionDef
+type CDecl = NodeInfo C_Ast.cDeclaration
+type CDeclr = NodeInfo C_Ast.cDeclarator
+type CDerivedDeclr = NodeInfo C_Ast.cDerivedDeclarator
+type CArrSize = NodeInfo C_Ast.cArraySize
+type CStat = NodeInfo C_Ast.cStatement
+type CAsmStmt = NodeInfo C_Ast.cAssemblyStatement
+type CAsmOperand = NodeInfo C_Ast.cAssemblyOperand
+type CBlockItem = NodeInfo C_Ast.cCompoundBlockItem
+type CDeclSpec = NodeInfo C_Ast.cDeclarationSpecifier
+type CTypeSpec = NodeInfo C_Ast.cTypeSpecifier
+type CTypeQual = NodeInfo C_Ast.cTypeQualifier
+type CAlignSpec = NodeInfo C_Ast.cAlignmentSpecifier
+type CStructUnion = NodeInfo C_Ast.cStructureUnion
+type CEnum = NodeInfo C_Ast.cEnumeration
+type CInit = NodeInfo C_Ast.cInitializer
 type CInitList = NodeInfo CInitializerList
-type CDesignator = NodeInfo C_ast_simple.cPartDesignator
-type CAttr = NodeInfo C_ast_simple.cAttribute
-type CExpr = NodeInfo C_ast_simple.cExpression
-type CBuiltin = NodeInfo C_ast_simple.cBuiltinThing
-type CStrLit = NodeInfo C_ast_simple.cStringLiteral
+type CDesignator = NodeInfo C_Ast.cPartDesignator
+type CAttr = NodeInfo C_Ast.cAttribute
+type CExpr = NodeInfo C_Ast.cExpression
+type CBuiltin = NodeInfo C_Ast.cBuiltinThing
+type CStrLit = NodeInfo C_Ast.cStringLiteral
 (**)
-type CAssignOp = C_ast_simple.cAssignOp
+type CAssignOp = C_Ast.cAssignOp
 (**)
 type 'a Reversed = 'a
-datatype CDeclrR = CDeclrR0 of C_ast_simple.ident C_ast_simple.optiona * NodeInfo C_ast_simple.cDerivedDeclarator list Reversed * NodeInfo C_ast_simple.cStringLiteral C_ast_simple.optiona * NodeInfo C_ast_simple.cAttribute list * NodeInfo
+datatype CDeclrR = CDeclrR0 of C_Ast.ident C_Ast.optiona * NodeInfo C_Ast.cDerivedDeclarator list Reversed * NodeInfo C_Ast.cStringLiteral C_Ast.optiona * NodeInfo C_Ast.cAttribute list * NodeInfo
 fun CDeclrR ide l s a n = CDeclrR0 (ide, l, s, a, n)
-type 'a Maybe = 'a C_ast_simple.optiona
-datatype 'a Located = Located of 'a * (C_ast_simple.position * (C_ast_simple.position * int))
-type ClangCVersion = C_ast_simple.clangCVersion
-type Ident = C_ast_simple.ident
-type Position = C_ast_simple.position
+type 'a Maybe = 'a C_Ast.optiona
+datatype 'a Located = Located of 'a * (C_Ast.position * (C_Ast.position * int))
+type ClangCVersion = C_Ast.clangCVersion
+type Ident = C_Ast.ident
+type Position = C_Ast.position
 type PosLength = Position * int
-type Name = C_ast_simple.name
+type Name = C_Ast.name
 type Bool = bool
-type CString = C_ast_simple.cString
-type CChar = C_ast_simple.cChar
-type CInteger = C_ast_simple.cInteger
-type CFloat = C_ast_simple.cFloat
-type CStructTag = C_ast_simple.cStructTag
-type CUnaryOp = C_ast_simple.cUnaryOp
-type 'a CStringLiteral = 'a C_ast_simple.cStringLiteral
-type 'a CConstant = 'a C_ast_simple.cConstant
-type ('a, 'b) Either = ('a, 'b) C_ast_simple.either
-type CIntRepr = C_ast_simple.cIntRepr
-type CIntFlag = C_ast_simple.cIntFlag
-type Comment = C_ast_simple.comment
+type CString = C_Ast.cString
+type CChar = C_Ast.cChar
+type CInteger = C_Ast.cInteger
+type CFloat = C_Ast.cFloat
+type CStructTag = C_Ast.cStructTag
+type CUnaryOp = C_Ast.cUnaryOp
+type 'a CStringLiteral = 'a C_Ast.cStringLiteral
+type 'a CConstant = 'a C_Ast.cConstant
+type ('a, 'b) Either = ('a, 'b) C_Ast.either
+type CIntRepr = C_Ast.cIntRepr
+type CIntFlag = C_Ast.cIntFlag
+type Comment = C_Ast.comment
 (**)
 val reverse = rev
-val Nothing = C_ast_simple.None
-val Just = C_ast_simple.Some
+val Nothing = C_Ast.None
+val Just = C_Ast.Some
 val False = false
 val True = true
 (**)
 val CDecl_flat = fn l1 => CDecl l1 o map (fn (a, b, c) => ((a, b), c))
 fun flat3 (a, b, c) = ((a, b), c)
-fun maybe def f = fn C_ast_simple.None => def | C_ast_simple.Some x => f x 
+fun maybe def f = fn C_Ast.None => def | C_Ast.Some x => f x 
 val id = I
 fun flip f b a = f a b
 val Reversed = I
 (**)
 
-val From_string = C_ast_simple.SS_base o C_ast_simple.ST
+val From_string = C_Ast.SS_base o C_Ast.ST
 \<close>
 
 end

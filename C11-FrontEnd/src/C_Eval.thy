@@ -35,8 +35,8 @@
  ******************************************************************************)
 
 theory C_Eval
-  imports C_Parser_Lang
-          C_Parser_Annot
+  imports C_Parser_Language
+          C_Parser_Annotation
 begin
 
 section \<open>\<close>
@@ -45,9 +45,9 @@ text\<open>The parser consists of a generic module @{file "../copied_from_git/ml
 which interprets a automata-like format generated from smlyacc.\<close>
 
 ML\<open>
-type 'a stack_elem = (LrTable.state, 'a, Position.T) C_Env.stack_elem0
-type stack_data = (LrTable.state, C_Grammar.Tokens.svalue0, Position.T) C_Env.stack0
-type stack_data_elem = (LrTable.state, C_Grammar.Tokens.svalue0, Position.T) C_Env.stack_elem0
+type 'a stack_elem = (LALR_Table.state, 'a, Position.T) C_Env.stack_elem0
+type stack_data = (LALR_Table.state, C_Grammar.Tokens.svalue0, Position.T) C_Env.stack0
+type stack_data_elem = (LALR_Table.state, C_Grammar.Tokens.svalue0, Position.T) C_Env.stack_elem0
 
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
@@ -83,18 +83,17 @@ fun stack_exec env_dir data_put f =
 
 structure C_Grammar_Lexer : ARG_LEXER1 =
 struct
-structure Tokens = C_Grammar.Tokens
-structure UserDeclarations =
+structure LALR_Lex_Instance =
 struct
-  type ('a,'b) token = ('a, 'b) Tokens.token
+  type ('a,'b) token = ('a, 'b) C_Grammar.Tokens.token
   type pos = Position.T
-  type arg = Tokens.arg
-  type svalue0 = Tokens.svalue0
+  type arg = C_Grammar.Tokens.arg
+  type svalue0 = C_Grammar.Tokens.svalue0
   type svalue = arg -> svalue0 * arg
-  type state = C_Grammar.ParserData.LrTable.state
+  type state = C_Grammar.ParserData.LALR_Table.state
 end
 
-type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack'
+type stack = (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) stack'
 
 fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (arg, stack_ml))
  (fn [] => I | l :: ls =>
@@ -153,7 +152,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                                   in () end)))
                    (map_index I (#stream_hook arg))
                    ()))
-          (Tokens.x25_eof (Position.none, Position.none))
+          (C_Grammar.Tokens.x25_eof (Position.none, Position.none))
      | SOME (Left (antiq_raw, l_antiq)) =>
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
@@ -185,7 +184,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
          C_Lex.Char (b, [c]) =>
           return0 (C_Grammar.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
        | C_Lex.String (b, s) =>
-          return0 (C_Grammar.Tokens.cstr (C_ast_simple.CString0 (From_string (implode s), b), pos1, pos2))
+          return0 (C_Grammar.Tokens.cstr (C_Ast.CString0 (From_string (implode s), b), pos1, pos2))
        | C_Lex.Integer (i, repr, flag) =>
           return0 (C_Grammar.Tokens.cint
                     ( CInteger i repr
@@ -197,22 +196,22 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                     , pos1
                     , pos2))
        | C_Lex.Ident => 
-          let val (name, arg) = Hsk_c_parser.getNewName arg
-              val ident0 = Hsk_c_parser.mkIdent (Hsk_c_parser.posOf' false (pos1, pos2)) src name
+          let val (name, arg) = C_Grammar_Rule_Lib.getNewName arg
+              val ident0 = C_Grammar_Rule_Lib.mkIdent (C_Grammar_Rule_Lib.posOf' false (pos1, pos2)) src name
           in return0
-               (if Hsk_c_parser.isTypeIdent src arg then
+               (if C_Grammar_Rule_Lib.isTypeIdent src arg then
                   C_Grammar.Tokens.tyident (ident0, pos1, pos2)
                 else
                   C_Grammar.Tokens.ident (ident0, pos1, pos2))
           end
        | _ => 
-          token_of_string (Tokens.error (pos1, pos2))
-                          (C_ast_simple.ClangCVersion0 (From_string src))
+          token_of_string (C_Grammar.Tokens.error (pos1, pos2))
+                          (C_Ast.ClangCVersion0 (From_string src))
                           (CChar #"0" false)
                           (CFloat (From_string src))
                           (CInteger 0 DecRepr (Flags 0))
-                          (C_ast_simple.CString0 (From_string src, false))
-                          (C_ast_simple.Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
+                          (C_Ast.CString0 (From_string src, false))
+                          (C_Ast.Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
                           src
                           pos1
                           pos2
@@ -224,9 +223,9 @@ end
 text\<open>This is where the instatiation of the Parser Functor with the Lexer actually happens ...\<close>
 ML\<open>
 structure C_Grammar_Parser =
-  JoinWithArg1(structure LrParser = LrParser1
-               structure ParserData = C_Grammar.ParserData
-               structure Lex = C_Grammar_Lexer)
+  LALR_Parser_Join (structure LrParser = LALR_Parser_Eval
+                    structure ParserData = C_Grammar.ParserData
+                    structure Lex = C_Grammar_Lexer)
 
 structure C_Language = struct
 
@@ -237,7 +236,7 @@ fun exec_tree write msg (Tree ({rule_pos, rule_type}, l_tree)) =
     Void => write msg rule_pos "VOID" NONE
   | Shift => write msg rule_pos "SHIFT" NONE
   | Reduce (rule_static, (rule0, vacuous, rule_antiq)) =>
-      write msg rule_pos ("REDUCE " ^ Int.toString rule0 ^ " " ^ (if vacuous then "X" else "O")) (SOME (MlyValue.string_reduce rule0 ^ " " ^ MlyValue.type_reduce rule0))
+      write msg rule_pos ("REDUCE " ^ Int.toString rule0 ^ " " ^ (if vacuous then "X" else "O")) (SOME (C_Grammar_Rule.string_reduce rule0 ^ " " ^ C_Grammar_Rule.type_reduce rule0))
       #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
       #-> (fn env_lang =>
             fold (fn (stack0, env_lang0, (_, Top_down, env_dir, _, exec)) =>
@@ -283,7 +282,7 @@ fun eval env_lang err accept stream_lang =
       , Position.none
       , uncurry_context (fn _ => fn (stack, _, _, stack_tree) => fn env_lang =>
           exec_tree' stack_tree
-          #> accept env_lang (stack |> hd |> map_svalue0 MlyValue.reduce0))
+          #> accept env_lang (stack |> hd |> map_svalue0 C_Grammar_Rule.reduce0))
       , fn (stack, arg) => arg |> map_rule_input (K stack)
                                |> map_rule_output (K empty_rule_output)
       , fn (rule0, stack0, pre_ml) => fn arg =>
@@ -459,7 +458,7 @@ fun eval env err accept ants {context, reports_text} =
                         let val _ = Position.reports [(pos1, Markup.language_antiquotation)]
                         in
                           ( Right (Right (pos1, map (C_Lex.set_range range1) toks))
-                          , (env_dir, C_Env.map_reports_text (Hsk_c_parser.report [pos1] (markup_directive_define false false pos0) (name, id)) env_tree))
+                          , (env_dir, C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (markup_directive_define false false pos0) (name, id)) env_tree))
                         end
                 in
                  fn Left (tag, antiq, toks, l_antiq) =>
@@ -485,7 +484,7 @@ fun eval env err accept ants {context, reports_text} =
                            case Symtab.lookup (Directives.get context) name of
                              NONE => apsnd (C_Env.map_reports_text (cons ((pos1, Markup.antiquote), "")))
                            | SOME (pos0, id, exec) =>
-                               apsnd (C_Env.map_reports_text (Hsk_c_parser.report [pos1] (markup_directive_command false pos0) (name, id)))
+                               apsnd (C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (markup_directive_command false pos0) (name, id)))
                                #> exec dir
                                #> (fn (_, _, env) => env)
                          end)

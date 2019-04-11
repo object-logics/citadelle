@@ -34,14 +34,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory C_Parser_Lang
-  imports C_Env
+theory C_Parser_Language
+  imports C_Environment
 begin
 
 section \<open>Instantiation of the Parser with the Lexer\<close>
 
 ML\<open>
-signature HSK_C_PARSER =
+signature C_GRAMMAR_RULE_LIB =
 sig
   type arg = C_Env.T
   type 'a p (* name of the monad, similar as the one declared in Parser.y *) = arg -> 'a * arg
@@ -124,7 +124,7 @@ sig
   val doFuncParamDeclIdent : CDeclr -> unit p
 end
 
-structure Hsk_c_parser : HSK_C_PARSER =
+structure C_Grammar_Rule_Lib : C_GRAMMAR_RULE_LIB =
 struct
 (*
  * Modified by Frédéric Tuong, Université Paris-Saclay
@@ -146,7 +146,7 @@ struct
  *
  * Copyright (c) 2010-2014 Geoff Hulette
  *)
-  open C_ast_simple
+  open C_Ast
   type arg = C_Env.T
   type 'a p = arg -> 'a * arg
 
@@ -449,8 +449,8 @@ type cChar = CChar
 type cInteger = CInteger
 type cFloat = CFloat
 type ident = Ident
-type 'a monad = 'a Hsk_c_parser.p
-val return = Hsk_c_parser.return
+type 'a monad = 'a C_Grammar_Rule_Lib.p
+val return = C_Grammar_Rule_Lib.return
 \<close>
 
 section \<open>Loading of Generated Grammar\<close>
@@ -462,12 +462,12 @@ ML_file "../copied_from_git/mlton/lib/mlyacc-lib/stream.sml"
 (*ML\<open>val foldl = List.foldl val foldr = List.foldr\<close>
   ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser2.sml"*)
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser1.sml"
-ML_file "../generated/language_c.grm.sig"
+ML_file "../generated/c_grammar_fun.grm.sig"
 
 ML\<open>
-structure MlyValueM' = struct
-open Hsk_c_parser
-val To_string0 = String.implode o C_ast_simple.to_list
+structure C_Grammar_Rule_Wrap' = struct
+open C_Grammar_Rule_Lib
+val To_string0 = String.implode o C_Ast.to_list
 
 val update_env =
  fn Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_tree (f x (#env_lang arg) #> #2) arg))
@@ -478,7 +478,7 @@ val update_env =
 val specifier3 : (CDeclSpec list) -> unit monad = update_env Bottom_up (fn l => fn env_lang => fn env_tree =>
   ( env_lang
   , fold
-      let open C_ast_simple
+      let open C_Ast
       in fn CTypeSpec0 (CTypeDef0 (Ident0 (i, _, node), _)) =>
             let val name = To_string0 i
                 val pos1 = [decode_error' node |> #1]
@@ -497,7 +497,7 @@ val type_specifier3 : (CDeclSpec list) -> unit monad = specifier3
 
 val primary_expression1 : (CExpr) -> unit monad = update_env Bottom_up (fn e => fn env_lang => fn env_tree =>
   ( env_lang
-  , let open C_ast_simple
+  , let open C_Ast
     in fn CVar0 (Ident0 (i, _, node), _) =>
           let val name = To_string0 i
               val pos1 = decode_error' node |> #1
@@ -510,16 +510,16 @@ val primary_expression1 : (CExpr) -> unit monad = update_env Bottom_up (fn e => 
       env_tree))
 end
 
-structure MlyValueM = struct
-  open MlyValueM
-  open MlyValueM'
+structure C_Grammar_Rule_Wrap = struct
+  open C_Grammar_Rule_Wrap
+  open C_Grammar_Rule_Wrap'
 end
 \<close>
 
-ML_file "../generated/language_c.grm.sml"
+ML_file "../generated/c_grammar_fun.grm.sml"
 
 ML\<open>
-structure C_Grammar = StrictCLrValsFun(structure Token = LrParser1.Token)
+structure C_Grammar = C_Grammar_Fun (structure Token = LALR_Parser_Eval.Token)
 \<close>
 
 ML\<open>
