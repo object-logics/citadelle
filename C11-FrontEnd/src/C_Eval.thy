@@ -93,7 +93,7 @@ struct
   type state = C_Grammar.ParserData.LALR_Table.state
 end
 
-type stack = (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) stack'
+type stack = (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) C_Env.stack'
 
 fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (arg, stack_ml))
  (fn [] => I | l :: ls =>
