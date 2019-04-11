@@ -211,7 +211,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                           (CFloat (From_string src))
                           (CInteger 0 DecRepr (Flags 0))
                           (C_Ast.CString0 (From_string src, false))
-                          (C_Ast.Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
+                          (Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
                           src
                           pos1
                           pos2
