@@ -234,12 +234,12 @@ open C_Ast open C_Grammar_Rule_Lib
     | void of string
     | volatile of string
     | while0 of string
-    | cchar of cChar
-    | cint of cInteger
-    | cfloat of cFloat
-    | cstr of cString
-    | ident of ident
-    | tyident of ident
+    | cchar of C_Ast.cChar
+    | cint of C_Ast.cInteger
+    | cfloat of C_Ast.cFloat
+    | cstr of C_Ast.cString
+    | ident of C_Ast.ident
+    | tyident of C_Ast.ident
     | x5f_x5f_attribute_x5f_x5f of string
     | x5f_x5f_extension_x5f_x5f of string
     | x5f_x5f_real_x5f_x5f of string
@@ -247,7 +247,7 @@ open C_Ast open C_Grammar_Rule_Lib
     | x5f_x5f_builtin_va_arg of string
     | x5f_x5f_builtin_offsetof of string
     | x5f_x5f_builtin_types_compatible_p of string
-    | clangcversion of ClangCVersion
+    | clangcversion of C_Ast.ClangCVersion
     | x25_eof
 
 (* fun token_of_string error ty_ClangCVersion ty_cChar ty_cFloat ty_cInteger ty_cString ty_ident ty_string a1 a2 = fn
