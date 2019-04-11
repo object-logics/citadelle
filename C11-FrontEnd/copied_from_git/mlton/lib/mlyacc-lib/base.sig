@@ -104,7 +104,7 @@ signature LR_PARSER1 =
 
         sharing LALR_Table = Token.LALR_Table
 
-        type ('_b, '_c) stack = (LALR_Table.state, '_b, '_c) stack'
+        type ('_b, '_c) stack = (LALR_Table.state, '_b, '_c) C_Env.stack'
 
         type ('_b, '_c, 'arg) lexer = (('arg -> '_b * 'arg,'_c) Token.token, ('_b, '_c) stack * 'arg) Stream.stream * 'arg
 
@@ -210,7 +210,7 @@ signature ARG_LEXER1 =
                 type svalue = arg -> svalue0 * arg
                 type state
            end
-        type stack = (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) stack'
+        type stack = (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) C_Env.stack'
         val makeLexer : (stack * LALR_Lex_Instance.arg)
                         -> (LALR_Lex_Instance.svalue, LALR_Lex_Instance.pos) LALR_Lex_Instance.token
                          * (stack * LALR_Lex_Instance.arg)
@@ -392,7 +392,7 @@ signature ARG_PARSER1 =
         type svalue0
         type svalue = arg -> svalue0 * arg
 
-        type stack = (Token.LALR_Table.state, svalue0, pos) stack'
+        type stack = (Token.LALR_Table.state, svalue0, pos) C_Env.stack'
 
         type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
 

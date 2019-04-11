@@ -75,7 +75,7 @@ struct
     type svalue0 = ParserData.svalue0
     type svalue = arg -> svalue0 * arg
 
-    type stack = (Token.LALR_Table.state, svalue0, pos) stack'
+    type stack = (Token.LALR_Table.state, svalue0, pos) C_Env.stack'
 
     type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
 

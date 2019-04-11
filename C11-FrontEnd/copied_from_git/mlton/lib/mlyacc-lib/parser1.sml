@@ -33,7 +33,7 @@ exception ParseImpossible of int
 
 type ('a,'b) stack0 = (state * ('a * 'b * 'b)) list
 
-type ('_b, '_c) stack = (LALR_Table.state, '_b, '_c) stack'
+type ('_b, '_c) stack = (LALR_Table.state, '_b, '_c) C_Env.stack'
 
 type ('_b, '_c, 'arg) lexer = (('arg -> '_b * 'arg,'_c) Token.token, ('_b, '_c) stack * 'arg) Stream.stream * 'arg
 
