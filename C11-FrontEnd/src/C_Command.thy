@@ -110,6 +110,7 @@ fun setup src =
  fn NONE =>
     let val setup = "setup"
     in C_Context.expression
+        "C_Ast"
         (Input.range_of src)
         setup
         "stack_data -> stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic"
@@ -120,6 +121,7 @@ fun setup src =
   | SOME rule => 
     let val hook = "hook"
     in C_Context.expression
+        "C_Ast"
         (Input.range_of src)
         hook
         ("stack_data -> " ^ C_Grammar_Rule.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
@@ -177,9 +179,9 @@ struct
                         cpp_macro    :  unit Name_Space.table,
                         builtin_id   : unit Name_Space.table,
                         builtin_func : unit Name_Space.table,
-                        global_var   : (NodeInfo C_Ast.cTypeSpecifier) Name_Space.table,
-                        local_var    : (NodeInfo C_Ast.cTypeSpecifier) Name_Space.table,
-                        global_func  : (NodeInfo C_Ast.cTypeSpecifier) Name_Space.table
+                        global_var   : (C_Ast.NodeInfo C_Ast.cTypeSpecifier) Name_Space.table,
+                        local_var    : (C_Ast.NodeInfo C_Ast.cTypeSpecifier) Name_Space.table,
+                        global_func  : (C_Ast.NodeInfo C_Ast.cTypeSpecifier) Name_Space.table
   }
 
   val mt_env = {cpp_id       = Name_Space.empty_table "cpp_id",
@@ -193,7 +195,7 @@ struct
 
 
   type c_file_name      = string
-  type C11_struct       = { tab  : (CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table,
+  type C11_struct       = { tab  : (C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table,
                             env  : id_kind list Symtab.table }
   val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
 

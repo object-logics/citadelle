@@ -44,15 +44,75 @@ ML\<open>
 signature C_GRAMMAR_RULE_LIB =
 sig
   type arg = C_Env.T
-  type 'a p (* name of the monad, similar as the one declared in Parser.y *) = arg -> 'a * arg
+  type 'a monad = arg -> 'a * arg
 
-  (**)
-  val return : 'a -> 'a p
-  val bind : 'a p -> ('a -> 'b p) -> 'b p
-  val bind' : 'b p -> ('b -> unit p) -> 'b p
-  val >> : unit p * 'a p -> 'a p
+  (* type aliases *)
+  type class_Pos = C_Ast.class_Pos
+    (**)
+  type NodeInfo = C_Ast.nodeInfo
+  type CStorageSpec = NodeInfo C_Ast.cStorageSpecifier
+  type CFunSpec = NodeInfo C_Ast.cFunctionSpecifier
+  type CConst = NodeInfo C_Ast.cConstant
+  type 'a CInitializerList = ('a C_Ast.cPartDesignator List.list * 'a C_Ast.cInitializer) List.list
+  type CTranslUnit = NodeInfo C_Ast.cTranslationUnit
+  type CExtDecl = NodeInfo C_Ast.cExternalDeclaration
+  type CFunDef = NodeInfo C_Ast.cFunctionDef
+  type CDecl = NodeInfo C_Ast.cDeclaration
+  type CDeclr = NodeInfo C_Ast.cDeclarator
+  type CDerivedDeclr = NodeInfo C_Ast.cDerivedDeclarator
+  type CArrSize = NodeInfo C_Ast.cArraySize
+  type CStat = NodeInfo C_Ast.cStatement
+  type CAsmStmt = NodeInfo C_Ast.cAssemblyStatement
+  type CAsmOperand = NodeInfo C_Ast.cAssemblyOperand
+  type CBlockItem = NodeInfo C_Ast.cCompoundBlockItem
+  type CDeclSpec = NodeInfo C_Ast.cDeclarationSpecifier
+  type CTypeSpec = NodeInfo C_Ast.cTypeSpecifier
+  type CTypeQual = NodeInfo C_Ast.cTypeQualifier
+  type CAlignSpec = NodeInfo C_Ast.cAlignmentSpecifier
+  type CStructUnion = NodeInfo C_Ast.cStructureUnion
+  type CEnum = NodeInfo C_Ast.cEnumeration
+  type CInit = NodeInfo C_Ast.cInitializer
+  type CInitList = NodeInfo CInitializerList
+  type CDesignator = NodeInfo C_Ast.cPartDesignator
+  type CAttr = NodeInfo C_Ast.cAttribute
+  type CExpr = NodeInfo C_Ast.cExpression
+  type CBuiltin = NodeInfo C_Ast.cBuiltinThing
+  type CStrLit = NodeInfo C_Ast.cStringLiteral
+    (**)
+  type ClangCVersion = C_Ast.clangCVersion
+  type Ident = C_Ast.ident
+  type Position = C_Ast.position
+  type PosLength = Position * int
+  type Name = C_Ast.name
+  type Bool = bool
+  type CString = C_Ast.cString
+  type CChar = C_Ast.cChar
+  type CInteger = C_Ast.cInteger
+  type CFloat = C_Ast.cFloat
+  type CStructTag = C_Ast.cStructTag
+  type CUnaryOp = C_Ast.cUnaryOp
+  type 'a CStringLiteral = 'a C_Ast.cStringLiteral
+  type 'a CConstant = 'a C_Ast.cConstant
+  type ('a, 'b) Either = ('a, 'b) C_Ast.either
+  type CIntRepr = C_Ast.cIntRepr
+  type CIntFlag = C_Ast.cIntFlag
+  type CAssignOp = C_Ast.cAssignOp
+  type Comment = C_Ast.comment
+    (**)
+  type 'a Reversed = 'a C_Ast.Reversed
+  type CDeclrR = C_Ast.CDeclrR
+  type 'a Maybe = 'a C_Ast.optiona
+  type 'a Located = 'a C_Ast.Located
+    (**)
+  structure List : sig val reverse : 'a list -> 'a list end
 
-  (**)
+  (* monadic operations *)
+  val return : 'a -> 'a monad
+  val bind : 'a monad -> ('a -> 'b monad) -> 'b monad
+  val bind' : 'b monad -> ('b -> unit monad) -> 'b monad
+  val >> : unit monad * 'a monad -> 'a monad
+
+  (* position reports *)
   val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Position.reports_text -> C_Position.reports_text
   val markup_tvar : bool -> Position.T list -> string * serial -> Markup.T list
   val markup_var : bool -> bool -> Position.T list -> string * serial -> Markup.T list
@@ -86,11 +146,11 @@ sig
   val concatCStrings : CString list -> CString
 
   (* Language.C.Parser.ParserMonad *)
-  val getNewName : Name p
+  val getNewName : Name monad
   val isTypeIdent : string -> arg -> bool
-  val enterScope : unit p
-  val leaveScope : unit p
-  val getCurrentPosition : Position p
+  val enterScope : unit monad
+  val leaveScope : unit monad
+  val getCurrentPosition : Position monad
 
   (* Language.C.Parser.Tokens *)
   val CTokCLit : CChar -> (CChar -> 'a) -> 'a
@@ -100,17 +160,17 @@ sig
 
   (* Language.C.Parser.Parser *)
   val reverseList : 'a list -> 'a list Reversed
-  val L : 'a -> int -> 'a Located p
+  val L : 'a -> int -> 'a Located monad
   val unL : 'a Located -> 'a
-  val withNodeInfo : int -> (NodeInfo -> 'a) -> 'a p
-  val withNodeInfo_CExtDecl : CExtDecl -> (NodeInfo -> 'a) -> 'a p
-  val withNodeInfo_CExpr : CExpr list Reversed -> (NodeInfo -> 'a) -> 'a p
-  val withLength : NodeInfo -> (NodeInfo -> 'a) -> 'a p
+  val withNodeInfo : int -> (NodeInfo -> 'a) -> 'a monad
+  val withNodeInfo_CExtDecl : CExtDecl -> (NodeInfo -> 'a) -> 'a monad
+  val withNodeInfo_CExpr : CExpr list Reversed -> (NodeInfo -> 'a) -> 'a monad
+  val withLength : NodeInfo -> (NodeInfo -> 'a) -> 'a monad
   val reverseDeclr : CDeclrR -> CDeclr
-  val withAttribute : int -> CAttr list -> (NodeInfo -> CDeclrR) -> CDeclrR p
-  val withAttributePF : int -> CAttr list -> (NodeInfo -> CDeclrR -> CDeclrR) -> (CDeclrR -> CDeclrR) p
+  val withAttribute : int -> CAttr list -> (NodeInfo -> CDeclrR) -> CDeclrR monad
+  val withAttributePF : int -> CAttr list -> (NodeInfo -> CDeclrR -> CDeclrR) -> (CDeclrR -> CDeclrR) monad
   val appendObjAttrs : CAttr list -> CDeclr -> CDeclr
-  val withAsmNameAttrs : CStrLit Maybe * CAttr list -> CDeclrR -> CDeclrR p
+  val withAsmNameAttrs : CStrLit Maybe * CAttr list -> CDeclrR -> CDeclrR monad
   val appendDeclrAttrs : CAttr list -> CDeclrR -> CDeclrR
   val ptrDeclr : CDeclrR -> CTypeQual list -> NodeInfo -> CDeclrR
   val funDeclr : CDeclrR -> (Ident list, (CDecl list * Bool)) Either -> CAttr list -> NodeInfo -> CDeclrR
@@ -120,8 +180,8 @@ sig
   val addTrailingAttrs : CDeclSpec list Reversed -> CAttr list -> CDeclSpec list Reversed
   val emptyDeclr : CDeclrR
   val mkVarDeclr : Ident -> NodeInfo -> CDeclrR
-  val doDeclIdent : CDeclSpec list -> CDeclrR -> unit p
-  val doFuncParamDeclIdent : CDeclr -> unit p
+  val doDeclIdent : CDeclSpec list -> CDeclrR -> unit monad
+  val doFuncParamDeclIdent : CDeclr -> unit monad
 end
 
 structure C_Grammar_Rule_Lib : C_GRAMMAR_RULE_LIB =
@@ -148,7 +208,7 @@ struct
  *)
   open C_Ast
   type arg = C_Env.T
-  type 'a p = arg -> 'a * arg
+  type 'a monad = arg -> 'a * arg
 
   (**)
   val To_string0 = String.implode o to_list
@@ -432,20 +492,10 @@ struct
                   | _ => [])
                 params)
      | _ => return ()
-end
 
-structure List = struct
-  open List
-  val reverse = rev
+  (**)
+  structure List = struct val reverse = rev end
 end
-
-type cString = CString
-type cChar = CChar
-type cInteger = CInteger
-type cFloat = CFloat
-type ident = Ident
-type 'a monad = 'a C_Grammar_Rule_Lib.p
-val return = C_Grammar_Rule_Lib.return
 \<close>
 
 section \<open>Loading of Generated Grammar\<close>

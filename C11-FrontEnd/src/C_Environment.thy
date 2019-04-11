@@ -81,8 +81,8 @@ ML\<open>
 structure C_Env = struct
 datatype 'a parse_status = Parsed of 'a | Previous_in_stack
 type var_table = { tyidents : (Position.T list * serial) Symtab.table
-                 , idents : (Position.T list * serial * bool (*true: global*) * CDerivedDeclr list 
-                             * CDeclSpec list parse_status) Symtab.table }
+                 , idents : (Position.T list * serial * bool (*true: global*) * C_Ast.CDerivedDeclr list 
+                             * C_Ast.CDeclSpec list parse_status) Symtab.table }
 
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) either list
 
@@ -129,14 +129,14 @@ type ('LrTable_state, 'svalue0, 'pos) rule_output0 =
                                * ('LrTable_state, 'svalue0, 'pos) rule_reduce0 (* actual *)
                                * ('pos * 'pos) rule_output0'
 
-type rule_output = class_Pos rule_output0'
+type rule_output = C_Ast.class_Pos rule_output0'
 
 (**)
 
 type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
-         , rule_input : class_Pos list * int
+         , rule_input : C_Ast.class_Pos list * int
          , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * C_Transition.eval_node) list list
          , stream_lang : (C_Antiquote.antiq * C_Transition.antiq_language list) stream }
 
@@ -270,7 +270,9 @@ val decode_positions =
           #> Position.make)
 
 end
+\<close>
 
+ML\<open>
 structure C_Env_Ext =
 struct
 

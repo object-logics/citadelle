@@ -51,6 +51,7 @@ fun command0 dir name =
             (fn NONE =>
                 let val setup = "setup"
                 in C_Context.expression
+                    "C_Ast"
                     (Input.range_of src)
                     setup
                     "stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic"
@@ -61,6 +62,7 @@ fun command0 dir name =
               | SOME rule => 
                 let val hook = "hook"
                 in C_Context.expression
+                    "C_Ast"
                     (Input.range_of src)
                     hook
                     (C_Grammar_Rule.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")

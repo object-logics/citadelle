@@ -544,7 +544,7 @@ datatype token_kind =
   Keyword | Ident | Type_ident | GnuC | ClangC |
   (**)
   Char of bool * Symbol.symbol list |
-  Integer of int * CIntRepr * CIntFlag list |
+  Integer of int * C_Ast.CIntRepr * C_Ast.CIntFlag list |
   Float |
   String of bool * Symbol.symbol list |
   File of bool * Symbol.symbol list |
