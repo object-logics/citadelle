@@ -143,22 +143,22 @@ fun command0 f dir name =
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, K (f src)))))
+          C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, K (f src)))))
 
 fun command f dir name =
   C_Annotation.command' name ""
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
+          C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
 
 in
-val _ = Theory.setup (   command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) Bottom_up ("\<approx>setup", \<^here>)
-                      #> command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) Top_down ("\<approx>setup\<Down>", \<^here>)
-                      #> command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) Bottom_up ("setup", \<^here>)
-                      #> command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) Top_down ("setup\<Down>", \<^here>)
-                      #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) Bottom_up ("ML", \<^here>)
-                      #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) Top_down ("ML\<Down>", \<^here>))
+val _ = Theory.setup (   command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Bottom_up ("\<approx>setup", \<^here>)
+                      #> command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Top_down ("\<approx>setup\<Down>", \<^here>)
+                      #> command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Bottom_up ("setup", \<^here>)
+                      #> command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Top_down ("setup\<Down>", \<^here>)
+                      #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) C_Transition.Bottom_up ("ML", \<^here>)
+                      #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) C_Transition.Top_down ("ML\<Down>", \<^here>))
 end
 \<close>
 

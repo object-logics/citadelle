@@ -63,7 +63,7 @@ val scan_sym_ident_not_stack = Scan.one (fn c => C_Token.is_sym_ident c andalso
                                >> (fn tok => (C_Token.content_of tok, C_Token.pos_of tok))
 fun command cmd scan f =
   C_Annotation.command' cmd "" (K (Scan.option (Scan.one C_Token.is_colon) -- (scan >> f)
-                                      >> K Never))
+                                      >> K C_Transition.Never))
 in
 val _ = Theory.setup ((* 1 '@' *)
                          command ("INVARIANT", \<^here>) C_Parse.term Invariant

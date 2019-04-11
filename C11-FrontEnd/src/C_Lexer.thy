@@ -43,7 +43,7 @@ section\<open> Basic Scanning Combinators from Isabelle \<close>
 ML\<open>
 datatype ('a, 'b) either = Left of 'a | Right of 'b
 
-structure Scanner =
+structure C_Scan =
 struct
 open Basic_Symbol_Pos;
 
@@ -73,7 +73,7 @@ val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
-section \<open>Instantiation of the Scanner with C Lexems \<close>
+section \<open>Instantiation of the C_Scan with C Lexems \<close>
 
 text\<open>Basically copied and modified from files in Pure General of Isabelle.\<close>
 ML\<open>
@@ -112,6 +112,13 @@ end
 \<close>
 
 ML\<open>
+structure C_Position =
+struct
+type reports_text = Position.report_text list
+end
+\<close>
+
+ML\<open>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/symbol_pos.ML
     Author:     Makarius
@@ -121,7 +128,7 @@ Symbols with explicit position information.
 
 structure C_Symbol_Pos =
 struct
-val !!! = Scanner.!!!
+val !!! = C_Scan.!!!
 val $$ = Symbol_Pos.$$
 val $$$ = Symbol_Pos.$$$
 val ~$$$ = Symbol_Pos.~$$$
@@ -141,7 +148,7 @@ val char_code =
 fun scan_str_inline q =
   $$$ "\\" |-- !!! "bad escape character in string"
     ($$$ q || $$$ "\\" || char_code) ||
-  Scan.unless Scanner.newline
+  Scan.unless C_Scan.newline
               (Scan.one (fn (s, _) => s <> q andalso s <> "\\" andalso Symbol.not_eof s)) >> single;
 
 fun scan_strs_inline q =
@@ -177,7 +184,7 @@ fun scan_cartouche msg stop =
       (Scan.provide is_none (SOME 0) (scan_cartouche_depth stop));
 
 fun scan_cartouche_multi stop = scan_cartouche "the comment delimiter" stop;
-val scan_cartouche_inline = scan_cartouche "the same line" Scanner.newline;
+val scan_cartouche_inline = scan_cartouche "the same line" C_Scan.newline;
 
 (* C-style comments *)
 
@@ -201,13 +208,13 @@ val scan_comment =
   Scan.ahead ($$ par_l -- $$ "*") |--
     !!! "unclosed comment"
       ($$$ par_l @@@ $$$ "*" @@@ scan_cmts @@@ $$$ "*" @@@ $$$ par_r)
-  || $$$ "/" @@@ $$$ "/" @@@ Scanner.repeats_until_nl;
+  || $$$ "/" @@@ $$$ "/" @@@ C_Scan.repeats_until_nl;
 
 val scan_comment_no_nest =
   Scan.ahead ($$ par_l -- $$ "*") |--
     !!! "unclosed comment"
       ($$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2) @@@ $$$ "*" @@@ $$$ par_r)
-  || $$$ "/" @@@ $$$ "/" @@@ Scanner.repeats_until_nl;
+  || $$$ "/" @@@ $$$ "/" @@@ C_Scan.repeats_until_nl;
 
 val recover_comment =
   $$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2);
@@ -264,10 +271,10 @@ val scan_antiq_body_multi_recover =
 val scan_antiq_body_inline =
   Scan.trace (C_Symbol_Pos.scan_string_qq_inline || C_Symbol_Pos.scan_string_bq_inline) >> #2 ||
   C_Symbol_Pos.scan_cartouche_inline ||
-  Scanner.unless_eof Scanner.newline;
+  C_Scan.unless_eof C_Scan.newline;
 
 val scan_antiq_body_inline_recover =
-  Scanner.unless_eof Scanner.newline;
+  C_Scan.unless_eof C_Scan.newline;
 
 fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
 
@@ -371,7 +378,7 @@ Lexical syntax for Isabelle/ML and Standard ML.
 structure C_Lex =
 struct
 
-open Scanner;
+open C_Scan;
 
 (** keywords **)
 
@@ -1222,7 +1229,7 @@ fun gen_read pos text =
           val pos2 = Position.advance Symbol.space pos1;
         in [Token (Position.range (pos1, pos2), (Space, Symbol.space))] end;
 
-    val backslash1 = $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ Scanner.newline
+    val backslash1 = $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ C_Scan.newline
     val backslash2 = Scan.one (not o Symbol_Pos.is_eof)
 
     val input0 =

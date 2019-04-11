@@ -53,7 +53,7 @@ sig
   val >> : unit p * 'a p -> 'a p
 
   (**)
-  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> reports_text -> reports_text
+  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Position.reports_text -> C_Position.reports_text
   val markup_tvar : bool -> Position.T list -> string * serial -> Markup.T list
   val markup_var : bool -> bool -> Position.T list -> string * serial -> Markup.T list
 
@@ -441,7 +441,7 @@ end
 
 type ('LrTable_state, 'a, 'Position_T) stack' =
      ('LrTable_state, 'a, 'Position_T) C_Env.stack0
-   * eval_node list list
+   * C_Transition.eval_node list list
    * ('Position_T * 'Position_T) list
    * ('LrTable_state, 'a, 'Position_T) C_Env.rule_ml C_Env.tree list
 type cString = CString
@@ -470,12 +470,12 @@ open C_Grammar_Rule_Lib
 val To_string0 = String.implode o C_Ast.to_list
 
 val update_env =
- fn Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_tree (f x (#env_lang arg) #> #2) arg))
-  | Top_down => fn f => fn x => pair () ##> (fn arg => C_Env_Ext.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
+ fn C_Transition.Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_tree (f x (#env_lang arg) #> #2) arg))
+  | C_Transition.Top_down => fn f => fn x => pair () ##> (fn arg => C_Env_Ext.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
 
 (*type variable definition*)
 
-val specifier3 : (CDeclSpec list) -> unit monad = update_env Bottom_up (fn l => fn env_lang => fn env_tree =>
+val specifier3 : (CDeclSpec list) -> unit monad = update_env C_Transition.Bottom_up (fn l => fn env_lang => fn env_tree =>
   ( env_lang
   , fold
       let open C_Ast
@@ -495,7 +495,7 @@ val type_specifier3 : (CDeclSpec list) -> unit monad = specifier3
 
 (*basic variable definition*)
 
-val primary_expression1 : (CExpr) -> unit monad = update_env Bottom_up (fn e => fn env_lang => fn env_tree =>
+val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom_up (fn e => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_Ast
     in fn CVar0 (Ident0 (i, _, node), _) =>

@@ -44,8 +44,7 @@ text\<open>The key element of this following structure is the type \verb+eval_ti
 the generic annotation module. \<close>
 
 ML\<open>
-
-structure C_Annot_Result =
+structure C_Transition =
 struct
 
 datatype comment_style = Comment_directive
@@ -68,13 +67,10 @@ datatype eval_time = Lexing of Position.range * (comment_style -> Context.generi
                                  * eval_node
                    | Never (* to be manually treated by the semantic back-end, and analyzed there *)
 
-type reports_text = Position.report_text list
-
-datatype antiq_language = Antiq_stack of reports_text * eval_time
+datatype antiq_language = Antiq_stack of C_Position.reports_text * eval_time
                         | Antiq_none of C_Lex.token
 end;
 
-open C_Annot_Result; (* Temporary hack --- to be removed *)
 \<close>
 
 section \<open>The Lexing-based C Environment\<close>
@@ -94,13 +90,13 @@ type env_lang = { var_table : var_table
                 , scopes : var_table list
                 , namesupply : int
                 , stream_ignored : C_Antiquote.antiq stream
-                , env_directives : env_directives }
+                , env_directives : C_Transition.env_directives }
 (* NOTE: The distinction between type variable or identifier can not be solely made
          during the lexing process.
          Another pass on the parsed tree is required. *)
 
 type env_tree = { context : Context.generic
-                , reports_text : reports_text }
+                , reports_text : C_Position.reports_text }
 
 type rule_static = (env_tree -> env_lang * env_tree) option
 
@@ -109,8 +105,8 @@ type rule_static = (env_tree -> env_lang * env_tree) option
 type ('LrTable_state, 'a, 'Position_T) stack_elem0 = 'LrTable_state * ('a * 'Position_T * 'Position_T)
 type ('LrTable_state, 'a, 'Position_T) stack0 = ('LrTable_state, 'a, 'Position_T) stack_elem0 list
 
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce0 = (('LrTable_state, 'svalue0, 'pos) stack0 * env_lang * eval_node) list
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce = int * ('LrTable_state, 'svalue0, 'pos) stack0 * eval_node list list
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce0 = (('LrTable_state, 'svalue0, 'pos) stack0 * env_lang * C_Transition.eval_node) list
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce = int * ('LrTable_state, 'svalue0, 'pos) stack0 * C_Transition.eval_node list list
 type ('LrTable_state, 'svalue0, 'pos) rule_reduce' = int * bool (*vacuous*) * ('LrTable_state, 'svalue0, 'pos) rule_reduce0
 
 datatype ('LrTable_state, 'svalue0, 'pos) rule_type =
@@ -129,7 +125,7 @@ type 'class_Pos rule_output0' = { output_pos : 'class_Pos option
                                 , output_env : rule_static }
 
 type ('LrTable_state, 'svalue0, 'pos) rule_output0 =
-                                 eval_node list list (* delayed *)
+                                 C_Transition.eval_node list list (* delayed *)
                                * ('LrTable_state, 'svalue0, 'pos) rule_reduce0 (* actual *)
                                * ('pos * 'pos) rule_output0'
 
@@ -141,8 +137,8 @@ type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : class_Pos list * int
-         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_node) list list
-         , stream_lang : (C_Antiquote.antiq * antiq_language list) stream }
+         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * C_Transition.eval_node) list list
+         , stream_lang : (C_Antiquote.antiq * C_Transition.antiq_language list) stream }
 
 datatype 'a tree = Tree of 'a * 'a tree list
 

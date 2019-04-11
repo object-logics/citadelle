@@ -321,13 +321,13 @@ fun command dir f_cmd name =
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          (fn f => Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
+          (fn f => C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
             (fn _ => fn context => f_cmd (Stack_Data_Lang.get context |> #2) src context)))
 in
-val _ = Theory.setup (   command Bottom_up (K C) ("C", \<^here>)
-                      #> command Top_down (K C) ("C_reverse", \<^here>)
-                      #> command Bottom_up C' ("C'", \<^here>)
-                      #> command Top_down C' ("C'_reverse", \<^here>))
+val _ = Theory.setup (   command C_Transition.Bottom_up (K C) ("C", \<^here>)
+                      #> command C_Transition.Top_down (K C) ("C_reverse", \<^here>)
+                      #> command C_Transition.Bottom_up C' ("C'", \<^here>)
+                      #> command C_Transition.Top_down C' ("C'_reverse", \<^here>))
 end
 \<close>
 
@@ -393,7 +393,7 @@ fun command_c' name _ _ _ =
       (fn (stack1, (to_delay, stack2)) =>
         C_Parse.range C_Parse.ML_source >>
           (fn (src, range) =>
-            (fn f => Parsing ((stack1, stack2), (range, Bottom_up, Symtab.empty, to_delay, f)))
+            (fn f => C_Transition.Parsing ((stack1, stack2), (range, C_Transition.Bottom_up, Symtab.empty, to_delay, f)))
               (fn _ => fn context => C' (Stack_Data_Lang.get context |> #2) src context))))
 
 fun fun_decl a v s ctxt =

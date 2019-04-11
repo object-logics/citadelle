@@ -58,7 +58,7 @@ structure Stack_Data_Lang = Generic_Data
    val merge = #2)
 
 structure Stack_Data_Tree = Generic_Data
-  (type T = reports_text
+  (type T = C_Position.reports_text
    val empty = []
    val extend = I
    val merge = #2)
@@ -106,7 +106,7 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
         if len = 0 then
           I #>>
           (case ml_exec of
-             (_, Bottom_up, env_dir, _, exec) =>
+             (_, C_Transition.Bottom_up, env_dir, _, exec) =>
               (fn arg => C_Env.map_env_tree (stack_exec env_dir (stack, #env_lang arg) (exec NONE))
                                             arg)
            | ((pos, _), _, _, _, _) =>
@@ -157,7 +157,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, false)
-             |> fold (fn Antiq_stack (_, Parsing ((syms_shift, syms), ml_exec)) =>
+             |> fold (fn C_Transition.Antiq_stack (_, C_Transition.Parsing ((syms_shift, syms), ml_exec)) =>
                          I #>>
                            (C_Env.map_stream_hook
                              (fn stream_hook => 
@@ -172,7 +172,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                                                         eval1
                                                         (case eval2 of e :: es => ((syms_shift, syms, ml_exec) :: e) :: es
                                                                      | [] => [[(syms_shift, syms, ml_exec)]])))
-                       | Antiq_stack (_, Never) => I ##> K true
+                       | C_Transition.Antiq_stack (_, C_Transition.Never) => I ##> K true
                        | _ => I)
                      l_antiq
              |> (fn (arg, false) => arg
@@ -239,7 +239,7 @@ fun exec_tree write msg (Tree ({rule_pos, rule_type}, l_tree)) =
       write msg rule_pos ("REDUCE " ^ Int.toString rule0 ^ " " ^ (if vacuous then "X" else "O")) (SOME (C_Grammar_Rule.string_reduce rule0 ^ " " ^ C_Grammar_Rule.type_reduce rule0))
       #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
       #-> (fn env_lang =>
-            fold (fn (stack0, env_lang0, (_, Top_down, env_dir, _, exec)) =>
+            fold (fn (stack0, env_lang0, (_, C_Transition.Top_down, env_dir, _, exec)) =>
                      stack_exec env_dir (stack0, Option.getOpt (env_lang, env_lang0)) (exec (SOME rule0))
                    | _ => I)
                  rule_antiq)
@@ -296,7 +296,7 @@ fun eval env_lang err accept stream_lang =
               val actual = flat (map rev actual)
           in
             ( (delayed, map (fn x => (stack0, env_lang, x)) actual, rule_output)
-            , fold (fn (_, Bottom_up, env_dir, _, exec) =>
+            , fold (fn (_, C_Transition.Bottom_up, env_dir, _, exec) =>
                        C_Env.map_env_tree (stack_exec env_dir (stack0, env_lang) (exec (SOME rule0)))
                      | _ => I)
                    actual
@@ -322,7 +322,7 @@ struct
 
 (* theory data *)
 
-type env_direct = env_directives * C_Env.env_tree
+type env_direct = C_Transition.env_directives * C_Env.env_tree
 
 structure Directives = Generic_Data
   (type T = (Position.T list
@@ -330,7 +330,7 @@ structure Directives = Generic_Data
              * (C_Lex.token_kind_directive
                 -> env_direct
                 -> int option (* result path of conditional directive to choose *)
-                   * antiq_language list (* nested annotations from the input *)
+                   * C_Transition.antiq_language list (* nested annotations from the input *)
                    * env_direct (*NOTE: remove the possibility of returning a too modified env?*)))
             Symtab.table
    val empty = Symtab.empty
@@ -347,7 +347,7 @@ fun scan_antiq context syms =
   in ( C_Token.read_antiq'
          keywords
          (C_Parse.!!! (Scan.trace (C_Annotation.parse_command (Context.theory_of context))
-                       >> (I #>> Antiq_stack)))
+                       >> (I #>> C_Transition.Antiq_stack)))
          syms
      , C_Token.read_with_commands'0 keywords syms)
   end
@@ -411,24 +411,24 @@ fun eval env err accept ants {context, reports_text} =
                  , if forall (fn Right _ => true | _ => false) res then
                      let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
                          val (l_report, l_tok) = split_list res
-                     in [(Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, if explicit then flat l_report else []), cts))), l_tok)] end
+                     in [(C_Transition.Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, if explicit then flat l_report else []), cts))), l_tok)] end
                    else
                      map (fn Left x => x
                            | Right (msg, l_report, tok) =>
-                               (Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o Right o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
+                               (C_Transition.Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o Right o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
                          res)
            end
 
       val ants = map (fn C_Lex.Token (pos, (C_Lex.Comment (Left antiq), cts)) =>
-                          scan_comment Comment_language pos antiq cts
+                          scan_comment C_Transition.Comment_language pos antiq cts
                        | tok => Right tok)
                      ants
 
       fun map_ants f1 f2 = maps (fn Left x => f1 x | Right tok => f2 tok)
 
-      val ants_none = map_ants (fn (_, _, _, l) => maps (fn (Antiq_none x, _) => [x] | _ => []) l) (K []) ants
+      val ants_none = map_ants (fn (_, _, _, l) => maps (fn (C_Transition.Antiq_none x, _) => [x] | _ => []) l) (K []) ants
 
-      val _ = Position.reports (maps (fn Left (_, _, _, [(Antiq_none _, _)]) => []
+      val _ = Position.reports (maps (fn Left (_, _, _, [(C_Transition.Antiq_none _, _)]) => []
                                        | Left (_, {start, stop, range = (pos, _), ...}, _, _) =>
                                           (case stop of SOME stop => cons (stop, Markup.antiquote)
                                                       | NONE => I)
@@ -437,9 +437,9 @@ fun eval env err accept ants {context, reports_text} =
                                        | _ => [])
                                      ants);
       val _ = Position.reports_text (maps C_Lex.token_report ants_none
-                                     @ maps (fn Left (_, _, _, [(Antiq_none _, _)]) => []
+                                     @ maps (fn Left (_, _, _, [(C_Transition.Antiq_none _, _)]) => []
                                               | Left (_, _, l, ls) =>
-                                                  maps (fn (Antiq_stack (pos, _), _) => pos | _ => []) ls
+                                                  maps (fn (C_Transition.Antiq_stack (pos, _), _) => pos | _ => []) ls
                                                   @ maps (maps (C_Token.reports ())) (l :: map #2 ls)
                                               | _ => [])
                                             ants);
@@ -462,11 +462,11 @@ fun eval env err accept ants {context, reports_text} =
                         end
                 in
                  fn Left (tag, antiq, toks, l_antiq) =>
-                      fold_map (fn antiq as (Antiq_stack (_, Lexing (_, exec)), _) =>
-                                     apsnd (stack_exec0 (exec Comment_language)) #> pair antiq
-                                 | (Antiq_stack (rep, Parsing (syms, (range, env1, _, skip, exec))), toks) =>
+                      fold_map (fn antiq as (C_Transition.Antiq_stack (_, C_Transition.Lexing (_, exec)), _) =>
+                                     apsnd (stack_exec0 (exec C_Transition.Comment_language)) #> pair antiq
+                                 | (C_Transition.Antiq_stack (rep, C_Transition.Parsing (syms, (range, env1, _, skip, exec))), toks) =>
                                      (fn env as (env_dir, _) =>
-                                       ((Antiq_stack (rep, Parsing (syms, (range, env1, env_dir, skip, exec))), toks), env))
+                                       ((C_Transition.Antiq_stack (rep, C_Transition.Parsing (syms, (range, env1, env_dir, skip, exec))), toks), env))
                                  | antiq => pair antiq)
                                l_antiq
                       #> apfst (fn l_antiq => Left (tag, antiq, toks, l_antiq))

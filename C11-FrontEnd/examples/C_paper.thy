@@ -55,7 +55,7 @@ fun command0 dir name =
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
-          (fn f => Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
+          (fn f => C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
             (fn NONE =>
                 let val setup = "setup"
                 in expression
@@ -78,8 +78,8 @@ fun command0 dir name =
                     (ML_Lex.read_source false src)
                 end)))
 in
-val _ = Theory.setup (   command0 Bottom_up ("ML_setup", \<^here>)
-                      #> command0 Top_down ("ML_setup\<Down>", \<^here>))
+val _ = Theory.setup (   command0 C_Transition.Bottom_up ("ML_setup", \<^here>)
+                      #> command0 C_Transition.Top_down ("ML_setup\<Down>", \<^here>))
 end
 
 val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
@@ -91,7 +91,7 @@ fun C_define dir name _ _ =
       (fn (stack1, (to_delay, stack2)) =>
         C_Parse.range C_Parse.ML_source >>
           (fn (src, range) =>
-            (fn f => Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
+            (fn f => C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
               (fn _ => fn context => C' (Stack_Data_Lang.get context |> #2) src context))))
 
 local
@@ -110,8 +110,8 @@ val _ = Theory.setup
     (fn _ => fn (top_down, (name, pos)) =>
       tap (fn ctxt => Context_Position.reports ctxt [(pos, Markup.keyword1)]) #>
       fun_decl "cmd" "x" ( "C_define "
-                         ^ (case top_down of "\<Up>" => "Bottom_up"
-                                           | "\<Down>" => "Top_down"
+                         ^ (case top_down of "\<Up>" => "C_Transition.Bottom_up"
+                                           | "\<Down>" => "C_Transition.Top_down"
                                            | _ => error "Illegal symbol")
                          ^ " (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))
 end

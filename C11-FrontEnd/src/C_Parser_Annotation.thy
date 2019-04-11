@@ -357,7 +357,7 @@ fun token k ss =
 fun token_range k (pos1, (ss, pos2)) =
   Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, ss));
 
-fun scan_token keywords = Scanner.!!! "bad input"
+fun scan_token keywords = C_Scan.!!! "bad input"
   (Symbol_Pos.scan_string_qq err_prefix >> token_range Token.String ||
     scan_cartouche >> token_range Token.Cartouche ||
     scan_comment >> token_range (Token.Comment NONE) ||
@@ -601,7 +601,7 @@ fun err_dup_command name ps =
 (* command parsers *)
 
 datatype command_parser =
-  Parser of Symbol_Pos.T list * (bool * Symbol_Pos.T list) -> eval_time c_parser;
+  Parser of Symbol_Pos.T list * (bool * Symbol_Pos.T list) -> C_Transition.eval_time c_parser;
 
 datatype command = Command of
  {comment: string,
