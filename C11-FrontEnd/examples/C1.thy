@@ -316,13 +316,10 @@ subsubsection \<open>3\<close>
 
 ML\<open>
 local
-fun command dir f_cmd name =
-  C_Annotation.command' name ""
-    (fn (stack1, (to_delay, stack2)) =>
-      C_Parse.range C_Parse.ML_source >>
-        (fn (src, range) =>
-          (fn f => C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
-            (fn _ => fn context => f_cmd (Stack_Data_Lang.get context |> #2) src context)))
+fun command dir f_cmd =
+  C_Inner_Syntax.command0 
+    (fn src => fn context => f_cmd (C_Stack.Data_Lang.get context |> #2) src context)
+    dir
 in
 val _ = Theory.setup (   command C_Transition.Bottom_up (K C) ("C", \<^here>)
                       #> command C_Transition.Top_down (K C) ("C_reverse", \<^here>)
@@ -385,45 +382,6 @@ int e = a + b + c + d;
 \<close>
 
 subsubsection \<open>5\<close>
-
-ML\<open>
-fun command_c' name _ _ _ =
-  Context.map_theory 
-    (C_Annotation.command' name ""
-      (fn (stack1, (to_delay, stack2)) =>
-        C_Parse.range C_Parse.ML_source >>
-          (fn (src, range) =>
-            (fn f => C_Transition.Parsing ((stack1, stack2), (range, C_Transition.Bottom_up, Symtab.empty, to_delay, f)))
-              (fn _ => fn context => C' (Stack_Data_Lang.get context |> #2) src context))))
-
-fun fun_decl a v s ctxt =
-  let
-    val (b, ctxt') = ML_Context.variant a ctxt;
-    val env = "fun " ^ b ^ " " ^ v ^ " = " ^ s ^ " " ^ v ^ ";\n";
-    val body = ML_Context.struct_name ctxt ^ "." ^ b;
-    fun decl (_: Proof.context) = (env, body);
-  in (decl, ctxt') end;
-
-val _ = Theory.setup
-  (ML_Antiquotation.declaration (Binding.make ("C_def", \<^here>)) (Scan.lift (Parse.position Parse.name))
-    (fn _ => fn (name, pos) =>
-      tap (fn ctxt => Context_Position.reports ctxt [(pos, Markup.keyword1)]) #>
-      fun_decl "cmd" "x" ("command_c' (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))
-
-\<close>
-
-C \<comment> \<open>Miscellaneous\<close> \<open>
-int f (int a) {
-  int b = 7
-    /*@ @@ C' \<open>int c = 0; //@ C++ \<open>int d = c; //@ \<approx>setup \<open>@{C_def "C#"}\<close> \
-                                                  C++ \<open>int d = c + a;\<close>\<close>
-                          //@ \<approx>setup \<open>fn _ => fn _ => fn _ => \
-                                  C \<open>int b = a; //@ C# \<open>int d = c + a;\<close>\<close>\<close>\<close>
-         @ \<approx>setup \<open>@{C_def "C++"}\<close>
-     */;
-} \<close>
-
-subsubsection \<open>6\<close>
 
 C \<comment> \<open>Propagation of Updates\<close> \<open>
 typedef int i, j;

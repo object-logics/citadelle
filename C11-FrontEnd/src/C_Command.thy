@@ -86,37 +86,40 @@ val _ =
          | _ => fn env => (NONE, [], env)))))
 \<close>
 
-section \<open>Definitions of Annotation Commands\<close>
+section \<open>Definitions of Inner Annotation Commands\<close>
+subsection \<open>\<close>
 
 ML\<open>
-local
-
 structure C_Inner_Toplevel =
 struct
 val theory = Context.map_theory
 val generic_theory = I
 end
+\<close>
 
-structure Isar_Cmd0 = 
+ML\<open>
+structure C_Isar_Cmd = 
 struct
 fun ML source =  ML_Context.exec (fn () =>
                     ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
                   Local_Theory.propagate_ml_env
 end
+\<close>
 
+ML\<open>
 structure C_Inner_Isar_Cmd = 
 struct
-fun setup src =
+fun setup0 f_typ f_val src =
  fn NONE =>
     let val setup = "setup"
     in C_Context.expression
         "C_Ast"
         (Input.range_of src)
         setup
-        "stack_data -> stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic"
+        (f_typ "C_Stack.stack_data" "C_Stack.stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
         ("fn context => \
-           \let val (stack, env_lang) = Stack_Data_Lang.get context \
-           \in " ^ setup ^ " stack (stack |> hd) env_lang end context")
+           \let val (stack, env_lang) = C_Stack.Data_Lang.get context \
+           \in " ^ f_val setup "stack" ^ " (stack |> hd) env_lang end context")
         (ML_Lex.read_source false src) end
   | SOME rule => 
     let val hook = "hook"
@@ -124,14 +127,20 @@ fun setup src =
         "C_Ast"
         (Input.range_of src)
         hook
-        ("stack_data -> " ^ C_Grammar_Rule.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
+        (f_typ "C_Stack.stack_data" (C_Grammar_Rule.type_reduce rule ^ " C_Stack.stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic"))
         ("fn context => \
-           \let val (stack, env_lang) = Stack_Data_Lang.get context \
-           \in " ^ hook ^ " stack (stack |> hd |> map_svalue0 C_Grammar_Rule.reduce" ^ Int.toString rule ^ ") env_lang end context")
+           \let val (stack, env_lang) = C_Stack.Data_Lang.get context \
+           \in " ^ f_val hook "stack" ^ " (stack |> hd |> C_Stack.map_svalue0 C_Grammar_Rule.reduce" ^ Int.toString rule ^ ") env_lang end context")
         (ML_Lex.read_source false src)
     end
-
+val setup = setup0 (fn a => fn b => a ^ " -> " ^ b) (fn a => fn b => a ^ " " ^ b)
+val setup' = setup0 (K I) K
 end
+\<close>
+
+ML\<open>
+structure C_Inner_Syntax =
+struct
 
 fun command0 f dir name =
   C_Annotation.command' name ""
@@ -146,15 +155,20 @@ fun command f dir name =
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
           C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
-
-in
-val _ = Theory.setup (   command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Bottom_up ("\<approx>setup", \<^here>)
-                      #> command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Top_down ("\<approx>setup\<Down>", \<^here>)
-                      #> command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Bottom_up ("setup", \<^here>)
-                      #> command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Top_down ("setup\<Down>", \<^here>)
-                      #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) C_Transition.Bottom_up ("ML", \<^here>)
-                      #> command0 (C_Inner_Toplevel.generic_theory o Isar_Cmd0.ML) C_Transition.Top_down ("ML\<Down>", \<^here>))
 end
+\<close>
+
+subsection \<open>\<close>
+
+ML\<open>
+local
+val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Bottom_up ("\<approx>setup", \<^here>)
+                      #> C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Top_down ("\<approx>setup\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Bottom_up ("setup", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Top_down ("setup\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Transition.Bottom_up ("ML", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Transition.Top_down ("ML\<Down>", \<^here>))
+in end
 \<close>
 
 section \<open>Definitions of Outer Commands\<close>
@@ -297,7 +311,7 @@ fun C' err env_lang src =
        err
        C_Context'.accept
        src
-  #> (fn {context, reports_text} => Stack_Data_Tree.map (append reports_text) context)
+  #> (fn {context, reports_text} => C_Stack.Data_Tree.map (append reports_text) context)
 
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C\<close> ""

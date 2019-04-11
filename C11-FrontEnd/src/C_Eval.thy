@@ -45,42 +45,47 @@ text\<open>The parser consists of a generic module @{file "../copied_from_git/ml
 which interprets a automata-like format generated from smlyacc.\<close>
 
 ML\<open>
+structure C_Stack =
+struct
 type 'a stack_elem = (LALR_Table.state, 'a, Position.T) C_Env.stack_elem0
 type stack_data = (LALR_Table.state, C_Grammar.Tokens.svalue0, Position.T) C_Env.stack0
 type stack_data_elem = (LALR_Table.state, C_Grammar.Tokens.svalue0, Position.T) C_Env.stack_elem0
 
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
-structure Stack_Data_Lang = Generic_Data
+structure Data_Lang = Generic_Data
   (type T = stack_data * C_Env.env_lang
    val empty = ([], C_Env.empty_env_lang)
    val extend = I
    val merge = #2)
 
-structure Stack_Data_Tree = Generic_Data
+structure Data_Tree = Generic_Data
   (type T = C_Position.reports_text
    val empty = []
    val extend = I
    val merge = #2)
 
-structure Stack_Data_Tree' = Generic_Data
+structure Data_Tree' = Generic_Data
   (type T = C_Lex.token Symtab.table
    val empty = Symtab.empty
    val extend = I
    val merge = #2)
 
 fun setmp_tree f context =
-  let val x = Stack_Data_Tree.get context
-      val context = f (Stack_Data_Tree.put [] context)
-  in (Stack_Data_Tree.get context, Stack_Data_Tree.put x context) end
+  let val x = Data_Tree.get context
+      val context = f (Data_Tree.put [] context)
+  in (Data_Tree.get context, Data_Tree.put x context) end
 
 fun stack_exec0 f {context, reports_text} =
   let val (reports_text', context) = setmp_tree f context
   in {context = context, reports_text = append reports_text' reports_text} end
 
 fun stack_exec env_dir data_put f =
-  stack_exec0 (Stack_Data_Lang.put (apsnd (C_Env.map_env_directives (K env_dir)) data_put) #> f)
+  stack_exec0 (Data_Lang.put (apsnd (C_Env.map_env_directives (K env_dir)) data_put) #> f)
+end
+\<close>
 
+ML\<open>
 structure C_Grammar_Lexer : ARG_LEXER1 =
 struct
 structure LALR_Lex_Instance =
@@ -107,7 +112,7 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
           I #>>
           (case ml_exec of
              (_, C_Transition.Bottom_up, env_dir, _, exec) =>
-              (fn arg => C_Env.map_env_tree (stack_exec env_dir (stack, #env_lang arg) (exec NONE))
+              (fn arg => C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack, #env_lang arg) (exec NONE))
                                             arg)
            | ((pos, _), _, _, _, _) =>
               C_Env_Ext.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos)))
@@ -223,13 +228,17 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
   end
 end
 \<close>
+
 text\<open>This is where the instatiation of the Parser Functor with the Lexer actually happens ...\<close>
+
 ML\<open>
 structure C_Grammar_Parser =
   LALR_Parser_Join (structure LrParser = LALR_Parser_Eval
                     structure ParserData = C_Grammar.ParserData
                     structure Lex = C_Grammar_Lexer)
+\<close>
 
+ML\<open>
 structure C_Language = struct
 
 open C_Env
@@ -243,7 +252,7 @@ fun exec_tree write msg (Tree ({rule_pos, rule_type}, l_tree)) =
       #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
       #-> (fn env_lang =>
             fold (fn (stack0, env_lang0, (_, C_Transition.Top_down, env_dir, _, exec)) =>
-                     stack_exec env_dir (stack0, Option.getOpt (env_lang, env_lang0)) (exec (SOME rule0))
+                     C_Stack.stack_exec env_dir (stack0, Option.getOpt (env_lang, env_lang0)) (exec (SOME rule0))
                    | _ => I)
                  rule_antiq)
       #> fold (exec_tree write (msg ^ " ")) l_tree
@@ -285,7 +294,7 @@ fun eval env_lang err accept stream_lang =
       , Position.none
       , uncurry_context (fn _ => fn (stack, _, _, stack_tree) => fn env_lang =>
           exec_tree' stack_tree
-          #> accept env_lang (stack |> hd |> map_svalue0 C_Grammar_Rule.reduce0))
+          #> accept env_lang (stack |> hd |> C_Stack.map_svalue0 C_Grammar_Rule.reduce0))
       , fn (stack, arg) => arg |> map_rule_input (K stack)
                                |> map_rule_output (K empty_rule_output)
       , fn (rule0, stack0, pre_ml) => fn arg =>
@@ -300,7 +309,7 @@ fun eval env_lang err accept stream_lang =
           in
             ( (delayed, map (fn x => (stack0, env_lang, x)) actual, rule_output)
             , fold (fn (_, C_Transition.Bottom_up, env_dir, _, exec) =>
-                       C_Env.map_env_tree (stack_exec env_dir (stack0, env_lang) (exec (SOME rule0)))
+                       C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack0, env_lang) (exec (SOME rule0)))
                      | _ => I)
                    actual
                    arg)
@@ -467,7 +476,7 @@ fun eval env err accept ants {context, reports_text} =
                 in
                  fn Left (tag, antiq, toks, l_antiq) =>
                       fold_map (fn antiq as (C_Transition.Antiq_stack (_, C_Transition.Lexing (_, exec)), _) =>
-                                     apsnd (stack_exec0 (exec C_Transition.Comment_language)) #> pair antiq
+                                     apsnd (C_Stack.stack_exec0 (exec C_Transition.Comment_language)) #> pair antiq
                                  | (C_Transition.Antiq_stack (rep, C_Transition.Parsing (syms, (range, env1, _, skip, exec))), toks) =>
                                      (fn env as (env_dir, _) =>
                                        ((C_Transition.Antiq_stack (rep, C_Transition.Parsing (syms, (range, env1, env_dir, skip, exec))), toks), env))

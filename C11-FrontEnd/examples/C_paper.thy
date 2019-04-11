@@ -42,38 +42,10 @@ section \<open>\<close>
 
 ML\<open>
 local
-fun command0 dir name =
-  C_Annotation.command' name ""
-    (fn (stack1, (to_delay, stack2)) =>
-      C_Parse.range C_Parse.ML_source >>
-        (fn (src, range) =>
-          (fn f => C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
-            (fn NONE =>
-                let val setup = "setup"
-                in C_Context.expression
-                    "C_Ast"
-                    (Input.range_of src)
-                    setup
-                    "stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic"
-                    ("fn context => \
-                       \let val (stack, env_lang) = Stack_Data_Lang.get context \
-                       \in " ^ setup ^ " (stack |> hd) env_lang end context")
-                    (ML_Lex.read_source false src) end
-              | SOME rule => 
-                let val hook = "hook"
-                in C_Context.expression
-                    "C_Ast"
-                    (Input.range_of src)
-                    hook
-                    (C_Grammar_Rule.type_reduce rule ^ " stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
-                    ("fn context => \
-                       \let val (stack, env_lang) = Stack_Data_Lang.get context \
-                       \in " ^ hook ^ " (stack |> hd |> map_svalue0 C_Grammar_Rule.reduce" ^ Int.toString rule ^ ") env_lang end context")
-                    (ML_Lex.read_source false src)
-                end)))
+val command = C_Inner_Syntax.command C_Inner_Isar_Cmd.setup'
 in
-val _ = Theory.setup (   command0 C_Transition.Bottom_up ("ML_setup", \<^here>)
-                      #> command0 C_Transition.Top_down ("ML_setup\<Down>", \<^here>))
+val _ = Theory.setup (   command C_Transition.Bottom_up ("ML_setup", \<^here>)
+                      #> command C_Transition.Top_down ("ML_setup\<Down>", \<^here>))
 end
 
 val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
@@ -81,12 +53,10 @@ val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
 
 fun C_define dir name _ _ =
   Context.map_theory 
-    (C_Annotation.command' name ""
-      (fn (stack1, (to_delay, stack2)) =>
-        C_Parse.range C_Parse.ML_source >>
-          (fn (src, range) =>
-            (fn f => C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f)))
-              (fn _ => fn context => C' (Stack_Data_Lang.get context |> #2) src context))))
+    (C_Inner_Syntax.command0
+      (fn src => fn context => C' (C_Stack.Data_Lang.get context |> #2) src context)
+      dir
+      name)
 
 local
 fun fun_decl a v s ctxt =
