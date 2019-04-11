@@ -43,7 +43,7 @@ theory C_Command
        and "C_val" "C_dump" :: diag % "ML"
 begin
 
-section \<open>Definitions of Directive Commands\<close>
+section \<open>Definitions of Inner Directive Commands\<close>
 
 ML\<open>
 local

@@ -73,7 +73,7 @@ val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
-section \<open>Instantiation of the C_Scan with C Lexems \<close>
+section \<open>Instantiation of the \<open>C_Scan\<close> with C Lexems \<close>
 
 text\<open>Basically copied and modified from files in Pure General of Isabelle.\<close>
 ML\<open>

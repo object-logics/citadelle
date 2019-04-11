@@ -1,0 +1,59 @@
+\documentclass[fontsize=11pt,paper=a4,open=right,twoside,abstract=true]{scrreprt}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[numbers, sort&compress, sectionbib]{natbib}
+\usepackage{isabelle,isabellesym}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fix for package declaration to be at the end
+\usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% document
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{C}
+\author{%
+  \href{https://www.lri.fr/~ftuong/}{Fr\'ed\'eric Tuong}
+  \and
+  \href{https://www.lri.fr/~wolff/}{Burkhart Wolff}}
+\publishers{%
+  \mbox{LRI, Univ. Paris-Sud, CNRS, CentraleSup\'elec, Universit\'e Paris-Saclay} \\
+  b\^at. 650 Ada Lovelace, 91405 Orsay, France \texorpdfstring{\\}{}
+    \href{mailto:"Frederic Tuong"
+    <frederic.tuong@lri.fr>}{frederic.tuong@lri.fr} \hspace{4.5em}
+    \href{mailto:"Burkhart Wolff"
+    <burkhart.wolff@lri.fr>}{burkhart.wolff@lri.fr}
+}
+
+\maketitle
+
+\begin{abstract}
+C\cite{brucker.ea:featherweight:2014}
+\end{abstract}
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{session}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{abbrvnat}
+\bibliography{root}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
