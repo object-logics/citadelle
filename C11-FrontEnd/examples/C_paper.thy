@@ -59,13 +59,6 @@ fun C_define dir name _ _ =
       name)
 
 local
-fun fun_decl a v s ctxt =
-  let
-    val (b, ctxt') = ML_Context.variant a ctxt;
-    val env = "fun " ^ b ^ " " ^ v ^ " = " ^ s ^ " " ^ v ^ ";\n";
-    val body = ML_Context.struct_name ctxt ^ "." ^ b;
-    fun decl (_: Proof.context) = (env, body);
-  in (decl, ctxt') end;
 in
 val _ = Theory.setup
   (ML_Antiquotation.declaration
@@ -73,7 +66,8 @@ val _ = Theory.setup
     (Scan.lift (Parse.sym_ident -- Parse.position Parse.name))
     (fn _ => fn (top_down, (name, pos)) =>
       tap (fn ctxt => Context_Position.reports ctxt [(pos, Markup.keyword1)]) #>
-      fun_decl "cmd" "x" ( "C_define "
+      C_Context.fun_decl
+               "cmd" "x" ( "C_define "
                          ^ (case top_down of "\<Up>" => "C_Transition.Bottom_up"
                                            | "\<Down>" => "C_Transition.Top_down"
                                            | _ => error "Illegal symbol")

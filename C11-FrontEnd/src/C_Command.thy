@@ -46,44 +46,46 @@ begin
 section \<open>Definitions of Directive Commands\<close>
 
 ML\<open>
+local
 val _ =
   Theory.setup
   (Context.theory_map
     (C_Context.Directives.map
       (C_Context.directive_update ("define", \<^here>)
         (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
-            (fn (env_dir, env_tree) =>
-              ( NONE
-              , []
-              , let val name = C_Lex.content_of tok3
-                    val id = serial ()
-                    val pos = [C_Lex.pos_of tok3]
-                in
-                  ( Symtab.update (name, (pos, id, toks)) env_dir
-                  , C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos (C_Context.markup_directive_define true false pos) (name, id))
-                                           env_tree)
-                end))
-         | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
-             tap (fn _ => (* not yet implemented *)
-                          warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
-             #> (fn env => (NONE, [], env))
-         | _ => fn env => (NONE, [], env))
+              (fn (env_dir, env_tree) =>
+                ( NONE
+                , []
+                , let val name = C_Lex.content_of tok3
+                      val id = serial ()
+                      val pos = [C_Lex.pos_of tok3]
+                  in
+                    ( Symtab.update (name, (pos, id, toks)) env_dir
+                    , C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos (C_Context.markup_directive_define true false pos) (name, id))
+                                             env_tree)
+                  end))
+          | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
+              tap (fn _ => (* not yet implemented *)
+                           warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
+              #> (fn env => (NONE, [], env))
+          | _ => fn env => (NONE, [], env))
        #>
        C_Context.directive_update ("undef", \<^here>)
         (fn C_Lex.Undef (C_Lex.Group2 (_, _, [tok])) =>
-            (fn (env_dir, env_tree) =>
-              ( NONE
-              , []
-              , let val name = C_Lex.content_of tok
-                    val pos1 = C_Lex.pos_of tok
-                in case Symtab.lookup env_dir name of
-                     NONE => (env_dir, C_Env.map_reports_text (cons ((pos1, Markup.intensify), "")) env_tree)
-                   | SOME (pos0, id, _) =>
-                       ( Symtab.delete name env_dir
-                       , C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (C_Context.markup_directive_define false true pos0) (name, id))
-                                                env_tree)
-                end))
-         | _ => fn env => (NONE, [], env)))))
+              (fn (env_dir, env_tree) =>
+                ( NONE
+                , []
+                , let val name = C_Lex.content_of tok
+                      val pos1 = C_Lex.pos_of tok
+                  in case Symtab.lookup env_dir name of
+                       NONE => (env_dir, C_Env.map_reports_text (cons ((pos1, Markup.intensify), "")) env_tree)
+                     | SOME (pos0, id, _) =>
+                         ( Symtab.delete name env_dir
+                         , C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (C_Context.markup_directive_define false true pos0) (name, id))
+                                                  env_tree)
+                  end))
+          | _ => fn env => (NONE, [], env)))))
+in end
 \<close>
 
 section \<open>Definitions of Inner Annotation Commands\<close>
@@ -94,15 +96,6 @@ structure C_Inner_Toplevel =
 struct
 val theory = Context.map_theory
 val generic_theory = I
-end
-\<close>
-
-ML\<open>
-structure C_Isar_Cmd = 
-struct
-fun ML source =  ML_Context.exec (fn () =>
-                    ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
-                  Local_Theory.propagate_ml_env
 end
 \<close>
 
@@ -162,6 +155,12 @@ subsection \<open>\<close>
 
 ML\<open>
 local
+structure C_Isar_Cmd = 
+struct
+fun ML source = ML_Context.exec (fn () =>
+                   ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
+                 Local_Theory.propagate_ml_env
+end
 val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Bottom_up ("\<approx>setup", \<^here>)
                       #> C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Top_down ("\<approx>setup\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Bottom_up ("setup", \<^here>)

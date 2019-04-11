@@ -331,6 +331,13 @@ ML context and antiquotations.
 
 structure C_Context =
 struct
+fun fun_decl a v s ctxt =
+  let
+    val (b, ctxt') = ML_Context.variant a ctxt;
+    val env = "fun " ^ b ^ " " ^ v ^ " = " ^ s ^ " " ^ v ^ ";\n";
+    val body = ML_Context.struct_name ctxt ^ "." ^ b;
+    fun decl (_: Proof.context) = (env, body);
+  in (decl, ctxt') end;
 
 (* theory data *)
 
