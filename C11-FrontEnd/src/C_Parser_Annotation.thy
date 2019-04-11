@@ -425,7 +425,7 @@ fun read_with_commands' keywords scan syms =
          (Scan.bulk scan)
          (fn msg =>
            Scan.one (not o is_eof)
-           >> (fn tok => [Right
+           >> (fn tok => [C_Scan.Right
                            let
                              val msg = case is_error' tok of SOME msg0 => msg0 ^ " (" ^ msg ^ ")"
                                                            | NONE => msg
@@ -435,7 +435,7 @@ fun read_with_commands' keywords scan syms =
                            end])))
   |> Source.exhaust;
 
-fun read_antiq' keywords scan = read_with_commands' keywords (scan >> Left);
+fun read_antiq' keywords scan = read_with_commands' keywords (scan >> C_Scan.Left);
 end
 
 type 'a c_parser = 'a C_Token.parser;

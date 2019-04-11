@@ -138,6 +138,8 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         let val (arg, stack_ml) = f stack (arg, stack_ml)
         in (x, ((stack, stack_ml, stack_pos, stack_tree), arg)) end
       val return0 = return0' advance_hook
+      open C_Ast
+      open C_Scan
   in
     case token
     of NONE => 
@@ -182,17 +184,17 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
        case tok of
          C_Lex.Char (b, [c]) =>
-          return0 (C_Grammar.Tokens.cchar (C_Ast.CChar (String.sub (c,0)) b, pos1, pos2))
+          return0 (C_Grammar.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
        | C_Lex.String (b, s) =>
-          return0 (C_Grammar.Tokens.cstr (C_Ast.CString0 (C_Ast.From_string (implode s), b), pos1, pos2))
+          return0 (C_Grammar.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2))
        | C_Lex.Integer (i, repr, flag) =>
           return0 (C_Grammar.Tokens.cint
-                    ( C_Ast.CInteger i repr
+                    ( CInteger i repr
                         (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
                                               flag
-                                              ([C_Ast.FlagUnsigned, C_Ast.FlagLong, C_Ast.FlagLongLong, C_Ast.FlagImag] |> rev |> map (pair "0"))
+                                              ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
                                          |> map #1)
-                         |> C_Ast.Flags)
+                         |> Flags)
                     , pos1
                     , pos2))
        | C_Lex.Ident => 
@@ -207,12 +209,12 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
        | _ => 
           C_Grammar_Tokens.token_of_string
                           (C_Grammar.Tokens.error (pos1, pos2))
-                          (C_Ast.ClangCVersion0 (C_Ast.From_string src))
-                          (C_Ast.CChar #"0" false)
-                          (C_Ast.CFloat (C_Ast.From_string src))
-                          (C_Ast.CInteger 0 C_Ast.DecRepr (C_Ast.Flags 0))
-                          (C_Ast.CString0 (C_Ast.From_string src, false))
-                          (C_Ast.Ident (C_Ast.From_string src, 0, C_Ast.OnlyPos C_Ast.NoPosition (C_Ast.NoPosition, 0)))
+                          (ClangCVersion0 (From_string src))
+                          (CChar #"0" false)
+                          (CFloat (From_string src))
+                          (CInteger 0 DecRepr (Flags 0))
+                          (CString0 (From_string src, false))
+                          (Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
                           src
                           pos1
                           pos2
@@ -371,6 +373,7 @@ fun print0 s =
 
 val print = tracing o cat_lines o print0 ""
 
+open C_Scan
 in
 
 fun markup_directive_command def ps (name, id) =
@@ -412,15 +415,15 @@ fun eval env err accept ants {context, reports_text} =
                  , if forall (fn Right _ => true | _ => false) res then
                      let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
                          val (l_report, l_tok) = split_list res
-                     in [(C_Transition.Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o Right o SOME) (explicit, cat_lines l_msg, if explicit then flat l_report else []), cts))), l_tok)] end
+                     in [(C_Transition.Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o C_Lex.Comment_suspicious o SOME) (explicit, cat_lines l_msg, if explicit then flat l_report else []), cts))), l_tok)] end
                    else
                      map (fn Left x => x
                            | Right (msg, l_report, tok) =>
-                               (C_Transition.Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o Right o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
+                               (C_Transition.Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o C_Lex.Comment_suspicious o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
                          res)
            end
 
-      val ants = map (fn C_Lex.Token (pos, (C_Lex.Comment (Left antiq), cts)) =>
+      val ants = map (fn C_Lex.Token (pos, (C_Lex.Comment (C_Lex.Comment_formal antiq), cts)) =>
                           scan_comment C_Transition.Comment_language pos antiq cts
                        | tok => Right tok)
                      ants
@@ -491,7 +494,7 @@ fun eval env err accept ants {context, reports_text} =
                          end)
                       #> tap
                            (fn _ =>
-                             app (fn C_Lex.Token ((pos, _), (C_Lex.Comment (Left _), _)) =>
+                             app (fn C_Lex.Token ((pos, _), (C_Lex.Comment (C_Lex.Comment_formal _), _)) =>
                                      (Position.reports_text [((pos, Markup.ML_comment), "")];
                                       (* not yet implemented *)
                                       warning ("Ignored annotation in directive" ^ Position.here pos))

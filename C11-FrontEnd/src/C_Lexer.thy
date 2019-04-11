@@ -41,11 +41,11 @@ begin
 section\<open> Basic Scanning Combinators from Isabelle \<close>
 
 ML\<open>
-datatype ('a, 'b) either = Left of 'a | Right of 'b
-
 structure C_Scan =
 struct
 open Basic_Symbol_Pos;
+
+datatype ('a, 'b) either = Left of 'a | Right of 'b
 
 val err_prefix = "C lexical error: ";
 
@@ -540,6 +540,10 @@ val lexicon = Scan.make_lexicon (map raw_explode keywords);
 
 (* datatype token *)
 
+datatype token_kind_comment =
+   Comment_formal of C_Antiquote.antiq
+ | Comment_suspicious of (bool * string * ((Position.T * Markup.T) * string) list) option
+
 datatype token_kind =
   Keyword | Ident | Type_ident | GnuC | ClangC |
   (**)
@@ -549,7 +553,7 @@ datatype token_kind =
   String of bool * Symbol.symbol list |
   File of bool * Symbol.symbol list |
   (**)
-  Space | Comment of (C_Antiquote.antiq, (bool * string * ((Position.T * Markup.T) * string) list) option) either | Sharp of int |
+  Space | Comment of token_kind_comment | Sharp of int |
   (**)
   Error of string * token_group | Directive of token_kind_directive | EOF
 
@@ -703,7 +707,7 @@ val warn = fn
     Token ((pos, _), (Char (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (String (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
-  | Token (_, (Comment (Right (SOME (explicit, msg, _))), _)) => (if explicit then warning else tracing) msg
+  | Token (_, (Comment (Comment_suspicious (SOME (explicit, msg, _))), _)) => (if explicit then warning else tracing) msg
   | Token ((pos, _), (Directive (Inline _), _)) => warning ("Ignored directive" ^ Position.here pos)
   | Token (_, (Directive (kind as Conditional _), _)) => 
       app (fn Token (_, (Error (msg, _), _)) => warning msg | _ => ())
@@ -792,7 +796,7 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
         :: flat [ maps token_report1 toks1
                 , maps token_report0 toks2
                 , maps token_report0 toks_bl ]
-   | Comment (Right c) => ((pos, Markup.ML_comment), "") :: (case c of NONE => [] | SOME (_, _, l) => l)
+   | Comment (Comment_suspicious c) => ((pos, Markup.ML_comment), "") :: (case c of NONE => [] | SOME (_, _, l) => l)
    | x => [let val (markup, txt) = token_kind_markup0 x in ((pos, markup), txt) end]
 
 and token_report0 tok = token_report' false tok
@@ -1008,12 +1012,12 @@ fun scan_token f1 f2 = Scan.trace f1 >> (fn (v, s) => token (f2 v) s)
 
 val comments =
      Scan.recover
-       (scan_token C_Antiquote.scan_antiq (Comment o Left))
+       (scan_token C_Antiquote.scan_antiq (Comment o Comment_formal))
        (fn msg => Scan.ahead C_Antiquote.scan_antiq_recover
                   -- C_Symbol_Pos.scan_comment_no_nest
-                  >> (fn (explicit, res) => token (Comment (Right (SOME (explicit, msg, [])))) res)
+                  >> (fn (explicit, res) => token (Comment (Comment_suspicious (SOME (explicit, msg, [])))) res)
                || Scan.fail_with (fn _ => fn _ => msg))
-  || C_Symbol_Pos.scan_comment_no_nest >> token (Comment (Right NONE))
+  || C_Symbol_Pos.scan_comment_no_nest >> token (Comment (Comment_suspicious NONE))
 
 fun scan_fragment blanks =
      scan_token scan_char Char

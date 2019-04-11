@@ -84,7 +84,7 @@ type var_table = { tyidents : (Position.T list * serial) Symtab.table
                  , idents : (Position.T list * serial * bool (*true: global*) * C_Ast.CDerivedDeclr list 
                              * C_Ast.CDeclSpec list parse_status) Symtab.table }
 
-type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) either list
+type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) C_Scan.either list
 
 type env_lang = { var_table : var_table
                 , scopes : var_table list
@@ -241,10 +241,10 @@ fun make env_lang stream_lang env_tree =
          , rule_output = empty_rule_output
          , rule_input = ([], 0)
          , stream_hook = []
-         , stream_lang = map_filter (fn Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
-                                      | Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
-                                      | Right tok => SOME (Right tok)
-                                      | Left antiq => SOME (Left antiq))
+         , stream_lang = map_filter (fn C_Scan.Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
+                                      | C_Scan.Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
+                                      | C_Scan.Right tok => SOME (C_Scan.Right tok)
+                                      | C_Scan.Left antiq => SOME (C_Scan.Left antiq))
                                     stream_lang }
 fun string_of (env_lang : env_lang) = 
   let fun dest0 x = x |> Symtab.dest |> map #1
