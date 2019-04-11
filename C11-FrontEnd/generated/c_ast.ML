@@ -1,6 +1,6 @@
 (* Generated from C_Model_ml.thy; DO NOT EDIT! *)
 
-structure C_ast_simple : sig
+structure C_Ast : sig
   datatype string_b_a_s_e = ST of string | STa of char list
   datatype abr_string = SS_base of string_b_a_s_e | String_concatWith of abr_string * abr_string list
   datatype name = Name0 of int
@@ -714,4 +714,4 @@ fun cGenericSelection x = (fn a => fn b => CGenericSelection0 (x, a, b));
 
 fun cBuiltinTypesCompatible x = (fn a => fn b => CBuiltinTypesCompatible0 (x, a, b));
 
-end; (*struct C_ast_simple*)
+end; (*struct C_Ast*)

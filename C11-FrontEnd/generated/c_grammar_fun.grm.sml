@@ -1,21 +1,21 @@
-functor StrictCLrValsFun(structure Token : TOKEN)
+functor C_Grammar_Fun(structure Token : TOKEN)
  : sig structure ParserData : PARSER_DATA1
-       structure Tokens : StrictC_TOKENS
+       structure Tokens : C_Grammar_TOKENS
    end
  = 
 struct
 structure Header = 
 struct
-(*#line 1.2 "language_c.grm"*)open C_ast_simple open Hsk_c_parser
+(*#line 1.2 "c_grammar_fun.grm"*)open C_Ast open C_Grammar_Rule_Lib
 
 
-(*#line 12.1 "language_c.grm.sml"*)
+(*#line 12.1 "c_grammar_fun.grm.sml"*)
 end
 structure ParserData=
 struct
-structure LrTable = Token.LrTable
+structure LALR_Table = Token.LALR_Table
 structure Token = Token
-local open LrTable in 
+local open LALR_Table in 
 val table=let val actionRows =
 "\
 \\001\000\002\000\173\003\014\000\173\003\044\000\173\003\049\000\173\003\
@@ -6446,7 +6446,7 @@ val table=let val actionRows =
             in f 0 handle General.Subscript => () end
   in val entry_to_action = fn 0 => ACCEPT | 1 => ERROR | j => Array.sub (memo, j - 2) end
 in
-  LrTable.mkLrTable
+  LALR_Table.mkLrTable
     {actions =
       Array.fromList
        (map (curry Array.sub (Array.fromList (string_to_table (string_to_pairlist_T entry_to_action)
@@ -6461,13 +6461,13 @@ end
 local open Header in
 type pos = Position.T
 type arg = Header.arg
-type svalue0 = MlyValue.svalue0
+type svalue0 = C_Grammar_Rule.svalue0
 type svalue = arg -> svalue0 * arg
 type result = CTranslUnit
 end
 structure EC=
 struct
-open LrTable
+open LALR_Table
 infix 5 $$
 fun x $$ y = y::x
 val is_keyword =
@@ -6591,7 +6591,7 @@ fn (T 0) => "error"
   | _ => "bogus-term"
 local open Header in
 val errtermvalue=
-return o (fn _ => MlyValue.VOID
+return o (fn _ => C_Grammar_Rule.VOID
 ) end
 val terms : term list = nil
  $$ (T 110) $$ (T 0)end
@@ -6603,2071 +6603,2071 @@ val actions =
 fn (i392,defaultPos,stack,
     (_):arg) =>
 case (i392,stack)
-of  ( 0, ( ( _, ( MlyValue.ext_decl_list ext_decl_list1, ext_decl_list1left, ext_decl_list1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 373.35 "language_c.grm"*)(*%*)(fn happy_var_1 => let val decls = reverse happy_var_1 in case decls of [] => bind (getNewName) (fn n => bind (getCurrentPosition) (fn p => return (CTranslUnit decls (mkNodeInfo' p (p, 0) n)))) | (d :: ds) => withNodeInfo_CExtDecl d (CTranslUnit decls) end) ext_decl_list1(*#line 6606.1 "language_c.grm.sml"*)
-) MlyValueM.translation_unit, MlyValue.translation_unit)
- in ( LrTable.NT 0, ( result, ext_decl_list1left, ext_decl_list1right), rest671)
-end
-|  ( 1, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 375.19 "language_c.grm"*)empty(*#line 6610.1 "language_c.grm.sml"*)
-)) MlyValueM.ext_decl_list1, MlyValue.ext_decl_list)
- in ( LrTable.NT 1, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 2, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.ext_decl_list ext_decl_list1, ext_decl_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 376.36 "language_c.grm"*)(fn happy_var_1 => happy_var_1) ext_decl_list1(*#line 6614.1 "language_c.grm.sml"*)
-)) MlyValueM.ext_decl_list2, MlyValue.ext_decl_list)
- in ( LrTable.NT 1, ( result, ext_decl_list1left, x3b1right), rest671)
-end
-|  ( 3, ( ( _, ( MlyValue.external_declaration external_declaration1, _, external_declaration1right)) :: ( _, ( MlyValue.ext_decl_list ext_decl_list1, ext_decl_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 377.53 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) ext_decl_list1 external_declaration1(*#line 6618.1 "language_c.grm.sml"*)
-)) MlyValueM.ext_decl_list3, MlyValue.ext_decl_list)
- in ( LrTable.NT 1, ( result, ext_decl_list1left, external_declaration1right), rest671)
-end
-|  ( 4, ( ( _, ( MlyValue.function_definition function_definition1, function_definition1left, function_definition1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 379.45 "language_c.grm"*)(fn happy_var_1 => CFDefExt happy_var_1) function_definition1(*#line 6622.1 "language_c.grm.sml"*)
-)) MlyValueM.external_declaration1, MlyValue.external_declaration)
- in ( LrTable.NT 2, ( result, function_definition1left, function_definition1right), rest671)
-end
-|  ( 5, ( ( _, ( MlyValue.declaration declaration1, declaration1left, declaration1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 380.37 "language_c.grm"*)(fn happy_var_1 => CDeclExt happy_var_1) declaration1(*#line 6626.1 "language_c.grm.sml"*)
-)) MlyValueM.external_declaration2, MlyValue.external_declaration)
- in ( LrTable.NT 2, ( result, declaration1left, declaration1right), rest671)
-end
-|  ( 6, ( ( _, ( MlyValue.external_declaration external_declaration1, _, external_declaration1right)) :: ( _, ( _, x5f_x5f_extension_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 381.72 "language_c.grm"*)(fn happy_var_2 => happy_var_2) external_declaration1(*#line 6630.1 "language_c.grm.sml"*)
-)) MlyValueM.external_declaration3, MlyValue.external_declaration)
- in ( LrTable.NT 2, ( result, x5f_x5f_extension_x5f_x5f1left, external_declaration1right), rest671)
-end
-|  ( 7, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( MlyValue.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 382.56 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAsmExt happy_var_3)) asm1 string_literal1) (fn _ => withNodeInfo 0)(*#line 6634.1 "language_c.grm.sml"*)
-) MlyValueM.external_declaration4, MlyValue.external_declaration)
- in ( LrTable.NT 2, ( result, asm1left, x3b1right), rest671)
-end
-|  ( 8, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, function_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 384.63 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef [] happy_var_1 [] happy_var_2))) function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6638.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition1, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, function_declarator1left, compound_statement1right), rest671)
-end
-|  ( 9, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 385.69 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftCAttrs happy_var_1) happy_var_2 [] happy_var_3))) attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6642.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition2, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, attrs1left, compound_statement1right), rest671)
-end
-|  ( 10, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 386.85 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) declaration_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6646.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition3, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, declaration_specifier1left, compound_statement1right), rest671)
-end
-|  ( 11, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 387.78 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) type_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6650.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition4, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, type_specifier1left, compound_statement1right), rest671)
-end
-|  ( 12, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 388.90 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 [] happy_var_3))) declaration_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6654.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition5, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, declaration_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 13, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 389.83 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 [] happy_var_3))) type_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6658.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition6, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, type_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 14, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 390.89 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 [] happy_var_4))) type_qualifier_list1 attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6662.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition7, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, type_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 15, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.declaration_list declaration_list1, _, _)) :: ( _, ( MlyValue.function_declarator_old function_declarator_old1, function_declarator_old1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 391.84 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CFunDef [] happy_var_1 (reverse happy_var_2) happy_var_3)) function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6666.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition8, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, function_declarator_old1left, compound_statement1right), rest671)
-end
-|  ( 16, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.declaration_list declaration_list1, _, _)) :: ( _, ( MlyValue.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 392.90 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_2 (CFunDef (liftCAttrs happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) attrs1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 1)(*#line 6670.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition9, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, attrs1left, compound_statement1right), rest671)
-end
-|  ( 17, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.declaration_list declaration_list1, _, _)) :: ( _, ( MlyValue.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( MlyValue.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 393.106 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 (reverse happy_var_3) happy_var_4)) declaration_specifier1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6674.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition10, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, declaration_specifier1left, compound_statement1right), rest671)
-end
-|  ( 18, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.declaration_list declaration_list1, _, _)) :: ( _, ( MlyValue.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 394.99 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 (reverse happy_var_3) happy_var_4)) type_specifier1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6678.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition11, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, type_specifier1left, compound_statement1right), rest671)
-end
-|  ( 19, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.declaration_list declaration_list1, _, _)) :: ( _, ( MlyValue.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 395.111 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) declaration_qualifier_list1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6682.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition12, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, declaration_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 20, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.declaration_list declaration_list1, _, _)) :: ( _, ( MlyValue.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 396.104 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) type_qualifier_list1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6686.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition13, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, type_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 21, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.declaration_list declaration_list1, _, _)) :: ( _, ( MlyValue.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 397.110 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 (reverse happy_var_4) happy_var_5)) type_qualifier_list1 attrs1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6690.1 "language_c.grm.sml"*)
-) MlyValueM.function_definition14, MlyValue.function_definition)
- in ( LrTable.NT 3, ( result, type_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 22, ( ( _, ( MlyValue.identifier_declarator identifier_declarator1, identifier_declarator1left, identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 399.46 "language_c.grm"*)(*%*)(fn happy_var_1 => let val declr = reverseDeclr happy_var_1 in enterScope >> doFuncParamDeclIdent declr >> return declr end) identifier_declarator1(*#line 6694.1 "language_c.grm.sml"*)
-) MlyValueM.function_declarator, MlyValue.function_declarator)
- in ( LrTable.NT 4, ( result, identifier_declarator1left, identifier_declarator1right), rest671)
-end
-|  ( 23, ( ( _, ( MlyValue.labeled_statement labeled_statement1, labeled_statement1left, labeled_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 401.32 "language_c.grm"*)(fn happy_var_1 => happy_var_1) labeled_statement1(*#line 6698.1 "language_c.grm.sml"*)
-)) MlyValueM.statement1, MlyValue.statement)
- in ( LrTable.NT 5, ( result, labeled_statement1left, labeled_statement1right), rest671)
-end
-|  ( 24, ( ( _, ( MlyValue.compound_statement compound_statement1, compound_statement1left, compound_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 402.33 "language_c.grm"*)(fn happy_var_1 => happy_var_1) compound_statement1(*#line 6702.1 "language_c.grm.sml"*)
-)) MlyValueM.statement2, MlyValue.statement)
- in ( LrTable.NT 5, ( result, compound_statement1left, compound_statement1right), rest671)
-end
-|  ( 25, ( ( _, ( MlyValue.expression_statement expression_statement1, expression_statement1left, expression_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 403.35 "language_c.grm"*)(fn happy_var_1 => happy_var_1) expression_statement1(*#line 6706.1 "language_c.grm.sml"*)
-)) MlyValueM.statement3, MlyValue.statement)
- in ( LrTable.NT 5, ( result, expression_statement1left, expression_statement1right), rest671)
-end
-|  ( 26, ( ( _, ( MlyValue.selection_statement selection_statement1, selection_statement1left, selection_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 404.34 "language_c.grm"*)(fn happy_var_1 => happy_var_1) selection_statement1(*#line 6710.1 "language_c.grm.sml"*)
-)) MlyValueM.statement4, MlyValue.statement)
- in ( LrTable.NT 5, ( result, selection_statement1left, selection_statement1right), rest671)
-end
-|  ( 27, ( ( _, ( MlyValue.iteration_statement iteration_statement1, iteration_statement1left, iteration_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 405.34 "language_c.grm"*)(fn happy_var_1 => happy_var_1) iteration_statement1(*#line 6714.1 "language_c.grm.sml"*)
-)) MlyValueM.statement5, MlyValue.statement)
- in ( LrTable.NT 5, ( result, iteration_statement1left, iteration_statement1right), rest671)
-end
-|  ( 28, ( ( _, ( MlyValue.jump_statement jump_statement1, jump_statement1left, jump_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 406.29 "language_c.grm"*)(fn happy_var_1 => happy_var_1) jump_statement1(*#line 6718.1 "language_c.grm.sml"*)
-)) MlyValueM.statement6, MlyValue.statement)
- in ( LrTable.NT 5, ( result, jump_statement1left, jump_statement1right), rest671)
-end
-|  ( 29, ( ( _, ( MlyValue.asm_statement asm_statement1, asm_statement1left, asm_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 407.28 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAsm happy_var_1)) asm_statement1) (fn _ => withNodeInfo 0)(*#line 6722.1 "language_c.grm.sml"*)
-) MlyValueM.statement7, MlyValue.statement)
- in ( LrTable.NT 5, ( result, asm_statement1left, asm_statement1right), rest671)
-end
-|  ( 30, ( ( _, ( MlyValue.statement statement1, _, statement1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 409.57 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CLabel happy_var_1 happy_var_4 happy_var_3)) identifier1 attrs_opt1 statement1) (fn _ => withNodeInfo 0)(*#line 6726.1 "language_c.grm.sml"*)
-) MlyValueM.labeled_statement1, MlyValue.labeled_statement)
- in ( LrTable.NT 6, ( result, identifier1left, statement1right), rest671)
-end
-|  ( 31, ( ( _, ( MlyValue.statement statement1, _, statement1right)) :: _ :: ( _, ( MlyValue.constant_expression constant_expression1, _, _)) :: ( _, ( MlyValue.case0 case01, case01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 410.62 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CCase happy_var_2 happy_var_4)) case01 constant_expression1 statement1) (fn _ => withNodeInfo 0)(*#line 6730.1 "language_c.grm.sml"*)
-) MlyValueM.labeled_statement2, MlyValue.labeled_statement)
- in ( LrTable.NT 6, ( result, case01left, statement1right), rest671)
-end
-|  ( 32, ( ( _, ( MlyValue.statement statement1, _, statement1right)) :: _ :: ( _, ( MlyValue.default default1, default1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 411.44 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CDefault happy_var_3)) default1 statement1) (fn _ => withNodeInfo 0)(*#line 6734.1 "language_c.grm.sml"*)
-) MlyValueM.labeled_statement3, MlyValue.labeled_statement)
- in ( LrTable.NT 6, ( result, default1left, statement1right), rest671)
-end
-|  ( 33, ( ( _, ( MlyValue.statement statement1, _, statement1right)) :: _ :: ( _, ( MlyValue.constant_expression constant_expression2, _, _)) :: _ :: ( _, ( MlyValue.constant_expression constant_expression1, _, _)) :: ( _, ( MlyValue.case0 case01, case01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 412.94 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CCases happy_var_2 happy_var_4 happy_var_6)) case01 constant_expression1 constant_expression2 statement1) (fn _ => withNodeInfo 0)(*#line 6738.1 "language_c.grm.sml"*)
-) MlyValueM.labeled_statement4, MlyValue.labeled_statement)
- in ( LrTable.NT 6, ( result, case01left, statement1right), rest671)
-end
-|  ( 34, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( MlyValue.block_item_list block_item_list1, _, _)) :: _ :: ( _, ( MlyValue.x7b x7b1, x7b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 414.71 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CCompound [] (reverse happy_var_3))) x7b1 block_item_list1) (fn _ => withNodeInfo 0)(*#line 6742.1 "language_c.grm.sml"*)
-) MlyValueM.compound_statement1, MlyValue.compound_statement)
- in ( LrTable.NT 7, ( result, x7b1left, x7d1right), rest671)
-end
-|  ( 35, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( MlyValue.block_item_list block_item_list1, _, _)) :: ( _, ( MlyValue.label_declarations label_declarations1, _, _)) :: _ :: ( _, ( MlyValue.x7b x7b1, x7b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 415.90 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CCompound (reverse happy_var_3) (reverse happy_var_4))) x7b1 label_declarations1 block_item_list1) (fn _ => withNodeInfo 0)(*#line 6746.1 "language_c.grm.sml"*)
-) MlyValueM.compound_statement2, MlyValue.compound_statement)
- in ( LrTable.NT 7, ( result, x7b1left, x7d1right), rest671)
-end
-|  ( 36, ( rest671)) => let val  result = op #>> ( bind' ((*#line 417.17 "language_c.grm"*)(*%*)enterScope(*#line 6750.1 "language_c.grm.sml"*)
-) MlyValueM.enter_scope, MlyValue.enter_scope)
- in ( LrTable.NT 8, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 37, ( rest671)) => let val  result = op #>> ( bind' ((*#line 419.17 "language_c.grm"*)(*%*)leaveScope(*#line 6754.1 "language_c.grm.sml"*)
-) MlyValueM.leave_scope, MlyValue.leave_scope)
- in ( LrTable.NT 9, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 38, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 421.21 "language_c.grm"*)empty(*#line 6758.1 "language_c.grm.sml"*)
-)) MlyValueM.block_item_list1, MlyValue.block_item_list)
- in ( LrTable.NT 10, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 39, ( ( _, ( MlyValue.block_item block_item1, _, block_item1right)) :: ( _, ( MlyValue.block_item_list block_item_list1, block_item_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 422.47 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) block_item_list1 block_item1(*#line 6762.1 "language_c.grm.sml"*)
-)) MlyValueM.block_item_list2, MlyValue.block_item_list)
- in ( LrTable.NT 10, ( result, block_item_list1left, block_item1right), rest671)
-end
-|  ( 40, ( ( _, ( MlyValue.statement statement1, statement1left, statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 424.25 "language_c.grm"*)(fn happy_var_1 => CBlockStmt happy_var_1) statement1(*#line 6766.1 "language_c.grm.sml"*)
-)) MlyValueM.block_item1, MlyValue.block_item)
- in ( LrTable.NT 11, ( result, statement1left, statement1right), rest671)
-end
-|  ( 41, ( ( _, ( MlyValue.nested_declaration nested_declaration1, nested_declaration1left, nested_declaration1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 425.34 "language_c.grm"*)(fn happy_var_1 => happy_var_1) nested_declaration1(*#line 6770.1 "language_c.grm.sml"*)
-)) MlyValueM.block_item2, MlyValue.block_item)
- in ( LrTable.NT 11, ( result, nested_declaration1left, nested_declaration1right), rest671)
-end
-|  ( 42, ( ( _, ( MlyValue.declaration declaration1, declaration1left, declaration1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 427.35 "language_c.grm"*)(fn happy_var_1 => CBlockDecl happy_var_1) declaration1(*#line 6774.1 "language_c.grm.sml"*)
-)) MlyValueM.nested_declaration1, MlyValue.nested_declaration)
- in ( LrTable.NT 12, ( result, declaration1left, declaration1right), rest671)
-end
-|  ( 43, ( ( _, ( MlyValue.nested_function_definition nested_function_definition1, nested_function_definition1left, nested_function_definition1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 428.50 "language_c.grm"*)(fn happy_var_1 => CNestedFunDef happy_var_1) nested_function_definition1(*#line 6778.1 "language_c.grm.sml"*)
-)) MlyValueM.nested_declaration2, MlyValue.nested_declaration)
- in ( LrTable.NT 12, ( result, nested_function_definition1left, nested_function_definition1right), rest671)
-end
-|  ( 44, ( ( _, ( MlyValue.nested_declaration nested_declaration1, _, nested_declaration1right)) :: ( _, ( _, x5f_x5f_extension_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 429.68 "language_c.grm"*)(fn happy_var_2 => happy_var_2) nested_declaration1(*#line 6782.1 "language_c.grm.sml"*)
-)) MlyValueM.nested_declaration3, MlyValue.nested_declaration)
- in ( LrTable.NT 12, ( result, x5f_x5f_extension_x5f_x5f1left, nested_declaration1right), rest671)
-end
-|  ( 45, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 431.92 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) declaration_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6786.1 "language_c.grm.sml"*)
-) MlyValueM.nested_function_definition1, MlyValue.nested_function_definition)
- in ( LrTable.NT 13, ( result, declaration_specifier1left, compound_statement1right), rest671)
-end
-|  ( 46, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 432.85 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) type_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6790.1 "language_c.grm.sml"*)
-) MlyValueM.nested_function_definition2, MlyValue.nested_function_definition)
- in ( LrTable.NT 13, ( result, type_specifier1left, compound_statement1right), rest671)
-end
-|  ( 47, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 433.97 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 [] happy_var_3))) declaration_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6794.1 "language_c.grm.sml"*)
-) MlyValueM.nested_function_definition3, MlyValue.nested_function_definition)
- in ( LrTable.NT 13, ( result, declaration_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 48, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 434.90 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 [] happy_var_3))) type_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6798.1 "language_c.grm.sml"*)
-) MlyValueM.nested_function_definition4, MlyValue.nested_function_definition)
- in ( LrTable.NT 13, ( result, type_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 49, ( ( _, ( MlyValue.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( MlyValue.function_declarator function_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 435.96 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 [] happy_var_4))) type_qualifier_list1 attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6802.1 "language_c.grm.sml"*)
-) MlyValueM.nested_function_definition5, MlyValue.nested_function_definition)
- in ( LrTable.NT 13, ( result, type_qualifier_list1left, compound_statement1right), rest671)
-end
-|  ( 50, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.identifier_list identifier_list1, _, _)) :: ( _, ( _, x5f_x5f_label_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 437.65 "language_c.grm"*)(fn happy_var_2 => happy_var_2) identifier_list1(*#line 6806.1 "language_c.grm.sml"*)
-)) MlyValueM.label_declarations1, MlyValue.label_declarations)
- in ( LrTable.NT 14, ( result, x5f_x5f_label_x5f_x5f1left, x3b1right), rest671)
-end
-|  ( 51, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.identifier_list identifier_list1, _, _)) :: _ :: ( _, ( MlyValue.label_declarations label_declarations1, label_declarations1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 438.84 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => rappendr (happy_var_1) (happy_var_3)) label_declarations1 identifier_list1(*#line 6810.1 "language_c.grm.sml"*)
-)) MlyValueM.label_declarations2, MlyValue.label_declarations)
- in ( LrTable.NT 14, ( result, label_declarations1left, x3b1right), rest671)
-end
-|  ( 52, ( ( _, ( MlyValue.x3b x3b1, x3b1left, x3b1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 440.29 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExpr Nothing)) x3b1) (fn _ => withNodeInfo 0)(*#line 6814.1 "language_c.grm.sml"*)
-) MlyValueM.expression_statement1, MlyValue.expression_statement)
- in ( LrTable.NT 15, ( result, x3b1left, x3b1right), rest671)
-end
-|  ( 53, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.expression expression1, expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 441.40 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExpr (Just happy_var_1))) expression1) (fn _ => withNodeInfo 0)(*#line 6818.1 "language_c.grm.sml"*)
-) MlyValueM.expression_statement2, MlyValue.expression_statement)
- in ( LrTable.NT 15, ( result, expression1left, x3b1right), rest671)
-end
-|  ( 54, ( ( _, ( MlyValue.statement statement1, _, statement1right)) :: _ :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.if0 if01, if01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 443.57 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CIf happy_var_3 happy_var_5 Nothing)) if01 expression1 statement1) (fn _ => withNodeInfo 0)(*#line 6822.1 "language_c.grm.sml"*)
-) MlyValueM.selection_statement1, MlyValue.selection_statement)
- in ( LrTable.NT 16, ( result, if01left, statement1right), rest671)
-end
-|  ( 55, ( ( _, ( MlyValue.statement statement2, _, statement2right)) :: _ :: ( _, ( MlyValue.statement statement1, _, _)) :: _ :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.if0 if01, if01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 444.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => fn happy_var_7 => withNodeInfo happy_var_1 (CIf happy_var_3 happy_var_5 (Just happy_var_7))) if01 expression1 statement1 statement2) (fn _ => withNodeInfo 0)(*#line 6826.1 "language_c.grm.sml"*)
-) MlyValueM.selection_statement2, MlyValue.selection_statement)
- in ( LrTable.NT 16, ( result, if01left, statement2right), rest671)
-end
-|  ( 56, ( ( _, ( MlyValue.statement statement1, _, statement1right)) :: _ :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.switch switch1, switch1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 445.60 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CSwitch happy_var_3 happy_var_5)) switch1 expression1 statement1) (fn _ => withNodeInfo 0)(*#line 6830.1 "language_c.grm.sml"*)
-) MlyValueM.selection_statement3, MlyValue.selection_statement)
- in ( LrTable.NT 16, ( result, switch1left, statement1right), rest671)
-end
-|  ( 57, ( ( _, ( MlyValue.statement statement1, _, statement1right)) :: _ :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.while0 while01, while01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 447.60 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CWhile happy_var_3 happy_var_5 False)) while01 expression1 statement1) (fn _ => withNodeInfo 0)(*#line 6834.1 "language_c.grm.sml"*)
-) MlyValueM.iteration_statement1, MlyValue.iteration_statement)
- in ( LrTable.NT 17, ( result, while01left, statement1right), rest671)
-end
-|  ( 58, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: _ :: ( _, ( MlyValue.statement statement1, _, _)) :: ( _, ( MlyValue.do0 do01, do01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 448.68 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CWhile happy_var_5 happy_var_2 True)) do01 statement1 expression1) (fn _ => withNodeInfo 0)(*#line 6838.1 "language_c.grm.sml"*)
-) MlyValueM.iteration_statement2, MlyValue.iteration_statement)
- in ( LrTable.NT 17, ( result, do01left, x3b1right), rest671)
-end
-|  ( 59, ( ( _, ( MlyValue.statement statement1, _, statement1right)) :: _ :: ( _, ( MlyValue.expression_opt expression_opt3, _, _)) :: _ :: ( _, ( MlyValue.expression_opt expression_opt2, _, _)) :: _ :: ( _, ( MlyValue.expression_opt expression_opt1, _, _)) :: _ :: ( _, ( MlyValue.for0 for01, for01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 449.100 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => fn happy_var_7 => fn happy_var_9 => withNodeInfo happy_var_1 (CFor (Left happy_var_3) happy_var_5 happy_var_7 happy_var_9)) for01 expression_opt1 expression_opt2 expression_opt3 statement1) (fn _ => withNodeInfo 0)(*#line 6842.1 "language_c.grm.sml"*)
-) MlyValueM.iteration_statement3, MlyValue.iteration_statement)
- in ( LrTable.NT 17, ( result, for01left, statement1right), rest671)
-end
-|  ( 60, ( ( _, ( _, _, leave_scope1right)) :: ( _, ( MlyValue.statement statement1, _, _)) :: _ :: ( _, ( MlyValue.expression_opt expression_opt2, _, _)) :: _ :: ( _, ( MlyValue.expression_opt expression_opt1, _, _)) :: ( _, ( MlyValue.declaration declaration1, _, _)) :: _ :: _ :: ( _, ( MlyValue.for0 for01, for01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 450.117 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => fn happy_var_5 => fn happy_var_7 => fn happy_var_9 => withNodeInfo happy_var_1 (CFor (Right happy_var_4) happy_var_5 happy_var_7 happy_var_9)) for01 declaration1 expression_opt1 expression_opt2 statement1) (fn _ => withNodeInfo 0)(*#line 6846.1 "language_c.grm.sml"*)
-) MlyValueM.iteration_statement4, MlyValue.iteration_statement)
- in ( LrTable.NT 17, ( result, for01left, leave_scope1right), rest671)
-end
-|  ( 61, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.identifier identifier1, _, _)) :: ( _, ( MlyValue.goto goto1, goto1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 452.39 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CGoto happy_var_2)) goto1 identifier1) (fn _ => withNodeInfo 0)(*#line 6850.1 "language_c.grm.sml"*)
-) MlyValueM.jump_statement1, MlyValue.jump_statement)
- in ( LrTable.NT 18, ( result, goto1left, x3b1right), rest671)
-end
-|  ( 62, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.goto goto1, goto1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 453.43 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CGotoPtr happy_var_3)) goto1 expression1) (fn _ => withNodeInfo 0)(*#line 6854.1 "language_c.grm.sml"*)
-) MlyValueM.jump_statement2, MlyValue.jump_statement)
- in ( LrTable.NT 18, ( result, goto1left, x3b1right), rest671)
-end
-|  ( 63, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.continue continue1, continue1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 454.32 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCont)) continue1) (fn _ => withNodeInfo 0)(*#line 6858.1 "language_c.grm.sml"*)
-) MlyValueM.jump_statement3, MlyValue.jump_statement)
- in ( LrTable.NT 18, ( result, continue1left, x3b1right), rest671)
-end
-|  ( 64, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.break break1, break1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 455.29 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CBreak)) break1) (fn _ => withNodeInfo 0)(*#line 6862.1 "language_c.grm.sml"*)
-) MlyValueM.jump_statement4, MlyValue.jump_statement)
- in ( LrTable.NT 18, ( result, break1left, x3b1right), rest671)
-end
-|  ( 65, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.expression_opt expression_opt1, _, _)) :: ( _, ( MlyValue.return0 return01, return01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 456.46 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CReturn happy_var_2)) return01 expression_opt1) (fn _ => withNodeInfo 0)(*#line 6866.1 "language_c.grm.sml"*)
-) MlyValueM.jump_statement5, MlyValue.jump_statement)
- in ( LrTable.NT 18, ( result, return01left, x3b1right), rest671)
-end
-|  ( 66, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( MlyValue.maybe_type_qualifier maybe_type_qualifier1, _, _)) :: ( _, ( MlyValue.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 458.70 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 [] [] [])) asm1 maybe_type_qualifier1 string_literal1) (fn _ => withNodeInfo 0)(*#line 6870.1 "language_c.grm.sml"*)
-) MlyValueM.asm_statement1, MlyValue.asm_statement)
- in ( LrTable.NT 19, ( result, asm1left, x3b1right), rest671)
-end
-|  ( 67, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( MlyValue.asm_operands asm_operands1, _, _)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( MlyValue.maybe_type_qualifier maybe_type_qualifier1, _, _)) :: ( _, ( MlyValue.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 459.87 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 [] [])) asm1 maybe_type_qualifier1 string_literal1 asm_operands1) (fn _ => withNodeInfo 0)(*#line 6874.1 "language_c.grm.sml"*)
-) MlyValueM.asm_statement2, MlyValue.asm_statement)
- in ( LrTable.NT 19, ( result, asm1left, x3b1right), rest671)
-end
-|  ( 68, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( MlyValue.asm_operands asm_operands2, _, _)) :: _ :: ( _, ( MlyValue.asm_operands asm_operands1, _, _)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( MlyValue.maybe_type_qualifier maybe_type_qualifier1, _, _)) :: ( _, ( MlyValue.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 460.104 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => fn happy_var_8 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 happy_var_8 [])) asm1 maybe_type_qualifier1 string_literal1 asm_operands1 asm_operands2) (fn _ => withNodeInfo 0)(*#line 6878.1 "language_c.grm.sml"*)
-) MlyValueM.asm_statement3, MlyValue.asm_statement)
- in ( LrTable.NT 19, ( result, asm1left, x3b1right), rest671)
-end
-|  ( 69, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( MlyValue.asm_clobbers asm_clobbers1, _, _)) :: _ :: ( _, ( MlyValue.asm_operands asm_operands2, _, _)) :: _ :: ( _, ( MlyValue.asm_operands asm_operands1, _, _)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( MlyValue.maybe_type_qualifier maybe_type_qualifier1, _, _)) :: ( _, ( MlyValue.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 461.121 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => fn happy_var_8 => fn happy_var_10 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 happy_var_8 (reverse happy_var_10))) asm1 maybe_type_qualifier1 string_literal1 asm_operands1 asm_operands2 asm_clobbers1) (fn _ => withNodeInfo 0)(*#line 6882.1 "language_c.grm.sml"*)
-) MlyValueM.asm_statement4, MlyValue.asm_statement)
- in ( LrTable.NT 19, ( result, asm1left, x3b1right), rest671)
-end
-|  ( 70, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 463.26 "language_c.grm"*)Nothing(*#line 6886.1 "language_c.grm.sml"*)
-)) MlyValueM.maybe_type_qualifier1, MlyValue.maybe_type_qualifier)
- in ( LrTable.NT 20, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 71, ( ( _, ( MlyValue.type_qualifier type_qualifier1, type_qualifier1left, type_qualifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 464.40 "language_c.grm"*)(fn happy_var_1 => Just happy_var_1) type_qualifier1(*#line 6890.1 "language_c.grm.sml"*)
-)) MlyValueM.maybe_type_qualifier2, MlyValue.maybe_type_qualifier)
- in ( LrTable.NT 20, ( result, type_qualifier1left, type_qualifier1right), rest671)
-end
-|  ( 72, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 466.18 "language_c.grm"*)[](*#line 6894.1 "language_c.grm.sml"*)
-)) MlyValueM.asm_operands1, MlyValue.asm_operands)
- in ( LrTable.NT 21, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 73, ( ( _, ( MlyValue.nonnull_asm_operands nonnull_asm_operands1, nonnull_asm_operands1left, nonnull_asm_operands1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 467.38 "language_c.grm"*)(fn happy_var_1 => reverse happy_var_1) nonnull_asm_operands1(*#line 6898.1 "language_c.grm.sml"*)
-)) MlyValueM.asm_operands2, MlyValue.asm_operands)
- in ( LrTable.NT 21, ( result, nonnull_asm_operands1left, nonnull_asm_operands1right), rest671)
-end
-|  ( 74, ( ( _, ( MlyValue.asm_operand asm_operand1, asm_operand1left, asm_operand1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 469.37 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) asm_operand1(*#line 6902.1 "language_c.grm.sml"*)
-)) MlyValueM.nonnull_asm_operands1, MlyValue.nonnull_asm_operands)
- in ( LrTable.NT 22, ( result, asm_operand1left, asm_operand1right), rest671)
-end
-|  ( 75, ( ( _, ( MlyValue.asm_operand asm_operand1, _, asm_operand1right)) :: _ :: ( _, ( MlyValue.nonnull_asm_operands nonnull_asm_operands1, nonnull_asm_operands1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 470.62 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) nonnull_asm_operands1 asm_operand1(*#line 6906.1 "language_c.grm.sml"*)
-)) MlyValueM.nonnull_asm_operands2, MlyValue.nonnull_asm_operands)
- in ( LrTable.NT 22, ( result, nonnull_asm_operands1left, asm_operand1right), rest671)
-end
-|  ( 76, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, string_literal1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 472.50 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAsmOperand Nothing happy_var_1 happy_var_3)) string_literal1 expression1) (fn _ => withNodeInfo 0)(*#line 6910.1 "language_c.grm.sml"*)
-) MlyValueM.asm_operand1, MlyValue.asm_operand)
- in ( LrTable.NT 23, ( result, string_literal1left, x291right), rest671)
-end
-|  ( 77, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( MlyValue.ident ident1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 473.64 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmOperand (Just happy_var_2) happy_var_4 happy_var_6)) x5b1 ident1 string_literal1 expression1) (fn _ => withNodeInfo 0)(*#line 6914.1 "language_c.grm.sml"*)
-) MlyValueM.asm_operand2, MlyValue.asm_operand)
- in ( LrTable.NT 23, ( result, x5b1left, x291right), rest671)
-end
-|  ( 78, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( MlyValue.tyident tyident1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 474.66 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmOperand (Just happy_var_2) happy_var_4 happy_var_6)) x5b1 tyident1 string_literal1 expression1) (fn _ => withNodeInfo 0)(*#line 6918.1 "language_c.grm.sml"*)
-) MlyValueM.asm_operand3, MlyValue.asm_operand)
- in ( LrTable.NT 23, ( result, x5b1left, x291right), rest671)
-end
-|  ( 79, ( ( _, ( MlyValue.string_literal string_literal1, string_literal1left, string_literal1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 476.32 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) string_literal1(*#line 6922.1 "language_c.grm.sml"*)
-)) MlyValueM.asm_clobbers1, MlyValue.asm_clobbers)
- in ( LrTable.NT 24, ( result, string_literal1left, string_literal1right), rest671)
-end
-|  ( 80, ( ( _, ( MlyValue.string_literal string_literal1, _, string_literal1right)) :: _ :: ( _, ( MlyValue.asm_clobbers asm_clobbers1, asm_clobbers1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 477.49 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) asm_clobbers1 string_literal1(*#line 6926.1 "language_c.grm.sml"*)
-)) MlyValueM.asm_clobbers2, MlyValue.asm_clobbers)
- in ( LrTable.NT 24, ( result, asm_clobbers1left, string_literal1right), rest671)
-end
-|  ( 81, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.sue_declaration_specifier sue_declaration_specifier1, sue_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 479.46 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) sue_declaration_specifier1) (fn _ => withNodeInfo 0)(*#line 6930.1 "language_c.grm.sml"*)
-) MlyValueM.declaration1, MlyValue.declaration)
- in ( LrTable.NT 25, ( result, sue_declaration_specifier1left, x3b1right), rest671)
-end
-|  ( 82, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 480.39 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) sue_type_specifier1) (fn _ => withNodeInfo 0)(*#line 6934.1 "language_c.grm.sml"*)
-) MlyValueM.declaration2, MlyValue.declaration)
- in ( LrTable.NT 25, ( result, sue_type_specifier1left, x3b1right), rest671)
-end
-|  ( 83, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.declaring_list declaring_list1, declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 481.35 "language_c.grm"*)(*%*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => withLength at (CDecl declspecs (List.reverse dies))) declaring_list1(*#line 6938.1 "language_c.grm.sml"*)
-) MlyValueM.declaration3, MlyValue.declaration)
- in ( LrTable.NT 25, ( result, declaring_list1left, x3b1right), rest671)
-end
-|  ( 84, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.default_declaring_list default_declaring_list1, default_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 482.43 "language_c.grm"*)(*%*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => withLength at (CDecl declspecs (List.reverse dies))) default_declaring_list1(*#line 6942.1 "language_c.grm.sml"*)
-) MlyValueM.declaration4, MlyValue.declaration)
- in ( LrTable.NT 25, ( result, default_declaring_list1left, x3b1right), rest671)
-end
-|  ( 85, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( MlyValue.constant_expression constant_expression1, _, _)) :: _ :: ( _, ( MlyValue.x5f_Static_assert x5f_Static_assert1, x5f_Static_assert1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 483.85 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CStaticAssert happy_var_3 happy_var_5)) x5f_Static_assert1 constant_expression1 string_literal1) (fn _ => withNodeInfo 0)(*#line 6946.1 "language_c.grm.sml"*)
-) MlyValueM.declaration5, MlyValue.declaration)
- in ( LrTable.NT 25, ( result, x5f_Static_assert1left, x3b1right), rest671)
-end
-|  ( 86, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 485.22 "language_c.grm"*)empty(*#line 6950.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_list1, MlyValue.declaration_list)
- in ( LrTable.NT 26, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 87, ( ( _, ( MlyValue.declaration declaration1, _, declaration1right)) :: ( _, ( MlyValue.declaration_list declaration_list1, declaration_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 486.50 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) declaration_list1 declaration1(*#line 6954.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_list2, MlyValue.declaration_list)
- in ( LrTable.NT 26, ( result, declaration_list1left, declaration1right), rest671)
-end
-|  ( 88, ( ( _, ( MlyValue.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( MlyValue.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 488.106 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = reverse happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) declaration_qualifier_list1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6958.1 "language_c.grm.sml"*)
-) MlyValueM.default_declaring_list1, MlyValue.default_declaring_list)
- in ( LrTable.NT 27, ( result, declaration_qualifier_list1left, initializer_opt1right), rest671)
-end
-|  ( 89, ( ( _, ( MlyValue.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( MlyValue.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 489.99 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = liftTypeQuals happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) type_qualifier_list1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6962.1 "language_c.grm.sml"*)
-) MlyValueM.default_declaring_list2, MlyValue.default_declaring_list)
- in ( LrTable.NT 27, ( result, type_qualifier_list1left, initializer_opt1right), rest671)
-end
-|  ( 90, ( ( _, ( MlyValue.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( MlyValue.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 490.105 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => let val declspecs = liftTypeQuals happy_var_1 in bind (withAsmNameAttrs happy_var_4 happy_var_3) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat (declspecs @ liftCAttrs happy_var_2) [(Just (reverseDeclr declr), happy_var_5, Nothing)]))) end) type_qualifier_list1 attrs1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6966.1 "language_c.grm.sml"*)
-) MlyValueM.default_declaring_list3, MlyValue.default_declaring_list)
- in ( LrTable.NT 27, ( result, type_qualifier_list1left, initializer_opt1right), rest671)
-end
-|  ( 91, ( ( _, ( MlyValue.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( MlyValue.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 491.85 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = liftCAttrs happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) attrs1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6970.1 "language_c.grm.sml"*)
-) MlyValueM.default_declaring_list4, MlyValue.default_declaring_list)
- in ( LrTable.NT 27, ( result, attrs1left, initializer_opt1right), rest671)
-end
-|  ( 92, ( ( _, ( MlyValue.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( MlyValue.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.default_declaring_list default_declaring_list1, default_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 492.116 "language_c.grm"*)(*%*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => fn happy_var_6 => case happy_var_1 of CDecl0 (declspecs,dies,at) => bind (withAsmNameAttrs (fst happy_var_5, snd happy_var_5 @ happy_var_3) happy_var_4) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withLength at (CDecl declspecs ((flat3 (Just (reverseDeclr declr), happy_var_6, Nothing)) :: dies))))) default_declaring_list1 attrs_opt1 identifier_declarator1 asm_attrs_opt1 initializer_opt1(*#line 6974.1 "language_c.grm.sml"*)
-) MlyValueM.default_declaring_list5, MlyValue.default_declaring_list)
- in ( LrTable.NT 27, ( result, default_declaring_list1left, initializer_opt1right), rest671)
-end
-|  ( 93, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.asm_opt asm_opt1, asm_opt1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 494.36 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => (happy_var_1, happy_var_2)) asm_opt1 attrs_opt1(*#line 6978.1 "language_c.grm.sml"*)
-)) MlyValueM.asm_attrs_opt, MlyValue.asm_attrs_opt)
- in ( LrTable.NT 28, ( result, asm_opt1left, attrs_opt1right), rest671)
-end
-|  ( 94, ( ( _, ( MlyValue.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( MlyValue.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( MlyValue.declarator declarator1, _, _)) :: ( _, ( MlyValue.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 496.82 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent happy_var_1 declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr declr), happy_var_4, Nothing)])))) declaration_specifier1 declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6982.1 "language_c.grm.sml"*)
-) MlyValueM.declaring_list1, MlyValue.declaring_list)
- in ( LrTable.NT 29, ( result, declaration_specifier1left, initializer_opt1right), rest671)
-end
-|  ( 95, ( ( _, ( MlyValue.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( MlyValue.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( MlyValue.declarator declarator1, _, _)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 497.75 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent happy_var_1 declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr declr), happy_var_4, Nothing)])))) type_specifier1 declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6986.1 "language_c.grm.sml"*)
-) MlyValueM.declaring_list2, MlyValue.declaring_list)
- in ( LrTable.NT 29, ( result, type_specifier1left, initializer_opt1right), rest671)
-end
-|  ( 96, ( ( _, ( MlyValue.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( MlyValue.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( MlyValue.declarator declarator1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.declaring_list declaring_list1, declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 498.89 "language_c.grm"*)(*%*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => fn happy_var_6 => case happy_var_1 of CDecl0 (declspecs,dies,at) => bind (withAsmNameAttrs (fst happy_var_5, snd happy_var_5 @ happy_var_3) happy_var_4) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => return (CDecl declspecs ((flat3 (Just (reverseDeclr declr), happy_var_6, Nothing)) :: dies) at)))) declaring_list1 attrs_opt1 declarator1 asm_attrs_opt1 initializer_opt1(*#line 6990.1 "language_c.grm.sml"*)
-) MlyValueM.declaring_list3, MlyValue.declaring_list)
- in ( LrTable.NT 29, ( result, declaring_list1left, initializer_opt1right), rest671)
-end
-|  ( 97, ( ( _, ( MlyValue.basic_declaration_specifier basic_declaration_specifier1, basic_declaration_specifier1left, basic_declaration_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 500.54 "language_c.grm"*)(fn happy_var_1 => reverse happy_var_1) basic_declaration_specifier1(*#line 6994.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_specifier1, MlyValue.declaration_specifier)
- in ( LrTable.NT 30, ( result, basic_declaration_specifier1left, basic_declaration_specifier1right), rest671)
-end
-|  ( 98, ( ( _, ( MlyValue.sue_declaration_specifier sue_declaration_specifier1, sue_declaration_specifier1left, sue_declaration_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 501.52 "language_c.grm"*)(fn happy_var_1 => reverse happy_var_1) sue_declaration_specifier1(*#line 6998.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_specifier2, MlyValue.declaration_specifier)
- in ( LrTable.NT 30, ( result, sue_declaration_specifier1left, sue_declaration_specifier1right), rest671)
-end
-|  ( 99, ( ( _, ( MlyValue.typedef_declaration_specifier typedef_declaration_specifier1, typedef_declaration_specifier1left, typedef_declaration_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 502.56 "language_c.grm"*)(fn happy_var_1 => reverse happy_var_1) typedef_declaration_specifier1(*#line 7002.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_specifier3, MlyValue.declaration_specifier)
- in ( LrTable.NT 30, ( result, typedef_declaration_specifier1left, typedef_declaration_specifier1right), rest671)
-end
-|  ( 100, ( ( _, ( MlyValue.declaration_qualifier_without_types declaration_qualifier_without_types1, declaration_qualifier_without_types1left, declaration_qualifier_without_types1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 504.67 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) declaration_qualifier_without_types1(*#line 7006.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_list1, MlyValue.declaration_qualifier_list)
- in ( LrTable.NT 31, ( result, declaration_qualifier_without_types1left, declaration_qualifier_without_types1right), rest671)
-end
-|  ( 101, ( ( _, ( MlyValue.declaration_qualifier_without_types declaration_qualifier_without_types1, _, declaration_qualifier_without_types1right)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 505.73 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (reverseList (liftCAttrs happy_var_1)) (happy_var_2)) attrs1 declaration_qualifier_without_types1(*#line 7010.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_list2, MlyValue.declaration_qualifier_list)
- in ( LrTable.NT 31, ( result, attrs1left, declaration_qualifier_without_types1right), rest671)
-end
-|  ( 102, ( ( _, ( MlyValue.declaration_qualifier_without_types declaration_qualifier_without_types1, _, declaration_qualifier_without_types1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 506.87 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (happy_var_2)) type_qualifier_list1 declaration_qualifier_without_types1(*#line 7014.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_list3, MlyValue.declaration_qualifier_list)
- in ( LrTable.NT 31, ( result, type_qualifier_list1left, declaration_qualifier_without_types1right), rest671)
-end
-|  ( 103, ( ( _, ( MlyValue.declaration_qualifier_without_types declaration_qualifier_without_types1, _, declaration_qualifier_without_types1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 507.93 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc ((rappend (rmap CTypeQual happy_var_1) (liftCAttrs happy_var_2))) (happy_var_3)) type_qualifier_list1 attrs1 declaration_qualifier_without_types1(*#line 7018.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_list4, MlyValue.declaration_qualifier_list)
- in ( LrTable.NT 31, ( result, type_qualifier_list1left, declaration_qualifier_without_types1right), rest671)
-end
-|  ( 104, ( ( _, ( MlyValue.declaration_qualifier declaration_qualifier1, _, declaration_qualifier1right)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 508.80 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) declaration_qualifier_list1 declaration_qualifier1(*#line 7022.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_list5, MlyValue.declaration_qualifier_list)
- in ( LrTable.NT 31, ( result, declaration_qualifier_list1left, declaration_qualifier1right), rest671)
-end
-|  ( 105, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 509.63 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) declaration_qualifier_list1 attr1(*#line 7026.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_list6, MlyValue.declaration_qualifier_list)
- in ( LrTable.NT 31, ( result, declaration_qualifier_list1left, attr1right), rest671)
-end
-|  ( 106, ( ( _, ( MlyValue.storage_class storage_class1, storage_class1left, storage_class1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 511.40 "language_c.grm"*)(fn happy_var_1 => CStorageSpec happy_var_1) storage_class1(*#line 7030.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier1, MlyValue.declaration_qualifier)
- in ( LrTable.NT 32, ( result, storage_class1left, storage_class1right), rest671)
-end
-|  ( 107, ( ( _, ( MlyValue.type_qualifier type_qualifier1, type_qualifier1left, type_qualifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 512.41 "language_c.grm"*)(fn happy_var_1 => CTypeQual happy_var_1) type_qualifier1(*#line 7034.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier2, MlyValue.declaration_qualifier)
- in ( LrTable.NT 32, ( result, type_qualifier1left, type_qualifier1right), rest671)
-end
-|  ( 108, ( ( _, ( MlyValue.function_specifier function_specifier1, function_specifier1left, function_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 513.45 "language_c.grm"*)(fn happy_var_1 => CFunSpec happy_var_1) function_specifier1(*#line 7038.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier3, MlyValue.declaration_qualifier)
- in ( LrTable.NT 32, ( result, function_specifier1left, function_specifier1right), rest671)
-end
-|  ( 109, ( ( _, ( MlyValue.alignment_specifier alignment_specifier1, alignment_specifier1left, alignment_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 514.46 "language_c.grm"*)(fn happy_var_1 => CAlignSpec happy_var_1) alignment_specifier1(*#line 7042.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier4, MlyValue.declaration_qualifier)
- in ( LrTable.NT 32, ( result, alignment_specifier1left, alignment_specifier1right), rest671)
-end
-|  ( 110, ( ( _, ( MlyValue.storage_class storage_class1, storage_class1left, storage_class1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 516.54 "language_c.grm"*)(fn happy_var_1 => CStorageSpec happy_var_1) storage_class1(*#line 7046.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_without_types1, MlyValue.declaration_qualifier_without_types)
- in ( LrTable.NT 33, ( result, storage_class1left, storage_class1right), rest671)
-end
-|  ( 111, ( ( _, ( MlyValue.function_specifier function_specifier1, function_specifier1left, function_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 517.59 "language_c.grm"*)(fn happy_var_1 => CFunSpec happy_var_1) function_specifier1(*#line 7050.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_without_types2, MlyValue.declaration_qualifier_without_types)
- in ( LrTable.NT 33, ( result, function_specifier1left, function_specifier1right), rest671)
-end
-|  ( 112, ( ( _, ( MlyValue.alignment_specifier alignment_specifier1, alignment_specifier1left, alignment_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 518.60 "language_c.grm"*)(fn happy_var_1 => CAlignSpec happy_var_1) alignment_specifier1(*#line 7054.1 "language_c.grm.sml"*)
-)) MlyValueM.declaration_qualifier_without_types3, MlyValue.declaration_qualifier_without_types)
- in ( LrTable.NT 33, ( result, alignment_specifier1left, alignment_specifier1right), rest671)
-end
-|  ( 113, ( ( _, ( MlyValue.typedef typedef1, typedef1left, typedef1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 520.26 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTypedef)) typedef1) (fn _ => withNodeInfo 0)(*#line 7058.1 "language_c.grm.sml"*)
-) MlyValueM.storage_class1, MlyValue.storage_class)
- in ( LrTable.NT 34, ( result, typedef1left, typedef1right), rest671)
-end
-|  ( 114, ( ( _, ( MlyValue.extern extern1, extern1left, extern1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 521.25 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExtern)) extern1) (fn _ => withNodeInfo 0)(*#line 7062.1 "language_c.grm.sml"*)
-) MlyValueM.storage_class2, MlyValue.storage_class)
- in ( LrTable.NT 34, ( result, extern1left, extern1right), rest671)
-end
-|  ( 115, ( ( _, ( MlyValue.static static1, static1left, static1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 522.25 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CStatic)) static1) (fn _ => withNodeInfo 0)(*#line 7066.1 "language_c.grm.sml"*)
-) MlyValueM.storage_class3, MlyValue.storage_class)
- in ( LrTable.NT 34, ( result, static1left, static1right), rest671)
-end
-|  ( 116, ( ( _, ( MlyValue.auto auto1, auto1left, auto1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 523.23 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAuto)) auto1) (fn _ => withNodeInfo 0)(*#line 7070.1 "language_c.grm.sml"*)
-) MlyValueM.storage_class4, MlyValue.storage_class)
- in ( LrTable.NT 34, ( result, auto1left, auto1right), rest671)
-end
-|  ( 117, ( ( _, ( MlyValue.register register1, register1left, register1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 524.27 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CRegister)) register1) (fn _ => withNodeInfo 0)(*#line 7074.1 "language_c.grm.sml"*)
-) MlyValueM.storage_class5, MlyValue.storage_class)
- in ( LrTable.NT 34, ( result, register1left, register1right), rest671)
-end
-|  ( 118, ( ( _, ( MlyValue.x5f_x5f_thread x5f_x5f_thread1, x5f_x5f_thread1left, x5f_x5f_thread1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 525.33 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CThread)) x5f_x5f_thread1) (fn _ => withNodeInfo 0)(*#line 7078.1 "language_c.grm.sml"*)
-) MlyValueM.storage_class6, MlyValue.storage_class)
- in ( LrTable.NT 34, ( result, x5f_x5f_thread1left, x5f_x5f_thread1right), rest671)
-end
-|  ( 119, ( ( _, ( MlyValue.inline inline1, inline1left, inline1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 527.30 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInlineQual)) inline1) (fn _ => withNodeInfo 0)(*#line 7082.1 "language_c.grm.sml"*)
-) MlyValueM.function_specifier1, MlyValue.function_specifier)
- in ( LrTable.NT 35, ( result, inline1left, inline1right), rest671)
-end
-|  ( 120, ( ( _, ( MlyValue.x5f_Noreturn x5f_Noreturn1, x5f_Noreturn1left, x5f_Noreturn1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 528.36 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNoreturnQual)) x5f_Noreturn1) (fn _ => withNodeInfo 0)(*#line 7086.1 "language_c.grm.sml"*)
-) MlyValueM.function_specifier2, MlyValue.function_specifier)
- in ( LrTable.NT 35, ( result, x5f_Noreturn1left, x5f_Noreturn1right), rest671)
-end
-|  ( 121, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.alignas alignas1, alignas1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 530.50 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignAsType happy_var_3)) alignas1 type_name1) (fn _ => withNodeInfo 0)(*#line 7090.1 "language_c.grm.sml"*)
-) MlyValueM.alignment_specifier1, MlyValue.alignment_specifier)
- in ( LrTable.NT 36, ( result, alignas1left, x291right), rest671)
-end
-|  ( 122, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.constant_expression constant_expression1, _, _)) :: _ :: ( _, ( MlyValue.alignas alignas1, alignas1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 531.60 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignAsExpr happy_var_3)) alignas1 constant_expression1) (fn _ => withNodeInfo 0)(*#line 7094.1 "language_c.grm.sml"*)
-) MlyValueM.alignment_specifier2, MlyValue.alignment_specifier)
- in ( LrTable.NT 36, ( result, alignas1left, x291right), rest671)
-end
-|  ( 123, ( ( _, ( MlyValue.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, basic_type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 533.40 "language_c.grm"*)(fn happy_var_1 => reverse happy_var_1) basic_type_specifier1(*#line 7098.1 "language_c.grm.sml"*)
-)) MlyValueM.type_specifier1, MlyValue.type_specifier)
- in ( LrTable.NT 37, ( result, basic_type_specifier1left, basic_type_specifier1right), rest671)
-end
-|  ( 124, ( ( _, ( MlyValue.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, sue_type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 534.38 "language_c.grm"*)(fn happy_var_1 => reverse happy_var_1) sue_type_specifier1(*#line 7102.1 "language_c.grm.sml"*)
-)) MlyValueM.type_specifier2, MlyValue.type_specifier)
- in ( LrTable.NT 37, ( result, sue_type_specifier1left, sue_type_specifier1right), rest671)
-end
-|  ( 125, ( ( _, ( MlyValue.typedef_type_specifier typedef_type_specifier1, typedef_type_specifier1left, typedef_type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 535.42 "language_c.grm"*)(fn happy_var_1 => reverse happy_var_1) typedef_type_specifier1(*#line 7106.1 "language_c.grm.sml"*)
-)) MlyValueM.type_specifier3, MlyValue.type_specifier)
- in ( LrTable.NT 37, ( result, typedef_type_specifier1left, typedef_type_specifier1right), rest671)
-end
-|  ( 126, ( ( _, ( MlyValue.void void1, void1left, void1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 537.25 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVoidType)) void1) (fn _ => withNodeInfo 0)(*#line 7110.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name1, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, void1left, void1right), rest671)
-end
-|  ( 127, ( ( _, ( MlyValue.char char1, char1left, char1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 538.25 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCharType)) char1) (fn _ => withNodeInfo 0)(*#line 7114.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name2, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, char1left, char1right), rest671)
-end
-|  ( 128, ( ( _, ( MlyValue.short short1, short1left, short1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 539.26 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CShortType)) short1) (fn _ => withNodeInfo 0)(*#line 7118.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name3, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, short1left, short1right), rest671)
-end
-|  ( 129, ( ( _, ( MlyValue.int int1, int1left, int1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 540.24 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CIntType)) int1) (fn _ => withNodeInfo 0)(*#line 7122.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name4, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, int1left, int1right), rest671)
-end
-|  ( 130, ( ( _, ( MlyValue.long long1, long1left, long1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 541.25 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CLongType)) long1) (fn _ => withNodeInfo 0)(*#line 7126.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name5, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, long1left, long1right), rest671)
-end
-|  ( 131, ( ( _, ( MlyValue.float float1, float1left, float1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 542.26 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CFloatType)) float1) (fn _ => withNodeInfo 0)(*#line 7130.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name6, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, float1left, float1right), rest671)
-end
-|  ( 132, ( ( _, ( MlyValue.double double1, double1left, double1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 543.27 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDoubleType)) double1) (fn _ => withNodeInfo 0)(*#line 7134.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name7, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, double1left, double1right), rest671)
-end
-|  ( 133, ( ( _, ( MlyValue.signed signed1, signed1left, signed1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 544.27 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CSignedType)) signed1) (fn _ => withNodeInfo 0)(*#line 7138.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name8, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, signed1left, signed1right), rest671)
-end
-|  ( 134, ( ( _, ( MlyValue.unsigned unsigned1, unsigned1left, unsigned1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 545.29 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnsigType)) unsigned1) (fn _ => withNodeInfo 0)(*#line 7142.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name9, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, unsigned1left, unsigned1right), rest671)
-end
-|  ( 135, ( ( _, ( MlyValue.x5f_Bool x5f_Bool1, x5f_Bool1left, x5f_Bool1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 546.29 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CBoolType)) x5f_Bool1) (fn _ => withNodeInfo 0)(*#line 7146.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name10, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, x5f_Bool1left, x5f_Bool1right), rest671)
-end
-|  ( 136, ( ( _, ( MlyValue.x5f_Complex x5f_Complex1, x5f_Complex1left, x5f_Complex1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 547.32 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CComplexType)) x5f_Complex1) (fn _ => withNodeInfo 0)(*#line 7150.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name11, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, x5f_Complex1left, x5f_Complex1right), rest671)
-end
-|  ( 137, ( ( _, ( MlyValue.x5f_x5f_int_x31_x32_x38 x5f_x5f_int_x31_x32_x381, x5f_x5f_int_x31_x32_x381left, x5f_x5f_int_x31_x32_x381right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 548.44 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInt128Type)) x5f_x5f_int_x31_x32_x381) (fn _ => withNodeInfo 0)(*#line 7154.1 "language_c.grm.sml"*)
-) MlyValueM.basic_type_name12, MlyValue.basic_type_name)
- in ( LrTable.NT 38, ( result, x5f_x5f_int_x31_x32_x381left, x5f_x5f_int_x31_x32_x381right), rest671)
-end
-|  ( 138, ( ( _, ( MlyValue.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 550.75 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) declaration_qualifier_list1 basic_type_name1(*#line 7158.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_declaration_specifier1, MlyValue.basic_declaration_specifier)
- in ( LrTable.NT 39, ( result, declaration_qualifier_list1left, basic_type_name1right), rest671)
-end
-|  ( 139, ( ( _, ( MlyValue.storage_class storage_class1, _, storage_class1right)) :: ( _, ( MlyValue.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 551.67 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) basic_type_specifier1 storage_class1(*#line 7162.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_declaration_specifier2, MlyValue.basic_declaration_specifier)
- in ( LrTable.NT 39, ( result, basic_type_specifier1left, storage_class1right), rest671)
-end
-|  ( 140, ( ( _, ( MlyValue.declaration_qualifier declaration_qualifier1, _, declaration_qualifier1right)) :: ( _, ( MlyValue.basic_declaration_specifier basic_declaration_specifier1, basic_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 552.82 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) basic_declaration_specifier1 declaration_qualifier1(*#line 7166.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_declaration_specifier3, MlyValue.basic_declaration_specifier)
- in ( LrTable.NT 39, ( result, basic_declaration_specifier1left, declaration_qualifier1right), rest671)
-end
-|  ( 141, ( ( _, ( MlyValue.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( MlyValue.basic_declaration_specifier basic_declaration_specifier1, basic_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 553.76 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) basic_declaration_specifier1 basic_type_name1(*#line 7170.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_declaration_specifier4, MlyValue.basic_declaration_specifier)
- in ( LrTable.NT 39, ( result, basic_declaration_specifier1left, basic_type_name1right), rest671)
-end
-|  ( 142, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.basic_declaration_specifier basic_declaration_specifier1, basic_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 554.65 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) basic_declaration_specifier1 attr1(*#line 7174.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_declaration_specifier5, MlyValue.basic_declaration_specifier)
- in ( LrTable.NT 39, ( result, basic_declaration_specifier1left, attr1right), rest671)
-end
-|  ( 143, ( ( _, ( MlyValue.basic_type_name basic_type_name1, basic_type_name1left, basic_type_name1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 556.41 "language_c.grm"*)(fn happy_var_1 => singleton (CTypeSpec happy_var_1)) basic_type_name1(*#line 7178.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_type_specifier1, MlyValue.basic_type_specifier)
- in ( LrTable.NT 40, ( result, basic_type_name1left, basic_type_name1right), rest671)
-end
-|  ( 144, ( ( _, ( MlyValue.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 557.47 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc ((reverseList (liftCAttrs happy_var_1))) ((CTypeSpec happy_var_2))) attrs1 basic_type_name1(*#line 7182.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_type_specifier2, MlyValue.basic_type_specifier)
- in ( LrTable.NT 40, ( result, attrs1left, basic_type_name1right), rest671)
-end
-|  ( 145, ( ( _, ( MlyValue.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 558.61 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (CTypeSpec happy_var_2)) type_qualifier_list1 basic_type_name1(*#line 7186.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_type_specifier3, MlyValue.basic_type_specifier)
- in ( LrTable.NT 40, ( result, type_qualifier_list1left, basic_type_name1right), rest671)
-end
-|  ( 146, ( ( _, ( MlyValue.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 559.67 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec happy_var_3)) type_qualifier_list1 attrs1 basic_type_name1(*#line 7190.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_type_specifier4, MlyValue.basic_type_specifier)
- in ( LrTable.NT 40, ( result, type_qualifier_list1left, basic_type_name1right), rest671)
-end
-|  ( 147, ( ( _, ( MlyValue.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( MlyValue.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 560.61 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) basic_type_specifier1 type_qualifier1(*#line 7194.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_type_specifier5, MlyValue.basic_type_specifier)
- in ( LrTable.NT 40, ( result, basic_type_specifier1left, type_qualifier1right), rest671)
-end
-|  ( 148, ( ( _, ( MlyValue.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( MlyValue.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 561.62 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) basic_type_specifier1 basic_type_name1(*#line 7198.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_type_specifier6, MlyValue.basic_type_specifier)
- in ( LrTable.NT 40, ( result, basic_type_specifier1left, basic_type_name1right), rest671)
-end
-|  ( 149, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 562.51 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) basic_type_specifier1 attr1(*#line 7202.1 "language_c.grm.sml"*)
-)) MlyValueM.basic_type_specifier7, MlyValue.basic_type_specifier)
- in ( LrTable.NT 40, ( result, basic_type_specifier1left, attr1right), rest671)
-end
-|  ( 150, ( ( _, ( MlyValue.elaborated_type_name elaborated_type_name1, _, elaborated_type_name1right)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 564.78 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) declaration_qualifier_list1 elaborated_type_name1(*#line 7206.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_declaration_specifier1, MlyValue.sue_declaration_specifier)
- in ( LrTable.NT 41, ( result, declaration_qualifier_list1left, elaborated_type_name1right), rest671)
-end
-|  ( 151, ( ( _, ( MlyValue.storage_class storage_class1, _, storage_class1right)) :: ( _, ( MlyValue.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 565.63 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) sue_type_specifier1 storage_class1(*#line 7210.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_declaration_specifier2, MlyValue.sue_declaration_specifier)
- in ( LrTable.NT 41, ( result, sue_type_specifier1left, storage_class1right), rest671)
-end
-|  ( 152, ( ( _, ( MlyValue.declaration_qualifier declaration_qualifier1, _, declaration_qualifier1right)) :: ( _, ( MlyValue.sue_declaration_specifier sue_declaration_specifier1, sue_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 566.78 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) sue_declaration_specifier1 declaration_qualifier1(*#line 7214.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_declaration_specifier3, MlyValue.sue_declaration_specifier)
- in ( LrTable.NT 41, ( result, sue_declaration_specifier1left, declaration_qualifier1right), rest671)
-end
-|  ( 153, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.sue_declaration_specifier sue_declaration_specifier1, sue_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 567.61 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) sue_declaration_specifier1 attr1(*#line 7218.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_declaration_specifier4, MlyValue.sue_declaration_specifier)
- in ( LrTable.NT 41, ( result, sue_declaration_specifier1left, attr1right), rest671)
-end
-|  ( 154, ( ( _, ( MlyValue.elaborated_type_name elaborated_type_name1, elaborated_type_name1left, elaborated_type_name1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 569.44 "language_c.grm"*)(fn happy_var_1 => singleton (CTypeSpec happy_var_1)) elaborated_type_name1(*#line 7222.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_type_specifier1, MlyValue.sue_type_specifier)
- in ( LrTable.NT 42, ( result, elaborated_type_name1left, elaborated_type_name1right), rest671)
-end
-|  ( 155, ( ( _, ( MlyValue.elaborated_type_name elaborated_type_name1, _, elaborated_type_name1right)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 570.50 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc ((reverseList (liftCAttrs happy_var_1))) ((CTypeSpec happy_var_2))) attrs1 elaborated_type_name1(*#line 7226.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_type_specifier2, MlyValue.sue_type_specifier)
- in ( LrTable.NT 42, ( result, attrs1left, elaborated_type_name1right), rest671)
-end
-|  ( 156, ( ( _, ( MlyValue.elaborated_type_name elaborated_type_name1, _, elaborated_type_name1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 571.64 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (CTypeSpec happy_var_2)) type_qualifier_list1 elaborated_type_name1(*#line 7230.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_type_specifier3, MlyValue.sue_type_specifier)
- in ( LrTable.NT 42, ( result, type_qualifier_list1left, elaborated_type_name1right), rest671)
-end
-|  ( 157, ( ( _, ( MlyValue.elaborated_type_name elaborated_type_name1, _, elaborated_type_name1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 572.70 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec happy_var_3)) type_qualifier_list1 attrs1 elaborated_type_name1(*#line 7234.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_type_specifier4, MlyValue.sue_type_specifier)
- in ( LrTable.NT 42, ( result, type_qualifier_list1left, elaborated_type_name1right), rest671)
-end
-|  ( 158, ( ( _, ( MlyValue.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( MlyValue.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 573.57 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) sue_type_specifier1 type_qualifier1(*#line 7238.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_type_specifier5, MlyValue.sue_type_specifier)
- in ( LrTable.NT 42, ( result, sue_type_specifier1left, type_qualifier1right), rest671)
-end
-|  ( 159, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 574.47 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) sue_type_specifier1 attr1(*#line 7242.1 "language_c.grm.sml"*)
-)) MlyValueM.sue_type_specifier6, MlyValue.sue_type_specifier)
- in ( LrTable.NT 42, ( result, sue_type_specifier1left, attr1right), rest671)
-end
-|  ( 160, ( ( _, ( MlyValue.storage_class storage_class1, _, storage_class1right)) :: ( _, ( MlyValue.typedef_type_specifier typedef_type_specifier1, typedef_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 576.71 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) typedef_type_specifier1 storage_class1(*#line 7246.1 "language_c.grm.sml"*)
-)) MlyValueM.typedef_declaration_specifier1, MlyValue.typedef_declaration_specifier)
- in ( LrTable.NT 43, ( result, typedef_type_specifier1left, storage_class1right), rest671)
-end
-|  ( 161, ( ( _, ( MlyValue.tyident tyident1, _, tyident1right)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 577.69 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeDef happy_var_2 at)))) declaration_qualifier_list1 tyident1) (fn _ => withNodeInfo 1)(*#line 7250.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_declaration_specifier2, MlyValue.typedef_declaration_specifier)
- in ( LrTable.NT 43, ( result, declaration_qualifier_list1left, tyident1right), rest671)
-end
-|  ( 162, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, _, _)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 578.87 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeOfExpr happy_var_4 at)))) declaration_qualifier_list1 typeof1 expression1) (fn _ => withNodeInfo 1)(*#line 7254.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_declaration_specifier3, MlyValue.typedef_declaration_specifier)
- in ( LrTable.NT 43, ( result, declaration_qualifier_list1left, x291right), rest671)
-end
-|  ( 163, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, _, _)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 579.86 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeOfType happy_var_4 at)))) declaration_qualifier_list1 typeof1 type_name1) (fn _ => withNodeInfo 1)(*#line 7258.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_declaration_specifier4, MlyValue.typedef_declaration_specifier)
- in ( LrTable.NT 43, ( result, declaration_qualifier_list1left, x291right), rest671)
-end
-|  ( 164, ( ( _, ( MlyValue.declaration_qualifier declaration_qualifier1, _, declaration_qualifier1right)) :: ( _, ( MlyValue.typedef_declaration_specifier typedef_declaration_specifier1, typedef_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 580.86 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) typedef_declaration_specifier1 declaration_qualifier1(*#line 7262.1 "language_c.grm.sml"*)
-)) MlyValueM.typedef_declaration_specifier5, MlyValue.typedef_declaration_specifier)
- in ( LrTable.NT 43, ( result, typedef_declaration_specifier1left, declaration_qualifier1right), rest671)
-end
-|  ( 165, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.typedef_declaration_specifier typedef_declaration_specifier1, typedef_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 581.69 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) typedef_declaration_specifier1 attr1(*#line 7266.1 "language_c.grm.sml"*)
-)) MlyValueM.typedef_declaration_specifier6, MlyValue.typedef_declaration_specifier)
- in ( LrTable.NT 43, ( result, typedef_declaration_specifier1left, attr1right), rest671)
-end
-|  ( 166, ( ( _, ( MlyValue.tyident tyident1, tyident1left, tyident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 583.35 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeDef happy_var_1 at)))) tyident1) (fn _ => withNodeInfo 0)(*#line 7270.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier1, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, tyident1left, tyident1right), rest671)
-end
-|  ( 167, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, typeof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 584.53 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeOfExpr happy_var_3 at)))) typeof1 expression1) (fn _ => withNodeInfo 0)(*#line 7274.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier2, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, typeof1left, x291right), rest671)
-end
-|  ( 168, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, typeof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 585.52 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeOfType happy_var_3 at)))) typeof1 type_name1) (fn _ => withNodeInfo 0)(*#line 7278.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier3, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, typeof1left, x291right), rest671)
-end
-|  ( 169, ( ( _, ( MlyValue.tyident tyident1, _, tyident1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 586.55 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeDef happy_var_2 at)))) type_qualifier_list1 tyident1) (fn _ => withNodeInfo 1)(*#line 7282.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier4, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, type_qualifier_list1left, tyident1right), rest671)
-end
-|  ( 170, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 587.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeOfExpr happy_var_4 at)))) type_qualifier_list1 typeof1 expression1) (fn _ => withNodeInfo 1)(*#line 7286.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier5, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, type_qualifier_list1left, x291right), rest671)
-end
-|  ( 171, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 588.72 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeOfType happy_var_4 at)))) type_qualifier_list1 typeof1 type_name1) (fn _ => withNodeInfo 1)(*#line 7290.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier6, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, type_qualifier_list1left, x291right), rest671)
-end
-|  ( 172, ( ( _, ( MlyValue.tyident tyident1, _, tyident1right)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 589.41 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeDef happy_var_2 at))))) attrs1 tyident1) (fn _ => withNodeInfo 1)(*#line 7294.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier7, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, attrs1left, tyident1right), rest671)
-end
-|  ( 173, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: _ :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 590.59 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => withNodeInfo happy_var_1 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeOfExpr happy_var_4 at))))) attrs1 expression1) (fn _ => withNodeInfo 0)(*#line 7298.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier8, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, attrs1left, x291right), rest671)
-end
-|  ( 174, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, _, _)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 591.58 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeOfType happy_var_4 at))))) attrs1 typeof1 type_name1) (fn _ => withNodeInfo 1)(*#line 7302.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier9, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, attrs1left, x291right), rest671)
-end
-|  ( 175, ( ( _, ( MlyValue.tyident tyident1, _, tyident1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 592.61 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeDef happy_var_3 at)))) type_qualifier_list1 attrs1 tyident1) (fn _ => withNodeInfo 2)(*#line 7306.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier10, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, type_qualifier_list1left, tyident1right), rest671)
-end
-|  ( 176, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 593.79 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeOfExpr happy_var_5 at)))) type_qualifier_list1 attrs1 typeof1 expression1) (fn _ => withNodeInfo 2)(*#line 7310.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier11, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, type_qualifier_list1left, x291right), rest671)
-end
-|  ( 177, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.typeof typeof1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 594.78 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeOfType happy_var_5 at)))) type_qualifier_list1 attrs1 typeof1 type_name1) (fn _ => withNodeInfo 2)(*#line 7314.1 "language_c.grm.sml"*)
-) MlyValueM.typedef_type_specifier12, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, type_qualifier_list1left, x291right), rest671)
-end
-|  ( 178, ( ( _, ( MlyValue.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( MlyValue.typedef_type_specifier typedef_type_specifier1, typedef_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 595.65 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) typedef_type_specifier1 type_qualifier1(*#line 7318.1 "language_c.grm.sml"*)
-)) MlyValueM.typedef_type_specifier13, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, typedef_type_specifier1left, type_qualifier1right), rest671)
-end
-|  ( 179, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.typedef_type_specifier typedef_type_specifier1, typedef_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 596.55 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) typedef_type_specifier1 attr1(*#line 7322.1 "language_c.grm.sml"*)
-)) MlyValueM.typedef_type_specifier14, MlyValue.typedef_type_specifier)
- in ( LrTable.NT 44, ( result, typedef_type_specifier1left, attr1right), rest671)
-end
-|  ( 180, ( ( _, ( MlyValue.struct_or_union_specifier struct_or_union_specifier1, struct_or_union_specifier1left, struct_or_union_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 598.51 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CSUType happy_var_1)) struct_or_union_specifier1) (fn _ => withNodeInfo 0)(*#line 7326.1 "language_c.grm.sml"*)
-) MlyValueM.elaborated_type_name1, MlyValue.elaborated_type_name)
- in ( LrTable.NT 45, ( result, struct_or_union_specifier1left, struct_or_union_specifier1right), rest671)
-end
-|  ( 181, ( ( _, ( MlyValue.enum_specifier enum_specifier1, enum_specifier1left, enum_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 599.40 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CEnumType happy_var_1)) enum_specifier1) (fn _ => withNodeInfo 0)(*#line 7330.1 "language_c.grm.sml"*)
-) MlyValueM.elaborated_type_name2, MlyValue.elaborated_type_name)
- in ( LrTable.NT 45, ( result, enum_specifier1left, enum_specifier1right), rest671)
-end
-|  ( 182, ( ( _, ( _, _, x7d1right)) :: ( _, ( MlyValue.struct_declaration_list struct_declaration_list1, _, _)) :: _ :: ( _, ( MlyValue.identifier identifier1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.struct_or_union struct_or_union1, struct_or_union1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 601.99 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) struct_or_union1 attrs_opt1 identifier1 struct_declaration_list1) (fn _ => withNodeInfo 0)(*#line 7334.1 "language_c.grm.sml"*)
-) MlyValueM.struct_or_union_specifier1, MlyValue.struct_or_union_specifier)
- in ( LrTable.NT 46, ( result, struct_or_union1left, x7d1right), rest671)
-end
-|  ( 183, ( ( _, ( _, _, x7d1right)) :: ( _, ( MlyValue.struct_declaration_list struct_declaration_list1, _, _)) :: _ :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.struct_or_union struct_or_union1, struct_or_union1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 602.88 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) Nothing (Just (reverse happy_var_4)) happy_var_2)) struct_or_union1 attrs_opt1 struct_declaration_list1) (fn _ => withNodeInfo 0)(*#line 7338.1 "language_c.grm.sml"*)
-) MlyValueM.struct_or_union_specifier2, MlyValue.struct_or_union_specifier)
- in ( LrTable.NT 46, ( result, struct_or_union1left, x7d1right), rest671)
-end
-|  ( 184, ( ( _, ( MlyValue.identifier identifier1, _, identifier1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.struct_or_union struct_or_union1, struct_or_union1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 603.67 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) (Just happy_var_3) Nothing happy_var_2)) struct_or_union1 attrs_opt1 identifier1) (fn _ => withNodeInfo 0)(*#line 7342.1 "language_c.grm.sml"*)
-) MlyValueM.struct_or_union_specifier3, MlyValue.struct_or_union_specifier)
- in ( LrTable.NT 46, ( result, struct_or_union1left, identifier1right), rest671)
-end
-|  ( 185, ( ( _, ( MlyValue.struct0 struct01, struct01left, struct01right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 605.28 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CStructTag (posOf happy_var_1)) struct01) (fn x => fn _ => L x 0)(*#line 7346.1 "language_c.grm.sml"*)
-) MlyValueM.struct_or_union1, MlyValue.struct_or_union)
- in ( LrTable.NT 47, ( result, struct01left, struct01right), rest671)
-end
-|  ( 186, ( ( _, ( MlyValue.union union1, union1left, union1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 606.26 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CUnionTag (posOf happy_var_1)) union1) (fn x => fn _ => L x 0)(*#line 7350.1 "language_c.grm.sml"*)
-) MlyValueM.struct_or_union2, MlyValue.struct_or_union)
- in ( LrTable.NT 47, ( result, union1left, union1right), rest671)
-end
-|  ( 187, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 608.29 "language_c.grm"*)empty(*#line 7354.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declaration_list1, MlyValue.struct_declaration_list)
- in ( LrTable.NT 48, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 188, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.struct_declaration_list struct_declaration_list1, struct_declaration_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 609.56 "language_c.grm"*)(fn happy_var_1 => happy_var_1) struct_declaration_list1(*#line 7358.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declaration_list2, MlyValue.struct_declaration_list)
- in ( LrTable.NT 48, ( result, struct_declaration_list1left, x3b1right), rest671)
-end
-|  ( 189, ( ( _, ( MlyValue.struct_declaration struct_declaration1, _, struct_declaration1right)) :: ( _, ( MlyValue.struct_declaration_list struct_declaration_list1, struct_declaration_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 610.71 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) struct_declaration_list1 struct_declaration1(*#line 7362.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declaration_list3, MlyValue.struct_declaration_list)
- in ( LrTable.NT 48, ( result, struct_declaration_list1left, struct_declaration1right), rest671)
-end
-|  ( 190, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.struct_declaring_list struct_declaring_list1, struct_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 612.49 "language_c.grm"*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => CDecl declspecs (List.reverse dies) at) struct_declaring_list1(*#line 7366.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declaration1, MlyValue.struct_declaration)
- in ( LrTable.NT 49, ( result, struct_declaring_list1left, x3b1right), rest671)
-end
-|  ( 191, ( ( _, ( _, _, x3b1right)) :: ( _, ( MlyValue.struct_default_declaring_list struct_default_declaring_list1, struct_default_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 613.57 "language_c.grm"*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => CDecl declspecs (List.reverse dies) at) struct_default_declaring_list1(*#line 7370.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declaration2, MlyValue.struct_declaration)
- in ( LrTable.NT 49, ( result, struct_default_declaring_list1left, x3b1right), rest671)
-end
-|  ( 192, ( ( _, ( MlyValue.struct_declaration struct_declaration1, _, struct_declaration1right)) :: ( _, ( _, x5f_x5f_extension_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 614.68 "language_c.grm"*)(fn happy_var_2 => happy_var_2) struct_declaration1(*#line 7374.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declaration3, MlyValue.struct_declaration)
- in ( LrTable.NT 49, ( result, x5f_x5f_extension_x5f_x5f1left, struct_declaration1right), rest671)
-end
-|  ( 193, ( ( _, ( MlyValue.struct_identifier_declarator struct_identifier_declarator1, _, struct_identifier_declarator1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 616.93 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (case happy_var_3 of (d,s) => CDecl_flat (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [(d, Nothing, s)])) type_qualifier_list1 attrs_opt1 struct_identifier_declarator1) (fn _ => withNodeInfo 0)(*#line 7378.1 "language_c.grm.sml"*)
-) MlyValueM.struct_default_declaring_list1, MlyValue.struct_default_declaring_list)
- in ( LrTable.NT 50, ( result, type_qualifier_list1left, struct_identifier_declarator1right), rest671)
-end
-|  ( 194, ( ( _, ( MlyValue.struct_identifier_declarator struct_identifier_declarator1, _, struct_identifier_declarator1right)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 617.69 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (case happy_var_2 of (d,s) => CDecl_flat (liftCAttrs happy_var_1) [(d, Nothing, s)])) attrs1 struct_identifier_declarator1) (fn _ => withNodeInfo 0)(*#line 7382.1 "language_c.grm.sml"*)
-) MlyValueM.struct_default_declaring_list2, MlyValue.struct_default_declaring_list)
- in ( LrTable.NT 50, ( result, attrs1left, struct_identifier_declarator1right), rest671)
-end
-|  ( 195, ( ( _, ( MlyValue.struct_identifier_declarator struct_identifier_declarator1, _, struct_identifier_declarator1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.struct_default_declaring_list struct_default_declaring_list1, struct_default_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 618.107 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => case happy_var_1 of CDecl0 (declspecs,dies,at) => case happy_var_4 of (Some d,s) => CDecl declspecs ((flat3 (Just (appendObjAttrs happy_var_3 d), Nothing, s)) :: dies) at | (None,s) => CDecl declspecs ((flat3 (Nothing, Nothing, s)) :: dies) at) struct_default_declaring_list1 attrs_opt1 struct_identifier_declarator1(*#line 7386.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_default_declaring_list3, MlyValue.struct_default_declaring_list)
- in ( LrTable.NT 50, ( result, struct_default_declaring_list1left, struct_identifier_declarator1right), rest671)
-end
-|  ( 196, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.struct_declarator struct_declarator1, _, _)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 620.69 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (case happy_var_2 of (Some d,s) => CDecl_flat happy_var_1 [(Just (appendObjAttrs happy_var_3 d), Nothing, s)] | (None,s) => CDecl_flat happy_var_1 [(Nothing, Nothing, s)])) type_specifier1 struct_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7390.1 "language_c.grm.sml"*)
-) MlyValueM.struct_declaring_list1, MlyValue.struct_declaring_list)
- in ( LrTable.NT 51, ( result, type_specifier1left, attrs_opt1right), rest671)
-end
-|  ( 197, ( ( _, ( MlyValue.attrs_opt attrs_opt2, _, attrs_opt2right)) :: ( _, ( MlyValue.struct_declarator struct_declarator1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.struct_declaring_list struct_declaring_list1, struct_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 621.90 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => case happy_var_1 of CDecl0 (declspecs,dies,attr) => case happy_var_4 of (Some d,s) => CDecl declspecs ((flat3 (Just (appendObjAttrs (happy_var_3 @ happy_var_5) d), Nothing, s)) :: dies) attr | (None,s) => CDecl declspecs ((flat3 (Nothing, Nothing, s)) :: dies) attr) struct_declaring_list1 attrs_opt1 struct_declarator1 attrs_opt2(*#line 7394.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declaring_list2, MlyValue.struct_declaring_list)
- in ( LrTable.NT 51, ( result, struct_declaring_list1left, attrs_opt2right), rest671)
-end
-|  ( 198, ( ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 622.41 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0)(*#line 7398.1 "language_c.grm.sml"*)
-) MlyValueM.struct_declaring_list3, MlyValue.struct_declaring_list)
- in ( LrTable.NT 51, ( result, type_specifier1left, type_specifier1right), rest671)
-end
-|  ( 199, ( ( _, ( MlyValue.declarator declarator1, declarator1left, declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 624.33 "language_c.grm"*)(fn happy_var_1 => (Just (reverseDeclr happy_var_1), Nothing)) declarator1(*#line 7402.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declarator1, MlyValue.struct_declarator)
- in ( LrTable.NT 52, ( result, declarator1left, declarator1right), rest671)
-end
-|  ( 200, ( ( _, ( MlyValue.constant_expression constant_expression1, _, constant_expression1right)) :: ( _, ( _, x3a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 625.46 "language_c.grm"*)(fn happy_var_2 => (Nothing, Just happy_var_2)) constant_expression1(*#line 7406.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declarator2, MlyValue.struct_declarator)
- in ( LrTable.NT 52, ( result, x3a1left, constant_expression1right), rest671)
-end
-|  ( 201, ( ( _, ( MlyValue.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: ( _, ( MlyValue.declarator declarator1, declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 626.57 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => (Just (reverseDeclr happy_var_1), Just happy_var_3)) declarator1 constant_expression1(*#line 7410.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_declarator3, MlyValue.struct_declarator)
- in ( LrTable.NT 52, ( result, declarator1left, constant_expression1right), rest671)
-end
-|  ( 202, ( ( _, ( MlyValue.identifier_declarator identifier_declarator1, identifier_declarator1left, identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 628.55 "language_c.grm"*)(fn happy_var_1 => (Just (reverseDeclr happy_var_1), Nothing)) identifier_declarator1(*#line 7414.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_identifier_declarator1, MlyValue.struct_identifier_declarator)
- in ( LrTable.NT 53, ( result, identifier_declarator1left, identifier_declarator1right), rest671)
-end
-|  ( 203, ( ( _, ( MlyValue.constant_expression constant_expression1, _, constant_expression1right)) :: ( _, ( _, x3a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 629.57 "language_c.grm"*)(fn happy_var_2 => (Nothing, Just happy_var_2)) constant_expression1(*#line 7418.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_identifier_declarator2, MlyValue.struct_identifier_declarator)
- in ( LrTable.NT 53, ( result, x3a1left, constant_expression1right), rest671)
-end
-|  ( 204, ( ( _, ( MlyValue.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, identifier_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 630.79 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => (Just (reverseDeclr happy_var_1), Just happy_var_3)) identifier_declarator1 constant_expression1(*#line 7422.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_identifier_declarator3, MlyValue.struct_identifier_declarator)
- in ( LrTable.NT 53, ( result, identifier_declarator1left, constant_expression1right), rest671)
-end
-|  ( 205, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.struct_identifier_declarator struct_identifier_declarator1, struct_identifier_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 631.67 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => case happy_var_1 of (None,expr) => (Nothing, expr) | (Some (CDeclr0 (name,derived,asmname,attrs,node)),bsz) => (Just (CDeclr name derived asmname (attrs @ happy_var_2) node), bsz)) struct_identifier_declarator1 attr1(*#line 7426.1 "language_c.grm.sml"*)
-)) MlyValueM.struct_identifier_declarator4, MlyValue.struct_identifier_declarator)
- in ( LrTable.NT 53, ( result, struct_identifier_declarator1left, attr1right), rest671)
-end
-|  ( 206, ( ( _, ( _, _, x7d1right)) :: ( _, ( MlyValue.enumerator_list enumerator_list1, _, _)) :: _ :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 633.58 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CEnum Nothing (Just (reverse happy_var_4)) happy_var_2)) enum1 attrs_opt1 enumerator_list1) (fn _ => withNodeInfo 0)(*#line 7430.1 "language_c.grm.sml"*)
-) MlyValueM.enum_specifier1, MlyValue.enum_specifier)
- in ( LrTable.NT 54, ( result, enum1left, x7d1right), rest671)
-end
-|  ( 207, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( MlyValue.enumerator_list enumerator_list1, _, _)) :: _ :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 634.62 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CEnum Nothing (Just (reverse happy_var_4)) happy_var_2)) enum1 attrs_opt1 enumerator_list1) (fn _ => withNodeInfo 0)(*#line 7434.1 "language_c.grm.sml"*)
-) MlyValueM.enum_specifier2, MlyValue.enum_specifier)
- in ( LrTable.NT 54, ( result, enum1left, x7d1right), rest671)
-end
-|  ( 208, ( ( _, ( _, _, x7d1right)) :: ( _, ( MlyValue.enumerator_list enumerator_list1, _, _)) :: _ :: ( _, ( MlyValue.identifier identifier1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 635.69 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) enum1 attrs_opt1 identifier1 enumerator_list1) (fn _ => withNodeInfo 0)(*#line 7438.1 "language_c.grm.sml"*)
-) MlyValueM.enum_specifier3, MlyValue.enum_specifier)
- in ( LrTable.NT 54, ( result, enum1left, x7d1right), rest671)
-end
-|  ( 209, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( MlyValue.enumerator_list enumerator_list1, _, _)) :: _ :: ( _, ( MlyValue.identifier identifier1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 636.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) enum1 attrs_opt1 identifier1 enumerator_list1) (fn _ => withNodeInfo 0)(*#line 7442.1 "language_c.grm.sml"*)
-) MlyValueM.enum_specifier4, MlyValue.enum_specifier)
- in ( LrTable.NT 54, ( result, enum1left, x7d1right), rest671)
-end
-|  ( 210, ( ( _, ( MlyValue.identifier identifier1, _, identifier1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 637.45 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) Nothing happy_var_2)) enum1 attrs_opt1 identifier1) (fn _ => withNodeInfo 0)(*#line 7446.1 "language_c.grm.sml"*)
-) MlyValueM.enum_specifier5, MlyValue.enum_specifier)
- in ( LrTable.NT 54, ( result, enum1left, identifier1right), rest671)
-end
-|  ( 211, ( ( _, ( MlyValue.enumerator enumerator1, enumerator1left, enumerator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 639.31 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) enumerator1(*#line 7450.1 "language_c.grm.sml"*)
-)) MlyValueM.enumerator_list1, MlyValue.enumerator_list)
- in ( LrTable.NT 55, ( result, enumerator1left, enumerator1right), rest671)
-end
-|  ( 212, ( ( _, ( MlyValue.enumerator enumerator1, _, enumerator1right)) :: _ :: ( _, ( MlyValue.enumerator_list enumerator_list1, enumerator_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 640.51 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) enumerator_list1 enumerator1(*#line 7454.1 "language_c.grm.sml"*)
-)) MlyValueM.enumerator_list2, MlyValue.enumerator_list)
- in ( LrTable.NT 55, ( result, enumerator_list1left, enumerator1right), rest671)
-end
-|  ( 213, ( ( _, ( MlyValue.identifier identifier1, identifier1left, identifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 642.26 "language_c.grm"*)(fn happy_var_1 => (happy_var_1, Nothing)) identifier1(*#line 7458.1 "language_c.grm.sml"*)
-)) MlyValueM.enumerator1, MlyValue.enumerator)
- in ( LrTable.NT 56, ( result, identifier1left, identifier1right), rest671)
-end
-|  ( 214, ( ( _, ( _, _, attrs1right)) :: ( _, ( MlyValue.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 643.32 "language_c.grm"*)(fn happy_var_1 => (happy_var_1, Nothing)) identifier1(*#line 7462.1 "language_c.grm.sml"*)
-)) MlyValueM.enumerator2, MlyValue.enumerator)
- in ( LrTable.NT 56, ( result, identifier1left, attrs1right), rest671)
-end
-|  ( 215, ( ( _, ( MlyValue.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: _ :: ( _, ( MlyValue.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 644.56 "language_c.grm"*)(fn happy_var_1 => fn happy_var_4 => (happy_var_1, Just happy_var_4)) identifier1 constant_expression1(*#line 7466.1 "language_c.grm.sml"*)
-)) MlyValueM.enumerator3, MlyValue.enumerator)
- in ( LrTable.NT 56, ( result, identifier1left, constant_expression1right), rest671)
-end
-|  ( 216, ( ( _, ( MlyValue.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: ( _, ( MlyValue.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 645.50 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => (happy_var_1, Just happy_var_3)) identifier1 constant_expression1(*#line 7470.1 "language_c.grm.sml"*)
-)) MlyValueM.enumerator4, MlyValue.enumerator)
- in ( LrTable.NT 56, ( result, identifier1left, constant_expression1right), rest671)
-end
-|  ( 217, ( ( _, ( MlyValue.const const1, const1left, const1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 647.25 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CConstQual)) const1) (fn _ => withNodeInfo 0)(*#line 7474.1 "language_c.grm.sml"*)
-) MlyValueM.type_qualifier1, MlyValue.type_qualifier)
- in ( LrTable.NT 57, ( result, const1left, const1right), rest671)
-end
-|  ( 218, ( ( _, ( MlyValue.volatile volatile1, volatile1left, volatile1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 648.28 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVolatQual)) volatile1) (fn _ => withNodeInfo 0)(*#line 7478.1 "language_c.grm.sml"*)
-) MlyValueM.type_qualifier2, MlyValue.type_qualifier)
- in ( LrTable.NT 57, ( result, volatile1left, volatile1right), rest671)
-end
-|  ( 219, ( ( _, ( MlyValue.restrict restrict1, restrict1left, restrict1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 649.28 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CRestrQual)) restrict1) (fn _ => withNodeInfo 0)(*#line 7482.1 "language_c.grm.sml"*)
-) MlyValueM.type_qualifier3, MlyValue.type_qualifier)
- in ( LrTable.NT 57, ( result, restrict1left, restrict1right), rest671)
-end
-|  ( 220, ( ( _, ( MlyValue.x5f_Nullable x5f_Nullable1, x5f_Nullable1left, x5f_Nullable1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 650.32 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNullableQual)) x5f_Nullable1) (fn _ => withNodeInfo 0)(*#line 7486.1 "language_c.grm.sml"*)
-) MlyValueM.type_qualifier4, MlyValue.type_qualifier)
- in ( LrTable.NT 57, ( result, x5f_Nullable1left, x5f_Nullable1right), rest671)
-end
-|  ( 221, ( ( _, ( MlyValue.x5f_Nonnull x5f_Nonnull1, x5f_Nonnull1left, x5f_Nonnull1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 651.31 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNonnullQual)) x5f_Nonnull1) (fn _ => withNodeInfo 0)(*#line 7490.1 "language_c.grm.sml"*)
-) MlyValueM.type_qualifier5, MlyValue.type_qualifier)
- in ( LrTable.NT 57, ( result, x5f_Nonnull1left, x5f_Nonnull1right), rest671)
-end
-|  ( 222, ( ( _, ( MlyValue.x5f_Atomic x5f_Atomic1, x5f_Atomic1left, x5f_Atomic1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 652.30 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAtomicQual)) x5f_Atomic1) (fn _ => withNodeInfo 0)(*#line 7494.1 "language_c.grm.sml"*)
-) MlyValueM.type_qualifier6, MlyValue.type_qualifier)
- in ( LrTable.NT 57, ( result, x5f_Atomic1left, x5f_Atomic1right), rest671)
-end
-|  ( 223, ( ( _, ( MlyValue.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, attrs_opt1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 654.49 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (reverseList (map CAttrQual happy_var_1)) (happy_var_2)) attrs_opt1 type_qualifier1(*#line 7498.1 "language_c.grm.sml"*)
-)) MlyValueM.type_qualifier_list1, MlyValue.type_qualifier_list)
- in ( LrTable.NT 58, ( result, attrs_opt1left, type_qualifier1right), rest671)
-end
-|  ( 224, ( ( _, ( MlyValue.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 655.59 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) type_qualifier_list1 type_qualifier1(*#line 7502.1 "language_c.grm.sml"*)
-)) MlyValueM.type_qualifier_list2, MlyValue.type_qualifier_list)
- in ( LrTable.NT 58, ( result, type_qualifier_list1left, type_qualifier1right), rest671)
-end
-|  ( 225, ( ( _, ( MlyValue.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 656.65 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc ((rappend (happy_var_1) (map CAttrQual happy_var_2))) (happy_var_3)) type_qualifier_list1 attrs1 type_qualifier1(*#line 7506.1 "language_c.grm.sml"*)
-)) MlyValueM.type_qualifier_list3, MlyValue.type_qualifier_list)
- in ( LrTable.NT 58, ( result, type_qualifier_list1left, type_qualifier1right), rest671)
-end
-|  ( 226, ( ( _, ( MlyValue.identifier_declarator identifier_declarator1, identifier_declarator1left, identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 658.37 "language_c.grm"*)(fn happy_var_1 => happy_var_1) identifier_declarator1(*#line 7510.1 "language_c.grm.sml"*)
-)) MlyValueM.declarator1, MlyValue.declarator)
- in ( LrTable.NT 59, ( result, identifier_declarator1left, identifier_declarator1right), rest671)
-end
-|  ( 227, ( ( _, ( MlyValue.typedef_declarator typedef_declarator1, typedef_declarator1left, typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 659.34 "language_c.grm"*)(fn happy_var_1 => happy_var_1) typedef_declarator1(*#line 7514.1 "language_c.grm.sml"*)
-)) MlyValueM.declarator2, MlyValue.declarator)
- in ( LrTable.NT 59, ( result, typedef_declarator1left, typedef_declarator1right), rest671)
-end
-|  ( 228, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 661.13 "language_c.grm"*)Nothing(*#line 7518.1 "language_c.grm.sml"*)
-)) MlyValueM.asm_opt1, MlyValue.asm_opt)
- in ( LrTable.NT 60, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 229, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.string_literal string_literal1, _, _)) :: _ :: ( _, ( _, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 662.39 "language_c.grm"*)(fn happy_var_3 => Just happy_var_3) string_literal1(*#line 7522.1 "language_c.grm.sml"*)
-)) MlyValueM.asm_opt2, MlyValue.asm_opt)
- in ( LrTable.NT 60, ( result, asm1left, x291right), rest671)
-end
-|  ( 230, ( ( _, ( MlyValue.paren_typedef_declarator paren_typedef_declarator1, paren_typedef_declarator1left, paren_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 664.48 "language_c.grm"*)(fn happy_var_1 => happy_var_1) paren_typedef_declarator1(*#line 7526.1 "language_c.grm.sml"*)
-)) MlyValueM.typedef_declarator1, MlyValue.typedef_declarator)
- in ( LrTable.NT 61, ( result, paren_typedef_declarator1left, paren_typedef_declarator1right), rest671)
-end
-|  ( 231, ( ( _, ( MlyValue.parameter_typedef_declarator parameter_typedef_declarator1, parameter_typedef_declarator1left, parameter_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 665.52 "language_c.grm"*)(fn happy_var_1 => happy_var_1) parameter_typedef_declarator1(*#line 7530.1 "language_c.grm.sml"*)
-)) MlyValueM.typedef_declarator2, MlyValue.typedef_declarator)
- in ( LrTable.NT 61, ( result, parameter_typedef_declarator1left, parameter_typedef_declarator1right), rest671)
-end
-|  ( 232, ( ( _, ( MlyValue.tyident tyident1, tyident1left, tyident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 667.41 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) tyident1) (fn _ => withNodeInfo 0)(*#line 7534.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_typedef_declarator1, MlyValue.parameter_typedef_declarator)
- in ( LrTable.NT 62, ( result, tyident1left, tyident1right), rest671)
-end
-|  ( 233, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: ( _, ( MlyValue.tyident tyident1, tyident1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 668.72 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => happy_var_2 (mkVarDeclr happy_var_1 at))) tyident1 postfixing_abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7538.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_typedef_declarator2, MlyValue.parameter_typedef_declarator)
- in ( LrTable.NT 62, ( result, tyident1left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 234, ( ( _, ( MlyValue.clean_typedef_declarator clean_typedef_declarator1, clean_typedef_declarator1left, clean_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 669.58 "language_c.grm"*)(fn happy_var_1 => happy_var_1) clean_typedef_declarator1(*#line 7542.1 "language_c.grm.sml"*)
-)) MlyValueM.parameter_typedef_declarator3, MlyValue.parameter_typedef_declarator)
- in ( LrTable.NT 62, ( result, clean_typedef_declarator1left, clean_typedef_declarator1right), rest671)
-end
-|  ( 235, ( ( _, ( MlyValue.clean_postfix_typedef_declarator clean_postfix_typedef_declarator1, clean_postfix_typedef_declarator1left, clean_postfix_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 671.62 "language_c.grm"*)(fn happy_var_1 => happy_var_1) clean_postfix_typedef_declarator1(*#line 7546.1 "language_c.grm.sml"*)
-)) MlyValueM.clean_typedef_declarator1, MlyValue.clean_typedef_declarator)
- in ( LrTable.NT 63, ( result, clean_postfix_typedef_declarator1left, clean_postfix_typedef_declarator1right), rest671)
-end
-|  ( 236, ( ( _, ( MlyValue.parameter_typedef_declarator parameter_typedef_declarator1, _, parameter_typedef_declarator1right)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 672.62 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 parameter_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7550.1 "language_c.grm.sml"*)
-) MlyValueM.clean_typedef_declarator2, MlyValue.clean_typedef_declarator)
- in ( LrTable.NT 63, ( result, x2a1left, parameter_typedef_declarator1right), rest671)
-end
-|  ( 237, ( ( _, ( MlyValue.parameter_typedef_declarator parameter_typedef_declarator1, _, parameter_typedef_declarator1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 673.68 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 parameter_typedef_declarator1) (fn _ => withAttribute 0)(*#line 7554.1 "language_c.grm.sml"*)
-) MlyValueM.clean_typedef_declarator3, MlyValue.clean_typedef_declarator)
- in ( LrTable.NT 63, ( result, x2a1left, parameter_typedef_declarator1right), rest671)
-end
-|  ( 238, ( ( _, ( MlyValue.parameter_typedef_declarator parameter_typedef_declarator1, _, parameter_typedef_declarator1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 674.82 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 parameter_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7558.1 "language_c.grm.sml"*)
-) MlyValueM.clean_typedef_declarator4, MlyValue.clean_typedef_declarator)
- in ( LrTable.NT 63, ( result, x2a1left, parameter_typedef_declarator1right), rest671)
-end
-|  ( 239, ( ( _, ( MlyValue.parameter_typedef_declarator parameter_typedef_declarator1, _, parameter_typedef_declarator1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 675.88 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 parameter_typedef_declarator1) (fn _ => withAttribute 0)(*#line 7562.1 "language_c.grm.sml"*)
-) MlyValueM.clean_typedef_declarator5, MlyValue.clean_typedef_declarator)
- in ( LrTable.NT 63, ( result, x2a1left, parameter_typedef_declarator1right), rest671)
-end
-|  ( 240, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.clean_typedef_declarator clean_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 677.70 "language_c.grm"*)(fn happy_var_2 => happy_var_2) clean_typedef_declarator1(*#line 7566.1 "language_c.grm.sml"*)
-)) MlyValueM.clean_postfix_typedef_declarator1, MlyValue.clean_postfix_typedef_declarator)
- in ( LrTable.NT 64, ( result, x281left, x291right), rest671)
-end
-|  ( 241, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( MlyValue.clean_typedef_declarator clean_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 678.101 "language_c.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) clean_typedef_declarator1 postfixing_abstract_declarator1(*#line 7570.1 "language_c.grm.sml"*)
-)) MlyValueM.clean_postfix_typedef_declarator2, MlyValue.clean_postfix_typedef_declarator)
- in ( LrTable.NT 64, ( result, x281left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 242, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.clean_typedef_declarator clean_typedef_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 679.76 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 clean_typedef_declarator1(*#line 7574.1 "language_c.grm.sml"*)
-)) MlyValueM.clean_postfix_typedef_declarator3, MlyValue.clean_postfix_typedef_declarator)
- in ( LrTable.NT 64, ( result, x281left, x291right), rest671)
-end
-|  ( 243, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( MlyValue.clean_typedef_declarator clean_typedef_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 680.107 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 clean_typedef_declarator1 postfixing_abstract_declarator1(*#line 7578.1 "language_c.grm.sml"*)
-)) MlyValueM.clean_postfix_typedef_declarator4, MlyValue.clean_postfix_typedef_declarator)
- in ( LrTable.NT 64, ( result, x281left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 244, ( ( _, ( MlyValue.paren_postfix_typedef_declarator paren_postfix_typedef_declarator1, paren_postfix_typedef_declarator1left, paren_postfix_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 682.62 "language_c.grm"*)(fn happy_var_1 => happy_var_1) paren_postfix_typedef_declarator1(*#line 7582.1 "language_c.grm.sml"*)
-)) MlyValueM.paren_typedef_declarator1, MlyValue.paren_typedef_declarator)
- in ( LrTable.NT 65, ( result, paren_postfix_typedef_declarator1left, paren_postfix_typedef_declarator1right), rest671)
-end
-|  ( 245, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: _ :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 683.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 [])) x2a1 simple_paren_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7586.1 "language_c.grm.sml"*)
-) MlyValueM.paren_typedef_declarator2, MlyValue.paren_typedef_declarator)
- in ( LrTable.NT 65, ( result, x2a1left, x291right), rest671)
-end
-|  ( 246, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: _ :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 684.93 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 simple_paren_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7590.1 "language_c.grm.sml"*)
-) MlyValueM.paren_typedef_declarator3, MlyValue.paren_typedef_declarator)
- in ( LrTable.NT 65, ( result, x2a1left, x291right), rest671)
-end
-|  ( 247, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: _ :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 685.99 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_5 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 simple_paren_typedef_declarator1) (fn _ => withAttribute 0)(*#line 7594.1 "language_c.grm.sml"*)
-) MlyValueM.paren_typedef_declarator4, MlyValue.paren_typedef_declarator)
- in ( LrTable.NT 65, ( result, x2a1left, x291right), rest671)
-end
-|  ( 248, ( ( _, ( MlyValue.paren_typedef_declarator paren_typedef_declarator1, _, paren_typedef_declarator1right)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 686.58 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 paren_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7598.1 "language_c.grm.sml"*)
-) MlyValueM.paren_typedef_declarator5, MlyValue.paren_typedef_declarator)
- in ( LrTable.NT 65, ( result, x2a1left, paren_typedef_declarator1right), rest671)
-end
-|  ( 249, ( ( _, ( MlyValue.paren_typedef_declarator paren_typedef_declarator1, _, paren_typedef_declarator1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 687.78 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 paren_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7602.1 "language_c.grm.sml"*)
-) MlyValueM.paren_typedef_declarator6, MlyValue.paren_typedef_declarator)
- in ( LrTable.NT 65, ( result, x2a1left, paren_typedef_declarator1right), rest671)
-end
-|  ( 250, ( ( _, ( MlyValue.paren_typedef_declarator paren_typedef_declarator1, _, paren_typedef_declarator1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 688.84 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 paren_typedef_declarator1) (fn _ => withAttribute 0)(*#line 7606.1 "language_c.grm.sml"*)
-) MlyValueM.paren_typedef_declarator7, MlyValue.paren_typedef_declarator)
- in ( LrTable.NT 65, ( result, x2a1left, paren_typedef_declarator1right), rest671)
-end
-|  ( 251, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.paren_typedef_declarator paren_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 690.70 "language_c.grm"*)(fn happy_var_2 => happy_var_2) paren_typedef_declarator1(*#line 7610.1 "language_c.grm.sml"*)
-)) MlyValueM.paren_postfix_typedef_declarator1, MlyValue.paren_postfix_typedef_declarator)
- in ( LrTable.NT 66, ( result, x281left, x291right), rest671)
-end
-|  ( 252, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, _)) :: ( _, ( MlyValue.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 691.108 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => happy_var_3 happy_var_2) simple_paren_typedef_declarator1 postfixing_abstract_declarator1(*#line 7614.1 "language_c.grm.sml"*)
-)) MlyValueM.paren_postfix_typedef_declarator2, MlyValue.paren_postfix_typedef_declarator)
- in ( LrTable.NT 66, ( result, x281left, x291right), rest671)
-end
-|  ( 253, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( MlyValue.paren_typedef_declarator paren_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 692.101 "language_c.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) paren_typedef_declarator1 postfixing_abstract_declarator1(*#line 7618.1 "language_c.grm.sml"*)
-)) MlyValueM.paren_postfix_typedef_declarator3, MlyValue.paren_postfix_typedef_declarator)
- in ( LrTable.NT 66, ( result, x281left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 254, ( ( _, ( MlyValue.tyident tyident1, tyident1left, tyident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 694.44 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) tyident1) (fn _ => withNodeInfo 0)(*#line 7622.1 "language_c.grm.sml"*)
-) MlyValueM.simple_paren_typedef_declarator1, MlyValue.simple_paren_typedef_declarator)
- in ( LrTable.NT 67, ( result, tyident1left, tyident1right), rest671)
-end
-|  ( 255, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 695.76 "language_c.grm"*)(fn happy_var_2 => happy_var_2) simple_paren_typedef_declarator1(*#line 7626.1 "language_c.grm.sml"*)
-)) MlyValueM.simple_paren_typedef_declarator2, MlyValue.simple_paren_typedef_declarator)
- in ( LrTable.NT 67, ( result, x281left, x291right), rest671)
-end
-|  ( 256, ( ( _, ( MlyValue.unary_identifier_declarator unary_identifier_declarator1, unary_identifier_declarator1left, unary_identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 697.54 "language_c.grm"*)(fn happy_var_1 => happy_var_1) unary_identifier_declarator1(*#line 7630.1 "language_c.grm.sml"*)
-)) MlyValueM.identifier_declarator1, MlyValue.identifier_declarator)
- in ( LrTable.NT 68, ( result, unary_identifier_declarator1left, unary_identifier_declarator1right), rest671)
-end
-|  ( 257, ( ( _, ( MlyValue.paren_identifier_declarator paren_identifier_declarator1, paren_identifier_declarator1left, paren_identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 698.54 "language_c.grm"*)(fn happy_var_1 => happy_var_1) paren_identifier_declarator1(*#line 7634.1 "language_c.grm.sml"*)
-)) MlyValueM.identifier_declarator2, MlyValue.identifier_declarator)
- in ( LrTable.NT 68, ( result, paren_identifier_declarator1left, paren_identifier_declarator1right), rest671)
-end
-|  ( 258, ( ( _, ( MlyValue.postfix_identifier_declarator postfix_identifier_declarator1, postfix_identifier_declarator1left, postfix_identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 700.62 "language_c.grm"*)(fn happy_var_1 => happy_var_1) postfix_identifier_declarator1(*#line 7638.1 "language_c.grm.sml"*)
-)) MlyValueM.unary_identifier_declarator1, MlyValue.unary_identifier_declarator)
- in ( LrTable.NT 69, ( result, postfix_identifier_declarator1left, postfix_identifier_declarator1right), rest671)
-end
-|  ( 259, ( ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, identifier_declarator1right)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 701.58 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 identifier_declarator1) (fn _ => withNodeInfo 0)(*#line 7642.1 "language_c.grm.sml"*)
-) MlyValueM.unary_identifier_declarator2, MlyValue.unary_identifier_declarator)
- in ( LrTable.NT 69, ( result, x2a1left, identifier_declarator1right), rest671)
-end
-|  ( 260, ( ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, identifier_declarator1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 702.64 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 identifier_declarator1) (fn _ => withAttribute 0)(*#line 7646.1 "language_c.grm.sml"*)
-) MlyValueM.unary_identifier_declarator3, MlyValue.unary_identifier_declarator)
- in ( LrTable.NT 69, ( result, x2a1left, identifier_declarator1right), rest671)
-end
-|  ( 261, ( ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, identifier_declarator1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 703.78 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 identifier_declarator1) (fn _ => withNodeInfo 0)(*#line 7650.1 "language_c.grm.sml"*)
-) MlyValueM.unary_identifier_declarator4, MlyValue.unary_identifier_declarator)
- in ( LrTable.NT 69, ( result, x2a1left, identifier_declarator1right), rest671)
-end
-|  ( 262, ( ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, identifier_declarator1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 704.84 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 identifier_declarator1) (fn _ => withAttribute 0)(*#line 7654.1 "language_c.grm.sml"*)
-) MlyValueM.unary_identifier_declarator5, MlyValue.unary_identifier_declarator)
- in ( LrTable.NT 69, ( result, x2a1left, identifier_declarator1right), rest671)
-end
-|  ( 263, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: ( _, ( MlyValue.paren_identifier_declarator paren_identifier_declarator1, paren_identifier_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 706.93 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => happy_var_2 happy_var_1) paren_identifier_declarator1 postfixing_abstract_declarator1(*#line 7658.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_identifier_declarator1, MlyValue.postfix_identifier_declarator)
- in ( LrTable.NT 70, ( result, paren_identifier_declarator1left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 264, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.unary_identifier_declarator unary_identifier_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 707.70 "language_c.grm"*)(fn happy_var_2 => happy_var_2) unary_identifier_declarator1(*#line 7662.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_identifier_declarator2, MlyValue.postfix_identifier_declarator)
- in ( LrTable.NT 70, ( result, x281left, x291right), rest671)
-end
-|  ( 265, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( MlyValue.unary_identifier_declarator unary_identifier_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 708.101 "language_c.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) unary_identifier_declarator1 postfixing_abstract_declarator1(*#line 7666.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_identifier_declarator3, MlyValue.postfix_identifier_declarator)
- in ( LrTable.NT 70, ( result, x281left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 266, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.unary_identifier_declarator unary_identifier_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 709.76 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 unary_identifier_declarator1(*#line 7670.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_identifier_declarator4, MlyValue.postfix_identifier_declarator)
- in ( LrTable.NT 70, ( result, x281left, x291right), rest671)
-end
-|  ( 267, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( MlyValue.unary_identifier_declarator unary_identifier_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 710.107 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 unary_identifier_declarator1 postfixing_abstract_declarator1(*#line 7674.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_identifier_declarator5, MlyValue.postfix_identifier_declarator)
- in ( LrTable.NT 70, ( result, x281left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 268, ( ( _, ( MlyValue.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 712.38 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) ident1) (fn _ => withNodeInfo 0)(*#line 7678.1 "language_c.grm.sml"*)
-) MlyValueM.paren_identifier_declarator1, MlyValue.paren_identifier_declarator)
- in ( LrTable.NT 71, ( result, ident1left, ident1right), rest671)
-end
-|  ( 269, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.paren_identifier_declarator paren_identifier_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 713.68 "language_c.grm"*)(fn happy_var_2 => happy_var_2) paren_identifier_declarator1(*#line 7682.1 "language_c.grm.sml"*)
-)) MlyValueM.paren_identifier_declarator2, MlyValue.paren_identifier_declarator)
- in ( LrTable.NT 71, ( result, x281left, x291right), rest671)
-end
-|  ( 270, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.paren_identifier_declarator paren_identifier_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 714.74 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 paren_identifier_declarator1(*#line 7686.1 "language_c.grm.sml"*)
-)) MlyValueM.paren_identifier_declarator3, MlyValue.paren_identifier_declarator)
- in ( LrTable.NT 71, ( result, x281left, x291right), rest671)
-end
-|  ( 271, ( ( _, ( MlyValue.old_function_declarator old_function_declarator1, old_function_declarator1left, old_function_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 716.52 "language_c.grm"*)(fn happy_var_1 => reverseDeclr happy_var_1) old_function_declarator1(*#line 7690.1 "language_c.grm.sml"*)
-)) MlyValueM.function_declarator_old, MlyValue.function_declarator_old)
- in ( LrTable.NT 72, ( result, old_function_declarator1left, old_function_declarator1right), rest671)
-end
-|  ( 272, ( ( _, ( MlyValue.postfix_old_function_declarator postfix_old_function_declarator1, postfix_old_function_declarator1left, postfix_old_function_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 718.60 "language_c.grm"*)(fn happy_var_1 => happy_var_1) postfix_old_function_declarator1(*#line 7694.1 "language_c.grm.sml"*)
-)) MlyValueM.old_function_declarator1, MlyValue.old_function_declarator)
- in ( LrTable.NT 73, ( result, postfix_old_function_declarator1left, postfix_old_function_declarator1right), rest671)
-end
-|  ( 273, ( ( _, ( MlyValue.old_function_declarator old_function_declarator1, _, old_function_declarator1right)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 719.56 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 old_function_declarator1) (fn _ => withNodeInfo 0)(*#line 7698.1 "language_c.grm.sml"*)
-) MlyValueM.old_function_declarator2, MlyValue.old_function_declarator)
- in ( LrTable.NT 73, ( result, x2a1left, old_function_declarator1right), rest671)
-end
-|  ( 274, ( ( _, ( MlyValue.old_function_declarator old_function_declarator1, _, old_function_declarator1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 720.76 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 old_function_declarator1) (fn _ => withNodeInfo 0)(*#line 7702.1 "language_c.grm.sml"*)
-) MlyValueM.old_function_declarator3, MlyValue.old_function_declarator)
- in ( LrTable.NT 73, ( result, x2a1left, old_function_declarator1right), rest671)
-end
-|  ( 275, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.identifier_list identifier_list1, _, _)) :: _ :: ( _, ( MlyValue.paren_identifier_declarator paren_identifier_declarator1, paren_identifier_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 722.88 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (funDeclr happy_var_1 (Left (reverse happy_var_3)) [])) paren_identifier_declarator1 identifier_list1) (fn _ => withNodeInfo 0)(*#line 7706.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_old_function_declarator1, MlyValue.postfix_old_function_declarator)
- in ( LrTable.NT 74, ( result, paren_identifier_declarator1left, x291right), rest671)
-end
-|  ( 276, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.old_function_declarator old_function_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 723.68 "language_c.grm"*)(fn happy_var_2 => happy_var_2) old_function_declarator1(*#line 7710.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_old_function_declarator2, MlyValue.postfix_old_function_declarator)
- in ( LrTable.NT 74, ( result, x281left, x291right), rest671)
-end
-|  ( 277, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( MlyValue.old_function_declarator old_function_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 724.99 "language_c.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) old_function_declarator1 postfixing_abstract_declarator1(*#line 7714.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_old_function_declarator3, MlyValue.postfix_old_function_declarator)
- in ( LrTable.NT 74, ( result, x281left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 278, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 726.25 "language_c.grm"*)([], False)(*#line 7718.1 "language_c.grm.sml"*)
-)) MlyValueM.parameter_type_list1, MlyValue.parameter_type_list)
- in ( LrTable.NT 75, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 279, ( ( _, ( MlyValue.parameter_list parameter_list1, parameter_list1left, parameter_list1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 727.39 "language_c.grm"*)(fn happy_var_1 => (reverse happy_var_1, False)) parameter_list1(*#line 7722.1 "language_c.grm.sml"*)
-)) MlyValueM.parameter_type_list2, MlyValue.parameter_type_list)
- in ( LrTable.NT 75, ( result, parameter_list1left, parameter_list1right), rest671)
-end
-|  ( 280, ( ( _, ( _, _, x2e_x2e_x2e1right)) :: _ :: ( _, ( MlyValue.parameter_list parameter_list1, parameter_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 728.55 "language_c.grm"*)(fn happy_var_1 => (reverse happy_var_1, True)) parameter_list1(*#line 7726.1 "language_c.grm.sml"*)
-)) MlyValueM.parameter_type_list3, MlyValue.parameter_type_list)
- in ( LrTable.NT 75, ( result, parameter_list1left, x2e_x2e_x2e1right), rest671)
-end
-|  ( 281, ( ( _, ( MlyValue.parameter_declaration parameter_declaration1, parameter_declaration1left, parameter_declaration1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 730.41 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) parameter_declaration1(*#line 7730.1 "language_c.grm.sml"*)
-)) MlyValueM.parameter_list1, MlyValue.parameter_list)
- in ( LrTable.NT 76, ( result, parameter_declaration1left, parameter_declaration1right), rest671)
-end
-|  ( 282, ( ( _, ( MlyValue.parameter_declaration parameter_declaration1, _, parameter_declaration1right)) :: _ :: ( _, ( MlyValue.parameter_list parameter_list1, parameter_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 731.60 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) parameter_list1 parameter_declaration1(*#line 7734.1 "language_c.grm.sml"*)
-)) MlyValueM.parameter_list2, MlyValue.parameter_list)
- in ( LrTable.NT 76, ( result, parameter_list1left, parameter_declaration1right), rest671)
-end
-|  ( 283, ( ( _, ( MlyValue.declaration_specifier declaration_specifier1, declaration_specifier1left, declaration_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 733.48 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) declaration_specifier1) (fn _ => withNodeInfo 0)(*#line 7738.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration1, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, declaration_specifier1left, declaration_specifier1right), rest671)
-end
-|  ( 284, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 734.68 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) declaration_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7742.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration2, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, declaration_specifier1left, abstract_declarator1right), rest671)
-end
-|  ( 285, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 735.80 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_specifier1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7746.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration3, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, declaration_specifier1left, attrs_opt1right), rest671)
-end
-|  ( 286, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.parameter_typedef_declarator parameter_typedef_declarator1, _, _)) :: ( _, ( MlyValue.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 736.87 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_specifier1 parameter_typedef_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7750.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration4, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, declaration_specifier1left, attrs_opt1right), rest671)
-end
-|  ( 287, ( ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, declaration_qualifier_list1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 737.53 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) declaration_qualifier_list1) (fn _ => withNodeInfo 0)(*#line 7754.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration5, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, declaration_qualifier_list1left, declaration_qualifier_list1right), rest671)
-end
-|  ( 288, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 738.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (reverse happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) declaration_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7758.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration6, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, declaration_qualifier_list1left, abstract_declarator1right), rest671)
-end
-|  ( 289, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 739.85 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat (reverse happy_var_1) [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_qualifier_list1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7762.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration7, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, declaration_qualifier_list1left, attrs_opt1right), rest671)
-end
-|  ( 290, ( ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 740.41 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0)(*#line 7766.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration8, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, type_specifier1left, type_specifier1right), rest671)
-end
-|  ( 291, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 741.61 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7770.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration9, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, type_specifier1left, abstract_declarator1right), rest671)
-end
-|  ( 292, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 742.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_specifier1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7774.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration10, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, type_specifier1left, attrs_opt1right), rest671)
-end
-|  ( 293, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.parameter_typedef_declarator parameter_typedef_declarator1, _, _)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 743.80 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_specifier1 parameter_typedef_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7778.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration11, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, type_specifier1left, attrs_opt1right), rest671)
-end
-|  ( 294, ( ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, type_qualifier_list1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 744.46 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1) [])) type_qualifier_list1) (fn _ => withNodeInfo 0)(*#line 7782.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration12, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, type_qualifier_list1left, type_qualifier_list1right), rest671)
-end
-|  ( 295, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 745.51 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [])) type_qualifier_list1 attr1) (fn _ => withNodeInfo 0)(*#line 7786.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration13, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, type_qualifier_list1left, attr1right), rest671)
-end
-|  ( 296, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 746.66 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7790.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration14, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, type_qualifier_list1left, abstract_declarator1right), rest671)
-end
-|  ( 297, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 747.78 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_qualifier_list1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7794.1 "language_c.grm.sml"*)
-) MlyValueM.parameter_declaration15, MlyValue.parameter_declaration)
- in ( LrTable.NT 77, ( result, type_qualifier_list1left, attrs_opt1right), rest671)
-end
-|  ( 298, ( ( _, ( MlyValue.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 749.26 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) ident1(*#line 7798.1 "language_c.grm.sml"*)
-)) MlyValueM.identifier_list1, MlyValue.identifier_list)
- in ( LrTable.NT 78, ( result, ident1left, ident1right), rest671)
-end
-|  ( 299, ( ( _, ( MlyValue.ident ident1, _, ident1right)) :: _ :: ( _, ( MlyValue.identifier_list identifier_list1, identifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 750.46 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) identifier_list1 ident1(*#line 7802.1 "language_c.grm.sml"*)
-)) MlyValueM.identifier_list2, MlyValue.identifier_list)
- in ( LrTable.NT 78, ( result, identifier_list1left, ident1right), rest671)
-end
-|  ( 300, ( ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 752.29 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0)(*#line 7806.1 "language_c.grm.sml"*)
-) MlyValueM.type_name1, MlyValue.type_name)
- in ( LrTable.NT 79, ( result, type_specifier1left, type_specifier1right), rest671)
-end
-|  ( 301, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 753.49 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7810.1 "language_c.grm.sml"*)
-) MlyValueM.type_name2, MlyValue.type_name)
- in ( LrTable.NT 79, ( result, type_specifier1left, abstract_declarator1right), rest671)
-end
-|  ( 302, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 754.39 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [])) type_qualifier_list1 attr1) (fn _ => withNodeInfo 0)(*#line 7814.1 "language_c.grm.sml"*)
-) MlyValueM.type_name3, MlyValue.type_name)
- in ( LrTable.NT 79, ( result, type_qualifier_list1left, attr1right), rest671)
-end
-|  ( 303, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 755.54 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7818.1 "language_c.grm.sml"*)
-) MlyValueM.type_name4, MlyValue.type_name)
- in ( LrTable.NT 79, ( result, type_qualifier_list1left, abstract_declarator1right), rest671)
-end
-|  ( 304, ( ( _, ( MlyValue.unary_abstract_declarator unary_abstract_declarator1, unary_abstract_declarator1left, unary_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 757.50 "language_c.grm"*)(fn happy_var_1 => happy_var_1) unary_abstract_declarator1(*#line 7822.1 "language_c.grm.sml"*)
-)) MlyValueM.abstract_declarator1, MlyValue.abstract_declarator)
- in ( LrTable.NT 80, ( result, unary_abstract_declarator1left, unary_abstract_declarator1right), rest671)
-end
-|  ( 305, ( ( _, ( MlyValue.postfix_abstract_declarator postfix_abstract_declarator1, postfix_abstract_declarator1left, postfix_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 758.52 "language_c.grm"*)(fn happy_var_1 => happy_var_1) postfix_abstract_declarator1(*#line 7826.1 "language_c.grm.sml"*)
-)) MlyValueM.abstract_declarator2, MlyValue.abstract_declarator)
- in ( LrTable.NT 80, ( result, postfix_abstract_declarator1left, postfix_abstract_declarator1right), rest671)
-end
-|  ( 306, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, postfixing_abstract_declarator1left, postfixing_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 759.55 "language_c.grm"*)(fn happy_var_1 => happy_var_1 emptyDeclr) postfixing_abstract_declarator1(*#line 7830.1 "language_c.grm.sml"*)
-)) MlyValueM.abstract_declarator3, MlyValue.abstract_declarator)
- in ( LrTable.NT 80, ( result, postfixing_abstract_declarator1left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 307, ( ( _, ( MlyValue.array_abstract_declarator array_abstract_declarator1, array_abstract_declarator1left, array_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 761.61 "language_c.grm"*)(fn happy_var_1 => happy_var_1) array_abstract_declarator1(*#line 7834.1 "language_c.grm.sml"*)
-)) MlyValueM.postfixing_abstract_declarator1, MlyValue.postfixing_abstract_declarator)
- in ( LrTable.NT 81, ( result, array_abstract_declarator1left, array_abstract_declarator1right), rest671)
-end
-|  ( 308, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.parameter_type_list parameter_type_list1, _, _)) :: ( _, ( MlyValue.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 762.63 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => fn declr => case happy_var_2 of (params,variadic) => funDeclr declr (Right (params, variadic)) [] at)) x281 parameter_type_list1) (fn _ => withNodeInfo 0)(*#line 7838.1 "language_c.grm.sml"*)
-) MlyValueM.postfixing_abstract_declarator2, MlyValue.postfixing_abstract_declarator)
- in ( LrTable.NT 81, ( result, x281left, x291right), rest671)
-end
-|  ( 309, ( ( _, ( MlyValue.postfix_array_abstract_declarator postfix_array_abstract_declarator1, postfix_array_abstract_declarator1left, postfix_array_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 764.64 "language_c.grm"*)(fn happy_var_1 => happy_var_1) postfix_array_abstract_declarator1(*#line 7842.1 "language_c.grm.sml"*)
-)) MlyValueM.array_abstract_declarator1, MlyValue.array_abstract_declarator)
- in ( LrTable.NT 82, ( result, postfix_array_abstract_declarator1left, postfix_array_abstract_declarator1right), rest671)
-end
-|  ( 310, ( ( _, ( MlyValue.postfix_array_abstract_declarator postfix_array_abstract_declarator1, _, postfix_array_abstract_declarator1right)) :: ( _, ( MlyValue.array_abstract_declarator array_abstract_declarator1, array_abstract_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 765.90 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => fn decl => happy_var_2 (happy_var_1 decl)) array_abstract_declarator1 postfix_array_abstract_declarator1(*#line 7846.1 "language_c.grm.sml"*)
-)) MlyValueM.array_abstract_declarator2, MlyValue.array_abstract_declarator)
- in ( LrTable.NT 82, ( result, array_abstract_declarator1left, postfix_array_abstract_declarator1right), rest671)
-end
-|  ( 311, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.assignment_expression_opt assignment_expression_opt1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 767.72 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => fn declr => arrDeclr declr [] False False happy_var_2 at)) x5b1 assignment_expression_opt1) (fn _ => withNodeInfo 0)(*#line 7850.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator1, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 312, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.assignment_expression_opt assignment_expression_opt1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 768.78 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttributePF happy_var_1 happy_var_2 (fn at => fn declr => arrDeclr declr [] False False happy_var_3 at)) x5b1 attrs1 assignment_expression_opt1) (fn _ => withAttributePF 0)(*#line 7854.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator2, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 313, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.assignment_expression_opt assignment_expression_opt1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 769.92 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False False happy_var_3 at)) x5b1 type_qualifier_list1 assignment_expression_opt1) (fn _ => withNodeInfo 0)(*#line 7858.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator3, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 314, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.assignment_expression_opt assignment_expression_opt1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 770.98 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False False happy_var_4 at)) x5b1 type_qualifier_list1 attrs1 assignment_expression_opt1) (fn _ => withAttributePF 0)(*#line 7862.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator4, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 315, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.assignment_expression assignment_expression1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 771.85 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr [] False True (Just happy_var_4) at)) x5b1 attrs_opt1 assignment_expression1) (fn _ => withAttributePF 0)(*#line 7866.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator5, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 316, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.assignment_expression assignment_expression1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: _ :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 772.105 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => withAttributePF happy_var_1 happy_var_4 (fn at => fn declr => arrDeclr declr (reverse happy_var_3) False True (Just happy_var_5) at)) x5b1 type_qualifier_list1 attrs_opt1 assignment_expression1) (fn _ => withAttributePF 0)(*#line 7870.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator6, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 317, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.assignment_expression assignment_expression1, _, _)) :: ( _, ( MlyValue.attrs_opt attrs_opt2, _, _)) :: _ :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 773.115 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => fn happy_var_6 => withAttributePF happy_var_1 (happy_var_3 @ happy_var_5) (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False True (Just happy_var_6) at)) x5b1 type_qualifier_list1 attrs_opt1 attrs_opt2 assignment_expression1) (fn _ => withAttributePF 0)(*#line 7874.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator7, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 318, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 774.60 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr [] True False Nothing at)) x5b1 attrs_opt1) (fn _ => withAttributePF 0)(*#line 7878.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator8, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 319, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 775.66 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withAttributePF happy_var_1 (happy_var_2 @ happy_var_4) (fn at => fn declr => arrDeclr declr [] True False Nothing at)) x5b1 attrs1 attrs_opt1) (fn _ => withAttributePF 0)(*#line 7882.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator9, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 320, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 776.80 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_4 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) True False Nothing at)) x5b1 type_qualifier_list1 attrs_opt1) (fn _ => withAttributePF 0)(*#line 7886.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator10, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 321, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 777.86 "language_c.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withAttributePF happy_var_1 (happy_var_3 @ happy_var_5) (fn at => fn declr => arrDeclr declr (reverse happy_var_2) True False Nothing at)) x5b1 type_qualifier_list1 attrs1 attrs_opt1) (fn _ => withAttributePF 0)(*#line 7890.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_array_abstract_declarator11, MlyValue.postfix_array_abstract_declarator)
- in ( LrTable.NT 83, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 322, ( ( _, ( MlyValue.x2a x2a1, x2a1left, x2a1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 779.34 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (ptrDeclr emptyDeclr [])) x2a1) (fn _ => withNodeInfo 0)(*#line 7894.1 "language_c.grm.sml"*)
-) MlyValueM.unary_abstract_declarator1, MlyValue.unary_abstract_declarator)
- in ( LrTable.NT 84, ( result, x2a1left, x2a1right), rest671)
-end
-|  ( 323, ( ( _, ( MlyValue.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 780.64 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_3 (ptrDeclr emptyDeclr (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs_opt1) (fn _ => withAttribute 0)(*#line 7898.1 "language_c.grm.sml"*)
-) MlyValueM.unary_abstract_declarator2, MlyValue.unary_abstract_declarator)
- in ( LrTable.NT 84, ( result, x2a1left, attrs_opt1right), rest671)
-end
-|  ( 324, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 781.54 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7902.1 "language_c.grm.sml"*)
-) MlyValueM.unary_abstract_declarator3, MlyValue.unary_abstract_declarator)
- in ( LrTable.NT 84, ( result, x2a1left, abstract_declarator1right), rest671)
-end
-|  ( 325, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 782.74 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7906.1 "language_c.grm.sml"*)
-) MlyValueM.unary_abstract_declarator4, MlyValue.unary_abstract_declarator)
- in ( LrTable.NT 84, ( result, x2a1left, abstract_declarator1right), rest671)
-end
-|  ( 326, ( ( _, ( MlyValue.attrs attrs1, _, attrs1right)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 783.40 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => withAttribute happy_var_1 happy_var_2 (ptrDeclr emptyDeclr [])) x2a1 attrs1) (fn _ => withAttribute 0)(*#line 7910.1 "language_c.grm.sml"*)
-) MlyValueM.unary_abstract_declarator5, MlyValue.unary_abstract_declarator)
- in ( LrTable.NT 84, ( result, x2a1left, attrs1right), rest671)
-end
-|  ( 327, ( ( _, ( MlyValue.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( MlyValue.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 784.60 "language_c.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 abstract_declarator1) (fn _ => withAttribute 0)(*#line 7914.1 "language_c.grm.sml"*)
-) MlyValueM.unary_abstract_declarator6, MlyValue.unary_abstract_declarator)
- in ( LrTable.NT 84, ( result, x2a1left, abstract_declarator1right), rest671)
-end
-|  ( 328, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.unary_abstract_declarator unary_abstract_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 786.66 "language_c.grm"*)(fn happy_var_2 => happy_var_2) unary_abstract_declarator1(*#line 7918.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator1, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, x281left, x291right), rest671)
-end
-|  ( 329, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.postfix_abstract_declarator postfix_abstract_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 787.68 "language_c.grm"*)(fn happy_var_2 => happy_var_2) postfix_abstract_declarator1(*#line 7922.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator2, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, x281left, x291right), rest671)
-end
-|  ( 330, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 788.71 "language_c.grm"*)(fn happy_var_2 => happy_var_2 emptyDeclr) postfixing_abstract_declarator1(*#line 7926.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator3, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, x281left, x291right), rest671)
-end
-|  ( 331, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( MlyValue.unary_abstract_declarator unary_abstract_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 789.97 "language_c.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) unary_abstract_declarator1 postfixing_abstract_declarator1(*#line 7930.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator4, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, x281left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 332, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.unary_abstract_declarator unary_abstract_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 790.72 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 unary_abstract_declarator1(*#line 7934.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator5, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, x281left, x291right), rest671)
-end
-|  ( 333, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.postfix_abstract_declarator postfix_abstract_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 791.74 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 postfix_abstract_declarator1(*#line 7938.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator6, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, x281left, x291right), rest671)
-end
-|  ( 334, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 792.77 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 (happy_var_3 emptyDeclr)) attrs1 postfixing_abstract_declarator1(*#line 7942.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator7, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, x281left, x291right), rest671)
-end
-|  ( 335, ( ( _, ( MlyValue.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( MlyValue.unary_abstract_declarator unary_abstract_declarator1, _, _)) :: ( _, ( MlyValue.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 793.103 "language_c.grm"*)(fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 unary_abstract_declarator1 postfixing_abstract_declarator1(*#line 7946.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator8, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, x281left, postfixing_abstract_declarator1right), rest671)
-end
-|  ( 336, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.postfix_abstract_declarator postfix_abstract_declarator1, postfix_abstract_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 794.65 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => appendDeclrAttrs happy_var_2 happy_var_1) postfix_abstract_declarator1 attr1(*#line 7950.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_abstract_declarator9, MlyValue.postfix_abstract_declarator)
- in ( LrTable.NT 85, ( result, postfix_abstract_declarator1left, attr1right), rest671)
-end
-|  ( 337, ( ( _, ( MlyValue.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 796.38 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInitExpr happy_var_1)) assignment_expression1) (fn _ => withNodeInfo 0)(*#line 7954.1 "language_c.grm.sml"*)
-) MlyValueM.initializer1, MlyValue.initializer)
- in ( LrTable.NT 86, ( result, assignment_expression1left, assignment_expression1right), rest671)
-end
-|  ( 338, ( ( _, ( _, _, x7d1right)) :: ( _, ( MlyValue.initializer_list initializer_list1, _, _)) :: ( _, ( MlyValue.x7b x7b1, x7b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 797.41 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CInitList (reverse happy_var_2))) x7b1 initializer_list1) (fn _ => withNodeInfo 0)(*#line 7958.1 "language_c.grm.sml"*)
-) MlyValueM.initializer2, MlyValue.initializer)
- in ( LrTable.NT 86, ( result, x7b1left, x7d1right), rest671)
-end
-|  ( 339, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( MlyValue.initializer_list initializer_list1, _, _)) :: ( _, ( MlyValue.x7b x7b1, x7b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 798.45 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CInitList (reverse happy_var_2))) x7b1 initializer_list1) (fn _ => withNodeInfo 0)(*#line 7962.1 "language_c.grm.sml"*)
-) MlyValueM.initializer3, MlyValue.initializer)
- in ( LrTable.NT 86, ( result, x7b1left, x7d1right), rest671)
-end
-|  ( 340, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 800.21 "language_c.grm"*)Nothing(*#line 7966.1 "language_c.grm.sml"*)
-)) MlyValueM.initializer_opt1, MlyValue.initializer_opt)
- in ( LrTable.NT 87, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 341, ( ( _, ( MlyValue.initializer initializer1, _, initializer1right)) :: ( _, ( _, x3d1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 801.36 "language_c.grm"*)(fn happy_var_2 => Just happy_var_2) initializer1(*#line 7970.1 "language_c.grm.sml"*)
-)) MlyValueM.initializer_opt2, MlyValue.initializer_opt)
- in ( LrTable.NT 87, ( result, x3d1left, initializer1right), rest671)
-end
-|  ( 342, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 803.22 "language_c.grm"*)empty(*#line 7974.1 "language_c.grm.sml"*)
-)) MlyValueM.initializer_list1, MlyValue.initializer_list)
- in ( LrTable.NT 88, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 343, ( ( _, ( MlyValue.initializer initializer1, initializer1left, initializer1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 804.33 "language_c.grm"*)(fn happy_var_1 => singleton ([], happy_var_1)) initializer1(*#line 7978.1 "language_c.grm.sml"*)
-)) MlyValueM.initializer_list2, MlyValue.initializer_list)
- in ( LrTable.NT 88, ( result, initializer1left, initializer1right), rest671)
-end
-|  ( 344, ( ( _, ( MlyValue.initializer initializer1, _, initializer1right)) :: ( _, ( MlyValue.designation designation1, designation1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 805.45 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => singleton (happy_var_1, happy_var_2)) designation1 initializer1(*#line 7982.1 "language_c.grm.sml"*)
-)) MlyValueM.initializer_list3, MlyValue.initializer_list)
- in ( LrTable.NT 88, ( result, designation1left, initializer1right), rest671)
-end
-|  ( 345, ( ( _, ( MlyValue.initializer initializer1, _, initializer1right)) :: _ :: ( _, ( MlyValue.initializer_list initializer_list1, initializer_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 806.54 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (([], happy_var_3))) initializer_list1 initializer1(*#line 7986.1 "language_c.grm.sml"*)
-)) MlyValueM.initializer_list4, MlyValue.initializer_list)
- in ( LrTable.NT 88, ( result, initializer_list1left, initializer1right), rest671)
-end
-|  ( 346, ( ( _, ( MlyValue.initializer initializer1, _, initializer1right)) :: ( _, ( MlyValue.designation designation1, _, _)) :: _ :: ( _, ( MlyValue.initializer_list initializer_list1, initializer_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 807.66 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => snoc (happy_var_1) ((happy_var_3, happy_var_4))) initializer_list1 designation1 initializer1(*#line 7990.1 "language_c.grm.sml"*)
-)) MlyValueM.initializer_list5, MlyValue.initializer_list)
- in ( LrTable.NT 88, ( result, initializer_list1left, initializer1right), rest671)
-end
-|  ( 347, ( ( _, ( _, _, x3d1right)) :: ( _, ( MlyValue.designator_list designator_list1, designator_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 809.36 "language_c.grm"*)(fn happy_var_1 => reverse happy_var_1) designator_list1(*#line 7994.1 "language_c.grm.sml"*)
-)) MlyValueM.designation1, MlyValue.designation)
- in ( LrTable.NT 89, ( result, designator_list1left, x3d1right), rest671)
-end
-|  ( 348, ( ( _, ( _, _, x3a1right)) :: ( _, ( MlyValue.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 810.31 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (fn at => [CMemberDesig happy_var_1 at])) identifier1) (fn _ => withNodeInfo 0)(*#line 7998.1 "language_c.grm.sml"*)
-) MlyValueM.designation2, MlyValue.designation)
- in ( LrTable.NT 89, ( result, identifier1left, x3a1right), rest671)
-end
-|  ( 349, ( ( _, ( MlyValue.array_designator array_designator1, array_designator1left, array_designator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 811.33 "language_c.grm"*)(fn happy_var_1 => [happy_var_1]) array_designator1(*#line 8002.1 "language_c.grm.sml"*)
-)) MlyValueM.designation3, MlyValue.designation)
- in ( LrTable.NT 89, ( result, array_designator1left, array_designator1right), rest671)
-end
-|  ( 350, ( ( _, ( MlyValue.designator designator1, designator1left, designator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 813.31 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) designator1(*#line 8006.1 "language_c.grm.sml"*)
-)) MlyValueM.designator_list1, MlyValue.designator_list)
- in ( LrTable.NT 90, ( result, designator1left, designator1right), rest671)
-end
-|  ( 351, ( ( _, ( MlyValue.designator designator1, _, designator1right)) :: ( _, ( MlyValue.designator_list designator_list1, designator_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 814.47 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) designator_list1 designator1(*#line 8010.1 "language_c.grm.sml"*)
-)) MlyValueM.designator_list2, MlyValue.designator_list)
- in ( LrTable.NT 90, ( result, designator_list1left, designator1right), rest671)
-end
-|  ( 352, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.constant_expression constant_expression1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 816.43 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CArrDesig happy_var_2)) x5b1 constant_expression1) (fn _ => withNodeInfo 0)(*#line 8014.1 "language_c.grm.sml"*)
-) MlyValueM.designator1, MlyValue.designator)
- in ( LrTable.NT 91, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 353, ( ( _, ( MlyValue.identifier identifier1, _, identifier1right)) :: ( _, ( MlyValue.x2e x2e1, x2e1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 817.30 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CMemberDesig happy_var_2)) x2e1 identifier1) (fn _ => withNodeInfo 0)(*#line 8018.1 "language_c.grm.sml"*)
-) MlyValueM.designator2, MlyValue.designator)
- in ( LrTable.NT 91, ( result, x2e1left, identifier1right), rest671)
-end
-|  ( 354, ( ( _, ( MlyValue.array_designator array_designator1, array_designator1left, array_designator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 818.32 "language_c.grm"*)(fn happy_var_1 => happy_var_1) array_designator1(*#line 8022.1 "language_c.grm.sml"*)
-)) MlyValueM.designator3, MlyValue.designator)
- in ( LrTable.NT 91, ( result, array_designator1left, array_designator1right), rest671)
-end
-|  ( 355, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.constant_expression constant_expression2, _, _)) :: _ :: ( _, ( MlyValue.constant_expression constant_expression1, _, _)) :: ( _, ( MlyValue.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 820.81 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CRangeDesig happy_var_2 happy_var_4)) x5b1 constant_expression1 constant_expression2) (fn _ => withNodeInfo 0)(*#line 8026.1 "language_c.grm.sml"*)
-) MlyValueM.array_designator, MlyValue.array_designator)
- in ( LrTable.NT 92, ( result, x5b1left, x5d1right), rest671)
-end
-|  ( 356, ( ( _, ( MlyValue.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 822.29 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVar happy_var_1)) ident1) (fn _ => withNodeInfo 0)(*#line 8030.1 "language_c.grm.sml"*)
-) MlyValueM.primary_expression1, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, ident1left, ident1right), rest671)
-end
-|  ( 357, ( ( _, ( MlyValue.constant constant1, constant1left, constant1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 823.32 "language_c.grm"*)(fn happy_var_1 => CConst happy_var_1) constant1(*#line 8034.1 "language_c.grm.sml"*)
-)) MlyValueM.primary_expression2, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, constant1left, constant1right), rest671)
-end
-|  ( 358, ( ( _, ( MlyValue.string_literal string_literal1, string_literal1left, string_literal1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 824.38 "language_c.grm"*)(fn happy_var_1 => CConst (liftStrLit happy_var_1)) string_literal1(*#line 8038.1 "language_c.grm.sml"*)
-)) MlyValueM.primary_expression3, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, string_literal1left, string_literal1right), rest671)
-end
-|  ( 359, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 825.42 "language_c.grm"*)(fn happy_var_2 => happy_var_2) expression1(*#line 8042.1 "language_c.grm.sml"*)
-)) MlyValueM.primary_expression4, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, x281left, x291right), rest671)
-end
-|  ( 360, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.generic_assoc_list generic_assoc_list1, _, _)) :: _ :: ( _, ( MlyValue.assignment_expression assignment_expression1, _, _)) :: _ :: ( _, ( MlyValue.x5f_Generic x5f_Generic1, x5f_Generic1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 826.88 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CGenericSelection happy_var_3 (reverse happy_var_5))) x5f_Generic1 assignment_expression1 generic_assoc_list1) (fn _ => withNodeInfo 0)(*#line 8046.1 "language_c.grm.sml"*)
-) MlyValueM.primary_expression5, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, x5f_Generic1left, x291right), rest671)
-end
-|  ( 361, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.compound_statement compound_statement1, _, _)) :: ( _, ( MlyValue.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 827.50 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CStatExpr happy_var_2)) x281 compound_statement1) (fn _ => withNodeInfo 0)(*#line 8050.1 "language_c.grm.sml"*)
-) MlyValueM.primary_expression6, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, x281left, x291right), rest671)
-end
-|  ( 362, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.assignment_expression assignment_expression1, _, _)) :: _ :: ( _, ( MlyValue.x5f_x5f_builtin_va_arg x5f_x5f_builtin_va_arg1, x5f_x5f_builtin_va_arg1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 828.90 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinVaArg happy_var_3 happy_var_5)) x5f_x5f_builtin_va_arg1 assignment_expression1 type_name1) (fn _ => withNodeInfo 0)(*#line 8054.1 "language_c.grm.sml"*)
-) MlyValueM.primary_expression7, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, x5f_x5f_builtin_va_arg1left, x291right), rest671)
-end
-|  ( 363, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.offsetof_member_designator offsetof_member_designator1, _, _)) :: _ :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.x5f_x5f_builtin_offsetof x5f_x5f_builtin_offsetof1, x5f_x5f_builtin_offsetof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 829.97 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinOffsetOf happy_var_3 (reverse happy_var_5))) x5f_x5f_builtin_offsetof1 type_name1 offsetof_member_designator1) (fn _ => withNodeInfo 0)(*#line 8058.1 "language_c.grm.sml"*)
-) MlyValueM.primary_expression8, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, x5f_x5f_builtin_offsetof1left, x291right), rest671)
-end
-|  ( 364, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name2, _, _)) :: _ :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.x5f_x5f_builtin_types_compatible_p x5f_x5f_builtin_types_compatible_p1, x5f_x5f_builtin_types_compatible_p1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 830.90 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinTypesCompatible happy_var_3 happy_var_5)) x5f_x5f_builtin_types_compatible_p1 type_name1 type_name2) (fn _ => withNodeInfo 0)(*#line 8062.1 "language_c.grm.sml"*)
-) MlyValueM.primary_expression9, MlyValue.primary_expression)
- in ( LrTable.NT 93, ( result, x5f_x5f_builtin_types_compatible_p1left, x291right), rest671)
-end
-|  ( 365, ( ( _, ( MlyValue.generic_assoc generic_assoc1, _, generic_assoc1right)) :: _ :: ( _, ( MlyValue.generic_assoc_list generic_assoc_list1, generic_assoc_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 832.60 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) generic_assoc_list1 generic_assoc1(*#line 8066.1 "language_c.grm.sml"*)
-)) MlyValueM.generic_assoc_list1, MlyValue.generic_assoc_list)
- in ( LrTable.NT 94, ( result, generic_assoc_list1left, generic_assoc1right), rest671)
-end
-|  ( 366, ( ( _, ( MlyValue.generic_assoc generic_assoc1, generic_assoc1left, generic_assoc1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 833.37 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) generic_assoc1(*#line 8070.1 "language_c.grm.sml"*)
-)) MlyValueM.generic_assoc_list2, MlyValue.generic_assoc_list)
- in ( LrTable.NT 94, ( result, generic_assoc1left, generic_assoc1right), rest671)
-end
-|  ( 367, ( ( _, ( MlyValue.assignment_expression assignment_expression1, _, assignment_expression1right)) :: _ :: ( _, ( MlyValue.type_name type_name1, type_name1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 835.54 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => (Just happy_var_1, happy_var_3)) type_name1 assignment_expression1(*#line 8074.1 "language_c.grm.sml"*)
-)) MlyValueM.generic_assoc1, MlyValue.generic_assoc)
- in ( LrTable.NT 95, ( result, type_name1left, assignment_expression1right), rest671)
-end
-|  ( 368, ( ( _, ( MlyValue.assignment_expression assignment_expression1, _, assignment_expression1right)) :: _ :: ( _, ( _, default1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 836.52 "language_c.grm"*)(fn happy_var_3 => (Nothing, happy_var_3)) assignment_expression1(*#line 8078.1 "language_c.grm.sml"*)
-)) MlyValueM.generic_assoc2, MlyValue.generic_assoc)
- in ( LrTable.NT 95, ( result, default1left, assignment_expression1right), rest671)
-end
-|  ( 369, ( ( _, ( MlyValue.identifier identifier1, identifier1left, identifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 838.42 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (singleton o CMemberDesig happy_var_1)) identifier1) (fn _ => withNodeInfo 0)(*#line 8082.1 "language_c.grm.sml"*)
-) MlyValueM.offsetof_member_designator1, MlyValue.offsetof_member_designator)
- in ( LrTable.NT 96, ( result, identifier1left, identifier1right), rest671)
-end
-|  ( 370, ( ( _, ( MlyValue.identifier identifier1, _, identifier1right)) :: _ :: ( _, ( MlyValue.offsetof_member_designator offsetof_member_designator1, offsetof_member_designator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 839.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_3 (snoc happy_var_1 o CMemberDesig happy_var_3)) offsetof_member_designator1 identifier1) (fn _ => withNodeInfo 2)(*#line 8086.1 "language_c.grm.sml"*)
-) MlyValueM.offsetof_member_designator2, MlyValue.offsetof_member_designator)
- in ( LrTable.NT 96, ( result, offsetof_member_designator1left, identifier1right), rest671)
-end
-|  ( 371, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.offsetof_member_designator offsetof_member_designator1, offsetof_member_designator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 840.77 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_3 (snoc happy_var_1 o CArrDesig happy_var_3)) offsetof_member_designator1 expression1) (fn _ => withNodeInfo 2)(*#line 8090.1 "language_c.grm.sml"*)
-) MlyValueM.offsetof_member_designator3, MlyValue.offsetof_member_designator)
- in ( LrTable.NT 96, ( result, offsetof_member_designator1left, x5d1right), rest671)
-end
-|  ( 372, ( ( _, ( MlyValue.primary_expression primary_expression1, primary_expression1left, primary_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 842.42 "language_c.grm"*)(fn happy_var_1 => happy_var_1) primary_expression1(*#line 8094.1 "language_c.grm.sml"*)
-)) MlyValueM.postfix_expression1, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, primary_expression1left, primary_expression1right), rest671)
-end
-|  ( 373, ( ( _, ( _, _, x5d1right)) :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 843.61 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CIndex happy_var_1 happy_var_3)) postfix_expression1 expression1) (fn _ => withNodeInfo 0)(*#line 8098.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression2, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, postfix_expression1left, x5d1right), rest671)
-end
-|  ( 374, ( ( _, ( _, _, x291right)) :: _ :: ( _, ( MlyValue.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 844.50 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCall happy_var_1 [])) postfix_expression1) (fn _ => withNodeInfo 0)(*#line 8102.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression3, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, postfix_expression1left, x291right), rest671)
-end
-|  ( 375, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.argument_expression_list argument_expression_list1, _, _)) :: _ :: ( _, ( MlyValue.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 845.75 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CCall happy_var_1 (reverse happy_var_3))) postfix_expression1 argument_expression_list1) (fn _ => withNodeInfo 0)(*#line 8106.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression4, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, postfix_expression1left, x291right), rest671)
-end
-|  ( 376, ( ( _, ( MlyValue.identifier identifier1, _, identifier1right)) :: _ :: ( _, ( MlyValue.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 846.57 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CMember happy_var_1 happy_var_3 False)) postfix_expression1 identifier1) (fn _ => withNodeInfo 0)(*#line 8110.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression5, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, postfix_expression1left, identifier1right), rest671)
-end
-|  ( 377, ( ( _, ( MlyValue.identifier identifier1, _, identifier1right)) :: _ :: ( _, ( MlyValue.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 847.61 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CMember happy_var_1 happy_var_3 True)) postfix_expression1 identifier1) (fn _ => withNodeInfo 0)(*#line 8114.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression6, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, postfix_expression1left, identifier1right), rest671)
-end
-|  ( 378, ( ( _, ( _, _, x2b_x2b1right)) :: ( _, ( MlyValue.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 848.50 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnary CPostIncOp happy_var_1)) postfix_expression1) (fn _ => withNodeInfo 0)(*#line 8118.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression7, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, postfix_expression1left, x2b_x2b1right), rest671)
-end
-|  ( 379, ( ( _, ( _, _, x2d_x2d1right)) :: ( _, ( MlyValue.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 849.50 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnary CPostDecOp happy_var_1)) postfix_expression1) (fn _ => withNodeInfo 0)(*#line 8122.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression8, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, postfix_expression1left, x2d_x2d1right), rest671)
-end
-|  ( 380, ( ( _, ( _, _, x7d1right)) :: ( _, ( MlyValue.initializer_list initializer_list1, _, _)) :: _ :: _ :: ( _, ( MlyValue.type_name type_name1, _, _)) :: ( _, ( MlyValue.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 850.66 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CCompoundLit happy_var_2 (reverse happy_var_5))) x281 type_name1 initializer_list1) (fn _ => withNodeInfo 0)(*#line 8126.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression9, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, x281left, x7d1right), rest671)
-end
-|  ( 381, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( MlyValue.initializer_list initializer_list1, _, _)) :: _ :: _ :: ( _, ( MlyValue.type_name type_name1, _, _)) :: ( _, ( MlyValue.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 851.70 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CCompoundLit happy_var_2 (reverse happy_var_5))) x281 type_name1 initializer_list1) (fn _ => withNodeInfo 0)(*#line 8130.1 "language_c.grm.sml"*)
-) MlyValueM.postfix_expression10, MlyValue.postfix_expression)
- in ( LrTable.NT 97, ( result, x281left, x7d1right), rest671)
-end
-|  ( 382, ( ( _, ( MlyValue.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 853.51 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) assignment_expression1(*#line 8134.1 "language_c.grm.sml"*)
-)) MlyValueM.argument_expression_list1, MlyValue.argument_expression_list)
- in ( LrTable.NT 98, ( result, assignment_expression1left, assignment_expression1right), rest671)
-end
-|  ( 383, ( ( _, ( MlyValue.assignment_expression assignment_expression1, _, assignment_expression1right)) :: _ :: ( _, ( MlyValue.argument_expression_list argument_expression_list1, argument_expression_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 854.80 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) argument_expression_list1 assignment_expression1(*#line 8138.1 "language_c.grm.sml"*)
-)) MlyValueM.argument_expression_list2, MlyValue.argument_expression_list)
- in ( LrTable.NT 98, ( result, argument_expression_list1left, assignment_expression1right), rest671)
-end
-|  ( 384, ( ( _, ( MlyValue.postfix_expression postfix_expression1, postfix_expression1left, postfix_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 856.40 "language_c.grm"*)(fn happy_var_1 => happy_var_1) postfix_expression1(*#line 8142.1 "language_c.grm.sml"*)
-)) MlyValueM.unary_expression1, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, postfix_expression1left, postfix_expression1right), rest671)
-end
-|  ( 385, ( ( _, ( MlyValue.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( MlyValue.x2b_x2b x2b_x2b1, x2b_x2b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 857.46 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary CPreIncOp happy_var_2)) x2b_x2b1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8146.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression2, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, x2b_x2b1left, unary_expression1right), rest671)
-end
-|  ( 386, ( ( _, ( MlyValue.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( MlyValue.x2d_x2d x2d_x2d1, x2d_x2d1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 858.46 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary CPreDecOp happy_var_2)) x2d_x2d1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8150.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression3, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, x2d_x2d1left, unary_expression1right), rest671)
-end
-|  ( 387, ( ( _, ( MlyValue.cast_expression cast_expression1, _, cast_expression1right)) :: ( _, ( _, x5f_x5f_extension_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 859.63 "language_c.grm"*)(fn happy_var_2 => happy_var_2) cast_expression1(*#line 8154.1 "language_c.grm.sml"*)
-)) MlyValueM.unary_expression4, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, x5f_x5f_extension_x5f_x5f1left, cast_expression1right), rest671)
-end
-|  ( 388, ( ( _, ( MlyValue.cast_expression cast_expression1, _, cast_expression1right)) :: ( _, ( MlyValue.unary_operator unary_operator1, unary_operator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 860.52 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary (unL happy_var_1) happy_var_2)) unary_operator1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8158.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression5, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, unary_operator1left, cast_expression1right), rest671)
-end
-|  ( 389, ( ( _, ( MlyValue.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( MlyValue.sizeof sizeof1, sizeof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 861.45 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CSizeofExpr happy_var_2)) sizeof1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8162.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression6, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, sizeof1left, unary_expression1right), rest671)
-end
-|  ( 390, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.sizeof sizeof1, sizeof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 862.46 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CSizeofType happy_var_3)) sizeof1 type_name1) (fn _ => withNodeInfo 0)(*#line 8166.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression7, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, sizeof1left, x291right), rest671)
-end
-|  ( 391, ( ( _, ( MlyValue.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( MlyValue.alignof alignof1, alignof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 863.46 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CAlignofExpr happy_var_2)) alignof1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8170.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression8, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, alignof1left, unary_expression1right), rest671)
-end
-|  ( 392, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.type_name type_name1, _, _)) :: _ :: ( _, ( MlyValue.alignof alignof1, alignof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 864.47 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignofType happy_var_3)) alignof1 type_name1) (fn _ => withNodeInfo 0)(*#line 8174.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression9, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, alignof1left, x291right), rest671)
-end
-|  ( 393, ( ( _, ( MlyValue.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( MlyValue.x5f_x5f_real_x5f_x5f x5f_x5f_real_x5f_x5f1, x5f_x5f_real_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 865.59 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CComplexReal happy_var_2)) x5f_x5f_real_x5f_x5f1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8178.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression10, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, x5f_x5f_real_x5f_x5f1left, unary_expression1right), rest671)
-end
-|  ( 394, ( ( _, ( MlyValue.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( MlyValue.x5f_x5f_imag_x5f_x5f x5f_x5f_imag_x5f_x5f1, x5f_x5f_imag_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 866.59 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CComplexImag happy_var_2)) x5f_x5f_imag_x5f_x5f1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8182.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression11, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, x5f_x5f_imag_x5f_x5f1left, unary_expression1right), rest671)
-end
-|  ( 395, ( ( _, ( MlyValue.identifier identifier1, _, identifier1right)) :: ( _, ( MlyValue.x26_x26 x26_x261, x26_x261left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 867.40 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CLabAddrExpr happy_var_2)) x26_x261 identifier1) (fn _ => withNodeInfo 0)(*#line 8186.1 "language_c.grm.sml"*)
-) MlyValueM.unary_expression12, MlyValue.unary_expression)
- in ( LrTable.NT 99, ( result, x26_x261left, identifier1right), rest671)
-end
-|  ( 396, ( ( _, ( MlyValue.x26 x261, x261left, x261right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 869.23 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CAdrOp (posOf happy_var_1)) x261) (fn x => fn _ => L x 0)(*#line 8190.1 "language_c.grm.sml"*)
-) MlyValueM.unary_operator1, MlyValue.unary_operator)
- in ( LrTable.NT 100, ( result, x261left, x261right), rest671)
-end
-|  ( 397, ( ( _, ( MlyValue.x2a x2a1, x2a1left, x2a1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 870.23 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CIndOp (posOf happy_var_1)) x2a1) (fn x => fn _ => L x 0)(*#line 8194.1 "language_c.grm.sml"*)
-) MlyValueM.unary_operator2, MlyValue.unary_operator)
- in ( LrTable.NT 100, ( result, x2a1left, x2a1right), rest671)
-end
-|  ( 398, ( ( _, ( MlyValue.x2b x2b1, x2b1left, x2b1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 871.23 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CPlusOp (posOf happy_var_1)) x2b1) (fn x => fn _ => L x 0)(*#line 8198.1 "language_c.grm.sml"*)
-) MlyValueM.unary_operator3, MlyValue.unary_operator)
- in ( LrTable.NT 100, ( result, x2b1left, x2b1right), rest671)
-end
-|  ( 399, ( ( _, ( MlyValue.x2d x2d1, x2d1left, x2d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 872.23 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CMinOp (posOf happy_var_1)) x2d1) (fn x => fn _ => L x 0)(*#line 8202.1 "language_c.grm.sml"*)
-) MlyValueM.unary_operator4, MlyValue.unary_operator)
- in ( LrTable.NT 100, ( result, x2d1left, x2d1right), rest671)
-end
-|  ( 400, ( ( _, ( MlyValue.x7e x7e1, x7e1left, x7e1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 873.23 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CCompOp (posOf happy_var_1)) x7e1) (fn x => fn _ => L x 0)(*#line 8206.1 "language_c.grm.sml"*)
-) MlyValueM.unary_operator5, MlyValue.unary_operator)
- in ( LrTable.NT 100, ( result, x7e1left, x7e1right), rest671)
-end
-|  ( 401, ( ( _, ( MlyValue.x21 x211, x211left, x211right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 874.23 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CNegOp (posOf happy_var_1)) x211) (fn x => fn _ => L x 0)(*#line 8210.1 "language_c.grm.sml"*)
-) MlyValueM.unary_operator6, MlyValue.unary_operator)
- in ( LrTable.NT 100, ( result, x211left, x211right), rest671)
-end
-|  ( 402, ( ( _, ( MlyValue.unary_expression unary_expression1, unary_expression1left, unary_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 876.37 "language_c.grm"*)(fn happy_var_1 => happy_var_1) unary_expression1(*#line 8214.1 "language_c.grm.sml"*)
-)) MlyValueM.cast_expression1, MlyValue.cast_expression)
- in ( LrTable.NT 101, ( result, unary_expression1left, unary_expression1right), rest671)
-end
-|  ( 403, ( ( _, ( MlyValue.cast_expression cast_expression1, _, cast_expression1right)) :: _ :: ( _, ( MlyValue.type_name type_name1, _, _)) :: ( _, ( MlyValue.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 877.54 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CCast happy_var_2 happy_var_4)) x281 type_name1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8218.1 "language_c.grm.sml"*)
-) MlyValueM.cast_expression2, MlyValue.cast_expression)
- in ( LrTable.NT 101, ( result, x281left, cast_expression1right), rest671)
-end
-|  ( 404, ( ( _, ( MlyValue.cast_expression cast_expression1, cast_expression1left, cast_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 879.46 "language_c.grm"*)(fn happy_var_1 => happy_var_1) cast_expression1(*#line 8222.1 "language_c.grm.sml"*)
-)) MlyValueM.multiplicative_expression1, MlyValue.multiplicative_expression)
- in ( LrTable.NT 102, ( result, cast_expression1left, cast_expression1right), rest671)
-end
-|  ( 405, ( ( _, ( MlyValue.cast_expression cast_expression1, _, cast_expression1right)) :: _ :: ( _, ( MlyValue.multiplicative_expression multiplicative_expression1, multiplicative_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 880.76 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CMulOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8226.1 "language_c.grm.sml"*)
-) MlyValueM.multiplicative_expression2, MlyValue.multiplicative_expression)
- in ( LrTable.NT 102, ( result, multiplicative_expression1left, cast_expression1right), rest671)
-end
-|  ( 406, ( ( _, ( MlyValue.cast_expression cast_expression1, _, cast_expression1right)) :: _ :: ( _, ( MlyValue.multiplicative_expression multiplicative_expression1, multiplicative_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 881.76 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CDivOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8230.1 "language_c.grm.sml"*)
-) MlyValueM.multiplicative_expression3, MlyValue.multiplicative_expression)
- in ( LrTable.NT 102, ( result, multiplicative_expression1left, cast_expression1right), rest671)
-end
-|  ( 407, ( ( _, ( MlyValue.cast_expression cast_expression1, _, cast_expression1right)) :: _ :: ( _, ( MlyValue.multiplicative_expression multiplicative_expression1, multiplicative_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 882.76 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CRmdOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8234.1 "language_c.grm.sml"*)
-) MlyValueM.multiplicative_expression4, MlyValue.multiplicative_expression)
- in ( LrTable.NT 102, ( result, multiplicative_expression1left, cast_expression1right), rest671)
-end
-|  ( 408, ( ( _, ( MlyValue.multiplicative_expression multiplicative_expression1, multiplicative_expression1left, multiplicative_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 884.50 "language_c.grm"*)(fn happy_var_1 => happy_var_1) multiplicative_expression1(*#line 8238.1 "language_c.grm.sml"*)
-)) MlyValueM.additive_expression1, MlyValue.additive_expression)
- in ( LrTable.NT 103, ( result, multiplicative_expression1left, multiplicative_expression1right), rest671)
-end
-|  ( 409, ( ( _, ( MlyValue.multiplicative_expression multiplicative_expression1, _, multiplicative_expression1right)) :: _ :: ( _, ( MlyValue.additive_expression additive_expression1, additive_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 885.74 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CAddOp happy_var_1 happy_var_3)) additive_expression1 multiplicative_expression1) (fn _ => withNodeInfo 0)(*#line 8242.1 "language_c.grm.sml"*)
-) MlyValueM.additive_expression2, MlyValue.additive_expression)
- in ( LrTable.NT 103, ( result, additive_expression1left, multiplicative_expression1right), rest671)
-end
-|  ( 410, ( ( _, ( MlyValue.multiplicative_expression multiplicative_expression1, _, multiplicative_expression1right)) :: _ :: ( _, ( MlyValue.additive_expression additive_expression1, additive_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 886.74 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CSubOp happy_var_1 happy_var_3)) additive_expression1 multiplicative_expression1) (fn _ => withNodeInfo 0)(*#line 8246.1 "language_c.grm.sml"*)
-) MlyValueM.additive_expression3, MlyValue.additive_expression)
- in ( LrTable.NT 103, ( result, additive_expression1left, multiplicative_expression1right), rest671)
-end
-|  ( 411, ( ( _, ( MlyValue.additive_expression additive_expression1, additive_expression1left, additive_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 888.41 "language_c.grm"*)(fn happy_var_1 => happy_var_1) additive_expression1(*#line 8250.1 "language_c.grm.sml"*)
-)) MlyValueM.shift_expression1, MlyValue.shift_expression)
- in ( LrTable.NT 104, ( result, additive_expression1left, additive_expression1right), rest671)
-end
-|  ( 412, ( ( _, ( MlyValue.additive_expression additive_expression1, _, additive_expression1right)) :: _ :: ( _, ( MlyValue.shift_expression shift_expression1, shift_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 889.66 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CShlOp happy_var_1 happy_var_3)) shift_expression1 additive_expression1) (fn _ => withNodeInfo 0)(*#line 8254.1 "language_c.grm.sml"*)
-) MlyValueM.shift_expression2, MlyValue.shift_expression)
- in ( LrTable.NT 104, ( result, shift_expression1left, additive_expression1right), rest671)
-end
-|  ( 413, ( ( _, ( MlyValue.additive_expression additive_expression1, _, additive_expression1right)) :: _ :: ( _, ( MlyValue.shift_expression shift_expression1, shift_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 890.66 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CShrOp happy_var_1 happy_var_3)) shift_expression1 additive_expression1) (fn _ => withNodeInfo 0)(*#line 8258.1 "language_c.grm.sml"*)
-) MlyValueM.shift_expression3, MlyValue.shift_expression)
- in ( LrTable.NT 104, ( result, shift_expression1left, additive_expression1right), rest671)
-end
-|  ( 414, ( ( _, ( MlyValue.shift_expression shift_expression1, shift_expression1left, shift_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 892.43 "language_c.grm"*)(fn happy_var_1 => happy_var_1) shift_expression1(*#line 8262.1 "language_c.grm.sml"*)
-)) MlyValueM.relational_expression1, MlyValue.relational_expression)
- in ( LrTable.NT 105, ( result, shift_expression1left, shift_expression1right), rest671)
-end
-|  ( 415, ( ( _, ( MlyValue.shift_expression shift_expression1, _, shift_expression1right)) :: _ :: ( _, ( MlyValue.relational_expression relational_expression1, relational_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 893.69 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLeOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0)(*#line 8266.1 "language_c.grm.sml"*)
-) MlyValueM.relational_expression2, MlyValue.relational_expression)
- in ( LrTable.NT 105, ( result, relational_expression1left, shift_expression1right), rest671)
-end
-|  ( 416, ( ( _, ( MlyValue.shift_expression shift_expression1, _, shift_expression1right)) :: _ :: ( _, ( MlyValue.relational_expression relational_expression1, relational_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 894.69 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CGrOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0)(*#line 8270.1 "language_c.grm.sml"*)
-) MlyValueM.relational_expression3, MlyValue.relational_expression)
- in ( LrTable.NT 105, ( result, relational_expression1left, shift_expression1right), rest671)
-end
-|  ( 417, ( ( _, ( MlyValue.shift_expression shift_expression1, _, shift_expression1right)) :: _ :: ( _, ( MlyValue.relational_expression relational_expression1, relational_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 895.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLeqOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0)(*#line 8274.1 "language_c.grm.sml"*)
-) MlyValueM.relational_expression4, MlyValue.relational_expression)
- in ( LrTable.NT 105, ( result, relational_expression1left, shift_expression1right), rest671)
-end
-|  ( 418, ( ( _, ( MlyValue.shift_expression shift_expression1, _, shift_expression1right)) :: _ :: ( _, ( MlyValue.relational_expression relational_expression1, relational_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 896.73 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CGeqOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0)(*#line 8278.1 "language_c.grm.sml"*)
-) MlyValueM.relational_expression5, MlyValue.relational_expression)
- in ( LrTable.NT 105, ( result, relational_expression1left, shift_expression1right), rest671)
-end
-|  ( 419, ( ( _, ( MlyValue.relational_expression relational_expression1, relational_expression1left, relational_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 898.46 "language_c.grm"*)(fn happy_var_1 => happy_var_1) relational_expression1(*#line 8282.1 "language_c.grm.sml"*)
-)) MlyValueM.equality_expression1, MlyValue.equality_expression)
- in ( LrTable.NT 106, ( result, relational_expression1left, relational_expression1right), rest671)
-end
-|  ( 420, ( ( _, ( MlyValue.relational_expression relational_expression1, _, relational_expression1right)) :: _ :: ( _, ( MlyValue.equality_expression equality_expression1, equality_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 899.74 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CEqOp happy_var_1 happy_var_3)) equality_expression1 relational_expression1) (fn _ => withNodeInfo 0)(*#line 8286.1 "language_c.grm.sml"*)
-) MlyValueM.equality_expression2, MlyValue.equality_expression)
- in ( LrTable.NT 106, ( result, equality_expression1left, relational_expression1right), rest671)
-end
-|  ( 421, ( ( _, ( MlyValue.relational_expression relational_expression1, _, relational_expression1right)) :: _ :: ( _, ( MlyValue.equality_expression equality_expression1, equality_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 900.74 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CNeqOp happy_var_1 happy_var_3)) equality_expression1 relational_expression1) (fn _ => withNodeInfo 0)(*#line 8290.1 "language_c.grm.sml"*)
-) MlyValueM.equality_expression3, MlyValue.equality_expression)
- in ( LrTable.NT 106, ( result, equality_expression1left, relational_expression1right), rest671)
-end
-|  ( 422, ( ( _, ( MlyValue.equality_expression equality_expression1, equality_expression1left, equality_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 902.39 "language_c.grm"*)(fn happy_var_1 => happy_var_1) equality_expression1(*#line 8294.1 "language_c.grm.sml"*)
-)) MlyValueM.and_expression1, MlyValue.and_expression)
- in ( LrTable.NT 107, ( result, equality_expression1left, equality_expression1right), rest671)
-end
-|  ( 423, ( ( _, ( MlyValue.equality_expression equality_expression1, _, equality_expression1right)) :: _ :: ( _, ( MlyValue.and_expression and_expression1, and_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 903.58 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CAndOp happy_var_1 happy_var_3)) and_expression1 equality_expression1) (fn _ => withNodeInfo 0)(*#line 8298.1 "language_c.grm.sml"*)
-) MlyValueM.and_expression2, MlyValue.and_expression)
- in ( LrTable.NT 107, ( result, and_expression1left, equality_expression1right), rest671)
-end
-|  ( 424, ( ( _, ( MlyValue.and_expression and_expression1, and_expression1left, and_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 905.43 "language_c.grm"*)(fn happy_var_1 => happy_var_1) and_expression1(*#line 8302.1 "language_c.grm.sml"*)
-)) MlyValueM.exclusive_or_expression1, MlyValue.exclusive_or_expression)
- in ( LrTable.NT 108, ( result, and_expression1left, and_expression1right), rest671)
-end
-|  ( 425, ( ( _, ( MlyValue.and_expression and_expression1, _, and_expression1right)) :: _ :: ( _, ( MlyValue.exclusive_or_expression exclusive_or_expression1, exclusive_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 906.71 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CXorOp happy_var_1 happy_var_3)) exclusive_or_expression1 and_expression1) (fn _ => withNodeInfo 0)(*#line 8306.1 "language_c.grm.sml"*)
-) MlyValueM.exclusive_or_expression2, MlyValue.exclusive_or_expression)
- in ( LrTable.NT 108, ( result, exclusive_or_expression1left, and_expression1right), rest671)
-end
-|  ( 426, ( ( _, ( MlyValue.exclusive_or_expression exclusive_or_expression1, exclusive_or_expression1left, exclusive_or_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 908.52 "language_c.grm"*)(fn happy_var_1 => happy_var_1) exclusive_or_expression1(*#line 8310.1 "language_c.grm.sml"*)
-)) MlyValueM.inclusive_or_expression1, MlyValue.inclusive_or_expression)
- in ( LrTable.NT 109, ( result, exclusive_or_expression1left, exclusive_or_expression1right), rest671)
-end
-|  ( 427, ( ( _, ( MlyValue.exclusive_or_expression exclusive_or_expression1, _, exclusive_or_expression1right)) :: _ :: ( _, ( MlyValue.inclusive_or_expression inclusive_or_expression1, inclusive_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 909.80 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary COrOp happy_var_1 happy_var_3)) inclusive_or_expression1 exclusive_or_expression1) (fn _ => withNodeInfo 0)(*#line 8314.1 "language_c.grm.sml"*)
-) MlyValueM.inclusive_or_expression2, MlyValue.inclusive_or_expression)
- in ( LrTable.NT 109, ( result, inclusive_or_expression1left, exclusive_or_expression1right), rest671)
-end
-|  ( 428, ( ( _, ( MlyValue.inclusive_or_expression inclusive_or_expression1, inclusive_or_expression1left, inclusive_or_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 911.51 "language_c.grm"*)(fn happy_var_1 => happy_var_1) inclusive_or_expression1(*#line 8318.1 "language_c.grm.sml"*)
-)) MlyValueM.logical_and_expression1, MlyValue.logical_and_expression)
- in ( LrTable.NT 110, ( result, inclusive_or_expression1left, inclusive_or_expression1right), rest671)
-end
-|  ( 429, ( ( _, ( MlyValue.inclusive_or_expression inclusive_or_expression1, _, inclusive_or_expression1right)) :: _ :: ( _, ( MlyValue.logical_and_expression logical_and_expression1, logical_and_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 912.82 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLndOp happy_var_1 happy_var_3)) logical_and_expression1 inclusive_or_expression1) (fn _ => withNodeInfo 0)(*#line 8322.1 "language_c.grm.sml"*)
-) MlyValueM.logical_and_expression2, MlyValue.logical_and_expression)
- in ( LrTable.NT 110, ( result, logical_and_expression1left, inclusive_or_expression1right), rest671)
-end
-|  ( 430, ( ( _, ( MlyValue.logical_and_expression logical_and_expression1, logical_and_expression1left, logical_and_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 914.49 "language_c.grm"*)(fn happy_var_1 => happy_var_1) logical_and_expression1(*#line 8326.1 "language_c.grm.sml"*)
-)) MlyValueM.logical_or_expression1, MlyValue.logical_or_expression)
- in ( LrTable.NT 111, ( result, logical_and_expression1left, logical_and_expression1right), rest671)
-end
-|  ( 431, ( ( _, ( MlyValue.logical_and_expression logical_and_expression1, _, logical_and_expression1right)) :: _ :: ( _, ( MlyValue.logical_or_expression logical_or_expression1, logical_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 915.79 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLorOp happy_var_1 happy_var_3)) logical_or_expression1 logical_and_expression1) (fn _ => withNodeInfo 0)(*#line 8330.1 "language_c.grm.sml"*)
-) MlyValueM.logical_or_expression2, MlyValue.logical_or_expression)
- in ( LrTable.NT 111, ( result, logical_or_expression1left, logical_and_expression1right), rest671)
-end
-|  ( 432, ( ( _, ( MlyValue.logical_or_expression logical_or_expression1, logical_or_expression1left, logical_or_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 917.49 "language_c.grm"*)(fn happy_var_1 => happy_var_1) logical_or_expression1(*#line 8334.1 "language_c.grm.sml"*)
-)) MlyValueM.conditional_expression1, MlyValue.conditional_expression)
- in ( LrTable.NT 112, ( result, logical_or_expression1left, logical_or_expression1right), rest671)
-end
-|  ( 433, ( ( _, ( MlyValue.conditional_expression conditional_expression1, _, conditional_expression1right)) :: _ :: ( _, ( MlyValue.expression expression1, _, _)) :: _ :: ( _, ( MlyValue.logical_or_expression logical_or_expression1, logical_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 918.91 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CCond happy_var_1 (Just happy_var_3) happy_var_5)) logical_or_expression1 expression1 conditional_expression1) (fn _ => withNodeInfo 0)(*#line 8338.1 "language_c.grm.sml"*)
-) MlyValueM.conditional_expression2, MlyValue.conditional_expression)
- in ( LrTable.NT 112, ( result, logical_or_expression1left, conditional_expression1right), rest671)
-end
-|  ( 434, ( ( _, ( MlyValue.conditional_expression conditional_expression1, _, conditional_expression1right)) :: _ :: _ :: ( _, ( MlyValue.logical_or_expression logical_or_expression1, logical_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 919.80 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => withNodeInfo happy_var_1 (CCond happy_var_1 Nothing happy_var_4)) logical_or_expression1 conditional_expression1) (fn _ => withNodeInfo 0)(*#line 8342.1 "language_c.grm.sml"*)
-) MlyValueM.conditional_expression3, MlyValue.conditional_expression)
- in ( LrTable.NT 112, ( result, logical_or_expression1left, conditional_expression1right), rest671)
-end
-|  ( 435, ( ( _, ( MlyValue.conditional_expression conditional_expression1, conditional_expression1left, conditional_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 921.49 "language_c.grm"*)(fn happy_var_1 => happy_var_1) conditional_expression1(*#line 8346.1 "language_c.grm.sml"*)
-)) MlyValueM.assignment_expression1, MlyValue.assignment_expression)
- in ( LrTable.NT 113, ( result, conditional_expression1left, conditional_expression1right), rest671)
-end
-|  ( 436, ( ( _, ( MlyValue.assignment_expression assignment_expression1, _, assignment_expression1right)) :: ( _, ( MlyValue.assignment_operator assignment_operator1, _, _)) :: ( _, ( MlyValue.unary_expression unary_expression1, unary_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 922.85 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CAssign (unL happy_var_2) happy_var_1 happy_var_3)) unary_expression1 assignment_operator1 assignment_expression1) (fn _ => withNodeInfo 0)(*#line 8350.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_expression2, MlyValue.assignment_expression)
- in ( LrTable.NT 113, ( result, unary_expression1left, assignment_expression1right), rest671)
-end
-|  ( 437, ( ( _, ( MlyValue.x3d x3d1, x3d1left, x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 924.28 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CAssignOp (posOf happy_var_1)) x3d1) (fn x => fn _ => L x 0)(*#line 8354.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator1, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x3d1left, x3d1right), rest671)
-end
-|  ( 438, ( ( _, ( MlyValue.x2a_x3d x2a_x3d1, x2a_x3d1left, x2a_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 925.32 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CMulAssOp (posOf happy_var_1)) x2a_x3d1) (fn x => fn _ => L x 0)(*#line 8358.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator2, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x2a_x3d1left, x2a_x3d1right), rest671)
-end
-|  ( 439, ( ( _, ( MlyValue.x2f_x3d x2f_x3d1, x2f_x3d1left, x2f_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 926.32 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CDivAssOp (posOf happy_var_1)) x2f_x3d1) (fn x => fn _ => L x 0)(*#line 8362.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator3, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x2f_x3d1left, x2f_x3d1right), rest671)
-end
-|  ( 440, ( ( _, ( MlyValue.x25_x3d x25_x3d1, x25_x3d1left, x25_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 927.32 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CRmdAssOp (posOf happy_var_1)) x25_x3d1) (fn x => fn _ => L x 0)(*#line 8366.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator4, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x25_x3d1left, x25_x3d1right), rest671)
-end
-|  ( 441, ( ( _, ( MlyValue.x2b_x3d x2b_x3d1, x2b_x3d1left, x2b_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 928.32 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CAddAssOp (posOf happy_var_1)) x2b_x3d1) (fn x => fn _ => L x 0)(*#line 8370.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator5, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x2b_x3d1left, x2b_x3d1right), rest671)
-end
-|  ( 442, ( ( _, ( MlyValue.x2d_x3d x2d_x3d1, x2d_x3d1left, x2d_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 929.32 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CSubAssOp (posOf happy_var_1)) x2d_x3d1) (fn x => fn _ => L x 0)(*#line 8374.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator6, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x2d_x3d1left, x2d_x3d1right), rest671)
-end
-|  ( 443, ( ( _, ( MlyValue.x3c_x3c_x3d x3c_x3c_x3d1, x3c_x3c_x3d1left, x3c_x3c_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 930.36 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CShlAssOp (posOf happy_var_1)) x3c_x3c_x3d1) (fn x => fn _ => L x 0)(*#line 8378.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator7, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x3c_x3c_x3d1left, x3c_x3c_x3d1right), rest671)
-end
-|  ( 444, ( ( _, ( MlyValue.x3e_x3e_x3d x3e_x3e_x3d1, x3e_x3e_x3d1left, x3e_x3e_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 931.36 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CShrAssOp (posOf happy_var_1)) x3e_x3e_x3d1) (fn x => fn _ => L x 0)(*#line 8382.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator8, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x3e_x3e_x3d1left, x3e_x3e_x3d1right), rest671)
-end
-|  ( 445, ( ( _, ( MlyValue.x26_x3d x26_x3d1, x26_x3d1left, x26_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 932.32 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CAndAssOp (posOf happy_var_1)) x26_x3d1) (fn x => fn _ => L x 0)(*#line 8386.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator9, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x26_x3d1left, x26_x3d1right), rest671)
-end
-|  ( 446, ( ( _, ( MlyValue.x5e_x3d x5e_x3d1, x5e_x3d1left, x5e_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 933.32 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L CXorAssOp (posOf happy_var_1)) x5e_x3d1) (fn x => fn _ => L x 0)(*#line 8390.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator10, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x5e_x3d1left, x5e_x3d1right), rest671)
-end
-|  ( 447, ( ( _, ( MlyValue.x7c_x3d x7c_x3d1, x7c_x3d1left, x7c_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 934.32 "language_c.grm"*)(*%*)(fn L => (fn happy_var_1 => L COrAssOp (posOf happy_var_1)) x7c_x3d1) (fn x => fn _ => L x 0)(*#line 8394.1 "language_c.grm.sml"*)
-) MlyValueM.assignment_operator11, MlyValue.assignment_operator)
- in ( LrTable.NT 114, ( result, x7c_x3d1left, x7c_x3d1right), rest671)
-end
-|  ( 448, ( ( _, ( MlyValue.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 936.37 "language_c.grm"*)(fn happy_var_1 => happy_var_1) assignment_expression1(*#line 8398.1 "language_c.grm.sml"*)
-)) MlyValueM.expression1, MlyValue.expression)
- in ( LrTable.NT 115, ( result, assignment_expression1left, assignment_expression1right), rest671)
-end
-|  ( 449, ( ( _, ( MlyValue.comma_expression comma_expression1, _, comma_expression1right)) :: _ :: ( _, ( MlyValue.assignment_expression assignment_expression1, assignment_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 937.58 "language_c.grm"*)(*%*)(fn happy_var_1 => fn happy_var_3 => let val es = reverse happy_var_3 in withNodeInfo_CExpr es (CComma (happy_var_1 :: es)) end) assignment_expression1 comma_expression1(*#line 8402.1 "language_c.grm.sml"*)
-) MlyValueM.expression2, MlyValue.expression)
- in ( LrTable.NT 115, ( result, assignment_expression1left, comma_expression1right), rest671)
-end
-|  ( 450, ( ( _, ( MlyValue.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 939.43 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) assignment_expression1(*#line 8406.1 "language_c.grm.sml"*)
-)) MlyValueM.comma_expression1, MlyValue.comma_expression)
- in ( LrTable.NT 116, ( result, assignment_expression1left, assignment_expression1right), rest671)
-end
-|  ( 451, ( ( _, ( MlyValue.assignment_expression assignment_expression1, _, assignment_expression1right)) :: _ :: ( _, ( MlyValue.comma_expression comma_expression1, comma_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 940.64 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) comma_expression1 assignment_expression1(*#line 8410.1 "language_c.grm.sml"*)
-)) MlyValueM.comma_expression2, MlyValue.comma_expression)
- in ( LrTable.NT 116, ( result, comma_expression1left, assignment_expression1right), rest671)
-end
-|  ( 452, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 942.20 "language_c.grm"*)Nothing(*#line 8414.1 "language_c.grm.sml"*)
-)) MlyValueM.expression_opt1, MlyValue.expression_opt)
- in ( LrTable.NT 117, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 453, ( ( _, ( MlyValue.expression expression1, expression1left, expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 943.30 "language_c.grm"*)(fn happy_var_1 => Just happy_var_1) expression1(*#line 8418.1 "language_c.grm.sml"*)
-)) MlyValueM.expression_opt2, MlyValue.expression_opt)
- in ( LrTable.NT 117, ( result, expression1left, expression1right), rest671)
-end
-|  ( 454, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 945.31 "language_c.grm"*)Nothing(*#line 8422.1 "language_c.grm.sml"*)
-)) MlyValueM.assignment_expression_opt1, MlyValue.assignment_expression_opt)
- in ( LrTable.NT 118, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 455, ( ( _, ( MlyValue.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 946.52 "language_c.grm"*)(fn happy_var_1 => Just happy_var_1) assignment_expression1(*#line 8426.1 "language_c.grm.sml"*)
-)) MlyValueM.assignment_expression_opt2, MlyValue.assignment_expression_opt)
- in ( LrTable.NT 118, ( result, assignment_expression1left, assignment_expression1right), rest671)
-end
-|  ( 456, ( ( _, ( MlyValue.conditional_expression conditional_expression1, conditional_expression1left, conditional_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 948.47 "language_c.grm"*)(fn happy_var_1 => happy_var_1) conditional_expression1(*#line 8430.1 "language_c.grm.sml"*)
-)) MlyValueM.constant_expression, MlyValue.constant_expression)
- in ( LrTable.NT 119, ( result, conditional_expression1left, conditional_expression1right), rest671)
-end
-|  ( 457, ( ( _, ( MlyValue.cint cint1, cint1left, cint1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 950.18 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokILit happy_var_1 (fn i => CIntConst i))) cint1) (fn _ => withNodeInfo 0)(*#line 8434.1 "language_c.grm.sml"*)
-) MlyValueM.constant1, MlyValue.constant)
- in ( LrTable.NT 120, ( result, cint1left, cint1right), rest671)
-end
-|  ( 458, ( ( _, ( MlyValue.cchar cchar1, cchar1left, cchar1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 951.19 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokCLit happy_var_1 (fn c => CCharConst c))) cchar1) (fn _ => withNodeInfo 0)(*#line 8438.1 "language_c.grm.sml"*)
-) MlyValueM.constant2, MlyValue.constant)
- in ( LrTable.NT 120, ( result, cchar1left, cchar1right), rest671)
-end
-|  ( 459, ( ( _, ( MlyValue.cfloat cfloat1, cfloat1left, cfloat1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 952.20 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokFLit happy_var_1 (fn f => CFloatConst f))) cfloat1) (fn _ => withNodeInfo 0)(*#line 8442.1 "language_c.grm.sml"*)
-) MlyValueM.constant3, MlyValue.constant)
- in ( LrTable.NT 120, ( result, cfloat1left, cfloat1right), rest671)
-end
-|  ( 460, ( ( _, ( MlyValue.cstr cstr1, cstr1left, cstr1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 954.24 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokSLit happy_var_1 (fn s => CStrLit s))) cstr1) (fn _ => withNodeInfo 0)(*#line 8446.1 "language_c.grm.sml"*)
-) MlyValueM.string_literal1, MlyValue.string_literal)
- in ( LrTable.NT 121, ( result, cstr1left, cstr1right), rest671)
-end
-|  ( 461, ( ( _, ( MlyValue.string_literal_list string_literal_list1, _, string_literal_list1right)) :: ( _, ( MlyValue.cstr cstr1, cstr1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 955.44 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CTokSLit happy_var_1 (fn s => CStrLit (concatCStrings (s :: reverse happy_var_2))))) cstr1 string_literal_list1) (fn _ => withNodeInfo 0)(*#line 8450.1 "language_c.grm.sml"*)
-) MlyValueM.string_literal2, MlyValue.string_literal)
- in ( LrTable.NT 121, ( result, cstr1left, string_literal_list1right), rest671)
-end
-|  ( 462, ( ( _, ( MlyValue.cstr cstr1, cstr1left, cstr1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 957.29 "language_c.grm"*)(fn happy_var_1 => CTokSLit happy_var_1 (fn s => singleton s)) cstr1(*#line 8454.1 "language_c.grm.sml"*)
-)) MlyValueM.string_literal_list1, MlyValue.string_literal_list)
- in ( LrTable.NT 122, ( result, cstr1left, cstr1right), rest671)
-end
-|  ( 463, ( ( _, ( MlyValue.cstr cstr1, _, cstr1right)) :: ( _, ( MlyValue.string_literal_list string_literal_list1, string_literal_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 958.49 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => CTokSLit happy_var_2 (fn s => snoc (happy_var_1) (s))) string_literal_list1 cstr1(*#line 8458.1 "language_c.grm.sml"*)
-)) MlyValueM.string_literal_list2, MlyValue.string_literal_list)
- in ( LrTable.NT 122, ( result, string_literal_list1left, cstr1right), rest671)
-end
-|  ( 464, ( ( _, ( MlyValue.clangcversion clangcversion1, clangcversion1left, clangcversion1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 960.40 "language_c.grm"*)(fn happy_var_1 => happy_var_1) clangcversion1(*#line 8462.1 "language_c.grm.sml"*)
-)) MlyValueM.clang_version_literal, MlyValue.clang_version_literal)
- in ( LrTable.NT 123, ( result, clangcversion1left, clangcversion1right), rest671)
-end
-|  ( 465, ( ( _, ( MlyValue.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 962.21 "language_c.grm"*)(fn happy_var_1 => happy_var_1) ident1(*#line 8466.1 "language_c.grm.sml"*)
-)) MlyValueM.identifier1, MlyValue.identifier)
- in ( LrTable.NT 124, ( result, ident1left, ident1right), rest671)
-end
-|  ( 466, ( ( _, ( MlyValue.tyident tyident1, tyident1left, tyident1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 963.23 "language_c.grm"*)(fn happy_var_1 => happy_var_1) tyident1(*#line 8470.1 "language_c.grm.sml"*)
-)) MlyValueM.identifier2, MlyValue.identifier)
- in ( LrTable.NT 124, ( result, tyident1left, tyident1right), rest671)
-end
-|  ( 467, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 965.15 "language_c.grm"*)[](*#line 8474.1 "language_c.grm.sml"*)
-)) MlyValueM.attrs_opt1, MlyValue.attrs_opt)
- in ( LrTable.NT 125, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 468, ( ( _, ( MlyValue.attrs attrs1, attrs1left, attrs1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 966.20 "language_c.grm"*)(fn happy_var_1 => happy_var_1) attrs1(*#line 8478.1 "language_c.grm.sml"*)
-)) MlyValueM.attrs_opt2, MlyValue.attrs_opt)
- in ( LrTable.NT 125, ( result, attrs1left, attrs1right), rest671)
-end
-|  ( 469, ( ( _, ( MlyValue.attr attr1, attr1left, attr1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 968.15 "language_c.grm"*)(fn happy_var_1 => happy_var_1) attr1(*#line 8482.1 "language_c.grm.sml"*)
-)) MlyValueM.attrs1, MlyValue.attrs)
- in ( LrTable.NT 126, ( result, attr1left, attr1right), rest671)
-end
-|  ( 470, ( ( _, ( MlyValue.attr attr1, _, attr1right)) :: ( _, ( MlyValue.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 969.21 "language_c.grm"*)(fn happy_var_1 => fn happy_var_2 => happy_var_1 @ happy_var_2) attrs1 attr1(*#line 8486.1 "language_c.grm.sml"*)
-)) MlyValueM.attrs2, MlyValue.attrs)
- in ( LrTable.NT 126, ( result, attrs1left, attr1right), rest671)
-end
-|  ( 471, ( ( _, ( _, _, x292right)) :: _ :: ( _, ( MlyValue.attribute_list attribute_list1, _, _)) :: _ :: _ :: ( _, ( _, x5f_x5f_attribute_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 971.66 "language_c.grm"*)(fn happy_var_4 => reverse happy_var_4) attribute_list1(*#line 8490.1 "language_c.grm.sml"*)
-)) MlyValueM.attr, MlyValue.attr)
- in ( LrTable.NT 127, ( result, x5f_x5f_attribute_x5f_x5f1left, x292right), rest671)
-end
-|  ( 472, ( ( _, ( MlyValue.attribute attribute1, attribute1left, attribute1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 973.29 "language_c.grm"*)(fn happy_var_1 => case happy_var_1 of None => empty | Some attr => singleton attr) attribute1(*#line 8494.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute_list1, MlyValue.attribute_list)
- in ( LrTable.NT 128, ( result, attribute1left, attribute1right), rest671)
-end
-|  ( 473, ( ( _, ( MlyValue.attribute attribute1, _, attribute1right)) :: _ :: ( _, ( MlyValue.attribute_list attribute_list1, attribute_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 974.48 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => (maybe id (flip snoc) happy_var_3) happy_var_1) attribute_list1 attribute1(*#line 8498.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute_list2, MlyValue.attribute_list)
- in ( LrTable.NT 128, ( result, attribute_list1left, attribute1right), rest671)
-end
-|  ( 474, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 976.15 "language_c.grm"*)Nothing(*#line 8502.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute1, MlyValue.attribute)
- in ( LrTable.NT 129, ( result, defaultPos, defaultPos), rest671)
-end
-|  ( 475, ( ( _, ( MlyValue.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 977.20 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 [])) ident1) (fn _ => withNodeInfo 0)(*#line 8506.1 "language_c.grm.sml"*)
-) MlyValueM.attribute2, MlyValue.attribute)
- in ( LrTable.NT 129, ( result, ident1left, ident1right), rest671)
-end
-|  ( 476, ( ( _, ( MlyValue.const (const1 as const), const1left, const1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 978.20 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr (internalIdent "const") [])) const1) (fn _ => withNodeInfo 0)(*#line 8510.1 "language_c.grm.sml"*)
-) MlyValueM.attribute3, MlyValue.attribute)
- in ( LrTable.NT 129, ( result, const1left, const1right), rest671)
-end
-|  ( 477, ( ( _, ( _, _, x291right)) :: ( _, ( MlyValue.attribute_params attribute_params1, _, _)) :: _ :: ( _, ( MlyValue.ident ident1, ident1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 979.45 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 (reverse happy_var_3))) ident1 attribute_params1) (fn _ => withNodeInfo 0)(*#line 8514.1 "language_c.grm.sml"*)
-) MlyValueM.attribute4, MlyValue.attribute)
- in ( LrTable.NT 129, ( result, ident1left, x291right), rest671)
-end
-|  ( 478, ( ( _, ( _, _, x291right)) :: _ :: ( _, ( MlyValue.ident ident1, ident1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 980.28 "language_c.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 [])) ident1) (fn _ => withNodeInfo 0)(*#line 8518.1 "language_c.grm.sml"*)
-) MlyValueM.attribute5, MlyValue.attribute)
- in ( LrTable.NT 129, ( result, ident1left, x291right), rest671)
-end
-|  ( 479, ( ( _, ( MlyValue.constant_expression constant_expression1, constant_expression1left, constant_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 982.41 "language_c.grm"*)(fn happy_var_1 => singleton happy_var_1) constant_expression1(*#line 8522.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute_params1, MlyValue.attribute_params)
- in ( LrTable.NT 130, ( result, constant_expression1left, constant_expression1right), rest671)
-end
-|  ( 480, ( ( _, ( _, _, clang_version_literal1right)) :: _ :: ( _, ( _, unary_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 983.80 "language_c.grm"*)Reversed [](*#line 8526.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute_params2, MlyValue.attribute_params)
- in ( LrTable.NT 130, ( result, unary_expression1left, clang_version_literal1right), rest671)
-end
-|  ( 481, ( ( _, ( _, _, unary_expression2right)) :: _ :: ( _, ( _, unary_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 984.75 "language_c.grm"*)Reversed [](*#line 8530.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute_params3, MlyValue.attribute_params)
- in ( LrTable.NT 130, ( result, unary_expression1left, unary_expression2right), rest671)
-end
-|  ( 482, ( ( _, ( MlyValue.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: ( _, ( MlyValue.attribute_params attribute_params1, attribute_params1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 985.62 "language_c.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) attribute_params1 constant_expression1(*#line 8534.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute_params4, MlyValue.attribute_params)
- in ( LrTable.NT 130, ( result, attribute_params1left, constant_expression1right), rest671)
-end
-|  ( 483, ( ( _, ( _, _, unary_expression2right)) :: _ :: _ :: _ :: ( _, ( MlyValue.attribute_params attribute_params1, attribute_params1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 986.96 "language_c.grm"*)(fn happy_var_1 => happy_var_1) attribute_params1(*#line 8538.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute_params5, MlyValue.attribute_params)
- in ( LrTable.NT 130, ( result, attribute_params1left, unary_expression2right), rest671)
-end
-|  ( 484, ( ( _, ( _, _, clang_version_literal1right)) :: _ :: _ :: _ :: ( _, ( MlyValue.attribute_params attribute_params1, attribute_params1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 987.101 "language_c.grm"*)(fn happy_var_1 => happy_var_1) attribute_params1(*#line 8542.1 "language_c.grm.sml"*)
-)) MlyValueM.attribute_params6, MlyValue.attribute_params)
- in ( LrTable.NT 130, ( result, attribute_params1left, clang_version_literal1right), rest671)
+of  ( 0, ( ( _, ( C_Grammar_Rule.ext_decl_list ext_decl_list1, ext_decl_list1left, ext_decl_list1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 373.35 "c_grammar_fun.grm"*)(*%*)(fn happy_var_1 => let val decls = reverse happy_var_1 in case decls of [] => bind (getNewName) (fn n => bind (getCurrentPosition) (fn p => return (CTranslUnit decls (mkNodeInfo' p (p, 0) n)))) | (d :: ds) => withNodeInfo_CExtDecl d (CTranslUnit decls) end) ext_decl_list1(*#line 6606.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.translation_unit, C_Grammar_Rule.translation_unit)
+ in ( LALR_Table.NT 0, ( result, ext_decl_list1left, ext_decl_list1right), rest671)
+end
+|  ( 1, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 375.19 "c_grammar_fun.grm"*)empty(*#line 6610.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.ext_decl_list1, C_Grammar_Rule.ext_decl_list)
+ in ( LALR_Table.NT 1, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 2, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.ext_decl_list ext_decl_list1, ext_decl_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 376.36 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) ext_decl_list1(*#line 6614.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.ext_decl_list2, C_Grammar_Rule.ext_decl_list)
+ in ( LALR_Table.NT 1, ( result, ext_decl_list1left, x3b1right), rest671)
+end
+|  ( 3, ( ( _, ( C_Grammar_Rule.external_declaration external_declaration1, _, external_declaration1right)) :: ( _, ( C_Grammar_Rule.ext_decl_list ext_decl_list1, ext_decl_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 377.53 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) ext_decl_list1 external_declaration1(*#line 6618.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.ext_decl_list3, C_Grammar_Rule.ext_decl_list)
+ in ( LALR_Table.NT 1, ( result, ext_decl_list1left, external_declaration1right), rest671)
+end
+|  ( 4, ( ( _, ( C_Grammar_Rule.function_definition function_definition1, function_definition1left, function_definition1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 379.45 "c_grammar_fun.grm"*)(fn happy_var_1 => CFDefExt happy_var_1) function_definition1(*#line 6622.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.external_declaration1, C_Grammar_Rule.external_declaration)
+ in ( LALR_Table.NT 2, ( result, function_definition1left, function_definition1right), rest671)
+end
+|  ( 5, ( ( _, ( C_Grammar_Rule.declaration declaration1, declaration1left, declaration1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 380.37 "c_grammar_fun.grm"*)(fn happy_var_1 => CDeclExt happy_var_1) declaration1(*#line 6626.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.external_declaration2, C_Grammar_Rule.external_declaration)
+ in ( LALR_Table.NT 2, ( result, declaration1left, declaration1right), rest671)
+end
+|  ( 6, ( ( _, ( C_Grammar_Rule.external_declaration external_declaration1, _, external_declaration1right)) :: ( _, ( _, x5f_x5f_extension_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 381.72 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) external_declaration1(*#line 6630.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.external_declaration3, C_Grammar_Rule.external_declaration)
+ in ( LALR_Table.NT 2, ( result, x5f_x5f_extension_x5f_x5f1left, external_declaration1right), rest671)
+end
+|  ( 7, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 382.56 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAsmExt happy_var_3)) asm1 string_literal1) (fn _ => withNodeInfo 0)(*#line 6634.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.external_declaration4, C_Grammar_Rule.external_declaration)
+ in ( LALR_Table.NT 2, ( result, asm1left, x3b1right), rest671)
+end
+|  ( 8, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, function_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 384.63 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef [] happy_var_1 [] happy_var_2))) function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6638.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition1, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, function_declarator1left, compound_statement1right), rest671)
+end
+|  ( 9, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 385.69 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftCAttrs happy_var_1) happy_var_2 [] happy_var_3))) attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6642.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition2, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, attrs1left, compound_statement1right), rest671)
+end
+|  ( 10, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 386.85 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) declaration_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6646.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition3, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, declaration_specifier1left, compound_statement1right), rest671)
+end
+|  ( 11, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 387.78 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) type_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6650.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition4, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, type_specifier1left, compound_statement1right), rest671)
+end
+|  ( 12, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 388.90 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 [] happy_var_3))) declaration_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6654.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition5, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, declaration_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 13, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 389.83 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 [] happy_var_3))) type_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6658.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition6, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, type_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 14, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 390.89 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 [] happy_var_4))) type_qualifier_list1 attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6662.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition7, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, type_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 15, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.declaration_list declaration_list1, _, _)) :: ( _, ( C_Grammar_Rule.function_declarator_old function_declarator_old1, function_declarator_old1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 391.84 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CFunDef [] happy_var_1 (reverse happy_var_2) happy_var_3)) function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6666.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition8, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, function_declarator_old1left, compound_statement1right), rest671)
+end
+|  ( 16, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.declaration_list declaration_list1, _, _)) :: ( _, ( C_Grammar_Rule.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 392.90 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_2 (CFunDef (liftCAttrs happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) attrs1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 1)(*#line 6670.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition9, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, attrs1left, compound_statement1right), rest671)
+end
+|  ( 17, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.declaration_list declaration_list1, _, _)) :: ( _, ( C_Grammar_Rule.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 393.106 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 (reverse happy_var_3) happy_var_4)) declaration_specifier1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6674.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition10, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, declaration_specifier1left, compound_statement1right), rest671)
+end
+|  ( 18, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.declaration_list declaration_list1, _, _)) :: ( _, ( C_Grammar_Rule.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 394.99 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 (reverse happy_var_3) happy_var_4)) type_specifier1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6678.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition11, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, type_specifier1left, compound_statement1right), rest671)
+end
+|  ( 19, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.declaration_list declaration_list1, _, _)) :: ( _, ( C_Grammar_Rule.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 395.111 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) declaration_qualifier_list1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6682.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition12, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, declaration_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 20, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.declaration_list declaration_list1, _, _)) :: ( _, ( C_Grammar_Rule.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 396.104 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 (reverse happy_var_3) happy_var_4)) type_qualifier_list1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6686.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition13, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, type_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 21, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.declaration_list declaration_list1, _, _)) :: ( _, ( C_Grammar_Rule.function_declarator_old function_declarator_old1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 397.110 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 (reverse happy_var_4) happy_var_5)) type_qualifier_list1 attrs1 function_declarator_old1 declaration_list1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6690.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_definition14, C_Grammar_Rule.function_definition)
+ in ( LALR_Table.NT 3, ( result, type_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 22, ( ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, identifier_declarator1left, identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 399.46 "c_grammar_fun.grm"*)(*%*)(fn happy_var_1 => let val declr = reverseDeclr happy_var_1 in enterScope >> doFuncParamDeclIdent declr >> return declr end) identifier_declarator1(*#line 6694.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_declarator, C_Grammar_Rule.function_declarator)
+ in ( LALR_Table.NT 4, ( result, identifier_declarator1left, identifier_declarator1right), rest671)
+end
+|  ( 23, ( ( _, ( C_Grammar_Rule.labeled_statement labeled_statement1, labeled_statement1left, labeled_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 401.32 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) labeled_statement1(*#line 6698.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.statement1, C_Grammar_Rule.statement)
+ in ( LALR_Table.NT 5, ( result, labeled_statement1left, labeled_statement1right), rest671)
+end
+|  ( 24, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, compound_statement1left, compound_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 402.33 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) compound_statement1(*#line 6702.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.statement2, C_Grammar_Rule.statement)
+ in ( LALR_Table.NT 5, ( result, compound_statement1left, compound_statement1right), rest671)
+end
+|  ( 25, ( ( _, ( C_Grammar_Rule.expression_statement expression_statement1, expression_statement1left, expression_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 403.35 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) expression_statement1(*#line 6706.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.statement3, C_Grammar_Rule.statement)
+ in ( LALR_Table.NT 5, ( result, expression_statement1left, expression_statement1right), rest671)
+end
+|  ( 26, ( ( _, ( C_Grammar_Rule.selection_statement selection_statement1, selection_statement1left, selection_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 404.34 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) selection_statement1(*#line 6710.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.statement4, C_Grammar_Rule.statement)
+ in ( LALR_Table.NT 5, ( result, selection_statement1left, selection_statement1right), rest671)
+end
+|  ( 27, ( ( _, ( C_Grammar_Rule.iteration_statement iteration_statement1, iteration_statement1left, iteration_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 405.34 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) iteration_statement1(*#line 6714.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.statement5, C_Grammar_Rule.statement)
+ in ( LALR_Table.NT 5, ( result, iteration_statement1left, iteration_statement1right), rest671)
+end
+|  ( 28, ( ( _, ( C_Grammar_Rule.jump_statement jump_statement1, jump_statement1left, jump_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 406.29 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) jump_statement1(*#line 6718.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.statement6, C_Grammar_Rule.statement)
+ in ( LALR_Table.NT 5, ( result, jump_statement1left, jump_statement1right), rest671)
+end
+|  ( 29, ( ( _, ( C_Grammar_Rule.asm_statement asm_statement1, asm_statement1left, asm_statement1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 407.28 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAsm happy_var_1)) asm_statement1) (fn _ => withNodeInfo 0)(*#line 6722.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.statement7, C_Grammar_Rule.statement)
+ in ( LALR_Table.NT 5, ( result, asm_statement1left, asm_statement1right), rest671)
+end
+|  ( 30, ( ( _, ( C_Grammar_Rule.statement statement1, _, statement1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 409.57 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CLabel happy_var_1 happy_var_4 happy_var_3)) identifier1 attrs_opt1 statement1) (fn _ => withNodeInfo 0)(*#line 6726.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.labeled_statement1, C_Grammar_Rule.labeled_statement)
+ in ( LALR_Table.NT 6, ( result, identifier1left, statement1right), rest671)
+end
+|  ( 31, ( ( _, ( C_Grammar_Rule.statement statement1, _, statement1right)) :: _ :: ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, _)) :: ( _, ( C_Grammar_Rule.case0 case01, case01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 410.62 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CCase happy_var_2 happy_var_4)) case01 constant_expression1 statement1) (fn _ => withNodeInfo 0)(*#line 6730.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.labeled_statement2, C_Grammar_Rule.labeled_statement)
+ in ( LALR_Table.NT 6, ( result, case01left, statement1right), rest671)
+end
+|  ( 32, ( ( _, ( C_Grammar_Rule.statement statement1, _, statement1right)) :: _ :: ( _, ( C_Grammar_Rule.default default1, default1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 411.44 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CDefault happy_var_3)) default1 statement1) (fn _ => withNodeInfo 0)(*#line 6734.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.labeled_statement3, C_Grammar_Rule.labeled_statement)
+ in ( LALR_Table.NT 6, ( result, default1left, statement1right), rest671)
+end
+|  ( 33, ( ( _, ( C_Grammar_Rule.statement statement1, _, statement1right)) :: _ :: ( _, ( C_Grammar_Rule.constant_expression constant_expression2, _, _)) :: _ :: ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, _)) :: ( _, ( C_Grammar_Rule.case0 case01, case01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 412.94 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CCases happy_var_2 happy_var_4 happy_var_6)) case01 constant_expression1 constant_expression2 statement1) (fn _ => withNodeInfo 0)(*#line 6738.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.labeled_statement4, C_Grammar_Rule.labeled_statement)
+ in ( LALR_Table.NT 6, ( result, case01left, statement1right), rest671)
+end
+|  ( 34, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( C_Grammar_Rule.block_item_list block_item_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x7b x7b1, x7b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 414.71 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CCompound [] (reverse happy_var_3))) x7b1 block_item_list1) (fn _ => withNodeInfo 0)(*#line 6742.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.compound_statement1, C_Grammar_Rule.compound_statement)
+ in ( LALR_Table.NT 7, ( result, x7b1left, x7d1right), rest671)
+end
+|  ( 35, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( C_Grammar_Rule.block_item_list block_item_list1, _, _)) :: ( _, ( C_Grammar_Rule.label_declarations label_declarations1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x7b x7b1, x7b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 415.90 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withNodeInfo happy_var_1 (CCompound (reverse happy_var_3) (reverse happy_var_4))) x7b1 label_declarations1 block_item_list1) (fn _ => withNodeInfo 0)(*#line 6746.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.compound_statement2, C_Grammar_Rule.compound_statement)
+ in ( LALR_Table.NT 7, ( result, x7b1left, x7d1right), rest671)
+end
+|  ( 36, ( rest671)) => let val  result = op #>> ( bind' ((*#line 417.17 "c_grammar_fun.grm"*)(*%*)enterScope(*#line 6750.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.enter_scope, C_Grammar_Rule.enter_scope)
+ in ( LALR_Table.NT 8, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 37, ( rest671)) => let val  result = op #>> ( bind' ((*#line 419.17 "c_grammar_fun.grm"*)(*%*)leaveScope(*#line 6754.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.leave_scope, C_Grammar_Rule.leave_scope)
+ in ( LALR_Table.NT 9, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 38, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 421.21 "c_grammar_fun.grm"*)empty(*#line 6758.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.block_item_list1, C_Grammar_Rule.block_item_list)
+ in ( LALR_Table.NT 10, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 39, ( ( _, ( C_Grammar_Rule.block_item block_item1, _, block_item1right)) :: ( _, ( C_Grammar_Rule.block_item_list block_item_list1, block_item_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 422.47 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) block_item_list1 block_item1(*#line 6762.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.block_item_list2, C_Grammar_Rule.block_item_list)
+ in ( LALR_Table.NT 10, ( result, block_item_list1left, block_item1right), rest671)
+end
+|  ( 40, ( ( _, ( C_Grammar_Rule.statement statement1, statement1left, statement1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 424.25 "c_grammar_fun.grm"*)(fn happy_var_1 => CBlockStmt happy_var_1) statement1(*#line 6766.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.block_item1, C_Grammar_Rule.block_item)
+ in ( LALR_Table.NT 11, ( result, statement1left, statement1right), rest671)
+end
+|  ( 41, ( ( _, ( C_Grammar_Rule.nested_declaration nested_declaration1, nested_declaration1left, nested_declaration1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 425.34 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) nested_declaration1(*#line 6770.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.block_item2, C_Grammar_Rule.block_item)
+ in ( LALR_Table.NT 11, ( result, nested_declaration1left, nested_declaration1right), rest671)
+end
+|  ( 42, ( ( _, ( C_Grammar_Rule.declaration declaration1, declaration1left, declaration1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 427.35 "c_grammar_fun.grm"*)(fn happy_var_1 => CBlockDecl happy_var_1) declaration1(*#line 6774.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.nested_declaration1, C_Grammar_Rule.nested_declaration)
+ in ( LALR_Table.NT 12, ( result, declaration1left, declaration1right), rest671)
+end
+|  ( 43, ( ( _, ( C_Grammar_Rule.nested_function_definition nested_function_definition1, nested_function_definition1left, nested_function_definition1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 428.50 "c_grammar_fun.grm"*)(fn happy_var_1 => CNestedFunDef happy_var_1) nested_function_definition1(*#line 6778.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.nested_declaration2, C_Grammar_Rule.nested_declaration)
+ in ( LALR_Table.NT 12, ( result, nested_function_definition1left, nested_function_definition1right), rest671)
+end
+|  ( 44, ( ( _, ( C_Grammar_Rule.nested_declaration nested_declaration1, _, nested_declaration1right)) :: ( _, ( _, x5f_x5f_extension_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 429.68 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) nested_declaration1(*#line 6782.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.nested_declaration3, C_Grammar_Rule.nested_declaration)
+ in ( LALR_Table.NT 12, ( result, x5f_x5f_extension_x5f_x5f1left, nested_declaration1right), rest671)
+end
+|  ( 45, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 431.92 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) declaration_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6786.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.nested_function_definition1, C_Grammar_Rule.nested_function_definition)
+ in ( LALR_Table.NT 13, ( result, declaration_specifier1left, compound_statement1right), rest671)
+end
+|  ( 46, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 432.85 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef happy_var_1 happy_var_2 [] happy_var_3))) type_specifier1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6790.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.nested_function_definition2, C_Grammar_Rule.nested_function_definition)
+ in ( LALR_Table.NT 13, ( result, type_specifier1left, compound_statement1right), rest671)
+end
+|  ( 47, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 433.97 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (reverse happy_var_1) happy_var_2 [] happy_var_3))) declaration_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6794.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.nested_function_definition3, C_Grammar_Rule.nested_function_definition)
+ in ( LALR_Table.NT 13, ( result, declaration_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 48, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 434.90 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1) happy_var_2 [] happy_var_3))) type_qualifier_list1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6798.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.nested_function_definition4, C_Grammar_Rule.nested_function_definition)
+ in ( LALR_Table.NT 13, ( result, type_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 49, ( ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, compound_statement1right)) :: ( _, ( C_Grammar_Rule.function_declarator function_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 435.96 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => leaveScope >> (withNodeInfo happy_var_1 (CFunDef (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) happy_var_3 [] happy_var_4))) type_qualifier_list1 attrs1 function_declarator1 compound_statement1) (fn _ => withNodeInfo 0)(*#line 6802.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.nested_function_definition5, C_Grammar_Rule.nested_function_definition)
+ in ( LALR_Table.NT 13, ( result, type_qualifier_list1left, compound_statement1right), rest671)
+end
+|  ( 50, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.identifier_list identifier_list1, _, _)) :: ( _, ( _, x5f_x5f_label_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 437.65 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) identifier_list1(*#line 6806.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.label_declarations1, C_Grammar_Rule.label_declarations)
+ in ( LALR_Table.NT 14, ( result, x5f_x5f_label_x5f_x5f1left, x3b1right), rest671)
+end
+|  ( 51, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.identifier_list identifier_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.label_declarations label_declarations1, label_declarations1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 438.84 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => rappendr (happy_var_1) (happy_var_3)) label_declarations1 identifier_list1(*#line 6810.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.label_declarations2, C_Grammar_Rule.label_declarations)
+ in ( LALR_Table.NT 14, ( result, label_declarations1left, x3b1right), rest671)
+end
+|  ( 52, ( ( _, ( C_Grammar_Rule.x3b x3b1, x3b1left, x3b1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 440.29 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExpr Nothing)) x3b1) (fn _ => withNodeInfo 0)(*#line 6814.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.expression_statement1, C_Grammar_Rule.expression_statement)
+ in ( LALR_Table.NT 15, ( result, x3b1left, x3b1right), rest671)
+end
+|  ( 53, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.expression expression1, expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 441.40 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExpr (Just happy_var_1))) expression1) (fn _ => withNodeInfo 0)(*#line 6818.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.expression_statement2, C_Grammar_Rule.expression_statement)
+ in ( LALR_Table.NT 15, ( result, expression1left, x3b1right), rest671)
+end
+|  ( 54, ( ( _, ( C_Grammar_Rule.statement statement1, _, statement1right)) :: _ :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.if0 if01, if01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 443.57 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CIf happy_var_3 happy_var_5 Nothing)) if01 expression1 statement1) (fn _ => withNodeInfo 0)(*#line 6822.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.selection_statement1, C_Grammar_Rule.selection_statement)
+ in ( LALR_Table.NT 16, ( result, if01left, statement1right), rest671)
+end
+|  ( 55, ( ( _, ( C_Grammar_Rule.statement statement2, _, statement2right)) :: _ :: ( _, ( C_Grammar_Rule.statement statement1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.if0 if01, if01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 444.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => fn happy_var_7 => withNodeInfo happy_var_1 (CIf happy_var_3 happy_var_5 (Just happy_var_7))) if01 expression1 statement1 statement2) (fn _ => withNodeInfo 0)(*#line 6826.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.selection_statement2, C_Grammar_Rule.selection_statement)
+ in ( LALR_Table.NT 16, ( result, if01left, statement2right), rest671)
+end
+|  ( 56, ( ( _, ( C_Grammar_Rule.statement statement1, _, statement1right)) :: _ :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.switch switch1, switch1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 445.60 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CSwitch happy_var_3 happy_var_5)) switch1 expression1 statement1) (fn _ => withNodeInfo 0)(*#line 6830.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.selection_statement3, C_Grammar_Rule.selection_statement)
+ in ( LALR_Table.NT 16, ( result, switch1left, statement1right), rest671)
+end
+|  ( 57, ( ( _, ( C_Grammar_Rule.statement statement1, _, statement1right)) :: _ :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.while0 while01, while01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 447.60 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CWhile happy_var_3 happy_var_5 False)) while01 expression1 statement1) (fn _ => withNodeInfo 0)(*#line 6834.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.iteration_statement1, C_Grammar_Rule.iteration_statement)
+ in ( LALR_Table.NT 17, ( result, while01left, statement1right), rest671)
+end
+|  ( 58, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: _ :: ( _, ( C_Grammar_Rule.statement statement1, _, _)) :: ( _, ( C_Grammar_Rule.do0 do01, do01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 448.68 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CWhile happy_var_5 happy_var_2 True)) do01 statement1 expression1) (fn _ => withNodeInfo 0)(*#line 6838.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.iteration_statement2, C_Grammar_Rule.iteration_statement)
+ in ( LALR_Table.NT 17, ( result, do01left, x3b1right), rest671)
+end
+|  ( 59, ( ( _, ( C_Grammar_Rule.statement statement1, _, statement1right)) :: _ :: ( _, ( C_Grammar_Rule.expression_opt expression_opt3, _, _)) :: _ :: ( _, ( C_Grammar_Rule.expression_opt expression_opt2, _, _)) :: _ :: ( _, ( C_Grammar_Rule.expression_opt expression_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.for0 for01, for01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 449.100 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => fn happy_var_7 => fn happy_var_9 => withNodeInfo happy_var_1 (CFor (Left happy_var_3) happy_var_5 happy_var_7 happy_var_9)) for01 expression_opt1 expression_opt2 expression_opt3 statement1) (fn _ => withNodeInfo 0)(*#line 6842.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.iteration_statement3, C_Grammar_Rule.iteration_statement)
+ in ( LALR_Table.NT 17, ( result, for01left, statement1right), rest671)
+end
+|  ( 60, ( ( _, ( _, _, leave_scope1right)) :: ( _, ( C_Grammar_Rule.statement statement1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.expression_opt expression_opt2, _, _)) :: _ :: ( _, ( C_Grammar_Rule.expression_opt expression_opt1, _, _)) :: ( _, ( C_Grammar_Rule.declaration declaration1, _, _)) :: _ :: _ :: ( _, ( C_Grammar_Rule.for0 for01, for01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 450.117 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => fn happy_var_5 => fn happy_var_7 => fn happy_var_9 => withNodeInfo happy_var_1 (CFor (Right happy_var_4) happy_var_5 happy_var_7 happy_var_9)) for01 declaration1 expression_opt1 expression_opt2 statement1) (fn _ => withNodeInfo 0)(*#line 6846.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.iteration_statement4, C_Grammar_Rule.iteration_statement)
+ in ( LALR_Table.NT 17, ( result, for01left, leave_scope1right), rest671)
+end
+|  ( 61, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.identifier identifier1, _, _)) :: ( _, ( C_Grammar_Rule.goto goto1, goto1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 452.39 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CGoto happy_var_2)) goto1 identifier1) (fn _ => withNodeInfo 0)(*#line 6850.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.jump_statement1, C_Grammar_Rule.jump_statement)
+ in ( LALR_Table.NT 18, ( result, goto1left, x3b1right), rest671)
+end
+|  ( 62, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.goto goto1, goto1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 453.43 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CGotoPtr happy_var_3)) goto1 expression1) (fn _ => withNodeInfo 0)(*#line 6854.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.jump_statement2, C_Grammar_Rule.jump_statement)
+ in ( LALR_Table.NT 18, ( result, goto1left, x3b1right), rest671)
+end
+|  ( 63, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.continue continue1, continue1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 454.32 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCont)) continue1) (fn _ => withNodeInfo 0)(*#line 6858.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.jump_statement3, C_Grammar_Rule.jump_statement)
+ in ( LALR_Table.NT 18, ( result, continue1left, x3b1right), rest671)
+end
+|  ( 64, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.break break1, break1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 455.29 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CBreak)) break1) (fn _ => withNodeInfo 0)(*#line 6862.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.jump_statement4, C_Grammar_Rule.jump_statement)
+ in ( LALR_Table.NT 18, ( result, break1left, x3b1right), rest671)
+end
+|  ( 65, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.expression_opt expression_opt1, _, _)) :: ( _, ( C_Grammar_Rule.return0 return01, return01left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 456.46 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CReturn happy_var_2)) return01 expression_opt1) (fn _ => withNodeInfo 0)(*#line 6866.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.jump_statement5, C_Grammar_Rule.jump_statement)
+ in ( LALR_Table.NT 18, ( result, return01left, x3b1right), rest671)
+end
+|  ( 66, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.maybe_type_qualifier maybe_type_qualifier1, _, _)) :: ( _, ( C_Grammar_Rule.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 458.70 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 [] [] [])) asm1 maybe_type_qualifier1 string_literal1) (fn _ => withNodeInfo 0)(*#line 6870.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.asm_statement1, C_Grammar_Rule.asm_statement)
+ in ( LALR_Table.NT 19, ( result, asm1left, x3b1right), rest671)
+end
+|  ( 67, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( C_Grammar_Rule.asm_operands asm_operands1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.maybe_type_qualifier maybe_type_qualifier1, _, _)) :: ( _, ( C_Grammar_Rule.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 459.87 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 [] [])) asm1 maybe_type_qualifier1 string_literal1 asm_operands1) (fn _ => withNodeInfo 0)(*#line 6874.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.asm_statement2, C_Grammar_Rule.asm_statement)
+ in ( LALR_Table.NT 19, ( result, asm1left, x3b1right), rest671)
+end
+|  ( 68, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( C_Grammar_Rule.asm_operands asm_operands2, _, _)) :: _ :: ( _, ( C_Grammar_Rule.asm_operands asm_operands1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.maybe_type_qualifier maybe_type_qualifier1, _, _)) :: ( _, ( C_Grammar_Rule.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 460.104 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => fn happy_var_8 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 happy_var_8 [])) asm1 maybe_type_qualifier1 string_literal1 asm_operands1 asm_operands2) (fn _ => withNodeInfo 0)(*#line 6878.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.asm_statement3, C_Grammar_Rule.asm_statement)
+ in ( LALR_Table.NT 19, ( result, asm1left, x3b1right), rest671)
+end
+|  ( 69, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( C_Grammar_Rule.asm_clobbers asm_clobbers1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.asm_operands asm_operands2, _, _)) :: _ :: ( _, ( C_Grammar_Rule.asm_operands asm_operands1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.maybe_type_qualifier maybe_type_qualifier1, _, _)) :: ( _, ( C_Grammar_Rule.asm asm1, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 461.121 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => fn happy_var_8 => fn happy_var_10 => withNodeInfo happy_var_1 (CAsmStmt happy_var_2 happy_var_4 happy_var_6 happy_var_8 (reverse happy_var_10))) asm1 maybe_type_qualifier1 string_literal1 asm_operands1 asm_operands2 asm_clobbers1) (fn _ => withNodeInfo 0)(*#line 6882.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.asm_statement4, C_Grammar_Rule.asm_statement)
+ in ( LALR_Table.NT 19, ( result, asm1left, x3b1right), rest671)
+end
+|  ( 70, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 463.26 "c_grammar_fun.grm"*)Nothing(*#line 6886.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.maybe_type_qualifier1, C_Grammar_Rule.maybe_type_qualifier)
+ in ( LALR_Table.NT 20, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 71, ( ( _, ( C_Grammar_Rule.type_qualifier type_qualifier1, type_qualifier1left, type_qualifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 464.40 "c_grammar_fun.grm"*)(fn happy_var_1 => Just happy_var_1) type_qualifier1(*#line 6890.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.maybe_type_qualifier2, C_Grammar_Rule.maybe_type_qualifier)
+ in ( LALR_Table.NT 20, ( result, type_qualifier1left, type_qualifier1right), rest671)
+end
+|  ( 72, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 466.18 "c_grammar_fun.grm"*)[](*#line 6894.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.asm_operands1, C_Grammar_Rule.asm_operands)
+ in ( LALR_Table.NT 21, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 73, ( ( _, ( C_Grammar_Rule.nonnull_asm_operands nonnull_asm_operands1, nonnull_asm_operands1left, nonnull_asm_operands1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 467.38 "c_grammar_fun.grm"*)(fn happy_var_1 => reverse happy_var_1) nonnull_asm_operands1(*#line 6898.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.asm_operands2, C_Grammar_Rule.asm_operands)
+ in ( LALR_Table.NT 21, ( result, nonnull_asm_operands1left, nonnull_asm_operands1right), rest671)
+end
+|  ( 74, ( ( _, ( C_Grammar_Rule.asm_operand asm_operand1, asm_operand1left, asm_operand1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 469.37 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) asm_operand1(*#line 6902.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.nonnull_asm_operands1, C_Grammar_Rule.nonnull_asm_operands)
+ in ( LALR_Table.NT 22, ( result, asm_operand1left, asm_operand1right), rest671)
+end
+|  ( 75, ( ( _, ( C_Grammar_Rule.asm_operand asm_operand1, _, asm_operand1right)) :: _ :: ( _, ( C_Grammar_Rule.nonnull_asm_operands nonnull_asm_operands1, nonnull_asm_operands1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 470.62 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) nonnull_asm_operands1 asm_operand1(*#line 6906.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.nonnull_asm_operands2, C_Grammar_Rule.nonnull_asm_operands)
+ in ( LALR_Table.NT 22, ( result, nonnull_asm_operands1left, asm_operand1right), rest671)
+end
+|  ( 76, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, string_literal1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 472.50 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAsmOperand Nothing happy_var_1 happy_var_3)) string_literal1 expression1) (fn _ => withNodeInfo 0)(*#line 6910.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.asm_operand1, C_Grammar_Rule.asm_operand)
+ in ( LALR_Table.NT 23, ( result, string_literal1left, x291right), rest671)
+end
+|  ( 77, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.ident ident1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 473.64 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmOperand (Just happy_var_2) happy_var_4 happy_var_6)) x5b1 ident1 string_literal1 expression1) (fn _ => withNodeInfo 0)(*#line 6914.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.asm_operand2, C_Grammar_Rule.asm_operand)
+ in ( LALR_Table.NT 23, ( result, x5b1left, x291right), rest671)
+end
+|  ( 78, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.tyident tyident1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 474.66 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => fn happy_var_6 => withNodeInfo happy_var_1 (CAsmOperand (Just happy_var_2) happy_var_4 happy_var_6)) x5b1 tyident1 string_literal1 expression1) (fn _ => withNodeInfo 0)(*#line 6918.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.asm_operand3, C_Grammar_Rule.asm_operand)
+ in ( LALR_Table.NT 23, ( result, x5b1left, x291right), rest671)
+end
+|  ( 79, ( ( _, ( C_Grammar_Rule.string_literal string_literal1, string_literal1left, string_literal1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 476.32 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) string_literal1(*#line 6922.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.asm_clobbers1, C_Grammar_Rule.asm_clobbers)
+ in ( LALR_Table.NT 24, ( result, string_literal1left, string_literal1right), rest671)
+end
+|  ( 80, ( ( _, ( C_Grammar_Rule.string_literal string_literal1, _, string_literal1right)) :: _ :: ( _, ( C_Grammar_Rule.asm_clobbers asm_clobbers1, asm_clobbers1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 477.49 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) asm_clobbers1 string_literal1(*#line 6926.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.asm_clobbers2, C_Grammar_Rule.asm_clobbers)
+ in ( LALR_Table.NT 24, ( result, asm_clobbers1left, string_literal1right), rest671)
+end
+|  ( 81, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.sue_declaration_specifier sue_declaration_specifier1, sue_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 479.46 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) sue_declaration_specifier1) (fn _ => withNodeInfo 0)(*#line 6930.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.declaration1, C_Grammar_Rule.declaration)
+ in ( LALR_Table.NT 25, ( result, sue_declaration_specifier1left, x3b1right), rest671)
+end
+|  ( 82, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 480.39 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) sue_type_specifier1) (fn _ => withNodeInfo 0)(*#line 6934.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.declaration2, C_Grammar_Rule.declaration)
+ in ( LALR_Table.NT 25, ( result, sue_type_specifier1left, x3b1right), rest671)
+end
+|  ( 83, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.declaring_list declaring_list1, declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 481.35 "c_grammar_fun.grm"*)(*%*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => withLength at (CDecl declspecs (List.reverse dies))) declaring_list1(*#line 6938.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.declaration3, C_Grammar_Rule.declaration)
+ in ( LALR_Table.NT 25, ( result, declaring_list1left, x3b1right), rest671)
+end
+|  ( 84, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.default_declaring_list default_declaring_list1, default_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 482.43 "c_grammar_fun.grm"*)(*%*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => withLength at (CDecl declspecs (List.reverse dies))) default_declaring_list1(*#line 6942.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.declaration4, C_Grammar_Rule.declaration)
+ in ( LALR_Table.NT 25, ( result, default_declaring_list1left, x3b1right), rest671)
+end
+|  ( 85, ( ( _, ( _, _, x3b1right)) :: _ :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x5f_Static_assert x5f_Static_assert1, x5f_Static_assert1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 483.85 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CStaticAssert happy_var_3 happy_var_5)) x5f_Static_assert1 constant_expression1 string_literal1) (fn _ => withNodeInfo 0)(*#line 6946.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.declaration5, C_Grammar_Rule.declaration)
+ in ( LALR_Table.NT 25, ( result, x5f_Static_assert1left, x3b1right), rest671)
+end
+|  ( 86, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 485.22 "c_grammar_fun.grm"*)empty(*#line 6950.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_list1, C_Grammar_Rule.declaration_list)
+ in ( LALR_Table.NT 26, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 87, ( ( _, ( C_Grammar_Rule.declaration declaration1, _, declaration1right)) :: ( _, ( C_Grammar_Rule.declaration_list declaration_list1, declaration_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 486.50 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) declaration_list1 declaration1(*#line 6954.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_list2, C_Grammar_Rule.declaration_list)
+ in ( LALR_Table.NT 26, ( result, declaration_list1left, declaration1right), rest671)
+end
+|  ( 88, ( ( _, ( C_Grammar_Rule.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( C_Grammar_Rule.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 488.106 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = reverse happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) declaration_qualifier_list1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6958.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.default_declaring_list1, C_Grammar_Rule.default_declaring_list)
+ in ( LALR_Table.NT 27, ( result, declaration_qualifier_list1left, initializer_opt1right), rest671)
+end
+|  ( 89, ( ( _, ( C_Grammar_Rule.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( C_Grammar_Rule.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 489.99 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = liftTypeQuals happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) type_qualifier_list1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6962.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.default_declaring_list2, C_Grammar_Rule.default_declaring_list)
+ in ( LALR_Table.NT 27, ( result, type_qualifier_list1left, initializer_opt1right), rest671)
+end
+|  ( 90, ( ( _, ( C_Grammar_Rule.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( C_Grammar_Rule.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 490.105 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => let val declspecs = liftTypeQuals happy_var_1 in bind (withAsmNameAttrs happy_var_4 happy_var_3) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat (declspecs @ liftCAttrs happy_var_2) [(Just (reverseDeclr declr), happy_var_5, Nothing)]))) end) type_qualifier_list1 attrs1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6966.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.default_declaring_list3, C_Grammar_Rule.default_declaring_list)
+ in ( LALR_Table.NT 27, ( result, type_qualifier_list1left, initializer_opt1right), rest671)
+end
+|  ( 91, ( ( _, ( C_Grammar_Rule.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( C_Grammar_Rule.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 491.85 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => let val declspecs = liftCAttrs happy_var_1 in bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat declspecs [(Just (reverseDeclr declr), happy_var_4, Nothing)]))) end) attrs1 identifier_declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6970.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.default_declaring_list4, C_Grammar_Rule.default_declaring_list)
+ in ( LALR_Table.NT 27, ( result, attrs1left, initializer_opt1right), rest671)
+end
+|  ( 92, ( ( _, ( C_Grammar_Rule.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( C_Grammar_Rule.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.default_declaring_list default_declaring_list1, default_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 492.116 "c_grammar_fun.grm"*)(*%*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => fn happy_var_6 => case happy_var_1 of CDecl0 (declspecs,dies,at) => bind (withAsmNameAttrs (fst happy_var_5, snd happy_var_5 @ happy_var_3) happy_var_4) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => withLength at (CDecl declspecs ((flat3 (Just (reverseDeclr declr), happy_var_6, Nothing)) :: dies))))) default_declaring_list1 attrs_opt1 identifier_declarator1 asm_attrs_opt1 initializer_opt1(*#line 6974.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.default_declaring_list5, C_Grammar_Rule.default_declaring_list)
+ in ( LALR_Table.NT 27, ( result, default_declaring_list1left, initializer_opt1right), rest671)
+end
+|  ( 93, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.asm_opt asm_opt1, asm_opt1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 494.36 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => (happy_var_1, happy_var_2)) asm_opt1 attrs_opt1(*#line 6978.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.asm_attrs_opt, C_Grammar_Rule.asm_attrs_opt)
+ in ( LALR_Table.NT 28, ( result, asm_opt1left, attrs_opt1right), rest671)
+end
+|  ( 94, ( ( _, ( C_Grammar_Rule.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( C_Grammar_Rule.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.declarator declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 496.82 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent happy_var_1 declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr declr), happy_var_4, Nothing)])))) declaration_specifier1 declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6982.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.declaring_list1, C_Grammar_Rule.declaring_list)
+ in ( LALR_Table.NT 29, ( result, declaration_specifier1left, initializer_opt1right), rest671)
+end
+|  ( 95, ( ( _, ( C_Grammar_Rule.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( C_Grammar_Rule.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.declarator declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 497.75 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => bind (withAsmNameAttrs happy_var_3 happy_var_2) (fn declr => bind (doDeclIdent happy_var_1 declr) (fn _ => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr declr), happy_var_4, Nothing)])))) type_specifier1 declarator1 asm_attrs_opt1 initializer_opt1) (fn _ => withNodeInfo 0)(*#line 6986.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.declaring_list2, C_Grammar_Rule.declaring_list)
+ in ( LALR_Table.NT 29, ( result, type_specifier1left, initializer_opt1right), rest671)
+end
+|  ( 96, ( ( _, ( C_Grammar_Rule.initializer_opt initializer_opt1, _, initializer_opt1right)) :: ( _, ( C_Grammar_Rule.asm_attrs_opt asm_attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.declarator declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.declaring_list declaring_list1, declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 498.89 "c_grammar_fun.grm"*)(*%*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => fn happy_var_6 => case happy_var_1 of CDecl0 (declspecs,dies,at) => bind (withAsmNameAttrs (fst happy_var_5, snd happy_var_5 @ happy_var_3) happy_var_4) (fn declr => bind (doDeclIdent declspecs declr) (fn _ => return (CDecl declspecs ((flat3 (Just (reverseDeclr declr), happy_var_6, Nothing)) :: dies) at)))) declaring_list1 attrs_opt1 declarator1 asm_attrs_opt1 initializer_opt1(*#line 6990.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.declaring_list3, C_Grammar_Rule.declaring_list)
+ in ( LALR_Table.NT 29, ( result, declaring_list1left, initializer_opt1right), rest671)
+end
+|  ( 97, ( ( _, ( C_Grammar_Rule.basic_declaration_specifier basic_declaration_specifier1, basic_declaration_specifier1left, basic_declaration_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 500.54 "c_grammar_fun.grm"*)(fn happy_var_1 => reverse happy_var_1) basic_declaration_specifier1(*#line 6994.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_specifier1, C_Grammar_Rule.declaration_specifier)
+ in ( LALR_Table.NT 30, ( result, basic_declaration_specifier1left, basic_declaration_specifier1right), rest671)
+end
+|  ( 98, ( ( _, ( C_Grammar_Rule.sue_declaration_specifier sue_declaration_specifier1, sue_declaration_specifier1left, sue_declaration_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 501.52 "c_grammar_fun.grm"*)(fn happy_var_1 => reverse happy_var_1) sue_declaration_specifier1(*#line 6998.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_specifier2, C_Grammar_Rule.declaration_specifier)
+ in ( LALR_Table.NT 30, ( result, sue_declaration_specifier1left, sue_declaration_specifier1right), rest671)
+end
+|  ( 99, ( ( _, ( C_Grammar_Rule.typedef_declaration_specifier typedef_declaration_specifier1, typedef_declaration_specifier1left, typedef_declaration_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 502.56 "c_grammar_fun.grm"*)(fn happy_var_1 => reverse happy_var_1) typedef_declaration_specifier1(*#line 7002.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_specifier3, C_Grammar_Rule.declaration_specifier)
+ in ( LALR_Table.NT 30, ( result, typedef_declaration_specifier1left, typedef_declaration_specifier1right), rest671)
+end
+|  ( 100, ( ( _, ( C_Grammar_Rule.declaration_qualifier_without_types declaration_qualifier_without_types1, declaration_qualifier_without_types1left, declaration_qualifier_without_types1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 504.67 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) declaration_qualifier_without_types1(*#line 7006.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_list1, C_Grammar_Rule.declaration_qualifier_list)
+ in ( LALR_Table.NT 31, ( result, declaration_qualifier_without_types1left, declaration_qualifier_without_types1right), rest671)
+end
+|  ( 101, ( ( _, ( C_Grammar_Rule.declaration_qualifier_without_types declaration_qualifier_without_types1, _, declaration_qualifier_without_types1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 505.73 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (reverseList (liftCAttrs happy_var_1)) (happy_var_2)) attrs1 declaration_qualifier_without_types1(*#line 7010.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_list2, C_Grammar_Rule.declaration_qualifier_list)
+ in ( LALR_Table.NT 31, ( result, attrs1left, declaration_qualifier_without_types1right), rest671)
+end
+|  ( 102, ( ( _, ( C_Grammar_Rule.declaration_qualifier_without_types declaration_qualifier_without_types1, _, declaration_qualifier_without_types1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 506.87 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (happy_var_2)) type_qualifier_list1 declaration_qualifier_without_types1(*#line 7014.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_list3, C_Grammar_Rule.declaration_qualifier_list)
+ in ( LALR_Table.NT 31, ( result, type_qualifier_list1left, declaration_qualifier_without_types1right), rest671)
+end
+|  ( 103, ( ( _, ( C_Grammar_Rule.declaration_qualifier_without_types declaration_qualifier_without_types1, _, declaration_qualifier_without_types1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 507.93 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc ((rappend (rmap CTypeQual happy_var_1) (liftCAttrs happy_var_2))) (happy_var_3)) type_qualifier_list1 attrs1 declaration_qualifier_without_types1(*#line 7018.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_list4, C_Grammar_Rule.declaration_qualifier_list)
+ in ( LALR_Table.NT 31, ( result, type_qualifier_list1left, declaration_qualifier_without_types1right), rest671)
+end
+|  ( 104, ( ( _, ( C_Grammar_Rule.declaration_qualifier declaration_qualifier1, _, declaration_qualifier1right)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 508.80 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) declaration_qualifier_list1 declaration_qualifier1(*#line 7022.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_list5, C_Grammar_Rule.declaration_qualifier_list)
+ in ( LALR_Table.NT 31, ( result, declaration_qualifier_list1left, declaration_qualifier1right), rest671)
+end
+|  ( 105, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 509.63 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) declaration_qualifier_list1 attr1(*#line 7026.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_list6, C_Grammar_Rule.declaration_qualifier_list)
+ in ( LALR_Table.NT 31, ( result, declaration_qualifier_list1left, attr1right), rest671)
+end
+|  ( 106, ( ( _, ( C_Grammar_Rule.storage_class storage_class1, storage_class1left, storage_class1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 511.40 "c_grammar_fun.grm"*)(fn happy_var_1 => CStorageSpec happy_var_1) storage_class1(*#line 7030.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier1, C_Grammar_Rule.declaration_qualifier)
+ in ( LALR_Table.NT 32, ( result, storage_class1left, storage_class1right), rest671)
+end
+|  ( 107, ( ( _, ( C_Grammar_Rule.type_qualifier type_qualifier1, type_qualifier1left, type_qualifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 512.41 "c_grammar_fun.grm"*)(fn happy_var_1 => CTypeQual happy_var_1) type_qualifier1(*#line 7034.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier2, C_Grammar_Rule.declaration_qualifier)
+ in ( LALR_Table.NT 32, ( result, type_qualifier1left, type_qualifier1right), rest671)
+end
+|  ( 108, ( ( _, ( C_Grammar_Rule.function_specifier function_specifier1, function_specifier1left, function_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 513.45 "c_grammar_fun.grm"*)(fn happy_var_1 => CFunSpec happy_var_1) function_specifier1(*#line 7038.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier3, C_Grammar_Rule.declaration_qualifier)
+ in ( LALR_Table.NT 32, ( result, function_specifier1left, function_specifier1right), rest671)
+end
+|  ( 109, ( ( _, ( C_Grammar_Rule.alignment_specifier alignment_specifier1, alignment_specifier1left, alignment_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 514.46 "c_grammar_fun.grm"*)(fn happy_var_1 => CAlignSpec happy_var_1) alignment_specifier1(*#line 7042.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier4, C_Grammar_Rule.declaration_qualifier)
+ in ( LALR_Table.NT 32, ( result, alignment_specifier1left, alignment_specifier1right), rest671)
+end
+|  ( 110, ( ( _, ( C_Grammar_Rule.storage_class storage_class1, storage_class1left, storage_class1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 516.54 "c_grammar_fun.grm"*)(fn happy_var_1 => CStorageSpec happy_var_1) storage_class1(*#line 7046.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_without_types1, C_Grammar_Rule.declaration_qualifier_without_types)
+ in ( LALR_Table.NT 33, ( result, storage_class1left, storage_class1right), rest671)
+end
+|  ( 111, ( ( _, ( C_Grammar_Rule.function_specifier function_specifier1, function_specifier1left, function_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 517.59 "c_grammar_fun.grm"*)(fn happy_var_1 => CFunSpec happy_var_1) function_specifier1(*#line 7050.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_without_types2, C_Grammar_Rule.declaration_qualifier_without_types)
+ in ( LALR_Table.NT 33, ( result, function_specifier1left, function_specifier1right), rest671)
+end
+|  ( 112, ( ( _, ( C_Grammar_Rule.alignment_specifier alignment_specifier1, alignment_specifier1left, alignment_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 518.60 "c_grammar_fun.grm"*)(fn happy_var_1 => CAlignSpec happy_var_1) alignment_specifier1(*#line 7054.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declaration_qualifier_without_types3, C_Grammar_Rule.declaration_qualifier_without_types)
+ in ( LALR_Table.NT 33, ( result, alignment_specifier1left, alignment_specifier1right), rest671)
+end
+|  ( 113, ( ( _, ( C_Grammar_Rule.typedef typedef1, typedef1left, typedef1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 520.26 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTypedef)) typedef1) (fn _ => withNodeInfo 0)(*#line 7058.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.storage_class1, C_Grammar_Rule.storage_class)
+ in ( LALR_Table.NT 34, ( result, typedef1left, typedef1right), rest671)
+end
+|  ( 114, ( ( _, ( C_Grammar_Rule.extern extern1, extern1left, extern1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 521.25 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CExtern)) extern1) (fn _ => withNodeInfo 0)(*#line 7062.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.storage_class2, C_Grammar_Rule.storage_class)
+ in ( LALR_Table.NT 34, ( result, extern1left, extern1right), rest671)
+end
+|  ( 115, ( ( _, ( C_Grammar_Rule.static static1, static1left, static1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 522.25 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CStatic)) static1) (fn _ => withNodeInfo 0)(*#line 7066.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.storage_class3, C_Grammar_Rule.storage_class)
+ in ( LALR_Table.NT 34, ( result, static1left, static1right), rest671)
+end
+|  ( 116, ( ( _, ( C_Grammar_Rule.auto auto1, auto1left, auto1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 523.23 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAuto)) auto1) (fn _ => withNodeInfo 0)(*#line 7070.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.storage_class4, C_Grammar_Rule.storage_class)
+ in ( LALR_Table.NT 34, ( result, auto1left, auto1right), rest671)
+end
+|  ( 117, ( ( _, ( C_Grammar_Rule.register register1, register1left, register1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 524.27 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CRegister)) register1) (fn _ => withNodeInfo 0)(*#line 7074.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.storage_class5, C_Grammar_Rule.storage_class)
+ in ( LALR_Table.NT 34, ( result, register1left, register1right), rest671)
+end
+|  ( 118, ( ( _, ( C_Grammar_Rule.x5f_x5f_thread x5f_x5f_thread1, x5f_x5f_thread1left, x5f_x5f_thread1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 525.33 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CThread)) x5f_x5f_thread1) (fn _ => withNodeInfo 0)(*#line 7078.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.storage_class6, C_Grammar_Rule.storage_class)
+ in ( LALR_Table.NT 34, ( result, x5f_x5f_thread1left, x5f_x5f_thread1right), rest671)
+end
+|  ( 119, ( ( _, ( C_Grammar_Rule.inline inline1, inline1left, inline1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 527.30 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInlineQual)) inline1) (fn _ => withNodeInfo 0)(*#line 7082.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_specifier1, C_Grammar_Rule.function_specifier)
+ in ( LALR_Table.NT 35, ( result, inline1left, inline1right), rest671)
+end
+|  ( 120, ( ( _, ( C_Grammar_Rule.x5f_Noreturn x5f_Noreturn1, x5f_Noreturn1left, x5f_Noreturn1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 528.36 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNoreturnQual)) x5f_Noreturn1) (fn _ => withNodeInfo 0)(*#line 7086.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.function_specifier2, C_Grammar_Rule.function_specifier)
+ in ( LALR_Table.NT 35, ( result, x5f_Noreturn1left, x5f_Noreturn1right), rest671)
+end
+|  ( 121, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.alignas alignas1, alignas1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 530.50 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignAsType happy_var_3)) alignas1 type_name1) (fn _ => withNodeInfo 0)(*#line 7090.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.alignment_specifier1, C_Grammar_Rule.alignment_specifier)
+ in ( LALR_Table.NT 36, ( result, alignas1left, x291right), rest671)
+end
+|  ( 122, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.alignas alignas1, alignas1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 531.60 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignAsExpr happy_var_3)) alignas1 constant_expression1) (fn _ => withNodeInfo 0)(*#line 7094.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.alignment_specifier2, C_Grammar_Rule.alignment_specifier)
+ in ( LALR_Table.NT 36, ( result, alignas1left, x291right), rest671)
+end
+|  ( 123, ( ( _, ( C_Grammar_Rule.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, basic_type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 533.40 "c_grammar_fun.grm"*)(fn happy_var_1 => reverse happy_var_1) basic_type_specifier1(*#line 7098.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.type_specifier1, C_Grammar_Rule.type_specifier)
+ in ( LALR_Table.NT 37, ( result, basic_type_specifier1left, basic_type_specifier1right), rest671)
+end
+|  ( 124, ( ( _, ( C_Grammar_Rule.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, sue_type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 534.38 "c_grammar_fun.grm"*)(fn happy_var_1 => reverse happy_var_1) sue_type_specifier1(*#line 7102.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.type_specifier2, C_Grammar_Rule.type_specifier)
+ in ( LALR_Table.NT 37, ( result, sue_type_specifier1left, sue_type_specifier1right), rest671)
+end
+|  ( 125, ( ( _, ( C_Grammar_Rule.typedef_type_specifier typedef_type_specifier1, typedef_type_specifier1left, typedef_type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 535.42 "c_grammar_fun.grm"*)(fn happy_var_1 => reverse happy_var_1) typedef_type_specifier1(*#line 7106.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.type_specifier3, C_Grammar_Rule.type_specifier)
+ in ( LALR_Table.NT 37, ( result, typedef_type_specifier1left, typedef_type_specifier1right), rest671)
+end
+|  ( 126, ( ( _, ( C_Grammar_Rule.void void1, void1left, void1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 537.25 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVoidType)) void1) (fn _ => withNodeInfo 0)(*#line 7110.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name1, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, void1left, void1right), rest671)
+end
+|  ( 127, ( ( _, ( C_Grammar_Rule.char char1, char1left, char1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 538.25 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCharType)) char1) (fn _ => withNodeInfo 0)(*#line 7114.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name2, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, char1left, char1right), rest671)
+end
+|  ( 128, ( ( _, ( C_Grammar_Rule.short short1, short1left, short1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 539.26 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CShortType)) short1) (fn _ => withNodeInfo 0)(*#line 7118.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name3, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, short1left, short1right), rest671)
+end
+|  ( 129, ( ( _, ( C_Grammar_Rule.int int1, int1left, int1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 540.24 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CIntType)) int1) (fn _ => withNodeInfo 0)(*#line 7122.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name4, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, int1left, int1right), rest671)
+end
+|  ( 130, ( ( _, ( C_Grammar_Rule.long long1, long1left, long1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 541.25 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CLongType)) long1) (fn _ => withNodeInfo 0)(*#line 7126.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name5, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, long1left, long1right), rest671)
+end
+|  ( 131, ( ( _, ( C_Grammar_Rule.float float1, float1left, float1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 542.26 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CFloatType)) float1) (fn _ => withNodeInfo 0)(*#line 7130.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name6, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, float1left, float1right), rest671)
+end
+|  ( 132, ( ( _, ( C_Grammar_Rule.double double1, double1left, double1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 543.27 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDoubleType)) double1) (fn _ => withNodeInfo 0)(*#line 7134.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name7, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, double1left, double1right), rest671)
+end
+|  ( 133, ( ( _, ( C_Grammar_Rule.signed signed1, signed1left, signed1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 544.27 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CSignedType)) signed1) (fn _ => withNodeInfo 0)(*#line 7138.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name8, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, signed1left, signed1right), rest671)
+end
+|  ( 134, ( ( _, ( C_Grammar_Rule.unsigned unsigned1, unsigned1left, unsigned1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 545.29 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnsigType)) unsigned1) (fn _ => withNodeInfo 0)(*#line 7142.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name9, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, unsigned1left, unsigned1right), rest671)
+end
+|  ( 135, ( ( _, ( C_Grammar_Rule.x5f_Bool x5f_Bool1, x5f_Bool1left, x5f_Bool1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 546.29 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CBoolType)) x5f_Bool1) (fn _ => withNodeInfo 0)(*#line 7146.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name10, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, x5f_Bool1left, x5f_Bool1right), rest671)
+end
+|  ( 136, ( ( _, ( C_Grammar_Rule.x5f_Complex x5f_Complex1, x5f_Complex1left, x5f_Complex1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 547.32 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CComplexType)) x5f_Complex1) (fn _ => withNodeInfo 0)(*#line 7150.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name11, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, x5f_Complex1left, x5f_Complex1right), rest671)
+end
+|  ( 137, ( ( _, ( C_Grammar_Rule.x5f_x5f_int_x31_x32_x38 x5f_x5f_int_x31_x32_x381, x5f_x5f_int_x31_x32_x381left, x5f_x5f_int_x31_x32_x381right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 548.44 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInt128Type)) x5f_x5f_int_x31_x32_x381) (fn _ => withNodeInfo 0)(*#line 7154.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.basic_type_name12, C_Grammar_Rule.basic_type_name)
+ in ( LALR_Table.NT 38, ( result, x5f_x5f_int_x31_x32_x381left, x5f_x5f_int_x31_x32_x381right), rest671)
+end
+|  ( 138, ( ( _, ( C_Grammar_Rule.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 550.75 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) declaration_qualifier_list1 basic_type_name1(*#line 7158.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_declaration_specifier1, C_Grammar_Rule.basic_declaration_specifier)
+ in ( LALR_Table.NT 39, ( result, declaration_qualifier_list1left, basic_type_name1right), rest671)
+end
+|  ( 139, ( ( _, ( C_Grammar_Rule.storage_class storage_class1, _, storage_class1right)) :: ( _, ( C_Grammar_Rule.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 551.67 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) basic_type_specifier1 storage_class1(*#line 7162.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_declaration_specifier2, C_Grammar_Rule.basic_declaration_specifier)
+ in ( LALR_Table.NT 39, ( result, basic_type_specifier1left, storage_class1right), rest671)
+end
+|  ( 140, ( ( _, ( C_Grammar_Rule.declaration_qualifier declaration_qualifier1, _, declaration_qualifier1right)) :: ( _, ( C_Grammar_Rule.basic_declaration_specifier basic_declaration_specifier1, basic_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 552.82 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) basic_declaration_specifier1 declaration_qualifier1(*#line 7166.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_declaration_specifier3, C_Grammar_Rule.basic_declaration_specifier)
+ in ( LALR_Table.NT 39, ( result, basic_declaration_specifier1left, declaration_qualifier1right), rest671)
+end
+|  ( 141, ( ( _, ( C_Grammar_Rule.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( C_Grammar_Rule.basic_declaration_specifier basic_declaration_specifier1, basic_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 553.76 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) basic_declaration_specifier1 basic_type_name1(*#line 7170.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_declaration_specifier4, C_Grammar_Rule.basic_declaration_specifier)
+ in ( LALR_Table.NT 39, ( result, basic_declaration_specifier1left, basic_type_name1right), rest671)
+end
+|  ( 142, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.basic_declaration_specifier basic_declaration_specifier1, basic_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 554.65 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) basic_declaration_specifier1 attr1(*#line 7174.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_declaration_specifier5, C_Grammar_Rule.basic_declaration_specifier)
+ in ( LALR_Table.NT 39, ( result, basic_declaration_specifier1left, attr1right), rest671)
+end
+|  ( 143, ( ( _, ( C_Grammar_Rule.basic_type_name basic_type_name1, basic_type_name1left, basic_type_name1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 556.41 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton (CTypeSpec happy_var_1)) basic_type_name1(*#line 7178.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_type_specifier1, C_Grammar_Rule.basic_type_specifier)
+ in ( LALR_Table.NT 40, ( result, basic_type_name1left, basic_type_name1right), rest671)
+end
+|  ( 144, ( ( _, ( C_Grammar_Rule.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 557.47 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc ((reverseList (liftCAttrs happy_var_1))) ((CTypeSpec happy_var_2))) attrs1 basic_type_name1(*#line 7182.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_type_specifier2, C_Grammar_Rule.basic_type_specifier)
+ in ( LALR_Table.NT 40, ( result, attrs1left, basic_type_name1right), rest671)
+end
+|  ( 145, ( ( _, ( C_Grammar_Rule.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 558.61 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (CTypeSpec happy_var_2)) type_qualifier_list1 basic_type_name1(*#line 7186.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_type_specifier3, C_Grammar_Rule.basic_type_specifier)
+ in ( LALR_Table.NT 40, ( result, type_qualifier_list1left, basic_type_name1right), rest671)
+end
+|  ( 146, ( ( _, ( C_Grammar_Rule.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 559.67 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec happy_var_3)) type_qualifier_list1 attrs1 basic_type_name1(*#line 7190.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_type_specifier4, C_Grammar_Rule.basic_type_specifier)
+ in ( LALR_Table.NT 40, ( result, type_qualifier_list1left, basic_type_name1right), rest671)
+end
+|  ( 147, ( ( _, ( C_Grammar_Rule.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( C_Grammar_Rule.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 560.61 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) basic_type_specifier1 type_qualifier1(*#line 7194.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_type_specifier5, C_Grammar_Rule.basic_type_specifier)
+ in ( LALR_Table.NT 40, ( result, basic_type_specifier1left, type_qualifier1right), rest671)
+end
+|  ( 148, ( ( _, ( C_Grammar_Rule.basic_type_name basic_type_name1, _, basic_type_name1right)) :: ( _, ( C_Grammar_Rule.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 561.62 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) basic_type_specifier1 basic_type_name1(*#line 7198.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_type_specifier6, C_Grammar_Rule.basic_type_specifier)
+ in ( LALR_Table.NT 40, ( result, basic_type_specifier1left, basic_type_name1right), rest671)
+end
+|  ( 149, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.basic_type_specifier basic_type_specifier1, basic_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 562.51 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) basic_type_specifier1 attr1(*#line 7202.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.basic_type_specifier7, C_Grammar_Rule.basic_type_specifier)
+ in ( LALR_Table.NT 40, ( result, basic_type_specifier1left, attr1right), rest671)
+end
+|  ( 150, ( ( _, ( C_Grammar_Rule.elaborated_type_name elaborated_type_name1, _, elaborated_type_name1right)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 564.78 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeSpec happy_var_2)) declaration_qualifier_list1 elaborated_type_name1(*#line 7206.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_declaration_specifier1, C_Grammar_Rule.sue_declaration_specifier)
+ in ( LALR_Table.NT 41, ( result, declaration_qualifier_list1left, elaborated_type_name1right), rest671)
+end
+|  ( 151, ( ( _, ( C_Grammar_Rule.storage_class storage_class1, _, storage_class1right)) :: ( _, ( C_Grammar_Rule.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 565.63 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) sue_type_specifier1 storage_class1(*#line 7210.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_declaration_specifier2, C_Grammar_Rule.sue_declaration_specifier)
+ in ( LALR_Table.NT 41, ( result, sue_type_specifier1left, storage_class1right), rest671)
+end
+|  ( 152, ( ( _, ( C_Grammar_Rule.declaration_qualifier declaration_qualifier1, _, declaration_qualifier1right)) :: ( _, ( C_Grammar_Rule.sue_declaration_specifier sue_declaration_specifier1, sue_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 566.78 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) sue_declaration_specifier1 declaration_qualifier1(*#line 7214.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_declaration_specifier3, C_Grammar_Rule.sue_declaration_specifier)
+ in ( LALR_Table.NT 41, ( result, sue_declaration_specifier1left, declaration_qualifier1right), rest671)
+end
+|  ( 153, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.sue_declaration_specifier sue_declaration_specifier1, sue_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 567.61 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) sue_declaration_specifier1 attr1(*#line 7218.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_declaration_specifier4, C_Grammar_Rule.sue_declaration_specifier)
+ in ( LALR_Table.NT 41, ( result, sue_declaration_specifier1left, attr1right), rest671)
+end
+|  ( 154, ( ( _, ( C_Grammar_Rule.elaborated_type_name elaborated_type_name1, elaborated_type_name1left, elaborated_type_name1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 569.44 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton (CTypeSpec happy_var_1)) elaborated_type_name1(*#line 7222.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_type_specifier1, C_Grammar_Rule.sue_type_specifier)
+ in ( LALR_Table.NT 42, ( result, elaborated_type_name1left, elaborated_type_name1right), rest671)
+end
+|  ( 155, ( ( _, ( C_Grammar_Rule.elaborated_type_name elaborated_type_name1, _, elaborated_type_name1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 570.50 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc ((reverseList (liftCAttrs happy_var_1))) ((CTypeSpec happy_var_2))) attrs1 elaborated_type_name1(*#line 7226.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_type_specifier2, C_Grammar_Rule.sue_type_specifier)
+ in ( LALR_Table.NT 42, ( result, attrs1left, elaborated_type_name1right), rest671)
+end
+|  ( 156, ( ( _, ( C_Grammar_Rule.elaborated_type_name elaborated_type_name1, _, elaborated_type_name1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 571.64 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (rmap CTypeQual happy_var_1) (CTypeSpec happy_var_2)) type_qualifier_list1 elaborated_type_name1(*#line 7230.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_type_specifier3, C_Grammar_Rule.sue_type_specifier)
+ in ( LALR_Table.NT 42, ( result, type_qualifier_list1left, elaborated_type_name1right), rest671)
+end
+|  ( 157, ( ( _, ( C_Grammar_Rule.elaborated_type_name elaborated_type_name1, _, elaborated_type_name1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 572.70 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec happy_var_3)) type_qualifier_list1 attrs1 elaborated_type_name1(*#line 7234.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_type_specifier4, C_Grammar_Rule.sue_type_specifier)
+ in ( LALR_Table.NT 42, ( result, type_qualifier_list1left, elaborated_type_name1right), rest671)
+end
+|  ( 158, ( ( _, ( C_Grammar_Rule.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( C_Grammar_Rule.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 573.57 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) sue_type_specifier1 type_qualifier1(*#line 7238.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_type_specifier5, C_Grammar_Rule.sue_type_specifier)
+ in ( LALR_Table.NT 42, ( result, sue_type_specifier1left, type_qualifier1right), rest671)
+end
+|  ( 159, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.sue_type_specifier sue_type_specifier1, sue_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 574.47 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) sue_type_specifier1 attr1(*#line 7242.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.sue_type_specifier6, C_Grammar_Rule.sue_type_specifier)
+ in ( LALR_Table.NT 42, ( result, sue_type_specifier1left, attr1right), rest671)
+end
+|  ( 160, ( ( _, ( C_Grammar_Rule.storage_class storage_class1, _, storage_class1right)) :: ( _, ( C_Grammar_Rule.typedef_type_specifier typedef_type_specifier1, typedef_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 576.71 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CStorageSpec happy_var_2)) typedef_type_specifier1 storage_class1(*#line 7246.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.typedef_declaration_specifier1, C_Grammar_Rule.typedef_declaration_specifier)
+ in ( LALR_Table.NT 43, ( result, typedef_type_specifier1left, storage_class1right), rest671)
+end
+|  ( 161, ( ( _, ( C_Grammar_Rule.tyident tyident1, _, tyident1right)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 577.69 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeDef happy_var_2 at)))) declaration_qualifier_list1 tyident1) (fn _ => withNodeInfo 1)(*#line 7250.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_declaration_specifier2, C_Grammar_Rule.typedef_declaration_specifier)
+ in ( LALR_Table.NT 43, ( result, declaration_qualifier_list1left, tyident1right), rest671)
+end
+|  ( 162, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 578.87 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeOfExpr happy_var_4 at)))) declaration_qualifier_list1 typeof1 expression1) (fn _ => withNodeInfo 1)(*#line 7254.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_declaration_specifier3, C_Grammar_Rule.typedef_declaration_specifier)
+ in ( LALR_Table.NT 43, ( result, declaration_qualifier_list1left, x291right), rest671)
+end
+|  ( 163, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 579.86 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (happy_var_1) (CTypeSpec (CTypeOfType happy_var_4 at)))) declaration_qualifier_list1 typeof1 type_name1) (fn _ => withNodeInfo 1)(*#line 7258.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_declaration_specifier4, C_Grammar_Rule.typedef_declaration_specifier)
+ in ( LALR_Table.NT 43, ( result, declaration_qualifier_list1left, x291right), rest671)
+end
+|  ( 164, ( ( _, ( C_Grammar_Rule.declaration_qualifier declaration_qualifier1, _, declaration_qualifier1right)) :: ( _, ( C_Grammar_Rule.typedef_declaration_specifier typedef_declaration_specifier1, typedef_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 580.86 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) typedef_declaration_specifier1 declaration_qualifier1(*#line 7262.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.typedef_declaration_specifier5, C_Grammar_Rule.typedef_declaration_specifier)
+ in ( LALR_Table.NT 43, ( result, typedef_declaration_specifier1left, declaration_qualifier1right), rest671)
+end
+|  ( 165, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.typedef_declaration_specifier typedef_declaration_specifier1, typedef_declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 581.69 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) typedef_declaration_specifier1 attr1(*#line 7266.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.typedef_declaration_specifier6, C_Grammar_Rule.typedef_declaration_specifier)
+ in ( LALR_Table.NT 43, ( result, typedef_declaration_specifier1left, attr1right), rest671)
+end
+|  ( 166, ( ( _, ( C_Grammar_Rule.tyident tyident1, tyident1left, tyident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 583.35 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeDef happy_var_1 at)))) tyident1) (fn _ => withNodeInfo 0)(*#line 7270.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier1, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, tyident1left, tyident1right), rest671)
+end
+|  ( 167, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, typeof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 584.53 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeOfExpr happy_var_3 at)))) typeof1 expression1) (fn _ => withNodeInfo 0)(*#line 7274.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier2, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, typeof1left, x291right), rest671)
+end
+|  ( 168, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, typeof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 585.52 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => singleton (CTypeSpec (CTypeOfType happy_var_3 at)))) typeof1 type_name1) (fn _ => withNodeInfo 0)(*#line 7278.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier3, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, typeof1left, x291right), rest671)
+end
+|  ( 169, ( ( _, ( C_Grammar_Rule.tyident tyident1, _, tyident1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 586.55 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeDef happy_var_2 at)))) type_qualifier_list1 tyident1) (fn _ => withNodeInfo 1)(*#line 7282.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier4, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, type_qualifier_list1left, tyident1right), rest671)
+end
+|  ( 170, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 587.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeOfExpr happy_var_4 at)))) type_qualifier_list1 typeof1 expression1) (fn _ => withNodeInfo 1)(*#line 7286.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier5, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, type_qualifier_list1left, x291right), rest671)
+end
+|  ( 171, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 588.72 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (rmap CTypeQual happy_var_1) (CTypeSpec (CTypeOfType happy_var_4 at)))) type_qualifier_list1 typeof1 type_name1) (fn _ => withNodeInfo 1)(*#line 7290.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier6, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, type_qualifier_list1left, x291right), rest671)
+end
+|  ( 172, ( ( _, ( C_Grammar_Rule.tyident tyident1, _, tyident1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 589.41 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_2 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeDef happy_var_2 at))))) attrs1 tyident1) (fn _ => withNodeInfo 1)(*#line 7294.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier7, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, attrs1left, tyident1right), rest671)
+end
+|  ( 173, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: _ :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 590.59 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => withNodeInfo happy_var_1 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeOfExpr happy_var_4 at))))) attrs1 expression1) (fn _ => withNodeInfo 0)(*#line 7298.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier8, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, attrs1left, x291right), rest671)
+end
+|  ( 174, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 591.58 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_2 (fn at => snoc (reverseList (liftCAttrs happy_var_1)) ((CTypeSpec (CTypeOfType happy_var_4 at))))) attrs1 typeof1 type_name1) (fn _ => withNodeInfo 1)(*#line 7302.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier9, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, attrs1left, x291right), rest671)
+end
+|  ( 175, ( ( _, ( C_Grammar_Rule.tyident tyident1, _, tyident1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 592.61 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeDef happy_var_3 at)))) type_qualifier_list1 attrs1 tyident1) (fn _ => withNodeInfo 2)(*#line 7306.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier10, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, type_qualifier_list1left, tyident1right), rest671)
+end
+|  ( 176, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 593.79 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeOfExpr happy_var_5 at)))) type_qualifier_list1 attrs1 typeof1 expression1) (fn _ => withNodeInfo 2)(*#line 7310.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier11, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, type_qualifier_list1left, x291right), rest671)
+end
+|  ( 177, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.typeof typeof1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 594.78 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_3 (fn at => snoc (rappend (rmap CTypeQual happy_var_1) ((liftCAttrs happy_var_2))) (CTypeSpec (CTypeOfType happy_var_5 at)))) type_qualifier_list1 attrs1 typeof1 type_name1) (fn _ => withNodeInfo 2)(*#line 7314.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.typedef_type_specifier12, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, type_qualifier_list1left, x291right), rest671)
+end
+|  ( 178, ( ( _, ( C_Grammar_Rule.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( C_Grammar_Rule.typedef_type_specifier typedef_type_specifier1, typedef_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 595.65 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (CTypeQual happy_var_2)) typedef_type_specifier1 type_qualifier1(*#line 7318.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.typedef_type_specifier13, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, typedef_type_specifier1left, type_qualifier1right), rest671)
+end
+|  ( 179, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.typedef_type_specifier typedef_type_specifier1, typedef_type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 596.55 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => addTrailingAttrs happy_var_1 happy_var_2) typedef_type_specifier1 attr1(*#line 7322.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.typedef_type_specifier14, C_Grammar_Rule.typedef_type_specifier)
+ in ( LALR_Table.NT 44, ( result, typedef_type_specifier1left, attr1right), rest671)
+end
+|  ( 180, ( ( _, ( C_Grammar_Rule.struct_or_union_specifier struct_or_union_specifier1, struct_or_union_specifier1left, struct_or_union_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 598.51 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CSUType happy_var_1)) struct_or_union_specifier1) (fn _ => withNodeInfo 0)(*#line 7326.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.elaborated_type_name1, C_Grammar_Rule.elaborated_type_name)
+ in ( LALR_Table.NT 45, ( result, struct_or_union_specifier1left, struct_or_union_specifier1right), rest671)
+end
+|  ( 181, ( ( _, ( C_Grammar_Rule.enum_specifier enum_specifier1, enum_specifier1left, enum_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 599.40 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CEnumType happy_var_1)) enum_specifier1) (fn _ => withNodeInfo 0)(*#line 7330.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.elaborated_type_name2, C_Grammar_Rule.elaborated_type_name)
+ in ( LALR_Table.NT 45, ( result, enum_specifier1left, enum_specifier1right), rest671)
+end
+|  ( 182, ( ( _, ( _, _, x7d1right)) :: ( _, ( C_Grammar_Rule.struct_declaration_list struct_declaration_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.identifier identifier1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.struct_or_union struct_or_union1, struct_or_union1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 601.99 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) struct_or_union1 attrs_opt1 identifier1 struct_declaration_list1) (fn _ => withNodeInfo 0)(*#line 7334.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_or_union_specifier1, C_Grammar_Rule.struct_or_union_specifier)
+ in ( LALR_Table.NT 46, ( result, struct_or_union1left, x7d1right), rest671)
+end
+|  ( 183, ( ( _, ( _, _, x7d1right)) :: ( _, ( C_Grammar_Rule.struct_declaration_list struct_declaration_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.struct_or_union struct_or_union1, struct_or_union1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 602.88 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) Nothing (Just (reverse happy_var_4)) happy_var_2)) struct_or_union1 attrs_opt1 struct_declaration_list1) (fn _ => withNodeInfo 0)(*#line 7338.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_or_union_specifier2, C_Grammar_Rule.struct_or_union_specifier)
+ in ( LALR_Table.NT 46, ( result, struct_or_union1left, x7d1right), rest671)
+end
+|  ( 184, ( ( _, ( C_Grammar_Rule.identifier identifier1, _, identifier1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.struct_or_union struct_or_union1, struct_or_union1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 603.67 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CStruct (unL happy_var_1) (Just happy_var_3) Nothing happy_var_2)) struct_or_union1 attrs_opt1 identifier1) (fn _ => withNodeInfo 0)(*#line 7342.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_or_union_specifier3, C_Grammar_Rule.struct_or_union_specifier)
+ in ( LALR_Table.NT 46, ( result, struct_or_union1left, identifier1right), rest671)
+end
+|  ( 185, ( ( _, ( C_Grammar_Rule.struct0 struct01, struct01left, struct01right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 605.28 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CStructTag (posOf happy_var_1)) struct01) (fn x => fn _ => L x 0)(*#line 7346.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_or_union1, C_Grammar_Rule.struct_or_union)
+ in ( LALR_Table.NT 47, ( result, struct01left, struct01right), rest671)
+end
+|  ( 186, ( ( _, ( C_Grammar_Rule.union union1, union1left, union1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 606.26 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CUnionTag (posOf happy_var_1)) union1) (fn x => fn _ => L x 0)(*#line 7350.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_or_union2, C_Grammar_Rule.struct_or_union)
+ in ( LALR_Table.NT 47, ( result, union1left, union1right), rest671)
+end
+|  ( 187, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 608.29 "c_grammar_fun.grm"*)empty(*#line 7354.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declaration_list1, C_Grammar_Rule.struct_declaration_list)
+ in ( LALR_Table.NT 48, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 188, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.struct_declaration_list struct_declaration_list1, struct_declaration_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 609.56 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) struct_declaration_list1(*#line 7358.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declaration_list2, C_Grammar_Rule.struct_declaration_list)
+ in ( LALR_Table.NT 48, ( result, struct_declaration_list1left, x3b1right), rest671)
+end
+|  ( 189, ( ( _, ( C_Grammar_Rule.struct_declaration struct_declaration1, _, struct_declaration1right)) :: ( _, ( C_Grammar_Rule.struct_declaration_list struct_declaration_list1, struct_declaration_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 610.71 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) struct_declaration_list1 struct_declaration1(*#line 7362.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declaration_list3, C_Grammar_Rule.struct_declaration_list)
+ in ( LALR_Table.NT 48, ( result, struct_declaration_list1left, struct_declaration1right), rest671)
+end
+|  ( 190, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.struct_declaring_list struct_declaring_list1, struct_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 612.49 "c_grammar_fun.grm"*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => CDecl declspecs (List.reverse dies) at) struct_declaring_list1(*#line 7366.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declaration1, C_Grammar_Rule.struct_declaration)
+ in ( LALR_Table.NT 49, ( result, struct_declaring_list1left, x3b1right), rest671)
+end
+|  ( 191, ( ( _, ( _, _, x3b1right)) :: ( _, ( C_Grammar_Rule.struct_default_declaring_list struct_default_declaring_list1, struct_default_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 613.57 "c_grammar_fun.grm"*)(fn happy_var_1 => case happy_var_1 of CDecl0 (declspecs,dies,at) => CDecl declspecs (List.reverse dies) at) struct_default_declaring_list1(*#line 7370.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declaration2, C_Grammar_Rule.struct_declaration)
+ in ( LALR_Table.NT 49, ( result, struct_default_declaring_list1left, x3b1right), rest671)
+end
+|  ( 192, ( ( _, ( C_Grammar_Rule.struct_declaration struct_declaration1, _, struct_declaration1right)) :: ( _, ( _, x5f_x5f_extension_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 614.68 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) struct_declaration1(*#line 7374.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declaration3, C_Grammar_Rule.struct_declaration)
+ in ( LALR_Table.NT 49, ( result, x5f_x5f_extension_x5f_x5f1left, struct_declaration1right), rest671)
+end
+|  ( 193, ( ( _, ( C_Grammar_Rule.struct_identifier_declarator struct_identifier_declarator1, _, struct_identifier_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 616.93 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (case happy_var_3 of (d,s) => CDecl_flat (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [(d, Nothing, s)])) type_qualifier_list1 attrs_opt1 struct_identifier_declarator1) (fn _ => withNodeInfo 0)(*#line 7378.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_default_declaring_list1, C_Grammar_Rule.struct_default_declaring_list)
+ in ( LALR_Table.NT 50, ( result, type_qualifier_list1left, struct_identifier_declarator1right), rest671)
+end
+|  ( 194, ( ( _, ( C_Grammar_Rule.struct_identifier_declarator struct_identifier_declarator1, _, struct_identifier_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 617.69 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (case happy_var_2 of (d,s) => CDecl_flat (liftCAttrs happy_var_1) [(d, Nothing, s)])) attrs1 struct_identifier_declarator1) (fn _ => withNodeInfo 0)(*#line 7382.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_default_declaring_list2, C_Grammar_Rule.struct_default_declaring_list)
+ in ( LALR_Table.NT 50, ( result, attrs1left, struct_identifier_declarator1right), rest671)
+end
+|  ( 195, ( ( _, ( C_Grammar_Rule.struct_identifier_declarator struct_identifier_declarator1, _, struct_identifier_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.struct_default_declaring_list struct_default_declaring_list1, struct_default_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 618.107 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => case happy_var_1 of CDecl0 (declspecs,dies,at) => case happy_var_4 of (Some d,s) => CDecl declspecs ((flat3 (Just (appendObjAttrs happy_var_3 d), Nothing, s)) :: dies) at | (None,s) => CDecl declspecs ((flat3 (Nothing, Nothing, s)) :: dies) at) struct_default_declaring_list1 attrs_opt1 struct_identifier_declarator1(*#line 7386.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_default_declaring_list3, C_Grammar_Rule.struct_default_declaring_list)
+ in ( LALR_Table.NT 50, ( result, struct_default_declaring_list1left, struct_identifier_declarator1right), rest671)
+end
+|  ( 196, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.struct_declarator struct_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 620.69 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (case happy_var_2 of (Some d,s) => CDecl_flat happy_var_1 [(Just (appendObjAttrs happy_var_3 d), Nothing, s)] | (None,s) => CDecl_flat happy_var_1 [(Nothing, Nothing, s)])) type_specifier1 struct_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7390.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_declaring_list1, C_Grammar_Rule.struct_declaring_list)
+ in ( LALR_Table.NT 51, ( result, type_specifier1left, attrs_opt1right), rest671)
+end
+|  ( 197, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt2, _, attrs_opt2right)) :: ( _, ( C_Grammar_Rule.struct_declarator struct_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.struct_declaring_list struct_declaring_list1, struct_declaring_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 621.90 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => case happy_var_1 of CDecl0 (declspecs,dies,attr) => case happy_var_4 of (Some d,s) => CDecl declspecs ((flat3 (Just (appendObjAttrs (happy_var_3 @ happy_var_5) d), Nothing, s)) :: dies) attr | (None,s) => CDecl declspecs ((flat3 (Nothing, Nothing, s)) :: dies) attr) struct_declaring_list1 attrs_opt1 struct_declarator1 attrs_opt2(*#line 7394.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declaring_list2, C_Grammar_Rule.struct_declaring_list)
+ in ( LALR_Table.NT 51, ( result, struct_declaring_list1left, attrs_opt2right), rest671)
+end
+|  ( 198, ( ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 622.41 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0)(*#line 7398.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.struct_declaring_list3, C_Grammar_Rule.struct_declaring_list)
+ in ( LALR_Table.NT 51, ( result, type_specifier1left, type_specifier1right), rest671)
+end
+|  ( 199, ( ( _, ( C_Grammar_Rule.declarator declarator1, declarator1left, declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 624.33 "c_grammar_fun.grm"*)(fn happy_var_1 => (Just (reverseDeclr happy_var_1), Nothing)) declarator1(*#line 7402.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declarator1, C_Grammar_Rule.struct_declarator)
+ in ( LALR_Table.NT 52, ( result, declarator1left, declarator1right), rest671)
+end
+|  ( 200, ( ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, constant_expression1right)) :: ( _, ( _, x3a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 625.46 "c_grammar_fun.grm"*)(fn happy_var_2 => (Nothing, Just happy_var_2)) constant_expression1(*#line 7406.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declarator2, C_Grammar_Rule.struct_declarator)
+ in ( LALR_Table.NT 52, ( result, x3a1left, constant_expression1right), rest671)
+end
+|  ( 201, ( ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.declarator declarator1, declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 626.57 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => (Just (reverseDeclr happy_var_1), Just happy_var_3)) declarator1 constant_expression1(*#line 7410.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_declarator3, C_Grammar_Rule.struct_declarator)
+ in ( LALR_Table.NT 52, ( result, declarator1left, constant_expression1right), rest671)
+end
+|  ( 202, ( ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, identifier_declarator1left, identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 628.55 "c_grammar_fun.grm"*)(fn happy_var_1 => (Just (reverseDeclr happy_var_1), Nothing)) identifier_declarator1(*#line 7414.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_identifier_declarator1, C_Grammar_Rule.struct_identifier_declarator)
+ in ( LALR_Table.NT 53, ( result, identifier_declarator1left, identifier_declarator1right), rest671)
+end
+|  ( 203, ( ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, constant_expression1right)) :: ( _, ( _, x3a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 629.57 "c_grammar_fun.grm"*)(fn happy_var_2 => (Nothing, Just happy_var_2)) constant_expression1(*#line 7418.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_identifier_declarator2, C_Grammar_Rule.struct_identifier_declarator)
+ in ( LALR_Table.NT 53, ( result, x3a1left, constant_expression1right), rest671)
+end
+|  ( 204, ( ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, identifier_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 630.79 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => (Just (reverseDeclr happy_var_1), Just happy_var_3)) identifier_declarator1 constant_expression1(*#line 7422.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_identifier_declarator3, C_Grammar_Rule.struct_identifier_declarator)
+ in ( LALR_Table.NT 53, ( result, identifier_declarator1left, constant_expression1right), rest671)
+end
+|  ( 205, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.struct_identifier_declarator struct_identifier_declarator1, struct_identifier_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 631.67 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => case happy_var_1 of (None,expr) => (Nothing, expr) | (Some (CDeclr0 (name,derived,asmname,attrs,node)),bsz) => (Just (CDeclr name derived asmname (attrs @ happy_var_2) node), bsz)) struct_identifier_declarator1 attr1(*#line 7426.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.struct_identifier_declarator4, C_Grammar_Rule.struct_identifier_declarator)
+ in ( LALR_Table.NT 53, ( result, struct_identifier_declarator1left, attr1right), rest671)
+end
+|  ( 206, ( ( _, ( _, _, x7d1right)) :: ( _, ( C_Grammar_Rule.enumerator_list enumerator_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 633.58 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CEnum Nothing (Just (reverse happy_var_4)) happy_var_2)) enum1 attrs_opt1 enumerator_list1) (fn _ => withNodeInfo 0)(*#line 7430.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.enum_specifier1, C_Grammar_Rule.enum_specifier)
+ in ( LALR_Table.NT 54, ( result, enum1left, x7d1right), rest671)
+end
+|  ( 207, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( C_Grammar_Rule.enumerator_list enumerator_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 634.62 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CEnum Nothing (Just (reverse happy_var_4)) happy_var_2)) enum1 attrs_opt1 enumerator_list1) (fn _ => withNodeInfo 0)(*#line 7434.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.enum_specifier2, C_Grammar_Rule.enum_specifier)
+ in ( LALR_Table.NT 54, ( result, enum1left, x7d1right), rest671)
+end
+|  ( 208, ( ( _, ( _, _, x7d1right)) :: ( _, ( C_Grammar_Rule.enumerator_list enumerator_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.identifier identifier1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 635.69 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) enum1 attrs_opt1 identifier1 enumerator_list1) (fn _ => withNodeInfo 0)(*#line 7438.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.enum_specifier3, C_Grammar_Rule.enum_specifier)
+ in ( LALR_Table.NT 54, ( result, enum1left, x7d1right), rest671)
+end
+|  ( 209, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( C_Grammar_Rule.enumerator_list enumerator_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.identifier identifier1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 636.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) (Just (reverse happy_var_5)) happy_var_2)) enum1 attrs_opt1 identifier1 enumerator_list1) (fn _ => withNodeInfo 0)(*#line 7442.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.enum_specifier4, C_Grammar_Rule.enum_specifier)
+ in ( LALR_Table.NT 54, ( result, enum1left, x7d1right), rest671)
+end
+|  ( 210, ( ( _, ( C_Grammar_Rule.identifier identifier1, _, identifier1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.enum enum1, enum1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 637.45 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CEnum (Just happy_var_3) Nothing happy_var_2)) enum1 attrs_opt1 identifier1) (fn _ => withNodeInfo 0)(*#line 7446.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.enum_specifier5, C_Grammar_Rule.enum_specifier)
+ in ( LALR_Table.NT 54, ( result, enum1left, identifier1right), rest671)
+end
+|  ( 211, ( ( _, ( C_Grammar_Rule.enumerator enumerator1, enumerator1left, enumerator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 639.31 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) enumerator1(*#line 7450.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.enumerator_list1, C_Grammar_Rule.enumerator_list)
+ in ( LALR_Table.NT 55, ( result, enumerator1left, enumerator1right), rest671)
+end
+|  ( 212, ( ( _, ( C_Grammar_Rule.enumerator enumerator1, _, enumerator1right)) :: _ :: ( _, ( C_Grammar_Rule.enumerator_list enumerator_list1, enumerator_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 640.51 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) enumerator_list1 enumerator1(*#line 7454.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.enumerator_list2, C_Grammar_Rule.enumerator_list)
+ in ( LALR_Table.NT 55, ( result, enumerator_list1left, enumerator1right), rest671)
+end
+|  ( 213, ( ( _, ( C_Grammar_Rule.identifier identifier1, identifier1left, identifier1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 642.26 "c_grammar_fun.grm"*)(fn happy_var_1 => (happy_var_1, Nothing)) identifier1(*#line 7458.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.enumerator1, C_Grammar_Rule.enumerator)
+ in ( LALR_Table.NT 56, ( result, identifier1left, identifier1right), rest671)
+end
+|  ( 214, ( ( _, ( _, _, attrs1right)) :: ( _, ( C_Grammar_Rule.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 643.32 "c_grammar_fun.grm"*)(fn happy_var_1 => (happy_var_1, Nothing)) identifier1(*#line 7462.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.enumerator2, C_Grammar_Rule.enumerator)
+ in ( LALR_Table.NT 56, ( result, identifier1left, attrs1right), rest671)
+end
+|  ( 215, ( ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: _ :: ( _, ( C_Grammar_Rule.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 644.56 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_4 => (happy_var_1, Just happy_var_4)) identifier1 constant_expression1(*#line 7466.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.enumerator3, C_Grammar_Rule.enumerator)
+ in ( LALR_Table.NT 56, ( result, identifier1left, constant_expression1right), rest671)
+end
+|  ( 216, ( ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 645.50 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => (happy_var_1, Just happy_var_3)) identifier1 constant_expression1(*#line 7470.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.enumerator4, C_Grammar_Rule.enumerator)
+ in ( LALR_Table.NT 56, ( result, identifier1left, constant_expression1right), rest671)
+end
+|  ( 217, ( ( _, ( C_Grammar_Rule.const const1, const1left, const1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 647.25 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CConstQual)) const1) (fn _ => withNodeInfo 0)(*#line 7474.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_qualifier1, C_Grammar_Rule.type_qualifier)
+ in ( LALR_Table.NT 57, ( result, const1left, const1right), rest671)
+end
+|  ( 218, ( ( _, ( C_Grammar_Rule.volatile volatile1, volatile1left, volatile1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 648.28 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVolatQual)) volatile1) (fn _ => withNodeInfo 0)(*#line 7478.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_qualifier2, C_Grammar_Rule.type_qualifier)
+ in ( LALR_Table.NT 57, ( result, volatile1left, volatile1right), rest671)
+end
+|  ( 219, ( ( _, ( C_Grammar_Rule.restrict restrict1, restrict1left, restrict1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 649.28 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CRestrQual)) restrict1) (fn _ => withNodeInfo 0)(*#line 7482.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_qualifier3, C_Grammar_Rule.type_qualifier)
+ in ( LALR_Table.NT 57, ( result, restrict1left, restrict1right), rest671)
+end
+|  ( 220, ( ( _, ( C_Grammar_Rule.x5f_Nullable x5f_Nullable1, x5f_Nullable1left, x5f_Nullable1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 650.32 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNullableQual)) x5f_Nullable1) (fn _ => withNodeInfo 0)(*#line 7486.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_qualifier4, C_Grammar_Rule.type_qualifier)
+ in ( LALR_Table.NT 57, ( result, x5f_Nullable1left, x5f_Nullable1right), rest671)
+end
+|  ( 221, ( ( _, ( C_Grammar_Rule.x5f_Nonnull x5f_Nonnull1, x5f_Nonnull1left, x5f_Nonnull1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 651.31 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CNonnullQual)) x5f_Nonnull1) (fn _ => withNodeInfo 0)(*#line 7490.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_qualifier5, C_Grammar_Rule.type_qualifier)
+ in ( LALR_Table.NT 57, ( result, x5f_Nonnull1left, x5f_Nonnull1right), rest671)
+end
+|  ( 222, ( ( _, ( C_Grammar_Rule.x5f_Atomic x5f_Atomic1, x5f_Atomic1left, x5f_Atomic1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 652.30 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CAtomicQual)) x5f_Atomic1) (fn _ => withNodeInfo 0)(*#line 7494.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_qualifier6, C_Grammar_Rule.type_qualifier)
+ in ( LALR_Table.NT 57, ( result, x5f_Atomic1left, x5f_Atomic1right), rest671)
+end
+|  ( 223, ( ( _, ( C_Grammar_Rule.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, attrs_opt1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 654.49 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (reverseList (map CAttrQual happy_var_1)) (happy_var_2)) attrs_opt1 type_qualifier1(*#line 7498.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.type_qualifier_list1, C_Grammar_Rule.type_qualifier_list)
+ in ( LALR_Table.NT 58, ( result, attrs_opt1left, type_qualifier1right), rest671)
+end
+|  ( 224, ( ( _, ( C_Grammar_Rule.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 655.59 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) type_qualifier_list1 type_qualifier1(*#line 7502.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.type_qualifier_list2, C_Grammar_Rule.type_qualifier_list)
+ in ( LALR_Table.NT 58, ( result, type_qualifier_list1left, type_qualifier1right), rest671)
+end
+|  ( 225, ( ( _, ( C_Grammar_Rule.type_qualifier type_qualifier1, _, type_qualifier1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 656.65 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => snoc ((rappend (happy_var_1) (map CAttrQual happy_var_2))) (happy_var_3)) type_qualifier_list1 attrs1 type_qualifier1(*#line 7506.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.type_qualifier_list3, C_Grammar_Rule.type_qualifier_list)
+ in ( LALR_Table.NT 58, ( result, type_qualifier_list1left, type_qualifier1right), rest671)
+end
+|  ( 226, ( ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, identifier_declarator1left, identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 658.37 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) identifier_declarator1(*#line 7510.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declarator1, C_Grammar_Rule.declarator)
+ in ( LALR_Table.NT 59, ( result, identifier_declarator1left, identifier_declarator1right), rest671)
+end
+|  ( 227, ( ( _, ( C_Grammar_Rule.typedef_declarator typedef_declarator1, typedef_declarator1left, typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 659.34 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) typedef_declarator1(*#line 7514.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.declarator2, C_Grammar_Rule.declarator)
+ in ( LALR_Table.NT 59, ( result, typedef_declarator1left, typedef_declarator1right), rest671)
+end
+|  ( 228, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 661.13 "c_grammar_fun.grm"*)Nothing(*#line 7518.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.asm_opt1, C_Grammar_Rule.asm_opt)
+ in ( LALR_Table.NT 60, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 229, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.string_literal string_literal1, _, _)) :: _ :: ( _, ( _, asm1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 662.39 "c_grammar_fun.grm"*)(fn happy_var_3 => Just happy_var_3) string_literal1(*#line 7522.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.asm_opt2, C_Grammar_Rule.asm_opt)
+ in ( LALR_Table.NT 60, ( result, asm1left, x291right), rest671)
+end
+|  ( 230, ( ( _, ( C_Grammar_Rule.paren_typedef_declarator paren_typedef_declarator1, paren_typedef_declarator1left, paren_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 664.48 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) paren_typedef_declarator1(*#line 7526.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.typedef_declarator1, C_Grammar_Rule.typedef_declarator)
+ in ( LALR_Table.NT 61, ( result, paren_typedef_declarator1left, paren_typedef_declarator1right), rest671)
+end
+|  ( 231, ( ( _, ( C_Grammar_Rule.parameter_typedef_declarator parameter_typedef_declarator1, parameter_typedef_declarator1left, parameter_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 665.52 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) parameter_typedef_declarator1(*#line 7530.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.typedef_declarator2, C_Grammar_Rule.typedef_declarator)
+ in ( LALR_Table.NT 61, ( result, parameter_typedef_declarator1left, parameter_typedef_declarator1right), rest671)
+end
+|  ( 232, ( ( _, ( C_Grammar_Rule.tyident tyident1, tyident1left, tyident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 667.41 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) tyident1) (fn _ => withNodeInfo 0)(*#line 7534.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_typedef_declarator1, C_Grammar_Rule.parameter_typedef_declarator)
+ in ( LALR_Table.NT 62, ( result, tyident1left, tyident1right), rest671)
+end
+|  ( 233, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.tyident tyident1, tyident1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 668.72 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => happy_var_2 (mkVarDeclr happy_var_1 at))) tyident1 postfixing_abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7538.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_typedef_declarator2, C_Grammar_Rule.parameter_typedef_declarator)
+ in ( LALR_Table.NT 62, ( result, tyident1left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 234, ( ( _, ( C_Grammar_Rule.clean_typedef_declarator clean_typedef_declarator1, clean_typedef_declarator1left, clean_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 669.58 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) clean_typedef_declarator1(*#line 7542.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.parameter_typedef_declarator3, C_Grammar_Rule.parameter_typedef_declarator)
+ in ( LALR_Table.NT 62, ( result, clean_typedef_declarator1left, clean_typedef_declarator1right), rest671)
+end
+|  ( 235, ( ( _, ( C_Grammar_Rule.clean_postfix_typedef_declarator clean_postfix_typedef_declarator1, clean_postfix_typedef_declarator1left, clean_postfix_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 671.62 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) clean_postfix_typedef_declarator1(*#line 7546.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.clean_typedef_declarator1, C_Grammar_Rule.clean_typedef_declarator)
+ in ( LALR_Table.NT 63, ( result, clean_postfix_typedef_declarator1left, clean_postfix_typedef_declarator1right), rest671)
+end
+|  ( 236, ( ( _, ( C_Grammar_Rule.parameter_typedef_declarator parameter_typedef_declarator1, _, parameter_typedef_declarator1right)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 672.62 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 parameter_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7550.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.clean_typedef_declarator2, C_Grammar_Rule.clean_typedef_declarator)
+ in ( LALR_Table.NT 63, ( result, x2a1left, parameter_typedef_declarator1right), rest671)
+end
+|  ( 237, ( ( _, ( C_Grammar_Rule.parameter_typedef_declarator parameter_typedef_declarator1, _, parameter_typedef_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 673.68 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 parameter_typedef_declarator1) (fn _ => withAttribute 0)(*#line 7554.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.clean_typedef_declarator3, C_Grammar_Rule.clean_typedef_declarator)
+ in ( LALR_Table.NT 63, ( result, x2a1left, parameter_typedef_declarator1right), rest671)
+end
+|  ( 238, ( ( _, ( C_Grammar_Rule.parameter_typedef_declarator parameter_typedef_declarator1, _, parameter_typedef_declarator1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 674.82 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 parameter_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7558.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.clean_typedef_declarator4, C_Grammar_Rule.clean_typedef_declarator)
+ in ( LALR_Table.NT 63, ( result, x2a1left, parameter_typedef_declarator1right), rest671)
+end
+|  ( 239, ( ( _, ( C_Grammar_Rule.parameter_typedef_declarator parameter_typedef_declarator1, _, parameter_typedef_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 675.88 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 parameter_typedef_declarator1) (fn _ => withAttribute 0)(*#line 7562.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.clean_typedef_declarator5, C_Grammar_Rule.clean_typedef_declarator)
+ in ( LALR_Table.NT 63, ( result, x2a1left, parameter_typedef_declarator1right), rest671)
+end
+|  ( 240, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.clean_typedef_declarator clean_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 677.70 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) clean_typedef_declarator1(*#line 7566.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.clean_postfix_typedef_declarator1, C_Grammar_Rule.clean_postfix_typedef_declarator)
+ in ( LALR_Table.NT 64, ( result, x281left, x291right), rest671)
+end
+|  ( 241, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( C_Grammar_Rule.clean_typedef_declarator clean_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 678.101 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) clean_typedef_declarator1 postfixing_abstract_declarator1(*#line 7570.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.clean_postfix_typedef_declarator2, C_Grammar_Rule.clean_postfix_typedef_declarator)
+ in ( LALR_Table.NT 64, ( result, x281left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 242, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.clean_typedef_declarator clean_typedef_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 679.76 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 clean_typedef_declarator1(*#line 7574.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.clean_postfix_typedef_declarator3, C_Grammar_Rule.clean_postfix_typedef_declarator)
+ in ( LALR_Table.NT 64, ( result, x281left, x291right), rest671)
+end
+|  ( 243, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( C_Grammar_Rule.clean_typedef_declarator clean_typedef_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 680.107 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 clean_typedef_declarator1 postfixing_abstract_declarator1(*#line 7578.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.clean_postfix_typedef_declarator4, C_Grammar_Rule.clean_postfix_typedef_declarator)
+ in ( LALR_Table.NT 64, ( result, x281left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 244, ( ( _, ( C_Grammar_Rule.paren_postfix_typedef_declarator paren_postfix_typedef_declarator1, paren_postfix_typedef_declarator1left, paren_postfix_typedef_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 682.62 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) paren_postfix_typedef_declarator1(*#line 7582.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.paren_typedef_declarator1, C_Grammar_Rule.paren_typedef_declarator)
+ in ( LALR_Table.NT 65, ( result, paren_postfix_typedef_declarator1left, paren_postfix_typedef_declarator1right), rest671)
+end
+|  ( 245, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 683.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 [])) x2a1 simple_paren_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7586.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.paren_typedef_declarator2, C_Grammar_Rule.paren_typedef_declarator)
+ in ( LALR_Table.NT 65, ( result, x2a1left, x291right), rest671)
+end
+|  ( 246, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 684.93 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 simple_paren_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7590.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.paren_typedef_declarator3, C_Grammar_Rule.paren_typedef_declarator)
+ in ( LALR_Table.NT 65, ( result, x2a1left, x291right), rest671)
+end
+|  ( 247, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 685.99 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_5 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 simple_paren_typedef_declarator1) (fn _ => withAttribute 0)(*#line 7594.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.paren_typedef_declarator4, C_Grammar_Rule.paren_typedef_declarator)
+ in ( LALR_Table.NT 65, ( result, x2a1left, x291right), rest671)
+end
+|  ( 248, ( ( _, ( C_Grammar_Rule.paren_typedef_declarator paren_typedef_declarator1, _, paren_typedef_declarator1right)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 686.58 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 paren_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7598.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.paren_typedef_declarator5, C_Grammar_Rule.paren_typedef_declarator)
+ in ( LALR_Table.NT 65, ( result, x2a1left, paren_typedef_declarator1right), rest671)
+end
+|  ( 249, ( ( _, ( C_Grammar_Rule.paren_typedef_declarator paren_typedef_declarator1, _, paren_typedef_declarator1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 687.78 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 paren_typedef_declarator1) (fn _ => withNodeInfo 0)(*#line 7602.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.paren_typedef_declarator6, C_Grammar_Rule.paren_typedef_declarator)
+ in ( LALR_Table.NT 65, ( result, x2a1left, paren_typedef_declarator1right), rest671)
+end
+|  ( 250, ( ( _, ( C_Grammar_Rule.paren_typedef_declarator paren_typedef_declarator1, _, paren_typedef_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 688.84 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 paren_typedef_declarator1) (fn _ => withAttribute 0)(*#line 7606.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.paren_typedef_declarator7, C_Grammar_Rule.paren_typedef_declarator)
+ in ( LALR_Table.NT 65, ( result, x2a1left, paren_typedef_declarator1right), rest671)
+end
+|  ( 251, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.paren_typedef_declarator paren_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 690.70 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) paren_typedef_declarator1(*#line 7610.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.paren_postfix_typedef_declarator1, C_Grammar_Rule.paren_postfix_typedef_declarator)
+ in ( LALR_Table.NT 66, ( result, x281left, x291right), rest671)
+end
+|  ( 252, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 691.108 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => happy_var_3 happy_var_2) simple_paren_typedef_declarator1 postfixing_abstract_declarator1(*#line 7614.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.paren_postfix_typedef_declarator2, C_Grammar_Rule.paren_postfix_typedef_declarator)
+ in ( LALR_Table.NT 66, ( result, x281left, x291right), rest671)
+end
+|  ( 253, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( C_Grammar_Rule.paren_typedef_declarator paren_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 692.101 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) paren_typedef_declarator1 postfixing_abstract_declarator1(*#line 7618.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.paren_postfix_typedef_declarator3, C_Grammar_Rule.paren_postfix_typedef_declarator)
+ in ( LALR_Table.NT 66, ( result, x281left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 254, ( ( _, ( C_Grammar_Rule.tyident tyident1, tyident1left, tyident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 694.44 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) tyident1) (fn _ => withNodeInfo 0)(*#line 7622.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.simple_paren_typedef_declarator1, C_Grammar_Rule.simple_paren_typedef_declarator)
+ in ( LALR_Table.NT 67, ( result, tyident1left, tyident1right), rest671)
+end
+|  ( 255, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.simple_paren_typedef_declarator simple_paren_typedef_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 695.76 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) simple_paren_typedef_declarator1(*#line 7626.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.simple_paren_typedef_declarator2, C_Grammar_Rule.simple_paren_typedef_declarator)
+ in ( LALR_Table.NT 67, ( result, x281left, x291right), rest671)
+end
+|  ( 256, ( ( _, ( C_Grammar_Rule.unary_identifier_declarator unary_identifier_declarator1, unary_identifier_declarator1left, unary_identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 697.54 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) unary_identifier_declarator1(*#line 7630.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.identifier_declarator1, C_Grammar_Rule.identifier_declarator)
+ in ( LALR_Table.NT 68, ( result, unary_identifier_declarator1left, unary_identifier_declarator1right), rest671)
+end
+|  ( 257, ( ( _, ( C_Grammar_Rule.paren_identifier_declarator paren_identifier_declarator1, paren_identifier_declarator1left, paren_identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 698.54 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) paren_identifier_declarator1(*#line 7634.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.identifier_declarator2, C_Grammar_Rule.identifier_declarator)
+ in ( LALR_Table.NT 68, ( result, paren_identifier_declarator1left, paren_identifier_declarator1right), rest671)
+end
+|  ( 258, ( ( _, ( C_Grammar_Rule.postfix_identifier_declarator postfix_identifier_declarator1, postfix_identifier_declarator1left, postfix_identifier_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 700.62 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) postfix_identifier_declarator1(*#line 7638.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.unary_identifier_declarator1, C_Grammar_Rule.unary_identifier_declarator)
+ in ( LALR_Table.NT 69, ( result, postfix_identifier_declarator1left, postfix_identifier_declarator1right), rest671)
+end
+|  ( 259, ( ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, identifier_declarator1right)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 701.58 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 identifier_declarator1) (fn _ => withNodeInfo 0)(*#line 7642.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_identifier_declarator2, C_Grammar_Rule.unary_identifier_declarator)
+ in ( LALR_Table.NT 69, ( result, x2a1left, identifier_declarator1right), rest671)
+end
+|  ( 260, ( ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, identifier_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 702.64 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 identifier_declarator1) (fn _ => withAttribute 0)(*#line 7646.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_identifier_declarator3, C_Grammar_Rule.unary_identifier_declarator)
+ in ( LALR_Table.NT 69, ( result, x2a1left, identifier_declarator1right), rest671)
+end
+|  ( 261, ( ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, identifier_declarator1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 703.78 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 identifier_declarator1) (fn _ => withNodeInfo 0)(*#line 7650.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_identifier_declarator4, C_Grammar_Rule.unary_identifier_declarator)
+ in ( LALR_Table.NT 69, ( result, x2a1left, identifier_declarator1right), rest671)
+end
+|  ( 262, ( ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, identifier_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 704.84 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttribute happy_var_1 happy_var_3 (ptrDeclr happy_var_4 (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs1 identifier_declarator1) (fn _ => withAttribute 0)(*#line 7654.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_identifier_declarator5, C_Grammar_Rule.unary_identifier_declarator)
+ in ( LALR_Table.NT 69, ( result, x2a1left, identifier_declarator1right), rest671)
+end
+|  ( 263, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.paren_identifier_declarator paren_identifier_declarator1, paren_identifier_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 706.93 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => happy_var_2 happy_var_1) paren_identifier_declarator1 postfixing_abstract_declarator1(*#line 7658.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_identifier_declarator1, C_Grammar_Rule.postfix_identifier_declarator)
+ in ( LALR_Table.NT 70, ( result, paren_identifier_declarator1left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 264, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.unary_identifier_declarator unary_identifier_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 707.70 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) unary_identifier_declarator1(*#line 7662.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_identifier_declarator2, C_Grammar_Rule.postfix_identifier_declarator)
+ in ( LALR_Table.NT 70, ( result, x281left, x291right), rest671)
+end
+|  ( 265, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( C_Grammar_Rule.unary_identifier_declarator unary_identifier_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 708.101 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) unary_identifier_declarator1 postfixing_abstract_declarator1(*#line 7666.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_identifier_declarator3, C_Grammar_Rule.postfix_identifier_declarator)
+ in ( LALR_Table.NT 70, ( result, x281left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 266, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.unary_identifier_declarator unary_identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 709.76 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 unary_identifier_declarator1(*#line 7670.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_identifier_declarator4, C_Grammar_Rule.postfix_identifier_declarator)
+ in ( LALR_Table.NT 70, ( result, x281left, x291right), rest671)
+end
+|  ( 267, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( C_Grammar_Rule.unary_identifier_declarator unary_identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 710.107 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 unary_identifier_declarator1 postfixing_abstract_declarator1(*#line 7674.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_identifier_declarator5, C_Grammar_Rule.postfix_identifier_declarator)
+ in ( LALR_Table.NT 70, ( result, x281left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 268, ( ( _, ( C_Grammar_Rule.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 712.38 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (mkVarDeclr happy_var_1)) ident1) (fn _ => withNodeInfo 0)(*#line 7678.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.paren_identifier_declarator1, C_Grammar_Rule.paren_identifier_declarator)
+ in ( LALR_Table.NT 71, ( result, ident1left, ident1right), rest671)
+end
+|  ( 269, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.paren_identifier_declarator paren_identifier_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 713.68 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) paren_identifier_declarator1(*#line 7682.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.paren_identifier_declarator2, C_Grammar_Rule.paren_identifier_declarator)
+ in ( LALR_Table.NT 71, ( result, x281left, x291right), rest671)
+end
+|  ( 270, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.paren_identifier_declarator paren_identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 714.74 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 paren_identifier_declarator1(*#line 7686.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.paren_identifier_declarator3, C_Grammar_Rule.paren_identifier_declarator)
+ in ( LALR_Table.NT 71, ( result, x281left, x291right), rest671)
+end
+|  ( 271, ( ( _, ( C_Grammar_Rule.old_function_declarator old_function_declarator1, old_function_declarator1left, old_function_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 716.52 "c_grammar_fun.grm"*)(fn happy_var_1 => reverseDeclr happy_var_1) old_function_declarator1(*#line 7690.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.function_declarator_old, C_Grammar_Rule.function_declarator_old)
+ in ( LALR_Table.NT 72, ( result, old_function_declarator1left, old_function_declarator1right), rest671)
+end
+|  ( 272, ( ( _, ( C_Grammar_Rule.postfix_old_function_declarator postfix_old_function_declarator1, postfix_old_function_declarator1left, postfix_old_function_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 718.60 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) postfix_old_function_declarator1(*#line 7694.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.old_function_declarator1, C_Grammar_Rule.old_function_declarator)
+ in ( LALR_Table.NT 73, ( result, postfix_old_function_declarator1left, postfix_old_function_declarator1right), rest671)
+end
+|  ( 273, ( ( _, ( C_Grammar_Rule.old_function_declarator old_function_declarator1, _, old_function_declarator1right)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 719.56 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 old_function_declarator1) (fn _ => withNodeInfo 0)(*#line 7698.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.old_function_declarator2, C_Grammar_Rule.old_function_declarator)
+ in ( LALR_Table.NT 73, ( result, x2a1left, old_function_declarator1right), rest671)
+end
+|  ( 274, ( ( _, ( C_Grammar_Rule.old_function_declarator old_function_declarator1, _, old_function_declarator1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 720.76 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 old_function_declarator1) (fn _ => withNodeInfo 0)(*#line 7702.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.old_function_declarator3, C_Grammar_Rule.old_function_declarator)
+ in ( LALR_Table.NT 73, ( result, x2a1left, old_function_declarator1right), rest671)
+end
+|  ( 275, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.identifier_list identifier_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.paren_identifier_declarator paren_identifier_declarator1, paren_identifier_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 722.88 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (funDeclr happy_var_1 (Left (reverse happy_var_3)) [])) paren_identifier_declarator1 identifier_list1) (fn _ => withNodeInfo 0)(*#line 7706.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_old_function_declarator1, C_Grammar_Rule.postfix_old_function_declarator)
+ in ( LALR_Table.NT 74, ( result, paren_identifier_declarator1left, x291right), rest671)
+end
+|  ( 276, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.old_function_declarator old_function_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 723.68 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) old_function_declarator1(*#line 7710.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_old_function_declarator2, C_Grammar_Rule.postfix_old_function_declarator)
+ in ( LALR_Table.NT 74, ( result, x281left, x291right), rest671)
+end
+|  ( 277, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( C_Grammar_Rule.old_function_declarator old_function_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 724.99 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) old_function_declarator1 postfixing_abstract_declarator1(*#line 7714.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_old_function_declarator3, C_Grammar_Rule.postfix_old_function_declarator)
+ in ( LALR_Table.NT 74, ( result, x281left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 278, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 726.25 "c_grammar_fun.grm"*)([], False)(*#line 7718.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.parameter_type_list1, C_Grammar_Rule.parameter_type_list)
+ in ( LALR_Table.NT 75, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 279, ( ( _, ( C_Grammar_Rule.parameter_list parameter_list1, parameter_list1left, parameter_list1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 727.39 "c_grammar_fun.grm"*)(fn happy_var_1 => (reverse happy_var_1, False)) parameter_list1(*#line 7722.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.parameter_type_list2, C_Grammar_Rule.parameter_type_list)
+ in ( LALR_Table.NT 75, ( result, parameter_list1left, parameter_list1right), rest671)
+end
+|  ( 280, ( ( _, ( _, _, x2e_x2e_x2e1right)) :: _ :: ( _, ( C_Grammar_Rule.parameter_list parameter_list1, parameter_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 728.55 "c_grammar_fun.grm"*)(fn happy_var_1 => (reverse happy_var_1, True)) parameter_list1(*#line 7726.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.parameter_type_list3, C_Grammar_Rule.parameter_type_list)
+ in ( LALR_Table.NT 75, ( result, parameter_list1left, x2e_x2e_x2e1right), rest671)
+end
+|  ( 281, ( ( _, ( C_Grammar_Rule.parameter_declaration parameter_declaration1, parameter_declaration1left, parameter_declaration1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 730.41 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) parameter_declaration1(*#line 7730.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.parameter_list1, C_Grammar_Rule.parameter_list)
+ in ( LALR_Table.NT 76, ( result, parameter_declaration1left, parameter_declaration1right), rest671)
+end
+|  ( 282, ( ( _, ( C_Grammar_Rule.parameter_declaration parameter_declaration1, _, parameter_declaration1right)) :: _ :: ( _, ( C_Grammar_Rule.parameter_list parameter_list1, parameter_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 731.60 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) parameter_list1 parameter_declaration1(*#line 7734.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.parameter_list2, C_Grammar_Rule.parameter_list)
+ in ( LALR_Table.NT 76, ( result, parameter_list1left, parameter_declaration1right), rest671)
+end
+|  ( 283, ( ( _, ( C_Grammar_Rule.declaration_specifier declaration_specifier1, declaration_specifier1left, declaration_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 733.48 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) declaration_specifier1) (fn _ => withNodeInfo 0)(*#line 7738.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration1, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, declaration_specifier1left, declaration_specifier1right), rest671)
+end
+|  ( 284, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 734.68 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) declaration_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7742.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration2, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, declaration_specifier1left, abstract_declarator1right), rest671)
+end
+|  ( 285, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 735.80 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_specifier1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7746.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration3, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, declaration_specifier1left, attrs_opt1right), rest671)
+end
+|  ( 286, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.parameter_typedef_declarator parameter_typedef_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_specifier declaration_specifier1, declaration_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 736.87 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_specifier1 parameter_typedef_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7750.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration4, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, declaration_specifier1left, attrs_opt1right), rest671)
+end
+|  ( 287, ( ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, declaration_qualifier_list1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 737.53 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (reverse happy_var_1) [])) declaration_qualifier_list1) (fn _ => withNodeInfo 0)(*#line 7754.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration5, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, declaration_qualifier_list1left, declaration_qualifier_list1right), rest671)
+end
+|  ( 288, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 738.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (reverse happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) declaration_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7758.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration6, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, declaration_qualifier_list1left, abstract_declarator1right), rest671)
+end
+|  ( 289, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.declaration_qualifier_list declaration_qualifier_list1, declaration_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 739.85 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat (reverse happy_var_1) [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) declaration_qualifier_list1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7762.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration7, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, declaration_qualifier_list1left, attrs_opt1right), rest671)
+end
+|  ( 290, ( ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 740.41 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0)(*#line 7766.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration8, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, type_specifier1left, type_specifier1right), rest671)
+end
+|  ( 291, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 741.61 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7770.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration9, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, type_specifier1left, abstract_declarator1right), rest671)
+end
+|  ( 292, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 742.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_specifier1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7774.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration10, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, type_specifier1left, attrs_opt1right), rest671)
+end
+|  ( 293, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.parameter_typedef_declarator parameter_typedef_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 743.80 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_specifier1 parameter_typedef_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7778.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration11, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, type_specifier1left, attrs_opt1right), rest671)
+end
+|  ( 294, ( ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, type_qualifier_list1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 744.46 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1) [])) type_qualifier_list1) (fn _ => withNodeInfo 0)(*#line 7782.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration12, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, type_qualifier_list1left, type_qualifier_list1right), rest671)
+end
+|  ( 295, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 745.51 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [])) type_qualifier_list1 attr1) (fn _ => withNodeInfo 0)(*#line 7786.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration13, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, type_qualifier_list1left, attr1right), rest671)
+end
+|  ( 296, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 746.66 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7790.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration14, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, type_qualifier_list1left, abstract_declarator1right), rest671)
+end
+|  ( 297, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.identifier_declarator identifier_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 747.78 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr (appendDeclrAttrs happy_var_3 happy_var_2)), Nothing, Nothing)])) type_qualifier_list1 identifier_declarator1 attrs_opt1) (fn _ => withNodeInfo 0)(*#line 7794.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.parameter_declaration15, C_Grammar_Rule.parameter_declaration)
+ in ( LALR_Table.NT 77, ( result, type_qualifier_list1left, attrs_opt1right), rest671)
+end
+|  ( 298, ( ( _, ( C_Grammar_Rule.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 749.26 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) ident1(*#line 7798.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.identifier_list1, C_Grammar_Rule.identifier_list)
+ in ( LALR_Table.NT 78, ( result, ident1left, ident1right), rest671)
+end
+|  ( 299, ( ( _, ( C_Grammar_Rule.ident ident1, _, ident1right)) :: _ :: ( _, ( C_Grammar_Rule.identifier_list identifier_list1, identifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 750.46 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) identifier_list1 ident1(*#line 7802.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.identifier_list2, C_Grammar_Rule.identifier_list)
+ in ( LALR_Table.NT 78, ( result, identifier_list1left, ident1right), rest671)
+end
+|  ( 300, ( ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, type_specifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 752.29 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CDecl happy_var_1 [])) type_specifier1) (fn _ => withNodeInfo 0)(*#line 7806.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_name1, C_Grammar_Rule.type_name)
+ in ( LALR_Table.NT 79, ( result, type_specifier1left, type_specifier1right), rest671)
+end
+|  ( 301, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.type_specifier type_specifier1, type_specifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 753.49 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat happy_var_1 [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_specifier1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7810.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_name2, C_Grammar_Rule.type_name)
+ in ( LALR_Table.NT 79, ( result, type_specifier1left, abstract_declarator1right), rest671)
+end
+|  ( 302, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 754.39 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl (liftTypeQuals happy_var_1 @ liftCAttrs happy_var_2) [])) type_qualifier_list1 attr1) (fn _ => withNodeInfo 0)(*#line 7814.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_name3, C_Grammar_Rule.type_name)
+ in ( LALR_Table.NT 79, ( result, type_qualifier_list1left, attr1right), rest671)
+end
+|  ( 303, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, type_qualifier_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 755.54 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CDecl_flat (liftTypeQuals happy_var_1) [(Just (reverseDeclr happy_var_2), Nothing, Nothing)])) type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7818.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.type_name4, C_Grammar_Rule.type_name)
+ in ( LALR_Table.NT 79, ( result, type_qualifier_list1left, abstract_declarator1right), rest671)
+end
+|  ( 304, ( ( _, ( C_Grammar_Rule.unary_abstract_declarator unary_abstract_declarator1, unary_abstract_declarator1left, unary_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 757.50 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) unary_abstract_declarator1(*#line 7822.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.abstract_declarator1, C_Grammar_Rule.abstract_declarator)
+ in ( LALR_Table.NT 80, ( result, unary_abstract_declarator1left, unary_abstract_declarator1right), rest671)
+end
+|  ( 305, ( ( _, ( C_Grammar_Rule.postfix_abstract_declarator postfix_abstract_declarator1, postfix_abstract_declarator1left, postfix_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 758.52 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) postfix_abstract_declarator1(*#line 7826.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.abstract_declarator2, C_Grammar_Rule.abstract_declarator)
+ in ( LALR_Table.NT 80, ( result, postfix_abstract_declarator1left, postfix_abstract_declarator1right), rest671)
+end
+|  ( 306, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, postfixing_abstract_declarator1left, postfixing_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 759.55 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1 emptyDeclr) postfixing_abstract_declarator1(*#line 7830.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.abstract_declarator3, C_Grammar_Rule.abstract_declarator)
+ in ( LALR_Table.NT 80, ( result, postfixing_abstract_declarator1left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 307, ( ( _, ( C_Grammar_Rule.array_abstract_declarator array_abstract_declarator1, array_abstract_declarator1left, array_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 761.61 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) array_abstract_declarator1(*#line 7834.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfixing_abstract_declarator1, C_Grammar_Rule.postfixing_abstract_declarator)
+ in ( LALR_Table.NT 81, ( result, array_abstract_declarator1left, array_abstract_declarator1right), rest671)
+end
+|  ( 308, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.parameter_type_list parameter_type_list1, _, _)) :: ( _, ( C_Grammar_Rule.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 762.63 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => fn declr => case happy_var_2 of (params,variadic) => funDeclr declr (Right (params, variadic)) [] at)) x281 parameter_type_list1) (fn _ => withNodeInfo 0)(*#line 7838.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfixing_abstract_declarator2, C_Grammar_Rule.postfixing_abstract_declarator)
+ in ( LALR_Table.NT 81, ( result, x281left, x291right), rest671)
+end
+|  ( 309, ( ( _, ( C_Grammar_Rule.postfix_array_abstract_declarator postfix_array_abstract_declarator1, postfix_array_abstract_declarator1left, postfix_array_abstract_declarator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 764.64 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) postfix_array_abstract_declarator1(*#line 7842.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.array_abstract_declarator1, C_Grammar_Rule.array_abstract_declarator)
+ in ( LALR_Table.NT 82, ( result, postfix_array_abstract_declarator1left, postfix_array_abstract_declarator1right), rest671)
+end
+|  ( 310, ( ( _, ( C_Grammar_Rule.postfix_array_abstract_declarator postfix_array_abstract_declarator1, _, postfix_array_abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.array_abstract_declarator array_abstract_declarator1, array_abstract_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 765.90 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => fn decl => happy_var_2 (happy_var_1 decl)) array_abstract_declarator1 postfix_array_abstract_declarator1(*#line 7846.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.array_abstract_declarator2, C_Grammar_Rule.array_abstract_declarator)
+ in ( LALR_Table.NT 82, ( result, array_abstract_declarator1left, postfix_array_abstract_declarator1right), rest671)
+end
+|  ( 311, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.assignment_expression_opt assignment_expression_opt1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 767.72 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (fn at => fn declr => arrDeclr declr [] False False happy_var_2 at)) x5b1 assignment_expression_opt1) (fn _ => withNodeInfo 0)(*#line 7850.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator1, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 312, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.assignment_expression_opt assignment_expression_opt1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 768.78 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttributePF happy_var_1 happy_var_2 (fn at => fn declr => arrDeclr declr [] False False happy_var_3 at)) x5b1 attrs1 assignment_expression_opt1) (fn _ => withAttributePF 0)(*#line 7854.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator2, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 313, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.assignment_expression_opt assignment_expression_opt1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 769.92 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False False happy_var_3 at)) x5b1 type_qualifier_list1 assignment_expression_opt1) (fn _ => withNodeInfo 0)(*#line 7858.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator3, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 314, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.assignment_expression_opt assignment_expression_opt1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 770.98 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False False happy_var_4 at)) x5b1 type_qualifier_list1 attrs1 assignment_expression_opt1) (fn _ => withAttributePF 0)(*#line 7862.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator4, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 315, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 771.85 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr [] False True (Just happy_var_4) at)) x5b1 attrs_opt1 assignment_expression1) (fn _ => withAttributePF 0)(*#line 7866.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator5, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 316, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 772.105 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => fn happy_var_5 => withAttributePF happy_var_1 happy_var_4 (fn at => fn declr => arrDeclr declr (reverse happy_var_3) False True (Just happy_var_5) at)) x5b1 type_qualifier_list1 attrs_opt1 assignment_expression1) (fn _ => withAttributePF 0)(*#line 7870.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator6, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 317, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, _)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt2, _, _)) :: _ :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 773.115 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => fn happy_var_6 => withAttributePF happy_var_1 (happy_var_3 @ happy_var_5) (fn at => fn declr => arrDeclr declr (reverse happy_var_2) False True (Just happy_var_6) at)) x5b1 type_qualifier_list1 attrs_opt1 attrs_opt2 assignment_expression1) (fn _ => withAttributePF 0)(*#line 7874.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator7, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 318, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 774.60 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_3 => withAttributePF happy_var_1 happy_var_3 (fn at => fn declr => arrDeclr declr [] True False Nothing at)) x5b1 attrs_opt1) (fn _ => withAttributePF 0)(*#line 7878.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator8, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 319, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 775.66 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withAttributePF happy_var_1 (happy_var_2 @ happy_var_4) (fn at => fn declr => arrDeclr declr [] True False Nothing at)) x5b1 attrs1 attrs_opt1) (fn _ => withAttributePF 0)(*#line 7882.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator9, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 320, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 776.80 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withAttributePF happy_var_1 happy_var_4 (fn at => fn declr => arrDeclr declr (reverse happy_var_2) True False Nothing at)) x5b1 type_qualifier_list1 attrs_opt1) (fn _ => withAttributePF 0)(*#line 7886.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator10, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 321, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 777.86 "c_grammar_fun.grm"*)(*%*)(fn withAttributePF => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => withAttributePF happy_var_1 (happy_var_3 @ happy_var_5) (fn at => fn declr => arrDeclr declr (reverse happy_var_2) True False Nothing at)) x5b1 type_qualifier_list1 attrs1 attrs_opt1) (fn _ => withAttributePF 0)(*#line 7890.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_array_abstract_declarator11, C_Grammar_Rule.postfix_array_abstract_declarator)
+ in ( LALR_Table.NT 83, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 322, ( ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, x2a1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 779.34 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (ptrDeclr emptyDeclr [])) x2a1) (fn _ => withNodeInfo 0)(*#line 7894.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_abstract_declarator1, C_Grammar_Rule.unary_abstract_declarator)
+ in ( LALR_Table.NT 84, ( result, x2a1left, x2a1right), rest671)
+end
+|  ( 323, ( ( _, ( C_Grammar_Rule.attrs_opt attrs_opt1, _, attrs_opt1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 780.64 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_3 (ptrDeclr emptyDeclr (reverse happy_var_2))) x2a1 type_qualifier_list1 attrs_opt1) (fn _ => withAttribute 0)(*#line 7898.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_abstract_declarator2, C_Grammar_Rule.unary_abstract_declarator)
+ in ( LALR_Table.NT 84, ( result, x2a1left, attrs_opt1right), rest671)
+end
+|  ( 324, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 781.54 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (ptrDeclr happy_var_2 [])) x2a1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7902.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_abstract_declarator3, C_Grammar_Rule.unary_abstract_declarator)
+ in ( LALR_Table.NT 84, ( result, x2a1left, abstract_declarator1right), rest671)
+end
+|  ( 325, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.type_qualifier_list type_qualifier_list1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 782.74 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (ptrDeclr happy_var_3 (reverse happy_var_2))) x2a1 type_qualifier_list1 abstract_declarator1) (fn _ => withNodeInfo 0)(*#line 7906.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_abstract_declarator4, C_Grammar_Rule.unary_abstract_declarator)
+ in ( LALR_Table.NT 84, ( result, x2a1left, abstract_declarator1right), rest671)
+end
+|  ( 326, ( ( _, ( C_Grammar_Rule.attrs attrs1, _, attrs1right)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 783.40 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => withAttribute happy_var_1 happy_var_2 (ptrDeclr emptyDeclr [])) x2a1 attrs1) (fn _ => withAttribute 0)(*#line 7910.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_abstract_declarator5, C_Grammar_Rule.unary_abstract_declarator)
+ in ( LALR_Table.NT 84, ( result, x2a1left, attrs1right), rest671)
+end
+|  ( 327, ( ( _, ( C_Grammar_Rule.abstract_declarator abstract_declarator1, _, abstract_declarator1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 784.60 "c_grammar_fun.grm"*)(*%*)(fn withAttribute => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withAttribute happy_var_1 happy_var_2 (ptrDeclr happy_var_3 [])) x2a1 attrs1 abstract_declarator1) (fn _ => withAttribute 0)(*#line 7914.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_abstract_declarator6, C_Grammar_Rule.unary_abstract_declarator)
+ in ( LALR_Table.NT 84, ( result, x2a1left, abstract_declarator1right), rest671)
+end
+|  ( 328, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.unary_abstract_declarator unary_abstract_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 786.66 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) unary_abstract_declarator1(*#line 7918.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator1, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, x281left, x291right), rest671)
+end
+|  ( 329, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.postfix_abstract_declarator postfix_abstract_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 787.68 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) postfix_abstract_declarator1(*#line 7922.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator2, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, x281left, x291right), rest671)
+end
+|  ( 330, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 788.71 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2 emptyDeclr) postfixing_abstract_declarator1(*#line 7926.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator3, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, x281left, x291right), rest671)
+end
+|  ( 331, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( C_Grammar_Rule.unary_abstract_declarator unary_abstract_declarator1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 789.97 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_4 => happy_var_4 happy_var_2) unary_abstract_declarator1 postfixing_abstract_declarator1(*#line 7930.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator4, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, x281left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 332, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.unary_abstract_declarator unary_abstract_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 790.72 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 unary_abstract_declarator1(*#line 7934.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator5, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, x281left, x291right), rest671)
+end
+|  ( 333, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.postfix_abstract_declarator postfix_abstract_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 791.74 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 happy_var_3) attrs1 postfix_abstract_declarator1(*#line 7938.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator6, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, x281left, x291right), rest671)
+end
+|  ( 334, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 792.77 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => appendDeclrAttrs happy_var_2 (happy_var_3 emptyDeclr)) attrs1 postfixing_abstract_declarator1(*#line 7942.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator7, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, x281left, x291right), rest671)
+end
+|  ( 335, ( ( _, ( C_Grammar_Rule.postfixing_abstract_declarator postfixing_abstract_declarator1, _, postfixing_abstract_declarator1right)) :: _ :: ( _, ( C_Grammar_Rule.unary_abstract_declarator unary_abstract_declarator1, _, _)) :: ( _, ( C_Grammar_Rule.attrs attrs1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 793.103 "c_grammar_fun.grm"*)(fn happy_var_2 => fn happy_var_3 => fn happy_var_5 => appendDeclrAttrs happy_var_2 (happy_var_5 happy_var_3)) attrs1 unary_abstract_declarator1 postfixing_abstract_declarator1(*#line 7946.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator8, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, x281left, postfixing_abstract_declarator1right), rest671)
+end
+|  ( 336, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.postfix_abstract_declarator postfix_abstract_declarator1, postfix_abstract_declarator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 794.65 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => appendDeclrAttrs happy_var_2 happy_var_1) postfix_abstract_declarator1 attr1(*#line 7950.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_abstract_declarator9, C_Grammar_Rule.postfix_abstract_declarator)
+ in ( LALR_Table.NT 85, ( result, postfix_abstract_declarator1left, attr1right), rest671)
+end
+|  ( 337, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 796.38 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CInitExpr happy_var_1)) assignment_expression1) (fn _ => withNodeInfo 0)(*#line 7954.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.initializer1, C_Grammar_Rule.initializer)
+ in ( LALR_Table.NT 86, ( result, assignment_expression1left, assignment_expression1right), rest671)
+end
+|  ( 338, ( ( _, ( _, _, x7d1right)) :: ( _, ( C_Grammar_Rule.initializer_list initializer_list1, _, _)) :: ( _, ( C_Grammar_Rule.x7b x7b1, x7b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 797.41 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CInitList (reverse happy_var_2))) x7b1 initializer_list1) (fn _ => withNodeInfo 0)(*#line 7958.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.initializer2, C_Grammar_Rule.initializer)
+ in ( LALR_Table.NT 86, ( result, x7b1left, x7d1right), rest671)
+end
+|  ( 339, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( C_Grammar_Rule.initializer_list initializer_list1, _, _)) :: ( _, ( C_Grammar_Rule.x7b x7b1, x7b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 798.45 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CInitList (reverse happy_var_2))) x7b1 initializer_list1) (fn _ => withNodeInfo 0)(*#line 7962.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.initializer3, C_Grammar_Rule.initializer)
+ in ( LALR_Table.NT 86, ( result, x7b1left, x7d1right), rest671)
+end
+|  ( 340, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 800.21 "c_grammar_fun.grm"*)Nothing(*#line 7966.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.initializer_opt1, C_Grammar_Rule.initializer_opt)
+ in ( LALR_Table.NT 87, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 341, ( ( _, ( C_Grammar_Rule.initializer initializer1, _, initializer1right)) :: ( _, ( _, x3d1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 801.36 "c_grammar_fun.grm"*)(fn happy_var_2 => Just happy_var_2) initializer1(*#line 7970.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.initializer_opt2, C_Grammar_Rule.initializer_opt)
+ in ( LALR_Table.NT 87, ( result, x3d1left, initializer1right), rest671)
+end
+|  ( 342, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 803.22 "c_grammar_fun.grm"*)empty(*#line 7974.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.initializer_list1, C_Grammar_Rule.initializer_list)
+ in ( LALR_Table.NT 88, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 343, ( ( _, ( C_Grammar_Rule.initializer initializer1, initializer1left, initializer1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 804.33 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton ([], happy_var_1)) initializer1(*#line 7978.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.initializer_list2, C_Grammar_Rule.initializer_list)
+ in ( LALR_Table.NT 88, ( result, initializer1left, initializer1right), rest671)
+end
+|  ( 344, ( ( _, ( C_Grammar_Rule.initializer initializer1, _, initializer1right)) :: ( _, ( C_Grammar_Rule.designation designation1, designation1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 805.45 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => singleton (happy_var_1, happy_var_2)) designation1 initializer1(*#line 7982.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.initializer_list3, C_Grammar_Rule.initializer_list)
+ in ( LALR_Table.NT 88, ( result, designation1left, initializer1right), rest671)
+end
+|  ( 345, ( ( _, ( C_Grammar_Rule.initializer initializer1, _, initializer1right)) :: _ :: ( _, ( C_Grammar_Rule.initializer_list initializer_list1, initializer_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 806.54 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (([], happy_var_3))) initializer_list1 initializer1(*#line 7986.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.initializer_list4, C_Grammar_Rule.initializer_list)
+ in ( LALR_Table.NT 88, ( result, initializer_list1left, initializer1right), rest671)
+end
+|  ( 346, ( ( _, ( C_Grammar_Rule.initializer initializer1, _, initializer1right)) :: ( _, ( C_Grammar_Rule.designation designation1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.initializer_list initializer_list1, initializer_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 807.66 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => fn happy_var_4 => snoc (happy_var_1) ((happy_var_3, happy_var_4))) initializer_list1 designation1 initializer1(*#line 7990.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.initializer_list5, C_Grammar_Rule.initializer_list)
+ in ( LALR_Table.NT 88, ( result, initializer_list1left, initializer1right), rest671)
+end
+|  ( 347, ( ( _, ( _, _, x3d1right)) :: ( _, ( C_Grammar_Rule.designator_list designator_list1, designator_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 809.36 "c_grammar_fun.grm"*)(fn happy_var_1 => reverse happy_var_1) designator_list1(*#line 7994.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.designation1, C_Grammar_Rule.designation)
+ in ( LALR_Table.NT 89, ( result, designator_list1left, x3d1right), rest671)
+end
+|  ( 348, ( ( _, ( _, _, x3a1right)) :: ( _, ( C_Grammar_Rule.identifier identifier1, identifier1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 810.31 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (fn at => [CMemberDesig happy_var_1 at])) identifier1) (fn _ => withNodeInfo 0)(*#line 7998.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.designation2, C_Grammar_Rule.designation)
+ in ( LALR_Table.NT 89, ( result, identifier1left, x3a1right), rest671)
+end
+|  ( 349, ( ( _, ( C_Grammar_Rule.array_designator array_designator1, array_designator1left, array_designator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 811.33 "c_grammar_fun.grm"*)(fn happy_var_1 => [happy_var_1]) array_designator1(*#line 8002.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.designation3, C_Grammar_Rule.designation)
+ in ( LALR_Table.NT 89, ( result, array_designator1left, array_designator1right), rest671)
+end
+|  ( 350, ( ( _, ( C_Grammar_Rule.designator designator1, designator1left, designator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 813.31 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) designator1(*#line 8006.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.designator_list1, C_Grammar_Rule.designator_list)
+ in ( LALR_Table.NT 90, ( result, designator1left, designator1right), rest671)
+end
+|  ( 351, ( ( _, ( C_Grammar_Rule.designator designator1, _, designator1right)) :: ( _, ( C_Grammar_Rule.designator_list designator_list1, designator_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 814.47 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => snoc (happy_var_1) (happy_var_2)) designator_list1 designator1(*#line 8010.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.designator_list2, C_Grammar_Rule.designator_list)
+ in ( LALR_Table.NT 90, ( result, designator_list1left, designator1right), rest671)
+end
+|  ( 352, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 816.43 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CArrDesig happy_var_2)) x5b1 constant_expression1) (fn _ => withNodeInfo 0)(*#line 8014.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.designator1, C_Grammar_Rule.designator)
+ in ( LALR_Table.NT 91, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 353, ( ( _, ( C_Grammar_Rule.identifier identifier1, _, identifier1right)) :: ( _, ( C_Grammar_Rule.x2e x2e1, x2e1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 817.30 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CMemberDesig happy_var_2)) x2e1 identifier1) (fn _ => withNodeInfo 0)(*#line 8018.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.designator2, C_Grammar_Rule.designator)
+ in ( LALR_Table.NT 91, ( result, x2e1left, identifier1right), rest671)
+end
+|  ( 354, ( ( _, ( C_Grammar_Rule.array_designator array_designator1, array_designator1left, array_designator1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 818.32 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) array_designator1(*#line 8022.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.designator3, C_Grammar_Rule.designator)
+ in ( LALR_Table.NT 91, ( result, array_designator1left, array_designator1right), rest671)
+end
+|  ( 355, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.constant_expression constant_expression2, _, _)) :: _ :: ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, _)) :: ( _, ( C_Grammar_Rule.x5b x5b1, x5b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 820.81 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CRangeDesig happy_var_2 happy_var_4)) x5b1 constant_expression1 constant_expression2) (fn _ => withNodeInfo 0)(*#line 8026.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.array_designator, C_Grammar_Rule.array_designator)
+ in ( LALR_Table.NT 92, ( result, x5b1left, x5d1right), rest671)
+end
+|  ( 356, ( ( _, ( C_Grammar_Rule.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 822.29 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CVar happy_var_1)) ident1) (fn _ => withNodeInfo 0)(*#line 8030.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.primary_expression1, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, ident1left, ident1right), rest671)
+end
+|  ( 357, ( ( _, ( C_Grammar_Rule.constant constant1, constant1left, constant1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 823.32 "c_grammar_fun.grm"*)(fn happy_var_1 => CConst happy_var_1) constant1(*#line 8034.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.primary_expression2, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, constant1left, constant1right), rest671)
+end
+|  ( 358, ( ( _, ( C_Grammar_Rule.string_literal string_literal1, string_literal1left, string_literal1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 824.38 "c_grammar_fun.grm"*)(fn happy_var_1 => CConst (liftStrLit happy_var_1)) string_literal1(*#line 8038.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.primary_expression3, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, string_literal1left, string_literal1right), rest671)
+end
+|  ( 359, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: ( _, ( _, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 825.42 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) expression1(*#line 8042.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.primary_expression4, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, x281left, x291right), rest671)
+end
+|  ( 360, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.generic_assoc_list generic_assoc_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x5f_Generic x5f_Generic1, x5f_Generic1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 826.88 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CGenericSelection happy_var_3 (reverse happy_var_5))) x5f_Generic1 assignment_expression1 generic_assoc_list1) (fn _ => withNodeInfo 0)(*#line 8046.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.primary_expression5, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, x5f_Generic1left, x291right), rest671)
+end
+|  ( 361, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.compound_statement compound_statement1, _, _)) :: ( _, ( C_Grammar_Rule.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 827.50 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CStatExpr happy_var_2)) x281 compound_statement1) (fn _ => withNodeInfo 0)(*#line 8050.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.primary_expression6, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, x281left, x291right), rest671)
+end
+|  ( 362, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x5f_x5f_builtin_va_arg x5f_x5f_builtin_va_arg1, x5f_x5f_builtin_va_arg1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 828.90 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinVaArg happy_var_3 happy_var_5)) x5f_x5f_builtin_va_arg1 assignment_expression1 type_name1) (fn _ => withNodeInfo 0)(*#line 8054.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.primary_expression7, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, x5f_x5f_builtin_va_arg1left, x291right), rest671)
+end
+|  ( 363, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.offsetof_member_designator offsetof_member_designator1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x5f_x5f_builtin_offsetof x5f_x5f_builtin_offsetof1, x5f_x5f_builtin_offsetof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 829.97 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinOffsetOf happy_var_3 (reverse happy_var_5))) x5f_x5f_builtin_offsetof1 type_name1 offsetof_member_designator1) (fn _ => withNodeInfo 0)(*#line 8058.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.primary_expression8, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, x5f_x5f_builtin_offsetof1left, x291right), rest671)
+end
+|  ( 364, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name2, _, _)) :: _ :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.x5f_x5f_builtin_types_compatible_p x5f_x5f_builtin_types_compatible_p1, x5f_x5f_builtin_types_compatible_p1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 830.90 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CBuiltinExpr o CBuiltinTypesCompatible happy_var_3 happy_var_5)) x5f_x5f_builtin_types_compatible_p1 type_name1 type_name2) (fn _ => withNodeInfo 0)(*#line 8062.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.primary_expression9, C_Grammar_Rule.primary_expression)
+ in ( LALR_Table.NT 93, ( result, x5f_x5f_builtin_types_compatible_p1left, x291right), rest671)
+end
+|  ( 365, ( ( _, ( C_Grammar_Rule.generic_assoc generic_assoc1, _, generic_assoc1right)) :: _ :: ( _, ( C_Grammar_Rule.generic_assoc_list generic_assoc_list1, generic_assoc_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 832.60 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) generic_assoc_list1 generic_assoc1(*#line 8066.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.generic_assoc_list1, C_Grammar_Rule.generic_assoc_list)
+ in ( LALR_Table.NT 94, ( result, generic_assoc_list1left, generic_assoc1right), rest671)
+end
+|  ( 366, ( ( _, ( C_Grammar_Rule.generic_assoc generic_assoc1, generic_assoc1left, generic_assoc1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 833.37 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) generic_assoc1(*#line 8070.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.generic_assoc_list2, C_Grammar_Rule.generic_assoc_list)
+ in ( LALR_Table.NT 94, ( result, generic_assoc1left, generic_assoc1right), rest671)
+end
+|  ( 367, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, assignment_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.type_name type_name1, type_name1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 835.54 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => (Just happy_var_1, happy_var_3)) type_name1 assignment_expression1(*#line 8074.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.generic_assoc1, C_Grammar_Rule.generic_assoc)
+ in ( LALR_Table.NT 95, ( result, type_name1left, assignment_expression1right), rest671)
+end
+|  ( 368, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, assignment_expression1right)) :: _ :: ( _, ( _, default1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 836.52 "c_grammar_fun.grm"*)(fn happy_var_3 => (Nothing, happy_var_3)) assignment_expression1(*#line 8078.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.generic_assoc2, C_Grammar_Rule.generic_assoc)
+ in ( LALR_Table.NT 95, ( result, default1left, assignment_expression1right), rest671)
+end
+|  ( 369, ( ( _, ( C_Grammar_Rule.identifier identifier1, identifier1left, identifier1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 838.42 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (singleton o CMemberDesig happy_var_1)) identifier1) (fn _ => withNodeInfo 0)(*#line 8082.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.offsetof_member_designator1, C_Grammar_Rule.offsetof_member_designator)
+ in ( LALR_Table.NT 96, ( result, identifier1left, identifier1right), rest671)
+end
+|  ( 370, ( ( _, ( C_Grammar_Rule.identifier identifier1, _, identifier1right)) :: _ :: ( _, ( C_Grammar_Rule.offsetof_member_designator offsetof_member_designator1, offsetof_member_designator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 839.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_3 (snoc happy_var_1 o CMemberDesig happy_var_3)) offsetof_member_designator1 identifier1) (fn _ => withNodeInfo 2)(*#line 8086.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.offsetof_member_designator2, C_Grammar_Rule.offsetof_member_designator)
+ in ( LALR_Table.NT 96, ( result, offsetof_member_designator1left, identifier1right), rest671)
+end
+|  ( 371, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.offsetof_member_designator offsetof_member_designator1, offsetof_member_designator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 840.77 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_3 (snoc happy_var_1 o CArrDesig happy_var_3)) offsetof_member_designator1 expression1) (fn _ => withNodeInfo 2)(*#line 8090.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.offsetof_member_designator3, C_Grammar_Rule.offsetof_member_designator)
+ in ( LALR_Table.NT 96, ( result, offsetof_member_designator1left, x5d1right), rest671)
+end
+|  ( 372, ( ( _, ( C_Grammar_Rule.primary_expression primary_expression1, primary_expression1left, primary_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 842.42 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) primary_expression1(*#line 8094.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.postfix_expression1, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, primary_expression1left, primary_expression1right), rest671)
+end
+|  ( 373, ( ( _, ( _, _, x5d1right)) :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 843.61 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CIndex happy_var_1 happy_var_3)) postfix_expression1 expression1) (fn _ => withNodeInfo 0)(*#line 8098.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression2, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, postfix_expression1left, x5d1right), rest671)
+end
+|  ( 374, ( ( _, ( _, _, x291right)) :: _ :: ( _, ( C_Grammar_Rule.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 844.50 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CCall happy_var_1 [])) postfix_expression1) (fn _ => withNodeInfo 0)(*#line 8102.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression3, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, postfix_expression1left, x291right), rest671)
+end
+|  ( 375, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.argument_expression_list argument_expression_list1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 845.75 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CCall happy_var_1 (reverse happy_var_3))) postfix_expression1 argument_expression_list1) (fn _ => withNodeInfo 0)(*#line 8106.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression4, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, postfix_expression1left, x291right), rest671)
+end
+|  ( 376, ( ( _, ( C_Grammar_Rule.identifier identifier1, _, identifier1right)) :: _ :: ( _, ( C_Grammar_Rule.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 846.57 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CMember happy_var_1 happy_var_3 False)) postfix_expression1 identifier1) (fn _ => withNodeInfo 0)(*#line 8110.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression5, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, postfix_expression1left, identifier1right), rest671)
+end
+|  ( 377, ( ( _, ( C_Grammar_Rule.identifier identifier1, _, identifier1right)) :: _ :: ( _, ( C_Grammar_Rule.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 847.61 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CMember happy_var_1 happy_var_3 True)) postfix_expression1 identifier1) (fn _ => withNodeInfo 0)(*#line 8114.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression6, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, postfix_expression1left, identifier1right), rest671)
+end
+|  ( 378, ( ( _, ( _, _, x2b_x2b1right)) :: ( _, ( C_Grammar_Rule.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 848.50 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnary CPostIncOp happy_var_1)) postfix_expression1) (fn _ => withNodeInfo 0)(*#line 8118.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression7, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, postfix_expression1left, x2b_x2b1right), rest671)
+end
+|  ( 379, ( ( _, ( _, _, x2d_x2d1right)) :: ( _, ( C_Grammar_Rule.postfix_expression postfix_expression1, postfix_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 849.50 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CUnary CPostDecOp happy_var_1)) postfix_expression1) (fn _ => withNodeInfo 0)(*#line 8122.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression8, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, postfix_expression1left, x2d_x2d1right), rest671)
+end
+|  ( 380, ( ( _, ( _, _, x7d1right)) :: ( _, ( C_Grammar_Rule.initializer_list initializer_list1, _, _)) :: _ :: _ :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: ( _, ( C_Grammar_Rule.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 850.66 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CCompoundLit happy_var_2 (reverse happy_var_5))) x281 type_name1 initializer_list1) (fn _ => withNodeInfo 0)(*#line 8126.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression9, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, x281left, x7d1right), rest671)
+end
+|  ( 381, ( ( _, ( _, _, x7d1right)) :: _ :: ( _, ( C_Grammar_Rule.initializer_list initializer_list1, _, _)) :: _ :: _ :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: ( _, ( C_Grammar_Rule.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 851.70 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_5 => withNodeInfo happy_var_1 (CCompoundLit happy_var_2 (reverse happy_var_5))) x281 type_name1 initializer_list1) (fn _ => withNodeInfo 0)(*#line 8130.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.postfix_expression10, C_Grammar_Rule.postfix_expression)
+ in ( LALR_Table.NT 97, ( result, x281left, x7d1right), rest671)
+end
+|  ( 382, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 853.51 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) assignment_expression1(*#line 8134.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.argument_expression_list1, C_Grammar_Rule.argument_expression_list)
+ in ( LALR_Table.NT 98, ( result, assignment_expression1left, assignment_expression1right), rest671)
+end
+|  ( 383, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, assignment_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.argument_expression_list argument_expression_list1, argument_expression_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 854.80 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) argument_expression_list1 assignment_expression1(*#line 8138.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.argument_expression_list2, C_Grammar_Rule.argument_expression_list)
+ in ( LALR_Table.NT 98, ( result, argument_expression_list1left, assignment_expression1right), rest671)
+end
+|  ( 384, ( ( _, ( C_Grammar_Rule.postfix_expression postfix_expression1, postfix_expression1left, postfix_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 856.40 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) postfix_expression1(*#line 8142.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.unary_expression1, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, postfix_expression1left, postfix_expression1right), rest671)
+end
+|  ( 385, ( ( _, ( C_Grammar_Rule.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( C_Grammar_Rule.x2b_x2b x2b_x2b1, x2b_x2b1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 857.46 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary CPreIncOp happy_var_2)) x2b_x2b1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8146.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression2, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, x2b_x2b1left, unary_expression1right), rest671)
+end
+|  ( 386, ( ( _, ( C_Grammar_Rule.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( C_Grammar_Rule.x2d_x2d x2d_x2d1, x2d_x2d1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 858.46 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary CPreDecOp happy_var_2)) x2d_x2d1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8150.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression3, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, x2d_x2d1left, unary_expression1right), rest671)
+end
+|  ( 387, ( ( _, ( C_Grammar_Rule.cast_expression cast_expression1, _, cast_expression1right)) :: ( _, ( _, x5f_x5f_extension_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 859.63 "c_grammar_fun.grm"*)(fn happy_var_2 => happy_var_2) cast_expression1(*#line 8154.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.unary_expression4, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, x5f_x5f_extension_x5f_x5f1left, cast_expression1right), rest671)
+end
+|  ( 388, ( ( _, ( C_Grammar_Rule.cast_expression cast_expression1, _, cast_expression1right)) :: ( _, ( C_Grammar_Rule.unary_operator unary_operator1, unary_operator1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 860.52 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CUnary (unL happy_var_1) happy_var_2)) unary_operator1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8158.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression5, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, unary_operator1left, cast_expression1right), rest671)
+end
+|  ( 389, ( ( _, ( C_Grammar_Rule.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( C_Grammar_Rule.sizeof sizeof1, sizeof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 861.45 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CSizeofExpr happy_var_2)) sizeof1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8162.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression6, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, sizeof1left, unary_expression1right), rest671)
+end
+|  ( 390, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.sizeof sizeof1, sizeof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 862.46 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CSizeofType happy_var_3)) sizeof1 type_name1) (fn _ => withNodeInfo 0)(*#line 8166.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression7, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, sizeof1left, x291right), rest671)
+end
+|  ( 391, ( ( _, ( C_Grammar_Rule.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( C_Grammar_Rule.alignof alignof1, alignof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 863.46 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CAlignofExpr happy_var_2)) alignof1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8170.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression8, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, alignof1left, unary_expression1right), rest671)
+end
+|  ( 392, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.alignof alignof1, alignof1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 864.47 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CAlignofType happy_var_3)) alignof1 type_name1) (fn _ => withNodeInfo 0)(*#line 8174.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression9, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, alignof1left, x291right), rest671)
+end
+|  ( 393, ( ( _, ( C_Grammar_Rule.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( C_Grammar_Rule.x5f_x5f_real_x5f_x5f x5f_x5f_real_x5f_x5f1, x5f_x5f_real_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 865.59 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CComplexReal happy_var_2)) x5f_x5f_real_x5f_x5f1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8178.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression10, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, x5f_x5f_real_x5f_x5f1left, unary_expression1right), rest671)
+end
+|  ( 394, ( ( _, ( C_Grammar_Rule.unary_expression unary_expression1, _, unary_expression1right)) :: ( _, ( C_Grammar_Rule.x5f_x5f_imag_x5f_x5f x5f_x5f_imag_x5f_x5f1, x5f_x5f_imag_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 866.59 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CComplexImag happy_var_2)) x5f_x5f_imag_x5f_x5f1 unary_expression1) (fn _ => withNodeInfo 0)(*#line 8182.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression11, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, x5f_x5f_imag_x5f_x5f1left, unary_expression1right), rest671)
+end
+|  ( 395, ( ( _, ( C_Grammar_Rule.identifier identifier1, _, identifier1right)) :: ( _, ( C_Grammar_Rule.x26_x26 x26_x261, x26_x261left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 867.40 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CLabAddrExpr happy_var_2)) x26_x261 identifier1) (fn _ => withNodeInfo 0)(*#line 8186.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_expression12, C_Grammar_Rule.unary_expression)
+ in ( LALR_Table.NT 99, ( result, x26_x261left, identifier1right), rest671)
+end
+|  ( 396, ( ( _, ( C_Grammar_Rule.x26 x261, x261left, x261right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 869.23 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CAdrOp (posOf happy_var_1)) x261) (fn x => fn _ => L x 0)(*#line 8190.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_operator1, C_Grammar_Rule.unary_operator)
+ in ( LALR_Table.NT 100, ( result, x261left, x261right), rest671)
+end
+|  ( 397, ( ( _, ( C_Grammar_Rule.x2a x2a1, x2a1left, x2a1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 870.23 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CIndOp (posOf happy_var_1)) x2a1) (fn x => fn _ => L x 0)(*#line 8194.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_operator2, C_Grammar_Rule.unary_operator)
+ in ( LALR_Table.NT 100, ( result, x2a1left, x2a1right), rest671)
+end
+|  ( 398, ( ( _, ( C_Grammar_Rule.x2b x2b1, x2b1left, x2b1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 871.23 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CPlusOp (posOf happy_var_1)) x2b1) (fn x => fn _ => L x 0)(*#line 8198.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_operator3, C_Grammar_Rule.unary_operator)
+ in ( LALR_Table.NT 100, ( result, x2b1left, x2b1right), rest671)
+end
+|  ( 399, ( ( _, ( C_Grammar_Rule.x2d x2d1, x2d1left, x2d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 872.23 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CMinOp (posOf happy_var_1)) x2d1) (fn x => fn _ => L x 0)(*#line 8202.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_operator4, C_Grammar_Rule.unary_operator)
+ in ( LALR_Table.NT 100, ( result, x2d1left, x2d1right), rest671)
+end
+|  ( 400, ( ( _, ( C_Grammar_Rule.x7e x7e1, x7e1left, x7e1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 873.23 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CCompOp (posOf happy_var_1)) x7e1) (fn x => fn _ => L x 0)(*#line 8206.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_operator5, C_Grammar_Rule.unary_operator)
+ in ( LALR_Table.NT 100, ( result, x7e1left, x7e1right), rest671)
+end
+|  ( 401, ( ( _, ( C_Grammar_Rule.x21 x211, x211left, x211right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 874.23 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CNegOp (posOf happy_var_1)) x211) (fn x => fn _ => L x 0)(*#line 8210.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.unary_operator6, C_Grammar_Rule.unary_operator)
+ in ( LALR_Table.NT 100, ( result, x211left, x211right), rest671)
+end
+|  ( 402, ( ( _, ( C_Grammar_Rule.unary_expression unary_expression1, unary_expression1left, unary_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 876.37 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) unary_expression1(*#line 8214.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.cast_expression1, C_Grammar_Rule.cast_expression)
+ in ( LALR_Table.NT 101, ( result, unary_expression1left, unary_expression1right), rest671)
+end
+|  ( 403, ( ( _, ( C_Grammar_Rule.cast_expression cast_expression1, _, cast_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.type_name type_name1, _, _)) :: ( _, ( C_Grammar_Rule.x28 x281, x281left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 877.54 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_4 => withNodeInfo happy_var_1 (CCast happy_var_2 happy_var_4)) x281 type_name1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8218.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.cast_expression2, C_Grammar_Rule.cast_expression)
+ in ( LALR_Table.NT 101, ( result, x281left, cast_expression1right), rest671)
+end
+|  ( 404, ( ( _, ( C_Grammar_Rule.cast_expression cast_expression1, cast_expression1left, cast_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 879.46 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) cast_expression1(*#line 8222.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.multiplicative_expression1, C_Grammar_Rule.multiplicative_expression)
+ in ( LALR_Table.NT 102, ( result, cast_expression1left, cast_expression1right), rest671)
+end
+|  ( 405, ( ( _, ( C_Grammar_Rule.cast_expression cast_expression1, _, cast_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.multiplicative_expression multiplicative_expression1, multiplicative_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 880.76 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CMulOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8226.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.multiplicative_expression2, C_Grammar_Rule.multiplicative_expression)
+ in ( LALR_Table.NT 102, ( result, multiplicative_expression1left, cast_expression1right), rest671)
+end
+|  ( 406, ( ( _, ( C_Grammar_Rule.cast_expression cast_expression1, _, cast_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.multiplicative_expression multiplicative_expression1, multiplicative_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 881.76 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CDivOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8230.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.multiplicative_expression3, C_Grammar_Rule.multiplicative_expression)
+ in ( LALR_Table.NT 102, ( result, multiplicative_expression1left, cast_expression1right), rest671)
+end
+|  ( 407, ( ( _, ( C_Grammar_Rule.cast_expression cast_expression1, _, cast_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.multiplicative_expression multiplicative_expression1, multiplicative_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 882.76 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CRmdOp happy_var_1 happy_var_3)) multiplicative_expression1 cast_expression1) (fn _ => withNodeInfo 0)(*#line 8234.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.multiplicative_expression4, C_Grammar_Rule.multiplicative_expression)
+ in ( LALR_Table.NT 102, ( result, multiplicative_expression1left, cast_expression1right), rest671)
+end
+|  ( 408, ( ( _, ( C_Grammar_Rule.multiplicative_expression multiplicative_expression1, multiplicative_expression1left, multiplicative_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 884.50 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) multiplicative_expression1(*#line 8238.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.additive_expression1, C_Grammar_Rule.additive_expression)
+ in ( LALR_Table.NT 103, ( result, multiplicative_expression1left, multiplicative_expression1right), rest671)
+end
+|  ( 409, ( ( _, ( C_Grammar_Rule.multiplicative_expression multiplicative_expression1, _, multiplicative_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.additive_expression additive_expression1, additive_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 885.74 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CAddOp happy_var_1 happy_var_3)) additive_expression1 multiplicative_expression1) (fn _ => withNodeInfo 0)(*#line 8242.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.additive_expression2, C_Grammar_Rule.additive_expression)
+ in ( LALR_Table.NT 103, ( result, additive_expression1left, multiplicative_expression1right), rest671)
+end
+|  ( 410, ( ( _, ( C_Grammar_Rule.multiplicative_expression multiplicative_expression1, _, multiplicative_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.additive_expression additive_expression1, additive_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 886.74 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CSubOp happy_var_1 happy_var_3)) additive_expression1 multiplicative_expression1) (fn _ => withNodeInfo 0)(*#line 8246.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.additive_expression3, C_Grammar_Rule.additive_expression)
+ in ( LALR_Table.NT 103, ( result, additive_expression1left, multiplicative_expression1right), rest671)
+end
+|  ( 411, ( ( _, ( C_Grammar_Rule.additive_expression additive_expression1, additive_expression1left, additive_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 888.41 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) additive_expression1(*#line 8250.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.shift_expression1, C_Grammar_Rule.shift_expression)
+ in ( LALR_Table.NT 104, ( result, additive_expression1left, additive_expression1right), rest671)
+end
+|  ( 412, ( ( _, ( C_Grammar_Rule.additive_expression additive_expression1, _, additive_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.shift_expression shift_expression1, shift_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 889.66 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CShlOp happy_var_1 happy_var_3)) shift_expression1 additive_expression1) (fn _ => withNodeInfo 0)(*#line 8254.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.shift_expression2, C_Grammar_Rule.shift_expression)
+ in ( LALR_Table.NT 104, ( result, shift_expression1left, additive_expression1right), rest671)
+end
+|  ( 413, ( ( _, ( C_Grammar_Rule.additive_expression additive_expression1, _, additive_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.shift_expression shift_expression1, shift_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 890.66 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CShrOp happy_var_1 happy_var_3)) shift_expression1 additive_expression1) (fn _ => withNodeInfo 0)(*#line 8258.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.shift_expression3, C_Grammar_Rule.shift_expression)
+ in ( LALR_Table.NT 104, ( result, shift_expression1left, additive_expression1right), rest671)
+end
+|  ( 414, ( ( _, ( C_Grammar_Rule.shift_expression shift_expression1, shift_expression1left, shift_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 892.43 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) shift_expression1(*#line 8262.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.relational_expression1, C_Grammar_Rule.relational_expression)
+ in ( LALR_Table.NT 105, ( result, shift_expression1left, shift_expression1right), rest671)
+end
+|  ( 415, ( ( _, ( C_Grammar_Rule.shift_expression shift_expression1, _, shift_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.relational_expression relational_expression1, relational_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 893.69 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLeOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0)(*#line 8266.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.relational_expression2, C_Grammar_Rule.relational_expression)
+ in ( LALR_Table.NT 105, ( result, relational_expression1left, shift_expression1right), rest671)
+end
+|  ( 416, ( ( _, ( C_Grammar_Rule.shift_expression shift_expression1, _, shift_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.relational_expression relational_expression1, relational_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 894.69 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CGrOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0)(*#line 8270.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.relational_expression3, C_Grammar_Rule.relational_expression)
+ in ( LALR_Table.NT 105, ( result, relational_expression1left, shift_expression1right), rest671)
+end
+|  ( 417, ( ( _, ( C_Grammar_Rule.shift_expression shift_expression1, _, shift_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.relational_expression relational_expression1, relational_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 895.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLeqOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0)(*#line 8274.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.relational_expression4, C_Grammar_Rule.relational_expression)
+ in ( LALR_Table.NT 105, ( result, relational_expression1left, shift_expression1right), rest671)
+end
+|  ( 418, ( ( _, ( C_Grammar_Rule.shift_expression shift_expression1, _, shift_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.relational_expression relational_expression1, relational_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 896.73 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CGeqOp happy_var_1 happy_var_3)) relational_expression1 shift_expression1) (fn _ => withNodeInfo 0)(*#line 8278.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.relational_expression5, C_Grammar_Rule.relational_expression)
+ in ( LALR_Table.NT 105, ( result, relational_expression1left, shift_expression1right), rest671)
+end
+|  ( 419, ( ( _, ( C_Grammar_Rule.relational_expression relational_expression1, relational_expression1left, relational_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 898.46 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) relational_expression1(*#line 8282.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.equality_expression1, C_Grammar_Rule.equality_expression)
+ in ( LALR_Table.NT 106, ( result, relational_expression1left, relational_expression1right), rest671)
+end
+|  ( 420, ( ( _, ( C_Grammar_Rule.relational_expression relational_expression1, _, relational_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.equality_expression equality_expression1, equality_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 899.74 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CEqOp happy_var_1 happy_var_3)) equality_expression1 relational_expression1) (fn _ => withNodeInfo 0)(*#line 8286.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.equality_expression2, C_Grammar_Rule.equality_expression)
+ in ( LALR_Table.NT 106, ( result, equality_expression1left, relational_expression1right), rest671)
+end
+|  ( 421, ( ( _, ( C_Grammar_Rule.relational_expression relational_expression1, _, relational_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.equality_expression equality_expression1, equality_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 900.74 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CNeqOp happy_var_1 happy_var_3)) equality_expression1 relational_expression1) (fn _ => withNodeInfo 0)(*#line 8290.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.equality_expression3, C_Grammar_Rule.equality_expression)
+ in ( LALR_Table.NT 106, ( result, equality_expression1left, relational_expression1right), rest671)
+end
+|  ( 422, ( ( _, ( C_Grammar_Rule.equality_expression equality_expression1, equality_expression1left, equality_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 902.39 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) equality_expression1(*#line 8294.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.and_expression1, C_Grammar_Rule.and_expression)
+ in ( LALR_Table.NT 107, ( result, equality_expression1left, equality_expression1right), rest671)
+end
+|  ( 423, ( ( _, ( C_Grammar_Rule.equality_expression equality_expression1, _, equality_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.and_expression and_expression1, and_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 903.58 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CAndOp happy_var_1 happy_var_3)) and_expression1 equality_expression1) (fn _ => withNodeInfo 0)(*#line 8298.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.and_expression2, C_Grammar_Rule.and_expression)
+ in ( LALR_Table.NT 107, ( result, and_expression1left, equality_expression1right), rest671)
+end
+|  ( 424, ( ( _, ( C_Grammar_Rule.and_expression and_expression1, and_expression1left, and_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 905.43 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) and_expression1(*#line 8302.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.exclusive_or_expression1, C_Grammar_Rule.exclusive_or_expression)
+ in ( LALR_Table.NT 108, ( result, and_expression1left, and_expression1right), rest671)
+end
+|  ( 425, ( ( _, ( C_Grammar_Rule.and_expression and_expression1, _, and_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.exclusive_or_expression exclusive_or_expression1, exclusive_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 906.71 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CXorOp happy_var_1 happy_var_3)) exclusive_or_expression1 and_expression1) (fn _ => withNodeInfo 0)(*#line 8306.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.exclusive_or_expression2, C_Grammar_Rule.exclusive_or_expression)
+ in ( LALR_Table.NT 108, ( result, exclusive_or_expression1left, and_expression1right), rest671)
+end
+|  ( 426, ( ( _, ( C_Grammar_Rule.exclusive_or_expression exclusive_or_expression1, exclusive_or_expression1left, exclusive_or_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 908.52 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) exclusive_or_expression1(*#line 8310.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.inclusive_or_expression1, C_Grammar_Rule.inclusive_or_expression)
+ in ( LALR_Table.NT 109, ( result, exclusive_or_expression1left, exclusive_or_expression1right), rest671)
+end
+|  ( 427, ( ( _, ( C_Grammar_Rule.exclusive_or_expression exclusive_or_expression1, _, exclusive_or_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.inclusive_or_expression inclusive_or_expression1, inclusive_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 909.80 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary COrOp happy_var_1 happy_var_3)) inclusive_or_expression1 exclusive_or_expression1) (fn _ => withNodeInfo 0)(*#line 8314.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.inclusive_or_expression2, C_Grammar_Rule.inclusive_or_expression)
+ in ( LALR_Table.NT 109, ( result, inclusive_or_expression1left, exclusive_or_expression1right), rest671)
+end
+|  ( 428, ( ( _, ( C_Grammar_Rule.inclusive_or_expression inclusive_or_expression1, inclusive_or_expression1left, inclusive_or_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 911.51 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) inclusive_or_expression1(*#line 8318.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.logical_and_expression1, C_Grammar_Rule.logical_and_expression)
+ in ( LALR_Table.NT 110, ( result, inclusive_or_expression1left, inclusive_or_expression1right), rest671)
+end
+|  ( 429, ( ( _, ( C_Grammar_Rule.inclusive_or_expression inclusive_or_expression1, _, inclusive_or_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.logical_and_expression logical_and_expression1, logical_and_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 912.82 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLndOp happy_var_1 happy_var_3)) logical_and_expression1 inclusive_or_expression1) (fn _ => withNodeInfo 0)(*#line 8322.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.logical_and_expression2, C_Grammar_Rule.logical_and_expression)
+ in ( LALR_Table.NT 110, ( result, logical_and_expression1left, inclusive_or_expression1right), rest671)
+end
+|  ( 430, ( ( _, ( C_Grammar_Rule.logical_and_expression logical_and_expression1, logical_and_expression1left, logical_and_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 914.49 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) logical_and_expression1(*#line 8326.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.logical_or_expression1, C_Grammar_Rule.logical_or_expression)
+ in ( LALR_Table.NT 111, ( result, logical_and_expression1left, logical_and_expression1right), rest671)
+end
+|  ( 431, ( ( _, ( C_Grammar_Rule.logical_and_expression logical_and_expression1, _, logical_and_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.logical_or_expression logical_or_expression1, logical_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 915.79 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (CBinary CLorOp happy_var_1 happy_var_3)) logical_or_expression1 logical_and_expression1) (fn _ => withNodeInfo 0)(*#line 8330.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.logical_or_expression2, C_Grammar_Rule.logical_or_expression)
+ in ( LALR_Table.NT 111, ( result, logical_or_expression1left, logical_and_expression1right), rest671)
+end
+|  ( 432, ( ( _, ( C_Grammar_Rule.logical_or_expression logical_or_expression1, logical_or_expression1left, logical_or_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 917.49 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) logical_or_expression1(*#line 8334.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.conditional_expression1, C_Grammar_Rule.conditional_expression)
+ in ( LALR_Table.NT 112, ( result, logical_or_expression1left, logical_or_expression1right), rest671)
+end
+|  ( 433, ( ( _, ( C_Grammar_Rule.conditional_expression conditional_expression1, _, conditional_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.expression expression1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.logical_or_expression logical_or_expression1, logical_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 918.91 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => fn happy_var_5 => withNodeInfo happy_var_1 (CCond happy_var_1 (Just happy_var_3) happy_var_5)) logical_or_expression1 expression1 conditional_expression1) (fn _ => withNodeInfo 0)(*#line 8338.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.conditional_expression2, C_Grammar_Rule.conditional_expression)
+ in ( LALR_Table.NT 112, ( result, logical_or_expression1left, conditional_expression1right), rest671)
+end
+|  ( 434, ( ( _, ( C_Grammar_Rule.conditional_expression conditional_expression1, _, conditional_expression1right)) :: _ :: _ :: ( _, ( C_Grammar_Rule.logical_or_expression logical_or_expression1, logical_or_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 919.80 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_4 => withNodeInfo happy_var_1 (CCond happy_var_1 Nothing happy_var_4)) logical_or_expression1 conditional_expression1) (fn _ => withNodeInfo 0)(*#line 8342.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.conditional_expression3, C_Grammar_Rule.conditional_expression)
+ in ( LALR_Table.NT 112, ( result, logical_or_expression1left, conditional_expression1right), rest671)
+end
+|  ( 435, ( ( _, ( C_Grammar_Rule.conditional_expression conditional_expression1, conditional_expression1left, conditional_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 921.49 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) conditional_expression1(*#line 8346.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.assignment_expression1, C_Grammar_Rule.assignment_expression)
+ in ( LALR_Table.NT 113, ( result, conditional_expression1left, conditional_expression1right), rest671)
+end
+|  ( 436, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, assignment_expression1right)) :: ( _, ( C_Grammar_Rule.assignment_operator assignment_operator1, _, _)) :: ( _, ( C_Grammar_Rule.unary_expression unary_expression1, unary_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 922.85 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => fn happy_var_3 => withNodeInfo happy_var_1 (CAssign (unL happy_var_2) happy_var_1 happy_var_3)) unary_expression1 assignment_operator1 assignment_expression1) (fn _ => withNodeInfo 0)(*#line 8350.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_expression2, C_Grammar_Rule.assignment_expression)
+ in ( LALR_Table.NT 113, ( result, unary_expression1left, assignment_expression1right), rest671)
+end
+|  ( 437, ( ( _, ( C_Grammar_Rule.x3d x3d1, x3d1left, x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 924.28 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CAssignOp (posOf happy_var_1)) x3d1) (fn x => fn _ => L x 0)(*#line 8354.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator1, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x3d1left, x3d1right), rest671)
+end
+|  ( 438, ( ( _, ( C_Grammar_Rule.x2a_x3d x2a_x3d1, x2a_x3d1left, x2a_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 925.32 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CMulAssOp (posOf happy_var_1)) x2a_x3d1) (fn x => fn _ => L x 0)(*#line 8358.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator2, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x2a_x3d1left, x2a_x3d1right), rest671)
+end
+|  ( 439, ( ( _, ( C_Grammar_Rule.x2f_x3d x2f_x3d1, x2f_x3d1left, x2f_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 926.32 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CDivAssOp (posOf happy_var_1)) x2f_x3d1) (fn x => fn _ => L x 0)(*#line 8362.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator3, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x2f_x3d1left, x2f_x3d1right), rest671)
+end
+|  ( 440, ( ( _, ( C_Grammar_Rule.x25_x3d x25_x3d1, x25_x3d1left, x25_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 927.32 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CRmdAssOp (posOf happy_var_1)) x25_x3d1) (fn x => fn _ => L x 0)(*#line 8366.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator4, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x25_x3d1left, x25_x3d1right), rest671)
+end
+|  ( 441, ( ( _, ( C_Grammar_Rule.x2b_x3d x2b_x3d1, x2b_x3d1left, x2b_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 928.32 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CAddAssOp (posOf happy_var_1)) x2b_x3d1) (fn x => fn _ => L x 0)(*#line 8370.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator5, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x2b_x3d1left, x2b_x3d1right), rest671)
+end
+|  ( 442, ( ( _, ( C_Grammar_Rule.x2d_x3d x2d_x3d1, x2d_x3d1left, x2d_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 929.32 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CSubAssOp (posOf happy_var_1)) x2d_x3d1) (fn x => fn _ => L x 0)(*#line 8374.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator6, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x2d_x3d1left, x2d_x3d1right), rest671)
+end
+|  ( 443, ( ( _, ( C_Grammar_Rule.x3c_x3c_x3d x3c_x3c_x3d1, x3c_x3c_x3d1left, x3c_x3c_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 930.36 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CShlAssOp (posOf happy_var_1)) x3c_x3c_x3d1) (fn x => fn _ => L x 0)(*#line 8378.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator7, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x3c_x3c_x3d1left, x3c_x3c_x3d1right), rest671)
+end
+|  ( 444, ( ( _, ( C_Grammar_Rule.x3e_x3e_x3d x3e_x3e_x3d1, x3e_x3e_x3d1left, x3e_x3e_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 931.36 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CShrAssOp (posOf happy_var_1)) x3e_x3e_x3d1) (fn x => fn _ => L x 0)(*#line 8382.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator8, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x3e_x3e_x3d1left, x3e_x3e_x3d1right), rest671)
+end
+|  ( 445, ( ( _, ( C_Grammar_Rule.x26_x3d x26_x3d1, x26_x3d1left, x26_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 932.32 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CAndAssOp (posOf happy_var_1)) x26_x3d1) (fn x => fn _ => L x 0)(*#line 8386.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator9, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x26_x3d1left, x26_x3d1right), rest671)
+end
+|  ( 446, ( ( _, ( C_Grammar_Rule.x5e_x3d x5e_x3d1, x5e_x3d1left, x5e_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 933.32 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L CXorAssOp (posOf happy_var_1)) x5e_x3d1) (fn x => fn _ => L x 0)(*#line 8390.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator10, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x5e_x3d1left, x5e_x3d1right), rest671)
+end
+|  ( 447, ( ( _, ( C_Grammar_Rule.x7c_x3d x7c_x3d1, x7c_x3d1left, x7c_x3d1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 934.32 "c_grammar_fun.grm"*)(*%*)(fn L => (fn happy_var_1 => L COrAssOp (posOf happy_var_1)) x7c_x3d1) (fn x => fn _ => L x 0)(*#line 8394.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.assignment_operator11, C_Grammar_Rule.assignment_operator)
+ in ( LALR_Table.NT 114, ( result, x7c_x3d1left, x7c_x3d1right), rest671)
+end
+|  ( 448, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 936.37 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) assignment_expression1(*#line 8398.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.expression1, C_Grammar_Rule.expression)
+ in ( LALR_Table.NT 115, ( result, assignment_expression1left, assignment_expression1right), rest671)
+end
+|  ( 449, ( ( _, ( C_Grammar_Rule.comma_expression comma_expression1, _, comma_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, assignment_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 937.58 "c_grammar_fun.grm"*)(*%*)(fn happy_var_1 => fn happy_var_3 => let val es = reverse happy_var_3 in withNodeInfo_CExpr es (CComma (happy_var_1 :: es)) end) assignment_expression1 comma_expression1(*#line 8402.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.expression2, C_Grammar_Rule.expression)
+ in ( LALR_Table.NT 115, ( result, assignment_expression1left, comma_expression1right), rest671)
+end
+|  ( 450, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 939.43 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) assignment_expression1(*#line 8406.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.comma_expression1, C_Grammar_Rule.comma_expression)
+ in ( LALR_Table.NT 116, ( result, assignment_expression1left, assignment_expression1right), rest671)
+end
+|  ( 451, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, _, assignment_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.comma_expression comma_expression1, comma_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 940.64 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) comma_expression1 assignment_expression1(*#line 8410.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.comma_expression2, C_Grammar_Rule.comma_expression)
+ in ( LALR_Table.NT 116, ( result, comma_expression1left, assignment_expression1right), rest671)
+end
+|  ( 452, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 942.20 "c_grammar_fun.grm"*)Nothing(*#line 8414.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.expression_opt1, C_Grammar_Rule.expression_opt)
+ in ( LALR_Table.NT 117, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 453, ( ( _, ( C_Grammar_Rule.expression expression1, expression1left, expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 943.30 "c_grammar_fun.grm"*)(fn happy_var_1 => Just happy_var_1) expression1(*#line 8418.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.expression_opt2, C_Grammar_Rule.expression_opt)
+ in ( LALR_Table.NT 117, ( result, expression1left, expression1right), rest671)
+end
+|  ( 454, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 945.31 "c_grammar_fun.grm"*)Nothing(*#line 8422.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.assignment_expression_opt1, C_Grammar_Rule.assignment_expression_opt)
+ in ( LALR_Table.NT 118, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 455, ( ( _, ( C_Grammar_Rule.assignment_expression assignment_expression1, assignment_expression1left, assignment_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 946.52 "c_grammar_fun.grm"*)(fn happy_var_1 => Just happy_var_1) assignment_expression1(*#line 8426.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.assignment_expression_opt2, C_Grammar_Rule.assignment_expression_opt)
+ in ( LALR_Table.NT 118, ( result, assignment_expression1left, assignment_expression1right), rest671)
+end
+|  ( 456, ( ( _, ( C_Grammar_Rule.conditional_expression conditional_expression1, conditional_expression1left, conditional_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 948.47 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) conditional_expression1(*#line 8430.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.constant_expression, C_Grammar_Rule.constant_expression)
+ in ( LALR_Table.NT 119, ( result, conditional_expression1left, conditional_expression1right), rest671)
+end
+|  ( 457, ( ( _, ( C_Grammar_Rule.cint cint1, cint1left, cint1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 950.18 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokILit happy_var_1 (fn i => CIntConst i))) cint1) (fn _ => withNodeInfo 0)(*#line 8434.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.constant1, C_Grammar_Rule.constant)
+ in ( LALR_Table.NT 120, ( result, cint1left, cint1right), rest671)
+end
+|  ( 458, ( ( _, ( C_Grammar_Rule.cchar cchar1, cchar1left, cchar1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 951.19 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokCLit happy_var_1 (fn c => CCharConst c))) cchar1) (fn _ => withNodeInfo 0)(*#line 8438.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.constant2, C_Grammar_Rule.constant)
+ in ( LALR_Table.NT 120, ( result, cchar1left, cchar1right), rest671)
+end
+|  ( 459, ( ( _, ( C_Grammar_Rule.cfloat cfloat1, cfloat1left, cfloat1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 952.20 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokFLit happy_var_1 (fn f => CFloatConst f))) cfloat1) (fn _ => withNodeInfo 0)(*#line 8442.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.constant3, C_Grammar_Rule.constant)
+ in ( LALR_Table.NT 120, ( result, cfloat1left, cfloat1right), rest671)
+end
+|  ( 460, ( ( _, ( C_Grammar_Rule.cstr cstr1, cstr1left, cstr1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 954.24 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (CTokSLit happy_var_1 (fn s => CStrLit s))) cstr1) (fn _ => withNodeInfo 0)(*#line 8446.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.string_literal1, C_Grammar_Rule.string_literal)
+ in ( LALR_Table.NT 121, ( result, cstr1left, cstr1right), rest671)
+end
+|  ( 461, ( ( _, ( C_Grammar_Rule.string_literal_list string_literal_list1, _, string_literal_list1right)) :: ( _, ( C_Grammar_Rule.cstr cstr1, cstr1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 955.44 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_2 => withNodeInfo happy_var_1 (CTokSLit happy_var_1 (fn s => CStrLit (concatCStrings (s :: reverse happy_var_2))))) cstr1 string_literal_list1) (fn _ => withNodeInfo 0)(*#line 8450.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.string_literal2, C_Grammar_Rule.string_literal)
+ in ( LALR_Table.NT 121, ( result, cstr1left, string_literal_list1right), rest671)
+end
+|  ( 462, ( ( _, ( C_Grammar_Rule.cstr cstr1, cstr1left, cstr1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 957.29 "c_grammar_fun.grm"*)(fn happy_var_1 => CTokSLit happy_var_1 (fn s => singleton s)) cstr1(*#line 8454.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.string_literal_list1, C_Grammar_Rule.string_literal_list)
+ in ( LALR_Table.NT 122, ( result, cstr1left, cstr1right), rest671)
+end
+|  ( 463, ( ( _, ( C_Grammar_Rule.cstr cstr1, _, cstr1right)) :: ( _, ( C_Grammar_Rule.string_literal_list string_literal_list1, string_literal_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 958.49 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => CTokSLit happy_var_2 (fn s => snoc (happy_var_1) (s))) string_literal_list1 cstr1(*#line 8458.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.string_literal_list2, C_Grammar_Rule.string_literal_list)
+ in ( LALR_Table.NT 122, ( result, string_literal_list1left, cstr1right), rest671)
+end
+|  ( 464, ( ( _, ( C_Grammar_Rule.clangcversion clangcversion1, clangcversion1left, clangcversion1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 960.40 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) clangcversion1(*#line 8462.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.clang_version_literal, C_Grammar_Rule.clang_version_literal)
+ in ( LALR_Table.NT 123, ( result, clangcversion1left, clangcversion1right), rest671)
+end
+|  ( 465, ( ( _, ( C_Grammar_Rule.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 962.21 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) ident1(*#line 8466.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.identifier1, C_Grammar_Rule.identifier)
+ in ( LALR_Table.NT 124, ( result, ident1left, ident1right), rest671)
+end
+|  ( 466, ( ( _, ( C_Grammar_Rule.tyident tyident1, tyident1left, tyident1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 963.23 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) tyident1(*#line 8470.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.identifier2, C_Grammar_Rule.identifier)
+ in ( LALR_Table.NT 124, ( result, tyident1left, tyident1right), rest671)
+end
+|  ( 467, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 965.15 "c_grammar_fun.grm"*)[](*#line 8474.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attrs_opt1, C_Grammar_Rule.attrs_opt)
+ in ( LALR_Table.NT 125, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 468, ( ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, attrs1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 966.20 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) attrs1(*#line 8478.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attrs_opt2, C_Grammar_Rule.attrs_opt)
+ in ( LALR_Table.NT 125, ( result, attrs1left, attrs1right), rest671)
+end
+|  ( 469, ( ( _, ( C_Grammar_Rule.attr attr1, attr1left, attr1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 968.15 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) attr1(*#line 8482.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attrs1, C_Grammar_Rule.attrs)
+ in ( LALR_Table.NT 126, ( result, attr1left, attr1right), rest671)
+end
+|  ( 470, ( ( _, ( C_Grammar_Rule.attr attr1, _, attr1right)) :: ( _, ( C_Grammar_Rule.attrs attrs1, attrs1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 969.21 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_2 => happy_var_1 @ happy_var_2) attrs1 attr1(*#line 8486.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attrs2, C_Grammar_Rule.attrs)
+ in ( LALR_Table.NT 126, ( result, attrs1left, attr1right), rest671)
+end
+|  ( 471, ( ( _, ( _, _, x292right)) :: _ :: ( _, ( C_Grammar_Rule.attribute_list attribute_list1, _, _)) :: _ :: _ :: ( _, ( _, x5f_x5f_attribute_x5f_x5f1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 971.66 "c_grammar_fun.grm"*)(fn happy_var_4 => reverse happy_var_4) attribute_list1(*#line 8490.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attr, C_Grammar_Rule.attr)
+ in ( LALR_Table.NT 127, ( result, x5f_x5f_attribute_x5f_x5f1left, x292right), rest671)
+end
+|  ( 472, ( ( _, ( C_Grammar_Rule.attribute attribute1, attribute1left, attribute1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 973.29 "c_grammar_fun.grm"*)(fn happy_var_1 => case happy_var_1 of None => empty | Some attr => singleton attr) attribute1(*#line 8494.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute_list1, C_Grammar_Rule.attribute_list)
+ in ( LALR_Table.NT 128, ( result, attribute1left, attribute1right), rest671)
+end
+|  ( 473, ( ( _, ( C_Grammar_Rule.attribute attribute1, _, attribute1right)) :: _ :: ( _, ( C_Grammar_Rule.attribute_list attribute_list1, attribute_list1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 974.48 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => (maybe id (flip snoc) happy_var_3) happy_var_1) attribute_list1 attribute1(*#line 8498.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute_list2, C_Grammar_Rule.attribute_list)
+ in ( LALR_Table.NT 128, ( result, attribute_list1left, attribute1right), rest671)
+end
+|  ( 474, ( rest671)) => let val  result = op #>> ( bind' ( return ((*#line 976.15 "c_grammar_fun.grm"*)Nothing(*#line 8502.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute1, C_Grammar_Rule.attribute)
+ in ( LALR_Table.NT 129, ( result, defaultPos, defaultPos), rest671)
+end
+|  ( 475, ( ( _, ( C_Grammar_Rule.ident ident1, ident1left, ident1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 977.20 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 [])) ident1) (fn _ => withNodeInfo 0)(*#line 8506.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.attribute2, C_Grammar_Rule.attribute)
+ in ( LALR_Table.NT 129, ( result, ident1left, ident1right), rest671)
+end
+|  ( 476, ( ( _, ( C_Grammar_Rule.const (const1 as const), const1left, const1right)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 978.20 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr (internalIdent "const") [])) const1) (fn _ => withNodeInfo 0)(*#line 8510.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.attribute3, C_Grammar_Rule.attribute)
+ in ( LALR_Table.NT 129, ( result, const1left, const1right), rest671)
+end
+|  ( 477, ( ( _, ( _, _, x291right)) :: ( _, ( C_Grammar_Rule.attribute_params attribute_params1, _, _)) :: _ :: ( _, ( C_Grammar_Rule.ident ident1, ident1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 979.45 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => fn happy_var_3 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 (reverse happy_var_3))) ident1 attribute_params1) (fn _ => withNodeInfo 0)(*#line 8514.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.attribute4, C_Grammar_Rule.attribute)
+ in ( LALR_Table.NT 129, ( result, ident1left, x291right), rest671)
+end
+|  ( 478, ( ( _, ( _, _, x291right)) :: _ :: ( _, ( C_Grammar_Rule.ident ident1, ident1left, _)) :: rest671)) => let val  result = op #>> ( bind' ((*#line 980.28 "c_grammar_fun.grm"*)(*%*)(fn withNodeInfo => (fn happy_var_1 => withNodeInfo happy_var_1 (Just o CAttr happy_var_1 [])) ident1) (fn _ => withNodeInfo 0)(*#line 8518.1 "c_grammar_fun.grm.sml"*)
+) C_Grammar_Rule_Wrap.attribute5, C_Grammar_Rule.attribute)
+ in ( LALR_Table.NT 129, ( result, ident1left, x291right), rest671)
+end
+|  ( 479, ( ( _, ( C_Grammar_Rule.constant_expression constant_expression1, constant_expression1left, constant_expression1right)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 982.41 "c_grammar_fun.grm"*)(fn happy_var_1 => singleton happy_var_1) constant_expression1(*#line 8522.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute_params1, C_Grammar_Rule.attribute_params)
+ in ( LALR_Table.NT 130, ( result, constant_expression1left, constant_expression1right), rest671)
+end
+|  ( 480, ( ( _, ( _, _, clang_version_literal1right)) :: _ :: ( _, ( _, unary_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 983.80 "c_grammar_fun.grm"*)Reversed [](*#line 8526.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute_params2, C_Grammar_Rule.attribute_params)
+ in ( LALR_Table.NT 130, ( result, unary_expression1left, clang_version_literal1right), rest671)
+end
+|  ( 481, ( ( _, ( _, _, unary_expression2right)) :: _ :: ( _, ( _, unary_expression1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 984.75 "c_grammar_fun.grm"*)Reversed [](*#line 8530.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute_params3, C_Grammar_Rule.attribute_params)
+ in ( LALR_Table.NT 130, ( result, unary_expression1left, unary_expression2right), rest671)
+end
+|  ( 482, ( ( _, ( C_Grammar_Rule.constant_expression constant_expression1, _, constant_expression1right)) :: _ :: ( _, ( C_Grammar_Rule.attribute_params attribute_params1, attribute_params1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 985.62 "c_grammar_fun.grm"*)(fn happy_var_1 => fn happy_var_3 => snoc (happy_var_1) (happy_var_3)) attribute_params1 constant_expression1(*#line 8534.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute_params4, C_Grammar_Rule.attribute_params)
+ in ( LALR_Table.NT 130, ( result, attribute_params1left, constant_expression1right), rest671)
+end
+|  ( 483, ( ( _, ( _, _, unary_expression2right)) :: _ :: _ :: _ :: ( _, ( C_Grammar_Rule.attribute_params attribute_params1, attribute_params1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 986.96 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) attribute_params1(*#line 8538.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute_params5, C_Grammar_Rule.attribute_params)
+ in ( LALR_Table.NT 130, ( result, attribute_params1left, unary_expression2right), rest671)
+end
+|  ( 484, ( ( _, ( _, _, clang_version_literal1right)) :: _ :: _ :: _ :: ( _, ( C_Grammar_Rule.attribute_params attribute_params1, attribute_params1left, _)) :: rest671)) => let val  result = op #>> ( bind' ( return ((*#line 987.101 "c_grammar_fun.grm"*)(fn happy_var_1 => happy_var_1) attribute_params1(*#line 8542.1 "c_grammar_fun.grm.sml"*)
+)) C_Grammar_Rule_Wrap.attribute_params6, C_Grammar_Rule.attribute_params)
+ in ( LALR_Table.NT 130, ( result, attribute_params1left, clang_version_literal1right), rest671)
 end
 | _ => raise (mlyAction i392)
-val void = return MlyValue.VOID
+val void = return C_Grammar_Rule.VOID
 end
-val extract = fn a => (fn MlyValue.translation_unit x => x
+val extract = fn a => (fn C_Grammar_Rule.translation_unit x => x
 | _ => let exception ParseInternal
 	in raise ParseInternal end) a 
 end
 end
-structure Tokens : StrictC_TOKENS =
+structure Tokens : C_Grammar_TOKENS =
 struct
 open Header
 type arg = ParserData.arg
 type svalue0 = ParserData.svalue0
 type svalue = arg -> svalue0 * arg
 type ('a,'b) token = ('a,'b) Token.token
-fun error (p1,p2) = Token.TOKEN (ParserData.LrTable.T 0,(return (MlyValue.VOID),p1,p2))
-fun x28 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 1,(return (MlyValue.x28 i),p1,p2))
-fun x29 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 2,(return (MlyValue.x29 i),p1,p2))
-fun x5b (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 3,(return (MlyValue.x5b i),p1,p2))
-fun x5d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 4,(return (MlyValue.x5d i),p1,p2))
-fun x2d_x3e (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 5,(return (MlyValue.x2d_x3e i),p1,p2))
-fun x2e (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 6,(return (MlyValue.x2e i),p1,p2))
-fun x21 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 7,(return (MlyValue.x21 i),p1,p2))
-fun x7e (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 8,(return (MlyValue.x7e i),p1,p2))
-fun x2b_x2b (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 9,(return (MlyValue.x2b_x2b i),p1,p2))
-fun x2d_x2d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 10,(return (MlyValue.x2d_x2d i),p1,p2))
-fun x2b (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 11,(return (MlyValue.x2b i),p1,p2))
-fun x2d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 12,(return (MlyValue.x2d i),p1,p2))
-fun x2a (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 13,(return (MlyValue.x2a i),p1,p2))
-fun x2f (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 14,(return (MlyValue.x2f i),p1,p2))
-fun x25 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 15,(return (MlyValue.x25 i),p1,p2))
-fun x26 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 16,(return (MlyValue.x26 i),p1,p2))
-fun x3c_x3c (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 17,(return (MlyValue.x3c_x3c i),p1,p2))
-fun x3e_x3e (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 18,(return (MlyValue.x3e_x3e i),p1,p2))
-fun x3c (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 19,(return (MlyValue.x3c i),p1,p2))
-fun x3c_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 20,(return (MlyValue.x3c_x3d i),p1,p2))
-fun x3e (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 21,(return (MlyValue.x3e i),p1,p2))
-fun x3e_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 22,(return (MlyValue.x3e_x3d i),p1,p2))
-fun x3d_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 23,(return (MlyValue.x3d_x3d i),p1,p2))
-fun x21_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 24,(return (MlyValue.x21_x3d i),p1,p2))
-fun x5e (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 25,(return (MlyValue.x5e i),p1,p2))
-fun x7c (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 26,(return (MlyValue.x7c i),p1,p2))
-fun x26_x26 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 27,(return (MlyValue.x26_x26 i),p1,p2))
-fun x7c_x7c (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 28,(return (MlyValue.x7c_x7c i),p1,p2))
-fun x3f (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 29,(return (MlyValue.x3f i),p1,p2))
-fun x3a (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 30,(return (MlyValue.x3a i),p1,p2))
-fun x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 31,(return (MlyValue.x3d i),p1,p2))
-fun x2b_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 32,(return (MlyValue.x2b_x3d i),p1,p2))
-fun x2d_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 33,(return (MlyValue.x2d_x3d i),p1,p2))
-fun x2a_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 34,(return (MlyValue.x2a_x3d i),p1,p2))
-fun x2f_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 35,(return (MlyValue.x2f_x3d i),p1,p2))
-fun x25_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 36,(return (MlyValue.x25_x3d i),p1,p2))
-fun x26_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 37,(return (MlyValue.x26_x3d i),p1,p2))
-fun x5e_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 38,(return (MlyValue.x5e_x3d i),p1,p2))
-fun x7c_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 39,(return (MlyValue.x7c_x3d i),p1,p2))
-fun x3c_x3c_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 40,(return (MlyValue.x3c_x3c_x3d i),p1,p2))
-fun x3e_x3e_x3d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 41,(return (MlyValue.x3e_x3e_x3d i),p1,p2))
-fun x2c (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 42,(return (MlyValue.x2c i),p1,p2))
-fun x3b (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 43,(return (MlyValue.x3b i),p1,p2))
-fun x7b (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 44,(return (MlyValue.x7b i),p1,p2))
-fun x7d (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 45,(return (MlyValue.x7d i),p1,p2))
-fun x2e_x2e_x2e (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 46,(return (MlyValue.x2e_x2e_x2e i),p1,p2))
-fun alignof (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 47,(return (MlyValue.alignof i),p1,p2))
-fun alignas (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 48,(return (MlyValue.alignas i),p1,p2))
-fun x5f_Atomic (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 49,(return (MlyValue.x5f_Atomic i),p1,p2))
-fun asm (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 50,(return (MlyValue.asm i),p1,p2))
-fun auto (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 51,(return (MlyValue.auto i),p1,p2))
-fun break (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 52,(return (MlyValue.break i),p1,p2))
-fun x5f_Bool (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 53,(return (MlyValue.x5f_Bool i),p1,p2))
-fun case0 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 54,(return (MlyValue.case0 i),p1,p2))
-fun char (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 55,(return (MlyValue.char i),p1,p2))
-fun const (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 56,(return (MlyValue.const i),p1,p2))
-fun continue (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 57,(return (MlyValue.continue i),p1,p2))
-fun x5f_Complex (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 58,(return (MlyValue.x5f_Complex i),p1,p2))
-fun default (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 59,(return (MlyValue.default i),p1,p2))
-fun do0 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 60,(return (MlyValue.do0 i),p1,p2))
-fun double (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 61,(return (MlyValue.double i),p1,p2))
-fun else0 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 62,(return (MlyValue.else0 i),p1,p2))
-fun enum (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 63,(return (MlyValue.enum i),p1,p2))
-fun extern (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 64,(return (MlyValue.extern i),p1,p2))
-fun float (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 65,(return (MlyValue.float i),p1,p2))
-fun for0 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 66,(return (MlyValue.for0 i),p1,p2))
-fun x5f_Generic (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 67,(return (MlyValue.x5f_Generic i),p1,p2))
-fun goto (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 68,(return (MlyValue.goto i),p1,p2))
-fun if0 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 69,(return (MlyValue.if0 i),p1,p2))
-fun inline (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 70,(return (MlyValue.inline i),p1,p2))
-fun int (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 71,(return (MlyValue.int i),p1,p2))
-fun x5f_x5f_int_x31_x32_x38 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 72,(return (MlyValue.x5f_x5f_int_x31_x32_x38 i),p1,p2))
-fun long (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 73,(return (MlyValue.long i),p1,p2))
-fun x5f_x5f_label_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 74,(return (MlyValue.x5f_x5f_label_x5f_x5f i),p1,p2))
-fun x5f_Noreturn (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 75,(return (MlyValue.x5f_Noreturn i),p1,p2))
-fun x5f_Nullable (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 76,(return (MlyValue.x5f_Nullable i),p1,p2))
-fun x5f_Nonnull (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 77,(return (MlyValue.x5f_Nonnull i),p1,p2))
-fun register (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 78,(return (MlyValue.register i),p1,p2))
-fun restrict (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 79,(return (MlyValue.restrict i),p1,p2))
-fun return0 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 80,(return (MlyValue.return0 i),p1,p2))
-fun short (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 81,(return (MlyValue.short i),p1,p2))
-fun signed (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 82,(return (MlyValue.signed i),p1,p2))
-fun sizeof (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 83,(return (MlyValue.sizeof i),p1,p2))
-fun static (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 84,(return (MlyValue.static i),p1,p2))
-fun x5f_Static_assert (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 85,(return (MlyValue.x5f_Static_assert i),p1,p2))
-fun struct0 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 86,(return (MlyValue.struct0 i),p1,p2))
-fun switch (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 87,(return (MlyValue.switch i),p1,p2))
-fun typedef (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 88,(return (MlyValue.typedef i),p1,p2))
-fun typeof (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 89,(return (MlyValue.typeof i),p1,p2))
-fun x5f_x5f_thread (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 90,(return (MlyValue.x5f_x5f_thread i),p1,p2))
-fun union (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 91,(return (MlyValue.union i),p1,p2))
-fun unsigned (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 92,(return (MlyValue.unsigned i),p1,p2))
-fun void (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 93,(return (MlyValue.void i),p1,p2))
-fun volatile (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 94,(return (MlyValue.volatile i),p1,p2))
-fun while0 (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 95,(return (MlyValue.while0 i),p1,p2))
-fun cchar (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 96,(return (MlyValue.cchar i),p1,p2))
-fun cint (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 97,(return (MlyValue.cint i),p1,p2))
-fun cfloat (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 98,(return (MlyValue.cfloat i),p1,p2))
-fun cstr (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 99,(return (MlyValue.cstr i),p1,p2))
-fun ident (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 100,(return (MlyValue.ident i),p1,p2))
-fun tyident (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 101,(return (MlyValue.tyident i),p1,p2))
-fun x5f_x5f_attribute_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 102,(return (MlyValue.x5f_x5f_attribute_x5f_x5f i),p1,p2))
-fun x5f_x5f_extension_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 103,(return (MlyValue.x5f_x5f_extension_x5f_x5f i),p1,p2))
-fun x5f_x5f_real_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 104,(return (MlyValue.x5f_x5f_real_x5f_x5f i),p1,p2))
-fun x5f_x5f_imag_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 105,(return (MlyValue.x5f_x5f_imag_x5f_x5f i),p1,p2))
-fun x5f_x5f_builtin_va_arg (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 106,(return (MlyValue.x5f_x5f_builtin_va_arg i),p1,p2))
-fun x5f_x5f_builtin_offsetof (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 107,(return (MlyValue.x5f_x5f_builtin_offsetof i),p1,p2))
-fun x5f_x5f_builtin_types_compatible_p (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 108,(return (MlyValue.x5f_x5f_builtin_types_compatible_p i),p1,p2))
-fun clangcversion (i,p1,p2) = Token.TOKEN (ParserData.LrTable.T 109,(return (MlyValue.clangcversion i),p1,p2))
-fun x25_eof (p1,p2) = Token.TOKEN (ParserData.LrTable.T 110,(return (MlyValue.VOID),p1,p2))
+fun error (p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 0,(return (C_Grammar_Rule.VOID),p1,p2))
+fun x28 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 1,(return (C_Grammar_Rule.x28 i),p1,p2))
+fun x29 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 2,(return (C_Grammar_Rule.x29 i),p1,p2))
+fun x5b (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 3,(return (C_Grammar_Rule.x5b i),p1,p2))
+fun x5d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 4,(return (C_Grammar_Rule.x5d i),p1,p2))
+fun x2d_x3e (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 5,(return (C_Grammar_Rule.x2d_x3e i),p1,p2))
+fun x2e (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 6,(return (C_Grammar_Rule.x2e i),p1,p2))
+fun x21 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 7,(return (C_Grammar_Rule.x21 i),p1,p2))
+fun x7e (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 8,(return (C_Grammar_Rule.x7e i),p1,p2))
+fun x2b_x2b (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 9,(return (C_Grammar_Rule.x2b_x2b i),p1,p2))
+fun x2d_x2d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 10,(return (C_Grammar_Rule.x2d_x2d i),p1,p2))
+fun x2b (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 11,(return (C_Grammar_Rule.x2b i),p1,p2))
+fun x2d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 12,(return (C_Grammar_Rule.x2d i),p1,p2))
+fun x2a (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 13,(return (C_Grammar_Rule.x2a i),p1,p2))
+fun x2f (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 14,(return (C_Grammar_Rule.x2f i),p1,p2))
+fun x25 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 15,(return (C_Grammar_Rule.x25 i),p1,p2))
+fun x26 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 16,(return (C_Grammar_Rule.x26 i),p1,p2))
+fun x3c_x3c (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 17,(return (C_Grammar_Rule.x3c_x3c i),p1,p2))
+fun x3e_x3e (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 18,(return (C_Grammar_Rule.x3e_x3e i),p1,p2))
+fun x3c (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 19,(return (C_Grammar_Rule.x3c i),p1,p2))
+fun x3c_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 20,(return (C_Grammar_Rule.x3c_x3d i),p1,p2))
+fun x3e (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 21,(return (C_Grammar_Rule.x3e i),p1,p2))
+fun x3e_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 22,(return (C_Grammar_Rule.x3e_x3d i),p1,p2))
+fun x3d_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 23,(return (C_Grammar_Rule.x3d_x3d i),p1,p2))
+fun x21_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 24,(return (C_Grammar_Rule.x21_x3d i),p1,p2))
+fun x5e (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 25,(return (C_Grammar_Rule.x5e i),p1,p2))
+fun x7c (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 26,(return (C_Grammar_Rule.x7c i),p1,p2))
+fun x26_x26 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 27,(return (C_Grammar_Rule.x26_x26 i),p1,p2))
+fun x7c_x7c (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 28,(return (C_Grammar_Rule.x7c_x7c i),p1,p2))
+fun x3f (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 29,(return (C_Grammar_Rule.x3f i),p1,p2))
+fun x3a (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 30,(return (C_Grammar_Rule.x3a i),p1,p2))
+fun x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 31,(return (C_Grammar_Rule.x3d i),p1,p2))
+fun x2b_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 32,(return (C_Grammar_Rule.x2b_x3d i),p1,p2))
+fun x2d_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 33,(return (C_Grammar_Rule.x2d_x3d i),p1,p2))
+fun x2a_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 34,(return (C_Grammar_Rule.x2a_x3d i),p1,p2))
+fun x2f_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 35,(return (C_Grammar_Rule.x2f_x3d i),p1,p2))
+fun x25_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 36,(return (C_Grammar_Rule.x25_x3d i),p1,p2))
+fun x26_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 37,(return (C_Grammar_Rule.x26_x3d i),p1,p2))
+fun x5e_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 38,(return (C_Grammar_Rule.x5e_x3d i),p1,p2))
+fun x7c_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 39,(return (C_Grammar_Rule.x7c_x3d i),p1,p2))
+fun x3c_x3c_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 40,(return (C_Grammar_Rule.x3c_x3c_x3d i),p1,p2))
+fun x3e_x3e_x3d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 41,(return (C_Grammar_Rule.x3e_x3e_x3d i),p1,p2))
+fun x2c (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 42,(return (C_Grammar_Rule.x2c i),p1,p2))
+fun x3b (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 43,(return (C_Grammar_Rule.x3b i),p1,p2))
+fun x7b (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 44,(return (C_Grammar_Rule.x7b i),p1,p2))
+fun x7d (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 45,(return (C_Grammar_Rule.x7d i),p1,p2))
+fun x2e_x2e_x2e (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 46,(return (C_Grammar_Rule.x2e_x2e_x2e i),p1,p2))
+fun alignof (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 47,(return (C_Grammar_Rule.alignof i),p1,p2))
+fun alignas (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 48,(return (C_Grammar_Rule.alignas i),p1,p2))
+fun x5f_Atomic (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 49,(return (C_Grammar_Rule.x5f_Atomic i),p1,p2))
+fun asm (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 50,(return (C_Grammar_Rule.asm i),p1,p2))
+fun auto (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 51,(return (C_Grammar_Rule.auto i),p1,p2))
+fun break (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 52,(return (C_Grammar_Rule.break i),p1,p2))
+fun x5f_Bool (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 53,(return (C_Grammar_Rule.x5f_Bool i),p1,p2))
+fun case0 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 54,(return (C_Grammar_Rule.case0 i),p1,p2))
+fun char (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 55,(return (C_Grammar_Rule.char i),p1,p2))
+fun const (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 56,(return (C_Grammar_Rule.const i),p1,p2))
+fun continue (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 57,(return (C_Grammar_Rule.continue i),p1,p2))
+fun x5f_Complex (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 58,(return (C_Grammar_Rule.x5f_Complex i),p1,p2))
+fun default (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 59,(return (C_Grammar_Rule.default i),p1,p2))
+fun do0 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 60,(return (C_Grammar_Rule.do0 i),p1,p2))
+fun double (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 61,(return (C_Grammar_Rule.double i),p1,p2))
+fun else0 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 62,(return (C_Grammar_Rule.else0 i),p1,p2))
+fun enum (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 63,(return (C_Grammar_Rule.enum i),p1,p2))
+fun extern (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 64,(return (C_Grammar_Rule.extern i),p1,p2))
+fun float (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 65,(return (C_Grammar_Rule.float i),p1,p2))
+fun for0 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 66,(return (C_Grammar_Rule.for0 i),p1,p2))
+fun x5f_Generic (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 67,(return (C_Grammar_Rule.x5f_Generic i),p1,p2))
+fun goto (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 68,(return (C_Grammar_Rule.goto i),p1,p2))
+fun if0 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 69,(return (C_Grammar_Rule.if0 i),p1,p2))
+fun inline (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 70,(return (C_Grammar_Rule.inline i),p1,p2))
+fun int (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 71,(return (C_Grammar_Rule.int i),p1,p2))
+fun x5f_x5f_int_x31_x32_x38 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 72,(return (C_Grammar_Rule.x5f_x5f_int_x31_x32_x38 i),p1,p2))
+fun long (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 73,(return (C_Grammar_Rule.long i),p1,p2))
+fun x5f_x5f_label_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 74,(return (C_Grammar_Rule.x5f_x5f_label_x5f_x5f i),p1,p2))
+fun x5f_Noreturn (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 75,(return (C_Grammar_Rule.x5f_Noreturn i),p1,p2))
+fun x5f_Nullable (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 76,(return (C_Grammar_Rule.x5f_Nullable i),p1,p2))
+fun x5f_Nonnull (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 77,(return (C_Grammar_Rule.x5f_Nonnull i),p1,p2))
+fun register (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 78,(return (C_Grammar_Rule.register i),p1,p2))
+fun restrict (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 79,(return (C_Grammar_Rule.restrict i),p1,p2))
+fun return0 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 80,(return (C_Grammar_Rule.return0 i),p1,p2))
+fun short (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 81,(return (C_Grammar_Rule.short i),p1,p2))
+fun signed (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 82,(return (C_Grammar_Rule.signed i),p1,p2))
+fun sizeof (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 83,(return (C_Grammar_Rule.sizeof i),p1,p2))
+fun static (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 84,(return (C_Grammar_Rule.static i),p1,p2))
+fun x5f_Static_assert (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 85,(return (C_Grammar_Rule.x5f_Static_assert i),p1,p2))
+fun struct0 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 86,(return (C_Grammar_Rule.struct0 i),p1,p2))
+fun switch (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 87,(return (C_Grammar_Rule.switch i),p1,p2))
+fun typedef (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 88,(return (C_Grammar_Rule.typedef i),p1,p2))
+fun typeof (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 89,(return (C_Grammar_Rule.typeof i),p1,p2))
+fun x5f_x5f_thread (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 90,(return (C_Grammar_Rule.x5f_x5f_thread i),p1,p2))
+fun union (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 91,(return (C_Grammar_Rule.union i),p1,p2))
+fun unsigned (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 92,(return (C_Grammar_Rule.unsigned i),p1,p2))
+fun void (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 93,(return (C_Grammar_Rule.void i),p1,p2))
+fun volatile (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 94,(return (C_Grammar_Rule.volatile i),p1,p2))
+fun while0 (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 95,(return (C_Grammar_Rule.while0 i),p1,p2))
+fun cchar (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 96,(return (C_Grammar_Rule.cchar i),p1,p2))
+fun cint (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 97,(return (C_Grammar_Rule.cint i),p1,p2))
+fun cfloat (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 98,(return (C_Grammar_Rule.cfloat i),p1,p2))
+fun cstr (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 99,(return (C_Grammar_Rule.cstr i),p1,p2))
+fun ident (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 100,(return (C_Grammar_Rule.ident i),p1,p2))
+fun tyident (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 101,(return (C_Grammar_Rule.tyident i),p1,p2))
+fun x5f_x5f_attribute_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 102,(return (C_Grammar_Rule.x5f_x5f_attribute_x5f_x5f i),p1,p2))
+fun x5f_x5f_extension_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 103,(return (C_Grammar_Rule.x5f_x5f_extension_x5f_x5f i),p1,p2))
+fun x5f_x5f_real_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 104,(return (C_Grammar_Rule.x5f_x5f_real_x5f_x5f i),p1,p2))
+fun x5f_x5f_imag_x5f_x5f (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 105,(return (C_Grammar_Rule.x5f_x5f_imag_x5f_x5f i),p1,p2))
+fun x5f_x5f_builtin_va_arg (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 106,(return (C_Grammar_Rule.x5f_x5f_builtin_va_arg i),p1,p2))
+fun x5f_x5f_builtin_offsetof (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 107,(return (C_Grammar_Rule.x5f_x5f_builtin_offsetof i),p1,p2))
+fun x5f_x5f_builtin_types_compatible_p (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 108,(return (C_Grammar_Rule.x5f_x5f_builtin_types_compatible_p i),p1,p2))
+fun clangcversion (i,p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 109,(return (C_Grammar_Rule.clangcversion i),p1,p2))
+fun x25_eof (p1,p2) = Token.TOKEN (ParserData.LALR_Table.T 110,(return (C_Grammar_Rule.VOID),p1,p2))
 end
 end

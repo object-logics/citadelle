@@ -1,8 +1,8 @@
-open C_ast_simple open Hsk_c_parser
+open C_Ast open C_Grammar_Rule_Lib
 
 %%
 %pure
-%name StrictC
+%name C_Grammar
 %arg (_) : Header.arg
 %nodefault
 
