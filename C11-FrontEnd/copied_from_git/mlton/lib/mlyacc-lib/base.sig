@@ -89,8 +89,8 @@ signature LR_TABLE =
 
 signature TOKEN =
     sig
-        structure LrTable : LR_TABLE
-        datatype ('a,'b) token = TOKEN of LrTable.term * ('a * 'b * 'b)
+        structure LALR_Table : LR_TABLE
+        datatype ('a,'b) token = TOKEN of LALR_Table.term * ('a * 'b * 'b)
         val sameToken : ('a,'b) token * ('a,'b) token -> bool
     end
 
@@ -99,34 +99,34 @@ signature TOKEN =
 signature LR_PARSER1 =
     sig
         structure Stream : STREAM1
-        structure LrTable : LR_TABLE
+        structure LALR_Table : LR_TABLE
         structure Token : TOKEN
 
-        sharing LrTable = Token.LrTable
+        sharing LALR_Table = Token.LALR_Table
 
-        type ('_b, '_c) stack = (LrTable.state, '_b, '_c) stack'
+        type ('_b, '_c) stack = (LALR_Table.state, '_b, '_c) stack'
 
         type ('_b, '_c, 'arg) lexer = (('arg -> '_b * 'arg,'_c) Token.token, ('_b, '_c) stack * 'arg) Stream.stream * 'arg
 
-        val parse : {table : LrTable.table,
+        val parse : {table : LALR_Table.table,
                      saction : int *
                                '_c *
-                               (LrTable.state * ('_b * '_c * '_c)) list *
+                               (LALR_Table.state * ('_b * '_c * '_c)) list *
                                'arg
-                               ->    LrTable.nonterm *
+                               ->    LALR_Table.nonterm *
                                      (('arg -> '_b * 'arg) * '_c * '_c) *
-                                     (LrTable.state * ('_b * '_c * '_c)) list,
+                                     (LALR_Table.state * ('_b * '_c * '_c)) list,
                      void : 'arg -> '_b * 'arg,
                      void_position : '_c,
                      accept : '_c * '_c -> ('_b, '_c) stack * 'arg -> 'arg,
                      reduce_init : (('_c * '_c) list * int) * 'arg -> 'arg,
-                     reduce_get : (LrTable.state, '_b, '_c) C_Env.rule_reduce -> 'arg -> (LrTable.state, '_b, '_c) C_Env.rule_output0 * 'arg,
-                     ec : { is_keyword : LrTable.term -> bool,
-                            noShift : LrTable.term -> bool,
-                            preferred_change : (LrTable.term list * LrTable.term list) list,
-                            errtermvalue : LrTable.term -> 'arg -> '_b * 'arg,
-                            showTerminal : LrTable.term -> string,
-                            terms: LrTable.term list,
+                     reduce_get : (LALR_Table.state, '_b, '_c) C_Env.rule_reduce -> 'arg -> (LALR_Table.state, '_b, '_c) C_Env.rule_output0 * 'arg,
+                     ec : { is_keyword : LALR_Table.term -> bool,
+                            noShift : LALR_Table.term -> bool,
+                            preferred_change : (LALR_Table.term list * LALR_Table.term list) list,
+                            errtermvalue : LALR_Table.term -> 'arg -> '_b * 'arg,
+                            showTerminal : LALR_Table.term -> string,
+                            terms: LALR_Table.term list,
                             error : '_c * '_c -> ('_b, '_c) stack * 'arg -> 'arg
                            },
                      lookahead : int  (* max amount of lookahead used in *)
@@ -139,30 +139,30 @@ signature LR_PARSER1 =
 signature LR_PARSER2 =
     sig
         structure Stream : STREAM2
-        structure LrTable : LR_TABLE
+        structure LALR_Table : LR_TABLE
         structure Token : TOKEN
 
-        sharing LrTable = Token.LrTable
+        sharing LALR_Table = Token.LALR_Table
 
         exception ParseError
 
-        val parse : {table : LrTable.table,
+        val parse : {table : LALR_Table.table,
                      lexer : ('_b,'_c) Token.token Stream.stream,
                      arg: 'arg,
                      saction : int *
                                '_c *
-                               (LrTable.state * ('_b * '_c * '_c)) list *
+                               (LALR_Table.state * ('_b * '_c * '_c)) list *
                                'arg
-                               ->    LrTable.nonterm *
+                               ->    LALR_Table.nonterm *
                                      ('_b * '_c * '_c) *
-                                     (LrTable.state * ('_b * '_c * '_c)) list,
+                                     (LALR_Table.state * ('_b * '_c * '_c)) list,
                      void : '_b,
-                     ec : { is_keyword : LrTable.term -> bool,
-                            noShift : LrTable.term -> bool,
-                            preferred_change : (LrTable.term list * LrTable.term list) list,
-                            errtermvalue : LrTable.term -> '_b,
-                            showTerminal : LrTable.term -> string,
-                            terms: LrTable.term list,
+                     ec : { is_keyword : LALR_Table.term -> bool,
+                            noShift : LALR_Table.term -> bool,
+                            preferred_change : (LALR_Table.term list * LALR_Table.term list) list,
+                            errtermvalue : LALR_Table.term -> '_b,
+                            showTerminal : LALR_Table.term -> string,
+                            terms: LALR_Table.term list,
                             error : string * '_c * '_c -> unit
                            },
                      lookahead : int  (* max amount of lookahead used in *)
@@ -173,7 +173,7 @@ signature LR_PARSER2 =
 
 (* LEXER: a signature that most lexers produced for use with SML-Yacc's
    output will match.  The user is responsible for declaring type token,
-   type pos, and type svalue in the UserDeclarations section of a lexer.
+   type pos, and type svalue in the LALR_Lex_Instance section of a lexer.
 
    Note that type token is abstract in the lexer.  This allows SML-Yacc to
    create a TOKENS signature for use with lexers produced by ML-Lex that
@@ -184,7 +184,7 @@ signature LR_PARSER2 =
 
 signature LEXER =
    sig
-       structure UserDeclarations :
+       structure LALR_Lex_Instance :
            sig
                 type ('a,'b) token
                 type pos
@@ -192,7 +192,7 @@ signature LEXER =
            end
         val makeLexer : (int -> string)
                         -> unit
-                        -> (UserDeclarations.svalue, UserDeclarations.pos) UserDeclarations.token
+                        -> (LALR_Lex_Instance.svalue, LALR_Lex_Instance.pos) LALR_Lex_Instance.token
    end
 
 (* ARG_LEXER: the %arg option of ML-Lex allows users to produce lexers which
@@ -201,7 +201,7 @@ signature LEXER =
 
 signature ARG_LEXER1 =
    sig
-       structure UserDeclarations :
+       structure LALR_Lex_Instance :
            sig
                 type ('a,'b) token
                 type pos
@@ -210,15 +210,15 @@ signature ARG_LEXER1 =
                 type svalue = arg -> svalue0 * arg
                 type state
            end
-        type stack = (UserDeclarations.state, UserDeclarations.svalue0, UserDeclarations.pos) stack'
-        val makeLexer : (stack * UserDeclarations.arg)
-                        -> (UserDeclarations.svalue, UserDeclarations.pos) UserDeclarations.token
-                         * (stack * UserDeclarations.arg)
+        type stack = (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) stack'
+        val makeLexer : (stack * LALR_Lex_Instance.arg)
+                        -> (LALR_Lex_Instance.svalue, LALR_Lex_Instance.pos) LALR_Lex_Instance.token
+                         * (stack * LALR_Lex_Instance.arg)
    end
 
 signature ARG_LEXER2 =
    sig
-       structure UserDeclarations :
+       structure LALR_Lex_Instance :
            sig
                 type ('a,'b) token
                 type pos
@@ -226,9 +226,9 @@ signature ARG_LEXER2 =
                 type svalue
            end
         val makeLexer : (int -> string)
-                        -> UserDeclarations.arg
+                        -> LALR_Lex_Instance.arg
                         -> unit
-                        -> (UserDeclarations.svalue,UserDeclarations.pos) UserDeclarations.token
+                        -> (LALR_Lex_Instance.svalue,LALR_Lex_Instance.pos) LALR_Lex_Instance.token
    end
 
 (* PARSER_DATA: the signature of ParserData structures in {parser name}LrValsFun
@@ -258,9 +258,9 @@ signature PARSER_DATA1 =
          *)
         type result
 
-        structure LrTable : LR_TABLE
+        structure LALR_Table : LR_TABLE
         structure Token : TOKEN
-        sharing Token.LrTable = LrTable
+        sharing Token.LALR_Table = LALR_Table
 
         (* structure Actions contains the functions which mantain the
            semantic values stack in the parser.  Void is used to provide
@@ -268,8 +268,8 @@ signature PARSER_DATA1 =
          *)
         structure Actions :
           sig
-              val actions : int * pos * (LrTable.state * (svalue0 * pos * pos)) list * arg
-                            -> LrTable.nonterm * (svalue * pos * pos) * (LrTable.state * (svalue0 * pos * pos)) list
+              val actions : int * pos * (LALR_Table.state * (svalue0 * pos * pos)) list * arg
+                            -> LALR_Table.nonterm * (svalue * pos * pos) * (LALR_Table.state * (svalue0 * pos * pos)) list
               val void : svalue
               val extract : svalue0 -> result
           end
@@ -278,16 +278,16 @@ signature PARSER_DATA1 =
            recovery in an error-correcting parser *)
         structure EC :
            sig
-             val is_keyword : LrTable.term -> bool
-             val noShift : LrTable.term -> bool
-             val preferred_change : (LrTable.term list * LrTable.term list) list
-             val errtermvalue : LrTable.term -> svalue
-             val showTerminal : LrTable.term -> string
-             val terms: LrTable.term list
+             val is_keyword : LALR_Table.term -> bool
+             val noShift : LALR_Table.term -> bool
+             val preferred_change : (LALR_Table.term list * LALR_Table.term list) list
+             val errtermvalue : LALR_Table.term -> svalue
+             val showTerminal : LALR_Table.term -> string
+             val terms: LALR_Table.term list
            end
 
         (* table is the LR table for the parser *)
-        val table : LrTable.table
+        val table : LALR_Table.table
     end
 
 signature PARSER_DATA2 =
@@ -307,9 +307,9 @@ signature PARSER_DATA2 =
          *)
         type result
 
-        structure LrTable : LR_TABLE
+        structure LALR_Table : LR_TABLE
         structure Token : TOKEN
-        sharing Token.LrTable = LrTable
+        sharing Token.LALR_Table = LALR_Table
 
         (* structure Actions contains the functions which mantain the
            semantic values stack in the parser.  Void is used to provide
@@ -317,8 +317,8 @@ signature PARSER_DATA2 =
          *)
         structure Actions :
           sig
-              val actions : int * pos * (LrTable.state * (svalue * pos * pos)) list * arg
-                            -> LrTable.nonterm * (svalue * pos * pos) * (LrTable.state * (svalue * pos * pos)) list
+              val actions : int * pos * (LALR_Table.state * (svalue * pos * pos)) list * arg
+                            -> LALR_Table.nonterm * (svalue * pos * pos) * (LALR_Table.state * (svalue * pos * pos)) list
               val void : svalue
               val extract : svalue -> result
           end
@@ -327,16 +327,16 @@ signature PARSER_DATA2 =
            recovery in an error-correcting parser *)
         structure EC :
            sig
-             val is_keyword : LrTable.term -> bool
-             val noShift : LrTable.term -> bool
-             val preferred_change : (LrTable.term list * LrTable.term list) list
-             val errtermvalue : LrTable.term -> svalue
-             val showTerminal : LrTable.term -> string
-             val terms: LrTable.term list
+             val is_keyword : LALR_Table.term -> bool
+             val noShift : LALR_Table.term -> bool
+             val preferred_change : (LALR_Table.term list * LALR_Table.term list) list
+             val errtermvalue : LALR_Table.term -> svalue
+             val showTerminal : LALR_Table.term -> string
+             val terms: LALR_Table.term list
            end
 
         (* table is the LR table for the parser *)
-        val table : LrTable.table
+        val table : LALR_Table.table
     end
 
 (* signature PARSER is the signature that most user parsers created by
@@ -392,7 +392,7 @@ signature ARG_PARSER1 =
         type svalue0
         type svalue = arg -> svalue0 * arg
 
-        type stack = (Token.LrTable.state, svalue0, pos) stack'
+        type stack = (Token.LALR_Table.state, svalue0, pos) stack'
 
         type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
 
@@ -402,7 +402,7 @@ signature ARG_PARSER1 =
                     * pos
                     * (pos * pos -> stack * arg -> arg)
                     * (((pos * pos) list * int) * arg -> arg)
-                    * ((Token.LrTable.state, svalue0, pos) C_Env.rule_reduce -> arg -> (Token.LrTable.state, svalue0, pos) C_Env.rule_output0 * arg)
+                    * ((Token.LALR_Table.state, svalue0, pos) C_Env.rule_reduce -> arg -> (Token.LALR_Table.state, svalue0, pos) C_Env.rule_output0 * arg)
                    -> arg lexer
                    -> arg lexer
         val sameToken : (svalue, pos) Token.token * (svalue, pos) Token.token -> bool

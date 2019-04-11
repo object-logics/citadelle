@@ -7,25 +7,25 @@
 (* drt (12/15/89) -- the functor should be used during development work,
    but it is wastes space in the release version.
 
-functor ParserGen(structure LrTable : LR_TABLE
+functor ParserGen(structure LALR_Table : LR_TABLE
                   structure Stream : STREAM) : LR_PARSER =
 *)
 
-structure LrParser1 : LR_PARSER1 =
+structure LALR_Parser_Eval : LR_PARSER1 =
 struct
 
-structure LrTable = LrTable
+structure LALR_Table = LALR_Table
 structure Stream = Stream1
 
 structure Token : TOKEN =
   struct
-      structure LrTable = LrTable
-      datatype ('a,'b) token = TOKEN of LrTable.term * ('a * 'b * 'b)
+      structure LALR_Table = LALR_Table
+      datatype ('a,'b) token = TOKEN of LALR_Table.term * ('a * 'b * 'b)
       val sameToken = fn (TOKEN (t,_),TOKEN(t',_)) => t=t'
   end
 
 
-open LrTable
+open LALR_Table
 open Token
 
 val DEBUG1 = false
@@ -33,7 +33,7 @@ exception ParseImpossible of int
 
 type ('a,'b) stack0 = (state * ('a * 'b * 'b)) list
 
-type ('_b, '_c) stack = (LrTable.state, '_b, '_c) stack'
+type ('_b, '_c) stack = (LALR_Table.state, '_b, '_c) stack'
 
 type ('_b, '_c, 'arg) lexer = (('arg -> '_b * 'arg,'_c) Token.token, ('_b, '_c) stack * 'arg) Stream.stream * 'arg
 
@@ -66,8 +66,8 @@ fun parse {table, saction, void, void_position, accept, reduce_init, reduce_get,
                            | ACCEPT => "ACCEPT")))
         | prAction (_,_,_) = ()
 
-      val action = LrTable.action table
-      val goto = LrTable.goto table
+      val action = LALR_Table.action table
+      val goto = LALR_Table.goto table
 
       fun add_stack (value, stack_value) (ml, stack_ml) (pos, stack_pos) (tree, stack_tree) =
         (value :: stack_value, ml :: stack_ml, pos :: stack_pos, tree :: stack_tree)

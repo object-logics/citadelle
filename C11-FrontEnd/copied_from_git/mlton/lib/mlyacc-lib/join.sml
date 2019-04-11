@@ -14,11 +14,11 @@
 functor Join2 (structure Lex : LEXER
                structure ParserData: PARSER_DATA2
                structure LrParser : LR_PARSER2
-               sharing ParserData.LrTable = LrParser.LrTable
+               sharing ParserData.LALR_Table = LrParser.LALR_Table
                sharing ParserData.Token = LrParser.Token
-               sharing type Lex.UserDeclarations.svalue = ParserData.svalue
-               sharing type Lex.UserDeclarations.pos = ParserData.pos
-               sharing type Lex.UserDeclarations.token = ParserData.Token.token)
+               sharing type Lex.LALR_Lex_Instance.svalue = ParserData.svalue
+               sharing type Lex.LALR_Lex_Instance.pos = ParserData.pos
+               sharing type Lex.LALR_Lex_Instance.token = ParserData.Token.token)
                  : PARSER2 =
 struct
     structure Token = ParserData.Token
@@ -55,16 +55,16 @@ end
    yielding a value of type unit -> (svalue,pos) token
  *)
 
-functor JoinWithArg1(structure Lex : ARG_LEXER1
+functor LALR_Parser_Join(structure Lex : ARG_LEXER1
              structure ParserData: PARSER_DATA1
              structure LrParser : LR_PARSER1
-             sharing ParserData.LrTable = LrParser.LrTable
+             sharing ParserData.LALR_Table = LrParser.LALR_Table
              sharing ParserData.Token = LrParser.Token
-             sharing type Lex.UserDeclarations.arg = ParserData.arg
-             sharing type Lex.UserDeclarations.svalue0 = ParserData.svalue0
-             sharing type Lex.UserDeclarations.pos = ParserData.pos
-             sharing type Lex.UserDeclarations.token = ParserData.Token.token
-             sharing type Lex.UserDeclarations.state = ParserData.Token.LrTable.state)
+             sharing type Lex.LALR_Lex_Instance.arg = ParserData.arg
+             sharing type Lex.LALR_Lex_Instance.svalue0 = ParserData.svalue0
+             sharing type Lex.LALR_Lex_Instance.pos = ParserData.pos
+             sharing type Lex.LALR_Lex_Instance.token = ParserData.Token.token
+             sharing type Lex.LALR_Lex_Instance.state = ParserData.Token.LALR_Table.state)
                  : ARG_PARSER1 =
 struct
     structure Token = ParserData.Token
@@ -75,7 +75,7 @@ struct
     type svalue0 = ParserData.svalue0
     type svalue = arg -> svalue0 * arg
 
-    type stack = (Token.LrTable.state, svalue0, pos) stack'
+    type stack = (Token.LALR_Table.state, svalue0, pos) stack'
 
     type 'arg lexer = ((svalue, pos) Token.token, stack * 'arg) Stream.stream * 'arg
 
@@ -104,12 +104,12 @@ end
 functor JoinWithArg2(structure Lex : ARG_LEXER2
              structure ParserData: PARSER_DATA2
              structure LrParser : LR_PARSER2
-             sharing ParserData.LrTable = LrParser.LrTable
+             sharing ParserData.LALR_Table = LrParser.LALR_Table
              sharing ParserData.Token = LrParser.Token
-             sharing type Lex.UserDeclarations.arg = ParserData.arg
-             sharing type Lex.UserDeclarations.svalue = ParserData.svalue
-             sharing type Lex.UserDeclarations.pos = ParserData.pos
-             sharing type Lex.UserDeclarations.token = ParserData.Token.token)
+             sharing type Lex.LALR_Lex_Instance.arg = ParserData.arg
+             sharing type Lex.LALR_Lex_Instance.svalue = ParserData.svalue
+             sharing type Lex.LALR_Lex_Instance.pos = ParserData.pos
+             sharing type Lex.LALR_Lex_Instance.token = ParserData.Token.token)
                  : ARG_PARSER2  =
 struct
     structure Token = ParserData.Token
