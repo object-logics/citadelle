@@ -439,11 +439,6 @@ structure List = struct
   val reverse = rev
 end
 
-type ('LrTable_state, 'a, 'Position_T) stack' =
-     ('LrTable_state, 'a, 'Position_T) C_Env.stack0
-   * C_Transition.eval_node list list
-   * ('Position_T * 'Position_T) list
-   * ('LrTable_state, 'a, 'Position_T) C_Env.rule_ml C_Env.tree list
 type cString = CString
 type cChar = CChar
 type cInteger = CInteger

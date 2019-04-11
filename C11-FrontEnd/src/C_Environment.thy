@@ -140,7 +140,15 @@ type T = { env_lang : env_lang
          , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * C_Transition.eval_node) list list
          , stream_lang : (C_Antiquote.antiq * C_Transition.antiq_language list) stream }
 
+(**)
+
 datatype 'a tree = Tree of 'a * 'a tree list
+
+type ('LrTable_state, 'a, 'Position_T) stack' =
+     ('LrTable_state, 'a, 'Position_T) stack0
+   * C_Transition.eval_node list list
+   * ('Position_T * 'Position_T) list
+   * ('LrTable_state, 'a, 'Position_T) rule_ml tree list
 
 (**)
 
