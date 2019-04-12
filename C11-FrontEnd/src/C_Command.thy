@@ -50,27 +50,31 @@ structure C_Module =
 struct
 
 structure Data = Generic_Data
-  (type T = (C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table
+  (type T = ((C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list * C_Env.env_lang) Symtab.table
    val empty = Symtab.empty
    val extend = I
-   val merge = Symtab.merge (op =))
+   val merge = Symtab.merge (K false))
 
 val get_global = Data.get o Context.Theory
-val dest_list = Symtab.dest_list o get_global
+val dest_list = Symtab.dest o get_global
 fun get_module thy = the (Symtab.lookup (get_global thy) (Context.theory_name thy))
-fun get_module' context = the (Symtab.lookup (Data.get context)
-                                             (Context.theory_name (Context.theory_of context)))
+fun get_module'' context = Symtab.lookup (Data.get context)
+                                         (Context.theory_name (Context.theory_of context))
+val get_module' = the o get_module''
 
 fun accept env_lang (_, (res, _, _)) =
   C_Env.map_context
     (fn context =>
-      Data.map (Symtab.update_list (op =) ( Context.theory_name (Context.theory_of context)
-                                          , (res, #stream_ignored env_lang |> rev)))
+      Data.map (Symtab.map_default
+                 (Context.theory_name (Context.theory_of context), ([], env_lang))
+                 (fn (xs, _) => (cons (res, #stream_ignored env_lang |> rev) xs, C_Env.map_stream_ignored (K []) env_lang)))
                context)
 
 val eval_source =
   C_Context.eval_source
-    C_Env.empty_env_lang
+    (fn context => case (Config.get (Context.proof_of context) C_Options.propagate_env, get_module'' context)
+                     of (true, SOME (_, env_lang)) => env_lang
+                      | _ => C_Env.empty_env_lang)
     (fn _ => fn _ => fn pos => fn _ =>
       error ("Parser: No matching grammar rule" ^ Position.here pos))
     accept

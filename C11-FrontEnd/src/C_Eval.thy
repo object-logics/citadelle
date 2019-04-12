@@ -544,14 +544,16 @@ fun eval env err accept ants {context, reports_text} =
 (* derived versions *)
 
 fun eval' env err accept ants =
-  Context.>> (C_Env_Ext.context_map
-               let val tap_report = tap (Position.reports_text o #reports_text)
-                                    #> (C_Env.empty_env_tree o #context)
-               in eval env
-                       (fn env_lang => fn stack => fn pos => tap_report #> err env_lang stack pos)
-                       (fn env_lang => fn stack => accept env_lang stack #> tap_report)
-                       ants
-               end)
+  Context.>> (fn context =>
+               C_Env_Ext.context_map
+                 let val tap_report = tap (Position.reports_text o #reports_text)
+                                      #> (C_Env.empty_env_tree o #context)
+                 in eval (env context)
+                         (fn env_lang => fn stack => fn pos => tap_report #> err env_lang stack pos)
+                         (fn env_lang => fn stack => accept env_lang stack #> tap_report)
+                         ants
+                 end
+                 context)
 end;
 
 fun eval_source env err accept source =

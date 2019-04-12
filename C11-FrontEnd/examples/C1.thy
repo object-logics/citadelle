@@ -285,7 +285,7 @@ declare [[C_parser_trace = false]]
 
 ML\<open>
 fun show_env0 make_string f msg context =
-  warning ("(" ^ msg ^ ") " ^ make_string (f (C_Module.get_module' context)))
+  warning ("(" ^ msg ^ ") " ^ make_string (f (C_Module.get_module' context |> #1)))
 
 val show_env = tap o show_env0 @{make_string} length
 
@@ -400,6 +400,10 @@ j j = jj;
 
 ML\<open>show_env "POSITION 3" (Context.Theory @{theory})\<close>
 
+subsubsection \<open>6\<close>
+
+declare [[C_propagate_env]]
+
 C \<comment> \<open>Propagation of Updates\<close> \<open>
 int a = 0;
 int b = a * a + 0;
@@ -411,6 +415,12 @@ int main2 () {
   int main () { main2() + main(); }
   return a + jjj + main3() + main(); }
 \<close>
+
+C \<open>
+int main3 () { main2 (); }
+\<close>
+
+declare [[C_propagate_env = false]]
 
 section \<open>Miscellaneous\<close>
 
