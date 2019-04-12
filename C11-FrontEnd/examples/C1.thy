@@ -319,10 +319,8 @@ fun command dir f_cmd =
     (fn src => fn context => f_cmd (C_Stack.Data_Lang.get context |> #2) src context)
     dir
 in
-val _ = Theory.setup (   command C_Transition.Bottom_up (K C) ("C", \<^here>)
-                      #> command C_Transition.Top_down (K C) ("C_reverse", \<^here>)
-                      #> command C_Transition.Bottom_up C' ("C'", \<^here>)
-                      #> command C_Transition.Top_down C' ("C'_reverse", \<^here>))
+val _ = Theory.setup (   command C_Transition.Bottom_up C' ("C'", \<^here>)
+                      #> command C_Transition.Top_down C' ("C'\<Down>", \<^here>))
 end
 \<close>
 
