@@ -43,6 +43,64 @@ theory C_Command
        and "C_val" "C_dump" :: diag % "ML"
 begin
 
+section \<open>The Global C11-Module State\<close>
+
+ML\<open>
+structure C_Module =
+struct
+
+structure Data = Generic_Data
+  (type T = (C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = Symtab.merge (op =))
+
+val get_global = Data.get o Context.Theory
+val dest_list = Symtab.dest_list o get_global
+fun get_module thy = the (Symtab.lookup (get_global thy) (Context.theory_name thy))
+fun get_module' context = the (Symtab.lookup (Data.get context)
+                                             (Context.theory_name (Context.theory_of context)))
+
+fun accept env_lang (_, (res, _, _)) =
+  C_Env.map_context
+    (fn context =>
+      Data.map (Symtab.update_list (op =) ( Context.theory_name (Context.theory_of context)
+                                          , (res, #stream_ignored env_lang |> rev)))
+               context)
+
+val eval_source =
+  C_Context.eval_source
+    C_Env.empty_env_lang
+    (fn _ => fn _ => fn pos => fn _ =>
+      error ("Parser: No matching grammar rule" ^ Position.here pos))
+    accept
+
+fun C_prf source =
+  Proof.map_context (Context.proof_map (ML_Context.exec (fn () => eval_source source)))
+  #> Proof.propagate_ml_env
+
+fun C_export source context =
+  context
+  |> ML_Env.set_bootstrap true
+  |> ML_Context.exec (fn () => eval_source source)
+  |> ML_Env.restore_bootstrap context
+  |> Local_Theory.propagate_ml_env
+
+fun C source =
+  ML_Context.exec (fn () => eval_source source)
+  #> Local_Theory.propagate_ml_env
+
+fun C' err env_lang src =
+  C_Env.empty_env_tree
+  #> C_Context.eval_source'
+       env_lang
+       err
+       accept
+       src
+  #> (fn {context, reports_text} => C_Stack.Data_Tree.map (append reports_text) context)
+end
+\<close>
+
 section \<open>Definitions of Inner Directive Commands\<close>
 
 ML\<open>
@@ -171,64 +229,6 @@ in end
 \<close>
 
 section \<open>Definitions of Outer Commands\<close>
-subsection \<open>The Global C11-Module State\<close>
-
-ML\<open>
-structure C_Module =
-struct
-
-structure Data = Generic_Data
-  (type T = (C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table
-   val empty = Symtab.empty
-   val extend = I
-   val merge = Symtab.merge (op =))
-
-val get_global = Data.get o Context.Theory
-val dest_list = Symtab.dest_list o get_global
-fun get_module thy = the (Symtab.lookup (get_global thy) (Context.theory_name thy))
-fun get_module' context = the (Symtab.lookup (Data.get context)
-                                             (Context.theory_name (Context.theory_of context)))
-
-fun accept env_lang (_, (res, _, _)) =
-  C_Env.map_context
-    (fn context =>
-      Data.map (Symtab.update_list (op =) ( Context.theory_name (Context.theory_of context)
-                                          , (res, #stream_ignored env_lang |> rev)))
-               context)
-
-val eval_source =
-  C_Context.eval_source
-    C_Env.empty_env_lang
-    (fn _ => fn _ => fn pos => fn _ =>
-      error ("Parser: No matching grammar rule" ^ Position.here pos))
-    accept
-
-fun C_prf source =
-  Proof.map_context (Context.proof_map (ML_Context.exec (fn () => eval_source source)))
-  #> Proof.propagate_ml_env
-
-fun C_export source context =
-  context
-  |> ML_Env.set_bootstrap true
-  |> ML_Context.exec (fn () => eval_source source)
-  |> ML_Env.restore_bootstrap context
-  |> Local_Theory.propagate_ml_env
-
-fun C source =
-  ML_Context.exec (fn () => eval_source source)
-  #> Local_Theory.propagate_ml_env
-
-fun C' err env_lang src =
-  C_Env.empty_env_tree
-  #> C_Context.eval_source'
-       env_lang
-       err
-       accept
-       src
-  #> (fn {context, reports_text} => C_Stack.Data_Tree.map (append reports_text) context)
-end
-\<close>
-
 subsection \<open>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Pure.thy
