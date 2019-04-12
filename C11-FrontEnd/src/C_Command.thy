@@ -174,91 +174,27 @@ section \<open>Definitions of Outer Commands\<close>
 subsection \<open>The Global C11-Module State\<close>
 
 ML\<open>
-structure C11_core = (*Old C11 Env - deprecated?*)
+structure C_Module =
 struct
-  datatype id_kind = cpp_id        of Position.T * serial
-                   | cpp_macro     of Position.T * serial
-                   | builtin_id  
-                   | builtin_func 
-                   | imported_id   of Position.T * serial
-                   | imported_func of Position.T * serial 
-                   | global_id     of Position.T * serial
-                   | local_id      of Position.T * serial
-                   | global_func   of Position.T * serial
 
+structure Data = Generic_Data
+  (type T = (C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = Symtab.merge (op =))
 
-  type new_env_type  = { 
-                        cpp_id       :  unit Name_Space.table,
-                        cpp_macro    :  unit Name_Space.table,
-                        builtin_id   : unit Name_Space.table,
-                        builtin_func : unit Name_Space.table,
-                        global_var   : (C_Ast.NodeInfo C_Ast.cTypeSpecifier) Name_Space.table,
-                        local_var    : (C_Ast.NodeInfo C_Ast.cTypeSpecifier) Name_Space.table,
-                        global_func  : (C_Ast.NodeInfo C_Ast.cTypeSpecifier) Name_Space.table
-  }
-
-  val mt_env = {cpp_id       = Name_Space.empty_table "cpp_id",
-                cpp_macro    = Name_Space.empty_table "cpp_macro", 
-                builtin_id   = Name_Space.empty_table "builtin_id",
-                builtin_func = Name_Space.empty_table "builtin_func",
-                global_var   = Name_Space.empty_table "global_var",
-                local_var    = Name_Space.empty_table "local_var",
-                global_func  = Name_Space.empty_table "global_func"
-  }
-
-
-  type c_file_name      = string
-  type C11_struct       = { tab  : (C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list Symtab.table,
-                            env  : id_kind list Symtab.table }
-  val  C11_struct_empty = { tab  = Symtab.empty, env = Symtab.empty}
-
-  fun map_tab f {tab, env} = {tab = f tab, env=env}
-  fun map_env f {tab, env} = {tab = tab, env=f env}
-
-  (* registrating data of the Isa_DOF component *)
-  structure Data = Generic_Data
-  (
-    type T =     C11_struct
-    val empty = C11_struct_empty
-    val extend =  I
-    fun merge(t1,t2) = { tab = Symtab.merge (op =) (#tab t1, #tab t2),
-                         env = Symtab.merge (op =) (#env t1, #env t2)}
-  );
-
-  val get_global      = Data.get o Context.Theory
-  fun put_global x    = Data.put x;
-  val map_data        = Context.theory_map o Data.map;
-  val map_data_global = Context.theory_map o Data.map
-  
-  val trans_tab_of    = #tab o get_global
-  val dest_list       = Symtab.dest_list o trans_tab_of
-
-  fun push_env(k,a) tab = case Symtab.lookup tab k of
-                        NONE => Symtab.update(k,[a])(tab)
-                     |  SOME S => Symtab.update(k,a::S)(tab)
-  fun pop_env(k) tab = case Symtab.lookup tab k of
-                       SOME (a::S) => Symtab.update(k,S)(tab)
-                     | _ => error("internal error - illegal break of scoping rules")
-  
-  fun push_global (k,a) =  (map_data_global o map_env) (push_env (k,a)) 
-  fun push (k,a)        =  (map_data        o map_env) (push_env (k,a)) 
-  fun pop_global (k)    =  (map_data_global o map_env) (pop_env k) 
-  fun pop (k)           =  (map_data        o map_env) (pop_env k) 
-
-end
-\<close>
-
-ML\<open>
-structure C_Context' = struct
+val get_global = Data.get o Context.Theory
+val dest_list = Symtab.dest_list o get_global
+fun get_module thy = the (Symtab.lookup (get_global thy) (Context.theory_name thy))
+fun get_module' context = the (Symtab.lookup (Data.get context)
+                                             (Context.theory_name (Context.theory_of context)))
 
 fun accept env_lang (_, (res, _, _)) =
-  (fn context =>
-    ( Context.theory_name (Context.theory_of context)
-    , (res, #stream_ignored env_lang |> rev))
-    |> Symtab.update_list (op =)
-    |> C11_core.map_tab
-    |> (fn map_tab => C11_core.Data.map map_tab context))
-  |> C_Env.map_context
+  C_Env.map_context
+    (fn context =>
+      Data.map (Symtab.update_list (op =) ( Context.theory_name (Context.theory_of context)
+                                          , (res, #stream_ignored env_lang |> rev)))
+               context)
 
 val eval_source =
   C_Context.eval_source
@@ -289,18 +225,18 @@ structure C_Outer_Syntax =
 struct
 
 fun C_prf source =
-  Proof.map_context (Context.proof_map (ML_Context.exec (fn () => C_Context'.eval_source source)))
+  Proof.map_context (Context.proof_map (ML_Context.exec (fn () => C_Module.eval_source source)))
   #> Proof.propagate_ml_env
 
 fun C_export source context =
   context
   |> ML_Env.set_bootstrap true
-  |> ML_Context.exec (fn () => C_Context'.eval_source source)
+  |> ML_Context.exec (fn () => C_Module.eval_source source)
   |> ML_Env.restore_bootstrap context
   |> Local_Theory.propagate_ml_env
 
 fun C source =
-  ML_Context.exec (fn () => C_Context'.eval_source source)
+  ML_Context.exec (fn () => C_Module.eval_source source)
   #> Local_Theory.propagate_ml_env
 
 fun C' err env_lang src =
@@ -308,7 +244,7 @@ fun C' err env_lang src =
   #> C_Context.eval_source'
        env_lang
        err
-       C_Context'.accept
+       C_Module.accept
        src
   #> (fn {context, reports_text} => C_Stack.Data_Tree.map (append reports_text) context)
 
@@ -336,7 +272,7 @@ fun C_diag source state =
       try Toplevel.generic_theory_of state
       |> Option.map (Context.proof_of #> Diag_State.put state);
   in Context.setmp_generic_context (Option.map Context.Proof opt_ctxt)
-    (fn () => C_Context'.eval_source source) () end;
+    (fn () => C_Module.eval_source source) () end;
 
 val diag_state = Diag_State.get;
 val diag_goal = Proof.goal o Toplevel.proof_of o diag_state;
@@ -368,7 +304,7 @@ fun command files gthy =
 end;
 \<close>
 
-subsubsection \<open>Reading and Writing C-Files\<close>
+subsection \<open>Reading and Writing C-Files\<close>
 
 ML\<open>
 local

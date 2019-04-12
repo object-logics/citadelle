@@ -285,9 +285,7 @@ declare [[C_parser_trace = false]]
 
 ML\<open>
 fun show_env0 make_string f msg context =
-  warning ("(" ^ msg ^ ") "
-           ^ make_string (f (the (Symtab.lookup (#tab (C11_core.Data.get context))
-                                                (Context.theory_name (Context.theory_of context))))))
+  warning ("(" ^ msg ^ ") " ^ make_string (f (C_Module.get_module' context)))
 
 val show_env = tap o show_env0 @{make_string} length
 

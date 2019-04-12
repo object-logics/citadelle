@@ -48,7 +48,7 @@ C\<open>
 #pragma
 \<close>
 ML\<open> 
-val (C_Ast.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) (Context.theory_name @{theory}));
+val (C_Ast.CTranslUnit0 (t,u), v)::R = C_Module.get_module @{theory};
 val u = C_Grammar_Rule_Lib.decode u; 
 C_Ast.CTypeSpec0;
 \<close>
@@ -64,7 +64,7 @@ int max(int x, int y) {
 \<close>
 
 ML\<open> 
-val (C_Ast.CTranslUnit0 (t,u), v)::R = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) (Context.theory_name @{theory}));
+val (C_Ast.CTranslUnit0 (t,u), v)::R = C_Module.get_module @{theory};
 val u = C_Grammar_Rule_Lib.decode u
 \<close>
 
@@ -294,13 +294,13 @@ void display(int a[],const int size)
 \<close>
 ML\<open>
 
-(C11_core.dest_list @{theory})
+(C_Module.dest_list @{theory})
 \<close>
 
 ML\<open>
 local open C_Ast in
 val _ = CTranslUnit0
-val (CTranslUnit0 (t,u), v)::_ = the(Symtab.lookup(C11_core.trans_tab_of @{theory}) (Context.theory_name @{theory}));
+val (CTranslUnit0 (t,u), v)::_ = C_Module.get_module @{theory};
 val u = C_Grammar_Rule_Lib.decode u
 val _ = case  u of Left (p1,p2) => writeln (Position.here p1 ^ " " ^ Position.here p2)
 val CDeclExt0(x1)::_ = t;
