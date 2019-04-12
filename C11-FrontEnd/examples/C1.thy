@@ -289,9 +289,9 @@ fun show_env0 make_string f msg context =
 
 val show_env = tap o show_env0 @{make_string} length
 
-val C = tap o C_Outer_Syntax.C
-val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
-                             tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
+val C = tap o C_Module.C
+val C' = C_Module.C' (fn _ => fn _ => fn pos =>
+                       tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
 \<close>
 
 C \<comment> \<open>Nesting C code without propagating the C environment\<close> \<open>

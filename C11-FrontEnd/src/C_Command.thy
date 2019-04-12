@@ -202,6 +202,30 @@ val eval_source =
     (fn _ => fn _ => fn pos => fn _ =>
       error ("Parser: No matching grammar rule" ^ Position.here pos))
     accept
+
+fun C_prf source =
+  Proof.map_context (Context.proof_map (ML_Context.exec (fn () => eval_source source)))
+  #> Proof.propagate_ml_env
+
+fun C_export source context =
+  context
+  |> ML_Env.set_bootstrap true
+  |> ML_Context.exec (fn () => eval_source source)
+  |> ML_Env.restore_bootstrap context
+  |> Local_Theory.propagate_ml_env
+
+fun C source =
+  ML_Context.exec (fn () => eval_source source)
+  #> Local_Theory.propagate_ml_env
+
+fun C' err env_lang src =
+  C_Env.empty_env_tree
+  #> C_Context.eval_source'
+       env_lang
+       err
+       accept
+       src
+  #> (fn {context, reports_text} => C_Stack.Data_Tree.map (append reports_text) context)
 end
 \<close>
 
@@ -223,35 +247,9 @@ end
 ML\<open>
 structure C_Outer_Syntax =
 struct
-
-fun C_prf source =
-  Proof.map_context (Context.proof_map (ML_Context.exec (fn () => C_Module.eval_source source)))
-  #> Proof.propagate_ml_env
-
-fun C_export source context =
-  context
-  |> ML_Env.set_bootstrap true
-  |> ML_Context.exec (fn () => C_Module.eval_source source)
-  |> ML_Env.restore_bootstrap context
-  |> Local_Theory.propagate_ml_env
-
-fun C source =
-  ML_Context.exec (fn () => C_Module.eval_source source)
-  #> Local_Theory.propagate_ml_env
-
-fun C' err env_lang src =
-  C_Env.empty_env_tree
-  #> C_Context.eval_source'
-       env_lang
-       err
-       C_Module.accept
-       src
-  #> (fn {context, reports_text} => C_Stack.Data_Tree.map (append reports_text) context)
-
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C\<close> ""
-    (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C));
-
+    (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C_Module.C));
 end
 \<close>
 
@@ -294,7 +292,7 @@ fun command0 ({src_path, lines, digest, pos}: Token.file) =
   let
     val provide = Resources.provide (src_path, digest);
   in I
-    #> C_Outer_Syntax.C (Input.source true (cat_lines lines) (pos, pos))
+    #> C_Module.C (Input.source true (cat_lines lines) (pos, pos))
     #> Context.mapping provide (Local_Theory.background_theory provide)
   end;
 
@@ -318,11 +316,11 @@ val _ =
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C_export\<close>
     "C text within theory or local theory, and export to bootstrap environment"
-    (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C_Outer_Syntax.C_export));
+    (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C_Module.C_export));
 
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C_prf\<close> "C text within proof"
-    (C_Outer_Parse.C_source >> (Toplevel.proof o C_Outer_Syntax.C_prf));
+    (C_Outer_Parse.C_source >> (Toplevel.proof o C_Module.C_prf));
 
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C_val\<close> "diagnostic C text"

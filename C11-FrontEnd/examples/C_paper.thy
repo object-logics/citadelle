@@ -48,8 +48,8 @@ val _ = Theory.setup (   command C_Transition.Bottom_up ("ML_setup", \<^here>)
                       #> command C_Transition.Top_down ("ML_setup\<Down>", \<^here>))
 end
 
-val C' = C_Outer_Syntax.C' (fn _ => fn _ => fn pos =>
-                             tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
+val C' = C_Module.C' (fn _ => fn _ => fn pos =>
+                       tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
 
 fun C_define dir name _ _ =
   Context.map_theory 
@@ -74,7 +74,7 @@ val _ = Theory.setup
                          ^ " (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))
 end
 
-fun C opt = case opt of NONE => tap o C_Outer_Syntax.C
+fun C opt = case opt of NONE => tap o C_Module.C
                       | SOME env => C' env
 
 fun highlight (_, (_, pos1, pos2)) =
