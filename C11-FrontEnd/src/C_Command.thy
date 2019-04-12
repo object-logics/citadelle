@@ -192,20 +192,14 @@ end
 ML\<open>
 structure C_Inner_Syntax =
 struct
-
-fun command0 f dir name =
-  C_Annotation.command' name ""
-    (fn (stack1, (to_delay, stack2)) =>
-      C_Parse.range C_Parse.ML_source >>
-        (fn (src, range) =>
-          C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, K (f src)))))
-
 fun command f dir name =
   C_Annotation.command' name ""
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range C_Parse.ML_source >>
         (fn (src, range) =>
           C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
+
+fun command0 f = command (K o f)
 end
 \<close>
 
@@ -224,7 +218,9 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Bottom_up ("setup", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Top_down ("setup\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Transition.Bottom_up ("ML", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Transition.Top_down ("ML\<Down>", \<^here>))
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Transition.Top_down ("ML\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Transition.Bottom_up ("C", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Transition.Top_down ("C\<Down>", \<^here>))
 in end
 \<close>
 
