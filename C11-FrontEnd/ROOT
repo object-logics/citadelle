@@ -42,6 +42,7 @@ session C = HOL +
     "examples/C2"
     "examples/C3"
     "examples/C_paper"
+    "document/Rail"
   document_files
     "root.tex"
     "root.bib"
