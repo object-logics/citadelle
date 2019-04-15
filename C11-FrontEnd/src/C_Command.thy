@@ -38,9 +38,9 @@ theory C_Command
   imports C_Eval
   keywords "C" :: thy_decl % "ML"
        and "C_file" :: thy_load % "ML"
-       and "C_export" :: thy_decl % "ML"
+       and "C_export_boot" :: thy_decl % "ML"
        and "C_prf" :: prf_decl % "proof"  (* FIXME % "ML" ?? *)
-       and "C_val" "C_dump" :: diag % "ML"
+       and "C_val" "C_export_file" :: diag % "ML"
 begin
 
 section \<open>The Global C11-Module State\<close>
@@ -49,26 +49,32 @@ ML\<open>
 structure C_Module =
 struct
 
-structure Data = Generic_Data
+structure Data_In = Generic_Data
+  (type T = Input.source list
+   val empty = []
+   val extend = K empty
+   val merge = K empty)
+
+structure Data_Out = Generic_Data
   (type T = ((C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list * C_Env.env_lang) Symtab.table
    val empty = Symtab.empty
    val extend = I
    val merge = Symtab.merge (K false))
 
-val get_global = Data.get o Context.Theory
+val get_global = Data_Out.get o Context.Theory
 val dest_list = Symtab.dest o get_global
 fun get_module thy = the (Symtab.lookup (get_global thy) (Context.theory_name thy))
-fun get_module'' context = Symtab.lookup (Data.get context)
+fun get_module'' context = Symtab.lookup (Data_Out.get context)
                                          (Context.theory_name (Context.theory_of context))
 val get_module' = the o get_module''
 
 fun accept env_lang (_, (res, _, _)) =
   C_Env.map_context
     (fn context =>
-      Data.map (Symtab.map_default
-                 (Context.theory_name (Context.theory_of context), ([], env_lang))
-                 (fn (xs, _) => (cons (res, #stream_ignored env_lang |> rev) xs, C_Env.map_stream_ignored (K []) env_lang)))
-               context)
+      Data_Out.map (Symtab.map_default
+                     (Context.theory_name (Context.theory_of context), ([], env_lang))
+                     (fn (xs, _) => (cons (res, #stream_ignored env_lang |> rev) xs, C_Env.map_stream_ignored (K []) env_lang)))
+                   context)
 
 val eval_source =
   C_Context.eval_source
@@ -79,19 +85,23 @@ val eval_source =
       error ("Parser: No matching grammar rule" ^ Position.here pos))
     accept
 
+fun exec_eval source =
+  ML_Context.exec (fn () => eval_source source)
+  #> Data_In.map (cons source)
+
 fun C_prf source =
-  Proof.map_context (Context.proof_map (ML_Context.exec (fn () => eval_source source)))
+  Proof.map_context (Context.proof_map (exec_eval source))
   #> Proof.propagate_ml_env
 
 fun C_export source context =
   context
   |> ML_Env.set_bootstrap true
-  |> ML_Context.exec (fn () => eval_source source)
+  |> exec_eval source
   |> ML_Env.restore_bootstrap context
   |> Local_Theory.propagate_ml_env
 
 fun C source =
-  ML_Context.exec (fn () => eval_source source)
+  exec_eval source
   #> Local_Theory.propagate_ml_env
 
 fun C' err env_lang src =
@@ -314,7 +324,7 @@ val _ =
     (Resources.parse_files "C_file" --| semi >> (Toplevel.generic_theory o C_Outer_File.command));
 
 val _ =
-  Outer_Syntax.command \<^command_keyword>\<open>C_export\<close>
+  Outer_Syntax.command \<^command_keyword>\<open>C_export_boot\<close>
     "C text within theory or local theory, and export to bootstrap environment"
     (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C_Module.C_export));
 
@@ -327,9 +337,26 @@ val _ =
     (C_Outer_Parse.C_source >> (Toplevel.keep o C_Outer_Isar_Cmd.C_diag));
 
 val _ =
-  Outer_Syntax.command \<^command_keyword>\<open>C_dump\<close> "diagnostic C text"
-    (C_Outer_Parse.C_source >> (Toplevel.keep o C_Outer_Isar_Cmd.C_diag));   (* HACK: TO BE DONE *)
-
+  Outer_Syntax.command \<^command_keyword>\<open>C_export_file\<close> "diagnostic C text"
+    (Scan.succeed () >>
+      (fn _ =>
+        Toplevel.keep
+          (Toplevel.generic_theory_of
+           #>
+            (fn context => context
+            |> C_Module.Data_In.get
+            |> rev
+            |> map Input.source_content
+            |>  let val thy = Context.theory_of context
+                    fun check_file_not path =
+                      if File.exists path andalso not (File.is_dir path)
+                      then error ("Existing file: " ^ Path.print (Path.expand path))
+                      else path;
+                in
+                  File.write_list
+                    (check_file_not (File.full_path (Resources.master_directory thy)
+                                                    (thy |> Context.theory_name |> Path.explode |> Path.ext "c")))
+                end))));
 in end\<close>
 
 end
