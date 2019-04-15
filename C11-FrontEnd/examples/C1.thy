@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C1
-  imports "../semantic-backends/AutoCorres/AC_Command"
+  imports "../C_Main"
 begin
 
 declare[[C_lexer_trace]]
@@ -238,19 +238,6 @@ setup \<open>Context.theory_map (Example_Data.put [])\<close>
 
 declare[[ML_source_trace]]
 declare[[C_parser_trace]]
-
-C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
-int x /** OWNED_BY foo */, hh /*@
-  MODIFIES: [*] x
-  \<approx>setup \<open>@{print_stack "evaluation of 2_print_stack"}\<close>
-  +++++@@ \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "2_print_top"\<close>
-  OWNED_BY bar
-  @\<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "1_print_top"\<close>
-  \<approx>setup \<open>@{print_stack "evaluation of 1_print_stack"}\<close>
-*/, z;
-
-int b = 0;
-\<close>
 
 C \<comment> \<open>Arbitrary interleaving of effects: \<open>\<approx>setup\<close> vs \<open>\<approx>setup\<Down>\<close>\<close> \<open>
 int b,c,d/*@@ \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "3_print_top"\<close> */,e = 0; /*@@ \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "4_print_top"\<close> */

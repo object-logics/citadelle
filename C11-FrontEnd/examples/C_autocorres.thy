@@ -34,21 +34,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-session C_examples = HOL +
-  sessions
-    "HOL-Eisbach"
-  theories
-    "examples/C_autocorres"
+theory C_autocorres
+  imports "../semantic-backends/AutoCorres/AC_Command"
+begin
 
-session C = HOL +
-  description {* C *}
-  options [document = pdf, document_output = generated]
-  theories
-    "examples/C1"
-    "examples/C2"
-    "examples/C3"
-    "examples/C_paper"
-    "document/Rail"
-  document_files
-    "root.tex"
-    "root.bib"
+ML\<open>
+structure Example_Data = Generic_Data (type T = string list
+                                      val empty = [] val extend = I val merge = #2)
+fun add_ex s1 s2 =
+  Example_Data.map (cons s2)
+  #> (fn context => let val () = warning (s1 ^ s2)
+                        val () = app (fn s => writeln ("  Data content: " ^ s)) (Example_Data.get context)
+                    in context end)
+\<close>
+
+setup \<open>Context.theory_map (Example_Data.put [])\<close>
+
+declare[[ML_source_trace]]
+declare[[C_parser_trace]]
+
+C \<comment> \<open>Arbitrary interleaving of effects\<close> \<open>
+int x /** OWNED_BY foo */, hh /*@
+  MODIFIES: [*] x
+  \<approx>setup \<open>@{print_stack "evaluation of 2_print_stack"}\<close>
+  +++++@@ \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "2_print_top"\<close>
+  OWNED_BY bar
+  @\<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "1_print_top"\<close>
+  \<approx>setup \<open>@{print_stack "evaluation of 1_print_stack"}\<close>
+*/, z;
+
+int b = 0;
+\<close>
+
+end
