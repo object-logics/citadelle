@@ -1,5 +1,5 @@
 theory tp06b
-imports AutoCorres "~~/src/HOL/Number_Theory/Number_Theory"
+imports "AutoCorres.AutoCorres" "~~/src/HOL/Number_Theory/Number_Theory"
 begin
 
 (* Parse the C file into SIMPL. *)
@@ -122,6 +122,11 @@ lemma is_prime_body_obeys_measure:
 lemma is_prime_inv_implies_postcondition:
   "\<lbrakk> is_prime_inv i init_n curr_n; curr_n mod i = 0 \<rbrakk>
       \<Longrightarrow> prime (unat init_n) \<longleftrightarrow> (i = curr_n)"
+proof -
+  have prime_nat_code: "(prime :: nat \<Rightarrow> bool) = (\<lambda>p. p > 1 \<and> (\<forall>n \<in> {1<..<p}. ~ n dvd p))"
+    apply (rule ext)
+  using prime_nat_naive by auto
+show "\<lbrakk> is_prime_inv i init_n curr_n; curr_n mod i = 0 \<rbrakk> \<Longrightarrow> ?thesis"
   apply (clarsimp simp: is_prime_inv'_def)
   apply (rule iffI)
    apply (clarsimp simp: prime_nat_code)
@@ -132,6 +137,7 @@ lemma is_prime_inv_implies_postcondition:
   apply (drule_tac x=n in spec)
   apply (metis Suc_1 arith_is_1  dvd_imp_mod_0  eq_iff less_eq_Suc_le  not_less_eq_eq )
   done
+qed
 
 (*
  * Show that "is_prime' n" is correct.

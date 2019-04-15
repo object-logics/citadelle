@@ -1,5 +1,5 @@
 theory intro
-imports AutoCorres
+imports "AutoCorres.AutoCorres"
 begin
 
 (***
@@ -88,7 +88,7 @@ find_theorems "\<lbrace>_\<rbrace> _ \<lbrace>_\<rbrace>!"
 thm skip_nf            (* axiom for skip *)
 thm validNF_return     (* like rule of assignment *)
 thm validNF_weaken_pre (* like rule of consequence *)
-thm validNF_split_if   (* Tests *)
+thm validNF_if_split   (* Tests *)
 thm validNF_bind       (* Sequences *)
 thm validNF_whileLoop  (* loops *)
 

@@ -1,5 +1,5 @@
 theory tp06a
-imports AutoCorres "~~/src/HOL/Number_Theory/Number_Theory"
+imports "AutoCorres.AutoCorres" "~~/src/HOL/Number_Theory/Number_Theory"
 begin
 
 (* Parse the C file into the SIMPL language. *)
@@ -43,7 +43,7 @@ lemma is_prime_body_obeys_inv:
   by (metis Suc_leI le_neq_implies_less mod_self neq0_conv)
     
 find_theorems (205) "prime (_::nat) = _"
-thm prime_nat_simp
+thm prime_nat_iff'
 
 find_theorems "_ dvd _" "_ mod _"
 thm dvd_eq_mod_eq_0[symmetric]
@@ -66,7 +66,7 @@ next
   show "i = n"
          apply(insert `prime n` *)
          apply(subst (asm)  prime_nat_iff, clarify)
-         apply(subst (asm) Divides.semiring_div_class.dvd_eq_mod_eq_0)
+         apply(subst (asm) dvd_eq_mod_eq_0)
          apply(erule_tac x=i in allE)
          by(simp only: `n mod i = 0`,auto)
 qed
