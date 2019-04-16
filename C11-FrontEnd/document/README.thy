@@ -36,17 +36,17 @@
 
 theory README imports Main begin text \<open>
 
-\<^dir>\<open>generated\<close> contains only generated files from FronEnd-Generators.
+\<^dir>\<open>../generated\<close> contains only generated files from FronEnd-Generators.
 
 In particular, these are:
 
-  \<^item> \<^file>\<open>generated/language_c.grm\<close> SML grm file generated from Haskell grm file.
+  \<^item> \<^file>\<open>../generated/c_grammar_fun.grm\<close> SML grm file generated from Haskell grm file.
                      To be compiled with (modified) mlyacc. 
                      iCF \<^url>\<open>https://gitlri.lri.fr/ftuong/mlton\<close>,
                      which includes and buils mlyacc.)
   
-  \<^item> \<^file>\<open>generated/language_c.grm.sig\<close> 
+  \<^item> \<^file>\<open>../generated/c_grammar_fun.grm.sig\<close> 
      and
-     \<^file>\<open>generated/language_c.grm.sml\<close>, generated sml files from mlyacc above.
+     \<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>, generated sml files from mlyacc above.
 
 \<close> end
