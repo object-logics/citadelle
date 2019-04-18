@@ -404,10 +404,9 @@ fun markup_directive_command def ps (name, id) =
   end
 
 fun directive_update (name, pos) f tab =
-  let val pos = [pos]
-      val id = serial ()
-      val _ = markup_directive_command true pos (name, id)
-  in Symtab.update (name, (pos, id, f)) tab end
+  let val id = serial ()
+      val _ = Position.reports (map (pair pos) (markup_directive_command true [pos] (name, id)))
+  in Symtab.update (name, ([pos], id, f)) tab end
 
 fun markup_directive_define def in_direct ps (name, id) =
   let 
