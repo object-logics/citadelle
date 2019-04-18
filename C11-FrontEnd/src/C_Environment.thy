@@ -80,9 +80,13 @@ text\<open>It comes in two parts: a basic core tstructure and a (thin) layer of 
 ML\<open>
 structure C_Env = struct
 datatype 'a parse_status = Parsed of 'a | Previous_in_stack
+
+type markup_ident = { global : bool (*true: global*)
+                    , params : C_Ast.CDerivedDeclr list
+                    , ret : C_Ast.CDeclSpec list parse_status }
+
 type var_table = { tyidents : (Position.T list * serial) Symtab.table
-                 , idents : (Position.T list * serial * bool (*true: global*) * C_Ast.CDerivedDeclr list 
-                             * C_Ast.CDeclSpec list parse_status) Symtab.table }
+                 , idents : (Position.T list * serial * markup_ident) Symtab.table }
 
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) C_Scan.either list
 
