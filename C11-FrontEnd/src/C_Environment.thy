@@ -91,7 +91,7 @@ type var_table = { tyidents : (Position.T list * serial) Symtab.table
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) C_Scan.either list
 
 type env_lang = { var_table : var_table
-                , scopes : var_table list
+                , scopes : (C_Ast.ident option * var_table) list
                 , namesupply : int
                 , stream_ignored : C_Antiquote.antiq stream
                 , env_directives : C_Transition.env_directives }
@@ -251,10 +251,10 @@ fun make env_lang stream_lang env_tree =
                                       | C_Scan.Left antiq => SOME (C_Scan.Left antiq))
                                     stream_lang }
 fun string_of (env_lang : env_lang) = 
-  let fun dest0 x = x |> Symtab.dest |> map #1
-      fun dest {tyidents, idents} = (dest0 tyidents, dest0 idents)
+  let fun dest0 x f = x |> Symtab.dest |> map f
+      fun dest {tyidents, idents} = (dest0 tyidents #1, dest0 idents (fn (i, (_,_,v)) => (i, if #global v then "global" else "local")))
   in @{make_string} ( ("var_table", dest (#var_table env_lang))
-                    , ("scopes", map dest (#scopes env_lang))
+                    , ("scopes", map (fn (id, i) => (Option.map (fn C_Ast.Ident0 (i, _, _) => (String.implode o C_Ast.to_list) i) id, dest i)) (#scopes env_lang))
                     , ("namesupply", #namesupply env_lang)
                     , ("stream_ignored", #stream_ignored env_lang)) end
 

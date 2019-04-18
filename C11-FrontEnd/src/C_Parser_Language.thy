@@ -410,7 +410,8 @@ struct
   fun shadowTypedef_fun ident env =
     shadowTypedef0 C_Env.Previous_in_stack
                    (case C_Env_Ext.get_scopes env of _ :: [] => true | _ => false)
-                   (fn update_id => C_Env_Ext.map_scopes (fn x :: xs => C_Env.map_idents update_id x :: xs
+                   (fn update_id => C_Env_Ext.map_scopes (fn (NONE, x) :: xs => (SOME (fst ident), C_Env.map_idents update_id x) :: xs
+                                                           | (SOME _, _) :: _ => error "Not yet implemented"
                                                            | [] => error "Not expecting an empty scope"))
                    ident
                    env
@@ -418,11 +419,11 @@ struct
     shadowTypedef0 (C_Env.Parsed ret) (List.null (C_Env_Ext.get_scopes env)) (K I) (i, params) env
   fun isTypeIdent s0 = Symtab.exists (fn (s1, _) => s0 = s1) o C_Env_Ext.get_tyidents
   fun enterScope env =
-    ((), C_Env_Ext.map_scopes (cons (C_Env_Ext.get_var_table env)) env)
+    ((), C_Env_Ext.map_scopes (cons (NONE, C_Env_Ext.get_var_table env)) env)
   fun leaveScope env = 
     case C_Env_Ext.get_scopes env of [] => error "leaveScope: already in global scope"
-                                | var_table :: scopes => ((), env |> C_Env_Ext.map_scopes (K scopes)
-                                                                  |> C_Env_Ext.map_var_table (K var_table))
+                                   | (_, var_table) :: scopes => ((), env |> C_Env_Ext.map_scopes (K scopes)
+                                                                          |> C_Env_Ext.map_var_table (K var_table))
   val getCurrentPosition = return NoPosition
 
   (* Language.C.Parser.Tokens *)
