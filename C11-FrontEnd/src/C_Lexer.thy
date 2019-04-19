@@ -38,9 +38,20 @@ theory C_Lexer
   imports C_Ast
 begin
 
-section\<open> Basic Scanning Combinators from Isabelle \<close>
+text \<open>
+The lexing phase performed here is done following how \<^theory>\<open>Pure\<close> is bootstrapped:
+instead of using ML as implementation language, it is C (at least its syntax).
 
-ML\<open>
+In particular, the next ML structures present in this theory are all aligned with
+\<^file>\<open>~~/src/Pure/ROOT.ML\<close>, and are thus accordingly sorted (except for
+\<^file>\<open>~~/src/Pure/ML/ml_options.ML\<close> which is present here earlier included in the boot process).
+
+Since the last structure is \<^file>\<open>~~/src/Pure/ML/ml_lex.ML\<close>, this theory document is
+situated in the phase 1 of the bootstrap process, i.e., the part dealing with how to get some C tokens
+from a raw string: \<open>Position.T -> string -> token list\<close>.
+\<close>
+
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/scan.ML\<close>\<close> \<open>
 structure C_Scan =
 struct
 open Basic_Symbol_Pos;
@@ -73,10 +84,7 @@ val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
-section \<open>Instantiation of the \<open>C_Scan\<close> with C Lexems \<close>
-
-text\<open>Basically copied and modified from files in Pure General of Isabelle.\<close>
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/symbol.ML\<close>\<close> \<open>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/symbol.ML
     Author:     Makarius
@@ -111,14 +119,14 @@ val is_ascii_blank_no_line =
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/position.ML\<close>\<close> \<open>
 structure C_Position =
 struct
 type reports_text = Position.report_text list
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/symbol_pos.ML\<close>\<close>\<open>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/symbol_pos.ML
     Author:     Makarius
@@ -223,7 +231,7 @@ end
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/antiquote.ML\<close>\<close> \<open>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/antiquote.ML
     Author:     Makarius
@@ -347,7 +355,7 @@ end;
 end;
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_options.ML\<close>\<close> \<open>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/ML/ml_options.ML
     Author:     Makarius
@@ -368,7 +376,7 @@ val propagate_env = Attrib.setup_config_bool @{binding C_propagate_env} (fn _ =>
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_lex.ML\<close>\<close> \<open>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/ML/ml_lex.ML
     Author:     Makarius
