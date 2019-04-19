@@ -34,23 +34,71 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-session C_examples = HOL +
-  sessions
-    "HOL-Eisbach"
-  theories
-    "examples/C_autocorres"
+theory C0
+  imports "../C_Main"
+begin
 
-session C = HOL +
-  description {* C *}
-  options [document = pdf, document_output = generated]
-  theories
-    "examples/C0"
-    "examples/C1"
-    "examples/C2"
-    "examples/C3"
-    "examples/C_paper"
-    "document/Rail"
-    "document/README"
-  document_files
-    "root.tex"
-    "root.bib"
+declare[[C_lexer_trace]]
+
+section \<open>Regular C Code\<close>
+
+C \<comment> \<open>Nesting of comments \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
+/* inside /* inside */ int a = "outside";
+// inside // inside until end of line
+int a = "outside";
+/* inside
+  // inside
+inside
+*/ int a = "outside";
+// inside /* inside until end of line
+int a = "outside";
+\<close>
+
+C \<comment> \<open>Backslash newline\<close> \<open>
+i\    
+n\                
+t a = "/* //  /\ 
+*\
+fff */\
+";
+\<close>
+
+C \<comment> \<open>Backslash newline, Directive \<^url>\<open>https://gcc.gnu.org/onlinedocs/cpp/Initial-processing.html\<close>\<close> \<open>
+/\
+*
+*/ # /*
+*/ defi\
+ne FO\
+O 10\
+20\<close>
+
+C \<comment> \<open>Directive: conditional\<close> \<open>
+#ifdef a
+#elif
+#else
+#if
+#endif
+#endif
+\<close>
+(*
+C \<comment> \<open>Directive: pragma\<close> \<open># f # "/**/"
+/**/
+#     /**/ //  #
+
+_Pragma /\
+**/("a")
+\<close>
+*)
+C \<comment> \<open>Directive: macro\<close> \<open>
+#define a zz
+#define a(x1,x2) z erz(( zz
+#define a (x1,x2) z erz(( zz
+#undef z
+#if
+#define a zz
+#define a(x1,x2) z erz(( zz
+#define a (x1,x2) z erz(( zz
+#endif
+\<close>
+
+end
