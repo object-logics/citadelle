@@ -38,6 +38,10 @@ theory C1
   imports "../C_Main"
 begin
 
+text \<open> The remainder of the theory assumes a familiarity with the ability to recursively nest
+ML code in ML as described in \<^file>\<open>~~/src/HOL/ex/ML.thy\<close>, as well as the concept of
+ML antiquotations (\<^file>\<open>~~/src/Doc/Implementation/ML.thy\<close>). \<close>
+
 section \<open>ML-Antiquotations for Debugging\<close>
 
 ML\<open>
@@ -45,13 +49,13 @@ fun print_top make_string f _ (_, (value, pos1, pos2)) _ thy =
   let
     val () = writeln (make_string value)
     val () = Position.reports_text [((Position.range (pos1, pos2) 
-                                    |> Position.range_position, Markup.intensify), "")]
+                                      |> Position.range_position, Markup.intensify), "")]
   in f thy end
 
 fun print_top' _ f _ (_, (_, pos1, pos2)) env thy =
   let
     val () = Position.reports_text [((Position.range (pos1, pos2) 
-                                    |> Position.range_position, Markup.intensify), "")]
+                                      |> Position.range_position, Markup.intensify), "")]
     val () = writeln ("ENV " ^ C_Env.string_of env)
   in f thy end
 
@@ -87,19 +91,34 @@ section \<open>C Annotations\<close>
 
 subsection \<open>Actions on the Parsing Stack\<close>
 
+text \<open> The \<^theory_text>\<open>C\<close> command resembles to
+\<^theory_text>\<open>ML\<close> except that the syntax of the code written inside
+\<^theory_text>\<open>C\<close> is the syntax of C11 (at the time of writing). Additionally, it is
+possible to write commands in C comments, called annotation commands, such as
+\<^theory_text>\<open>\<approx>setup\<close>. \<close>
+
 C \<comment> \<open>Nesting ML code in C comments\<close> \<open>
 int a = (((0))); /*@ \<approx>setup \<open>@{print_stack}\<close> */
                  /*@ \<approx>setup \<open>@{print_top}\<close> */
 \<close>
 
-text \<open>In terms of execution order, nested ML code are not pre-filtered out of the C code, but
-executed when the C parser is in an intermediate parsing state of having already read all previous
-tokens, constructed for each read token a respective temporary parsed subtree
-(to be included in the final value), and about to read the ML code.
+text \<open> In terms of execution order, nested annotation commands are not pre-filtered out of the
+C code, but executed when the C code is still being parsed. Since the parser implemented is a LALR
+parser \<^footnote>\<open>https://en.wikipedia.org/wiki/LALR\<close>, C tokens are uniquely read and
+treated from left to right. Thus, each nested command is (supposed by default to be) executed when
+the parser has already read all C tokens before the comment associated to the nested command, so
+when the parser is in a particular intermediate parsing step (not necessarily final)
+\<^footnote>\<open>https://en.wikipedia.org/wiki/Shift-reduce_parser\<close>. \<close>
 
-Moreover, the ML code can get access to the current parsing state (represented as a stack of parsed
-values). Because values in the state are changing depending on where the ML code is situated,
-we can conveniently use ML antiquotations for printing and reporting actions.\<close>
+text \<open>The command \<^theory_text>\<open>\<approx>setup\<close> is similar to the command
+\<^theory_text>\<open>setup\<close> except that it takes a function with additional arguments. These
+arguments are precisely depending on the current parsing state. To better examine these arguments,
+it is convenient to use ML antiquotations (be it for printing, or for doing any regular ML actions
+like PIDE reporting).
+
+Ultimately, in contrast with \<^theory_text>\<open>setup\<close>, the return type of the
+\<^theory_text>\<open>\<approx>setup\<close> function is not \<open>theory -> theory\<close> but
+\<open>Context.generic -> Context.generic\<close>. \<close>
 
 C \<comment> \<open>Positional navigation: referring to any previous parsed sub-tree in the stack\<close> \<open>
 int a = (((0
@@ -107,7 +126,7 @@ int a = (((0
                           let
                             val () = writeln (@{make_string} value)
                             val () = Position.reports_text [((Position.range (pos1, pos2) 
-                                                            |> Position.range_position, Markup.intensify), "")]
+                                                              |> Position.range_position, Markup.intensify), "")]
                           in context end\<close>
                */
       * 4; 
