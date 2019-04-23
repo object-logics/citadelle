@@ -162,7 +162,7 @@ fun map_env_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook, st
 
 fun map_env_tree f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
                    {env_lang = env_lang, env_tree = f env_tree, rule_output = rule_output, 
-                   rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
+                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
 fun map_rule_output f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
                    {env_lang = env_lang, env_tree = env_tree, rule_output = f rule_output, 
@@ -177,8 +177,8 @@ fun map_stream_hook f {env_lang, env_tree, rule_output, rule_input, stream_hook,
                     rule_input = rule_input, stream_hook = f stream_hook, stream_lang = stream_lang}
 
 fun map_stream_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-                    {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
-                     rule_input = rule_input, stream_hook = stream_hook, stream_lang = f stream_lang}
+                   {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
+                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = f stream_lang}
 
 (**)
 
@@ -206,20 +206,20 @@ fun map_var_table f {var_table, scopes, namesupply, stream_ignored, env_directiv
                      stream_ignored = stream_ignored, env_directives = env_directives}
 
 fun map_scopes f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                     {var_table = var_table, scopes = f scopes, namesupply = namesupply, 
-                      stream_ignored = stream_ignored, env_directives = env_directives}
+                    {var_table = var_table, scopes = f scopes, namesupply = namesupply, 
+                     stream_ignored = stream_ignored, env_directives = env_directives}
 
 fun map_namesupply f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                     {var_table = var_table, scopes = scopes, namesupply = f namesupply, 
-                      stream_ignored = stream_ignored, env_directives = env_directives}
+                    {var_table = var_table, scopes = scopes, namesupply = f namesupply, 
+                     stream_ignored = stream_ignored, env_directives = env_directives}
 
 fun map_stream_ignored f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                     {var_table = var_table, scopes = scopes, namesupply = namesupply, 
-                      stream_ignored = f stream_ignored, env_directives = env_directives}
+                    {var_table = var_table, scopes = scopes, namesupply = namesupply, 
+                     stream_ignored = f stream_ignored, env_directives = env_directives}
 
 fun map_env_directives f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                     {var_table = var_table, scopes = scopes, namesupply = namesupply, 
-                      stream_ignored = stream_ignored, env_directives = f env_directives}
+                    {var_table = var_table, scopes = scopes, namesupply = namesupply, 
+                     stream_ignored = stream_ignored, env_directives = f env_directives}
 
 (**)
 

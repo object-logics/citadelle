@@ -85,4 +85,77 @@ static generation was undertaken. In more detail:
 
 \<close>
 
+section \<open>Case study: mapping on the parsed AST\<close>
+
+text \<open> In this section, we give a concrete example of a situation where one is interested to
+do some automated transformations on the parsed AST, such as changing the type of every encountered
+variables from \<open>int\<close> to \<open>array int\<close>. The main theory of interest here is
+\<^theory>\<open>C.C_Parser_Language\<close>, where the C grammar is loaded, in contrast to
+\<^theory>\<open>C.C_Lexer\<close> which is only dedicated to build a list of C tokens. As another
+example, \<^theory>\<open>C.C_Parser_Language\<close> also contains the portion of the code
+implementing the report to the user of various characteristics of encountered variables during
+parsing: if a variable is bound or free, or if the declaration of a variable is made in the global
+topmost space or locally declared in a function. \<close>
+
+subsection \<open>Structure of \<^theory>\<open>C.C_Parser_Language\<close>\<close>
+
+text \<open> In more detail, \<^theory>\<open>C.C_Parser_Language\<close> can be seen as being
+principally divided into two parts:
+\begin{itemize}
+\item a first part containing the implementation of the ML structure
+  \<open>C_Grammar_Rule_Lib\<close>, which provides the ML implementation library used by any rule
+  code written in the C grammar
+  \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
+  (\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>).
+\item a second part implementing the structure \<open>C_Grammar_Rule_Wrap\<close>, providing one
+  wrapping function for each rule code, for potentially complementing the rule code with an
+  additional action to be executed after its call. The use of wrapping functions is very optional:
+  by default, they are all assigned as identity functions.
+\end{itemize}
+The difference between \<open>C_Grammar_Rule_Lib\<close> and \<open>C_Grammar_Rule_Wrap\<close>
+relies in how often functions in the two structures are called: while building subtree pieces of the
+final AST, grammar rules are free to call any functions in \<open>C_Grammar_Rule_Lib\<close> for
+completing their respective tasks, but also free to not use \<open>C_Grammar_Rule_Lib\<close> at
+all. On the other hand, irrespective of the actions done by a rule code, the function associated to
+the rule code in \<open>C_Grammar_Rule_Wrap\<close> is retrieved and always executed (but a visible
+side-effect will likely mostly happen whenever one has provided an implementation far different from
+the identity function). \<close>
+
+text \<open> Because the grammar
+\<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
+(\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>) has been defined in such a way that
+computation of variable scopes are completely handled by functions in
+\<open>C_Grammar_Rule_Lib\<close> and not in rule code, it is enough to overload functions in
+\<open>C_Grammar_Rule_Lib\<close> whenever it is wished to perform new actions depending on variable
+scopes, for example to do a specific PIDE report at the first time when a C variable is being
+declared. In particular, functions in \<open>C_Grammar_Rule_Lib\<close> are implemented in monadic
+style, making a subsequent modification on the parsing environment
+\<^theory>\<open>C.C_Environment\<close> possible (whenever appropriate) as this last is carried in
+the monadic state.
+
+Fundamentally, this is feasible because the monadic environment fulfills the property of being
+always properly enriched with declared variable information at any time, because we assume
+\begin{itemize}
+  \item working with a language where a used variable must be at most declared or redeclared
+    somewhere before its actual used,
+  \item and using a parser scanning tokens uniquely, from left to right, in the same order than the
+    execution of rule code actions.
+\end{itemize}
+\<close>
+
+text \<open> As illustration, \<open>C_Grammar_Rule_Lib.markup_var true\<close> is called by a rule
+code while a variable being declared is encountered. Later, a call to
+\<open>C_Grammar_Rule_Lib.markup_var false\<close> in \<open>C_Grammar_Rule_Wrap\<close> (actually,
+in \<open>C_Grammar_Rule_Wrap_Overloading\<close>) is made after the execution of another rule code
+to signal the position of a variable in use, together with the information retrieved from the
+environment of the position of where it is declared. \<close>
+
+subsection \<open>Rewriting of AST node\<close>
+
+text \<open> For the case of rewriting a specific AST node, from subtree \<open>T1\<close> to
+subtree \<open>T2\<close>, a possible way to proceed is to first locate which rule code is building
+\<open>T1\<close>. Then it would remain to retrieve and modify the respective function of
+\<open>C_Grammar_Rule_Wrap\<close> executed after that rule code, by providing a replacement
+function to be put in \<open>C_Grammar_Rule_Wrap_Overloading\<close>. \<close>
+
 end

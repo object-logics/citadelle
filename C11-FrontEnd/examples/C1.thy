@@ -104,11 +104,12 @@ int a = (((0))); /*@ \<approx>setup \<open>@{print_stack}\<close> */
 
 text \<open> In terms of execution order, nested annotation commands are not pre-filtered out of the
 C code, but executed when the C code is still being parsed. Since the parser implemented is a LALR
-parser \<^footnote>\<open>https://en.wikipedia.org/wiki/LALR\<close>, C tokens are uniquely read and
-treated from left to right. Thus, each nested command is (supposed by default to be) executed when
-the parser has already read all C tokens before the comment associated to the nested command, so
-when the parser is in a particular intermediate parsing step (not necessarily final)
-\<^footnote>\<open>https://en.wikipedia.org/wiki/Shift-reduce_parser\<close>. \<close>
+parser \<^footnote>\<open>\<^url>\<open>https://en.wikipedia.org/wiki/LALR\<close>\<close>, C tokens
+are uniquely read and treated from left to right. Thus, each nested command is (supposed by default
+to be) executed when the parser has already read all C tokens before the comment associated to the
+nested command, so when the parser is in a particular intermediate parsing step (not necessarily
+final)
+\<^footnote>\<open>\<^url>\<open>https://en.wikipedia.org/wiki/Shift-reduce_parser\<close>\<close>. \<close>
 
 text \<open>The command \<^theory_text>\<open>\<approx>setup\<close> is similar to the command
 \<^theory_text>\<open>setup\<close> except that it takes a function with additional arguments. These
