@@ -49,7 +49,7 @@ ML \<comment> \<open>\<^theory>\<open>C.C_Eval\<close>\<close> \<open>
 structure C_Module =
 struct
 
-structure Data_In = Generic_Data
+structure Data_In_Source = Generic_Data
   (type T = Input.source list
    val empty = []
    val extend = K empty
@@ -87,7 +87,7 @@ val eval_source =
 
 fun exec_eval source =
   ML_Context.exec (fn () => eval_source source)
-  #> Data_In.map (cons source)
+  #> Data_In_Source.map (cons source)
 
 fun C_prf source =
   Proof.map_context (Context.proof_map (exec_eval source))
@@ -344,7 +344,7 @@ val _ =
           (Toplevel.generic_theory_of
            #>
             (fn context => context
-            |> C_Module.Data_In.get
+            |> C_Module.Data_In_Source.get
             |> rev
             |> map Input.source_content
             |>  let val thy = Context.theory_of context
