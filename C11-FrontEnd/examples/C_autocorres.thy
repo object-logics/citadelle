@@ -39,6 +39,30 @@ theory C_autocorres
 begin
 
 ML\<open>
+fun print_top make_string f _ (_, (value, pos1, pos2)) _ thy =
+  let
+    val () = writeln (make_string value)
+    val () = Position.reports_text [((Position.range (pos1, pos2) 
+                                      |> Position.range_position, Markup.intensify), "")]
+  in f thy end
+
+fun print_stack s make_string stack _ _ thy =
+  let
+    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
+    val () = stack
+          |> split_list
+          |> #2
+          |> map_index I
+          |> app (fn (i, (value, pos1, pos2)) => writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
+  in thy end
+\<close>
+
+setup \<open>ML_Antiquotation.inline @{binding print_top}
+                               (Args.context >> K ("print_top " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
+setup \<open>ML_Antiquotation.inline @{binding print_stack}
+                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("print_stack " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
+
+ML\<open>
 structure Example_Data = Generic_Data (type T = string list
                                        val empty = [] val extend = K empty val merge = K empty)
 fun add_ex s1 s2 =
