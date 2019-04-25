@@ -43,7 +43,7 @@ section \<open>The C Annotation Result Interface\<close>
 text\<open>The key element of this following structure is the type \verb+eval_time+ which is relevant for
 the generic annotation module. \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
 structure C_Transition =
 struct
 
@@ -77,7 +77,7 @@ section \<open>The Lexing-based C Environment\<close>
 
 text\<open>It comes in two parts: a basic core tstructure and a (thin) layer of utilities. \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
 structure C_Env = struct
 datatype 'a parse_status = Parsed of 'a | Previous_in_stack
 
@@ -276,7 +276,7 @@ val decode_positions =
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
 structure C_Env_Ext =
 struct
 

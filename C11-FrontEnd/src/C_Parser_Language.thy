@@ -40,7 +40,7 @@ begin
 
 section \<open>Instantiation of the Parser with the Lexer\<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close> \<open>
 signature C_GRAMMAR_RULE_LIB =
 sig
   type arg = C_Env.T
@@ -565,7 +565,7 @@ ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser1.sml"
 
 ML_file "../generated/c_grammar_fun.grm.sig"
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close> \<open>
 structure C_Grammar_Rule_Wrap_Overloading = struct
 open C_Grammar_Rule_Lib
 val To_string0 = String.implode o C_Ast.to_list
@@ -612,7 +612,9 @@ val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom
       e
       env_tree))
 end
+\<close>
 
+ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close> \<open>
 structure C_Grammar_Rule_Wrap = struct
   open C_Grammar_Rule_Wrap
   open C_Grammar_Rule_Wrap_Overloading
@@ -621,11 +623,11 @@ end
 
 ML_file "../generated/c_grammar_fun.grm.sml"
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close> \<open>
 structure C_Grammar = C_Grammar_Fun (structure Token = LALR_Parser_Eval.Token)
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close> \<open>
 structure C_Grammar_Tokens =
 struct
 local open C_Grammar.Tokens in

@@ -45,7 +45,7 @@ begin
 
 section \<open>The Global C11-Module State\<close>
 
-ML\<open>
+ML \<comment> \<open>\<^theory>\<open>C.C_Eval\<close>\<close> \<open>
 structure C_Module =
 struct
 
@@ -117,7 +117,7 @@ end
 
 section \<open>Definitions of Inner Directive Commands\<close>
 
-ML\<open>
+ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
 val _ =
   Theory.setup
@@ -163,7 +163,7 @@ in end
 section \<open>Definitions of Inner Annotation Commands\<close>
 subsection \<open>\<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/toplevel.ML\<close>\<close> \<open>
 structure C_Inner_Toplevel =
 struct
 val theory = Context.map_theory
@@ -171,7 +171,7 @@ val generic_theory = I
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/isar_cmd.ML\<close>\<close> \<open>
 structure C_Inner_Isar_Cmd = 
 struct
 fun setup0 f_typ f_val src =
@@ -203,7 +203,7 @@ val setup' = setup0 (K I) K
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/outer_syntax.ML\<close>\<close> \<open>
 structure C_Inner_Syntax =
 struct
 fun command f dir name =
@@ -219,7 +219,7 @@ end
 
 subsection \<open>\<close>
 
-ML\<open>
+ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
 structure C_Isar_Cmd = 
 struct
@@ -247,14 +247,14 @@ subsection \<open>\<close>
 The Pure theory, with definitions of Isar commands and some lemmas.
 *)
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/parse.ML\<close>\<close> \<open>
 structure C_Outer_Parse =
 struct
   val C_source = Parse.input (Parse.group (fn () => "C source") Parse.text)
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/outer_syntax.ML\<close>\<close> \<open>
 structure C_Outer_Syntax =
 struct
 val _ =
@@ -263,7 +263,7 @@ val _ =
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/isar_cmd.ML\<close>\<close> \<open>
 structure C_Outer_Isar_Cmd =
 struct
 (* diagnostic ML evaluation *)
@@ -294,7 +294,7 @@ val _ = Theory.setup
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_file.ML\<close>\<close> \<open>
 structure C_Outer_File =
 struct
 
@@ -314,7 +314,7 @@ end;
 
 subsection \<open>Reading and Writing C-Files\<close>
 
-ML\<open>
+ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
 
 val semi = Scan.option \<^keyword>\<open>;\<close>;
