@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory README imports "../C_Main" begin
+theory README imports "../examples/C1" begin
 
 section \<open>Structure of folders\<close>
 
@@ -97,6 +97,25 @@ implementing the report to the user of various characteristics of encountered va
 parsing: if a variable is bound or free, or if the declaration of a variable is made in the global
 topmost space or locally declared in a function. \<close>
 
+subsection \<open>Prerequisites\<close>
+
+text \<open> Even if \<^file>\<open>../generated/c_grammar_fun.grm.sig\<close> and and
+\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close> are files written in ML syntax, we have
+actually modified \<^dir>\<open>../copied_from_git/mlton/lib/mlyacc-lib\<close> in such a way that
+at run time, the overall loading and execution of \<^theory>\<open>C.C_Parser_Language\<close> will
+mimic all necessary features of the Haskell parser generator Happy
+\<^footnote>\<open>\<^url>\<open>https://www.haskell.org/happy/doc/html/index.html\<close>\<close>,
+including any monadic interactions between the lexing (\<^theory>\<open>C.C_Lexer\<close>) and
+parsing part (\<^theory>\<open>C.C_Parser_Language\<close>).
+
+This is why in the remaining part, we will at least assume a mandatory familiarity with Happy (e.g.,
+the reading of ML-Yacc's manual can happen later if wished
+\<^footnote>\<open>\<^url>\<open>https://www.cs.princeton.edu/~appel/modern/ml/ml-yacc/manual.html\<close>\<close>). In
+particular, we will use \<^emph>\<open>rule code\<close> to designate \<^emph>\<open>a Haskell
+expression enclosed in braces\<close>
+\<^footnote>\<open>\<^url>\<open>https://www.haskell.org/happy/doc/html/sec-grammar.html\<close>\<close>.
+\<close>
+
 subsection \<open>Structure of \<^theory>\<open>C.C_Parser_Language\<close>\<close>
 
 text \<open> In more detail, \<^theory>\<open>C.C_Parser_Language\<close> can be seen as being
@@ -125,7 +144,8 @@ text \<open> Because the grammar
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
 (\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>) has been defined in such a way that
 computation of variable scopes are completely handled by functions in
-\<open>C_Grammar_Rule_Lib\<close> and not in rule code, it is enough to overload functions in
+\<open>C_Grammar_Rule_Lib\<close> and not in rule code (which are just calling functions in
+\<open>C_Grammar_Rule_Lib\<close>), it is enough to overload functions in
 \<open>C_Grammar_Rule_Lib\<close> whenever it is wished to perform new actions depending on variable
 scopes, for example to do a specific PIDE report at the first time when a C variable is being
 declared. In particular, functions in \<open>C_Grammar_Rule_Lib\<close> are implemented in monadic
@@ -143,8 +163,8 @@ always properly enriched with declared variable information at any time, because
 \end{itemize}
 \<close>
 
-text \<open> As illustration, \<open>C_Grammar_Rule_Lib.markup_var true\<close> is called by a rule
-code while a variable being declared is encountered. Later, a call to
+text \<open> As illustration, \<open>C_Grammar_Rule_Lib.markup_var true\<close> is (implicitly)
+called by a rule code while a variable being declared is encountered. Later, a call to
 \<open>C_Grammar_Rule_Lib.markup_var false\<close> in \<open>C_Grammar_Rule_Wrap\<close> (actually,
 in \<open>C_Grammar_Rule_Wrap_Overloading\<close>) is made after the execution of another rule code
 to signal the position of a variable in use, together with the information retrieved from the
@@ -153,9 +173,35 @@ environment of the position of where it is declared. \<close>
 subsection \<open>Rewriting of AST node\<close>
 
 text \<open> For the case of rewriting a specific AST node, from subtree \<open>T1\<close> to
-subtree \<open>T2\<close>, a possible way to proceed is to first locate which rule code is building
-\<open>T1\<close>. Then it would remain to retrieve and modify the respective function of
-\<open>C_Grammar_Rule_Wrap\<close> executed after that rule code, by providing a replacement
-function to be put in \<open>C_Grammar_Rule_Wrap_Overloading\<close>. \<close>
+subtree \<open>T2\<close>, there are several \<^emph>\<open>equivalent\<close> ways to proceed:
+\<^item> for example, we can modify
+\<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
+by hand, by explicitly writing \<open>T2\<close> at the specific position of the rule code
+generating \<open>T1\<close>. However, this solution implies to re-generate
+\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>.
 
-end
+\<^item> Instead of modifying the grammar, it should be possible to first locate which rule code is
+building \<open>T1\<close>. Then it would remain to retrieve and modify the respective function of
+\<open>C_Grammar_Rule_Wrap\<close> executed after that rule code, by providing a replacement
+function to be put in \<open>C_Grammar_Rule_Wrap_Overloading\<close>. However, as a design decision,
+wrapping functions generated in \<^file>\<open>../generated/c_grammar_fun.grm.sml\<close> have only
+been generated to affect monadic states, not AST values. This is to prevent an erroneous relacement
+of an end-user while parsing C code. (It is currently left open whether or not this feature will be
+implemented in future versions of the parser...)
+
+\<^item> Another solution consists in directly writing a mapping function acting on the full
+AST. However, as we have already implemented a conversion function from C11 to C99, it might be
+useful to save time by starting from this conversion function, locate where \<open>T1\<close> is
+situated in the conversion function, and generate \<open>T2\<close> instead.
+
+\<^item> If it is allowed to modify the C code in input, then one can add a directive
+\<open>#define\<close> performing the necessary rewrite.
+
+\<close>
+
+text \<open> More generally, to better inspect the list of rule code really executed when a C code
+is parsed, it might be helpful to proceed as in \<^theory>\<open>C.C1\<close>, by activating
+\<^theory_text>\<open>declare[[C_parser_trace]]\<close>. Then, the output window will display the
+sequence of Shift Reduce actions associated to the \<^theory_text>\<open>C\<close> command of
+interest.
+\<close> end
