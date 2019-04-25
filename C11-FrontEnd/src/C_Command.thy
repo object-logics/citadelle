@@ -111,7 +111,7 @@ fun C' err env_lang src =
        err
        accept
        src
-  #> (fn {context, reports_text} => C_Stack.Data_Tree.map (append reports_text) context)
+  #> (fn {context, reports_text} => C_Stack.Data_Tree.map (curry C_Stack.Data_Tree_Args.merge reports_text) context)
 end
 \<close>
 

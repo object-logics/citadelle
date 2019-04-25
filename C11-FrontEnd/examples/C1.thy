@@ -228,7 +228,7 @@ int a = 0;
 
 ML\<open>
 structure Example_Data = Generic_Data (type T = string list
-                                      val empty = [] val extend = I val merge = #2)
+                                       val empty = [] val extend = K empty val merge = K empty)
 fun add_ex s1 s2 =
   Example_Data.map (cons s2)
   #> (fn context => let val () = warning (s1 ^ s2)
