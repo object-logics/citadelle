@@ -55,32 +55,28 @@ structure Data_In_Source = Generic_Data
    val extend = K empty
    val merge = K empty)
 
-structure Data_Out = Generic_Data
-  (type T = ((C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list * C_Env.env_lang) Symtab.table
-   val empty = Symtab.empty
-   val extend = I
-   val merge = Symtab.merge (K false))
+structure Data_In_Env = Generic_Data
+  (type T = C_Env.env_lang
+   val empty = C_Env.empty_env_lang
+   val extend = K empty
+   val merge = K empty)
 
-val get_global = Data_Out.get o Context.Theory
-val dest_list = Symtab.dest o get_global
-fun get_module thy = the (Symtab.lookup (get_global thy) (Context.theory_name thy))
-fun get_module'' context = Symtab.lookup (Data_Out.get context)
-                                         (Context.theory_name (Context.theory_of context))
-val get_module' = the o get_module''
+structure Data_Accept = Generic_Data
+  (type T = C_Ast.CTranslUnit -> C_Env.env_lang -> Context.generic -> Context.generic
+   fun empty _ _ = I
+   val extend = I
+   val merge = #2)
 
 fun accept env_lang (_, (res, _, _)) =
   C_Env.map_context
-    (fn context =>
-      Data_Out.map (Symtab.map_default
-                     (Context.theory_name (Context.theory_of context), ([], env_lang))
-                     (fn (xs, _) => (cons (res, #stream_ignored env_lang |> rev) xs, C_Env.map_stream_ignored (K []) env_lang)))
-                   context)
+    (Data_In_Env.put env_lang
+     #> (fn context => Data_Accept.get context res env_lang context))
 
 val eval_source =
   C_Context.eval_source
-    (fn context => case (Config.get (Context.proof_of context) C_Options.propagate_env, get_module'' context)
-                     of (true, SOME (_, env_lang)) => env_lang
-                      | _ => C_Env.empty_env_lang)
+    (fn context => if Config.get (Context.proof_of context) C_Options.propagate_env
+                   then Data_In_Env.get context
+                   else C_Env.empty_env_lang)
     (fn _ => fn _ => fn pos => fn _ =>
       error ("Parser: No matching grammar rule" ^ Position.here pos))
     accept

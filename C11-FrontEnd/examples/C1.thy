@@ -273,11 +273,6 @@ subsubsection \<open>2\<close>
 declare [[C_parser_trace = false]]
 
 ML\<open>
-fun show_env0 make_string f msg context =
-  warning ("(" ^ msg ^ ") " ^ make_string (f (C_Module.get_module' context |> #1)))
-
-val show_env = tap o show_env0 @{make_string} length
-
 val C = tap o C_Module.C
 val C' = C_Module.C' (fn _ => fn _ => fn pos =>
                        tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
@@ -368,6 +363,21 @@ int e = a + b + c + d;
 
 subsubsection \<open>5\<close>
 
+ML\<open>
+structure Data_Out = Generic_Data
+  (type T = int
+   val empty = 0
+   val extend = K empty
+   val merge = K empty)
+
+fun show_env0 make_string f msg context =
+  warning ("(" ^ msg ^ ") " ^ make_string (f (Data_Out.get context)))
+
+val show_env = tap o show_env0 @{make_string} I
+\<close>
+
+setup \<open>Context.theory_map (C_Module.Data_Accept.put (fn _ => fn _ => Data_Out.map (fn x => x + 1)))\<close>
+
 C \<comment> \<open>Propagation of Updates\<close> \<open>
 typedef int i, j;
 int j = 0;
@@ -388,6 +398,8 @@ j j = jj;
 \<close>
 
 ML\<open>show_env "POSITION 3" (Context.Theory @{theory})\<close>
+
+setup \<open>Context.theory_map (C_Module.Data_Accept.put (fn _ => fn _ => I))\<close>
 
 subsubsection \<open>6\<close>
 

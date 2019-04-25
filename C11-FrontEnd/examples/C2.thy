@@ -37,7 +37,20 @@
 theory C2
   imports "../C_Main"
 begin
-ML\<open> @{file "$ISABELLE_HOME/src/Pure/ROOT.ML"}                \<close>
+
+ML\<open>
+structure Data_Out = Generic_Data
+  (type T = (C_Ast.CTranslUnit * C_Antiquote.antiq C_Env.stream) list
+   val empty = []
+   val extend = K empty
+   val merge = K empty)
+
+fun get_module thy =
+  let val context = Context.Theory thy
+  in (Data_Out.get context, C_Module.Data_In_Env.get context) end
+\<close>
+
+setup \<open>Context.theory_map (C_Module.Data_Accept.put (fn ast => fn env_lang => Data_Out.map (cons (ast, #stream_ignored env_lang |> rev))))\<close>
 
 C\<open>
 
@@ -48,7 +61,7 @@ C\<open>
 #pragma
 \<close>
 ML\<open> 
-val ((C_Ast.CTranslUnit0 (t,u), v)::R, env) = C_Module.get_module @{theory};
+val ((C_Ast.CTranslUnit0 (t,u), v)::R, env) = get_module @{theory};
 val u = C_Grammar_Rule_Lib.decode u; 
 C_Ast.CTypeSpec0;
 \<close>
@@ -64,7 +77,7 @@ int max(int x, int y) {
 \<close>
 
 ML\<open> 
-val ((C_Ast.CTranslUnit0 (t,u), v)::R, env) = C_Module.get_module @{theory};
+val ((C_Ast.CTranslUnit0 (t,u), v)::R, env) = get_module @{theory};
 val u = C_Grammar_Rule_Lib.decode u
 \<close>
 
@@ -292,15 +305,11 @@ void display(int a[],const int size)
     printf("\n");
 }
 \<close>
-ML\<open>
-
-(C_Module.dest_list @{theory})
-\<close>
 
 ML\<open>
 local open C_Ast in
 val _ = CTranslUnit0
-val ((CTranslUnit0 (t,u), v)::_, _) = C_Module.get_module @{theory};
+val ((CTranslUnit0 (t,u), v)::_, _) = get_module @{theory};
 val u = C_Grammar_Rule_Lib.decode u
 val _ = case  u of Left (p1,p2) => writeln (Position.here p1 ^ " " ^ Position.here p2)
 val CDeclExt0(x1)::_ = t;
