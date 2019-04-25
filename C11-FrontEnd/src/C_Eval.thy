@@ -65,12 +65,6 @@ structure Data_Tree = Generic_Data
    val extend = I
    val merge = #2)
 
-structure Data_Tree' = Generic_Data
-  (type T = C_Lex.token Symtab.table
-   val empty = Symtab.empty
-   val extend = I
-   val merge = #2)
-
 fun setmp_tree f context =
   let val x = Data_Tree.get context
       val context = f (Data_Tree.put [] context)
