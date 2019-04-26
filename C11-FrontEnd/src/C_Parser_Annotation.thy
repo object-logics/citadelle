@@ -143,6 +143,7 @@ struct
 
 (* token kind *)
 
+
 val delimited_kind =
   (fn Token.String => true
     | Token.Alt_String => true
@@ -151,14 +152,28 @@ val delimited_kind =
     | Token.Comment _ => true
     | _ => false);
 
+
 (* datatype token *)
 
-datatype T = Token of (Symbol_Pos.text * Position.range) * (Token.kind * Symbol_Pos.T list);
+(*The value slot assigns an (optional) internal value to a token,
+  usually as a side-effect of special scanner setup (see also
+  args.ML).  Note that an assignable ref designates an intermediate
+  state of internalization -- it is NOT meant to persist.*)
+
+datatype T = Token of (Symbol_Pos.text * Position.range) * (Token.kind * Symbol_Pos.T list) * slot
+
+and slot =
+  Slot |
+  Value of Token.value option |
+  Assignable of Token.value option Unsynchronized.ref;
+
+type src = T list;
+
 
 (* position *)
 
-fun pos_of (Token ((_, (pos, _)), _)) = pos;
-fun end_pos_of (Token ((_, (_, pos)), _)) = pos;
+fun pos_of (Token ((_, (pos, _)), _, _)) = pos;
+fun end_pos_of (Token ((_, (_, pos)), _, _)) = pos;
 
 fun range_of (toks as tok :: _) =
       let val pos' = end_pos_of (List.last toks)
@@ -166,12 +181,13 @@ fun range_of (toks as tok :: _) =
   | range_of [] = Position.no_range;
 
 
+
 (* stopper *)
 
-fun mk_eof pos = Token (("", (pos, Position.none)), (Token.EOF, []));
+fun mk_eof pos = Token (("", (pos, Position.none)), (Token.EOF, []), Slot);
 val eof = mk_eof Position.none;
 
-fun is_eof (Token (_, (Token.EOF, _))) = true
+fun is_eof (Token (_, (Token.EOF, _), _)) = true
   | is_eof _ = false;
 
 val not_eof = not o is_eof;
@@ -182,45 +198,48 @@ val stopper =
 
 (* kind of token *)
 
-fun kind_of (Token (_, (k, _))) = k;
-fun is_kind k (Token (_, (k', _))) = k = k';
+fun kind_of (Token (_, (k, _), _)) = k;
+fun is_kind k (Token (_, (k', _), _)) = k = k';
 
 val is_command = is_kind Token.Command;
 val is_ident = is_kind Token.Ident;
 val is_sym_ident = is_kind Token.Sym_Ident;
 
-val is_stack1 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "+") l
+val is_stack1 = fn Token (_, (Token.Sym_Ident, l), _) => forall (fn (s, _) => s = "+") l
                  | _ => false;
 
-val is_stack2 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "@") l
+val is_stack2 = fn Token (_, (Token.Sym_Ident, l), _) => forall (fn (s, _) => s = "@") l
                  | _ => false;
 
-val is_stack3 = fn Token (_, (Token.Sym_Ident, l)) => forall (fn (s, _) => s = "&") l
+val is_stack3 = fn Token (_, (Token.Sym_Ident, l), _) => forall (fn (s, _) => s = "&") l
                  | _ => false;
 
-val is_modifies_star = fn Token (_, (Token.Sym_Ident, l)) => Symbol_Pos.content l = "[*]"
+val is_modifies_star = fn Token (_, (Token.Sym_Ident, l), _) => Symbol_Pos.content l = "[*]"
                         | _ => false;
 
-val is_colon = fn Token (_, (Token.Keyword, [(":", _)])) => true
+val is_colon = fn Token (_, (Token.Keyword, [(":", _)]), _) => true
                 | _ => false;
 
-fun is_proper (Token (_, (Token.Space, _))) = false
-  | is_proper (Token (_, (Token.Comment _, _))) = false
+fun is_proper (Token (_, (Token.Space, _), _)) = false
+  | is_proper (Token (_, (Token.Comment _, _), _)) = false
   | is_proper _ = true;
 
 val is_improper = not o is_proper;
 
-fun is_error' (Token (_, (Token.Error msg, _))) = SOME msg
+fun is_error' (Token (_, (Token.Error msg, _), _)) = SOME msg
   | is_error' _ = NONE;
+
+(* blanks and newlines -- space tokens obey lines *)
+
 
 
 (* token content *)
 
-fun content_of (Token (_, (_, x))) = Symbol_Pos.content x;
-fun content_of' (Token (_, (_, x))) = x;
-fun source_of (Token ((source, _), _)) = source;
+fun content_of (Token (_, (_, x), _)) = Symbol_Pos.content x;
+fun content_of' (Token (_, (_, x), _)) = x;
+fun source_of (Token ((source, _), _, _)) = source;
 
-fun input_of (Token ((source, range), (kind, _))) =
+fun input_of (Token ((source, range), (kind, _), _)) =
   Input.source (delimited_kind kind) source range;
 
 fun inner_syntax_of tok =
@@ -282,7 +301,7 @@ end;
 
 (* unparse *)
 
-fun unparse (Token (_, (kind, x))) =
+fun unparse (Token (_, (kind, x), _)) =
   let val x = Symbol_Pos.content x
   in case kind of
     Token.String => Symbol_Pos.quote_string_qq x
@@ -308,6 +327,66 @@ fun text_of tok =
 
 
 
+(** associated values **)
+
+(* inlined file content *)
+
+
+
+(* access values *)
+
+
+
+(* reports of value *)
+
+
+
+(* name value *)
+
+
+
+(* maxidx *)
+
+
+
+(* fact values *)
+
+
+
+(* transform *)
+
+
+
+(* static binding *)
+
+(*1st stage: initialize assignable slots*)
+fun init_assignable tok =
+  (case tok of
+    Token (x, y, Slot) => Token (x, y, Assignable (Unsynchronized.ref NONE))
+  | Token (_, _, Value _) => tok
+  | Token (_, _, Assignable r) => (r := NONE; tok));
+
+(*2nd stage: assign values as side-effect of scanning*)
+fun assign v tok =
+  (case tok of
+    Token (x, y, Slot) => Token (x, y, Value v)
+  | Token (_, _, Value _) => tok
+  | Token (_, _, Assignable r) => (r := v; tok));
+
+fun evaluate mk eval arg =
+  let val x = eval arg in (assign (SOME (mk x)) arg; x) end;
+
+(*3rd stage: static closure of final values*)
+fun closure (Token (x, y, Assignable (Unsynchronized.ref v))) = Token (x, y, Value v)
+  | closure tok = tok;
+
+
+(* pretty *)
+
+
+
+(* src *)
+
 
 
 
@@ -317,7 +396,18 @@ open Basic_Symbol_Pos;
 
 val err_prefix = "Annotation lexical error: ";
 
+(* scan stack *)
+
 fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> content_of') []
+
+
+(* scan symbolic idents *)
+
+
+
+(* scan verbatim text *)
+
+
 
 (* scan cartouche *)
 
@@ -352,10 +442,10 @@ local
 fun token_leq ((_, syms1), (_, syms2)) = length syms1 <= length syms2;
 
 fun token k ss =
-  Token ((Symbol_Pos.implode ss, Symbol_Pos.range ss), (k, ss));
+  Token ((Symbol_Pos.implode ss, Symbol_Pos.range ss), (k, ss), Slot);
 
 fun token_range k (pos1, (ss, pos2)) =
-  Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, ss));
+  Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, ss), Slot);
 
 fun scan_token keywords = C_Scan.!!! "bad input"
   (Symbol_Pos.scan_string_qq err_prefix >> token_range Token.String ||
@@ -384,6 +474,7 @@ fun make_source keywords {strict} =
     val scan = if strict then scan_strict else Scan.recover scan_strict recover;
   in Source.source Symbol_Pos.stopper scan end;
 
+
 end;
 
 
@@ -398,6 +489,12 @@ fun explode keywords pos text =
 fun explode0 keywords = explode keywords Position.none;
 
 
+(* print name in parsable form *)
+
+
+
+(* make *)
+
 
 
 
@@ -407,7 +504,7 @@ type 'a parser = T list -> 'a * T list;
 type 'a context_parser = Context.generic * T list -> 'a * (Context.generic * T list);
 
 
-(* read antiquotation source *)
+(* read body -- e.g. antiquotation source *)
 
 fun read_with_commands'0 keywords syms =
   Source.of_list syms
@@ -436,7 +533,10 @@ fun read_with_commands' keywords scan syms =
   |> Source.exhaust;
 
 fun read_antiq' keywords scan = read_with_commands' keywords (scan >> C_Scan.Left);
-end
+
+(* wrapped syntax *)
+
+end;
 
 type 'a c_parser = 'a C_Token.parser;
 type 'a c_context_parser = 'a C_Token.context_parser;
