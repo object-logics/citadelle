@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C_Ast
-  imports Main
+  imports "../C_Intro"
 begin
 
 section \<open>Importing the AST of Haskell Language.C\<close>

@@ -34,25 +34,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+(* For modularity reasons, and to ease the importation of a specific session by
+   semantic back-ends, theory files are (at the time of writing) not regrouped
+   into a unique session. *)
+
 session C = HOL +
+  options [document = pdf, document_output = "generated/part1"]
   theories
     C_Main
+  document_files
+    "root.tex"
+    "root.bib"
 
 session C_examples = C + (* a standard test suite *)
+  options [document = pdf, document_output = "generated/part2"]
   theories
     "examples/C0"
     "examples/C1"
     "examples/C2"
     "examples/C3"
     "examples/C_paper"
+  document_files
+    "root.tex"
+    "root.bib"
 
 session C_document = C_examples +
-  options [document = pdf, document_output = generated]
+  options [document = pdf, document_output = "generated/part3"]
   theories
-    C_Intro
-    C_Main
-    C_Conclusion
     C_Appendices
+  document_files
+    "root.tex"
+    "root.bib"
+
+session Isabelle_C = C_document +
+  options [document = pdf, document_output = "generated"]
+  (* TODO: find a way to concatenate together PDF in:
+           generated/part1 + generated/part2 + generated/part3 *)
   document_files
     "root.tex"
     "root.bib"

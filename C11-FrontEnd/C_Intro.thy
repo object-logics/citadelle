@@ -40,6 +40,7 @@ theory C_Intro
 begin
 (*>*)
 
+section \<open>Introduction\<close>
 
 (*<*)
 end

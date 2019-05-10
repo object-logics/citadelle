@@ -37,6 +37,7 @@
 (*<*)
 theory C_Appendices
   imports C_examples.C1
+          C_Conclusion
           "~~/src/Doc/Isar_Ref/Base"
 begin
 (*>*)
