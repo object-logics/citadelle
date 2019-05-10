@@ -82,8 +82,8 @@ val eval_source =
     accept
 
 fun exec_eval source =
-  ML_Context.exec (fn () => eval_source source)
-  #> Data_In_Source.map (cons source)
+  Data_In_Source.map (cons source)
+  #> ML_Context.exec (fn () => eval_source source)
 
 fun C_prf source =
   Proof.map_context (Context.proof_map (exec_eval source))
