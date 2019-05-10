@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C0
-  imports "../C_Main"
+  imports C.C_Main
 begin
 
 declare[[C_lexer_trace]]

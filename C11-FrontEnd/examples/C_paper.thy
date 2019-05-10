@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C_paper
-  imports "../C_Main"
+  imports C.C_Main
 begin
 
 section \<open>\<close>

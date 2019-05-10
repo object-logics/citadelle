@@ -36,7 +36,7 @@
 
 (*<*)
 theory Rail
-  imports "../src/C_Command"
+  imports C.C_Command
           "~~/src/Doc/Isar_Ref/Base"
 begin
 (*>*)

@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory README imports "../examples/C1" begin
+theory README imports C_examples.C1 begin
 
 section \<open>Structure of folders\<close>
 
@@ -200,7 +200,7 @@ subtree \<open>T2\<close>, it is useful to zoom on the different parsing evaluat
 as make precise when the evaluation of semantic back-ends are starting.
 
 \<^enum> Whereas annotations in Isabelle/C code have the potential of carrying arbitrary ML code (as
-in \<^theory>\<open>C.C1\<close>), the moment when they are effectively evaluated will not be
+in \<^theory>\<open>C_examples.C1\<close>), the moment when they are effectively evaluated will not be
 discussed here, because to closely follow the semantics of the language in embedding (so C), we
 suppose comments --- comprising annotations --- may not affect any parsed tokens living outside
 comments. So no matter when annotations are scheduled to be future evaluated in Isabelle/C, it will
@@ -277,7 +277,7 @@ C11 front-end to the entry-point of AutoCorres in
 \<close>
 
 text \<open> More generally, to better inspect the list of rule code really executed when a C code
-is parsed, it might be helpful to proceed as in \<^theory>\<open>C.C1\<close>, by activating
+is parsed, it might be helpful to proceed as in \<^theory>\<open>C_examples.C1\<close>, by activating
 \<^theory_text>\<open>declare[[C_parser_trace]]\<close>. Then, the output window will display the
 sequence of Shift Reduce actions associated to the \<^theory_text>\<open>C\<close> command of
 interest.

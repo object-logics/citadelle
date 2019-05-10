@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory C1
-  imports "../C_Main"
+  imports C.C_Main
 begin
 
 text \<open> The remainder of the theory assumes a familiarity with the ability to recursively nest
