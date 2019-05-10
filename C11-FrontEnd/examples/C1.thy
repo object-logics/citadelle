@@ -248,6 +248,11 @@ int b,c,d/*@@ \<approx>setup\<Down> \<open>fn s => fn x => fn env => @{print_top
 
 subsection \<open>Reporting of Positions and Contextual Update of Environment\<close>
 
+text \<open>
+To show the content of the parsing environment, the ML antiquotations \<open>print_top'\<close> and \<open>print_stack'\<close>
+will respectively be used instead of \<open>print_top\<close> and \<open>print_stack\<close>.
+\<close>
+
 subsubsection \<open>1\<close>
 
 declare [[ML_source_trace = false]]

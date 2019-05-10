@@ -55,7 +55,7 @@ text \<open>
 The purpose of \<^dir>\<open>../generated\<close> is to host generated
 files, which are necessary for a first boot of the front-end. A major
 subset of these files can actually be seen as superfluous, i.e., in
-theory a simpler loading of a "root un-generated file" (generating
+theory a simpler loading of a ``root un-generated file'' (generating
 these files) would suffice, using for instance
 \<^theory_text>\<open>code_reflect\<close>. However certain generators
 are not written in a pure ML form (or are not yet automatically seen
@@ -99,7 +99,7 @@ topmost space or locally declared in a function. \<close>
 
 subsection \<open>Prerequisites\<close>
 
-text \<open> Even if \<^file>\<open>../generated/c_grammar_fun.grm.sig\<close> and and
+text \<open> Even if \<^file>\<open>../generated/c_grammar_fun.grm.sig\<close> and
 \<^file>\<open>../generated/c_grammar_fun.grm.sml\<close> are files written in ML syntax, we have
 actually modified \<^dir>\<open>../copied_from_git/mlton/lib/mlyacc-lib\<close> in such a way that
 at run time, the overall loading and execution of \<^theory>\<open>C.C_Parser_Language\<close> will
@@ -163,6 +163,8 @@ always properly enriched with declared variable information at any time, because
 \end{itemize}
 \<close>
 
+subsubsection \<open>Example\<close>
+
 text \<open> As illustration, \<open>C_Grammar_Rule_Lib.markup_var true\<close> is (implicitly)
 called by a rule code while a variable being declared is encountered. Later, a call to
 \<open>C_Grammar_Rule_Lib.markup_var false\<close> in \<open>C_Grammar_Rule_Wrap\<close> (actually,
@@ -170,11 +172,78 @@ in \<open>C_Grammar_Rule_Wrap_Overloading\<close>) is made after the execution o
 to signal the position of a variable in use, together with the information retrieved from the
 environment of the position of where it is declared. \<close>
 
+text \<open> In more detail, the second argument of \<open>C_Grammar_Rule_Lib.markup_var\<close> is
+among other of the form: \<open>Position.T * {global: bool, ...}\<close>, where particularly the
+field \<open>global\<close> of the record is informing \<open>C_Grammar_Rule_Lib.markup_var\<close>
+if the variable being reported (at either first declaration time, or first use time) is global or
+local (inside a function for instance). Because once declared, the property \<open>global\<close> of
+a variable does not change afterwards, it is enough to store that information in the monadic
+environment:
+\<^item> \<^bold>\<open>Storing the information at declaration time\<close> The part deciding if a
+variable being declared is global or not is implemented in
+\<open>C_Grammar_Rule_Lib.doDeclIdent\<close> and
+\<open>C_Grammar_Rule_Lib.doFuncParamDeclIdent\<close>. The two functions come from
+\<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
+(so do any functions in \<open>C_Grammar_Rule_Lib\<close>). Ultimately, they are both calling
+\<open>C_Grammar_Rule_Lib.markup_var true\<close> at some point.
+\<^item> \<^bold>\<open>Retrieving the information at use time\<close>
+\<open>C_Grammar_Rule_Lib.markup_var false\<close> is only called by
+\<open>C_Grammar_Rule_Wrap.primary_expression1\<close>, while treating a variable being already
+declared. In particular the second argument of \<open>C_Grammar_Rule_Lib.markup_var\<close> is just
+provided by what has been computed by the above point when the variable was declared (e.g., the
+globality versus locality information). \<close>
+
 subsection \<open>Rewriting of AST node\<close>
 
 text \<open> For the case of rewriting a specific AST node, from subtree \<open>T1\<close> to
-subtree \<open>T2\<close>, there are several \<^emph>\<open>equivalent\<close> ways to proceed:
-\<^item> for example, we can modify
+subtree \<open>T2\<close>, it is useful to zoom on the different parsing evaluation stages, as well
+as make precise when the evaluation of semantic back-ends are starting.
+
+\<^enum> Whereas annotations in Isabelle/C code have the potential of carrying arbitrary ML code (as
+in \<^theory>\<open>C.C1\<close>), the moment when they are effectively evaluated will not be
+discussed here, because to closely follow the semantics of the language in embedding (so C), we
+suppose comments --- comprising annotations --- may not affect any parsed tokens living outside
+comments. So no matter when annotations are scheduled to be future evaluated in Isabelle/C, it will
+be not possible to write a code changing \<open>T1\<close> to \<open>T2\<close> inside annotations.
+
+\<^enum> To our knowledge, the sole category of code having the capacity to affect incoming stream
+of tokens are directives, which are processed and evaluated before the ``major'' parsing step
+occurs. Since in Isabelle/C, directives are relying on ML code, changing an AST node from
+\<open>T1\<close> to \<open>T2\<close> can then be perfectly implemented in directives.
+
+\<^enum> After the directive (pre)processing step, the main parsing happens. But since what are
+driving the parsing engine are principally rule code, this step means to execute
+\<open>C_Grammar_Rule_Lib\<close> and \<open>C_Grammar_Rule_Wrap\<close>, i.e., rules in
+\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>.
+
+\<^enum> Once the parsing finishes, we have a final AST value, which topmost root type entry-point
+constitutes the last node built before the grammar parser
+\<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
+ever entered in a stop state. For the case of a stop acceptance state, that moment happens when we
+reach the first rule code building the type \<open>C_Ast.CTranslUnit\<close>, since there is only
+one possible node making the parsing stop, according to what is currently written in the C
+grammar. (For the case of a state stopped due to an error, it is the last successfully built value
+that is returned, but to simplify the discussion, we will assume in the rest of the document the
+parser is taking in input a fully well-parsed C code.)
+
+\<^enum> By \<^emph>\<open>semantic back-ends\<close>, we denote any kind of ``relatively
+efficient'' compiled code generating Isabelle/HOL theorems, proofs, definitions, and so with the
+potential of generally generating Isabelle packages. In our case, the input of semantic back-ends
+will be the type \<open>C_Ast.CTranslUnit\<close> (actually, whatever value provided by the above
+parser). But since our parser is written in monadic style, it is as well possible to give slightly
+more information to semantic back-ends, such as the last monadic computed state, so including the
+last state of the parsing environment. \<close>
+
+text \<open> Generally, semantic back-ends can be written in full ML starting from
+\<open>C_Ast.CTranslUnit\<close>, but to additionally support formalizing tasks requiring to start
+from an AST defined in Isabelle/HOL, we provide an equivalent AST in HOL in the project, such as the
+one obtained after loading \<^file>\<open>../../Citadelle/doc/Meta_C_generated.thy\<close> (In fact,
+the ML AST is just generated from the HOL one.) \<close>
+
+text \<open>
+Based on the above information, there are now several \<^emph>\<open>equivalent\<close> ways to
+proceed for the purpose of having an AST node be mapped from \<open>T1\<close> to \<open>T2\<close>:
+\<^item> For example, we can modify
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
 by hand, by explicitly writing \<open>T2\<close> at the specific position of the rule code
 generating \<open>T1\<close>. However, this solution implies to re-generate
@@ -185,14 +254,22 @@ building \<open>T1\<close>. Then it would remain to retrieve and modify the resp
 \<open>C_Grammar_Rule_Wrap\<close> executed after that rule code, by providing a replacement
 function to be put in \<open>C_Grammar_Rule_Wrap_Overloading\<close>. However, as a design decision,
 wrapping functions generated in \<^file>\<open>../generated/c_grammar_fun.grm.sml\<close> have only
-been generated to affect monadic states, not AST values. This is to prevent an erroneous relacement
-of an end-user while parsing C code. (It is currently left open whether or not this feature will be
-implemented in future versions of the parser...)
+been generated to affect monadic states, not AST values. This is to prevent an erroneous replacement
+of an end-user while parsing C code. (It is currently left open about whether or not this feature
+will be implemented in future versions of the parser...)
 
-\<^item> Another solution consists in directly writing a mapping function acting on the full
-AST. However, as we have already implemented a conversion function from C11 to C99, it might be
-useful to save time by starting from this conversion function, locate where \<open>T1\<close> is
-situated in the conversion function, and generate \<open>T2\<close> instead.
+\<^item> Another solution consists in directly writing a mapping function acting on the full AST, so
+writing a ML function of type \<open>C_Ast.CTranslUnit -> C_Ast.CTranslUnit\<close> (or a respective
+HOL function) which has to act on every constructor of the AST (so in the worst case about hundred
+of constructors for the considered AST, i.e., whenever a node has to be not identically
+returned). However, as we have already implemented a conversion function from
+\<open>C_Ast.CTranslUnit\<close> (subset of C11) to a subset AST of C99, it might be useful to save
+some effort by starting from this conversion function, locate where \<open>T1\<close> is
+pattern-matched by the conversion function, and generate \<open>T2\<close> instead.
+
+As example, the conversion function \<open>C_Ast.main\<close> is particularly used to connect the
+C11 front-end to the entry-point of AutoCorres in
+\<^file>\<open>../../l4v/src/tools/c-parser/StrictCParser.ML\<close>.
 
 \<^item> If it is allowed to modify the C code in input, then one can add a directive
 \<open>#define\<close> performing the necessary rewrite.

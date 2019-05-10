@@ -90,8 +90,9 @@ type var_table = { tyidents : (Position.T list * serial) Symtab.table
 
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) C_Scan.either list
 
-type env_lang = { var_table : var_table
-                , scopes : (C_Ast.ident option * var_table) list
+\<comment> \<open>Key entry point environment to the C language\<close>
+type env_lang = { var_table : var_table \<comment> \<open>current active table in the scope\<close>
+                , scopes : (C_Ast.ident option * var_table) list  \<comment> \<open>parent scope tables\<close>
                 , namesupply : int
                 , stream_ignored : C_Antiquote.antiq stream
                 , env_directives : C_Transition.env_directives }
