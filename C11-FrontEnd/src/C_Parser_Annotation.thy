@@ -213,6 +213,13 @@ fun kind_of (Token (_, (k, _), _)) = k;
 fun is_kind k (Token (_, (k', _), _)) = k = k';
 
 val is_command = is_kind Token.Command;
+
+fun keyword_with pred (Token (_, (Token.Keyword, x), _)) = pred x
+  | keyword_with _ _ = false;
+
+fun ident_with pred (Token (_, (Token.Ident, x), _)) = pred x
+  | ident_with _ _ = false;
+
 val is_ident = is_kind Token.Ident;
 val is_sym_ident = is_kind Token.Sym_Ident;
 
@@ -572,8 +579,126 @@ ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/parse.ML\<close>\<close> \<
 Generic parsers for Isabelle/Isar outer syntax.
 *)
 
-structure C_Parse =
+signature C_PARSE =
+sig
+  type T
+  type 'a parser = T list -> 'a * T list
+(**)
+  val C_source: Input.source parser
+(**)
+  val group: (unit -> string) -> (T list -> 'a) -> T list -> 'a
+  val !!! : (T list -> 'a) -> T list -> 'a
+  val !!!! : (T list -> 'a) -> T list -> 'a
+  val not_eof: T parser (*
+  val token: 'a parser -> T parser *)
+  val range: 'a parser -> ('a * Position.range) parser
+  val position: 'a parser -> ('a * Position.T) parser
+  val input: 'a parser -> Input.source parser
+  val inner_syntax: 'a parser -> string parser
+  val command: string parser (*
+  val keyword: string parser *)
+  val short_ident: string parser
+  val long_ident: string parser
+  val sym_ident: string parser (*
+  val dots: string parser
+  val minus: string parser *)
+  val term_var: string parser
+  val type_ident: string parser
+  val type_var: string parser
+  val number: string parser (*
+  val float_number: string parser *)
+  val string: string parser (*
+  val alt_string: string parser *)
+  val verbatim: string parser
+  val cartouche: string parser
+  val eof: string parser (*
+  val command_name: string -> string parser *)
+  val keyword_with: (string -> bool) -> string parser
+  val keyword_markup: bool * Markup.T -> string -> string parser
+  val keyword_improper: string -> string parser
+  val $$$ : string -> string parser
+  val reserved: string -> string parser (*
+  val underscore: string parser
+  val maybe: 'a parser -> 'a option parser
+  val tag_name: string parser
+  val tags: string list parser
+  val opt_keyword: string -> bool parser
+  val opt_bang: bool parser
+  val begin: string parser
+  val opt_begin: bool parser *)
+  val nat: int parser (*
+  val int: int parser
+  val real: real parser
+  val enum_positions: string -> 'a parser -> ('a list * Position.T list) parser
+  val enum1_positions: string -> 'a parser -> ('a list * Position.T list) parser *)
+  val enum: string -> 'a parser -> 'a list parser
+  val enum1: string -> 'a parser -> 'a list parser (*
+  val and_list: 'a parser -> 'a list parser
+  val and_list1: 'a parser -> 'a list parser
+  val enum': string -> 'a context_parser -> 'a list context_parser
+  val enum1': string -> 'a context_parser -> 'a list context_parser
+  val and_list': 'a context_parser -> 'a list context_parser
+  val and_list1': 'a context_parser -> 'a list context_parser *)
+  val list: 'a parser -> 'a list parser (*
+  val list1: 'a parser -> 'a list parser
+  val properties: Properties.T parser *)
+  val name: string parser
+  val binding: binding parser
+  val embedded: string parser
+  val text: string parser (*
+  val path: string parser
+  val session_name: string parser
+  val theory_name: string parser
+  val liberal_name: string parser
+  val parname: string parser
+  val parbinding: binding parser
+  val class: string parser
+  val sort: string parser
+  val type_const: string parser
+  val arity: (string * string list * string) parser
+  val multi_arity: (string list * string list * string) parser
+  val type_args: string list parser
+  val type_args_constrained: (string * string option) list parser
+  val typ: string parser
+  val mixfix: mixfix parser
+  val mixfix': mixfix parser
+  val opt_mixfix: mixfix parser
+  val opt_mixfix': mixfix parser
+  val syntax_mode: Syntax.mode parser
+  val where_: string parser
+  val const_decl: (string * string * mixfix) parser
+  val const_binding: (binding * string * mixfix) parser
+  val params: (binding * string option * mixfix) list parser
+  val vars: (binding * string option * mixfix) list parser
+  val for_fixes: (binding * string option * mixfix) list parser *)
+  val ML_source: Input.source parser (*
+  val document_source: Input.source parser
+  val const: string parser *)
+  val term: string parser (*
+  val prop: string parser
+  val literal_fact: string parser
+  val propp: (string * string list) parser
+  val termp: (string * string list) parser
+  val private: Position.T parser
+  val qualified: Position.T parser
+  val target: (string * Position.T) parser
+  val opt_target: (string * Position.T) option parser
+  val args: T list parser
+  val args1: (string -> bool) -> T list parser
+  val attribs: Token.src list parser
+  val opt_attribs: Token.src list parser
+  val thm_sel: Facts.interval list parser
+  val thm: (Facts.ref * Token.src list) parser
+  val thms1: (Facts.ref * Token.src list) list parser
+  val option_name: string parser
+  val option_value: string parser
+  val options: ((string * Position.T) * (string * Position.T)) list parser *)
+end;
+
+structure C_Parse: C_PARSE =
 struct
+type T = C_Token.T
+type 'a parser = T list -> 'a * T list
 
 (** error handling **)
 
@@ -611,6 +736,8 @@ fun cut kind scan =
 fun !!! scan = cut "Annotation syntax error" scan;
 fun !!!! scan = cut "Corrupted annotation syntax in presentation" scan;
 
+
+
 (** basic parsers **)
 
 (* tokens *)
@@ -620,6 +747,7 @@ fun RESET_VALUE atom = (*required for all primitive parsers*)
 
 
 val not_eof = RESET_VALUE (Scan.one C_Token.not_eof);
+
 
 fun range scan = (Scan.ahead not_eof >> (C_Token.range_of o single)) -- scan >> Library.swap;
 fun position scan = (Scan.ahead not_eof >> C_Token.pos_of) -- scan >> Library.swap;
@@ -644,9 +772,40 @@ val cartouche = kind Token.Cartouche;
 val eof = kind Token.EOF;
 
 
+fun keyword_with pred = RESET_VALUE (Scan.one (C_Token.keyword_with pred) >> C_Token.content_of);
+
+fun keyword_markup markup x =
+  group (fn () => Token.str_of_kind Token.Keyword ^ " " ^ quote x)
+    (Scan.ahead not_eof -- keyword_with (fn y => x = y))
+  >> (fn (tok, x) => (C_Token.assign (SOME (C_Token.Literal markup)) tok; x));
+
+val keyword_improper = keyword_markup (true, Markup.improper);
+val $$$ = keyword_markup (false, Markup.quasi_keyword);
+
+fun reserved x =
+  group (fn () => "reserved identifier " ^ quote x)
+    (RESET_VALUE (Scan.one (C_Token.ident_with (fn y => x = y)) >> C_Token.content_of));
+
+
+val nat = number >> (#1 o Library.read_int o Symbol.explode);
+
+
+(* enumerations *)
+
+
+fun enum1 sep scan = scan ::: Scan.repeat ($$$ sep |-- !!! scan);
+fun enum sep scan = enum1 sep scan || Scan.succeed [];
+
+fun list scan = enum "," scan;
+
 
 (* names and embedded content *)
 
+val name =
+  group (fn () => "name")
+    (short_ident || long_ident || sym_ident || number || string);
+
+val binding = position name >> Binding.make;
 
 val embedded =
   group (fn () => "embedded content")
@@ -657,13 +816,94 @@ val text = group (fn () => "text") (embedded || verbatim);
 
 
 
+
+
+
+(* type classes *)
+
+
+
+
+
+
+
+(* types *)
+
+
+
+
+
+(* mixfix annotations *)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(* syntax mode *)
+
+
+
+(* fixes *)
+
+
+
+
+
+
+
 (* embedded source text *)
 
 val ML_source = input (group (fn () => "ML source") text);
+val C_source = input (group (fn () => "C source") text);
+
 
 (* terms *)
 
 val term = group (fn () => "term") (inner_syntax embedded);
+
+
+(* patterns *)
+
+
+
+(* target information *)
+
+
+
+(* arguments within outer syntax *)
+
+
+
+
+
+
+
+
+
+(* attributes *)
+
+
+
+(* theorem references *)
+
+
+
+
+
+(* options *)
+
+
+
 
 end;
 \<close>
