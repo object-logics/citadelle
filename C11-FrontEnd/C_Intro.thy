@@ -36,7 +36,7 @@
 
 (*<*)
 theory C_Intro
-  imports Main
+  imports C_DOF
 begin
 (*>*)
 
