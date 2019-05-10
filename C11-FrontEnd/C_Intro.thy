@@ -1,3 +1,4 @@
+(*<*)
 (******************************************************************************
  * Generation of Language.C Grammar with ML Interface Binding
  *
@@ -34,31 +35,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-session C = HOL +
-  theories
-    C_Main
+theory C_Intro
+  imports Main
+begin
+(*>*)
 
-session C_examples = C + (* a standard test suite *)
-  theories
-    "examples/C0"
-    "examples/C1"
-    "examples/C2"
-    "examples/C3"
-    "examples/C_paper"
 
-session C_document = C_examples +
-  options [document = pdf, document_output = generated]
-  theories
-    C_Intro
-    C_Main
-    C_Conclusion
-    C_Appendices
-  document_files
-    "root.tex"
-    "root.bib"
-
-session C_autocorres = C +
-  sessions
-    "HOL-Eisbach"
-  theories
-    "examples/C_autocorres"
+(*<*)
+end
+(*>*)

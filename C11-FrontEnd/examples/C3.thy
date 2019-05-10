@@ -76,7 +76,9 @@ unsigned is_prime_linear(unsigned n)
 
     /* No factors. */
     return 1;
-}
+}\<close>
+
+C\<open>
 
 /*
  * Determine if the given number 'n' is prime.
