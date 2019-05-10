@@ -616,7 +616,7 @@ fun !!!! scan = cut "Corrupted annotation syntax in presentation" scan;
 (* tokens *)
 
 fun RESET_VALUE atom = (*required for all primitive parsers*)
-  Scan.ahead (Scan.one (K true)) -- atom >> #2;
+  Scan.ahead (Scan.one (K true)) -- atom >> (fn (arg, x) => (C_Token.assign NONE arg; x));
 
 
 val not_eof = RESET_VALUE (Scan.one C_Token.not_eof);
