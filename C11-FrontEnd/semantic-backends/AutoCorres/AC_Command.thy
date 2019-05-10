@@ -36,7 +36,7 @@
 
 theory AC_Command
   imports "HOL-Eisbach.Eisbach"
-          "../../C_Main"
+          C.C_Main
 begin
 
 section \<open>\<close>
