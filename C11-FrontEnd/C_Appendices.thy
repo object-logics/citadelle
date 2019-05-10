@@ -292,6 +292,9 @@ sequence of Shift Reduce actions associated to the \<^theory_text>\<open>C\<clos
 interest.
 \<close> 
 
+
+section \<open>Outer Syntax Commands for Isabelle/C\<close>
+
 section \<open>Incorporating C code\<close>
 
 text \<open>
@@ -378,4 +381,15 @@ text \<open>
   the previous C command if existing.
 \<close>
 
+section \<open>Inner Annotation Commands for Isabelle/C\<close>
+
+section \<open>A Guide to Writing Semantic Back-Ends for Isabelle/C\<close>
+subsection\<open>General Principles\<close>
+
+subsection\<open>Example: CLEAN\<close>
+
+subsection\<open>Example: AutoCorres\<close>
+
+(*<*)
 end
+(*>*)
