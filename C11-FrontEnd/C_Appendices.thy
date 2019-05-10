@@ -34,9 +34,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory C_Appendices imports C_examples.C1 begin
+(*<*)
+theory C_Appendices
+  imports C_examples.C1
+begin
+(*>*)
 
-section \<open>Structure of folders\<close>
+section \<open>Architecture of Isabelle/C\<close>
 
 text \<open>
 \<^dir>\<open>copied_from_git\<close> represents the location of
