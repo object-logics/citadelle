@@ -1,4 +1,3 @@
-(*<*)
 (******************************************************************************
  * Generation of Language.C Grammar with ML Interface Binding
  *
@@ -35,6 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+(*<*)
 theory C_Intro
   imports Main
 begin
