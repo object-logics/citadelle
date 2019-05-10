@@ -49,7 +49,7 @@ session C = HOL +
     "root.tex"
     "root.bib"
 
-session C_examples = C +
+session C_autocorres = C +
   sessions
     "HOL-Eisbach"
   theories
