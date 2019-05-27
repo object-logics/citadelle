@@ -89,7 +89,7 @@ fun C_prf source =
   Proof.map_context (Context.proof_map (exec_eval source))
   #> Proof.propagate_ml_env
 
-fun C_export source context =
+fun C_export_boot source context =
   context
   |> ML_Env.set_bootstrap true
   |> exec_eval source
@@ -250,8 +250,8 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Top_down ("C\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.command) Keyword.thy_load (C_Resources.parse_files "C_file" --| semi) C_Transition.Bottom_up ("C_file", \<^here>)
                       #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.command) Keyword.thy_load (C_Resources.parse_files "C_file\<Down>" --| semi) C_Transition.Top_down ("C_file\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export) C_Parse.C_source C_Transition.Bottom_up ("C_export_boot", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export) C_Parse.C_source C_Transition.Top_down ("C_export_boot\<Down>", \<^here>))
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Transition.Bottom_up ("C_export_boot", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Transition.Top_down ("C_export_boot\<Down>", \<^here>))
 in end
 \<close>
 
@@ -343,7 +343,7 @@ val _ =
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C_export_boot\<close>
     "C text within theory or local theory, and export to bootstrap environment"
-    (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C_Module.C_export));
+    (C_Outer_Parse.C_source >> (Toplevel.generic_theory o C_Module.C_export_boot));
 
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C_prf\<close> "C text within proof"
