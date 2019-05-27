@@ -308,6 +308,7 @@ local
 fun command dir f_cmd =
   C_Inner_Syntax.command0 
     (fn src => fn context => f_cmd (C_Stack.Data_Lang.get context |> #2) src context)
+    C_Parse.C_source
     dir
 in
 val _ = Theory.setup (   command C_Transition.Bottom_up C' ("C'", \<^here>)

@@ -42,7 +42,7 @@ section \<open>\<close>
 
 ML\<open>
 local
-val command = C_Inner_Syntax.command C_Inner_Isar_Cmd.setup'
+val command = C_Inner_Syntax.command C_Inner_Isar_Cmd.setup' C_Parse.ML_source
 in
 val _ = Theory.setup (   command C_Transition.Bottom_up ("ML_setup", \<^here>)
                       #> command C_Transition.Top_down ("ML_setup\<Down>", \<^here>))
@@ -55,6 +55,7 @@ fun C_define dir name _ _ =
   Context.map_theory 
     (C_Inner_Syntax.command0
       (fn src => fn context => C' (C_Stack.Data_Lang.get context |> #2) src context)
+      C_Parse.C_source
       dir
       name)
 

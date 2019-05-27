@@ -202,10 +202,10 @@ end
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/outer_syntax.ML\<close>\<close> \<open>
 structure C_Inner_Syntax =
 struct
-fun command f dir name =
+fun command f scan dir name =
   C_Annotation.command' name ""
     (fn (stack1, (to_delay, stack2)) =>
-      C_Parse.range C_Parse.ML_source >>
+      C_Parse.range scan >>
         (fn (src, range) =>
           C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
 
@@ -223,14 +223,14 @@ fun ML source = ML_Context.exec (fn () =>
                    ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
                  Local_Theory.propagate_ml_env
 end
-val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Bottom_up ("\<approx>setup", \<^here>)
-                      #> C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Transition.Top_down ("\<approx>setup\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Bottom_up ("setup", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Transition.Top_down ("setup\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Transition.Bottom_up ("ML", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Transition.Top_down ("ML\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Transition.Bottom_up ("C", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Transition.Top_down ("C\<Down>", \<^here>))
+val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Transition.Bottom_up ("\<approx>setup", \<^here>)
+                      #> C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Transition.Top_down ("\<approx>setup\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Parse.ML_source C_Transition.Bottom_up ("setup", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Parse.ML_source C_Transition.Top_down ("setup\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Transition.Bottom_up ("ML", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Transition.Top_down ("ML\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Bottom_up ("C", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Top_down ("C\<Down>", \<^here>))
 in end
 \<close>
 
