@@ -5,980 +5,284 @@ struct
 
 (*#line 8674.1 "c_grammar_fun.grm.sml"*)
 datatype svalue0 = VOID | ntVOID of unit | clangcversion of  (C_Ast.ClangCVersion) | x5f_x5f_builtin_types_compatible_p of  (string) | x5f_x5f_builtin_offsetof of  (string) | x5f_x5f_builtin_va_arg of  (string) | x5f_x5f_imag_x5f_x5f of  (string) | x5f_x5f_real_x5f_x5f of  (string) | x5f_x5f_extension_x5f_x5f of  (string) | x5f_x5f_attribute_x5f_x5f of  (string) | tyident of  (C_Ast.ident) | ident of  (C_Ast.ident) | cstr of  (C_Ast.cString) | cfloat of  (C_Ast.cFloat) | cint of  (C_Ast.cInteger) | cchar of  (C_Ast.cChar) | while0 of  (string) | volatile of  (string) | void of  (string) | unsigned of  (string) | union of  (string) | x5f_x5f_thread of  (string) | typeof of  (string) | typedef of  (string) | switch of  (string) | struct0 of  (string) | x5f_Static_assert of  (string) | static of  (string) | sizeof of  (string) | signed of  (string) | short of  (string) | return0 of  (string) | restrict of  (string) | register of  (string) | x5f_Nonnull of  (string) | x5f_Nullable of  (string) | x5f_Noreturn of  (string) | x5f_x5f_label_x5f_x5f of  (string) | long of  (string) | x5f_x5f_int_x31_x32_x38 of  (string) | int of  (string) | inline of  (string) | if0 of  (string) | goto of  (string) | x5f_Generic of  (string) | for0 of  (string) | float of  (string) | extern of  (string) | enum of  (string) | else0 of  (string) | double of  (string) | do0 of  (string) | default of  (string) | x5f_Complex of  (string) | continue of  (string) | const of  (string) | char of  (string) | case0 of  (string) | x5f_Bool of  (string) | break of  (string) | auto of  (string) | asm of  (string) | x5f_Atomic of  (string) | alignas of  (string) | alignof of  (string) | x2e_x2e_x2e of  (string) | x7d of  (string) | x7b of  (string) | x3b of  (string) | x2c of  (string) | x3e_x3e_x3d of  (string) | x3c_x3c_x3d of  (string) | x7c_x3d of  (string) | x5e_x3d of  (string) | x26_x3d of  (string) | x25_x3d of  (string) | x2f_x3d of  (string) | x2a_x3d of  (string) | x2d_x3d of  (string) | x2b_x3d of  (string) | x3d of  (string) | x3a of  (string) | x3f of  (string) | x7c_x7c of  (string) | x26_x26 of  (string) | x7c of  (string) | x5e of  (string) | x21_x3d of  (string) | x3d_x3d of  (string) | x3e_x3d of  (string) | x3e of  (string) | x3c_x3d of  (string) | x3c of  (string) | x3e_x3e of  (string) | x3c_x3c of  (string) | x26 of  (string) | x25 of  (string) | x2f of  (string) | x2a of  (string) | x2d of  (string) | x2b of  (string) | x2d_x2d of  (string) | x2b_x2b of  (string) | x7e of  (string) | x21 of  (string) | x2e of  (string) | x2d_x3e of  (string) | x5d of  (string) | x5b of  (string) | x29 of  (string) | x28 of  (string) | attribute_params of  ( ( CExpr list )  Reversed) | attribute of  (CAttr Maybe) | attribute_list of  ( ( CAttr list )  Reversed) | attr of  (CAttr list) | attrs of  (CAttr list) | attrs_opt of  (CAttr list) | identifier of  (Ident) | clang_version_literal of  (ClangCVersion) | string_literal_list of  ( ( CString list )  Reversed) | string_literal of  (CStrLit) | constant of  (CConst) | constant_expression of  (CExpr) | assignment_expression_opt of  (CExpr Maybe) | expression_opt of  (CExpr Maybe) | comma_expression of  ( ( CExpr list )  Reversed) | expression of  (CExpr) | assignment_operator of  (CAssignOp Located) | assignment_expression of  (CExpr) | conditional_expression of  (CExpr) | logical_or_expression of  (CExpr) | logical_and_expression of  (CExpr) | inclusive_or_expression of  (CExpr) | exclusive_or_expression of  (CExpr) | and_expression of  (CExpr) | equality_expression of  (CExpr) | relational_expression of  (CExpr) | shift_expression of  (CExpr) | additive_expression of  (CExpr) | multiplicative_expression of  (CExpr) | cast_expression of  (CExpr) | unary_operator of  (CUnaryOp Located) | unary_expression of  (CExpr) | argument_expression_list of  ( ( CExpr list )  Reversed) | postfix_expression of  (CExpr) | offsetof_member_designator of  ( ( CDesignator list )  Reversed) | generic_assoc of  ( ( CDecl Maybe * CExpr ) ) | generic_assoc_list of  ( ( ((CDecl Maybe * CExpr)) list )  Reversed) | primary_expression of  (CExpr) | array_designator of  (CDesignator) | designator of  (CDesignator) | designator_list of  ( ( CDesignator list )  Reversed) | designation of  (CDesignator list) | initializer_list of  (CInitList Reversed) | initializer_opt of  (CInit Maybe) | initializer of  (CInit) | postfix_abstract_declarator of  (CDeclrR) | unary_abstract_declarator of  (CDeclrR) | postfix_array_abstract_declarator of  ( ( CDeclrR -> CDeclrR ) ) | array_abstract_declarator of  ( ( CDeclrR -> CDeclrR ) ) | postfixing_abstract_declarator of  ( ( CDeclrR -> CDeclrR ) ) | abstract_declarator of  (CDeclrR) | type_name of  (CDecl) | identifier_list of  ( ( Ident list )  Reversed) | parameter_declaration of  (CDecl) | parameter_list of  ( ( CDecl list )  Reversed) | parameter_type_list of  ( ( CDecl list * Bool ) ) | postfix_old_function_declarator of  (CDeclrR) | old_function_declarator of  (CDeclrR) | function_declarator_old of  (CDeclr) | paren_identifier_declarator of  (CDeclrR) | postfix_identifier_declarator of  (CDeclrR) | unary_identifier_declarator of  (CDeclrR) | identifier_declarator of  (CDeclrR) | simple_paren_typedef_declarator of  (CDeclrR) | paren_postfix_typedef_declarator of  (CDeclrR) | paren_typedef_declarator of  (CDeclrR) | clean_postfix_typedef_declarator of  (CDeclrR) | clean_typedef_declarator of  (CDeclrR) | parameter_typedef_declarator of  (CDeclrR) | typedef_declarator of  (CDeclrR) | asm_opt of  (CStrLit Maybe) | declarator of  (CDeclrR) | type_qualifier_list of  ( ( CTypeQual list )  Reversed) | type_qualifier of  (CTypeQual) | enumerator of  ( ( Ident * CExpr Maybe ) ) | enumerator_list of  ( ( ((Ident * CExpr Maybe)) list )  Reversed) | enum_specifier of  (CEnum) | struct_identifier_declarator of  ( ( CDeclr Maybe * CExpr Maybe ) ) | struct_declarator of  ( ( CDeclr Maybe * CExpr Maybe ) ) | struct_declaring_list of  (CDecl) | struct_default_declaring_list of  (CDecl) | struct_declaration of  (CDecl) | struct_declaration_list of  ( ( CDecl list )  Reversed) | struct_or_union of  (CStructTag Located) | struct_or_union_specifier of  (CStructUnion) | elaborated_type_name of  (CTypeSpec) | typedef_type_specifier of  ( ( CDeclSpec list )  Reversed) | typedef_declaration_specifier of  ( ( CDeclSpec list )  Reversed) | sue_type_specifier of  ( ( CDeclSpec list )  Reversed) | sue_declaration_specifier of  ( ( CDeclSpec list )  Reversed) | basic_type_specifier of  ( ( CDeclSpec list )  Reversed) | basic_declaration_specifier of  ( ( CDeclSpec list )  Reversed) | basic_type_name of  (CTypeSpec) | type_specifier of  (CDeclSpec list) | alignment_specifier of  (CAlignSpec) | function_specifier of  (CFunSpec) | storage_class of  (CStorageSpec) | declaration_qualifier_without_types of  (CDeclSpec) | declaration_qualifier of  (CDeclSpec) | declaration_qualifier_list of  ( ( CDeclSpec list )  Reversed) | declaration_specifier of  (CDeclSpec list) | declaring_list of  (CDecl) | asm_attrs_opt of  ( ( CStrLit Maybe * CAttr list ) ) | default_declaring_list of  (CDecl) | declaration_list of  ( ( CDecl list )  Reversed) | declaration of  (CDecl) | asm_clobbers of  ( ( CStrLit list )  Reversed) | asm_operand of  (CAsmOperand) | nonnull_asm_operands of  ( ( CAsmOperand list )  Reversed) | asm_operands of  (CAsmOperand list) | maybe_type_qualifier of  (CTypeQual Maybe) | asm_statement of  (CAsmStmt) | jump_statement of  (CStat) | iteration_statement of  (CStat) | selection_statement of  (CStat) | expression_statement of  (CStat) | label_declarations of  ( ( Ident list )  Reversed) | nested_function_definition of  (CFunDef) | nested_declaration of  (CBlockItem) | block_item of  (CBlockItem) | block_item_list of  ( ( CBlockItem list )  Reversed) | leave_scope of  (unit) | enter_scope of  (unit) | compound_statement of  (CStat) | labeled_statement of  (CStat) | statement of  (CStat) | function_declarator of  (CDeclr) | function_definition of  (CFunDef) | external_declaration of  (CExtDecl) | ext_decl_list of  ( ( CExtDecl list )  Reversed) | translation_unit of  (CTranslUnit)
-val type_reduce = fn
-  0 => " (CTranslUnit)" |
-  1 => " ( ( CExtDecl list )  Reversed)" |
-  2 => " ( ( CExtDecl list )  Reversed)" |
-  3 => " ( ( CExtDecl list )  Reversed)" |
-  4 => " (CExtDecl)" |
-  5 => " (CExtDecl)" |
-  6 => " (CExtDecl)" |
-  7 => " (CExtDecl)" |
-  8 => " (CFunDef)" |
-  9 => " (CFunDef)" |
-  10 => " (CFunDef)" |
-  11 => " (CFunDef)" |
-  12 => " (CFunDef)" |
-  13 => " (CFunDef)" |
-  14 => " (CFunDef)" |
-  15 => " (CFunDef)" |
-  16 => " (CFunDef)" |
-  17 => " (CFunDef)" |
-  18 => " (CFunDef)" |
-  19 => " (CFunDef)" |
-  20 => " (CFunDef)" |
-  21 => " (CFunDef)" |
-  22 => " (CDeclr)" |
-  23 => " (CStat)" |
-  24 => " (CStat)" |
-  25 => " (CStat)" |
-  26 => " (CStat)" |
-  27 => " (CStat)" |
-  28 => " (CStat)" |
-  29 => " (CStat)" |
-  30 => " (CStat)" |
-  31 => " (CStat)" |
-  32 => " (CStat)" |
-  33 => " (CStat)" |
-  34 => " (CStat)" |
-  35 => " (CStat)" |
-  36 => " (unit)" |
-  37 => " (unit)" |
-  38 => " ( ( CBlockItem list )  Reversed)" |
-  39 => " ( ( CBlockItem list )  Reversed)" |
-  40 => " (CBlockItem)" |
-  41 => " (CBlockItem)" |
-  42 => " (CBlockItem)" |
-  43 => " (CBlockItem)" |
-  44 => " (CBlockItem)" |
-  45 => " (CFunDef)" |
-  46 => " (CFunDef)" |
-  47 => " (CFunDef)" |
-  48 => " (CFunDef)" |
-  49 => " (CFunDef)" |
-  50 => " ( ( Ident list )  Reversed)" |
-  51 => " ( ( Ident list )  Reversed)" |
-  52 => " (CStat)" |
-  53 => " (CStat)" |
-  54 => " (CStat)" |
-  55 => " (CStat)" |
-  56 => " (CStat)" |
-  57 => " (CStat)" |
-  58 => " (CStat)" |
-  59 => " (CStat)" |
-  60 => " (CStat)" |
-  61 => " (CStat)" |
-  62 => " (CStat)" |
-  63 => " (CStat)" |
-  64 => " (CStat)" |
-  65 => " (CStat)" |
-  66 => " (CAsmStmt)" |
-  67 => " (CAsmStmt)" |
-  68 => " (CAsmStmt)" |
-  69 => " (CAsmStmt)" |
-  70 => " (CTypeQual Maybe)" |
-  71 => " (CTypeQual Maybe)" |
-  72 => " (CAsmOperand list)" |
-  73 => " (CAsmOperand list)" |
-  74 => " ( ( CAsmOperand list )  Reversed)" |
-  75 => " ( ( CAsmOperand list )  Reversed)" |
-  76 => " (CAsmOperand)" |
-  77 => " (CAsmOperand)" |
-  78 => " (CAsmOperand)" |
-  79 => " ( ( CStrLit list )  Reversed)" |
-  80 => " ( ( CStrLit list )  Reversed)" |
-  81 => " (CDecl)" |
-  82 => " (CDecl)" |
-  83 => " (CDecl)" |
-  84 => " (CDecl)" |
-  85 => " (CDecl)" |
-  86 => " ( ( CDecl list )  Reversed)" |
-  87 => " ( ( CDecl list )  Reversed)" |
-  88 => " (CDecl)" |
-  89 => " (CDecl)" |
-  90 => " (CDecl)" |
-  91 => " (CDecl)" |
-  92 => " (CDecl)" |
-  93 => " ( ( CStrLit Maybe * CAttr list ) )" |
-  94 => " (CDecl)" |
-  95 => " (CDecl)" |
-  96 => " (CDecl)" |
-  97 => " (CDeclSpec list)" |
-  98 => " (CDeclSpec list)" |
-  99 => " (CDeclSpec list)" |
-  100 => " ( ( CDeclSpec list )  Reversed)" |
-  101 => " ( ( CDeclSpec list )  Reversed)" |
-  102 => " ( ( CDeclSpec list )  Reversed)" |
-  103 => " ( ( CDeclSpec list )  Reversed)" |
-  104 => " ( ( CDeclSpec list )  Reversed)" |
-  105 => " ( ( CDeclSpec list )  Reversed)" |
-  106 => " (CDeclSpec)" |
-  107 => " (CDeclSpec)" |
-  108 => " (CDeclSpec)" |
-  109 => " (CDeclSpec)" |
-  110 => " (CDeclSpec)" |
-  111 => " (CDeclSpec)" |
-  112 => " (CDeclSpec)" |
-  113 => " (CStorageSpec)" |
-  114 => " (CStorageSpec)" |
-  115 => " (CStorageSpec)" |
-  116 => " (CStorageSpec)" |
-  117 => " (CStorageSpec)" |
-  118 => " (CStorageSpec)" |
-  119 => " (CFunSpec)" |
-  120 => " (CFunSpec)" |
-  121 => " (CAlignSpec)" |
-  122 => " (CAlignSpec)" |
-  123 => " (CDeclSpec list)" |
-  124 => " (CDeclSpec list)" |
-  125 => " (CDeclSpec list)" |
-  126 => " (CTypeSpec)" |
-  127 => " (CTypeSpec)" |
-  128 => " (CTypeSpec)" |
-  129 => " (CTypeSpec)" |
-  130 => " (CTypeSpec)" |
-  131 => " (CTypeSpec)" |
-  132 => " (CTypeSpec)" |
-  133 => " (CTypeSpec)" |
-  134 => " (CTypeSpec)" |
-  135 => " (CTypeSpec)" |
-  136 => " (CTypeSpec)" |
-  137 => " (CTypeSpec)" |
-  138 => " ( ( CDeclSpec list )  Reversed)" |
-  139 => " ( ( CDeclSpec list )  Reversed)" |
-  140 => " ( ( CDeclSpec list )  Reversed)" |
-  141 => " ( ( CDeclSpec list )  Reversed)" |
-  142 => " ( ( CDeclSpec list )  Reversed)" |
-  143 => " ( ( CDeclSpec list )  Reversed)" |
-  144 => " ( ( CDeclSpec list )  Reversed)" |
-  145 => " ( ( CDeclSpec list )  Reversed)" |
-  146 => " ( ( CDeclSpec list )  Reversed)" |
-  147 => " ( ( CDeclSpec list )  Reversed)" |
-  148 => " ( ( CDeclSpec list )  Reversed)" |
-  149 => " ( ( CDeclSpec list )  Reversed)" |
-  150 => " ( ( CDeclSpec list )  Reversed)" |
-  151 => " ( ( CDeclSpec list )  Reversed)" |
-  152 => " ( ( CDeclSpec list )  Reversed)" |
-  153 => " ( ( CDeclSpec list )  Reversed)" |
-  154 => " ( ( CDeclSpec list )  Reversed)" |
-  155 => " ( ( CDeclSpec list )  Reversed)" |
-  156 => " ( ( CDeclSpec list )  Reversed)" |
-  157 => " ( ( CDeclSpec list )  Reversed)" |
-  158 => " ( ( CDeclSpec list )  Reversed)" |
-  159 => " ( ( CDeclSpec list )  Reversed)" |
-  160 => " ( ( CDeclSpec list )  Reversed)" |
-  161 => " ( ( CDeclSpec list )  Reversed)" |
-  162 => " ( ( CDeclSpec list )  Reversed)" |
-  163 => " ( ( CDeclSpec list )  Reversed)" |
-  164 => " ( ( CDeclSpec list )  Reversed)" |
-  165 => " ( ( CDeclSpec list )  Reversed)" |
-  166 => " ( ( CDeclSpec list )  Reversed)" |
-  167 => " ( ( CDeclSpec list )  Reversed)" |
-  168 => " ( ( CDeclSpec list )  Reversed)" |
-  169 => " ( ( CDeclSpec list )  Reversed)" |
-  170 => " ( ( CDeclSpec list )  Reversed)" |
-  171 => " ( ( CDeclSpec list )  Reversed)" |
-  172 => " ( ( CDeclSpec list )  Reversed)" |
-  173 => " ( ( CDeclSpec list )  Reversed)" |
-  174 => " ( ( CDeclSpec list )  Reversed)" |
-  175 => " ( ( CDeclSpec list )  Reversed)" |
-  176 => " ( ( CDeclSpec list )  Reversed)" |
-  177 => " ( ( CDeclSpec list )  Reversed)" |
-  178 => " ( ( CDeclSpec list )  Reversed)" |
-  179 => " ( ( CDeclSpec list )  Reversed)" |
-  180 => " (CTypeSpec)" |
-  181 => " (CTypeSpec)" |
-  182 => " (CStructUnion)" |
-  183 => " (CStructUnion)" |
-  184 => " (CStructUnion)" |
-  185 => " (CStructTag Located)" |
-  186 => " (CStructTag Located)" |
-  187 => " ( ( CDecl list )  Reversed)" |
-  188 => " ( ( CDecl list )  Reversed)" |
-  189 => " ( ( CDecl list )  Reversed)" |
-  190 => " (CDecl)" |
-  191 => " (CDecl)" |
-  192 => " (CDecl)" |
-  193 => " (CDecl)" |
-  194 => " (CDecl)" |
-  195 => " (CDecl)" |
-  196 => " (CDecl)" |
-  197 => " (CDecl)" |
-  198 => " (CDecl)" |
-  199 => " ( ( CDeclr Maybe * CExpr Maybe ) )" |
-  200 => " ( ( CDeclr Maybe * CExpr Maybe ) )" |
-  201 => " ( ( CDeclr Maybe * CExpr Maybe ) )" |
-  202 => " ( ( CDeclr Maybe * CExpr Maybe ) )" |
-  203 => " ( ( CDeclr Maybe * CExpr Maybe ) )" |
-  204 => " ( ( CDeclr Maybe * CExpr Maybe ) )" |
-  205 => " ( ( CDeclr Maybe * CExpr Maybe ) )" |
-  206 => " (CEnum)" |
-  207 => " (CEnum)" |
-  208 => " (CEnum)" |
-  209 => " (CEnum)" |
-  210 => " (CEnum)" |
-  211 => " ( ( ((Ident * CExpr Maybe)) list )  Reversed)" |
-  212 => " ( ( ((Ident * CExpr Maybe)) list )  Reversed)" |
-  213 => " ( ( Ident * CExpr Maybe ) )" |
-  214 => " ( ( Ident * CExpr Maybe ) )" |
-  215 => " ( ( Ident * CExpr Maybe ) )" |
-  216 => " ( ( Ident * CExpr Maybe ) )" |
-  217 => " (CTypeQual)" |
-  218 => " (CTypeQual)" |
-  219 => " (CTypeQual)" |
-  220 => " (CTypeQual)" |
-  221 => " (CTypeQual)" |
-  222 => " (CTypeQual)" |
-  223 => " ( ( CTypeQual list )  Reversed)" |
-  224 => " ( ( CTypeQual list )  Reversed)" |
-  225 => " ( ( CTypeQual list )  Reversed)" |
-  226 => " (CDeclrR)" |
-  227 => " (CDeclrR)" |
-  228 => " (CStrLit Maybe)" |
-  229 => " (CStrLit Maybe)" |
-  230 => " (CDeclrR)" |
-  231 => " (CDeclrR)" |
-  232 => " (CDeclrR)" |
-  233 => " (CDeclrR)" |
-  234 => " (CDeclrR)" |
-  235 => " (CDeclrR)" |
-  236 => " (CDeclrR)" |
-  237 => " (CDeclrR)" |
-  238 => " (CDeclrR)" |
-  239 => " (CDeclrR)" |
-  240 => " (CDeclrR)" |
-  241 => " (CDeclrR)" |
-  242 => " (CDeclrR)" |
-  243 => " (CDeclrR)" |
-  244 => " (CDeclrR)" |
-  245 => " (CDeclrR)" |
-  246 => " (CDeclrR)" |
-  247 => " (CDeclrR)" |
-  248 => " (CDeclrR)" |
-  249 => " (CDeclrR)" |
-  250 => " (CDeclrR)" |
-  251 => " (CDeclrR)" |
-  252 => " (CDeclrR)" |
-  253 => " (CDeclrR)" |
-  254 => " (CDeclrR)" |
-  255 => " (CDeclrR)" |
-  256 => " (CDeclrR)" |
-  257 => " (CDeclrR)" |
-  258 => " (CDeclrR)" |
-  259 => " (CDeclrR)" |
-  260 => " (CDeclrR)" |
-  261 => " (CDeclrR)" |
-  262 => " (CDeclrR)" |
-  263 => " (CDeclrR)" |
-  264 => " (CDeclrR)" |
-  265 => " (CDeclrR)" |
-  266 => " (CDeclrR)" |
-  267 => " (CDeclrR)" |
-  268 => " (CDeclrR)" |
-  269 => " (CDeclrR)" |
-  270 => " (CDeclrR)" |
-  271 => " (CDeclr)" |
-  272 => " (CDeclrR)" |
-  273 => " (CDeclrR)" |
-  274 => " (CDeclrR)" |
-  275 => " (CDeclrR)" |
-  276 => " (CDeclrR)" |
-  277 => " (CDeclrR)" |
-  278 => " ( ( CDecl list * Bool ) )" |
-  279 => " ( ( CDecl list * Bool ) )" |
-  280 => " ( ( CDecl list * Bool ) )" |
-  281 => " ( ( CDecl list )  Reversed)" |
-  282 => " ( ( CDecl list )  Reversed)" |
-  283 => " (CDecl)" |
-  284 => " (CDecl)" |
-  285 => " (CDecl)" |
-  286 => " (CDecl)" |
-  287 => " (CDecl)" |
-  288 => " (CDecl)" |
-  289 => " (CDecl)" |
-  290 => " (CDecl)" |
-  291 => " (CDecl)" |
-  292 => " (CDecl)" |
-  293 => " (CDecl)" |
-  294 => " (CDecl)" |
-  295 => " (CDecl)" |
-  296 => " (CDecl)" |
-  297 => " (CDecl)" |
-  298 => " ( ( Ident list )  Reversed)" |
-  299 => " ( ( Ident list )  Reversed)" |
-  300 => " (CDecl)" |
-  301 => " (CDecl)" |
-  302 => " (CDecl)" |
-  303 => " (CDecl)" |
-  304 => " (CDeclrR)" |
-  305 => " (CDeclrR)" |
-  306 => " (CDeclrR)" |
-  307 => " ( ( CDeclrR -> CDeclrR ) )" |
-  308 => " ( ( CDeclrR -> CDeclrR ) )" |
-  309 => " ( ( CDeclrR -> CDeclrR ) )" |
-  310 => " ( ( CDeclrR -> CDeclrR ) )" |
-  311 => " ( ( CDeclrR -> CDeclrR ) )" |
-  312 => " ( ( CDeclrR -> CDeclrR ) )" |
-  313 => " ( ( CDeclrR -> CDeclrR ) )" |
-  314 => " ( ( CDeclrR -> CDeclrR ) )" |
-  315 => " ( ( CDeclrR -> CDeclrR ) )" |
-  316 => " ( ( CDeclrR -> CDeclrR ) )" |
-  317 => " ( ( CDeclrR -> CDeclrR ) )" |
-  318 => " ( ( CDeclrR -> CDeclrR ) )" |
-  319 => " ( ( CDeclrR -> CDeclrR ) )" |
-  320 => " ( ( CDeclrR -> CDeclrR ) )" |
-  321 => " ( ( CDeclrR -> CDeclrR ) )" |
-  322 => " (CDeclrR)" |
-  323 => " (CDeclrR)" |
-  324 => " (CDeclrR)" |
-  325 => " (CDeclrR)" |
-  326 => " (CDeclrR)" |
-  327 => " (CDeclrR)" |
-  328 => " (CDeclrR)" |
-  329 => " (CDeclrR)" |
-  330 => " (CDeclrR)" |
-  331 => " (CDeclrR)" |
-  332 => " (CDeclrR)" |
-  333 => " (CDeclrR)" |
-  334 => " (CDeclrR)" |
-  335 => " (CDeclrR)" |
-  336 => " (CDeclrR)" |
-  337 => " (CInit)" |
-  338 => " (CInit)" |
-  339 => " (CInit)" |
-  340 => " (CInit Maybe)" |
-  341 => " (CInit Maybe)" |
-  342 => " (CInitList Reversed)" |
-  343 => " (CInitList Reversed)" |
-  344 => " (CInitList Reversed)" |
-  345 => " (CInitList Reversed)" |
-  346 => " (CInitList Reversed)" |
-  347 => " (CDesignator list)" |
-  348 => " (CDesignator list)" |
-  349 => " (CDesignator list)" |
-  350 => " ( ( CDesignator list )  Reversed)" |
-  351 => " ( ( CDesignator list )  Reversed)" |
-  352 => " (CDesignator)" |
-  353 => " (CDesignator)" |
-  354 => " (CDesignator)" |
-  355 => " (CDesignator)" |
-  356 => " (CExpr)" |
-  357 => " (CExpr)" |
-  358 => " (CExpr)" |
-  359 => " (CExpr)" |
-  360 => " (CExpr)" |
-  361 => " (CExpr)" |
-  362 => " (CExpr)" |
-  363 => " (CExpr)" |
-  364 => " (CExpr)" |
-  365 => " ( ( ((CDecl Maybe * CExpr)) list )  Reversed)" |
-  366 => " ( ( ((CDecl Maybe * CExpr)) list )  Reversed)" |
-  367 => " ( ( CDecl Maybe * CExpr ) )" |
-  368 => " ( ( CDecl Maybe * CExpr ) )" |
-  369 => " ( ( CDesignator list )  Reversed)" |
-  370 => " ( ( CDesignator list )  Reversed)" |
-  371 => " ( ( CDesignator list )  Reversed)" |
-  372 => " (CExpr)" |
-  373 => " (CExpr)" |
-  374 => " (CExpr)" |
-  375 => " (CExpr)" |
-  376 => " (CExpr)" |
-  377 => " (CExpr)" |
-  378 => " (CExpr)" |
-  379 => " (CExpr)" |
-  380 => " (CExpr)" |
-  381 => " (CExpr)" |
-  382 => " ( ( CExpr list )  Reversed)" |
-  383 => " ( ( CExpr list )  Reversed)" |
-  384 => " (CExpr)" |
-  385 => " (CExpr)" |
-  386 => " (CExpr)" |
-  387 => " (CExpr)" |
-  388 => " (CExpr)" |
-  389 => " (CExpr)" |
-  390 => " (CExpr)" |
-  391 => " (CExpr)" |
-  392 => " (CExpr)" |
-  393 => " (CExpr)" |
-  394 => " (CExpr)" |
-  395 => " (CExpr)" |
-  396 => " (CUnaryOp Located)" |
-  397 => " (CUnaryOp Located)" |
-  398 => " (CUnaryOp Located)" |
-  399 => " (CUnaryOp Located)" |
-  400 => " (CUnaryOp Located)" |
-  401 => " (CUnaryOp Located)" |
-  402 => " (CExpr)" |
-  403 => " (CExpr)" |
-  404 => " (CExpr)" |
-  405 => " (CExpr)" |
-  406 => " (CExpr)" |
-  407 => " (CExpr)" |
-  408 => " (CExpr)" |
-  409 => " (CExpr)" |
-  410 => " (CExpr)" |
-  411 => " (CExpr)" |
-  412 => " (CExpr)" |
-  413 => " (CExpr)" |
-  414 => " (CExpr)" |
-  415 => " (CExpr)" |
-  416 => " (CExpr)" |
-  417 => " (CExpr)" |
-  418 => " (CExpr)" |
-  419 => " (CExpr)" |
-  420 => " (CExpr)" |
-  421 => " (CExpr)" |
-  422 => " (CExpr)" |
-  423 => " (CExpr)" |
-  424 => " (CExpr)" |
-  425 => " (CExpr)" |
-  426 => " (CExpr)" |
-  427 => " (CExpr)" |
-  428 => " (CExpr)" |
-  429 => " (CExpr)" |
-  430 => " (CExpr)" |
-  431 => " (CExpr)" |
-  432 => " (CExpr)" |
-  433 => " (CExpr)" |
-  434 => " (CExpr)" |
-  435 => " (CExpr)" |
-  436 => " (CExpr)" |
-  437 => " (CAssignOp Located)" |
-  438 => " (CAssignOp Located)" |
-  439 => " (CAssignOp Located)" |
-  440 => " (CAssignOp Located)" |
-  441 => " (CAssignOp Located)" |
-  442 => " (CAssignOp Located)" |
-  443 => " (CAssignOp Located)" |
-  444 => " (CAssignOp Located)" |
-  445 => " (CAssignOp Located)" |
-  446 => " (CAssignOp Located)" |
-  447 => " (CAssignOp Located)" |
-  448 => " (CExpr)" |
-  449 => " (CExpr)" |
-  450 => " ( ( CExpr list )  Reversed)" |
-  451 => " ( ( CExpr list )  Reversed)" |
-  452 => " (CExpr Maybe)" |
-  453 => " (CExpr Maybe)" |
-  454 => " (CExpr Maybe)" |
-  455 => " (CExpr Maybe)" |
-  456 => " (CExpr)" |
-  457 => " (CConst)" |
-  458 => " (CConst)" |
-  459 => " (CConst)" |
-  460 => " (CStrLit)" |
-  461 => " (CStrLit)" |
-  462 => " ( ( CString list )  Reversed)" |
-  463 => " ( ( CString list )  Reversed)" |
-  464 => " (ClangCVersion)" |
-  465 => " (Ident)" |
-  466 => " (Ident)" |
-  467 => " (CAttr list)" |
-  468 => " (CAttr list)" |
-  469 => " (CAttr list)" |
-  470 => " (CAttr list)" |
-  471 => " (CAttr list)" |
-  472 => " ( ( CAttr list )  Reversed)" |
-  473 => " ( ( CAttr list )  Reversed)" |
-  474 => " (CAttr Maybe)" |
-  475 => " (CAttr Maybe)" |
-  476 => " (CAttr Maybe)" |
-  477 => " (CAttr Maybe)" |
-  478 => " (CAttr Maybe)" |
-  479 => " ( ( CExpr list )  Reversed)" |
-  480 => " ( ( CExpr list )  Reversed)" |
-  481 => " ( ( CExpr list )  Reversed)" |
-  482 => " ( ( CExpr list )  Reversed)" |
-  483 => " ( ( CExpr list )  Reversed)" |
-  484 => " ( ( CExpr list )  Reversed)" |
-  _ => error "reduce type not found"
-val string_reduce = fn
-  0 => "translation_unit" |
-  1 => "ext_decl_list1" |
-  2 => "ext_decl_list2" |
-  3 => "ext_decl_list3" |
-  4 => "external_declaration1" |
-  5 => "external_declaration2" |
-  6 => "external_declaration3" |
-  7 => "external_declaration4" |
-  8 => "function_definition1" |
-  9 => "function_definition2" |
-  10 => "function_definition3" |
-  11 => "function_definition4" |
-  12 => "function_definition5" |
-  13 => "function_definition6" |
-  14 => "function_definition7" |
-  15 => "function_definition8" |
-  16 => "function_definition9" |
-  17 => "function_definition10" |
-  18 => "function_definition11" |
-  19 => "function_definition12" |
-  20 => "function_definition13" |
-  21 => "function_definition14" |
-  22 => "function_declarator" |
-  23 => "statement1" |
-  24 => "statement2" |
-  25 => "statement3" |
-  26 => "statement4" |
-  27 => "statement5" |
-  28 => "statement6" |
-  29 => "statement7" |
-  30 => "labeled_statement1" |
-  31 => "labeled_statement2" |
-  32 => "labeled_statement3" |
-  33 => "labeled_statement4" |
-  34 => "compound_statement1" |
-  35 => "compound_statement2" |
-  36 => "enter_scope" |
-  37 => "leave_scope" |
-  38 => "block_item_list1" |
-  39 => "block_item_list2" |
-  40 => "block_item1" |
-  41 => "block_item2" |
-  42 => "nested_declaration1" |
-  43 => "nested_declaration2" |
-  44 => "nested_declaration3" |
-  45 => "nested_function_definition1" |
-  46 => "nested_function_definition2" |
-  47 => "nested_function_definition3" |
-  48 => "nested_function_definition4" |
-  49 => "nested_function_definition5" |
-  50 => "label_declarations1" |
-  51 => "label_declarations2" |
-  52 => "expression_statement1" |
-  53 => "expression_statement2" |
-  54 => "selection_statement1" |
-  55 => "selection_statement2" |
-  56 => "selection_statement3" |
-  57 => "iteration_statement1" |
-  58 => "iteration_statement2" |
-  59 => "iteration_statement3" |
-  60 => "iteration_statement4" |
-  61 => "jump_statement1" |
-  62 => "jump_statement2" |
-  63 => "jump_statement3" |
-  64 => "jump_statement4" |
-  65 => "jump_statement5" |
-  66 => "asm_statement1" |
-  67 => "asm_statement2" |
-  68 => "asm_statement3" |
-  69 => "asm_statement4" |
-  70 => "maybe_type_qualifier1" |
-  71 => "maybe_type_qualifier2" |
-  72 => "asm_operands1" |
-  73 => "asm_operands2" |
-  74 => "nonnull_asm_operands1" |
-  75 => "nonnull_asm_operands2" |
-  76 => "asm_operand1" |
-  77 => "asm_operand2" |
-  78 => "asm_operand3" |
-  79 => "asm_clobbers1" |
-  80 => "asm_clobbers2" |
-  81 => "declaration1" |
-  82 => "declaration2" |
-  83 => "declaration3" |
-  84 => "declaration4" |
-  85 => "declaration5" |
-  86 => "declaration_list1" |
-  87 => "declaration_list2" |
-  88 => "default_declaring_list1" |
-  89 => "default_declaring_list2" |
-  90 => "default_declaring_list3" |
-  91 => "default_declaring_list4" |
-  92 => "default_declaring_list5" |
-  93 => "asm_attrs_opt" |
-  94 => "declaring_list1" |
-  95 => "declaring_list2" |
-  96 => "declaring_list3" |
-  97 => "declaration_specifier1" |
-  98 => "declaration_specifier2" |
-  99 => "declaration_specifier3" |
-  100 => "declaration_qualifier_list1" |
-  101 => "declaration_qualifier_list2" |
-  102 => "declaration_qualifier_list3" |
-  103 => "declaration_qualifier_list4" |
-  104 => "declaration_qualifier_list5" |
-  105 => "declaration_qualifier_list6" |
-  106 => "declaration_qualifier1" |
-  107 => "declaration_qualifier2" |
-  108 => "declaration_qualifier3" |
-  109 => "declaration_qualifier4" |
-  110 => "declaration_qualifier_without_types1" |
-  111 => "declaration_qualifier_without_types2" |
-  112 => "declaration_qualifier_without_types3" |
-  113 => "storage_class1" |
-  114 => "storage_class2" |
-  115 => "storage_class3" |
-  116 => "storage_class4" |
-  117 => "storage_class5" |
-  118 => "storage_class6" |
-  119 => "function_specifier1" |
-  120 => "function_specifier2" |
-  121 => "alignment_specifier1" |
-  122 => "alignment_specifier2" |
-  123 => "type_specifier1" |
-  124 => "type_specifier2" |
-  125 => "type_specifier3" |
-  126 => "basic_type_name1" |
-  127 => "basic_type_name2" |
-  128 => "basic_type_name3" |
-  129 => "basic_type_name4" |
-  130 => "basic_type_name5" |
-  131 => "basic_type_name6" |
-  132 => "basic_type_name7" |
-  133 => "basic_type_name8" |
-  134 => "basic_type_name9" |
-  135 => "basic_type_name10" |
-  136 => "basic_type_name11" |
-  137 => "basic_type_name12" |
-  138 => "basic_declaration_specifier1" |
-  139 => "basic_declaration_specifier2" |
-  140 => "basic_declaration_specifier3" |
-  141 => "basic_declaration_specifier4" |
-  142 => "basic_declaration_specifier5" |
-  143 => "basic_type_specifier1" |
-  144 => "basic_type_specifier2" |
-  145 => "basic_type_specifier3" |
-  146 => "basic_type_specifier4" |
-  147 => "basic_type_specifier5" |
-  148 => "basic_type_specifier6" |
-  149 => "basic_type_specifier7" |
-  150 => "sue_declaration_specifier1" |
-  151 => "sue_declaration_specifier2" |
-  152 => "sue_declaration_specifier3" |
-  153 => "sue_declaration_specifier4" |
-  154 => "sue_type_specifier1" |
-  155 => "sue_type_specifier2" |
-  156 => "sue_type_specifier3" |
-  157 => "sue_type_specifier4" |
-  158 => "sue_type_specifier5" |
-  159 => "sue_type_specifier6" |
-  160 => "typedef_declaration_specifier1" |
-  161 => "typedef_declaration_specifier2" |
-  162 => "typedef_declaration_specifier3" |
-  163 => "typedef_declaration_specifier4" |
-  164 => "typedef_declaration_specifier5" |
-  165 => "typedef_declaration_specifier6" |
-  166 => "typedef_type_specifier1" |
-  167 => "typedef_type_specifier2" |
-  168 => "typedef_type_specifier3" |
-  169 => "typedef_type_specifier4" |
-  170 => "typedef_type_specifier5" |
-  171 => "typedef_type_specifier6" |
-  172 => "typedef_type_specifier7" |
-  173 => "typedef_type_specifier8" |
-  174 => "typedef_type_specifier9" |
-  175 => "typedef_type_specifier10" |
-  176 => "typedef_type_specifier11" |
-  177 => "typedef_type_specifier12" |
-  178 => "typedef_type_specifier13" |
-  179 => "typedef_type_specifier14" |
-  180 => "elaborated_type_name1" |
-  181 => "elaborated_type_name2" |
-  182 => "struct_or_union_specifier1" |
-  183 => "struct_or_union_specifier2" |
-  184 => "struct_or_union_specifier3" |
-  185 => "struct_or_union1" |
-  186 => "struct_or_union2" |
-  187 => "struct_declaration_list1" |
-  188 => "struct_declaration_list2" |
-  189 => "struct_declaration_list3" |
-  190 => "struct_declaration1" |
-  191 => "struct_declaration2" |
-  192 => "struct_declaration3" |
-  193 => "struct_default_declaring_list1" |
-  194 => "struct_default_declaring_list2" |
-  195 => "struct_default_declaring_list3" |
-  196 => "struct_declaring_list1" |
-  197 => "struct_declaring_list2" |
-  198 => "struct_declaring_list3" |
-  199 => "struct_declarator1" |
-  200 => "struct_declarator2" |
-  201 => "struct_declarator3" |
-  202 => "struct_identifier_declarator1" |
-  203 => "struct_identifier_declarator2" |
-  204 => "struct_identifier_declarator3" |
-  205 => "struct_identifier_declarator4" |
-  206 => "enum_specifier1" |
-  207 => "enum_specifier2" |
-  208 => "enum_specifier3" |
-  209 => "enum_specifier4" |
-  210 => "enum_specifier5" |
-  211 => "enumerator_list1" |
-  212 => "enumerator_list2" |
-  213 => "enumerator1" |
-  214 => "enumerator2" |
-  215 => "enumerator3" |
-  216 => "enumerator4" |
-  217 => "type_qualifier1" |
-  218 => "type_qualifier2" |
-  219 => "type_qualifier3" |
-  220 => "type_qualifier4" |
-  221 => "type_qualifier5" |
-  222 => "type_qualifier6" |
-  223 => "type_qualifier_list1" |
-  224 => "type_qualifier_list2" |
-  225 => "type_qualifier_list3" |
-  226 => "declarator1" |
-  227 => "declarator2" |
-  228 => "asm_opt1" |
-  229 => "asm_opt2" |
-  230 => "typedef_declarator1" |
-  231 => "typedef_declarator2" |
-  232 => "parameter_typedef_declarator1" |
-  233 => "parameter_typedef_declarator2" |
-  234 => "parameter_typedef_declarator3" |
-  235 => "clean_typedef_declarator1" |
-  236 => "clean_typedef_declarator2" |
-  237 => "clean_typedef_declarator3" |
-  238 => "clean_typedef_declarator4" |
-  239 => "clean_typedef_declarator5" |
-  240 => "clean_postfix_typedef_declarator1" |
-  241 => "clean_postfix_typedef_declarator2" |
-  242 => "clean_postfix_typedef_declarator3" |
-  243 => "clean_postfix_typedef_declarator4" |
-  244 => "paren_typedef_declarator1" |
-  245 => "paren_typedef_declarator2" |
-  246 => "paren_typedef_declarator3" |
-  247 => "paren_typedef_declarator4" |
-  248 => "paren_typedef_declarator5" |
-  249 => "paren_typedef_declarator6" |
-  250 => "paren_typedef_declarator7" |
-  251 => "paren_postfix_typedef_declarator1" |
-  252 => "paren_postfix_typedef_declarator2" |
-  253 => "paren_postfix_typedef_declarator3" |
-  254 => "simple_paren_typedef_declarator1" |
-  255 => "simple_paren_typedef_declarator2" |
-  256 => "identifier_declarator1" |
-  257 => "identifier_declarator2" |
-  258 => "unary_identifier_declarator1" |
-  259 => "unary_identifier_declarator2" |
-  260 => "unary_identifier_declarator3" |
-  261 => "unary_identifier_declarator4" |
-  262 => "unary_identifier_declarator5" |
-  263 => "postfix_identifier_declarator1" |
-  264 => "postfix_identifier_declarator2" |
-  265 => "postfix_identifier_declarator3" |
-  266 => "postfix_identifier_declarator4" |
-  267 => "postfix_identifier_declarator5" |
-  268 => "paren_identifier_declarator1" |
-  269 => "paren_identifier_declarator2" |
-  270 => "paren_identifier_declarator3" |
-  271 => "function_declarator_old" |
-  272 => "old_function_declarator1" |
-  273 => "old_function_declarator2" |
-  274 => "old_function_declarator3" |
-  275 => "postfix_old_function_declarator1" |
-  276 => "postfix_old_function_declarator2" |
-  277 => "postfix_old_function_declarator3" |
-  278 => "parameter_type_list1" |
-  279 => "parameter_type_list2" |
-  280 => "parameter_type_list3" |
-  281 => "parameter_list1" |
-  282 => "parameter_list2" |
-  283 => "parameter_declaration1" |
-  284 => "parameter_declaration2" |
-  285 => "parameter_declaration3" |
-  286 => "parameter_declaration4" |
-  287 => "parameter_declaration5" |
-  288 => "parameter_declaration6" |
-  289 => "parameter_declaration7" |
-  290 => "parameter_declaration8" |
-  291 => "parameter_declaration9" |
-  292 => "parameter_declaration10" |
-  293 => "parameter_declaration11" |
-  294 => "parameter_declaration12" |
-  295 => "parameter_declaration13" |
-  296 => "parameter_declaration14" |
-  297 => "parameter_declaration15" |
-  298 => "identifier_list1" |
-  299 => "identifier_list2" |
-  300 => "type_name1" |
-  301 => "type_name2" |
-  302 => "type_name3" |
-  303 => "type_name4" |
-  304 => "abstract_declarator1" |
-  305 => "abstract_declarator2" |
-  306 => "abstract_declarator3" |
-  307 => "postfixing_abstract_declarator1" |
-  308 => "postfixing_abstract_declarator2" |
-  309 => "array_abstract_declarator1" |
-  310 => "array_abstract_declarator2" |
-  311 => "postfix_array_abstract_declarator1" |
-  312 => "postfix_array_abstract_declarator2" |
-  313 => "postfix_array_abstract_declarator3" |
-  314 => "postfix_array_abstract_declarator4" |
-  315 => "postfix_array_abstract_declarator5" |
-  316 => "postfix_array_abstract_declarator6" |
-  317 => "postfix_array_abstract_declarator7" |
-  318 => "postfix_array_abstract_declarator8" |
-  319 => "postfix_array_abstract_declarator9" |
-  320 => "postfix_array_abstract_declarator10" |
-  321 => "postfix_array_abstract_declarator11" |
-  322 => "unary_abstract_declarator1" |
-  323 => "unary_abstract_declarator2" |
-  324 => "unary_abstract_declarator3" |
-  325 => "unary_abstract_declarator4" |
-  326 => "unary_abstract_declarator5" |
-  327 => "unary_abstract_declarator6" |
-  328 => "postfix_abstract_declarator1" |
-  329 => "postfix_abstract_declarator2" |
-  330 => "postfix_abstract_declarator3" |
-  331 => "postfix_abstract_declarator4" |
-  332 => "postfix_abstract_declarator5" |
-  333 => "postfix_abstract_declarator6" |
-  334 => "postfix_abstract_declarator7" |
-  335 => "postfix_abstract_declarator8" |
-  336 => "postfix_abstract_declarator9" |
-  337 => "initializer1" |
-  338 => "initializer2" |
-  339 => "initializer3" |
-  340 => "initializer_opt1" |
-  341 => "initializer_opt2" |
-  342 => "initializer_list1" |
-  343 => "initializer_list2" |
-  344 => "initializer_list3" |
-  345 => "initializer_list4" |
-  346 => "initializer_list5" |
-  347 => "designation1" |
-  348 => "designation2" |
-  349 => "designation3" |
-  350 => "designator_list1" |
-  351 => "designator_list2" |
-  352 => "designator1" |
-  353 => "designator2" |
-  354 => "designator3" |
-  355 => "array_designator" |
-  356 => "primary_expression1" |
-  357 => "primary_expression2" |
-  358 => "primary_expression3" |
-  359 => "primary_expression4" |
-  360 => "primary_expression5" |
-  361 => "primary_expression6" |
-  362 => "primary_expression7" |
-  363 => "primary_expression8" |
-  364 => "primary_expression9" |
-  365 => "generic_assoc_list1" |
-  366 => "generic_assoc_list2" |
-  367 => "generic_assoc1" |
-  368 => "generic_assoc2" |
-  369 => "offsetof_member_designator1" |
-  370 => "offsetof_member_designator2" |
-  371 => "offsetof_member_designator3" |
-  372 => "postfix_expression1" |
-  373 => "postfix_expression2" |
-  374 => "postfix_expression3" |
-  375 => "postfix_expression4" |
-  376 => "postfix_expression5" |
-  377 => "postfix_expression6" |
-  378 => "postfix_expression7" |
-  379 => "postfix_expression8" |
-  380 => "postfix_expression9" |
-  381 => "postfix_expression10" |
-  382 => "argument_expression_list1" |
-  383 => "argument_expression_list2" |
-  384 => "unary_expression1" |
-  385 => "unary_expression2" |
-  386 => "unary_expression3" |
-  387 => "unary_expression4" |
-  388 => "unary_expression5" |
-  389 => "unary_expression6" |
-  390 => "unary_expression7" |
-  391 => "unary_expression8" |
-  392 => "unary_expression9" |
-  393 => "unary_expression10" |
-  394 => "unary_expression11" |
-  395 => "unary_expression12" |
-  396 => "unary_operator1" |
-  397 => "unary_operator2" |
-  398 => "unary_operator3" |
-  399 => "unary_operator4" |
-  400 => "unary_operator5" |
-  401 => "unary_operator6" |
-  402 => "cast_expression1" |
-  403 => "cast_expression2" |
-  404 => "multiplicative_expression1" |
-  405 => "multiplicative_expression2" |
-  406 => "multiplicative_expression3" |
-  407 => "multiplicative_expression4" |
-  408 => "additive_expression1" |
-  409 => "additive_expression2" |
-  410 => "additive_expression3" |
-  411 => "shift_expression1" |
-  412 => "shift_expression2" |
-  413 => "shift_expression3" |
-  414 => "relational_expression1" |
-  415 => "relational_expression2" |
-  416 => "relational_expression3" |
-  417 => "relational_expression4" |
-  418 => "relational_expression5" |
-  419 => "equality_expression1" |
-  420 => "equality_expression2" |
-  421 => "equality_expression3" |
-  422 => "and_expression1" |
-  423 => "and_expression2" |
-  424 => "exclusive_or_expression1" |
-  425 => "exclusive_or_expression2" |
-  426 => "inclusive_or_expression1" |
-  427 => "inclusive_or_expression2" |
-  428 => "logical_and_expression1" |
-  429 => "logical_and_expression2" |
-  430 => "logical_or_expression1" |
-  431 => "logical_or_expression2" |
-  432 => "conditional_expression1" |
-  433 => "conditional_expression2" |
-  434 => "conditional_expression3" |
-  435 => "assignment_expression1" |
-  436 => "assignment_expression2" |
-  437 => "assignment_operator1" |
-  438 => "assignment_operator2" |
-  439 => "assignment_operator3" |
-  440 => "assignment_operator4" |
-  441 => "assignment_operator5" |
-  442 => "assignment_operator6" |
-  443 => "assignment_operator7" |
-  444 => "assignment_operator8" |
-  445 => "assignment_operator9" |
-  446 => "assignment_operator10" |
-  447 => "assignment_operator11" |
-  448 => "expression1" |
-  449 => "expression2" |
-  450 => "comma_expression1" |
-  451 => "comma_expression2" |
-  452 => "expression_opt1" |
-  453 => "expression_opt2" |
-  454 => "assignment_expression_opt1" |
-  455 => "assignment_expression_opt2" |
-  456 => "constant_expression" |
-  457 => "constant1" |
-  458 => "constant2" |
-  459 => "constant3" |
-  460 => "string_literal1" |
-  461 => "string_literal2" |
-  462 => "string_literal_list1" |
-  463 => "string_literal_list2" |
-  464 => "clang_version_literal" |
-  465 => "identifier1" |
-  466 => "identifier2" |
-  467 => "attrs_opt1" |
-  468 => "attrs_opt2" |
-  469 => "attrs1" |
-  470 => "attrs2" |
-  471 => "attr" |
-  472 => "attribute_list1" |
-  473 => "attribute_list2" |
-  474 => "attribute1" |
-  475 => "attribute2" |
-  476 => "attribute3" |
-  477 => "attribute4" |
-  478 => "attribute5" |
-  479 => "attribute_params1" |
-  480 => "attribute_params2" |
-  481 => "attribute_params3" |
-  482 => "attribute_params4" |
-  483 => "attribute_params5" |
-  484 => "attribute_params6" |
-  _ => error "reduce type not found"
+fun find_list msg mk_name l =
+  let val tab =
+        fold (fn (name, occ) =>
+               fold (fn name => fn (tab, nb) => (Inttab.update (nb, name) tab, nb + 1))
+                    (if occ = 1 then [name]
+                                else map_range (mk_name name) occ))
+             l
+             (Inttab.empty, 0)
+        |> #1
+  in
+    fn i => case Inttab.lookup tab i of NONE => error msg | SOME name => name
+  end
+val type_reduce = find_list "reduce type not found" K [
+  (" (CTranslUnit)", 1),
+  (" ( ( CExtDecl list )  Reversed)", 3),
+  (" (CExtDecl)", 4),
+  (" (CFunDef)", 14),
+  (" (CDeclr)", 1),
+  (" (CStat)", 7),
+  (" (CStat)", 4),
+  (" (CStat)", 2),
+  (" (unit)", 1),
+  (" (unit)", 1),
+  (" ( ( CBlockItem list )  Reversed)", 2),
+  (" (CBlockItem)", 2),
+  (" (CBlockItem)", 3),
+  (" (CFunDef)", 5),
+  (" ( ( Ident list )  Reversed)", 2),
+  (" (CStat)", 2),
+  (" (CStat)", 3),
+  (" (CStat)", 4),
+  (" (CStat)", 5),
+  (" (CAsmStmt)", 4),
+  (" (CTypeQual Maybe)", 2),
+  (" (CAsmOperand list)", 2),
+  (" ( ( CAsmOperand list )  Reversed)", 2),
+  (" (CAsmOperand)", 3),
+  (" ( ( CStrLit list )  Reversed)", 2),
+  (" (CDecl)", 5),
+  (" ( ( CDecl list )  Reversed)", 2),
+  (" (CDecl)", 5),
+  (" ( ( CStrLit Maybe * CAttr list ) )", 1),
+  (" (CDecl)", 3),
+  (" (CDeclSpec list)", 3),
+  (" ( ( CDeclSpec list )  Reversed)", 6),
+  (" (CDeclSpec)", 4),
+  (" (CDeclSpec)", 3),
+  (" (CStorageSpec)", 6),
+  (" (CFunSpec)", 2),
+  (" (CAlignSpec)", 2),
+  (" (CDeclSpec list)", 3),
+  (" (CTypeSpec)", 12),
+  (" ( ( CDeclSpec list )  Reversed)", 5),
+  (" ( ( CDeclSpec list )  Reversed)", 7),
+  (" ( ( CDeclSpec list )  Reversed)", 4),
+  (" ( ( CDeclSpec list )  Reversed)", 6),
+  (" ( ( CDeclSpec list )  Reversed)", 6),
+  (" ( ( CDeclSpec list )  Reversed)", 14),
+  (" (CTypeSpec)", 2),
+  (" (CStructUnion)", 3),
+  (" (CStructTag Located)", 2),
+  (" ( ( CDecl list )  Reversed)", 3),
+  (" (CDecl)", 3),
+  (" (CDecl)", 3),
+  (" (CDecl)", 3),
+  (" ( ( CDeclr Maybe * CExpr Maybe ) )", 3),
+  (" ( ( CDeclr Maybe * CExpr Maybe ) )", 4),
+  (" (CEnum)", 5),
+  (" ( ( ((Ident * CExpr Maybe)) list )  Reversed)", 2),
+  (" ( ( Ident * CExpr Maybe ) )", 4),
+  (" (CTypeQual)", 6),
+  (" ( ( CTypeQual list )  Reversed)", 3),
+  (" (CDeclrR)", 2),
+  (" (CStrLit Maybe)", 2),
+  (" (CDeclrR)", 2),
+  (" (CDeclrR)", 3),
+  (" (CDeclrR)", 5),
+  (" (CDeclrR)", 4),
+  (" (CDeclrR)", 7),
+  (" (CDeclrR)", 3),
+  (" (CDeclrR)", 2),
+  (" (CDeclrR)", 2),
+  (" (CDeclrR)", 5),
+  (" (CDeclrR)", 5),
+  (" (CDeclrR)", 3),
+  (" (CDeclr)", 1),
+  (" (CDeclrR)", 3),
+  (" (CDeclrR)", 3),
+  (" ( ( CDecl list * Bool ) )", 3),
+  (" ( ( CDecl list )  Reversed)", 2),
+  (" (CDecl)", 15),
+  (" ( ( Ident list )  Reversed)", 2),
+  (" (CDecl)", 4),
+  (" (CDeclrR)", 3),
+  (" ( ( CDeclrR -> CDeclrR ) )", 2),
+  (" ( ( CDeclrR -> CDeclrR ) )", 2),
+  (" ( ( CDeclrR -> CDeclrR ) )", 11),
+  (" (CDeclrR)", 6),
+  (" (CDeclrR)", 9),
+  (" (CInit)", 3),
+  (" (CInit Maybe)", 2),
+  (" (CInitList Reversed)", 5),
+  (" (CDesignator list)", 3),
+  (" ( ( CDesignator list )  Reversed)", 2),
+  (" (CDesignator)", 3),
+  (" (CDesignator)", 1),
+  (" (CExpr)", 9),
+  (" ( ( ((CDecl Maybe * CExpr)) list )  Reversed)", 2),
+  (" ( ( CDecl Maybe * CExpr ) )", 2),
+  (" ( ( CDesignator list )  Reversed)", 3),
+  (" (CExpr)", 10),
+  (" ( ( CExpr list )  Reversed)", 2),
+  (" (CExpr)", 12),
+  (" (CUnaryOp Located)", 6),
+  (" (CExpr)", 2),
+  (" (CExpr)", 4),
+  (" (CExpr)", 3),
+  (" (CExpr)", 3),
+  (" (CExpr)", 5),
+  (" (CExpr)", 3),
+  (" (CExpr)", 2),
+  (" (CExpr)", 2),
+  (" (CExpr)", 2),
+  (" (CExpr)", 2),
+  (" (CExpr)", 2),
+  (" (CExpr)", 3),
+  (" (CExpr)", 2),
+  (" (CAssignOp Located)", 11),
+  (" (CExpr)", 2),
+  (" ( ( CExpr list )  Reversed)", 2),
+  (" (CExpr Maybe)", 2),
+  (" (CExpr Maybe)", 2),
+  (" (CExpr)", 1),
+  (" (CConst)", 3),
+  (" (CStrLit)", 2),
+  (" ( ( CString list )  Reversed)", 2),
+  (" (ClangCVersion)", 1),
+  (" (Ident)", 2),
+  (" (CAttr list)", 2),
+  (" (CAttr list)", 2),
+  (" (CAttr list)", 1),
+  (" ( ( CAttr list )  Reversed)", 2),
+  (" (CAttr Maybe)", 5),
+  (" ( ( CExpr list )  Reversed)", 6),
+  ("", 0)]
+val string_reduce = find_list "reduce type not found" (fn name => fn occ => name ^ Int.toString (occ + 1)) [
+  ("translation_unit", 1),
+  ("ext_decl_list", 3),
+  ("external_declaration", 4),
+  ("function_definition", 14),
+  ("function_declarator", 1),
+  ("statement", 7),
+  ("labeled_statement", 4),
+  ("compound_statement", 2),
+  ("enter_scope", 1),
+  ("leave_scope", 1),
+  ("block_item_list", 2),
+  ("block_item", 2),
+  ("nested_declaration", 3),
+  ("nested_function_definition", 5),
+  ("label_declarations", 2),
+  ("expression_statement", 2),
+  ("selection_statement", 3),
+  ("iteration_statement", 4),
+  ("jump_statement", 5),
+  ("asm_statement", 4),
+  ("maybe_type_qualifier", 2),
+  ("asm_operands", 2),
+  ("nonnull_asm_operands", 2),
+  ("asm_operand", 3),
+  ("asm_clobbers", 2),
+  ("declaration", 5),
+  ("declaration_list", 2),
+  ("default_declaring_list", 5),
+  ("asm_attrs_opt", 1),
+  ("declaring_list", 3),
+  ("declaration_specifier", 3),
+  ("declaration_qualifier_list", 6),
+  ("declaration_qualifier", 4),
+  ("declaration_qualifier_without_types", 3),
+  ("storage_class", 6),
+  ("function_specifier", 2),
+  ("alignment_specifier", 2),
+  ("type_specifier", 3),
+  ("basic_type_name", 12),
+  ("basic_declaration_specifier", 5),
+  ("basic_type_specifier", 7),
+  ("sue_declaration_specifier", 4),
+  ("sue_type_specifier", 6),
+  ("typedef_declaration_specifier", 6),
+  ("typedef_type_specifier", 14),
+  ("elaborated_type_name", 2),
+  ("struct_or_union_specifier", 3),
+  ("struct_or_union", 2),
+  ("struct_declaration_list", 3),
+  ("struct_declaration", 3),
+  ("struct_default_declaring_list", 3),
+  ("struct_declaring_list", 3),
+  ("struct_declarator", 3),
+  ("struct_identifier_declarator", 4),
+  ("enum_specifier", 5),
+  ("enumerator_list", 2),
+  ("enumerator", 4),
+  ("type_qualifier", 6),
+  ("type_qualifier_list", 3),
+  ("declarator", 2),
+  ("asm_opt", 2),
+  ("typedef_declarator", 2),
+  ("parameter_typedef_declarator", 3),
+  ("clean_typedef_declarator", 5),
+  ("clean_postfix_typedef_declarator", 4),
+  ("paren_typedef_declarator", 7),
+  ("paren_postfix_typedef_declarator", 3),
+  ("simple_paren_typedef_declarator", 2),
+  ("identifier_declarator", 2),
+  ("unary_identifier_declarator", 5),
+  ("postfix_identifier_declarator", 5),
+  ("paren_identifier_declarator", 3),
+  ("function_declarator_old", 1),
+  ("old_function_declarator", 3),
+  ("postfix_old_function_declarator", 3),
+  ("parameter_type_list", 3),
+  ("parameter_list", 2),
+  ("parameter_declaration", 15),
+  ("identifier_list", 2),
+  ("type_name", 4),
+  ("abstract_declarator", 3),
+  ("postfixing_abstract_declarator", 2),
+  ("array_abstract_declarator", 2),
+  ("postfix_array_abstract_declarator", 11),
+  ("unary_abstract_declarator", 6),
+  ("postfix_abstract_declarator", 9),
+  ("initializer", 3),
+  ("initializer_opt", 2),
+  ("initializer_list", 5),
+  ("designation", 3),
+  ("designator_list", 2),
+  ("designator", 3),
+  ("array_designator", 1),
+  ("primary_expression", 9),
+  ("generic_assoc_list", 2),
+  ("generic_assoc", 2),
+  ("offsetof_member_designator", 3),
+  ("postfix_expression", 10),
+  ("argument_expression_list", 2),
+  ("unary_expression", 12),
+  ("unary_operator", 6),
+  ("cast_expression", 2),
+  ("multiplicative_expression", 4),
+  ("additive_expression", 3),
+  ("shift_expression", 3),
+  ("relational_expression", 5),
+  ("equality_expression", 3),
+  ("and_expression", 2),
+  ("exclusive_or_expression", 2),
+  ("inclusive_or_expression", 2),
+  ("logical_and_expression", 2),
+  ("logical_or_expression", 2),
+  ("conditional_expression", 3),
+  ("assignment_expression", 2),
+  ("assignment_operator", 11),
+  ("expression", 2),
+  ("comma_expression", 2),
+  ("expression_opt", 2),
+  ("assignment_expression_opt", 2),
+  ("constant_expression", 1),
+  ("constant", 3),
+  ("string_literal", 2),
+  ("string_literal_list", 2),
+  ("clang_version_literal", 1),
+  ("identifier", 2),
+  ("attrs_opt", 2),
+  ("attrs", 2),
+  ("attr", 1),
+  ("attribute_list", 2),
+  ("attribute", 5),
+  ("attribute_params", 6),
+  ("", 0)]
 val reduce0 = fn translation_unit x => x | _ => error "Only expecting translation_unit"
 val reduce1 = fn ext_decl_list x => x | _ => error "Only expecting ext_decl_list"
 val reduce2 = fn ext_decl_list x => x | _ => error "Only expecting ext_decl_list"
