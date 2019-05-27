@@ -1126,6 +1126,22 @@ val C_source = input (group (fn () => "C source") text);
 val star = sym_ident :-- (fn "*" => Scan.succeed () | _ => Scan.fail) >> #1;
 
 end;
+
+structure C_Parse_Native: C_PARSE =
+struct
+open Token
+open Parse
+
+(** C basic parsers **)
+
+(* embedded source text *)
+
+val C_source = input (group (fn () => "C source") text);
+
+(* AutoCorres (MODIFIES) *)
+
+val star = sym_ident :-- (fn "*" => Scan.succeed () | _ => Scan.fail) >> #1;
+end;
 \<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_header.ML\<close>\<close> \<open>
