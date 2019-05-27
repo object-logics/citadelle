@@ -291,8 +291,6 @@ int b = 7 / (3) * 50
                        ;\<close> \<close> */;
 \<close>
 
-
-
 C \<comment> \<open>Nesting C code and propagating the C environment\<close> \<open>
 int a = 0;
 int b = 7 / (3) * 50
