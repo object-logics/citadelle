@@ -74,6 +74,7 @@ datatype keywords = Keywords of
   major: Scan.lexicon,
   commands: entry Symtab.table};
 
+fun minor_keywords (Keywords {minor, ...}) = minor;
 fun major_keywords (Keywords {major, ...}) = major;
 
 fun make_keywords (minor, major, commands) =
@@ -408,11 +409,17 @@ fun closure (Token (x, y, Assignable (Unsynchronized.ref v))) = Token (x, y, Val
 
 
 
+
+
+
 (** scanners **)
 
 open Basic_Symbol_Pos;
 
 val err_prefix = "Annotation lexical error: ";
+
+val !!! = C_Scan.!!!;
+
 
 (* scan stack *)
 
@@ -421,10 +428,36 @@ fun scan_stack is_stack = Scan.optional (Scan.one is_stack >> content_of') []
 
 (* scan symbolic idents *)
 
+val scan_symid =
+  Scan.many1 (Symbol.is_symbolic_char o Symbol_Pos.symbol) ||
+  Scan.one (Symbol.is_symbolic o Symbol_Pos.symbol) >> single;
+
+fun is_symid str =
+  (case try Symbol.explode str of
+    SOME [s] => Symbol.is_symbolic s orelse Symbol.is_symbolic_char s
+  | SOME ss => forall Symbol.is_symbolic_char ss
+  | _ => false);
+
+fun ident_or_symbolic "begin" = false
+  | ident_or_symbolic ":" = true
+  | ident_or_symbolic "::" = true
+  | ident_or_symbolic s = Symbol_Pos.is_identifier s orelse is_symid s;
 
 
 (* scan verbatim text *)
 
+val scan_verb =
+  $$$ "*" --| Scan.ahead (~$$ "}") ||
+  Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single;
+
+val scan_verbatim =
+  Scan.ahead ($$ "{" -- $$ "*") |--
+    !!! "unclosed verbatim text"
+      ((Symbol_Pos.scan_pos --| $$ "{" --| $$ "*") --
+        (Scan.repeats scan_verb -- ($$ "*" |-- $$ "}" |-- Symbol_Pos.scan_pos)));
+
+val recover_verbatim =
+  $$$ "{" @@@ $$$ "*" @@@ Scan.repeats scan_verb;
 
 
 (* scan cartouche *)
@@ -476,20 +509,32 @@ fun token_range k (pos1, (ss, pos2)) =
 fun pair_f x = pair (false, x)
 fun pair_t x = pair (true, x)
 
-fun scan_token keywords = C_Scan.!!! "bad input"
+fun scan_token keywords = !!! "bad input"
   (Symbol_Pos.scan_string_qq err_prefix >> token_range Token.String ||
+    Symbol_Pos.scan_string_bq err_prefix >> token_range Token.Alt_String ||
+    scan_verbatim >> token_range Token.Verbatim ||
     scan_cartouche >> token_range Token.Cartouche ||
     scan_comment >> token_range (Token.Comment NONE) ||
     Comment.scan >> (fn (k, ss) => token (Token.Comment (SOME k)) ss) ||
     scan_space >> token Token.Space ||
-    (Scan.max token_leq
-      (Scan.literal (C_Keyword.major_keywords keywords) >> pair_f Token.Command)
-      (C_Lex.scan_ident >> pair_f Token.Ident ||
-       $$$ ":" >> pair_t Token.Keyword ||
-       Scan.repeats1 ($$$ "+") >> pair_t Token.Sym_Ident ||
-       Scan.repeats1 ($$$ "@") >> pair_t Token.Sym_Ident ||
-       Scan.repeats1 ($$$ "&") >> pair_t Token.Sym_Ident ||
-       $$$ "[" @@@ $$$ "*" @@@ $$$ "]" >> pair_t Token.Sym_Ident)) >> uncurry token');
+    (Scan.repeats1 ($$$ "+") >> pair_t Token.Sym_Ident ||
+      Scan.repeats1 ($$$ "@") >> pair_t Token.Sym_Ident ||
+      Scan.repeats1 ($$$ "&") >> pair_t Token.Sym_Ident ||
+      Scan.max token_leq
+        (Scan.max token_leq
+          (Scan.literal (C_Keyword.major_keywords keywords) >> pair_f Token.Command)
+          ($$$ ":" >> pair_t Token.Keyword ||
+           Scan.literal (C_Keyword.minor_keywords keywords) >> pair_f Token.Keyword))
+        (Lexicon.scan_longid >> pair_f Token.Long_Ident ||
+          C_Lex.scan_ident >> pair_f Token.Ident ||
+          Lexicon.scan_id >> pair_f Token.Ident ||
+          Lexicon.scan_var >> pair_f Token.Var ||
+          Lexicon.scan_tid >> pair_f Token.Type_Ident ||
+          Lexicon.scan_tvar >> pair_f Token.Type_Var ||
+          Symbol_Pos.scan_float >> pair_f Token.Float ||
+          Symbol_Pos.scan_nat >> pair_f Token.Nat ||
+          $$$ "[" @@@ $$$ "*" @@@ $$$ "]" >> pair_t Token.Sym_Ident ||
+          scan_symid >> pair_f Token.Sym_Ident)) >> uncurry token');
 
 fun recover msg =
   (Scan.one (Symbol.not_eof o Symbol_Pos.symbol) >> single)
