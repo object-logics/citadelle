@@ -202,21 +202,38 @@ end
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/outer_syntax.ML\<close>\<close> \<open>
 structure C_Inner_Syntax =
 struct
-fun command f scan dir name =
-  C_Annotation.command' name ""
+fun command00 f kind scan dir name =
+  C_Annotation.command'' kind name ""
     (fn (stack1, (to_delay, stack2)) =>
       C_Parse.range scan >>
         (fn (src, range) =>
           C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
 
+fun command f = command00 f Keyword.thy_decl
 fun command0 f = command (K o f)
+fun command0' f = command00 (K o f)
 end
+\<close>
+
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_file.ML\<close>\<close> \<open>
+structure C_Inner_File =
+struct
+
+fun command0 ({lines, pos, ...}: Token.file) =
+  C_Module.C (Input.source true (cat_lines lines) (pos, pos));
+
+fun command files gthy =
+  command0 (hd (files (Context.theory_of gthy))) gthy;
+
+end;
 \<close>
 
 subsection \<open>\<close>
 
 ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
+val semi = Scan.option (C_Parse.$$$ ";");
+
 structure C_Isar_Cmd = 
 struct
 fun ML source = ML_Context.exec (fn () =>
@@ -230,7 +247,11 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Transition.Bottom_up ("ML", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Transition.Top_down ("ML\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Bottom_up ("C", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Top_down ("C\<Down>", \<^here>))
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Top_down ("C\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.command) Keyword.thy_load (C_Resources.parse_files "C_file" --| semi) C_Transition.Bottom_up ("C_file", \<^here>)
+                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.command) Keyword.thy_load (C_Resources.parse_files "C_file\<Down>" --| semi) C_Transition.Top_down ("C_file\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export) C_Parse.C_source C_Transition.Bottom_up ("C_export_boot", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export) C_Parse.C_source C_Transition.Top_down ("C_export_boot\<Down>", \<^here>))
 in end
 \<close>
 

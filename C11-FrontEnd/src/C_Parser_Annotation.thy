@@ -147,6 +147,15 @@ fun command_markup keywords name =
         (Markup.entity Markup.command_keywordN name));
 
 
+fun command_files keywords name path =
+  (case lookup_command keywords name of
+    NONE => []
+  | SOME {kind, files, ...} =>
+      if kind <> Keyword.thy_load then []
+      else if null files then [path]
+      else map (fn ext => Path.ext ext path) files);
+
+
 (* command categories *)
 
 fun command_category ks =
@@ -1352,8 +1361,8 @@ fun delete_command (name, pos) thy =
 
 type command_keyword = string * Position.T;
 
-fun raw_command0 (name, pos) comment command_parser =
-  C_Thy_Header.add_keywords [((name, pos), ((Keyword.thy_decl, []), [name]))]
+fun raw_command0 kind (name, pos) comment command_parser =
+  C_Thy_Header.add_keywords [((name, pos), ((kind, []), [name]))]
   #> add_command name (new_command comment command_parser pos);
 
 fun raw_command (name, pos) comment command_parser =
@@ -1364,7 +1373,10 @@ fun command (name, pos) comment parse =
   raw_command (name, pos) comment (Parser parse);
 
 fun command' (name, pos) comment parse =
-  raw_command0 (name, pos) comment (Parser parse);
+  raw_command0 Keyword.thy_decl (name, pos) comment (Parser parse);
+
+fun command'' kind (name, pos) comment parse =
+  raw_command0 kind (name, pos) comment (Parser parse);
 
 
 
@@ -1397,6 +1409,33 @@ fun parse_command thy =
             in msg ^ quote (Markup.markup Markup.keyword1 name) end)
     end)
 end
+\<close>
+
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/PIDE/resources.ML\<close>\<close> \<open>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
+(*  Title:      Pure/PIDE/resources.ML
+    Author:     Makarius
+
+Resources for theories and auxiliary files.
+*)
+
+structure C_Resources =
+struct
+(* load files *)
+
+fun parse_files cmd =
+  Scan.ahead C_Parse.not_eof -- C_Parse.path >> (fn (tok, name) => fn thy =>
+    (case C_Token.get_files tok of
+      [] =>
+        let
+          val keywords = C_Thy_Header.get_keywords thy;
+          val master_dir = Resources.master_directory thy;
+          val pos = C_Token.pos_of tok;
+          val src_paths = C_Keyword.command_files keywords cmd (Path.explode name);
+        in map (Command.read_file master_dir pos) src_paths end
+    | files => map Exn.release files));
+
+end;
 \<close>
 
 end
