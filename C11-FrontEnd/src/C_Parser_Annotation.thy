@@ -699,6 +699,11 @@ structure C_Parse: C_PARSE =
 struct
 type T = C_Token.T
 type 'a parser = T list -> 'a * T list
+structure Token =
+struct
+  open Token
+  open C_Token
+end
 
 (** error handling **)
 
@@ -708,12 +713,12 @@ fun group s scan = scan || Scan.fail_with
   (fn [] => (fn () => s () ^ " expected,\nbut end-of-input was found")
     | tok :: _ =>
         (fn () =>
-          (case C_Token.text_of tok of
+          (case Token.text_of tok of
             (txt, "") =>
-              s () ^ " expected,\nbut " ^ txt ^ Position.here (C_Token.pos_of tok) ^
+              s () ^ " expected,\nbut " ^ txt ^ Position.here (Token.pos_of tok) ^
               " was found"
           | (txt1, txt2) =>
-              s () ^ " expected,\nbut " ^ txt1 ^ Position.here (C_Token.pos_of tok) ^
+              s () ^ " expected,\nbut " ^ txt1 ^ Position.here (Token.pos_of tok) ^
               " was found:\n" ^ txt2)));
 
 
@@ -722,7 +727,7 @@ fun group s scan = scan || Scan.fail_with
 fun cut kind scan =
   let
     fun get_pos [] = " (end-of-input)"
-      | get_pos (tok :: _) = Position.here (C_Token.pos_of tok);
+      | get_pos (tok :: _) = Position.here (Token.pos_of tok);
 
     fun err (toks, NONE) = (fn () => kind ^ get_pos toks)
       | err (toks, SOME msg) =
@@ -743,20 +748,20 @@ fun !!!! scan = cut "Corrupted annotation syntax in presentation" scan;
 (* tokens *)
 
 fun RESET_VALUE atom = (*required for all primitive parsers*)
-  Scan.ahead (Scan.one (K true)) -- atom >> (fn (arg, x) => (C_Token.assign NONE arg; x));
+  Scan.ahead (Scan.one (K true)) -- atom >> (fn (arg, x) => (Token.assign NONE arg; x));
 
 
-val not_eof = RESET_VALUE (Scan.one C_Token.not_eof);
+val not_eof = RESET_VALUE (Scan.one Token.not_eof);
 
 
-fun range scan = (Scan.ahead not_eof >> (C_Token.range_of o single)) -- scan >> Library.swap;
-fun position scan = (Scan.ahead not_eof >> C_Token.pos_of) -- scan >> Library.swap;
-fun input atom = Scan.ahead atom |-- not_eof >> C_Token.input_of;
-fun inner_syntax atom = Scan.ahead atom |-- not_eof >> C_Token.inner_syntax_of;
+fun range scan = (Scan.ahead not_eof >> (Token.range_of o single)) -- scan >> Library.swap;
+fun position scan = (Scan.ahead not_eof >> Token.pos_of) -- scan >> Library.swap;
+fun input atom = Scan.ahead atom |-- not_eof >> Token.input_of;
+fun inner_syntax atom = Scan.ahead atom |-- not_eof >> Token.inner_syntax_of;
 
 fun kind k =
   group (fn () => Token.str_of_kind k)
-    (RESET_VALUE (Scan.one (C_Token.is_kind k) >> C_Token.content_of));
+    (RESET_VALUE (Scan.one (Token.is_kind k) >> Token.content_of));
 
 val command = kind Token.Command;
 val short_ident = kind Token.Ident;
@@ -772,19 +777,19 @@ val cartouche = kind Token.Cartouche;
 val eof = kind Token.EOF;
 
 
-fun keyword_with pred = RESET_VALUE (Scan.one (C_Token.keyword_with pred) >> C_Token.content_of);
+fun keyword_with pred = RESET_VALUE (Scan.one (Token.keyword_with pred) >> Token.content_of);
 
 fun keyword_markup markup x =
   group (fn () => Token.str_of_kind Token.Keyword ^ " " ^ quote x)
     (Scan.ahead not_eof -- keyword_with (fn y => x = y))
-  >> (fn (tok, x) => (C_Token.assign (SOME (C_Token.Literal markup)) tok; x));
+  >> (fn (tok, x) => (Token.assign (SOME (Token.Literal markup)) tok; x));
 
 val keyword_improper = keyword_markup (true, Markup.improper);
 val $$$ = keyword_markup (false, Markup.quasi_keyword);
 
 fun reserved x =
   group (fn () => "reserved identifier " ^ quote x)
-    (RESET_VALUE (Scan.one (C_Token.ident_with (fn y => x = y)) >> C_Token.content_of));
+    (RESET_VALUE (Scan.one (Token.ident_with (fn y => x = y)) >> Token.content_of));
 
 
 val nat = number >> (#1 o Library.read_int o Symbol.explode);
