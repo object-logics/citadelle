@@ -240,12 +240,6 @@ val is_stack2 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) => f
 val is_stack3 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) => forall (fn tok => content_of tok = "&") l
                  | _ => false;
 
-val is_modifies_star = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) => String.concat (map content_of l) = "[*]"
-                        | _ => false;
-
-val is_colon = fn Token (_, (Token.Keyword, _), Value (SOME (Source l))) => String.concat (map content_of l) = ":"
-                | _ => false;
-
 fun is_proper (Token (_, (Token.Space, _), _)) = false
   | is_proper (Token (_, (Token.Comment _, _), _)) = false
   | is_proper _ = true;
@@ -506,11 +500,10 @@ fun token' (mk_value, k) ss =
   else
     token k ss;
 
+fun token_t k = token' (true, k)
+
 fun token_range k (pos1, (ss, pos2)) =
   Token (Symbol_Pos.implode_range (pos1, pos2) ss, (k, Symbol_Pos.content ss), Slot);
-
-fun pair_f x = pair (false, x)
-fun pair_t x = pair (true, x)
 
 fun scan_token keywords = !!! "bad input"
   (Symbol_Pos.scan_string_qq err_prefix >> token_range Token.String ||
@@ -520,24 +513,22 @@ fun scan_token keywords = !!! "bad input"
     scan_comment >> token_range (Token.Comment NONE) ||
     Comment.scan >> (fn (k, ss) => token (Token.Comment (SOME k)) ss) ||
     scan_space >> token Token.Space ||
-    (Scan.repeats1 ($$$ "+") >> pair_t Token.Sym_Ident ||
-      Scan.repeats1 ($$$ "@") >> pair_t Token.Sym_Ident ||
-      Scan.repeats1 ($$$ "&") >> pair_t Token.Sym_Ident ||
-      Scan.max token_leq
-        (Scan.max token_leq
-          (Scan.literal (C_Keyword.major_keywords keywords) >> pair_f Token.Command)
-          ($$$ ":" >> pair_t Token.Keyword ||
-           Scan.literal (C_Keyword.minor_keywords keywords) >> pair_f Token.Keyword))
-        (Lexicon.scan_longid >> pair_f Token.Long_Ident ||
-          C_Lex.scan_ident >> pair_f Token.Ident ||
-          Lexicon.scan_id >> pair_f Token.Ident ||
-          Lexicon.scan_var >> pair_f Token.Var ||
-          Lexicon.scan_tid >> pair_f Token.Type_Ident ||
-          Lexicon.scan_tvar >> pair_f Token.Type_Var ||
-          Symbol_Pos.scan_float >> pair_f Token.Float ||
-          Symbol_Pos.scan_nat >> pair_f Token.Nat ||
-          $$$ "[" @@@ $$$ "*" @@@ $$$ "]" >> pair_t Token.Sym_Ident ||
-          scan_symid >> pair_f Token.Sym_Ident)) >> uncurry token');
+    Scan.repeats1 ($$$ "+") >> token_t Token.Sym_Ident ||
+    Scan.repeats1 ($$$ "@") >> token_t Token.Sym_Ident ||
+    Scan.repeats1 ($$$ "&") >> token_t Token.Sym_Ident ||
+    (Scan.max token_leq
+      (Scan.max token_leq
+        (Scan.literal (C_Keyword.major_keywords keywords) >> pair Token.Command)
+        (Scan.literal (C_Keyword.minor_keywords keywords) >> pair Token.Keyword))
+      (Lexicon.scan_longid >> pair Token.Long_Ident ||
+        C_Lex.scan_ident >> pair Token.Ident ||
+        Lexicon.scan_id >> pair Token.Ident ||
+        Lexicon.scan_var >> pair Token.Var ||
+        Lexicon.scan_tid >> pair Token.Type_Ident ||
+        Lexicon.scan_tvar >> pair Token.Type_Var ||
+        Symbol_Pos.scan_float >> pair Token.Float ||
+        Symbol_Pos.scan_nat >> pair Token.Nat ||
+        scan_symid >> pair Token.Sym_Ident)) >> uncurry (token' o pair false));
 
 fun recover msg =
   (Scan.one (Symbol.not_eof o Symbol_Pos.symbol) >> single)
@@ -635,6 +626,7 @@ sig
   type 'a context_parser = Context.generic * T list -> 'a * (Context.generic * T list)
 (**)
   val C_source: Input.source parser
+  val star: string parser
 (**)
   val group: (unit -> string) -> (T list -> 'a) -> T list -> 'a
   val !!! : (T list -> 'a) -> T list -> 'a
@@ -1122,9 +1114,17 @@ val option =
 
 val options = $$$ "[" |-- list1 option --| $$$ "]";
 
-(**)
+
+(** C basic parsers **)
+
+(* embedded source text *)
 
 val C_source = input (group (fn () => "C source") text);
+
+(* AutoCorres (MODIFIES) *)
+
+val star = sym_ident :-- (fn "*" => Scan.succeed () | _ => Scan.fail) >> #1;
+
 end;
 \<close>
 
