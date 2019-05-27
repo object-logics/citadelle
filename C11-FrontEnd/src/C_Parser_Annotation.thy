@@ -917,7 +917,6 @@ val text = group (fn () => "text") (embedded || verbatim);
 (* embedded source text *)
 
 val ML_source = input (group (fn () => "ML source") text);
-val C_source = input (group (fn () => "C source") text);
 
 
 (* terms *)
@@ -958,6 +957,9 @@ val term = group (fn () => "term") (inner_syntax embedded);
 
 
 
+(**)
+
+val C_source = input (group (fn () => "C source") text);
 end;
 \<close>
 
