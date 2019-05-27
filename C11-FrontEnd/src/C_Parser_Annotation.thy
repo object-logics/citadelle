@@ -90,6 +90,9 @@ fun map_keywords f (Keywords {minor, major, commands}) =
 val empty_keywords =
   make_keywords (Scan.empty_lexicon, Scan.empty_lexicon, Symtab.empty);
 
+fun empty_keywords' minor =
+  make_keywords (minor, Scan.empty_lexicon, Symtab.empty);
+
 fun merge_keywords
   (Keywords {minor = minor1, major = major1, commands = commands1},
     Keywords {minor = minor2, major = major2, commands = commands2}) =
@@ -968,7 +971,8 @@ Static theory header information.
 
 structure C_Thy_Header =
 struct
-val bootstrap_keywords = C_Keyword.empty_keywords
+val bootstrap_keywords =
+  C_Keyword.empty_keywords' (Keyword.minor_keywords (Thy_Header.get_keywords @{theory}))
 
 (* theory data *)
 
