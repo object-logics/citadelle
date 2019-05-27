@@ -50,8 +50,20 @@ Isar keyword classification.
 
 structure C_Keyword =
 struct
-val before_command = "before_command";
-val quasi_command = "quasi_command";
+
+(** keyword classification **)
+
+(* kinds *)
+
+
+val command_kinds =
+  [Keyword.diag, Keyword.document_heading, Keyword.document_body, Keyword.document_raw, Keyword.thy_begin, Keyword.thy_end, Keyword.thy_load, Keyword.thy_decl,
+    Keyword.thy_decl_block, Keyword.thy_goal, Keyword.qed, Keyword.qed_script, Keyword.qed_block, Keyword.qed_global, Keyword.prf_goal, Keyword.prf_block,
+    Keyword.next_block, Keyword.prf_open, Keyword.prf_close, Keyword.prf_chain, Keyword.prf_decl, Keyword.prf_asm, Keyword.prf_asm_goal, Keyword.prf_script,
+    Keyword.prf_script_goal, Keyword.prf_script_asm_goal];
+
+
+(* specifications *)
 
 
 type entry =
@@ -62,7 +74,11 @@ type entry =
   tags: string list};
 
 fun check_spec pos ((kind, files), tags) : entry =
-  {pos = pos, id = serial (), kind = kind, files = files, tags = tags};
+  if not (member (op =) command_kinds kind) then
+    error ("Unknown annotation syntax keyword kind " ^ quote kind)
+  else if not (null files) andalso kind <> Keyword.thy_load then
+    error ("Illegal specification of files for " ^ quote kind)
+  else {pos = pos, id = serial (), kind = kind, files = files, tags = tags};
 
 
 (** keyword tables **)
@@ -103,7 +119,7 @@ fun merge_keywords
 
 val add_keywords =
   fold (fn ((name, pos), spec as ((kind, _), _)) => map_keywords (fn (minor, major, commands) =>
-    if kind = "" orelse kind = before_command orelse kind = quasi_command then
+    if kind = "" orelse kind = Keyword.before_command orelse kind = Keyword.quasi_command then
       let
         val minor' = Scan.extend_lexicon (Symbol.explode name) minor;
       in (minor', major, commands) end
@@ -129,7 +145,36 @@ fun command_markup keywords name =
   |> Option.map (fn {pos, id, ...} =>
       Markup.properties (Position.entity_properties_of false id pos)
         (Markup.entity Markup.command_keywordN name));
-end
+
+
+(* command categories *)
+
+fun command_category ks =
+  let
+    val tab = Symtab.make_set ks;
+    fun pred keywords name =
+      (case lookup_command keywords name of
+        NONE => false
+      | SOME {kind, ...} => Symtab.defined tab kind);
+  in pred end;
+
+
+
+
+val is_theory_end = command_category [Keyword.thy_end];
+
+
+
+
+
+
+
+
+val is_proof_asm = command_category [Keyword.prf_asm, Keyword.prf_asm_goal];
+val is_improper = command_category [Keyword.qed_script, Keyword.prf_script, Keyword.prf_script_goal, Keyword.prf_script_asm_goal];
+
+
+end;
 \<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/token.ML\<close>\<close> \<open>
@@ -221,11 +266,39 @@ val is_command = is_kind Token.Command;
 fun keyword_with pred (Token (_, (Token.Keyword, x), _)) = pred x
   | keyword_with _ _ = false;
 
+val is_command_modifier = keyword_with (fn x => x = "private" orelse x = "qualified");
+
 fun ident_with pred (Token (_, (Token.Ident, x), _)) = pred x
   | ident_with _ _ = false;
 
-val is_ident = is_kind Token.Ident;
-val is_sym_ident = is_kind Token.Sym_Ident;
+fun is_ignored (Token (_, (Token.Space, _), _)) = true
+  | is_ignored (Token (_, (Token.Comment NONE, _), _)) = true
+  | is_ignored _ = false;
+
+fun is_proper (Token (_, (Token.Space, _), _)) = false
+  | is_proper (Token (_, (Token.Comment _, _), _)) = false
+  | is_proper _ = true;
+
+fun is_comment (Token (_, (Token.Comment _, _), _)) = true
+  | is_comment _ = false;
+
+fun is_informal_comment (Token (_, (Token.Comment NONE, _), _)) = true
+  | is_informal_comment _ = false;
+
+fun is_formal_comment (Token (_, (Token.Comment (SOME _), _), _)) = true
+  | is_formal_comment _ = false;
+
+fun is_begin_ignore (Token (_, (Token.Comment NONE, "<"), _)) = true
+  | is_begin_ignore _ = false;
+
+fun is_end_ignore (Token (_, (Token.Comment NONE, ">"), _)) = true
+  | is_end_ignore _ = false;
+
+fun is_error (Token (_, (Token.Error _, _), _)) = true
+  | is_error _ = false;
+
+fun is_error' (Token (_, (Token.Error msg, _), _)) = SOME msg
+  | is_error' _ = NONE;
 
 fun content_of (Token (_, (_, x), _)) = x;
 fun content_of' (Token (_, (_, _), Value (SOME (Source l)))) = map (fn Token ((_, (pos, _)), (_, x), _) => (x, pos)) l
@@ -240,17 +313,17 @@ val is_stack2 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) => f
 val is_stack3 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) => forall (fn tok => content_of tok = "&") l
                  | _ => false;
 
-fun is_proper (Token (_, (Token.Space, _), _)) = false
-  | is_proper (Token (_, (Token.Comment _, _), _)) = false
-  | is_proper _ = true;
-
-val is_improper = not o is_proper;
-
-fun is_error' (Token (_, (Token.Error msg, _), _)) = SOME msg
-  | is_error' _ = NONE;
 
 (* blanks and newlines -- space tokens obey lines *)
 
+fun is_space (Token (_, (Space, _), _)) = true
+  | is_space _ = false;
+
+fun is_blank (Token (_, (Space, x), _)) = not (String.isSuffix "\n" x)
+  | is_blank _ = false;
+
+fun is_newline (Token (_, (Space, x), _)) = String.isSuffix "\n" x
+  | is_newline _ = false;
 
 
 (* token content *)
@@ -283,8 +356,12 @@ val token_kind_markup =
 
 fun keyword_reports tok = map (fn markup => ((pos_of tok, markup), ""));
 
-fun command_markups _ _ =
-    [Markup.keyword1]
+fun command_markups keywords x =
+  if C_Keyword.is_theory_end keywords x then [Markup.keyword2 |> Markup.keyword_properties]
+  else
+    (if C_Keyword.is_proof_asm keywords x then [Markup.keyword3]
+     else if C_Keyword.is_improper keywords x then [Markup.keyword1, Markup.improper]
+     else [Markup.keyword1])
     |> map Markup.command_properties;
 
 in
@@ -332,7 +409,7 @@ fun unparse (Token (_, (kind, x), _)) =
 fun text_of tok =
   let
     val k = Token.str_of_kind (kind_of tok);
-    val ms = markups Keyword.empty_keywords tok;
+    val ms = markups C_Keyword.empty_keywords tok;
     val s = unparse tok;
   in
     if s = "" then (k, "")
@@ -347,6 +424,12 @@ fun text_of tok =
 
 (* inlined file content *)
 
+fun get_files (Token (_, _, Value (SOME (Files files)))) = files
+  | get_files _ = [];
+
+fun put_files [] tok = tok
+  | put_files files (Token (x, y, Slot)) = Token (x, y, Value (SOME (Files files)))
+  | put_files _ tok = raise Fail ("Cannot put inlined files here" ^ Position.here (pos_of tok));
 
 
 (* access values *)
@@ -482,9 +565,6 @@ val scan_comment =
 
 (** token sources **)
 
-fun source_proper src = src |> Source.filter is_proper;
-fun source_improper src = src |> Source.filter is_improper;
-
 local
 
 fun token_leq ((_, syms1), (_, syms2)) = length syms1 <= length syms2;
@@ -531,7 +611,12 @@ fun scan_token keywords = !!! "bad input"
         scan_symid >> pair Token.Sym_Ident)) >> uncurry (token' o pair false));
 
 fun recover msg =
-  (Scan.one (Symbol.not_eof o Symbol_Pos.symbol) >> single)
+  (Symbol_Pos.recover_string_qq ||
+    Symbol_Pos.recover_string_bq ||
+    recover_verbatim ||
+    Symbol_Pos.recover_cartouche ||
+    Symbol_Pos.recover_comment ||
+    Scan.one (Symbol.not_eof o Symbol_Pos.symbol) >> single)
   >> (single o token (Token.Error msg));
 
 in
@@ -577,13 +662,13 @@ type 'a context_parser = Context.generic * T list -> 'a * (Context.generic * T l
 fun read_with_commands'0 keywords syms =
   Source.of_list syms
   |> make_source keywords {strict = false}
-  |> source_improper
+  |> Source.filter (not o is_proper)
   |> Source.exhaust
 
 fun read_with_commands' keywords scan syms =
   Source.of_list syms
   |> make_source keywords {strict = false}
-  |> source_proper
+  |> Source.filter is_proper
   |> Source.source
        stopper
        (Scan.recover

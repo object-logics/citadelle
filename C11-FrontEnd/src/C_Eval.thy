@@ -457,7 +457,7 @@ fun eval env err accept ants {context, reports_text} =
                                      @ maps (fn Left (_, _, _, [(C_Transition.Antiq_none _, _)]) => []
                                               | Left (_, _, l, ls) =>
                                                   maps (fn (C_Transition.Antiq_stack (pos, _), _) => pos | _ => []) ls
-                                                  @ maps (maps (C_Token.reports ())) (l :: map #2 ls)
+                                                  @ maps (maps (C_Token.reports (C_Thy_Header.get_keywords (Context.theory_of context)))) (l :: map #2 ls)
                                               | _ => [])
                                             ants);
       val _ = C_Lex.check ants_none;
