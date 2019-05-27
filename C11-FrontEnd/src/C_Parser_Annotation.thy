@@ -1072,6 +1072,12 @@ fun add_command name cmd thy =
           (command_pos cmd) (command_markup true (name, cmd));
     in Data.map (Symtab.update (name, cmd)) thy end;
 
+fun delete_command (name, pos) thy =
+    let
+      val _ =
+        C_Keyword.is_command (C_Thy_Header.get_keywords thy) name orelse
+          err_command "Undeclared outer syntax command " name [pos];
+    in Data.map (Symtab.delete name) thy end;
 
 
 (* implicit theory setup *)
