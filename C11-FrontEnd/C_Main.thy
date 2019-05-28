@@ -34,7 +34,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+(*<*)
 theory C_Main
   imports "src/C_Command"
 begin
 end
+(*>*)
