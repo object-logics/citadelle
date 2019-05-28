@@ -84,14 +84,14 @@ val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/symbol.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/symbol.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/symbol.ML
     Author:     Makarius
 
 Generalized characters with infinitely many named symbols.
 *)
-
+\<open>
 structure C_Symbol =
 struct
 fun is_ascii_quasi "_" = true
@@ -126,14 +126,14 @@ type reports_text = Position.report_text list
 end
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/symbol_pos.ML\<close>\<close>\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/symbol_pos.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/symbol_pos.ML
     Author:     Makarius
 
 Symbols with explicit position information.
 *)
-
+\<open>
 structure C_Symbol_Pos =
 struct
 val !!! = C_Scan.!!!
@@ -231,14 +231,14 @@ end
 end
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/antiquote.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/antiquote.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/General/antiquote.ML
     Author:     Makarius
 
 Antiquotations within plain text.
 *)
-
+\<open>
 structure C_Antiquote =
 struct
 
@@ -355,14 +355,14 @@ end;
 end;
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_options.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_options.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/ML/ml_options.ML
     Author:     Makarius
 
 ML configuration options.
 *)
-
+\<open>
 structure C_Options =
 struct
 
@@ -376,14 +376,14 @@ val propagate_env = Attrib.setup_config_bool @{binding C_propagate_env} (fn _ =>
 end
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_lex.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_lex.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/ML/ml_lex.ML
     Author:     Makarius
 
 Lexical syntax for Isabelle/ML and Standard ML.
 *)
-
+\<open>
 structure C_Lex =
 struct
 

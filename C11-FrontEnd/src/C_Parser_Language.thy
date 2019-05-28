@@ -40,7 +40,28 @@ begin
 
 section \<open>Instantiation of the Parser with the Lexer\<close>
 
-ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close>
+(*
+ * Modified by Frédéric Tuong, Université Paris-Saclay
+ *
+ *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+ *
+ * Language.C
+ * https://hackage.haskell.org/package/language-c
+ *
+ * Copyright (c) 1999-2017 Manuel M T Chakravarty
+ *                         Duncan Coutts
+ *                         Benedikt Huber
+ * Portions Copyright (c) 1989,1990 James A. Roskind
+ *
+ *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+ *
+ * Language.C.Comments
+ * https://hackage.haskell.org/package/language-c-comments
+ *
+ * Copyright (c) 2010-2014 Geoff Hulette
+ *)
+\<open>
 signature C_GRAMMAR_RULE_LIB =
 sig
   type arg = C_Env.T
@@ -186,26 +207,6 @@ end
 
 structure C_Grammar_Rule_Lib : C_GRAMMAR_RULE_LIB =
 struct
-(*
- * Modified by Frédéric Tuong, Université Paris-Saclay
- *
- *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
- *
- * Language.C
- * https://hackage.haskell.org/package/language-c
- *
- * Copyright (c) 1999-2017 Manuel M T Chakravarty
- *                         Duncan Coutts
- *                         Benedikt Huber
- * Portions Copyright (c) 1989,1990 James A. Roskind
- *
- *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
- *
- * Language.C.Comments
- * https://hackage.haskell.org/package/language-c-comments
- *
- * Copyright (c) 2010-2014 Geoff Hulette
- *)
   open C_Ast
   type arg = C_Env.T
   type 'a monad = arg -> 'a * arg

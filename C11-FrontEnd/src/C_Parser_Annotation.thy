@@ -40,14 +40,14 @@ begin
 
 section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/keyword.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/keyword.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Isar/keyword.ML
     Author:     Makarius
 
 Isar keyword classification.
 *)
-
+\<open>
 structure C_Keyword =
 struct
 
@@ -186,14 +186,14 @@ val is_improper = command_category [Keyword.qed_script, Keyword.prf_script, Keyw
 end;
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/token.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/token.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Isar/token.ML
     Author:     Markus Wenzel, TU Muenchen
 
 Outer token syntax for Isabelle/Isar.
 *)
-
+\<open>
 structure C_Token =
 struct
 
@@ -704,14 +704,14 @@ type 'a c_parser = 'a C_Token.parser;
 type 'a c_context_parser = 'a C_Token.context_parser;
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/parse.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/parse.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Isar/parse.ML
     Author:     Markus Wenzel, TU Muenchen
 
 Generic parsers for Isabelle/Isar outer syntax.
 *)
-
+\<open>
 signature C_PARSE =
 sig
   type T
@@ -1238,14 +1238,14 @@ val star = sym_ident :-- (fn "*" => Scan.succeed () | _ => Scan.fail) >> #1;
 end;
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_header.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_header.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Thy/thy_header.ML
     Author:     Makarius
 
 Static theory header information.
 *)
-
+\<open>
 structure C_Thy_Header =
 struct
 val bootstrap_keywords =
@@ -1269,14 +1269,14 @@ val get_keywords' = get_keywords o Proof_Context.theory_of;
 end
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/outer_syntax.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/outer_syntax.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Isar/outer_syntax.ML
     Author:     Markus Wenzel, TU Muenchen
 
 Isabelle/Isar outer syntax.
 *)
-
+\<open>
 structure C_Annotation  =
 struct
 
@@ -1411,14 +1411,14 @@ fun parse_command thy =
 end
 \<close>
 
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/PIDE/resources.ML\<close>\<close> \<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/PIDE/resources.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/PIDE/resources.ML
     Author:     Makarius
 
 Resources for theories and auxiliary files.
 *)
-
+\<open>
 structure C_Resources =
 struct
 (* load files *)
