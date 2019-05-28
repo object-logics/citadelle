@@ -42,6 +42,9 @@ begin
 open_monitor*[this::article] 
 declare[[strict_monitor_checking=false]]
 (*>*)
+
+section \<open>Introduction\<close>
+
 (*
 title*[tit::title]\<open>Deeply Integrating C11-Code Support into Isabelle/PIDE\<close> 
 text*

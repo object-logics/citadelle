@@ -34,13 +34,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+chapter \<open>Isabelle/C\<close>
+
+section \<open>Definition of the Abstract Syntax Tree (from the Haskell Language.C project)\<close>
+
 theory C_Ast
   imports "../C_Intro"
 begin
 
-section \<open>Importing the AST of Haskell Language.C\<close>
-
-subsection \<open>Generation\<close>
+subsection \<open>Loading of the Generated AST\<close>
 
 text \<open>
 The abstract syntax tree of the C language considered here originally comes from the Haskell
@@ -66,7 +68,7 @@ struct
 end
 \<close>
 
-subsection \<open>Haskell Library\<close>
+subsection \<open>Basic Aliases and Initialization of the Haskell Library\<close>
 
 ML \<comment> \<open>\<^file>\<open>../generated/c_ast.ML\<close>\<close> \<open>
 structure C_Ast =

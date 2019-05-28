@@ -34,12 +34,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+section \<open>Evaluation Context\<close>
+
 theory C_Eval
   imports C_Parser_Language
           C_Parser_Annotation
 begin
 
-section \<open>\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>C.C_Parser_Language\<close>\<close>
+subsection \<open>Evaluation Engine for the Core Language\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>C.C_Parser_Language\<close>\<close>
 
 text\<open>The parser consists of a generic module @{file "../copied_from_git/mlton/lib/mlyacc-lib/base.sig"}, 
 which interprets a automata-like format generated from smlyacc.\<close>
@@ -317,7 +319,7 @@ fun eval env_lang err accept stream_lang =
 end
 \<close>
 
-section \<open>\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>C.C_Parser_Language\<close>, \<^theory>\<open>C.C_Parser_Annotation\<close>\<close>
+subsection \<open>Full Evaluation Engine (Core Language + Annotation)\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>C.C_Parser_Language\<close>, \<^theory>\<open>C.C_Parser_Annotation\<close>\<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_context.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)

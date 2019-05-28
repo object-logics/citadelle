@@ -34,11 +34,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+section \<open>Parsing Support for the Annotation Language (Generic Annotation Format)\<close>
+
 theory C_Parser_Annotation
   imports C_Environment
 begin
-
-section \<open>The Construction of an C-Context (analogously to the standard ML context)\<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/keyword.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)

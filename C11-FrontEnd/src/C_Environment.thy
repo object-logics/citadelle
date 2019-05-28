@@ -34,11 +34,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+section \<open>Parsing Environment\<close>
+
 theory C_Environment
   imports C_Lexer
 begin
 
-section \<open>The C Annotation Result Interface\<close>
+subsection \<open>Types Characterizing Command Actions (Outer and Inner Commands)\<close>
 
 text\<open>The key element of this following structure is the type \verb+eval_time+ which is relevant for
 the generic annotation module. \<close>
@@ -73,7 +75,7 @@ end;
 
 \<close>
 
-section \<open>The Lexing-based C Environment\<close>
+subsection \<open>Definition of the Environment\<close>
 
 text\<open>It comes in two parts: a basic core tstructure and a (thin) layer of utilities. \<close>
 

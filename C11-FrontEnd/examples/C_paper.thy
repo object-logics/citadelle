@@ -34,6 +34,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+chapter \<open>Example\<close>
+
 theory C_paper
   imports C.C_Main
 begin

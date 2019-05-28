@@ -34,6 +34,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+section \<open>Lexer Interface\<close>
+
 theory C_Lexer
   imports C_Ast
 begin

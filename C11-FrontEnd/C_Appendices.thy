@@ -34,6 +34,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+chapter \<open>Appendices\<close>
+
 (*<*)
 theory C_Appendices
   imports C_examples.C1
@@ -91,7 +93,7 @@ static generation was undertaken. In more detail:
 
 \<close>
 
-section \<open>Case study: mapping on the parsed AST\<close>
+section \<open>Case Study: Mapping on the Parsed AST\<close>
 
 text \<open> In this section, we give a concrete example of a situation where one is interested to
 do some automated transformations on the parsed AST, such as changing the type of every encountered
@@ -294,9 +296,9 @@ interest.
 \<close> 
 
 
-section \<open>Outer Syntax Commands for Isabelle/C\<close>
+section \<open>Syntax Commands for Isabelle/C\<close>
 
-section \<open>Incorporating C code\<close>
+subsection \<open>Outer Syntax Commands\<close>
 
 text \<open>
   \begin{matharray}{rcl}
@@ -382,14 +384,15 @@ text \<open>
   the previous C command if existing.
 \<close>
 
-section \<open>Inner Annotation Commands for Isabelle/C\<close>
+subsection \<open>Inner Syntax Commands\<close>
 
-section \<open>A Guide to Writing Semantic Back-Ends for Isabelle/C\<close>
-subsection\<open>General Principles\<close>
+section \<open>A Guide to Implement Semantic Back-Ends for Isabelle/C\<close>
 
-subsection\<open>Example: CLEAN\<close>
+subsection \<open>General Principles\<close>
 
-subsection\<open>Example: AutoCorres\<close>
+subsection \<open>Example: CLEAN\<close>
+
+subsection \<open>Example: AutoCorres\<close>
 
 (*<*)
 end

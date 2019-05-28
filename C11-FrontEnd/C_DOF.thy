@@ -35,6 +35,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+section \<open>Simulating Isabelle/DOF\<close>
+
 theory C_DOF
   imports Main
   keywords "+=" ":=" "accepts" "rejects"

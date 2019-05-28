@@ -34,6 +34,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
+section \<open>Command Interface Definition\<close>
+
 theory C_Command
   imports C_Eval
   keywords "C" :: thy_decl % "ML"
@@ -43,7 +45,7 @@ theory C_Command
        and "C_val" "C_export_file" :: diag % "ML"
 begin
 
-section \<open>The Global C11-Module State\<close>
+subsection \<open>Main Module Interface of Commands\<close>
 
 ML \<comment> \<open>\<^theory>\<open>C.C_Eval\<close>\<close> \<open>
 structure C_Module =
@@ -127,7 +129,9 @@ fun C_export_file context =
 end
 \<close>
 
-section \<open>Definitions of Inner Directive Commands\<close>
+subsection \<open>Definitions of Inner Directive Commands\<close>
+
+subsubsection \<open>Initialization\<close>
 
 ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
@@ -172,8 +176,8 @@ val _ =
 in end
 \<close>
 
-section \<open>Definitions of Inner Annotation Commands\<close>
-subsection \<open>\<close>
+subsection \<open>Definitions of Inner Annotation Commands\<close>
+subsubsection \<open>Library\<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/toplevel.ML\<close>\<close> \<open>
 structure C_Inner_Toplevel =
@@ -254,7 +258,7 @@ fun command files gthy =
 end;
 \<close>
 
-subsection \<open>\<close>
+subsubsection \<open>Initialization\<close>
 
 ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
@@ -283,8 +287,8 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
 in end
 \<close>
 
-section \<open>Definitions of Outer Commands\<close>
-subsection \<open>\<close>
+subsection \<open>Definitions of Outer Commands\<close>
+subsubsection \<open>Library\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Pure.thy
     Author:     Makarius
@@ -357,7 +361,7 @@ fun command files gthy =
 end;
 \<close>
 
-subsection \<open>Reading and Writing C-Files\<close>
+subsubsection \<open>Initialization\<close>
 
 ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
