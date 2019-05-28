@@ -41,7 +41,15 @@ begin
 
 section \<open>\<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/args.ML\<close>\<close>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
+(*  Title:      Pure/Isar/args.ML
+    Author:     Markus Wenzel, TU Muenchen
+
+Quasi-inner syntax based on outer tokens: concrete argument syntax of
+attributes, methods etc.
+*)
+\<open>
 structure Args' =
 struct
 val var =
@@ -50,14 +58,14 @@ val var =
 end
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Tools/rule_insts.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Tools/rule_insts.ML
     Author:     Makarius
 
 Rule instantiations -- operations within implicit rule / subgoal context.
 *)
-
+\<open>
 structure Rule_Insts' =
 struct
 
@@ -359,7 +367,7 @@ val _ = Theory.setup
 end;
 \<close>
 
-ML\<open>
+ML \<comment> \<open>\<^file>\<open>~~/src/HOL/Eisbach/eisbach_rule_insts.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      HOL/Eisbach/eisbach_rule_insts.ML
     Author:     Daniel Matichuk, NICTA/UNSW
@@ -371,7 +379,7 @@ examining the behaviour of Rule_Insts.where_rule and instantiating token
 values accordingly. Instantiations in re-interpretation are done with
 infer_instantiate.
 *)
-
+\<open>
 structure Eisbach_Rule_Insts' =
 struct
 
@@ -598,7 +606,7 @@ end;
 
 section \<open>User Defined Commands in the Semantic Verification Space\<close>
 
-ML\<open>
+ML \<comment> \<open>\<^theory>\<open>C.C_Command\<close>\<close> \<open>
 local
 type text_range = Symbol_Pos.text * Position.T
 
