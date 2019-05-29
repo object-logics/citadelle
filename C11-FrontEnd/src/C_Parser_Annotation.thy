@@ -134,6 +134,7 @@ val add_keywords =
 (* keyword status *)
 
 fun is_command (Keywords {commands, ...}) = Symtab.defined commands;
+fun dest_commands (Keywords {commands, ...}) = Symtab.keys commands;
 
 
 (* command keywords *)
@@ -1408,6 +1409,47 @@ fun parse_command thy =
               val msg = "undefined command ";
             in msg ^ quote (Markup.markup Markup.keyword1 name) end)
     end)
+
+(* parse spans *)
+
+
+
+(* check commands *)
+
+fun command_reports thy tok =
+  if C_Token.is_command tok then
+    let val name = C_Token.content_of tok in
+      (case lookup_commands thy name of
+        NONE => []
+      | SOME cmd => [((C_Token.pos_of tok, command_markup false (name, cmd)), "")])
+    end
+  else [];
+
+fun check_command ctxt (name, pos) =
+  let
+    val thy = Proof_Context.theory_of ctxt;
+    val keywords = C_Thy_Header.get_keywords thy;
+  in
+    if C_Keyword.is_command keywords name then
+      let
+        val markup =
+          C_Token.explode0 keywords name
+          |> maps (command_reports thy)
+          |> map (#2 o #1);
+        val _ = Context_Position.reports ctxt (map (pair pos) markup);
+      in name end
+    else
+      let
+        val completion =
+          Completion.make (name, pos)
+            (fn completed =>
+              C_Keyword.dest_commands keywords
+              |> filter completed
+              |> sort_strings
+              |> map (fn a => (a, (Markup.commandN, a))));
+        val report = Markup.markup_report (Completion.reported_text completion);
+      in error ("Bad command " ^ quote name ^ Position.here pos ^ report) end
+  end;
 end
 \<close>
 
