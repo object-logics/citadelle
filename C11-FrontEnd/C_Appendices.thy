@@ -42,6 +42,90 @@ theory C_Appendices
           C_Conclusion
           "~~/src/Doc/Isar_Ref/Base"
 begin
+
+ML \<comment> \<open>\<^file>\<open>~~/src/Doc/antiquote_setup.ML\<close>\<close>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
+(*  Title:      Doc/antiquote_setup.ML
+    Author:     Makarius
+
+Auxiliary antiquotations for the Isabelle manuals.
+*)
+\<open>
+structure C_Antiquote_Setup =
+struct
+
+(* misc utils *)
+
+fun translate f = Symbol.explode #> map f #> implode;
+
+val clean_string = translate
+  (fn "_" => "\\_"
+    | "#" => "\\#"
+    | "$" => "\\$"
+    | "%" => "\\%"
+    | "<" => "$<$"
+    | ">" => "$>$"
+    | "{" => "\\{"
+    | "|" => "$\\mid$"
+    | "}" => "\\}"
+    | "\<hyphen>" => "-"
+    | c => c);
+
+fun clean_name "\<dots>" = "dots"
+  | clean_name ".." = "ddot"
+  | clean_name "." = "dot"
+  | clean_name "_" = "underscore"
+  | clean_name "{" = "braceleft"
+  | clean_name "}" = "braceright"
+  | clean_name s = s |> translate (fn "_" => "-" | "\<hyphen>" => "-" | c => c);
+
+
+(* Isabelle/Isar entities (with index) *)
+
+local
+
+val arg = enclose "{" "}" o clean_string;
+
+fun entity check markup binding index =
+  Thy_Output.antiquotation_raw
+    (binding |> Binding.map_name (fn name => name ^
+      (case index of NONE => "" | SOME true => "_def" | SOME false => "_ref")))
+    (Scan.lift (Scan.optional (Args.parens Args.name) "" -- Parse.position Args.name))
+    (fn ctxt => fn (logic, (name, pos)) =>
+      let
+        val kind = translate (fn "_" => " " | c => c) (Binding.name_of binding);
+        val hyper_name =
+          "{" ^ Long_Name.append kind (Long_Name.append logic (clean_name name)) ^ "}";
+        val hyper =
+          enclose ("\\hyperlink" ^ hyper_name ^ "{") "}" #>
+          index = SOME true ? enclose ("\\hypertarget" ^ hyper_name ^ "{") "}";
+        val idx =
+          (case index of
+            NONE => ""
+          | SOME is_def =>
+              "\\index" ^ (if is_def then "def" else "ref") ^ arg logic ^ arg kind ^ arg name);
+        val _ =
+          if Context_Position.is_reported ctxt pos then ignore (check ctxt (name, pos)) else ();
+        val latex =
+          idx ^
+          (Output.output name
+            |> (if markup = "" then I else enclose ("\\" ^ markup ^ "{") "}")
+            |> hyper o enclose "\\mbox{\\isa{" "}}");
+      in Latex.string latex end);
+
+fun entity_antiqs check markup kind =
+  entity check markup kind NONE #>
+  entity check markup kind (SOME true) #>
+  entity check markup kind (SOME false);
+
+in
+
+
+end;
+
+end;
+
+\<close>
 (*>*)
 
 section \<open>Architecture of Isabelle/C\<close>

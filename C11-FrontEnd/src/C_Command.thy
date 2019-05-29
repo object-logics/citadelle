@@ -255,6 +255,24 @@ fun command_c ({lines, pos, ...}: Token.file) =
 fun C files gthy =
   command_c (hd (files (Context.theory_of gthy))) gthy;
 
+fun command_ml SML debug files gthy =
+  let
+    val {lines, pos, ...}: Token.file = hd (files (Context.theory_of gthy));
+    val source = Input.source true (cat_lines lines) (pos, pos);
+
+    val _ = Thy_Output.check_comments (Context.proof_of gthy) (Input.source_explode source);
+
+    val flags =
+      {SML = SML, exchange = false, redirect = true, verbose = true,
+        debug = debug, writeln = writeln, warning = warning};
+  in
+    gthy
+    |> ML_Context.exec (fn () => ML_Context.eval_source flags source)
+    |> Local_Theory.propagate_ml_env
+  end;
+
+val ML = command_ml false;
+val SML = command_ml true;
 end;
 \<close>
 

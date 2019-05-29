@@ -36,7 +36,7 @@
 
 (*<*)
 theory C_Main
-  imports "src/C_Command"
+  imports "src/C_Document"
 begin
 end
 (*>*)
