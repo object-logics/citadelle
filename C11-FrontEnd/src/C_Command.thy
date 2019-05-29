@@ -249,11 +249,11 @@ ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_file.ML\<close>\<close> \<
 structure C_Inner_File =
 struct
 
-fun command0 ({lines, pos, ...}: Token.file) =
+fun command_c ({lines, pos, ...}: Token.file) =
   C_Module.C (Input.source true (cat_lines lines) (pos, pos));
 
-fun command files gthy =
-  command0 (hd (files (Context.theory_of gthy))) gthy;
+fun C files gthy =
+  command_c (hd (files (Context.theory_of gthy))) gthy;
 
 end;
 \<close>
@@ -278,8 +278,8 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Transition.Top_down ("ML\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Bottom_up ("C", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Top_down ("C\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.command) Keyword.thy_load (C_Resources.parse_files "C_file" --| semi) C_Transition.Bottom_up ("C_file", \<^here>)
-                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.command) Keyword.thy_load (C_Resources.parse_files "C_file\<Down>" --| semi) C_Transition.Top_down ("C_file\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C) Keyword.thy_load (C_Resources.parse_files "C_file" --| semi) C_Transition.Bottom_up ("C_file", \<^here>)
+                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C) Keyword.thy_load (C_Resources.parse_files "C_file\<Down>" --| semi) C_Transition.Top_down ("C_file\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Transition.Bottom_up ("C_export_boot", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Transition.Top_down ("C_export_boot\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0_no_range (C_Inner_Toplevel.generic_theory o tap C_Module.C_export_file) C_Transition.Bottom_up ("C_export_file", \<^here>)
@@ -347,7 +347,7 @@ ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_file.ML\<close>\<close> \<
 structure C_Outer_File =
 struct
 
-fun command0 ({src_path, lines, digest, pos}: Token.file) =
+fun command_c ({src_path, lines, digest, pos}: Token.file) =
   let
     val provide = Resources.provide (src_path, digest);
   in I
@@ -355,8 +355,8 @@ fun command0 ({src_path, lines, digest, pos}: Token.file) =
     #> Context.mapping provide (Local_Theory.background_theory provide)
   end;
 
-fun command files gthy =
-  command0 (hd (files (Context.theory_of gthy))) gthy;
+fun C files gthy =
+  command_c (hd (files (Context.theory_of gthy))) gthy;
 
 end;
 \<close>
@@ -370,7 +370,7 @@ val semi = Scan.option \<^keyword>\<open>;\<close>;
 
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C_file\<close> "read and evaluate Isabelle/C file"
-    (Resources.parse_files "C_file" --| semi >> (Toplevel.generic_theory o C_Outer_File.command));
+    (Resources.parse_files "C_file" --| semi >> (Toplevel.generic_theory o C_Outer_File.C));
 
 val _ =
   Outer_Syntax.command \<^command_keyword>\<open>C_export_boot\<close>
