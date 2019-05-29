@@ -206,8 +206,8 @@ parsing part (\<^theory>\<open>C.C_Parser_Language\<close>).
 This is why in the remaining part, we will at least assume a mandatory familiarity with Happy (e.g.,
 the reading of ML-Yacc's manual can happen later if wished
 \<^footnote>\<open>\<^url>\<open>https://www.cs.princeton.edu/~appel/modern/ml/ml-yacc/manual.html\<close>\<close>). In
-particular, we will use \<^emph>\<open>rule code\<close> to designate \<^emph>\<open>a Haskell
-expression enclosed in braces\<close>
+particular, we will use the term \<^emph>\<open>rule code\<close> to designate \<^emph>\<open>a
+Haskell expression enclosed in braces\<close>
 \<^footnote>\<open>\<^url>\<open>https://www.haskell.org/happy/doc/html/sec-grammar.html\<close>\<close>.
 \<close>
 
@@ -472,6 +472,53 @@ text \<open>
 \<close>
 
 subsection \<open>Inner Syntax Commands\<close>
+
+text \<open>
+  @{rail \<open>
+    (@@{annotation ML_file} | @@{annotation "ML_file\<Down>"} |
+      @@{annotation C_file} | @@{annotation "C_file\<Down>"}) @{syntax name} ';'?
+    ;
+    (@@{annotation ML} | @@{annotation "ML\<Down>"} |
+      @@{annotation setup} | @@{annotation "setup\<Down>"} |
+      @@{annotation "\<approx>setup"} | @@{annotation "\<approx>setup\<Down>"} |
+      @@{annotation C} | @@{annotation "C\<Down>"} |
+      @@{annotation C_export_boot} | @@{annotation "C_export_boot\<Down>"} |
+      @@{annotation C_export_file} | @@{annotation "C_export_file\<Down>"}) @{syntax text}
+    ;
+  \<close>}
+
+  \<^descr> \<^C_theory_text>\<open>ML_file\<close>, \<^C_theory_text>\<open>C_file\<close>,
+  \<^C_theory_text>\<open>ML\<close>, \<^C_theory_text>\<open>setup\<close>,
+  \<^C_theory_text>\<open>C\<close>, \<^C_theory_text>\<open>C_export_boot\<close>, and
+  \<^C_theory_text>\<open>C_export_file\<close> behave similarly as the respective outer commands
+  \<^theory_text>\<open>ML_file\<close>, \<^theory_text>\<open>C_file\<close>,
+  \<^theory_text>\<open>ML\<close>, \<^theory_text>\<open>setup\<close>,
+  \<^theory_text>\<open>C\<close>, \<^theory_text>\<open>C_export_boot\<close>,
+  \<^theory_text>\<open>C_export_file\<close>.
+
+  \<^descr> \<^C_theory_text>\<open>\<approx>setup \<open>f'\<close>\<close> has the same semantics
+  as \<^C_theory_text>\<open>setup \<open>f\<close>\<close> whenever \<^term>\<open>\<And> stack top
+  env. f' stack top env = f\<close>. In particular, depending on where the annotation
+  \<^C_theory_text>\<open>\<approx>setup \<open>f'\<close>\<close> is located in the C code, the
+  additional values \<open>stack\<close>, \<open>top\<close> and \<open>env\<close> can drastically
+  vary, and then can be possibly used in the body of \<open>f'\<close> for implementing new
+  interactive features (e.g., in contrast to \<open>f\<close>, which by default does not have the
+  possibility to directly use the information provided by \<open>stack\<close>, \<open>top\<close>
+  and \<open>env\<close>).
+
+  \<^descr> \<^C_theory_text>\<open>ML_file\<Down>\<close>,
+  \<^C_theory_text>\<open>C_file\<Down>\<close>, \<^C_theory_text>\<open>ML\<Down>\<close>,
+  \<^C_theory_text>\<open>setup\<Down>\<close>,
+  \<^C_theory_text>\<open>\<approx>setup\<Down>\<close>, \<^C_theory_text>\<open>C\<Down>\<close>,
+  \<^C_theory_text>\<open>C_export_boot\<Down>\<close>, and
+  \<^C_theory_text>\<open>C_export_file\<Down>\<close>
+  behave similarly as the respective (above inner) commands
+  \<^C_theory_text>\<open>ML_file\<close>, \<^C_theory_text>\<open>C_file\<close>,
+  \<^C_theory_text>\<open>ML\<close>, \<^C_theory_text>\<open>setup\<close>,
+  \<^C_theory_text>\<open>\<approx>setup\<close>, \<^C_theory_text>\<open>C\<close>,
+  \<^C_theory_text>\<open>C_export_boot\<close>, and \<^C_theory_text>\<open>C_export_file\<close>
+  except that their evaluations happen later.
+\<close>
 
 section \<open>A Guide to Implement Semantic Back-Ends for Isabelle/C\<close>
 
