@@ -140,13 +140,13 @@ in
 fun output_token ctxt tok =
   let
     fun output antiq bg en =
-      output_body ctxt antiq bg en (Input.source_explode (Token.input_of tok));
+      output_body ctxt antiq bg en (Input.source_explode (C_Token.input_of tok));
   in
-    (case Token.kind_of tok of
+    (case C_Token.kind_of tok of
       Token.Comment NONE => []
     | Token.Command => output false "\\isacommand{" "}"
     | Token.Keyword =>
-        if Symbol.is_ascii_identifier (Token.content_of tok)
+        if Symbol.is_ascii_identifier (C_Token.content_of tok)
         then output false "\\isakeyword{" "}"
         else output false "" ""
     | Token.String => output false "{\\isachardoublequoteopen}" "{\\isachardoublequoteclose}"
@@ -154,7 +154,7 @@ fun output_token ctxt tok =
     | Token.Verbatim => output true "{\\isacharverbatimopen}" "{\\isacharverbatimclose}"
     | Token.Cartouche => output false "{\\isacartoucheopen}" "{\\isacartoucheclose}"
     | _ => output false "" "")
-  end handle ERROR msg => error (msg ^ Position.here (Token.pos_of tok));
+  end handle ERROR msg => error (msg ^ Position.here (C_Token.pos_of tok));
 
 
 end;
@@ -184,21 +184,21 @@ fun prepare_text ctxt =
   Input.source_content #> Document_Antiquotation.prepare_lines ctxt;
 
 val theory_text_antiquotation =
-  Thy_Output.antiquotation_raw \<^binding>\<open>theory_text\<close> (Scan.lift Args.text_input)
+  Thy_Output.antiquotation_raw \<^binding>\<open>C_theory_text\<close> (Scan.lift Args.text_input)
     (fn ctxt => fn text =>
       let
-        val keywords = Thy_Header.get_keywords' ctxt;
+        val keywords = C_Thy_Header.get_keywords' ctxt;
 
         val _ = report_text ctxt text;
         val _ =
           Input.source_explode text
-          |> Token.tokenize keywords {strict = true}
-          |> maps (Token.reports keywords)
+          |> C_Token.tokenize keywords {strict = true}
+          |> maps (C_Token.reports keywords)
           |> Context_Position.reports_text ctxt;
       in
         prepare_text ctxt text
-        |> Token.explode0 keywords
-        |> maps (Thy_Output.output_token ctxt)
+        |> C_Token.explode0 keywords
+        |> maps (C_Thy_Output.output_token ctxt)
         |> Thy_Output.isabelle ctxt
       end);
 
@@ -209,21 +209,24 @@ val _ =
 
 end;
 
-(* ML text *)
+(* C text *)
 
 local
 
-fun ml_text name ml =
+fun c_text name c =
   Thy_Output.antiquotation_verbatim name (Scan.lift Args.text_input)
     (fn ctxt => fn text =>
-      let val _ = ML_Context.eval_in (SOME ctxt) ML_Compiler.flags (Input.pos_of text) (ml text)
+      let val _ = C_Module.eval_in (SOME ctxt) (c text)
       in Input.source_content text end);
 
-fun ml_enclose bg en source =
-  ML_Lex.read bg @ ML_Lex.read_source false source @ ML_Lex.read en;
+fun c_enclose bg en source =
+  C_Lex.read bg @ C_Lex.read_source source @ C_Lex.read en;
 
 in
 
+val _ = Theory.setup
+ (c_text \<^binding>\<open>C\<close> (c_enclose "" "") #>
+  c_text \<^binding>\<open>C_text\<close> (K []));
 
 end;
 

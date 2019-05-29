@@ -69,19 +69,22 @@ structure Data_Accept = Generic_Data
    val extend = I
    val merge = #2)
 
+fun env context =
+  if Config.get (Context.proof_of context) C_Options.propagate_env
+  then Data_In_Env.get context
+  else C_Env.empty_env_lang
+
+fun err _ _ pos _ =
+  error ("Parser: No matching grammar rule" ^ Position.here pos)
+
 fun accept env_lang (_, (res, _, _)) =
   C_Env.map_context
     (Data_In_Env.put env_lang
      #> (fn context => Data_Accept.get context res env_lang context))
 
-val eval_source =
-  C_Context.eval_source
-    (fn context => if Config.get (Context.proof_of context) C_Options.propagate_env
-                   then Data_In_Env.get context
-                   else C_Env.empty_env_lang)
-    (fn _ => fn _ => fn pos => fn _ =>
-      error ("Parser: No matching grammar rule" ^ Position.here pos))
-    accept
+val eval_source = C_Context.eval_source env err accept
+
+fun eval_in ctxt = C_Context.eval_in ctxt env err accept
 
 fun exec_eval source =
   Data_In_Source.map (cons source)

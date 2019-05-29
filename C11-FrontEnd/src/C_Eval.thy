@@ -561,6 +561,10 @@ fun eval_source env err accept source =
 fun eval_source' env err accept source =
   eval env err accept (C_Lex.read_source source);
 
+fun eval_in ctxt env err accept toks =
+  Context.setmp_generic_context (Option.map Context.Proof ctxt)
+    (fn () => eval' env err accept toks) ();
+
 fun expression struct_open range name constraint body ants context = context |>
   ML_Context.exec let val verbose = Config.get (Context.proof_of context) C_Options.ML_verbose
                   in fn () =>

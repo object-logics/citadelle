@@ -1272,6 +1272,8 @@ end;
 
 in
 
+val read = gen_read Position.none;
+
 fun read_source source =
   let
     val pos = Input.pos_of source;
