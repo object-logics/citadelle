@@ -296,6 +296,8 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Transition.Top_down ("ML\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Bottom_up ("C", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Transition.Top_down ("C\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.ML NONE) Keyword.thy_load (C_Resources.parse_files "ML_file" --| semi) C_Transition.Bottom_up ("ML_file", \<^here>)
+                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.ML NONE) Keyword.thy_load (C_Resources.parse_files "ML_file\<Down>" --| semi) C_Transition.Top_down ("ML_file\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C) Keyword.thy_load (C_Resources.parse_files "C_file" --| semi) C_Transition.Bottom_up ("C_file", \<^here>)
                       #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C) Keyword.thy_load (C_Resources.parse_files "C_file\<Down>" --| semi) C_Transition.Top_down ("C_file\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Transition.Bottom_up ("C_export_boot", \<^here>)
