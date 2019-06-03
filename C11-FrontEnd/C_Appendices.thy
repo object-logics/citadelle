@@ -341,38 +341,72 @@ generated from the HOL one.) \<close>
 
 text \<open>
 Based on the above information, there are now several \<^emph>\<open>equivalent\<close> ways to
-proceed for the purpose of having an AST node be mapped from \<open>T1\<close> to \<open>T2\<close>:
-\<^item> If it is allowed to modify the C code in input, then one can add a directive
-\<open>#define\<close> performing the necessary rewrite.
+proceed for the purpose of having an AST node be mapped from \<open>T1\<close> to
+\<open>T2\<close>. The next bullets providing several possible solutions to follow are particularly
+sorted in increasing action time.
 
-\<^item> For example, we can modify
+\<^item> \<^emph>\<open>Before even starting the Isabelle system.\<close> A first approach would be
+to modify the C code in input, by adding a directive \<open>#define\<close> performing the necessary
+rewrite.
+
+\<^item> \<^emph>\<open>Before even starting the Isabelle system.\<close> As an alternative of changing the C
+code, one can modify
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
 by hand, by explicitly writing \<open>T2\<close> at the specific position of the rule code
 generating \<open>T1\<close>. However, this solution implies to re-generate
 \<^file>\<open>generated/c_grammar_fun.grm.sml\<close>.
 
-\<^item> Instead of modifying the grammar, it should be possible to first locate which rule code is
-building \<open>T1\<close>. Then it would remain to retrieve and modify the respective function of
-\<open>C_Grammar_Rule_Wrap\<close> executed after that rule code, by providing a replacement
-function to be put in \<open>C_Grammar_Rule_Wrap_Overloading\<close>. However, as a design decision,
-wrapping functions generated in \<^file>\<open>generated/c_grammar_fun.grm.sml\<close> have only
-been generated to affect monadic states, not AST values. This is to prevent an erroneous replacement
-of an end-user while parsing C code. (It is currently left open about whether or not this feature
-will be implemented in future versions of the parser...)
+\<^item> \<^emph>\<open>At grammar loading time, while the source of Isabelle/C is still being
+processed.\<close> Instead of modifying the grammar, it should be possible to first locate which
+rule code is building \<open>T1\<close>. Then it would remain to retrieve and modify the respective
+function of \<open>C_Grammar_Rule_Wrap\<close> executed after that rule code, by providing a
+replacement function to be put in \<open>C_Grammar_Rule_Wrap_Overloading\<close>. However, as a
+design decision, wrapping functions generated in
+\<^file>\<open>generated/c_grammar_fun.grm.sml\<close> have only been generated to affect monadic
+states, not AST values. This is to prevent an erroneous replacement of an end-user while parsing C
+code. (It is currently left open about whether this feature will be implemented in future versions
+of the parser...)
 
-\<^item> Another solution consists in directly writing a mapping function acting on the full AST, so
-writing a ML function of type \<open>C_Ast.CTranslUnit -> C_Ast.CTranslUnit\<close> (or a respective
-HOL function) which has to act on every constructor of the AST (so in the worst case about hundred
-of constructors for the considered AST, i.e., whenever a node has to be not identically
-returned). However, as we have already implemented a conversion function from
-\<open>C_Ast.CTranslUnit\<close> (subset of C11) to a subset AST of C99, it might be useful to save
-some effort by starting from this conversion function, locate where \<open>T1\<close> is
-pattern-matched by the conversion function, and generate \<open>T2\<close> instead.
+\<^item> \<^emph>\<open>At directive setup time, before executing any
+\<^theory_text>\<open>C\<close> command of interest.\<close> Since the behavior of directives can be
+dynamically modified, this solution amounts to change the semantics of any wished directive,
+appearing enough earlier in the code. (But for the overall code be in the end mostly compatible with
+any other C preprocessors, the implementation change has to be somehow at least consistent with how
+a preprocessor is already expected to treat an initial C un(pre)processed code.)
+
+\<^item> \<^emph>\<open>After parsing and obtaining a constructive value.\<close> Another solution
+consists in directly writing a mapping function acting on the full AST, so writing a ML function of
+type \<open>C_Ast.CTranslUnit -> C_Ast.CTranslUnit\<close> (or a respective HOL function) which has
+to act on every constructor of the AST (so in the worst case about hundred of constructors for the
+considered AST, i.e., whenever a node has to be not identically returned). However, as we have
+already implemented a conversion function from \<open>C_Ast.CTranslUnit\<close> (subset of C11) to a
+subset AST of C99, it might be useful to save some effort by starting from this conversion function,
+locate where \<open>T1\<close> is pattern-matched by the conversion function, and generate
+\<open>T2\<close> instead.
 
 As example, the conversion function \<open>C_Ast.main\<close> is particularly used to connect the
 C11 front-end to the entry-point of AutoCorres in
 \<^verbatim>\<open>l4v/src/tools/c-parser/StrictCParser.ML\<close>.
 
+\<^item> \<^emph>\<open>At semantic back-ends execution time.\<close> The above points were dealing
+with the cases where modification actions were all occurring before getting a final
+\<open>C_Ast.CTranslUnit\<close> value. But this does not mean it is forbidden to make some slight
+adjustments once that resulting \<open>C_Ast.CTranslUnit\<close> value obtained. In particular, it
+is the tasks of semantic back-ends to precisely work with \<open>C_Ast.CTranslUnit\<close> as
+starting point, and possibly translate it to another different type. So letting a semantic back-end
+implement the mapping from \<open>T1\<close> to \<open>T2\<close> would mean here to first
+understand the back-end of interest's architecture, to see where the necessary minimal modifications
+must be made.
+
+By taking l4v as a back-end example, its integration with Isabelle/C first starts with translating
+\<open>C_Ast.CTranslUnit\<close> to l4v's default C99 AST. Then various analyses on the obtained AST
+are performed in \<^url>\<open>https://github.com/seL4/l4v/tree/master/tools/c-parser\<close> (the
+reader interested in the details can start by further exploring the ML files loaded by
+\<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/CTranslation.thy\<close>). In
+short, to implement the mapping from \<open>T1\<close> to \<open>T2\<close> in the back-end part,
+one can either:
+  \<^item> modify the translation from \<open>C_Ast.CTranslUnit\<close> to C99,
+  \<^item> or modify the necessary ML files of interests in the l4v project.
 \<close>
 
 text \<open> More generally, to better inspect the list of rule code really executed when a C code
