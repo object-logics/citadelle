@@ -342,6 +342,9 @@ generated from the HOL one.) \<close>
 text \<open>
 Based on the above information, there are now several \<^emph>\<open>equivalent\<close> ways to
 proceed for the purpose of having an AST node be mapped from \<open>T1\<close> to \<open>T2\<close>:
+\<^item> If it is allowed to modify the C code in input, then one can add a directive
+\<open>#define\<close> performing the necessary rewrite.
+
 \<^item> For example, we can modify
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
 by hand, by explicitly writing \<open>T2\<close> at the specific position of the rule code
@@ -369,9 +372,6 @@ pattern-matched by the conversion function, and generate \<open>T2\<close> inste
 As example, the conversion function \<open>C_Ast.main\<close> is particularly used to connect the
 C11 front-end to the entry-point of AutoCorres in
 \<^verbatim>\<open>l4v/src/tools/c-parser/StrictCParser.ML\<close>.
-
-\<^item> If it is allowed to modify the C code in input, then one can add a directive
-\<open>#define\<close> performing the necessary rewrite.
 
 \<close>
 
