@@ -611,8 +611,10 @@ fun scan_token keywords = !!! "bad input"
         (Scan.literal (C_Keyword.major_keywords keywords) >> pair Token.Command)
         (Scan.literal (C_Keyword.minor_keywords keywords) >> pair Token.Keyword))
       (Lexicon.scan_longid >> pair Token.Long_Ident ||
-        C_Lex.scan_ident >> pair Token.Ident ||
-        Lexicon.scan_id >> pair Token.Ident ||
+        Scan.max
+          token_leq
+          (C_Lex.scan_ident >> pair Token.Ident)
+          (Lexicon.scan_id >> pair Token.Ident) ||
         Lexicon.scan_var >> pair Token.Var ||
         Lexicon.scan_tid >> pair Token.Type_Ident ||
         Lexicon.scan_tvar >> pair Token.Type_Var ||
