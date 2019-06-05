@@ -138,7 +138,7 @@ Symbols with explicit position information.
 \<open>
 structure C_Symbol_Pos =
 struct
-val !!! = C_Scan.!!!
+val !!! = Symbol_Pos.!!!
 val $$ = Symbol_Pos.$$
 val $$$ = Symbol_Pos.$$$
 val ~$$$ = Symbol_Pos.~$$$
@@ -155,16 +155,16 @@ val char_code =
     let val (n, _) = Library.read_int [a, b, c]
     in if n <= 255 then Scan.succeed [(chr n, pos)] else Scan.fail end);
 
-fun scan_str_inline q =
-  $$$ "\\" |-- !!! "bad escape character in string"
+fun scan_str_inline q err_prefix =
+  $$$ "\\" |-- !!! (fn () => err_prefix ^ "bad escape character in string")
     ($$$ q || $$$ "\\" || char_code) ||
   Scan.unless C_Scan.newline
               (Scan.one (fn (s, _) => s <> q andalso s <> "\\" andalso Symbol.not_eof s)) >> single;
 
-fun scan_strs_inline q =
+fun scan_strs_inline q err_prefix =
   Scan.ahead ($$ q) |--
-    !!! "unclosed string literal within the same line"
-      ((Symbol_Pos.scan_pos --| $$$ q) -- (Scan.repeats (scan_str_inline q) -- ($$$ q |-- Symbol_Pos.scan_pos)));
+    !!! (fn () => err_prefix ^ "unclosed string literal within the same line")
+      ((Symbol_Pos.scan_pos --| $$$ q) -- (Scan.repeats (scan_str_inline q err_prefix) -- ($$$ q |-- Symbol_Pos.scan_pos)));
 
 in
 
@@ -188,13 +188,13 @@ fun scan_cartouche_depth stop =
           else Scan.fail)
     | NONE => Scan.fail)));
 
-fun scan_cartouche msg stop =
+fun scan_cartouche err_prefix msg stop =
   Scan.ahead ($$ Symbol.open_) |--
-    !!! ("unclosed text cartouche within " ^ msg)
+    !!! (fn () => err_prefix ^ "unclosed text cartouche within " ^ msg)
       (Scan.provide is_none (SOME 0) (scan_cartouche_depth stop));
 
-fun scan_cartouche_multi stop = scan_cartouche "the comment delimiter" stop;
-val scan_cartouche_inline = scan_cartouche "the same line" C_Scan.newline;
+fun scan_cartouche_multi err_prefix stop = scan_cartouche err_prefix "the comment delimiter" stop;
+fun scan_cartouche_inline err_prefix = scan_cartouche err_prefix "the same line" C_Scan.newline;
 
 (* C-style comments *)
 
@@ -214,15 +214,15 @@ val scan_cmts = Scan.pass 0 (Scan.repeats scan_cmt);
 
 in
 
-val scan_comment =
+fun scan_comment err_prefix =
   Scan.ahead ($$ par_l -- $$ "*") |--
-    !!! "unclosed comment"
+    !!! (fn () => err_prefix ^ "unclosed comment")
       ($$$ par_l @@@ $$$ "*" @@@ scan_cmts @@@ $$$ "*" @@@ $$$ par_r)
   || $$$ "/" @@@ $$$ "/" @@@ C_Scan.repeats_until_nl;
 
-val scan_comment_no_nest =
+fun scan_comment_no_nest err_prefix =
   Scan.ahead ($$ par_l -- $$ "*") |--
-    !!! "unclosed comment"
+    !!! (fn () => err_prefix ^ "unclosed comment")
       ($$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2) @@@ $$$ "*" @@@ $$$ par_r)
   || $$$ "/" @@@ $$$ "/" @@@ C_Scan.repeats_until_nl;
 
@@ -270,7 +270,7 @@ val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> si
 
 val scan_antiq_body_multi =
   Scan.trace (Symbol_Pos.scan_string_qq err_prefix || Symbol_Pos.scan_string_bq err_prefix) >> #2 ||
-  C_Symbol_Pos.scan_cartouche_multi ($$$ "*" @@@ $$$ par_r) ||
+  C_Symbol_Pos.scan_cartouche_multi err_prefix ($$$ "*" @@@ $$$ par_r) ||
   scan_body1 ||
   scan_body2;
 
@@ -279,8 +279,8 @@ val scan_antiq_body_multi_recover =
   scan_body2;
 
 val scan_antiq_body_inline =
-  Scan.trace (C_Symbol_Pos.scan_string_qq_inline || C_Symbol_Pos.scan_string_bq_inline) >> #2 ||
-  C_Symbol_Pos.scan_cartouche_inline ||
+  Scan.trace (C_Symbol_Pos.scan_string_qq_inline err_prefix || C_Symbol_Pos.scan_string_bq_inline err_prefix) >> #2 ||
+  C_Symbol_Pos.scan_cartouche_inline err_prefix ||
   C_Scan.unless_eof C_Scan.newline;
 
 val scan_antiq_body_inline_recover =
@@ -1025,10 +1025,10 @@ val comments =
      Scan.recover
        (scan_token C_Antiquote.scan_antiq (Comment o Comment_formal))
        (fn msg => Scan.ahead C_Antiquote.scan_antiq_recover
-                  -- C_Symbol_Pos.scan_comment_no_nest
+                  -- C_Symbol_Pos.scan_comment_no_nest err_prefix
                   >> (fn (explicit, res) => token (Comment (Comment_suspicious (SOME (explicit, msg, [])))) res)
                || Scan.fail_with (fn _ => fn _ => msg))
-  || C_Symbol_Pos.scan_comment_no_nest >> token (Comment (Comment_suspicious NONE))
+  || C_Symbol_Pos.scan_comment_no_nest err_prefix >> token (Comment (Comment_suspicious NONE))
 
 fun scan_fragment blanks =
      scan_token scan_char Char
