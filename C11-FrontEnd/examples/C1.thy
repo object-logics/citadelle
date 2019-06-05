@@ -38,6 +38,7 @@ chapter \<open>Example\<close>
 
 theory C1
   imports C.C_Main
+          "~~/src/HOL/ex/Cartouche_Examples"
 begin
 
 text \<open> The remainder of the theory assumes a familiarity with the ability to recursively nest
@@ -430,6 +431,28 @@ int main3 () { main2 (); }
 \<close>
 
 declare [[C_propagate_env = false]]
+
+subsection \<open>General commands\<close>
+
+locale zz begin definition "z' = ()"
+          end
+
+C \<comment> \<open>Mixing arbitrary commands\<close> \<open>
+int a = 0;
+int b = a * a + 0;
+int jjj = b;
+/*@
+  @@@ ML \<open>@{lemma \<open>A \<and> B \<longrightarrow> B \<and> A\<close> by (ml_tactic \<open>blast_tac ctxt 1\<close>)}\<close>
+  definition "a' = ()"
+  declare [[ML_source_trace]]
+  lemma (in zz) \<open>A \<and> B \<longrightarrow> B \<and> A\<close> by (ml_tactic \<open>blast_tac ctxt 1\<close>)
+  definition (in zz) "z = ()"
+  corollary "zz.z' = ()"
+   apply (unfold zz.z'_def)
+  by blast
+  theorem "True &&& True" by (auto, presburger?)
+*/
+\<close>
 
 section \<open>Miscellaneous\<close>
 

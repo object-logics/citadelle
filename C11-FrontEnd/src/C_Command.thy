@@ -186,6 +186,14 @@ ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/toplevel.ML\<close>\<close>
 structure C_Inner_Toplevel =
 struct
 val theory = Context.map_theory
+fun local_theory' target f gthy =
+  let
+    val (finish, lthy) = Named_Target.switch target gthy;
+    val lthy' = lthy
+      |> Local_Theory.new_group
+      |> f false
+      |> Local_Theory.reset_group;
+  in finish lthy' end
 val generic_theory = I
 end
 \<close>
@@ -242,6 +250,11 @@ fun command f = command00 f Keyword.thy_decl
 fun command_no_range f = command00_no_range f Keyword.thy_decl
 
 fun command0 f = command (K o f)
+fun local_command' spec scan f =
+  command (K o (fn (target, arg) => C_Inner_Toplevel.local_theory' target (f arg)))
+          (C_Token.syntax' (Parse.opt_target -- scan))
+          C_Transition.Bottom_up
+          spec
 val command0_no_range = command_no_range o K
 
 fun command0' f = command00 (K o f)
@@ -281,6 +294,13 @@ end;
 
 subsubsection \<open>Initialization\<close>
 
+setup \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
+C_Thy_Header.add_keywords_minor
+  [ (("apply", \<^here>), ((Keyword.prf_script, []), ["proof"]))
+  , (("by", \<^here>), ((Keyword.qed, []), ["proof"]))
+  , (("done", \<^here>), ((Keyword.qed_script, []), ["proof"])) ]
+\<close>
+
 ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
 val semi = Scan.option (C_Parse.$$$ ";");
@@ -290,7 +310,51 @@ struct
 fun ML source = ML_Context.exec (fn () =>
                    ML_Context.eval_source (ML_Compiler.verbose true ML_Compiler.flags) source) #>
                  Local_Theory.propagate_ml_env
+
+fun theorem schematic ((long, binding, includes, elems, concl), (l_meth, o_meth)) int lthy =
+     (if schematic then Specification.schematic_theorem_cmd else Specification.theorem_cmd)
+       long Thm.theoremK NONE (K I) binding includes elems concl int lthy
+  |> fold (fn m => tap (fn _ => Method.report m) #> Proof.apply m #> Seq.the_result "") l_meth
+  |> (case o_meth of
+        NONE => Proof.global_done_proof
+      | SOME (m1, m2) =>
+          tap (fn _ => (Method.report m1; Option.map Method.report m2))
+          #> Proof.global_terminal_proof (m1, m2))
+
+fun definition (((decl, spec), prems), params) =
+  #2 oo Specification.definition_cmd decl params prems spec
+
+fun declare (facts, fixes) =
+  #2 oo Specification.theorems_cmd "" [(Binding.empty_atts, flat facts)] fixes
 end
+
+local
+val long_keyword =
+  Parse_Spec.includes >> K "" ||
+  Parse_Spec.long_statement_keyword;
+
+val long_statement =
+  Scan.optional (Parse_Spec.opt_thm_name ":" --| Scan.ahead long_keyword) Binding.empty_atts --
+  Scan.optional Parse_Spec.includes [] -- Parse_Spec.long_statement
+    >> (fn ((binding, includes), (elems, concl)) => (true, binding, includes, elems, concl));
+
+val short_statement =
+  Parse_Spec.statement -- Parse_Spec.if_statement -- Parse.for_fixes
+    >> (fn ((shows, assumes), fixes) =>
+      (false, Binding.empty_atts, [], [Element.Fixes fixes, Element.Assumes assumes],
+        Element.Shows shows));
+in
+fun theorem spec schematic =
+  C_Inner_Syntax.local_command'
+    spec
+    ((long_statement || short_statement)
+     -- let val apply = Parse.$$$ "apply" |-- Method.parse
+        in Scan.repeat1 apply -- (Parse.$$$ "done" >> K NONE)
+        || Scan.repeat apply -- (Parse.$$$ "by" |-- Method.parse -- Scan.option Method.parse >> SOME)
+        end)
+    (C_Isar_Cmd.theorem schematic)
+end
+
 val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Transition.Bottom_up ("\<approx>setup", \<^here>)
                       #> C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Transition.Top_down ("\<approx>setup\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Parse.ML_source C_Transition.Bottom_up ("setup", \<^here>)
@@ -306,7 +370,21 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Transition.Bottom_up ("C_export_boot", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Transition.Top_down ("C_export_boot\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0_no_range (C_Inner_Toplevel.generic_theory o tap C_Module.C_export_file) C_Transition.Bottom_up ("C_export_file", \<^here>)
-                      #> C_Inner_Syntax.command0_no_range (C_Inner_Toplevel.generic_theory o tap C_Module.C_export_file) C_Transition.Top_down ("C_export_file\<Down>", \<^here>))
+                      #> C_Inner_Syntax.command0_no_range (C_Inner_Toplevel.generic_theory o tap C_Module.C_export_file) C_Transition.Top_down ("C_export_file\<Down>", \<^here>)
+                      #> theorem ("theorem", \<^here>) false
+                      #> theorem ("lemma", \<^here>) false
+                      #> theorem ("corollary", \<^here>) false
+                      #> theorem ("proposition", \<^here>) false
+                      #> theorem ("schematic_goal", \<^here>) true
+                      #> C_Inner_Syntax.local_command'
+                          ("definition", \<^here>)
+                          (Scan.option Parse_Spec.constdecl -- (Parse_Spec.opt_thm_name ":" -- Parse.prop) --
+                            Parse_Spec.if_assumes -- Parse.for_fixes)
+                          C_Isar_Cmd.definition
+                      #> C_Inner_Syntax.local_command'
+                          ("declare", \<^here>)
+                          (Parse.and_list1 Parse.thms1 -- Parse.for_fixes)
+                          C_Isar_Cmd.declare)
 in end
 \<close>
 

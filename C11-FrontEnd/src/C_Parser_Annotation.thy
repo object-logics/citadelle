@@ -117,18 +117,21 @@ fun merge_keywords
     Scan.merge_lexicons (major1, major2),
     Symtab.merge (K true) (commands1, commands2));
 
-val add_keywords =
-  fold (fn ((name, pos), spec as ((kind, _), _)) => map_keywords (fn (minor, major, commands) =>
-    if kind = "" orelse kind = Keyword.before_command orelse kind = Keyword.quasi_command then
-      let
-        val minor' = Scan.extend_lexicon (Symbol.explode name) minor;
-      in (minor', major, commands) end
-    else
-      let
-        val entry = check_spec pos spec;
-        val major' = Scan.extend_lexicon (Symbol.explode name) major;
-        val commands' = Symtab.update (name, entry) commands;
-      in (minor, major', commands') end));
+val add_keywords0 =
+  fold (fn ((name, pos), force_minor, spec as ((kind, _), _)) => map_keywords (fn (minor, major, commands) =>
+    let val extend = Scan.extend_lexicon (Symbol.explode name)
+        fun update spec = Symtab.update (name, spec)
+    in
+      if force_minor then
+        (extend minor, major, update (check_spec pos spec) commands)
+      else if kind = "" orelse kind = Keyword.before_command orelse kind = Keyword.quasi_command then
+        (extend minor, major, commands)
+      else
+        (minor, extend major, update (check_spec pos spec) commands)
+    end));
+
+val add_keywords = add_keywords0 o map (fn (cmd, spec) => (cmd, false, spec))
+val add_keywords_minor = add_keywords0 o map (fn (cmd, spec) => (cmd, true, spec))
 
 
 (* keyword status *)
@@ -386,10 +389,18 @@ fun command_markups keywords x =
      else [Markup.keyword1])
     |> map Markup.command_properties;
 
-in
-
 fun keyword_markup (important, keyword) x =
   if important orelse Symbol.is_ascii_identifier x then keyword else Markup.delimiter;
+
+fun command_minor_markups keywords x =
+  if C_Keyword.is_theory_end keywords x then [Markup.keyword2 |> Markup.keyword_properties]
+  else
+    (if C_Keyword.is_proof_asm keywords x then [Markup.keyword3]
+     else if C_Keyword.is_improper keywords x then [Markup.keyword1, Markup.improper]
+     else if C_Keyword.is_command keywords x then [Markup.keyword1]
+     else [keyword_markup (false, Markup.keyword2 |> Markup.keyword_properties) x]);
+
+in
 
 fun completion_report tok =
   if is_kind Token.Keyword tok
@@ -402,8 +413,7 @@ fun reports keywords tok =
   else if is_stack1 tok orelse is_stack2 tok orelse is_stack3 tok then
     keyword_reports tok [Markup.keyword2 |> Markup.keyword_properties]
   else if is_kind Token.Keyword tok then
-    keyword_reports tok
-      [keyword_markup (false, Markup.keyword2 |> Markup.keyword_properties) (content_of tok)]
+    keyword_reports tok (command_minor_markups keywords (content_of tok))
   else
     let
       val pos = pos_of tok;
@@ -1294,6 +1304,7 @@ structure Data = Theory_Data
 );
 
 val add_keywords = Data.map o C_Keyword.add_keywords;
+val add_keywords_minor = Data.map o C_Keyword.add_keywords_minor;
 
 val get_keywords = Data.get;
 val get_keywords' = get_keywords o Proof_Context.theory_of;
