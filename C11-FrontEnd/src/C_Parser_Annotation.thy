@@ -202,6 +202,18 @@ struct
 
 (* token kind *)
 
+val immediate_kinds' = fn Token.Command => 0
+                        | Token.Keyword => 1
+                        | Token.Ident => 2
+                        | Token.Long_Ident => 3
+                        | Token.Sym_Ident => 4
+                        | Token.Var => 5
+                        | Token.Type_Ident => 6
+                        | Token.Type_Var => 7
+                        | Token.Nat => 8
+                        | Token.Float => 9
+                        | Token.Space => 10
+                        | _ => ~1
 
 val delimited_kind =
   (fn Token.String => true
@@ -700,6 +712,23 @@ fun read_with_commands' keywords scan syms =
 fun read_antiq' keywords scan = read_with_commands' keywords (scan >> C_Scan.Left);
 
 (* wrapped syntax *)
+
+fun syntax' f =
+  I #> map (fn tok as Token ((source, (pos1, pos2)), (kind, _), slot) =>
+              if is_eof tok then
+                Token.eof
+              else if delimited_kind kind then
+                hd (Token.explode Keyword.empty_keywords pos1 (unparse tok))
+              else
+                Token.make ( ( case slot of Slot => immediate_kinds' kind | _ => ~1
+                             , case Position.distance_of (pos1, pos2) of NONE => 0 | SOME i => i)
+                           , source)
+                           pos1
+                |> #1)
+    #> f
+    #> apsnd (map (fn tok => Token ( (Token.source_of tok, Token.range_of [tok])
+                                   , (Token.kind_of tok, Token.content_of tok)
+                                   , Slot)))
 
 end;
 
