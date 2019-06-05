@@ -188,9 +188,9 @@ fun scan_cartouche_depth stop =
           else Scan.fail)
     | NONE => Scan.fail)));
 
-fun scan_cartouche err_prefix msg stop =
+fun scan_cartouche err_prefix err_suffix stop =
   Scan.ahead ($$ Symbol.open_) |--
-    !!! (fn () => err_prefix ^ "unclosed text cartouche within " ^ msg)
+    !!! (fn () => err_prefix ^ "unclosed text cartouche within " ^ err_suffix)
       (Scan.provide is_none (SOME 0) (scan_cartouche_depth stop));
 
 fun scan_cartouche_multi err_prefix stop = scan_cartouche err_prefix "the comment delimiter" stop;
