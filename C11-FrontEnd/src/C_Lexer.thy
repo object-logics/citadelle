@@ -155,21 +155,23 @@ val char_code =
     let val (n, _) = Library.read_int [a, b, c]
     in if n <= 255 then Scan.succeed [(chr n, pos)] else Scan.fail end);
 
-fun scan_str_inline q err_prefix =
+fun scan_str q err_prefix stop =
   $$$ "\\" |-- !!! (fn () => err_prefix ^ "bad escape character in string")
     ($$$ q || $$$ "\\" || char_code) ||
-  Scan.unless C_Scan.newline
+  Scan.unless stop
               (Scan.one (fn (s, _) => s <> q andalso s <> "\\" andalso Symbol.not_eof s)) >> single;
 
-fun scan_strs_inline q err_prefix =
+fun scan_strs q err_prefix err_suffix stop =
   Scan.ahead ($$ q) |--
-    !!! (fn () => err_prefix ^ "unclosed string literal within the same line")
-      ((Symbol_Pos.scan_pos --| $$$ q) -- (Scan.repeats (scan_str_inline q err_prefix) -- ($$$ q |-- Symbol_Pos.scan_pos)));
+    !!! (fn () => err_prefix ^ "unclosed string literal within " ^ err_suffix)
+      ((Symbol_Pos.scan_pos --| $$$ q) -- (Scan.repeats (scan_str q err_prefix stop) -- ($$$ q |-- Symbol_Pos.scan_pos)));
 
 in
 
-val scan_string_qq_inline = scan_strs_inline "\"";
-val scan_string_bq_inline = scan_strs_inline "`";
+fun scan_string_qq_multi err_prefix stop = scan_strs "\"" err_prefix "the comment delimiter" stop;
+fun scan_string_bq_multi err_prefix stop = scan_strs "`" err_prefix "the comment delimiter" stop;
+fun scan_string_qq_inline err_prefix = scan_strs "\"" err_prefix "the same line" C_Scan.newline;
+fun scan_string_bq_inline err_prefix = scan_strs "`" err_prefix "the same line" C_Scan.newline;
 
 end;
 
@@ -266,11 +268,12 @@ val par_l = "/"
 val par_r = "/"
 
 val scan_body1 = $$$ "*" --| Scan.ahead (~$$$ par_r)
+val scan_body1' = $$$ "*" @@@ $$$ par_r
 val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
 
 val scan_antiq_body_multi =
-  Scan.trace (Symbol_Pos.scan_string_qq err_prefix || Symbol_Pos.scan_string_bq err_prefix) >> #2 ||
-  C_Symbol_Pos.scan_cartouche_multi err_prefix ($$$ "*" @@@ $$$ par_r) ||
+  Scan.trace (C_Symbol_Pos.scan_string_qq_multi err_prefix scan_body1' || C_Symbol_Pos.scan_string_bq_multi err_prefix scan_body1') >> #2 ||
+  C_Symbol_Pos.scan_cartouche_multi err_prefix scan_body1' ||
   scan_body1 ||
   scan_body2;
 
