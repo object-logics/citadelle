@@ -454,6 +454,26 @@ int jjj = b;
 */
 \<close>
 
+C \<comment> \<open>Backslash newlines must be supported by \<^ML>\<open>C_Token.syntax'\<close> (in particular in keywords)\<close> \<open>
+//@  lem\
+ma (i\
+n z\
+z) \
+\<open>\  
+AA \<and> B\
+                    \<longrightarrow>\     
+                    B \<and> A\    
+\
+A\<close> b\
+y (ml_t\
+actic \<open>\
+bla\
+st_tac c\
+txt\
+ 0\  
+001\<close>)
+\<close>
+
 section \<open>Miscellaneous\<close>
 
 C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>

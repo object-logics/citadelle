@@ -428,21 +428,40 @@ end;
 
 (* unparse *)
 
-fun unparse (Token (_, (kind, x), _)) =
-  (case kind of
-    Token.String => Symbol_Pos.quote_string_qq x
-  | Token.Alt_String => Symbol_Pos.quote_string_bq x
-  | Token.Verbatim => enclose "{*" "*}" x
-  | Token.Cartouche => cartouche x
-  | Token.Comment NONE => enclose "(*" "*)" x
-  | Token.EOF => ""
-  | _ => x);
+fun unparse' (Token ((source0, _), (kind, x), _)) =
+  let
+    val source =
+      \<comment> \<open> We are computing a reverse function of \<^ML>\<open>Symbol_Pos.implode_range\<close>
+          taking into account consecutive \<^ML>\<open>Symbol.DEL\<close> symbols potentially appearing
+          at the beginning, or at the end of the string.
+
+          As remark, \<^ML>\<open>Symbol_Pos.explode_delete\<close>
+          will remove any potentially consecutive \<^ML>\<open>Symbol.DEL\<close> symbols.
+          This is why it is not used here.\<close>
+      case Symbol.explode source0 of
+        x :: xs =>
+          if x = Symbol.DEL then
+            case rev xs of x' :: xs => if x' = Symbol.DEL then implode (rev xs) else source0
+                         | _ => source0
+          else
+           source0
+      | _ => source0
+  in
+    case kind of
+      Token.String => Symbol_Pos.quote_string_qq source
+    | Token.Alt_String => Symbol_Pos.quote_string_bq source
+    | Token.Verbatim => enclose "{*" "*}" source
+    | Token.Cartouche => cartouche source
+    | Token.Comment NONE => enclose "(*" "*)" source
+    | Token.EOF => ""
+    | _ => x
+  end;
 
 fun text_of tok =
   let
     val k = Token.str_of_kind (kind_of tok);
     val ms = markups C_Keyword.empty_keywords tok;
-    val s = unparse tok;
+    val s = unparse' tok;
   in
     if s = "" then (k, "")
     else if size s < 40 andalso not (exists_string (fn c => c = "\n") s)
@@ -723,23 +742,47 @@ fun read_antiq' keywords scan = read_with_commands' keywords (scan >> C_Scan.Lef
 
 (* wrapped syntax *)
 
+local
+fun make src pos = Token.make src pos |> #1
+fun make_default text pos = make ((~1, 0), text) pos
+fun explode keywords pos text =
+  case Token.explode keywords pos text of [tok] => tok
+                                        | _ => make_default text pos
+in
 fun syntax' f =
-  I #> map (fn tok as Token ((source, (pos1, pos2)), (kind, _), slot) =>
-              if is_eof tok then
-                Token.eof
-              else if delimited_kind kind then
-                hd (Token.explode Keyword.empty_keywords pos1 (unparse tok))
-              else
-                Token.make ( ( case slot of Slot => immediate_kinds' kind | _ => ~1
-                             , case Position.distance_of (pos1, pos2) of NONE => 0 | SOME i => i)
-                           , source)
-                           pos1
-                |> #1)
+  I #> map
+   (fn tok0 as Token ((source, (pos1, pos2)), (kind, x), slot) =>
+    if is_stack1 tok0 orelse is_stack2 tok0 orelse is_stack3 tok0 then
+      make_default source pos1
+    else if is_eof tok0 then
+      Token.eof
+    else if delimited_kind kind then
+      explode Keyword.empty_keywords pos1 (unparse' tok0)
+    else
+      let
+        val tok1 =
+          explode
+            ((case kind of
+                Token.Keyword => Keyword.add_keywords [((x, Position.none), Keyword.no_spec)]
+              | Token.Command => Keyword.add_keywords [((x, Position.none), ((Keyword.thy_decl, []), []))]
+              | _ => I)
+               Keyword.empty_keywords)
+            pos1
+            source
+      in
+        if Token.kind_of tok1 = kind then
+          tok1
+        else
+          make ( ( immediate_kinds' kind
+                 , case Position.distance_of (pos1, pos2) of NONE => 0 | SOME i => i)
+               , source)
+               pos1
+      end)
     #> f
     #> apsnd (map (fn tok => Token ( (Token.source_of tok, Token.range_of [tok])
                                    , (Token.kind_of tok, Token.content_of tok)
                                    , Slot)))
-
+end
 end;
 
 type 'a c_parser = 'a C_Token.parser;
