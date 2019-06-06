@@ -184,13 +184,13 @@ section \<open>Case Study: Mapping on the Parsed AST\<close>
 
 text \<open> In this section, we give a concrete example of a situation where one is interested to
 do some automated transformations on the parsed AST, such as changing the type of every encountered
-variables from \<open>int\<close> to \<open>array int\<close>. The main theory of interest here is
-\<^theory>\<open>C.C_Parser_Language\<close>, where the C grammar is loaded, in contrast to
-\<^theory>\<open>C.C_Lexer\<close> which is only dedicated to build a list of C tokens. As another
-example, \<^theory>\<open>C.C_Parser_Language\<close> also contains the portion of the code
-implementing the report to the user of various characteristics of encountered variables during
-parsing: if a variable is bound or free, or if the declaration of a variable is made in the global
-topmost space or locally declared in a function. \<close>
+variables from \<^C>\<open>int _;\<close> to \<^C>\<open>int _ [];\<close>. The main theory of
+interest here is \<^theory>\<open>C.C_Parser_Language\<close>, where the C grammar is loaded, in
+contrast to \<^theory>\<open>C.C_Lexer\<close> which is only dedicated to build a list of C
+tokens. As another example, \<^theory>\<open>C.C_Parser_Language\<close> also contains the portion
+of the code implementing the report to the user of various characteristics of encountered variables
+during parsing: if a variable is bound or free, or if the declaration of a variable is made in the
+global topmost space or locally declared in a function. \<close>
 
 subsection \<open>Prerequisites\<close>
 
@@ -215,78 +215,78 @@ subsection \<open>Structure of \<^theory>\<open>C.C_Parser_Language\<close>\<clo
 
 text \<open> In more detail, \<^theory>\<open>C.C_Parser_Language\<close> can be seen as being
 principally divided into two parts:
-\begin{itemize}
-\item a first part containing the implementation of the ML structure
-  \<open>C_Grammar_Rule_Lib\<close>, which provides the ML implementation library used by any rule
-  code written in the C grammar
+  \<^item> a first part containing the implementation of
+  \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close>, which provides the ML implementation library
+  used by any rule code written in the C grammar
   \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
   (\<^file>\<open>generated/c_grammar_fun.grm.sml\<close>).
-\item a second part implementing the structure \<open>C_Grammar_Rule_Wrap\<close>, providing one
-  wrapping function for each rule code, for potentially complementing the rule code with an
+  \<^item> a second part implementing \<^ML_structure>\<open>C_Grammar_Rule_Wrap\<close>, providing
+  one wrapping function for each rule code, for potentially complementing the rule code with an
   additional action to be executed after its call. The use of wrapping functions is very optional:
   by default, they are all assigned as identity functions.
-\end{itemize}
-The difference between \<open>C_Grammar_Rule_Lib\<close> and \<open>C_Grammar_Rule_Wrap\<close>
-relies in how often functions in the two structures are called: while building subtree pieces of the
-final AST, grammar rules are free to call any functions in \<open>C_Grammar_Rule_Lib\<close> for
-completing their respective tasks, but also free to not use \<open>C_Grammar_Rule_Lib\<close> at
+
+The difference between \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> and
+\<^ML_structure>\<open>C_Grammar_Rule_Wrap\<close> relies in how often functions in the two
+structures are called: while building subtree pieces of the final AST, grammar rules are free to
+call any functions in \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> for completing their
+respective tasks, but also free to not use \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> at
 all. On the other hand, irrespective of the actions done by a rule code, the function associated to
-the rule code in \<open>C_Grammar_Rule_Wrap\<close> is retrieved and always executed (but a visible
-side-effect will likely mostly happen whenever one has provided an implementation far different from
-the identity function). \<close>
+the rule code in \<^ML_structure>\<open>C_Grammar_Rule_Wrap\<close> is retrieved and always executed
+(but a visible side-effect will likely mostly happen whenever one has provided an implementation far
+different from \<^ML>\<open>I\<close>). \<close>
 
 text \<open> Because the grammar
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
 (\<^file>\<open>generated/c_grammar_fun.grm.sml\<close>) has been defined in such a way that
 computation of variable scopes are completely handled by functions in
-\<open>C_Grammar_Rule_Lib\<close> and not in rule code (which are just calling functions in
-\<open>C_Grammar_Rule_Lib\<close>), it is enough to overload functions in
-\<open>C_Grammar_Rule_Lib\<close> whenever it is wished to perform new actions depending on variable
-scopes, for example to do a specific PIDE report at the first time when a C variable is being
-declared. In particular, functions in \<open>C_Grammar_Rule_Lib\<close> are implemented in monadic
-style, making a subsequent modification on the parsing environment
-\<^theory>\<open>C.C_Environment\<close> possible (whenever appropriate) as this last is carried in
-the monadic state.
+\<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> and not in rule code (which are just calling
+functions in \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close>), it is enough to overload functions
+in \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> whenever it is wished to perform new actions
+depending on variable scopes, for example to do a specific PIDE report at the first time when a C
+variable is being declared. In particular, functions in
+\<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> are implemented in monadic style, making a
+subsequent modification on the parsing environment \<^theory>\<open>C.C_Environment\<close> possible
+(whenever appropriate) as this last is carried in the monadic state.
 
 Fundamentally, this is feasible because the monadic environment fulfills the property of being
 always properly enriched with declared variable information at any time, because we assume
-\begin{itemize}
-  \item working with a language where a used variable must be at most declared or redeclared
-    somewhere before its actual used,
-  \item and using a parser scanning tokens uniquely, from left to right, in the same order than the
-    execution of rule code actions.
-\end{itemize}
-\<close>
+  \<^item> working with a language where a used variable must be at most declared or redeclared
+  somewhere before its actual used,
+  \<^item> and using a parser scanning tokens uniquely, from left to right, in the same order than
+  the execution of rule code actions. \<close>
 
 subsubsection \<open>Example\<close>
 
-text \<open> As illustration, \<open>C_Grammar_Rule_Lib.markup_var true\<close> is (implicitly)
-called by a rule code while a variable being declared is encountered. Later, a call to
-\<open>C_Grammar_Rule_Lib.markup_var false\<close> in \<open>C_Grammar_Rule_Wrap\<close> (actually,
-in \<open>C_Grammar_Rule_Wrap_Overloading\<close>) is made after the execution of another rule code
-to signal the position of a variable in use, together with the information retrieved from the
-environment of the position of where it is declared. \<close>
+text \<open> As illustration, \<^ML>\<open>C_Grammar_Rule_Lib.markup_var true\<close> is
+(implicitly) called by a rule code while a variable being declared is encountered. Later, a call to
+\<^ML>\<open>C_Grammar_Rule_Lib.markup_var false\<close> in
+\<^ML_structure>\<open>C_Grammar_Rule_Wrap\<close> (actually, in
+\<^ML_structure>\<open>C_Grammar_Rule_Wrap_Overloading\<close>) is made after the execution of
+another rule code to signal the position of a variable in use, together with the information
+retrieved from the environment of the position of where it is declared. \<close>
 
-text \<open> In more detail, the second argument of \<open>C_Grammar_Rule_Lib.markup_var\<close> is
-among other of the form: \<open>Position.T * {global: bool, ...}\<close>, where particularly the
-field \<open>global\<close> of the record is informing \<open>C_Grammar_Rule_Lib.markup_var\<close>
-if the variable being reported (at either first declaration time, or first use time) is global or
-local (inside a function for instance). Because once declared, the property \<open>global\<close> of
-a variable does not change afterwards, it is enough to store that information in the monadic
-environment:
+text \<open> In more detail, the second argument of
+\<^ML>\<open>C_Grammar_Rule_Lib.markup_var\<close> is among other of the form:
+\<^ML_type>\<open>Position.T * {global: bool}\<close>, where particularly the field
+\<^ML>\<open>#global : C_Env.markup_ident -> bool\<close> of the record is informing
+\<^ML>\<open>C_Grammar_Rule_Lib.markup_var\<close> if the variable being reported (at either first
+declaration time, or first use time) is global or local (inside a function for instance). Because
+once declared, the property \<^ML>\<open>#global : C_Env.markup_ident -> bool\<close> of a variable
+does not change afterwards, it is enough to store that information in the monadic environment:
 \<^item> \<^bold>\<open>Storing the information at declaration time\<close> The part deciding if a
 variable being declared is global or not is implemented in
-\<open>C_Grammar_Rule_Lib.doDeclIdent\<close> and
-\<open>C_Grammar_Rule_Lib.doFuncParamDeclIdent\<close>. The two functions come from
+\<^ML>\<open>C_Grammar_Rule_Lib.doDeclIdent\<close> and
+\<^ML>\<open>C_Grammar_Rule_Lib.doFuncParamDeclIdent\<close>. The two functions come from
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
-(so do any functions in \<open>C_Grammar_Rule_Lib\<close>). Ultimately, they are both calling
-\<open>C_Grammar_Rule_Lib.markup_var true\<close> at some point.
+(so do any functions in \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close>). Ultimately, they are
+both calling \<^ML>\<open>C_Grammar_Rule_Lib.markup_var true\<close> at some point.
 \<^item> \<^bold>\<open>Retrieving the information at use time\<close>
-\<open>C_Grammar_Rule_Lib.markup_var false\<close> is only called by
-\<open>C_Grammar_Rule_Wrap.primary_expression1\<close>, while treating a variable being already
-declared. In particular the second argument of \<open>C_Grammar_Rule_Lib.markup_var\<close> is just
-provided by what has been computed by the above point when the variable was declared (e.g., the
-globality versus locality information). \<close>
+\<^ML>\<open>C_Grammar_Rule_Lib.markup_var false\<close> is only called by
+\<^ML>\<open>C_Grammar_Rule_Wrap.primary_expression1\<close>, while treating a variable being
+already declared. In particular the second argument of
+\<^ML>\<open>C_Grammar_Rule_Lib.markup_var\<close> is just provided by what has been computed by the
+above point when the variable was declared (e.g., the globality versus locality
+information). \<close>
 
 subsection \<open>Rewriting of AST node\<close>
 
@@ -308,15 +308,16 @@ occurs. Since in Isabelle/C, directives are relying on ML code, changing an AST 
 
 \<^enum> After the directive (pre)processing step, the main parsing happens. But since what are
 driving the parsing engine are principally rule code, this step means to execute
-\<open>C_Grammar_Rule_Lib\<close> and \<open>C_Grammar_Rule_Wrap\<close>, i.e., rules in
+\<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> and
+\<^ML_structure>\<open>C_Grammar_Rule_Wrap\<close>, i.e., rules in
 \<^file>\<open>generated/c_grammar_fun.grm.sml\<close>.
 
 \<^enum> Once the parsing finishes, we have a final AST value, which topmost root type entry-point
 constitutes the last node built before the grammar parser
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
 ever entered in a stop state. For the case of a stop acceptance state, that moment happens when we
-reach the first rule code building the type \<open>C_Ast.CTranslUnit\<close>, since there is only
-one possible node making the parsing stop, according to what is currently written in the C
+reach the first rule code building the type \<^ML_type>\<open>C_Ast.CTranslUnit\<close>, since there
+is only one possible node making the parsing stop, according to what is currently written in the C
 grammar. (For the case of a state stopped due to an error, it is the last successfully built value
 that is returned, but to simplify the discussion, we will assume in the rest of the document the
 parser is taking in input a fully well-parsed C code.)
@@ -324,18 +325,18 @@ parser is taking in input a fully well-parsed C code.)
 \<^enum> By \<^emph>\<open>semantic back-ends\<close>, we denote any kind of ``relatively
 efficient'' compiled code generating Isabelle/HOL theorems, proofs, definitions, and so with the
 potential of generally generating Isabelle packages. In our case, the input of semantic back-ends
-will be the type \<open>C_Ast.CTranslUnit\<close> (actually, whatever value provided by the above
-parser). But since our parser is written in monadic style, it is as well possible to give slightly
-more information to semantic back-ends, such as the last monadic computed state, so including the
-last state of the parsing environment. \<close>
+will be the type \<^ML_type>\<open>C_Ast.CTranslUnit\<close> (actually, whatever value provided by
+the above parser). But since our parser is written in monadic style, it is as well possible to give
+slightly more information to semantic back-ends, such as the last monadic computed state, so
+including the last state of the parsing environment. \<close>
 
 text \<open> Generally, semantic back-ends can be written in full ML starting from
-\<open>C_Ast.CTranslUnit\<close>, but to additionally support formalizing tasks requiring to start
-from an AST defined in Isabelle/HOL, we provide an equivalent AST in HOL in the project, such as the
-one obtained after loading \<^file>\<open>../Featherweight-OCL/doc/Meta_C_generated.thy\<close>
-\<^footnote>\<open>from the Citadelle project
-\<^url>\<open>gitlri.lri.fr/ftuong/citadelle-devel\<close>\<close> (In fact, the ML AST is just
-generated from the HOL one.) \<close>
+\<^ML_type>\<open>C_Ast.CTranslUnit\<close>, but to additionally support formalizing tasks requiring
+to start from an AST defined in Isabelle/HOL, we provide an equivalent AST in HOL in the project,
+such as the one obtained after loading
+\<^file>\<open>../Featherweight-OCL/doc/Meta_C_generated.thy\<close> \<^footnote>\<open>from the
+Citadelle project \<^url>\<open>gitlri.lri.fr/ftuong/citadelle-devel\<close>\<close> (In fact, the
+ML AST is just generated from the HOL one.) \<close>
 
 
 
@@ -346,8 +347,8 @@ proceed for the purpose of having an AST node be mapped from \<open>T1\<close> t
 sorted in increasing action time.
 
 \<^item> \<^emph>\<open>Before even starting the Isabelle system.\<close> A first approach would be
-to modify the C code in input, by adding a directive \<open>#define\<close> performing the necessary
-rewrite.
+to modify the C code in input, by adding a directive \<^C>\<open>#define _ _\<close> performing the
+necessary rewrite.
 
 \<^item> \<^emph>\<open>Before even starting the Isabelle system.\<close> As an alternative of changing the C
 code, one can modify
@@ -359,53 +360,56 @@ generating \<open>T1\<close>. However, this solution implies to re-generate
 \<^item> \<^emph>\<open>At grammar loading time, while the source of Isabelle/C is still being
 processed.\<close> Instead of modifying the grammar, it should be possible to first locate which
 rule code is building \<open>T1\<close>. Then it would remain to retrieve and modify the respective
-function of \<open>C_Grammar_Rule_Wrap\<close> executed after that rule code, by providing a
-replacement function to be put in \<open>C_Grammar_Rule_Wrap_Overloading\<close>. However, as a
-design decision, wrapping functions generated in
-\<^file>\<open>generated/c_grammar_fun.grm.sml\<close> have only been generated to affect monadic
-states, not AST values. This is to prevent an erroneous replacement of an end-user while parsing C
-code. (It is currently left open about whether this feature will be implemented in future versions
-of the parser...)
+function of \<^ML_structure>\<open>C_Grammar_Rule_Wrap\<close> executed after that rule code, by
+providing a replacement function to be put in
+\<^ML_structure>\<open>C_Grammar_Rule_Wrap_Overloading\<close>. However, as a design decision,
+wrapping functions generated in \<^file>\<open>generated/c_grammar_fun.grm.sml\<close> have only
+been generated to affect monadic states, not AST values. This is to prevent an erroneous replacement
+of an end-user while parsing C code. (It is currently left open about whether this feature will be
+implemented in future versions of the parser...)
 
 \<^item> \<^emph>\<open>At directive setup time, before executing any
 \<^theory_text>\<open>C\<close> command of interest.\<close> Since the behavior of directives can be
 dynamically modified, this solution amounts to change the semantics of any wished directive,
 appearing enough earlier in the code. (But for the overall code be in the end mostly compatible with
 any other C preprocessors, the implementation change has to be somehow at least consistent with how
-a preprocessor is already expected to treat an initial C un(pre)processed code.)
+a preprocessor is already expected to treat an initial C un(pre)processed code.) For example, the
+current semantics of \<^C>\<open>#undef _\<close> depends on what has been registered in
+\<^ML>\<open>C_Context.directive_update\<close> (see \<^theory>\<open>C.C_Command\<close>).
 
 \<^item> \<^emph>\<open>After parsing and obtaining a constructive value.\<close> Another solution
 consists in directly writing a mapping function acting on the full AST, so writing a ML function of
-type \<open>C_Ast.CTranslUnit -> C_Ast.CTranslUnit\<close> (or a respective HOL function) which has
-to act on every constructor of the AST (so in the worst case about hundred of constructors for the
-considered AST, i.e., whenever a node has to be not identically returned). However, as we have
-already implemented a conversion function from \<open>C_Ast.CTranslUnit\<close> (subset of C11) to a
-subset AST of C99, it might be useful to save some effort by starting from this conversion function,
-locate where \<open>T1\<close> is pattern-matched by the conversion function, and generate
-\<open>T2\<close> instead.
+type \<^ML_type>\<open>C_Ast.CTranslUnit -> C_Ast.CTranslUnit\<close> (or a respective HOL function)
+which has to act on every constructor of the AST (so in the worst case about hundred of constructors
+for the considered AST, i.e., whenever a node has to be not identically returned). However, as we
+have already implemented a conversion function from \<^ML_type>\<open>C_Ast.CTranslUnit\<close>
+(subset of C11) to a subset AST of C99, it might be useful to save some effort by starting from this
+conversion function, locate where \<open>T1\<close> is pattern-matched by the conversion function,
+and generate \<open>T2\<close> instead.
 
-As example, the conversion function \<open>C_Ast.main\<close> is particularly used to connect the
-C11 front-end to the entry-point of AutoCorres in
+As example, the conversion function \<^ML>\<open>C_Ast.main\<close> is particularly used to connect
+the C11 front-end to the entry-point of AutoCorres in
 \<^verbatim>\<open>l4v/src/tools/c-parser/StrictCParser.ML\<close>.
 
 \<^item> \<^emph>\<open>At semantic back-ends execution time.\<close> The above points were dealing
 with the cases where modification actions were all occurring before getting a final
-\<open>C_Ast.CTranslUnit\<close> value. But this does not mean it is forbidden to make some slight
-adjustments once that resulting \<open>C_Ast.CTranslUnit\<close> value obtained. In particular, it
-is the tasks of semantic back-ends to precisely work with \<open>C_Ast.CTranslUnit\<close> as
-starting point, and possibly translate it to another different type. So letting a semantic back-end
-implement the mapping from \<open>T1\<close> to \<open>T2\<close> would mean here to first
-understand the back-end of interest's architecture, to see where the necessary minimal modifications
-must be made.
+\<^ML_type>\<open>C_Ast.CTranslUnit\<close> value. But this does not mean it is forbidden to make
+some slight adjustments once that resulting \<^ML_type>\<open>C_Ast.CTranslUnit\<close> value
+obtained. In particular, it is the tasks of semantic back-ends to precisely work with
+\<^ML_type>\<open>C_Ast.CTranslUnit\<close> as starting point, and possibly translate it to another
+different type. So letting a semantic back-end implement the mapping from \<open>T1\<close> to
+\<open>T2\<close> would mean here to first understand the back-end of interest's architecture, to
+see where the necessary minimal modifications must be made.
 
 By taking l4v as a back-end example, its integration with Isabelle/C first starts with translating
-\<open>C_Ast.CTranslUnit\<close> to l4v's default C99 AST. Then various analyses on the obtained AST
-are performed in \<^url>\<open>https://github.com/seL4/l4v/tree/master/tools/c-parser\<close> (the
-reader interested in the details can start by further exploring the ML files loaded by
+\<^ML_type>\<open>C_Ast.CTranslUnit\<close> to l4v's default C99 AST. Then various analyses on the
+obtained AST are performed in
+\<^url>\<open>https://github.com/seL4/l4v/tree/master/tools/c-parser\<close> (the reader interested
+in the details can start by further exploring the ML files loaded by
 \<^url>\<open>https://github.com/seL4/l4v/blob/master/tools/c-parser/CTranslation.thy\<close>). In
 short, to implement the mapping from \<open>T1\<close> to \<open>T2\<close> in the back-end part,
 one can either:
-  \<^item> modify the translation from \<open>C_Ast.CTranslUnit\<close> to C99,
+  \<^item> modify the translation from \<^ML_type>\<open>C_Ast.CTranslUnit\<close> to C99,
   \<^item> or modify the necessary ML files of interests in the l4v project.
 \<close>
 
