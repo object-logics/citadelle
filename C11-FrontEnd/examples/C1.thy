@@ -121,8 +121,9 @@ it is convenient to use ML antiquotations (be it for printing, or for doing any 
 like PIDE reporting).
 
 Ultimately, in contrast with \<^theory_text>\<open>setup\<close>, the return type of the
-\<^theory_text>\<open>\<approx>setup\<close> function is not \<open>theory -> theory\<close> but
-\<open>Context.generic -> Context.generic\<close>. \<close>
+\<^theory_text>\<open>\<approx>setup\<close> function is not
+\<^ML_type>\<open>theory -> theory\<close> but
+\<^ML_type>\<open>Context.generic -> Context.generic\<close>. \<close>
 
 C \<comment> \<open>Positional navigation: referring to any previous parsed sub-tree in the stack\<close> \<open>
 int a = (((0

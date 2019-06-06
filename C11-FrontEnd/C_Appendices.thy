@@ -562,9 +562,47 @@ section \<open>A Guide to Implement Semantic Back-Ends for Isabelle/C\<close>
 
 subsection \<open>General Principles\<close>
 
+subsection \<open>Example: Citadelle\<close> (* HOL-OCL back-end *)
+
 subsection \<open>Example: CLEAN\<close>
 
 subsection \<open>Example: AutoCorres\<close>
+
+section \<open>Quick Start (for people more familiar with C than Isabelle)\<close>
+
+text \<open>
+\<^item> The latest version of Isabelle can be easily retrieved at
+\<^url>\<open>http://isabelle.in.tum.de/\<close>.
+\<^item> After extracting the 2018 archive version
+\<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2018_app.tar.gz\<close>,
+\<^item> the shortest way to start programming in C is to open a new theory file:
+\<open>~/Isabelle2018/bin/isabelle jedit -d . Scratch.thy\<close>, inside the same current directory
+as the one containing \<^file>\<open>C_Main.thy\<close> (coming with Isabelle/C).
+\<^item> Then, this following minimal content can be copied there: \<^verbatim>\<open>theory Scratch
+imports C.C_Main begin C \<open>
+// C code
+\<close> end\<close>
+\<^item> This already enables the support of C11 code inside the special brackets
+``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as ``\<open>\<open>\<close>\<close>'' for readability reasons.
+\<^item> Finally, writing theorems and proofs along with C code becomes possible inside the special
+C comments \<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> --- newly supported by the
+project. In particular, more detailed documentations on Isabelle (and its outer main syntax) are
+located in the accompanying above archive. \<close>
+
+text \<open> To edit an existing C file, the above approach can be straightforwardly adapted:
+
+\begin{tabular}{c}
+ \<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close> \\
+ becomes replaced by \\
+ \<^verbatim>\<open>C_file\<close> \<^theory_text>\<open>\<open>~/file.c\<close>\<close>
+\end{tabular}
+
+Once done, it remains to press CTRL while hovering the mouse over the file name, followed by a click
+on it to open a new window loading that file. In this situation, it is still possible to write
+\<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> at any position where C comments are
+usually allowed (almost everywhere). \<close>
+
+section \<open>Acknowledgments\<close>
 
 (*<*)
 end
