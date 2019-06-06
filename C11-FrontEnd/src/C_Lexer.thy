@@ -41,8 +41,7 @@ theory C_Lexer
 begin
 
 text \<open>
-The lexing phase performed here is done following how \<^theory>\<open>Pure\<close> is bootstrapped:
-instead of using ML as implementation language, it is C (at least its syntax).
+The lexing phase of C closely resembles to that of ML, but its syntax is much complex.
 
 In particular, the next ML structures present in this theory are all aligned with
 \<^file>\<open>~~/src/Pure/ROOT.ML\<close>, and are thus accordingly sorted (except for
@@ -50,7 +49,7 @@ In particular, the next ML structures present in this theory are all aligned wit
 
 Since the last structure is \<^file>\<open>~~/src/Pure/ML/ml_lex.ML\<close>, this theory document is
 situated in the phase 1 of the bootstrap process, i.e., the part dealing with how to get some C tokens
-from a raw string: \<open>Position.T -> string -> token list\<close>.
+from a raw string: \<^ML_type>\<open>Position.T -> string -> 'token list\<close>.
 \<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/scan.ML\<close>\<close> \<open>
@@ -670,7 +669,8 @@ val range_list_of0 =
  fn [] => Position.no_range
   | toks as tok1 :: _ => Position.range (pos_of tok1, end_pos_of (List.last toks))
     (* WARNING the use of:
-       fn tok2 => List.last (Symbol_Pos.explode (content_of tok2, pos_of tok2)) |-> Position.advance
+       \<comment>\<open>\<^ML>\<open>fn content_of => fn pos_of => fn tok2 =>
+             List.last (Symbol_Pos.explode (content_of tok2, pos_of tok2)) |-> Position.advance\<close>\<close>
        would not return an accurate position if for example several
        "backslash newlines" are present in the symbol *)
 

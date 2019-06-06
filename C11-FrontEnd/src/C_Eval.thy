@@ -43,9 +43,6 @@ begin
 
 subsection \<open>Evaluation Engine for the Core Language\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>C.C_Parser_Language\<close>\<close>
 
-text\<open>The parser consists of a generic module @{file "../copied_from_git/mlton/lib/mlyacc-lib/base.sig"}, 
-which interprets a automata-like format generated from smlyacc.\<close>
-
 ML \<comment> \<open>\<^theory>\<open>C.C_Environment\<close>\<close> \<open>
 structure C_Stack =
 struct
@@ -229,7 +226,9 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
 end
 \<close>
 
-text\<open>This is where the instatiation of the Parser Functor with the Lexer actually happens ...\<close>
+text \<open> This is where the instancing of the parser functor (from
+\<^theory>\<open>C.C_Parser_Language\<close>) with the lexer (from
+\<^theory>\<open>C.C_Lexer\<close>) actually happens ... \<close>
 
 ML \<comment> \<open>\<^theory>\<open>C.C_Parser_Language\<close>\<close> \<open>
 structure C_Grammar_Parser =

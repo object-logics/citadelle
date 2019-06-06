@@ -560,6 +560,10 @@ end
 
 subsection \<open>Loading the Generic Grammar Simulator\<close>
 
+text \<open> The parser consists of a generic module
+\<^file>\<open>../copied_from_git/mlton/lib/mlyacc-lib/base.sig\<close>, which interprets an
+automata-like format generated from ML-Yacc. \<close>
+
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/base.sig"
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/join.sml"
 ML_file "../copied_from_git/mlton/lib/mlyacc-lib/lrtable.sml"

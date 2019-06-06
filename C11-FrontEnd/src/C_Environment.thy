@@ -42,9 +42,6 @@ begin
 
 subsection \<open>Types Characterizing Command Actions (Outer and Inner Commands)\<close>
 
-text\<open>The key element of this following structure is the type \verb+eval_time+ which is relevant for
-the generic annotation module. \<close>
-
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
 structure C_Transition =
 struct
@@ -75,9 +72,14 @@ end;
 
 \<close>
 
+text \<open> The key element of \<^ML_structure>\<open>C_Transition\<close> is
+\<^ML_type>\<open>C_Transition.eval_time\<close>, relevant for the generic annotation
+module. \<close>
+
 subsection \<open>Definition of the Environment\<close>
 
-text\<open>It comes in two parts: a basic core tstructure and a (thin) layer of utilities. \<close>
+text \<open> The environment comes in two parts: a basic core structure, and a (thin) layer of
+utilities. \<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
 structure C_Env = struct
@@ -236,7 +238,7 @@ fun map_reports_text f {context, reports_text} =
 
 val empty_env_lang : env_lang = 
         {var_table = {tyidents = Symtab.make [], idents = Symtab.make []}, 
-         scopes = [], namesupply = 0(*"mlyacc_of_happy"*), stream_ignored = [],
+         scopes = [], namesupply = 0, stream_ignored = [],
          env_directives = Symtab.empty}
 fun empty_env_tree context =
         {context = context, reports_text = []}
@@ -256,10 +258,10 @@ fun make env_lang stream_lang env_tree =
 fun string_of (env_lang : env_lang) = 
   let fun dest0 x f = x |> Symtab.dest |> map f
       fun dest {tyidents, idents} = (dest0 tyidents #1, dest0 idents (fn (i, (_,_,v)) => (i, if #global v then "global" else "local")))
-  in @{make_string} ( ("var_table", dest (#var_table env_lang))
-                    , ("scopes", map (fn (id, i) => (Option.map (fn C_Ast.Ident0 (i, _, _) => (String.implode o C_Ast.to_list) i) id, dest i)) (#scopes env_lang))
-                    , ("namesupply", #namesupply env_lang)
-                    , ("stream_ignored", #stream_ignored env_lang)) end
+  in \<^make_string> ( ("var_table", dest (#var_table env_lang))
+                 , ("scopes", map (fn (id, i) => (Option.map (fn C_Ast.Ident0 (i, _, _) => (String.implode o C_Ast.to_list) i) id, dest i)) (#scopes env_lang))
+                 , ("namesupply", #namesupply env_lang)
+                 , ("stream_ignored", #stream_ignored env_lang)) end
 
 (**)
 
