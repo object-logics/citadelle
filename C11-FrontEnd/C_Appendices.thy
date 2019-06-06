@@ -122,7 +122,7 @@ in
 
 val _ =
   Theory.setup
-   (entity_antiqs C_Annotation.check_command "isacommand" @{binding annotation});
+   (entity_antiqs C_Annotation.check_command "isacommand" \<^binding>\<open>annotation\<close>);
 
 end;
 
@@ -441,13 +441,13 @@ text \<open>
     @{attribute_def C_propagate_env} & : & \<open>attribute\<close> & default \<open>false\<close> \\
   \end{tabular}
 
-  @{rail \<open>
+  \<^rail>\<open>
     @@{command C_file} @{syntax name} ';'?
     ;
     (@@{command C} | @@{command C_export_boot} | @@{command C_prf} |
       @@{command C_val} | @@{command C_export_file}) @{syntax text}
     ;
-  \<close>}
+  \<close>
 
   \<^descr> \<^theory_text>\<open>C_file name\<close> resembles to
   \<^theory_text>\<open>ML_file name\<close>: it reads the given C
@@ -512,7 +512,7 @@ text \<open>
 subsection \<open>Inner Syntax Commands\<close>
 
 text \<open>
-  @{rail \<open>
+  \<^rail>\<open>
     (@@{annotation ML_file} | @@{annotation "ML_file\<Down>"} |
       @@{annotation C_file} | @@{annotation "C_file\<Down>"}) @{syntax name} ';'?
     ;
@@ -523,7 +523,7 @@ text \<open>
       @@{annotation C_export_boot} | @@{annotation "C_export_boot\<Down>"} |
       @@{annotation C_export_file} | @@{annotation "C_export_file\<Down>"}) @{syntax text}
     ;
-  \<close>}
+  \<close>
 
   \<^descr> \<^C_theory_text>\<open>ML_file\<close>, \<^C_theory_text>\<open>C_file\<close>,
   \<^C_theory_text>\<open>ML\<close>, \<^C_theory_text>\<open>setup\<close>,
