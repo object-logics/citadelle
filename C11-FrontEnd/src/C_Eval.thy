@@ -41,9 +41,7 @@ theory C_Eval
           C_Parser_Annotation
 begin
 
-section \<open>Setup of Language Evaluation\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>C.C_Parser_Language\<close>\<close>
-subsection \<open>Evaluation Engine for the Core Language\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: 
-            \<^theory>\<open>C.C_Parser_Language\<close>\<close>
+subsection \<open>Evaluation Engine for the Core Language\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>C.C_Parser_Language\<close>\<close>
 
 ML \<comment> \<open>\<^theory>\<open>C.C_Environment\<close>\<close> \<open>
 structure C_Stack =
@@ -320,11 +318,7 @@ fun eval env_lang err accept stream_lang =
 end
 \<close>
 
-section \<open>Setup of Annotation Evaluation\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: 
-         \<^theory>\<open>C.C_Parser_Language\<close>, \<^theory>\<open>C.C_Parser_Annotation\<close>\<close>
-subsection \<open>Full Evaluation Engine (Core Language + Annotation)\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>:
-            \<^theory>\<open>C.C_Parser_Language\<close>, \<^theory>\<open>C.C_Parser_Annotation\<close>\<close>
-
+subsection \<open>Full Evaluation Engine (Core Language + Annotation)\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>C.C_Parser_Language\<close>, \<^theory>\<open>C.C_Parser_Annotation\<close>\<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_context.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
