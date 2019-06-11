@@ -60,6 +60,7 @@ session C_examples = C + (* a standard test suite *)
 
 session C_document = C_examples +
   options [document = pdf, document_output = "generated/part3"]
+  sessions C
   theories
     C_Appendices
   document_files
