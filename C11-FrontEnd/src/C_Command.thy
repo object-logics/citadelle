@@ -371,6 +371,16 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Transition.Top_down ("C_export_boot\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0_no_range (C_Inner_Toplevel.generic_theory o tap C_Module.C_export_file) C_Transition.Bottom_up ("C_export_file", \<^here>)
                       #> C_Inner_Syntax.command0_no_range (C_Inner_Toplevel.generic_theory o tap C_Module.C_export_file) C_Transition.Top_down ("C_export_file\<Down>", \<^here>)
+                      #> C_Inner_Syntax.command_no_range
+                           (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup
+                             \<open>fn ((_, (_, pos1, pos2)) :: _) =>
+                                  (fn _ => fn _ =>
+                                    tap (fn _ =>
+                                          Position.reports_text [((Position.range (pos1, pos2)
+                                                                   |> Position.range_position, Markup.intensify), "")]))
+                               | _ => fn _ => fn _ => I\<close>)
+                           C_Transition.Bottom_up
+                           ("highlight", \<^here>)
                       #> theorem ("theorem", \<^here>) false
                       #> theorem ("lemma", \<^here>) false
                       #> theorem ("corollary", \<^here>) false
