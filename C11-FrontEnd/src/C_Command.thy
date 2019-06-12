@@ -121,9 +121,15 @@ fun C_export_file context =
   |> map Input.source_content
   |>  let val thy = Context.theory_of context
           fun check_file_not path =
-            if File.exists path andalso not (File.is_dir path)
-            then error ("Existing file: " ^ Path.print (Path.expand path))
-            else path;
+            tap
+              (fn _ =>
+                if File.exists path andalso not (File.is_dir path)
+                then (if Config.get (Context.proof_of context) C_Options.export_file_exist
+                      then error
+                      else Output.information)
+                       ("Existing file: " ^ Path.print (Path.expand path))
+                else ())
+              path;
       in
         File.write_list
           (check_file_not (File.full_path (Resources.master_directory thy)

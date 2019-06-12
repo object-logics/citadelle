@@ -700,4 +700,6 @@ val _ =
 in end
 \<close>
 
+declare [[C_export_file_exist = false]]
+
 end
