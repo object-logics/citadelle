@@ -350,8 +350,8 @@ sorted in increasing action time.
 to modify the C code in input, by adding a directive \<^C>\<open>#define _ _\<close> performing the
 necessary rewrite.
 
-\<^item> \<^emph>\<open>Before even starting the Isabelle system.\<close> As an alternative of changing the C
-code, one can modify
+\<^item> \<^emph>\<open>Before even starting the Isabelle system.\<close> As an alternative of
+changing the C code, one can modify
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
 by hand, by explicitly writing \<open>T2\<close> at the specific position of the rule code
 generating \<open>T1\<close>. However, this solution implies to re-generate
@@ -573,21 +573,24 @@ section \<open>Quick Start (for people more familiar with C than Isabelle)\<clos
 text \<open>
 \<^item> The latest version of Isabelle can be easily retrieved at
 \<^url>\<open>http://isabelle.in.tum.de/\<close>.
-\<^item> After extracting the 2018 archive version
+\<^item> Assuming one is working with the 2018 archive version
 \<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2018_app.tar.gz\<close>,
-\<^item> the shortest way to start programming in C is to open a new theory file:
+the shortest way to start programming in C is to open a new theory file:
 \<open>~/Isabelle2018/bin/isabelle jedit -d . Scratch.thy\<close>, inside the same current directory
-as the one containing \<^file>\<open>C_Main.thy\<close> (coming with Isabelle/C).
+as the one containing \<^file>\<open>C_Main.thy\<close> (designated as
+\<^theory>\<open>C.C_Main\<close> in Isabelle/C).
 \<^item> Then, this following minimal content can be copied there: \<^verbatim>\<open>theory Scratch
 imports C.C_Main begin C \<open>
 // C code
 \<close> end\<close>
 \<^item> This already enables the support of C11 code inside the special brackets
-``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as ``\<open>\<open>\<close>\<close>'' for readability reasons.
+``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as ``\<open>\<open>\<close>\<close>''
+for readability reasons.
 \<^item> Finally, writing theorems and proofs along with C code becomes possible inside the special
 C comments \<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> --- newly supported by the
 project. In particular, more detailed documentations on Isabelle (and its outer main syntax) are
-located in the accompanying above archive. \<close>
+located in the accompanying above archive (for example in
+\<^dir>\<open>~~/src/Doc/Isar_Ref\<close>). \<close>
 
 text \<open> To edit an existing C file, the above approach can be straightforwardly adapted:
 
@@ -601,6 +604,130 @@ Once done, it remains to press CTRL while hovering the mouse over the file name,
 on it to open a new window loading that file. In this situation, it is still possible to write
 \<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> at any position where C comments are
 usually allowed (almost everywhere). \<close>
+
+section \<open>Known Limitation and Future Work\<close>
+subsection \<open>The Document Model of the Isabelle/PIDE (applying for Isabelle 2018)\<close>
+subsubsection \<open>Introduction\<close>
+
+text \<open> At its most basic form, the general syntactic scope of an Isabelle/Isar document can be
+seen as being composed of two syntactic alternations of editing space: fragments of the inner syntax
+language, themselves part of the more general outer syntax (the inner syntax is implemented as an
+atomic entity of the outer language); see
+\<^file>\<open>~~/src/Doc/Isar_Ref/Outer_Syntax.thy\<close>. So strictly speaking, when attempting
+to support a new language \<open>L\<close> in Isabelle, there is always the question of fine-grain
+estimating which subsets of \<open>L\<close> will be represented in the outer syntax part, and if it
+possibly remains any left subsets to be represented on the more inner (syntactic) part.
+
+However, the general tendency we could observe be convenient for random implementors is to make the
+full language \<open>L\<close> be supported inside the inner syntax allocated space. This is
+particularly relevant for a language \<open>L\<close> satisfying one or more of the following
+properties:
+  \<^item> The language \<open>L\<close> must not conflict with certain ASCII escaping symbols of
+  the outer (syntax) language, including for example \<^verbatim>\<open>"\<close> or
+  \<^verbatim>\<open>`\<close>. 
+  \<^item> \<open>L\<close> is a realistic language, more complex than any combinations of outer
+  named tokens that can be ever covered in terms of expressivity power (where the list of outer
+  named tokens is provided in \<^file>\<open>~~/src/Doc/Isar_Ref/Outer_Syntax.thy\<close>).
+  \<^item> It is preferable of not altering the outer syntax language with too specific and
+  challenging features of \<open>L\<close>. This is particularly true since in Isabelle 2018 there
+  is no way of modifying the outer syntax without in turn making the modifications irremediably
+  happen on the Isabelle source code.
+
+With the introduction of cartouches since Isabelle 2014, making the entire language \<open>L\<close>
+be fully supported in the inner syntax part has become all the more
+easy. \<^footnote>\<open>Fortunately for the moment, the languages \<open>L\<close> we have been
+working with do not contain any syntactic tokens similar to cartouche delimiter symbols.\<close>
+However, for the case of the C language, there are actually certain limitations caused by C
+directives (that we are going to point out in the next part). In particular, to solve them, we do
+not see any other better alternatives than modifying the Isabelle source code. \<close>
+
+text \<open> Similar to how the ML language is handled in an Isabelle/Isar document, the
+\<^theory_text>\<open>C\<close> command is implemented by particularly taking a cartouche as
+argument. However some difficulties are happening: in contrast to ML, it is a wide established
+practice in C to write directives in a C file, and use a preprocessor tool to determine the final
+source code to really take in consideration as ``compilation starting point'', or ``prover IDE
+support point''. This actually generates a new challenge for the Isabelle document model, since one
+popular directive is \<^C>\<open>#include <file>
+\<close> to refer to a specific source code file to copy-paste inside the source containing that
+directive, and to replace it. In an ideal setting, end-users would hope to see \<open>file\<close>
+be automatically loaded and subsequently automatically managed, but to our view, making this
+behavior happen using a native Isabelle 2018 version appears to be not possible (without touching
+its source code). The next part is going to develop on this limitation in more
+detail. \<^footnote>\<open>In comparison with the ML language, ML antiquotations can also refer to
+external files, for example in formal comments. Unfortunately, the problem is still present in ML:
+files referred to when using this technique are not loaded in the document model.\<close> \<close>
+
+subsubsection \<open>The Document Model\<close>
+
+text \<open> As remarkable feature of the document model, we can cite its capability to manage the
+edition changes on an overall collection of theory documents in an implicit automatic way. Indeed,
+any modifications occurring on one document node are all automatically scheduled to be at some point
+propagated to other nodes depending on it. This is a task highly dynamic, particularly happening
+during the edition activity.
+
+In more detail, when the user is firstly about to start Isabelle/jEdit to load a specific theory
+file, there is actually an initial step of resolving phase determining a first graph version of the
+total documents to load (\<^file>\<open>~~/src/Pure/PIDE/document.ML\<close>). Later, this graph has
+the potential to be further refined, depending on if new theory files are explicitly requested to be
+added or removed. Consequently, we can already observe how this ML part of the system has been
+fine-implemented to support such sort of dynamic influx.
+
+In practice however, there is no way that user-programmed extensions can do to exploit implicit
+dependencies between sub-documents. Indeed, we do not think false to affirm that the respective
+implementation part of \<^file>\<open>~~/src/Pure/PIDE/document.ML\<close> has been enough
+thoughtfully designed to handle sub-documents dependencies. On the other hand, it does not look
+totally trivial to ultimately get a public ML API able to dynamically load and remove new document
+nodes, through explicit on-demand requests, particularly at command execution time (like having a
+dynamic version of \<^file>\<open>~~/src/Pure/PIDE/protocol.ML\<close>). \<^footnote>\<open>Also,
+for optimal performance reasons, we would be better interested in a pure solution in ML whenever
+this is ever feasible. Indeed, this is to be aligned with how the C-like commands
+(\<^theory_text>\<open>C\<close> and \<^theory_text>\<open>C_file\<close>) are optimized in their
+implementations. (Even if they are initially derived from Haskell, we are dealing in the end with
+some raw translated ML code.)\<close> In comparison, the best situation currently handled by the
+prover IDE is the possibility of tracking (arbitrary) files, but at the cost of mandatorily
+involving first the user make any files of interests be loaded in the editor. (As remark, there are
+multiple ways of making a file be loaded in the editor, this does not necessarily mean to open it
+using one most accustomed way.) On the contrary, the limitation case pointed here at command
+execution time is slightly more general:
+  \<^item> The number of files wished to be opened or closed can not be solely determined from the
+  sole information contained in the static theory file, where the C command is written.
+  \<^item> The final list of files to be opened or closed might result from the execution of an
+  arbitrary ML code, more specifically, when that code is executed when the system is internally
+  joining in parallel other consecutive commands. As an example, conditional directives illustrate
+  the case of dynamically generating a list of several files to include \<^C>\<open>#if _
+    #include <file1>
+  #else
+    #include <file2>
+    #include <file3>
+  #endif\<close>.
+\<close>
+
+subsubsection \<open>Examples\<close>
+
+text \<open>
+  \<^item> Commands declared as of type \<open>thy_decl\<close> in the theory header are scheduled
+  to be executed once. Additionally, they are not tracking the content of file names provided in
+  argument, so a change there will not trigger a reevaluation of the associated command.
+  \<^item> To make a command \<open>C\<close> track the content of \<open>file\<close>, whenever the
+  file is changing, setting \<open>C\<close> to be of type \<open>thy_load\<close> in the theory
+  header is a first step, but not enough. To be effective, \<open>file\<close> must also be loaded,
+  by either explicitly opening it, or clicking on its name after the command. Examples of commands
+  in this situation include: \<^theory_text>\<open>external_file\<close>,
+  \<^theory_text>\<open>bibtex_file\<close>, \<^theory_text>\<open>ML_file\<close>.
+  \<^item> In terms of recursivity, for the case of a chain of sub-documents of the form (theory
+  file: \<^theory_text>\<open>C_file\<close>) \<open>\<Longrightarrow>\<close> (C file0:
+  \<^C>\<open>#include <file1.c>
+  \<close>) \<open>\<Longrightarrow>\<close> (C file1: \<^C>\<open>#include <file2.c>
+  \<close>) \<open>\<Longrightarrow>\<close> (C file2: \<^C>\<open>#include <file3.c>
+  \<close>), we ideally expect a modification in \<open>file3.c\<close> be taken into account in all
+  ancestor files including the initial theory, provoking the associated command of the theory be
+  reevaluated.
+  \<^item> When a theory is depending on other theories (such as \<^theory>\<open>C.C_Eval\<close>
+  depending on \<^theory>\<open>C.C_Parser_Language\<close> and
+  \<^theory>\<open>C.C_Parser_Annotation\<close>), modifying the list of theories in importation
+  automatically triggers what the user is expecting: for example, the newly added theories are
+  dynamically imported, any change by another external editor makes everything consequently
+  propagated. \<close>
 
 section \<open>Acknowledgments\<close>
 
