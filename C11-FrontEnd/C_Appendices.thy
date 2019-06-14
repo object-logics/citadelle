@@ -445,7 +445,9 @@ text \<open>
     @@{command C_file} @{syntax name} ';'?
     ;
     (@@{command C} | @@{command C_export_boot} | @@{command C_prf} |
-      @@{command C_val} | @@{command C_export_file}) @{syntax text}
+      @@{command C_val}) @{syntax text}
+    ;
+    @@{command C_export_file}
     ;
   \<close>
 
@@ -520,8 +522,10 @@ text \<open>
       @@{annotation setup} | @@{annotation "setup\<Down>"} |
       @@{annotation "\<approx>setup"} | @@{annotation "\<approx>setup\<Down>"} |
       @@{annotation C} | @@{annotation "C\<Down>"} |
-      @@{annotation C_export_boot} | @@{annotation "C_export_boot\<Down>"} |
-      @@{annotation C_export_file} | @@{annotation "C_export_file\<Down>"}) @{syntax text}
+      @@{annotation C_export_boot} | @@{annotation "C_export_boot\<Down>"}) @{syntax text}
+    ;
+    (@@{annotation C_export_file} | @@{annotation "C_export_file\<Down>"} |
+     @@{annotation highlight})
     ;
   \<close>
 
@@ -543,6 +547,8 @@ text \<open>
   interactive features (e.g., in contrast to \<open>f\<close>, which by default does not have the
   possibility to directly use the information provided by \<open>stack\<close>, \<open>top\<close>
   and \<open>env\<close>).
+
+  \<^descr> \<^C_theory_text>\<open>highlight\<close> change the background color of the C tokens pointed by the command.
 
   \<^descr> \<^C_theory_text>\<open>ML_file\<Down>\<close>,
   \<^C_theory_text>\<open>C_file\<Down>\<close>, \<^C_theory_text>\<open>ML\<Down>\<close>,
