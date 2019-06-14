@@ -439,6 +439,7 @@ text \<open>
     @{attribute_def C_parser_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
     @{attribute_def C_ML_verbose} & : & \<open>attribute\<close> & default \<open>true\<close> \\
     @{attribute_def C_propagate_env} & : & \<open>attribute\<close> & default \<open>false\<close> \\
+    @{attribute_def C_export_file_exist} & : & \<open>attribute\<close> & default \<open>true\<close> \\
   \end{tabular}
 
   \<^rail>\<open>
@@ -509,6 +510,10 @@ text \<open>
   command (e.g., \<^theory_text>\<open>C_file\<close>,
   \<^theory_text>\<open>C\<close>) initialized with the environment of
   the previous C command if existing.
+
+  \<^descr> @{attribute_def C_export_file_exist} makes \<^theory_text>\<open>C_export_file\<close>
+  raise either an error, or just an information message informing about the existence of the target
+  file.
 \<close>
 
 subsection \<open>Inner Syntax Commands\<close>
@@ -548,7 +553,7 @@ text \<open>
   possibility to directly use the information provided by \<open>stack\<close>, \<open>top\<close>
   and \<open>env\<close>).
 
-  \<^descr> \<^C_theory_text>\<open>highlight\<close> change the background color of the C tokens pointed by the command.
+  \<^descr> \<^C_theory_text>\<open>highlight\<close> changes the background color of the C tokens pointed by the command.
 
   \<^descr> \<^C_theory_text>\<open>ML_file\<Down>\<close>,
   \<^C_theory_text>\<open>C_file\<Down>\<close>, \<^C_theory_text>\<open>ML\<Down>\<close>,
