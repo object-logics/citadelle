@@ -655,50 +655,7 @@ val _ = Theory.setup ((* 1 '@' *)
 end
 \<close>
 
-section \<open>Overloading directives\<close>
-
-ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
-local
-val _ =
-  Theory.setup
-  (Context.theory_map
-    (C_Context.Directives.map
-      (C_Context.directive_update ("define", \<^here>)
-        (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
-            let val map_ctxt = 
-                case (tok3, toks) of
-                  (C_Lex.Token (_, (C_Lex.Ident, ident)),
-                   [C_Lex.Token (_, (C_Lex.Integer (_, C_Ast.DecRepr0, []), integer))]) =>
-                    C_Env.map_context
-                      (Context.map_theory
-                        (Named_Target.theory_map
-                          ((#2 oo Specification.definition_cmd
-                             NONE
-                             []
-                             []
-                             ((Binding.make ("", Position.none), []), ident ^ " \<equiv> " ^ integer))
-                           false)))
-                | _ => I
-            in fn (env_dir, env_tree) =>
-                ( NONE
-                , []
-                , let val name = C_Lex.content_of tok3
-                      val id = serial ()
-                      val pos = [C_Lex.pos_of tok3]
-                  in
-                    ( Symtab.update (name, (pos, id, toks)) env_dir
-                    , env_tree |> C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos (C_Context.markup_directive_define true false pos) (name, id))
-                               |> map_ctxt)
-                  end)
-            end
-          | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
-              tap (fn _ => (* not yet implemented *)
-                           warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
-              #> (fn env => (NONE, [], env))
-          | _ => fn env => (NONE, [], env)))))
-
-in end
-\<close>
+section \<open>\<close>
 
 declare [[C_export_file_exist = false]]
 

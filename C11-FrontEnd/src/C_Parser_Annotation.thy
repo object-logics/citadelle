@@ -751,7 +751,7 @@ fun explode keywords pos text =
 in
 fun syntax' f =
   I #> map
-   (fn tok0 as Token ((source, (pos1, pos2)), (kind, x), slot) =>
+   (fn tok0 as Token ((source, (pos1, pos2)), (kind, x), _) =>
     if is_stack1 tok0 orelse is_stack2 tok0 orelse is_stack3 tok0 then
       make_default source pos1
     else if is_eof tok0 then
