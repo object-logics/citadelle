@@ -157,12 +157,14 @@ val _ =
                     C_Env.map_context
                       (Context.map_theory
                         (Named_Target.theory_map
-                          ((#2 oo Specification.definition_cmd
-                             NONE
-                             []
-                             []
-                             ((Binding.make ("", Position.none), []), ident ^ " \<equiv> " ^ integer))
-                           false)))
+                          (Specification.definition_cmd
+                            NONE
+                            []
+                            []
+                            ((Binding.make ("", Position.none), []), ident ^ " \<equiv> " ^ integer)
+                            true
+                           #> tap (fn ((_, (_, t)), ctxt) => Output.information ("Generating " ^ Pretty.string_of (Syntax.pretty_term ctxt (Thm.prop_of t)) ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks)))))
+                           #> #2)))
                 | _ => I
             in fn (env_dir, env_tree) =>
                 ( NONE
