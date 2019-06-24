@@ -626,32 +626,33 @@ val scan_ident = Scan.one (C_Token.is_kind Token.Ident) >> (fn tok => (C_Token.c
 val scan_brack_star = C_Parse.position (C_Parse.$$$ "[") -- C_Parse.star -- C_Parse.range (C_Parse.$$$ "]")
                       >> (fn (((s1, pos1), s2), (s3, (_, pos3))) => (s1 ^ s2 ^ s3, Position.range_position (pos1, pos3)))
 val scan_opt_colon = Scan.option (C_Parse.$$$ ":")
-fun command cmd scan f =
-  C_Annotation.command' cmd "" (K (scan_opt_colon -- (scan >> f)
+val scan_colon = C_Parse.$$$ ":" >> SOME
+fun command cmd scan0 scan f =
+  C_Annotation.command' cmd "" (K (scan0 -- (scan >> f)
                                       >> K C_Transition.Never))
 in
 val _ = Theory.setup ((* 1 '@' *)
-                         command ("INVARIANT", \<^here>) C_Parse.term Invariant
-                      #> command ("INV", \<^here>) C_Parse.term Invariant
+                         command ("INVARIANT", \<^here>) scan_colon C_Parse.term Invariant
+                      #> command ("INV", \<^here>) scan_colon C_Parse.term Invariant
 
                       (* '+' until being at the position of the first ident
                         then 2 '@' *)
-                      #> command ("FNSPEC", \<^here>) (scan_ident --| scan_opt_colon -- C_Parse.term) Fnspec
-                      #> command ("RELSPEC", \<^here>) C_Parse.term Relspec
-                      #> command ("MODIFIES", \<^here>) (Scan.repeat (   scan_brack_star >> pair true
-                                                               || scan_ident >> pair false))
-                                                  Modifies
-                      #> command ("DONT_TRANSLATE", \<^here>) (Scan.succeed ()) (K Dont_translate)
+                      #> command ("FNSPEC", \<^here>) scan_opt_colon (scan_ident --| scan_opt_colon -- C_Parse.term) Fnspec
+                      #> command ("RELSPEC", \<^here>) scan_opt_colon C_Parse.term Relspec
+                      #> command ("MODIFIES", \<^here>) scan_colon (Scan.repeat (   scan_brack_star >> pair true
+                                                                          || scan_ident >> pair false))
+                                                            Modifies
+                      #> command ("DONT_TRANSLATE", \<^here>) scan_opt_colon (Scan.succeed ()) (K Dont_translate)
 
                       (**)
-                      #> command ("AUXUPD", \<^here>) C_Parse.term Auxupd
-                      #> command ("GHOSTUPD", \<^here>) C_Parse.term Ghostupd
-                      #> command ("SPEC", \<^here>) C_Parse.term Spec
-                      #> command ("END-SPEC", \<^here>) C_Parse.term End_spec
+                      #> command ("AUXUPD", \<^here>) scan_colon C_Parse.term Auxupd
+                      #> command ("GHOSTUPD", \<^here>) scan_colon C_Parse.term Ghostupd
+                      #> command ("SPEC", \<^here>) scan_colon C_Parse.term Spec
+                      #> command ("END-SPEC", \<^here>) scan_colon C_Parse.term End_spec
 
                       (**)
-                      #> command ("CALLS", \<^here>) (Scan.repeat scan_ident) Calls
-                      #> command ("OWNED_BY", \<^here>) scan_ident Owned_by);
+                      #> command ("CALLS", \<^here>) scan_opt_colon (Scan.repeat scan_ident) Calls
+                      #> command ("OWNED_BY", \<^here>) scan_opt_colon scan_ident Owned_by);
 end
 \<close>
 
