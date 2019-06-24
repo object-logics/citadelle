@@ -740,6 +740,53 @@ text \<open>
   dynamically imported, any change by another external editor makes everything consequently
   propagated. \<close>
 
+subsection \<open>Parsing Error\<close>
+
+text \<open> When trying to decide if the next parsing action is a Shift or Reduce action to
+perform, the grammar simulator \<^ML>\<open>LALR_Parser_Eval.parse\<close> can actually decide to do
+another action: ignore everything and immediately stop the simulation.
+
+If the parser ever decides to stop, this can only be for two reasons:
+\<^item> The parser is supposed to have correctly finished its parsing task, making it be in an
+acceptance state. As acceptance states are encoded in the grammar, it is easy to find if this
+information is correct, or if it has to be adjusted in more detail by inspecting
+\<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
+(\<^file>\<open>generated/c_grammar_fun.grm.sml\<close>).
+\<^item> The parser seems to be unable to correctly finish its parsing task. In this case, the user
+will see an error be explicitly raised by the prover IDE. However raising an error is just the
+default behavior of Isabelle/C: the decision to whether raise interruptive errors ultimately depends
+on how front-end commands are implemented (such as \<^theory_text>\<open>C\<close>,
+\<^theory_text>\<open>C_file\<close>, etc.). For instance, similarly as to how outer syntax commands
+are implemented, we can imagine a tool implementing a kind of partial parsing, analyzing the longest
+sequence of well-formed input, and discarding some strategic next set of faulty tokens with a well
+suited informative message, so that the parsing process could be maximally repeated on what is
+coming afterwards.
+
+Currently, the default behavior of Isabelle/C is to raise the error defined in
+\<^ML>\<open>C_Module.err\<close> at the very first opportunity \<^footnote>\<open>At the time of
+writing it is: \<^emph>\<open>No matching grammar rule\<close>.\<close>. The possible solutions to
+make the error disappear at the position it is indicating can be detailed as follows:
+  \<^item> Modifying the C code in input would be a first solution whenever we suspect something is
+  making it erroneous (and when we have a reason to believe that the grammar is behaving as it
+  should).
+  
+  \<^item> However, we could still get the above error in front of an input where one is usually
+  expecting to see not causing a failure. In particular, there are several C features (such as C
+  directives) explicitly left for semantic back-ends (pre-) processing, so in general not fully
+  semantically processed at parsing time.
+
+  For example, whereas the code \<^C>\<open>#define i int
+  i a;\<close> succeeds, replacing its first line with the directive \<^C>\<open>#include <file.c>
+  \<close> will not initially work, even if \<open>file.c\<close> contains
+  \<^C>\<open>#define i int\<close>, as the former directive has been left for semantic back-end
+  treatment. One way of solving this would be to modify the C code in input for it to be already
+  preprocessed (without directives), another way would be adding a specific new semantic back-end
+  implementing the automation of the preprocessing task (as done in our l4v back-end).
+  
+  \<^item> Ultimately, modifying the grammar with new rules cancelling the exception would only work
+  if the problem really relies on the grammar, as it was mentioned for the acceptance state.
+  \<close>
+
 section \<open>Acknowledgments\<close>
 
 (*<*)
