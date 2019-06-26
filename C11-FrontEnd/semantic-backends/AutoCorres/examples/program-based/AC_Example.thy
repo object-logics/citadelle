@@ -35,7 +35,7 @@
  ******************************************************************************)
 
 theory AC_Example
-  imports AC_Command
+  imports "../../src/compiler/AC_Command"
 begin
 
 C \<comment> \<open>Copyright\<close> \<open>
