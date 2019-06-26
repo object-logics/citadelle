@@ -49,7 +49,6 @@ session C = HOL +
 session C_examples = C + (* a standard test suite *)
   options [document = pdf, document_output = "generated/part2"]
   theories
-    "examples/C0"
     "examples/C1"
     "examples/C2"
     "examples/C3"
