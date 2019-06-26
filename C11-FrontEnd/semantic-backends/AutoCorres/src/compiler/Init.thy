@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory AC_Command
+theory Init
   imports "HOL-Eisbach.Eisbach"
           C.C_Main
 begin

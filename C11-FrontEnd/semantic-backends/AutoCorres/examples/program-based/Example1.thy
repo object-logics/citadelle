@@ -34,8 +34,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-theory AC_Example
-  imports "../../src/compiler/AC_Command"
+theory Example1
+  imports "../../src/compiler/Init"
 begin
 
 C \<comment> \<open>Copyright\<close> \<open>

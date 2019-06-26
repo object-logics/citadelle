@@ -36,8 +36,8 @@
 
 chapter \<open>Example\<close>
 
-theory C_autocorres
-  imports "../../src/compiler/AC_Command"
+theory Example2
+  imports "../../src/compiler/Init"
 begin
 
 ML\<open>
