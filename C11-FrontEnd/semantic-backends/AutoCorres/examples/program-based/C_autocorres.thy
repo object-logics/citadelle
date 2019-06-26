@@ -37,7 +37,7 @@
 chapter \<open>Example\<close>
 
 theory C_autocorres
-  imports "../semantic-backends/AutoCorres/src/compiler/AC_Command"
+  imports "../../src/compiler/AC_Command"
 begin
 
 ML\<open>

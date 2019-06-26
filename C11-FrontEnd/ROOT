@@ -72,9 +72,3 @@ session Isabelle_C = C_document +
   document_files
     "root.tex"
     "root.bib"
-
-session C_autocorres = C +
-  sessions
-    "HOL-Eisbach"
-  theories
-    "examples/C_autocorres"
