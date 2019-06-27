@@ -67,7 +67,8 @@ fun output_comment ctxt (kind, syms) =
       |> output_symbols
       |> Latex.enclose_body "%\n\\isamarkupcancel{" "}"
   | Comment.Latex =>
-      [Latex.symbols (Symbol_Pos.cartouche_content syms)])
+      [Latex.symbols (Symbol_Pos.cartouche_content syms)]
+  | Comment.Marker => [])
 and output_comment_document ctxt (comment, syms) =
   (case comment of
     SOME kind => output_comment ctxt (kind, syms)
@@ -144,6 +145,7 @@ fun output_token ctxt tok =
   in
     (case C_Token.kind_of tok of
       Token.Comment NONE => []
+    | Token.Comment (SOME Comment.Marker) => []
     | Token.Command => output false "\\isacommand{" "}"
     | Token.Keyword =>
         if Symbol.is_ascii_identifier (C_Token.content_of tok)
@@ -177,14 +179,17 @@ struct
 local
 
 fun report_text ctxt text =
-  Context_Position.report ctxt (Input.pos_of text)
-    (Markup.language_text (Input.is_delimited text));
+  let val pos = Input.pos_of text in
+    Context_Position.reports ctxt
+      [(pos, Markup.language_text (Input.is_delimited text)),
+       (pos, Markup.raw_text)]
+  end;
 
 fun prepare_text ctxt =
-  Input.source_content #> Document_Antiquotation.prepare_lines ctxt;
+  Input.source_content #> #1 #> Document_Antiquotation.prepare_lines ctxt;
 
 val theory_text_antiquotation =
-  Thy_Output.antiquotation_raw \<^binding>\<open>C_theory_text\<close> (Scan.lift Args.text_input)
+  Thy_Output.antiquotation_raw_embedded \<^binding>\<open>C_theory_text\<close> (Scan.lift Args.text_input)
     (fn ctxt => fn text =>
       let
         val keywords = C_Thy_Header.get_keywords' ctxt;
@@ -214,10 +219,10 @@ end;
 local
 
 fun c_text name c =
-  Thy_Output.antiquotation_verbatim name (Scan.lift Args.text_input)
+  Thy_Output.antiquotation_verbatim_embedded name (Scan.lift Args.text_input)
     (fn ctxt => fn text =>
       let val _ = C_Module.eval_in (SOME ctxt) (c text)
-      in Input.source_content text end);
+      in #1 (Input.source_content text) end);
 
 fun c_enclose bg en source =
   C_Lex.read bg @ C_Lex.read_source source @ C_Lex.read en;

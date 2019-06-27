@@ -96,9 +96,11 @@ fun C_prf source =
 
 fun C_export_boot source context =
   context
-  |> ML_Env.set_bootstrap true
+  |> Config.put_generic ML_Env.ML_environment ML_Env.Isabelle
+  |> Config.put_generic ML_Env.ML_write_global true
   |> exec_eval source
-  |> ML_Env.restore_bootstrap context
+  |> Config.restore_generic ML_Env.ML_write_global context
+  |> Config.restore_generic ML_Env.ML_environment context
   |> Local_Theory.propagate_ml_env
 
 fun C source =
@@ -118,7 +120,7 @@ fun C_export_file context =
   context
   |> Data_In_Source.get
   |> rev
-  |> map Input.source_content
+  |> map (Input.source_content #> #1)
   |>  let val thy = Context.theory_of context
           fun check_file_not path =
             tap
@@ -235,7 +237,7 @@ fun setup0 f_typ f_val src =
         ("fn context => \
            \let val (stack, env_lang) = C_Stack.Data_Lang.get context \
            \in " ^ f_val setup "stack" ^ " (stack |> hd) env_lang end context")
-        (ML_Lex.read_source false src) end
+        (ML_Lex.read_source src) end
   | SOME rule => 
     let val hook = "hook"
     in C_Context.expression
@@ -246,7 +248,7 @@ fun setup0 f_typ f_val src =
         ("fn context => \
            \let val (stack, env_lang) = C_Stack.Data_Lang.get context \
            \in " ^ f_val hook "stack" ^ " (stack |> hd |> C_Stack.map_svalue0 C_Grammar_Rule.reduce" ^ Int.toString rule ^ ") env_lang end context")
-        (ML_Lex.read_source false src)
+        (ML_Lex.read_source src)
     end
 val setup = setup0 (fn a => fn b => a ^ " -> " ^ b) (fn a => fn b => a ^ " " ^ b)
 val setup' = setup0 (K I) K
@@ -294,15 +296,15 @@ fun command_c ({lines, pos, ...}: Token.file) =
 fun C files gthy =
   command_c (hd (files (Context.theory_of gthy))) gthy;
 
-fun command_ml SML debug files gthy =
+fun command_ml environment debug files gthy =
   let
-    val {lines, pos, ...}: Token.file = hd (files (Context.theory_of gthy));
-    val source = Input.source true (cat_lines lines) (pos, pos);
+    val file: Token.file = hd (files (Context.theory_of gthy));
+    val source = Token.file_source file;
 
     val _ = Thy_Output.check_comments (Context.proof_of gthy) (Input.source_explode source);
 
-    val flags =
-      {SML = SML, exchange = false, redirect = true, verbose = true,
+    val flags: ML_Compiler.flags =
+      {environment = environment, redirect = true, verbose = true,
         debug = debug, writeln = writeln, warning = warning};
   in
     gthy
@@ -310,8 +312,8 @@ fun command_ml SML debug files gthy =
     |> Local_Theory.propagate_ml_env
   end;
 
-val ML = command_ml false;
-val SML = command_ml true;
+val ML = command_ml "";
+val SML = command_ml ML_Env.SML;
 end;
 \<close>
 
@@ -453,19 +455,23 @@ struct
 
 structure Diag_State = Proof_Data
 (
-  type T = Toplevel.state;
-  fun init _ = Toplevel.toplevel;
+  type T = Toplevel.state option;
+  fun init _ = NONE;
 );
 
 fun C_diag source state =
   let
     val opt_ctxt =
       try Toplevel.generic_theory_of state
-      |> Option.map (Context.proof_of #> Diag_State.put state);
+      |> Option.map (Context.proof_of #> Diag_State.put (SOME state));
   in Context.setmp_generic_context (Option.map Context.Proof opt_ctxt)
     (fn () => C_Module.eval_source source) () end;
 
-val diag_state = Diag_State.get;
+fun diag_state ctxt =
+  (case Diag_State.get ctxt of
+    SOME st => st
+  | NONE => Toplevel.init_toplevel ());
+
 val diag_goal = Proof.goal o Toplevel.proof_of o diag_state;
 
 val _ = Theory.setup

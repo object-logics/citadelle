@@ -58,9 +58,9 @@ struct
 
 val command_kinds =
   [Keyword.diag, Keyword.document_heading, Keyword.document_body, Keyword.document_raw, Keyword.thy_begin, Keyword.thy_end, Keyword.thy_load, Keyword.thy_decl,
-    Keyword.thy_decl_block, Keyword.thy_goal, Keyword.qed, Keyword.qed_script, Keyword.qed_block, Keyword.qed_global, Keyword.prf_goal, Keyword.prf_block,
-    Keyword.next_block, Keyword.prf_open, Keyword.prf_close, Keyword.prf_chain, Keyword.prf_decl, Keyword.prf_asm, Keyword.prf_asm_goal, Keyword.prf_script,
-    Keyword.prf_script_goal, Keyword.prf_script_asm_goal];
+    Keyword.thy_decl_block, Keyword.thy_defn, Keyword.thy_stmt, Keyword.thy_goal, Keyword.thy_goal_defn, Keyword.thy_goal_stmt, Keyword.qed, Keyword.qed_script,
+    Keyword.qed_block, Keyword.qed_global, Keyword.prf_goal, Keyword.prf_block, Keyword.next_block, Keyword.prf_open, Keyword.prf_close, Keyword.prf_chain,
+    Keyword.prf_decl, Keyword.prf_asm, Keyword.prf_asm_goal, Keyword.prf_script, Keyword.prf_script_goal, Keyword.prf_script_asm_goal];
 
 
 (* specifications *)
@@ -260,11 +260,8 @@ type src = T list;
 fun pos_of (Token ((_, (pos, _)), _, _)) = pos;
 fun end_pos_of (Token ((_, (_, pos)), _, _)) = pos;
 
-fun range_of (toks as tok :: _) =
-      let val pos' = end_pos_of (List.last toks)
-      in Position.range (pos_of tok, pos') end
-  | range_of [] = Position.no_range;
-
+fun adjust_offsets adjust (Token ((x, range), y, z)) =
+  Token ((x, apply2 (Position.adjust_offsets adjust) range), y, z);
 
 
 (* stopper *)
@@ -313,6 +310,9 @@ fun is_informal_comment (Token (_, (Token.Comment NONE, _), _)) = true
 fun is_formal_comment (Token (_, (Token.Comment (SOME _), _), _)) = true
   | is_formal_comment _ = false;
 
+fun is_document_marker (Token (_, (Token.Comment (SOME Comment.Marker), _), _)) = true
+  | is_document_marker _ = false;
+
 fun is_begin_ignore (Token (_, (Token.Comment NONE, "<"), _)) = true
   | is_begin_ignore _ = false;
 
@@ -351,8 +351,20 @@ fun is_newline (Token (_, (Space, x), _)) = String.isSuffix "\n" x
   | is_newline _ = false;
 
 
+(* range of tokens *)
+
+fun range_of (toks as tok :: _) =
+      let val pos' = end_pos_of (List.last toks)
+      in Position.range (pos_of tok, pos') end
+  | range_of [] = Position.no_range;
+
+val core_range_of =
+  drop_prefix is_ignored #> drop_suffix is_ignored #> range_of;
+
+
 (* token content *)
 
+fun content_of (Token (_, (_, x), _)) = x;
 fun source_of (Token ((source, _), _, _)) = source;
 
 fun input_of (Token ((source, range), (kind, _), _)) =
@@ -474,6 +486,12 @@ fun text_of tok =
 (** associated values **)
 
 (* inlined file content *)
+
+fun file_source (file: Token.file) =
+  let
+    val text = cat_lines (#lines file);
+    val end_pos = fold Position.advance (Symbol.explode text) (#pos file);
+  in Input.source true text (Position.range (#pos file, end_pos)) end;
 
 fun get_files (Token (_, _, Value (SOME (Files files)))) = files
   | get_files _ = [];
@@ -642,7 +660,7 @@ fun scan_token keywords = !!! "bad input"
     scan_verbatim >> token_range Token.Verbatim ||
     scan_cartouche >> token_range Token.Cartouche ||
     scan_comment >> token_range (Token.Comment NONE) ||
-    Comment.scan >> (fn (k, ss) => token (Token.Comment (SOME k)) ss) ||
+    Comment.scan_outer >> (fn (k, ss) => token (Token.Comment (SOME k)) ss) ||
     scan_space >> token Token.Space ||
     Scan.repeats1 ($$$ "+") >> token_t Token.Sym_Ident ||
     Scan.repeats1 ($$$ "@") >> token_t Token.Sym_Ident ||
@@ -829,6 +847,7 @@ sig
   val number: string parser
   val float_number: string parser
   val string: string parser
+  val string_position: (string * Position.T) parser
   val alt_string: string parser
   val verbatim: string parser
   val cartouche: string parser
@@ -841,8 +860,7 @@ sig
   val reserved: string -> string parser
   val underscore: string parser
   val maybe: 'a parser -> 'a option parser
-  val tag_name: string parser
-  val tags: string list parser
+  val maybe_position: ('a * Position.T) parser -> ('a option * Position.T) parser
   val opt_keyword: string -> bool parser
   val opt_bang: bool parser
   val begin: string parser
@@ -864,12 +882,17 @@ sig
   val list1: 'a parser -> 'a list parser
   val properties: Properties.T parser
   val name: string parser
+  val name_range: (string * Position.range) parser
+  val name_position: (string * Position.T) parser
   val binding: binding parser
   val embedded: string parser
+  val embedded_input: Input.source parser
+  val embedded_position: (string * Position.T) parser
   val text: string parser
   val path: string parser
-  val session_name: string parser
-  val theory_name: string parser
+  val path_binding: (string * Position.T) parser
+  val session_name: (string * Position.T) parser
+  val theory_name: (string * Position.T) parser
   val liberal_name: string parser
   val parname: string parser
   val parbinding: binding parser
@@ -894,6 +917,7 @@ sig
   val for_fixes: (binding * string option * mixfix) list parser
   val ML_source: Input.source parser
   val document_source: Input.source parser
+  val document_marker: Input.source parser
   val const: string parser
   val term: string parser
   val prop: string parser
@@ -911,8 +935,6 @@ sig
   val thm_sel: Facts.interval list parser
   val thm: (Facts.ref * src list) parser
   val thms1: (Facts.ref * src list) list parser
-  val option_name: string parser
-  val option_value: string parser
   val options: ((string * Position.T) * (string * Position.T)) list parser
 end;
 
@@ -1028,13 +1050,11 @@ val minus = sym_ident :-- (fn "-" => Scan.succeed () | _ => Scan.fail) >> #1;
 
 val underscore = sym_ident :-- (fn "_" => Scan.succeed () | _ => Scan.fail) >> #1;
 fun maybe scan = underscore >> K NONE || scan >> SOME;
+fun maybe_position scan = position (underscore >> K NONE) || scan >> apfst SOME;
 
 val nat = number >> (#1 o Library.read_int o Symbol.explode);
 val int = Scan.optional (minus >> K ~1) 1 -- nat >> op *;
 val real = float_number >> Value.parse_real || int >> Real.fromInt;
-
-val tag_name = group (fn () => "tag name") (short_ident || string);
-val tags = Scan.repeat ($$$ "%" |-- !!! tag_name);
 
 fun opt_keyword s = Scan.optional ($$$ "(" |-- !!! (($$$ s >> K true) --| $$$ ")")) false;
 val opt_bang = Scan.optional ($$$ "!" >> K true) false;
@@ -1075,19 +1095,28 @@ val name =
   group (fn () => "name")
     (short_ident || long_ident || sym_ident || number || string);
 
-val binding = position name >> Binding.make;
+val name_range = input name >> Input.source_content_range;
+val name_position = input name >> Input.source_content;
+
+val string_position = input string >> Input.source_content;
+
+val binding = name_position >> Binding.make;
 
 val embedded =
   group (fn () => "embedded content")
     (cartouche || string || short_ident || long_ident || sym_ident ||
       term_var || type_ident || type_var || number);
 
+val embedded_input = input embedded;
+val embedded_position = embedded_input >> Input.source_content;
+
 val text = group (fn () => "text") (embedded || verbatim);
 
 val path = group (fn () => "file name/path specification") embedded;
+val path_binding = group (fn () => "path binding (strict file name)") (position embedded);
 
-val session_name = group (fn () => "session name") name;
-val theory_name = group (fn () => "theory name") name;
+val session_name = group (fn () => "session name") name_position;
+val theory_name = group (fn () => "theory name") name_position;
 
 val liberal_name = keyword_with Token.ident_or_symbolic || name;
 
@@ -1127,28 +1156,23 @@ val type_args_constrained = type_arguments (type_ident -- Scan.option ($$$ "::" 
 
 local
 
-val mfix =
-  input string --
-    !!! (Scan.optional ($$$ "[" |-- !!! (list nat --| $$$ "]")) [] -- Scan.optional nat 1000)
-  >> (fn (sy, (ps, p)) => fn range => Mixfix (sy, ps, p, range));
+val mfix = input (string || cartouche);
 
-val infx =
-  $$$ "infix" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infix (sy, p, range)));
+val mixfix_ =
+  mfix -- !!! (Scan.optional ($$$ "[" |-- !!! (list nat --| $$$ "]")) [] -- Scan.optional nat 1000)
+    >> (fn (sy, (ps, p)) => fn range => Mixfix (sy, ps, p, range));
 
-val infxl =
-  $$$ "infixl" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infixl (sy, p, range)));
+val structure_ = $$$ "structure" >> K Structure;
 
-val infxr =
-  $$$ "infixr" |-- !!! (input string -- nat >> (fn (sy, p) => fn range => Infixr (sy, p, range)));
+val binder_ =
+  $$$ "binder" |-- !!! (mfix -- ($$$ "[" |-- nat --| $$$ "]" -- nat || nat >> (fn n => (n, n))))
+    >> (fn (sy, (p, q)) => fn range => Binder (sy, p, q, range));
 
-val strcture = $$$ "structure" >> K Structure;
+val infixl_ = $$$ "infixl" |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infixl (sy, p, range)));
+val infixr_ = $$$ "infixr" |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infixr (sy, p, range)));
+val infix_ = $$$ "infix" |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infix (sy, p, range)));
 
-val binder =
-  $$$ "binder" |--
-    !!! (input string -- ($$$ "[" |-- nat --| $$$ "]" -- nat || nat >> (fn n => (n, n))))
-  >> (fn (sy, (p, q)) => fn range => Binder (sy, p, q, range));
-
-val mixfix_body = mfix || strcture || binder || infxl || infxr || infx;
+val mixfix_body = mixfix_ || structure_ || binder_ || infixl_ || infixr_ || infix_;
 
 fun annotation guard body =
   Scan.trace ($$$ "(" |-- guard (body --| $$$ ")"))
@@ -1199,6 +1223,10 @@ val for_fixes = Scan.optional ($$$ "for" |-- !!! vars) [];
 val ML_source = input (group (fn () => "ML source") text);
 val document_source = input (group (fn () => "document source") text);
 
+val document_marker =
+  group (fn () => "document marker")
+    (RESET_VALUE (Scan.one Token.is_document_marker >> Token.input_of));
+
 
 (* terms *)
 
@@ -1223,7 +1251,7 @@ val termp = term -- Scan.optional ($$$ "(" |-- !!! (is_terms --| $$$ ")")) [];
 val private = position ($$$ "private") >> #2;
 val qualified = position ($$$ "qualified") >> #2;
 
-val target = ($$$ "(" -- $$$ "in") |-- !!! (position name --| $$$ ")");
+val target = ($$$ "(" -- $$$ "in") |-- !!! (name_position --| $$$ ")");
 val opt_target = Scan.option target;
 
 
@@ -1277,18 +1305,18 @@ val thm_sel = $$$ "(" |-- list1
 val thm =
   $$$ "[" |-- attribs --| $$$ "]" >> pair (Facts.named "") ||
   (literal_fact >> Facts.Fact ||
-    position name -- Scan.option thm_sel >> Facts.Named) -- opt_attribs;
+    name_position -- Scan.option thm_sel >> Facts.Named) -- opt_attribs;
 
 val thms1 = Scan.repeat1 thm;
 
 
 (* options *)
 
-val option_name = group (fn () => "option name") name;
+val option_name = group (fn () => "option name") name_position;
 val option_value = group (fn () => "option value") ((token real || token name) >> Token.content_of);
 
 val option =
-  position option_name :-- (fn (_, pos) =>
+  option_name :-- (fn (_, pos) =>
     Scan.optional ($$$ "=" |-- !!! (position option_value)) ("true", pos));
 
 val options = $$$ "[" |-- list1 option --| $$$ "]";
@@ -1468,6 +1496,9 @@ fun command'' kind (name, pos) comment parse =
 
 (** toplevel parsing **)
 
+(* parse spans *)
+
+
 (* parse commands *)
 
 local
@@ -1494,9 +1525,6 @@ fun parse_command thy =
               val msg = "undefined command ";
             in msg ^ quote (Markup.markup Markup.keyword1 name) end)
     end)
-
-(* parse spans *)
-
 
 
 (* check commands *)
@@ -1525,15 +1553,14 @@ fun check_command ctxt (name, pos) =
       in name end
     else
       let
-        val completion =
-          Completion.make (name, pos)
+        val completion_report =
+          Completion.make_report (name, pos)
             (fn completed =>
               C_Keyword.dest_commands keywords
               |> filter completed
               |> sort_strings
               |> map (fn a => (a, (Markup.commandN, a))));
-        val report = Markup.markup_report (Completion.reported_text completion);
-      in error ("Bad command " ^ quote name ^ Position.here pos ^ report) end
+      in error ("Bad command " ^ quote name ^ Position.here pos ^ completion_report) end
   end;
 end
 \<close>

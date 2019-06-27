@@ -1236,10 +1236,8 @@ fun recover msg =
   one' Symbol.not_eof)
   >> token (Error (msg, Group1 ([], [])));
 
-fun gen_read pos text =
+fun reader scan syms =
   let
-    val syms = Symbol_Pos.explode (text, pos);
-
     val termination =
       if null syms then []
       else
@@ -1263,7 +1261,7 @@ fun gen_read pos text =
       |> Source.source Symbol_Pos.stopper (Scan.bulk (backslash1 >> K NONE || backslash2 >> SOME))
       |> Source.map_filter I
       |> Source.source Symbol_Pos.stopper
-                       (Scan.recover (Scan.bulk (!!! "bad input" scan_ml)) (fn msg => recover msg >> single))
+                       (Scan.recover (Scan.bulk (!!! "bad input" scan)) (fn msg => recover msg >> single))
       |> Source.source stopper scan_directive_cond
       |> Source.exhaust
       |> (fn input => input @ termination);
@@ -1276,16 +1274,22 @@ end;
 
 in
 
-val read = gen_read Position.none;
+fun read text = (reader scan_ml o Symbol_Pos.explode) (text, Position.none);
 
-fun read_source source =
+fun read_source' {language, symbols} scan source =
   let
     val pos = Input.pos_of source;
     val _ =
       if Position.is_reported_range pos
-      then Position.report pos (Markup.language' {name = "C", symbols = false, antiquotes = true} (Input.is_delimited source))
+      then Position.report pos (language (Input.is_delimited source))
       else ();
-  in gen_read pos (Input.text_of source) end;
+  in
+    Input.source_explode source
+    |> not symbols ? maps (fn (s, p) => raw_explode s |> map (rpair p))
+    |> reader scan
+  end;
+
+val read_source = read_source' {language = Markup.language' {name = "C", symbols = false, antiquotes = true}, symbols = true} scan_ml;
 
 end;
 

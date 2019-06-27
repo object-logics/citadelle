@@ -48,6 +48,8 @@ session C = HOL +
 
 session C_examples = C + (* a standard test suite *)
   options [document = pdf, document_output = "generated/part2"]
+  theories [document = false]
+    "~~/src/HOL/ex/Cartouche_Examples" (* LaTeX error in Isabelle2019 *)
   theories
     "examples/C1"
     "examples/C2"

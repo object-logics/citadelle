@@ -189,9 +189,9 @@ C \<comment> \<open>Inline comments with antiquotations\<close> \<open>
 text (**)})\<close> */ // break of line activated everywhere (also in antiquotations)
 int a = 0; //\
 @ \<approx>setup\<open>(K o K o K) (fn x => K x @{term \<open>a \
-          + b (* (**) *\      
+          + b\<close> (* (**) *\      
 \     
-)\<close>})\<close>
+)})\<close>
 \<close>
 
 C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
