@@ -41,6 +41,7 @@
 
 theory Init
   imports "isabelle_home/src/HOL/Isabelle_Main0"
+          "HOL-Library.Code_Target_Numeral"
 begin
 
 section\<open>Optimization on the String Datatype\<close>
