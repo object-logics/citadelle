@@ -438,7 +438,7 @@ text \<open>
     @{attribute_def C_lexer_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
     @{attribute_def C_parser_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
     @{attribute_def C_ML_verbose} & : & \<open>attribute\<close> & default \<open>true\<close> \\
-    @{attribute_def C_propagate_env} & : & \<open>attribute\<close> & default \<open>false\<close> \\
+    @{attribute_def C_starting_env} & : & \<open>attribute\<close> & default \<open>empty\<close> \\
     @{attribute_def C_export_file_exist} & : & \<open>attribute\<close> & default \<open>true\<close> \\
   \end{tabular}
 
@@ -459,7 +459,7 @@ text \<open>
   (global or local) theory context; the initial environment is set by
   default to be an empty one, or the one returned by a previous
   \<^theory_text>\<open>C_file\<close> (depending on @{attribute_def
-    C_propagate_env}). Multiple \<^theory_text>\<open>C_file\<close>
+    C_starting_env}). Multiple \<^theory_text>\<open>C_file\<close>
   commands may be used to build larger C projects if they are all
   written in a single theory file (existing parent theories are
   ignored, and not affecting the current working theory).
@@ -506,7 +506,7 @@ text \<open>
   \<^theory_text>\<open>ML\<close> commands are acting similarly as
   their default verbose configuration in top-level.
 
-  \<^descr> @{attribute_def C_propagate_env} makes the start of a C
+  \<^descr> @{attribute_def C_starting_env} makes the start of a C
   command (e.g., \<^theory_text>\<open>C_file\<close>,
   \<^theory_text>\<open>C\<close>) initialized with the environment of
   the previous C command if existing.

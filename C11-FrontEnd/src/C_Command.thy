@@ -70,9 +70,10 @@ structure Data_Accept = Generic_Data
    val merge = #2)
 
 fun env context =
-  if Config.get (Context.proof_of context) C_Options.propagate_env
-  then Data_In_Env.get context
-  else C_Env.empty_env_lang
+  case Config.get (Context.proof_of context) C_Options.starting_env of
+    "last" => Data_In_Env.get context
+  | "empty" => C_Env.empty_env_lang
+  | s => error ("Unknown option: " ^ s ^ Position.here (Config.pos_of C_Options.starting_env))
 
 fun err _ _ pos _ =
   error ("Parser: No matching grammar rule" ^ Position.here pos)

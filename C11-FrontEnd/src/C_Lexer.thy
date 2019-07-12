@@ -375,7 +375,7 @@ struct
 val lexer_trace = Attrib.setup_config_bool @{binding C_lexer_trace} (K false);
 val parser_trace = Attrib.setup_config_bool @{binding C_parser_trace} (K false);
 val ML_verbose = Attrib.setup_config_bool @{binding C_ML_verbose} (K true);
-val propagate_env = Attrib.setup_config_bool @{binding C_propagate_env} (K false);
+val starting_env = Attrib.setup_config_string @{binding C_starting_env} (K "empty");
 val export_file_exist = Attrib.setup_config_bool @{binding C_export_file_exist} (K true);
 
 end
