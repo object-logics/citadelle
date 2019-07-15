@@ -111,7 +111,7 @@ A Meta-Model for the Language.C Haskell Library
           2018-2019 "u-psud"
 
 project C_ML :: "3-Clause BSD" where \<open>
-Generation of Language.C Grammar with ML Interface Binding
+Isabelle/C
 \<close> defines 2018-2019 "u-psud"
 
 project Miscellaneous_Monads :: "3-Clause BSD" where \<open>
