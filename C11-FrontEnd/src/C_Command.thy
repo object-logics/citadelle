@@ -47,7 +47,7 @@ begin
 
 subsection \<open>Main Module Interface of Commands\<close>
 
-ML \<comment> \<open>\<^theory>\<open>C.C_Eval\<close>\<close> \<open>
+ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Eval\<close>\<close> \<open>
 structure C_Module =
 struct
 

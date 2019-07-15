@@ -36,7 +36,7 @@
 
 theory Init
   imports "HOL-Eisbach.Eisbach"
-          C.C_Main
+          Isabelle_C.C_Main
 begin
 
 section \<open>\<close>

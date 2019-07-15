@@ -37,7 +37,7 @@
 chapter \<open>Example\<close>
 
 theory C1
-  imports C.C_Main
+  imports Isabelle_C.C_Main
           "~~/src/HOL/ex/Cartouche_Examples"
 begin
 

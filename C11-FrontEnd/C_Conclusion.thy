@@ -36,7 +36,7 @@
 
 (*<*)
 theory C_Conclusion
-  imports C.C_Main
+  imports Isabelle_C.C_Main
 begin
 (*>*)
 

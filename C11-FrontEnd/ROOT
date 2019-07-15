@@ -38,7 +38,7 @@
    semantic back-ends, theory files are (at the time of writing) not regrouped
    into a unique session. *)
 
-session C = HOL +
+session Isabelle_C = HOL +
   options [document = pdf, document_output = "generated/part1"]
   theories
     C_Main
@@ -46,7 +46,7 @@ session C = HOL +
     "root.tex"
     "root.bib"
 
-session C_examples = C + (* a standard test suite *)
+session Isabelle_C_examples = Isabelle_C + (* a standard test suite *)
   options [document = pdf, document_output = "generated/part2"]
   theories [document = false]
     "~~/src/HOL/ex/Cartouche_Examples" (* LaTeX error in Isabelle2019 *)
@@ -59,7 +59,7 @@ session C_examples = C + (* a standard test suite *)
     "root.tex"
     "root.bib"
 
-session C_document = C_examples +
+session Isabelle_C_document = Isabelle_C_examples +
   options [document = pdf, document_output = "generated/part3"]
   theories
     C_Appendices
@@ -67,7 +67,7 @@ session C_document = C_examples +
     "root.tex"
     "root.bib"
 
-session Isabelle_C = C_document +
+session Isabelle_C_all = Isabelle_C_document +
   options [document = pdf, document_output = "generated"]
   (* TODO: find a way to concatenate together PDF in:
            generated/part1 + generated/part2 + generated/part3 *)

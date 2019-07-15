@@ -37,7 +37,7 @@
 chapter \<open>Example\<close>
 
 theory C_paper
-  imports C.C_Main
+  imports Isabelle_C.C_Main
 begin
 
 section \<open>\<close>

@@ -37,7 +37,7 @@
 chapter \<open>Example\<close>
 
 theory C3
-  imports C.C_Main
+  imports Isabelle_C.C_Main
 begin
 
 C\<open>

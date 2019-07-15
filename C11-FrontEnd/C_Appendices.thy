@@ -38,7 +38,7 @@ chapter \<open>Appendices\<close>
 
 (*<*)
 theory C_Appendices
-  imports C_examples.C1
+  imports Isabelle_C_examples.C1
           C_Conclusion
           "~~/src/Doc/Isar_Ref/Base"
 begin
@@ -140,7 +140,7 @@ writing, it only contains
 \<^dir>\<open>copied_from_git/mlton\<close>, and more specifically
 \<^dir>\<open>copied_from_git/mlton/lib/mlyacc-lib\<close>. All
 files in this last folder are solely used by
-\<^theory>\<open>C.C_Parser_Language\<close>. The rest has been copied
+\<^theory>\<open>Isabelle_C.C_Parser_Language\<close>. The rest has been copied
 from the original repository of MLton
 \<^footnote>\<open>\<^url>\<open>https://github.com/MLton/mlton\<close>
 and \<^url>\<open>https://gitlri.lri.fr/ftuong/mlton\<close>\<close>.
@@ -159,7 +159,7 @@ static generation was undertaken. In more detail:
 
   \<^item> \<^file>\<open>generated/c_ast.ML\<close> contains the
   Abstract Syntax Tree of C, which is loaded by
-  \<^theory>\<open>C.C_Ast\<close>.
+  \<^theory>\<open>Isabelle_C.C_Ast\<close>.
   
   \<^item> \<^file>\<open>generated/c_grammar_fun.grm\<close> is a
   generated file not used by the project, except for further
@@ -185,9 +185,9 @@ section \<open>Case Study: Mapping on the Parsed AST\<close>
 text \<open> In this section, we give a concrete example of a situation where one is interested to
 do some automated transformations on the parsed AST, such as changing the type of every encountered
 variables from \<^C>\<open>int _;\<close> to \<^C>\<open>int _ [];\<close>. The main theory of
-interest here is \<^theory>\<open>C.C_Parser_Language\<close>, where the C grammar is loaded, in
-contrast to \<^theory>\<open>C.C_Lexer\<close> which is only dedicated to build a list of C
-tokens. As another example, \<^theory>\<open>C.C_Parser_Language\<close> also contains the portion
+interest here is \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>, where the C grammar is loaded, in
+contrast to \<^theory>\<open>Isabelle_C.C_Lexer\<close> which is only dedicated to build a list of C
+tokens. As another example, \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> also contains the portion
 of the code implementing the report to the user of various characteristics of encountered variables
 during parsing: if a variable is bound or free, or if the declaration of a variable is made in the
 global topmost space or locally declared in a function. \<close>
@@ -197,11 +197,11 @@ subsection \<open>Prerequisites\<close>
 text \<open> Even if \<^file>\<open>generated/c_grammar_fun.grm.sig\<close> and
 \<^file>\<open>generated/c_grammar_fun.grm.sml\<close> are files written in ML syntax, we have
 actually modified \<^dir>\<open>copied_from_git/mlton/lib/mlyacc-lib\<close> in such a way that
-at run time, the overall loading and execution of \<^theory>\<open>C.C_Parser_Language\<close> will
+at run time, the overall loading and execution of \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> will
 mimic all necessary features of the Haskell parser generator Happy
 \<^footnote>\<open>\<^url>\<open>https://www.haskell.org/happy/doc/html/index.html\<close>\<close>,
-including any monadic interactions between the lexing (\<^theory>\<open>C.C_Lexer\<close>) and
-parsing part (\<^theory>\<open>C.C_Parser_Language\<close>).
+including any monadic interactions between the lexing (\<^theory>\<open>Isabelle_C.C_Lexer\<close>) and
+parsing part (\<^theory>\<open>Isabelle_C.C_Parser_Language\<close>).
 
 This is why in the remaining part, we will at least assume a mandatory familiarity with Happy (e.g.,
 the reading of ML-Yacc's manual can happen later if wished
@@ -211,9 +211,9 @@ Haskell expression enclosed in braces\<close>
 \<^footnote>\<open>\<^url>\<open>https://www.haskell.org/happy/doc/html/sec-grammar.html\<close>\<close>.
 \<close>
 
-subsection \<open>Structure of \<^theory>\<open>C.C_Parser_Language\<close>\<close>
+subsection \<open>Structure of \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>\<close>
 
-text \<open> In more detail, \<^theory>\<open>C.C_Parser_Language\<close> can be seen as being
+text \<open> In more detail, \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> can be seen as being
 principally divided into two parts:
   \<^item> a first part containing the implementation of
   \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close>, which provides the ML implementation library
@@ -245,7 +245,7 @@ in \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> whenever it is wished to pe
 depending on variable scopes, for example to do a specific PIDE report at the first time when a C
 variable is being declared. In particular, functions in
 \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close> are implemented in monadic style, making a
-subsequent modification on the parsing environment \<^theory>\<open>C.C_Environment\<close> possible
+subsequent modification on the parsing environment \<^theory>\<open>Isabelle_C.C_Environment\<close> possible
 (whenever appropriate) as this last is carried in the monadic state.
 
 Fundamentally, this is feasible because the monadic environment fulfills the property of being
@@ -295,7 +295,7 @@ subtree \<open>T2\<close>, it is useful to zoom on the different parsing evaluat
 as make precise when the evaluation of semantic back-ends are starting.
 
 \<^enum> Whereas annotations in Isabelle/C code have the potential of carrying arbitrary ML code (as
-in \<^theory>\<open>C_examples.C1\<close>), the moment when they are effectively evaluated will not be
+in \<^theory>\<open>Isabelle_C_examples.C1\<close>), the moment when they are effectively evaluated will not be
 discussed here, because to closely follow the semantics of the language in embedding (so C), we
 suppose comments --- comprising annotations --- may not affect any parsed tokens living outside
 comments. So no matter when annotations are scheduled to be future evaluated in Isabelle/C, it will
@@ -375,7 +375,7 @@ appearing enough earlier in the code. (But for the overall code be in the end mo
 any other C preprocessors, the implementation change has to be somehow at least consistent with how
 a preprocessor is already expected to treat an initial C un(pre)processed code.) For example, the
 current semantics of \<^C>\<open>#undef _\<close> depends on what has been registered in
-\<^ML>\<open>C_Context.directive_update\<close> (see \<^theory>\<open>C.C_Command\<close>).
+\<^ML>\<open>C_Context.directive_update\<close> (see \<^theory>\<open>Isabelle_C.C_Command\<close>).
 
 \<^item> \<^emph>\<open>After parsing and obtaining a constructive value.\<close> Another solution
 consists in directly writing a mapping function acting on the full AST, so writing a ML function of
@@ -414,7 +414,7 @@ one can either:
 \<close>
 
 text \<open> More generally, to better inspect the list of rule code really executed when a C code
-is parsed, it might be helpful to proceed as in \<^theory>\<open>C_examples.C1\<close>, by activating
+is parsed, it might be helpful to proceed as in \<^theory>\<open>Isabelle_C_examples.C1\<close>, by activating
 \<^theory_text>\<open>declare[[C_parser_trace]]\<close>. Then, the output window will display the
 sequence of Shift Reduce actions associated to the \<^theory_text>\<open>C\<close> command of
 interest.
@@ -589,9 +589,9 @@ text \<open>
 the shortest way to start programming in C is to open a new theory file:
 \<open>~/Isabelle2018/bin/isabelle jedit -d . Scratch.thy\<close>, inside the same current directory
 as the one containing \<^file>\<open>C_Main.thy\<close> (designated as
-\<^theory>\<open>C.C_Main\<close> in Isabelle/C).
+\<^theory>\<open>Isabelle_C.C_Main\<close> in Isabelle/C).
 \<^item> Then, this following minimal content can be copied there: \<^verbatim>\<open>theory Scratch
-imports C.C_Main begin C \<open>
+imports Isabelle_C.C_Main begin C \<open>
 // C code
 \<close> end\<close>
 \<^item> This already enables the support of C11 code inside the special brackets
@@ -733,9 +733,9 @@ text \<open>
   \<close>), we ideally expect a modification in \<open>file3.c\<close> be taken into account in all
   ancestor files including the initial theory, provoking the associated command of the theory be
   reevaluated.
-  \<^item> When a theory is depending on other theories (such as \<^theory>\<open>C.C_Eval\<close>
-  depending on \<^theory>\<open>C.C_Parser_Language\<close> and
-  \<^theory>\<open>C.C_Parser_Annotation\<close>), modifying the list of theories in importation
+  \<^item> When a theory is depending on other theories (such as \<^theory>\<open>Isabelle_C.C_Eval\<close>
+  depending on \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> and
+  \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>), modifying the list of theories in importation
   automatically triggers what the user is expecting: for example, the newly added theories are
   dynamically imported, any change by another external editor makes everything consequently
   propagated. \<close>

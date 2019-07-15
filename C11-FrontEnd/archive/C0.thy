@@ -37,7 +37,7 @@
 chapter \<open>Example\<close>
 
 theory C0
-  imports C.C_Main
+  imports Isabelle_C.C_Main
 begin
 
 declare[[C_lexer_trace]]
