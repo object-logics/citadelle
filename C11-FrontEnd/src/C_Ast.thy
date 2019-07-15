@@ -39,7 +39,7 @@ chapter \<open>Isabelle/C\<close>
 section \<open>Definition of the Abstract Syntax Tree (from the Haskell Language.C project)\<close>
 
 theory C_Ast
-  imports "../C_Intro"
+  imports Main
 begin
 
 subsection \<open>Loading of the Generated AST\<close>

@@ -37,6 +37,7 @@
 (*<*)
 theory C_Intro
   imports C_DOF
+          Isabelle_C.C_Main
 begin
 
 open_monitor*[this::article] 
