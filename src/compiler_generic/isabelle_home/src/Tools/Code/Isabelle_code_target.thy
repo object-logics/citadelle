@@ -36,11 +36,7 @@
 
 theory  Isabelle_code_target
 imports Main
-  keywords "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect"
-           :: thy_decl
 begin
-
-subsection{* beginning (lazy code printing) *}
 
 ML{*
 structure Isabelle_Code_Target =
@@ -158,63 +154,6 @@ fun parse_symbol_pragmas parse_const parse_tyco parse_class parse_classrel parse
     (parse_symbol_pragma parse_const parse_tyco parse_class parse_classrel parse_inst parse_module));
 
 end
-*}
-
-ML{*
-structure Code_printing = struct
-datatype code_printing = Code_printing of
-     (string * (bstring * Code_Printer.raw_const_syntax option) list,
-      string * (bstring * Code_Printer.tyco_syntax option) list,
-      string * (bstring * string option) list,
-      (string * string) * (bstring * unit option) list,
-      (xstring * string) * (bstring * unit option) list,
-      bstring * (bstring * (string * string list) option) list)
-      Code_Symbol.attr
-      list
-
-structure Data_code = Theory_Data
-  (type T = code_printing list Symtab.table
-   val empty = Symtab.empty
-   val extend = I
-   val merge = Symtab.merge (K true))
-
-val code_empty = ""
-
-val () =
-  Outer_Syntax.command @{command_keyword lazy_code_printing} "declare dedicated printing for code symbols"
-    (Isabelle_Code_Target.parse_symbol_pragmas (Code_Printer.parse_const_syntax) (Code_Printer.parse_tyco_syntax)
-      Parse.string (Parse.minus >> K ()) (Parse.minus >> K ())
-      (Parse.text -- Scan.optional (@{keyword "attach"} |-- Scan.repeat1 Parse.term) [])
-      >> (fn code =>
-            Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing code :: l)))))
-
-fun apply_code_printing thy =
-    (case Symtab.lookup (Data_code.get thy) code_empty of SOME l => rev l | _ => [])
- |> (fn l => fold (fn Code_printing l => fold Code_Target.set_printings l) l thy)
-
-val () =
-  Outer_Syntax.command @{command_keyword apply_code_printing} "apply dedicated printing for code symbols"
-    (Parse.$$$ "(" -- Parse.$$$ ")" >> K (Toplevel.theory apply_code_printing))
-
-fun reflect_ml source thy =
-  case ML_Context.exec (fn () =>
-            ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) source) (Context.Theory thy) of
-    Context.Theory thy => thy
-
-fun apply_code_printing_reflect thy =
-    (case Symtab.lookup (Data_code.get thy) code_empty of SOME l => rev l | _ => [])
- |> (fn l => fold (fn Code_printing l =>
-      fold (fn Code_Symbol.Module (_, l) =>
-                 fold (fn ("SML", SOME (txt, _)) => reflect_ml (Input.source false txt (Position.none, Position.none))
-                        | _ => I) l
-             | _ => I) l) l thy)
-
-val () =
-  Outer_Syntax.command @{command_keyword apply_code_printing_reflect} "apply dedicated printing for code symbols"
-    (Parse.ML_source >> (fn src => Toplevel.theory (apply_code_printing_reflect o reflect_ml src)))
-
-end
-
 *}
 
 end
