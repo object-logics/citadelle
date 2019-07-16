@@ -872,175 +872,13 @@ end
 subsection\<open>Directives of Compilation for Target Languages\<close>
 
 ML\<open>
-structure Deep0 = struct
-
-fun apply_hs_code_identifiers ml_module thy =
-  let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
-  fold (Code_Target.set_identifiers o mod_hs)
-    (map (fn x => (Context.theory_name x, ml_module))
-         (* list of .hs files that will be merged together in "ml_module" *)
-         ( thy
-           :: (* we over-approximate the set of compiler files *)
-              Context.ancestors_of thy)) thy end
-
-structure Export_code_env = struct
-  structure Isabelle = struct
-    val function = "write_file"
-    val argument_main = "main"
-  end
-
-  structure Haskell = struct
-    val function = "Function"
-    val argument = "Argument"
-    val main = "Main"
-    structure Filename = struct
-      fun hs_function ext = function ^ "." ^ ext
-      fun hs_argument ext = argument ^ "." ^ ext
-      fun hs_main ext = main ^ "." ^ ext
-    end
-  end
-
-  structure OCaml = struct
-    val make = "write"
-    structure Filename = struct
-      fun function ext = "function." ^ ext
-      fun argument ext = "argument." ^ ext
-      fun main_fic ext = "main." ^ ext
-      fun makefile ext = make ^ "." ^ ext
-    end
-  end
-
-  structure Scala = struct
-    structure Filename = struct
-      fun function ext = "Function." ^ ext
-      fun argument ext = "Argument." ^ ext
-    end
-  end
-
-  structure SML = struct
-    val main = "Run"
-    structure Filename = struct
-      fun function ext = "Function." ^ ext
-      fun argument ext = "Argument." ^ ext
-      fun stdout ext = "Stdout." ^ ext
-      fun main_fic ext = main ^ "." ^ ext
-    end
-  end
-
-  datatype file_input = File
-                      | Directory
-end
-
-fun compile l cmd =
-  let val (l, rc) = fold (fn cmd => (fn (l, 0) =>
-                                         let val {out, err, rc, ...} = Bash.process cmd in
-                                         ((out, err) :: l, rc) end
-                                     | x => x)) l ([], 0)
-      val l = rev l in
-  if rc = 0 then
-    (l, Isabelle_System.bash_output cmd)
-  else
-    let val () = fold (fn (out, err) => K (warning err; writeln out)) l () in
-    error "Compilation failed"
-    end
-  end
-
-val check =
-  fold (fn (cmd, msg) => fn () =>
-    let val (out, rc) = Isabelle_System.bash_output cmd in
-    if rc = 0 then
-      ()
-    else
-      ( writeln out
-      ; error msg)
-    end)
-
-val compiler = []
-
-structure Find = struct
-
-fun find ml_compiler = 
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME v => v
-  | NONE => error ("Not registered compiler: " ^ ml_compiler)
-
-fun ext ml_compiler = case find ml_compiler of (_, ext, _, _, _, _, _) => ext
-
-fun export_mode ml_compiler = case find ml_compiler of (_, _, mode, _, _, _, _) => mode
-
-fun function ml_compiler = case find ml_compiler of (_, _, _, f, _, _, _) => f
-
-fun check_compil ml_compiler = case find ml_compiler of (_, _, _, _, build, _, _) => build
-
-fun init ml_compiler = case find ml_compiler of (_, _, _, _, _, build, _) => build
-
-fun build ml_compiler = case find ml_compiler of (_, _, _, _, _, _, build) => build
-end
-
-end
-\<close>
-
-ML\<open>
 structure Deep = struct
 
 fun absolute_path thy filename =
   Path.implode (Path.append (Resources.master_directory thy) (Path.explode filename))
 
-fun export_code_tmp_file seris g =
-  fold
-    (fn ((ml_compiler, ml_module), export_arg) => fn f => fn g =>
-      f (fn accu =>
-        let val tmp_name = Context.theory_name \<^theory> in
-        (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
-           Isabelle_System.with_tmp_dir tmp_name
-         else
-           Isabelle_System.with_tmp_file tmp_name (Deep0.Find.ext ml_compiler))
-          (fn filename =>
-             g (((((ml_compiler, ml_module), (Path.implode filename, Position.none)), export_arg) :: accu)))
-        end))
-    seris
-    (fn f => f [])
-    (g o rev)
-
-fun mk_path_export_code tmp_export_code ml_compiler i =
-  Path.append tmp_export_code (Path.make [ml_compiler ^ Int.toString i])
-
-fun export_code_cmd' seris tmp_export_code f_err raw_cs thy =
-  export_code_tmp_file seris
-    (fn seris =>
-      let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
-          val _ = Isabelle_Code_Target.export_code_cmd
-        false
-        (if mem_scala then Deep0.Export_code_env.Isabelle.function :: raw_cs else raw_cs)
-        seris
-        (Proof_Context.init_global
-           let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
-           if mem_scala then Code_printing.apply_code_printing v else v end) in
-      List_mapi
-        (fn i => fn seri => case seri of (((ml_compiler, _), (filename, _)), _) =>
-          let val (l, (out, err)) =
-                Deep0.Find.build
-                  ml_compiler
-                  (mk_path_export_code tmp_export_code ml_compiler i)
-                  filename
-              val _ = f_err seri err in
-          (l, out)
-          end) seris
-      end)
-
-fun mk_term ctxt s =
-  fst (Scan.pass (Context.Proof ctxt) Args.term (Token.explode0 (Thy_Header.get_keywords' ctxt) s))
-
-fun mk_free ctxt s l =
-  let val t_s = mk_term ctxt s in
-  if Term.is_Free t_s then s else
-    let val l = (s, "") :: l in
-    mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
-    end
-  end
-
-val list_all_eq = fn x0 :: xs =>
-  List.all (fn x1 => x0 = x1) xs
+val list_all_eq = fn [] => true
+                   | x0 :: xs => List.all (fn x1 => x0 = x1) xs
 
 end
 \<close>
@@ -1181,40 +1019,12 @@ fun f_command l_mode =
         | Gen_deep (env, i_deep) =>
            pair (fn thy => Gen_deep (env (Proof_Context.init_global thy), i_deep))
                 o cons
-            (\<^command_keyword>\<open>export_code\<close>, Toplevel'.keep_theory (fn thy =>
+            (\<^command_keyword>\<open>export_code\<close>, Toplevel'.keep_theory (fn _ =>
               let val seri_args' =
-                    List_mapi
-                      (fn i => fn ((ml_compiler, ml_module), export_arg) =>
-                        let val tmp_export_code = Deep.mk_path_export_code (#tmp_export_code i_deep) ml_compiler i
-                            fun mk_fic s = Path.append tmp_export_code (Path.make [s])
-                            val () = Deep0.Find.check_compil ml_compiler ()
-                            val () = Isabelle_System.mkdirs tmp_export_code in
-                        (( ( (ml_compiler, ml_module)
-                           , ( Path.implode (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
-                                               tmp_export_code
-                                             else
-                                               mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler)))
-                             , Position.none))
-                         , export_arg), mk_fic)
-                        end)
-                      (List.filter (fn (("self", _), _) => false | _ => true) (#seri_args i_deep))
-                  val _ =
-                    case seri_args' of [] => () | _ =>
-                      let val _ =
-                        warning ("After closing Isabelle/jEdit, we may still need to remove this directory (by hand): " ^
-                                 Path.implode (Path.expand (#tmp_export_code i_deep))) in
-                      thy
-                      |> Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function
-                      |> Code_printing.apply_code_printing
-                      |> Proof_Context.init_global
-                      |>
-                      Isabelle_Code_Target.export_code_cmd
-                            (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
-                            [Deep0.Export_code_env.Isabelle.function]
-                            (List.map fst seri_args')
-                      end in
-                  List.app (fn ((((ml_compiler, ml_module), _), _), mk_fic) =>
-                    Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' end)))
+                      List.filter (fn (("self", _), _) => false | _ => true) (#seri_args i_deep)
+              in case seri_args' of [] => () | _ =>
+                      warning ("Ignoring the exportation to target languages")
+              end)))
       l_mode
       [])
     (fn l_mode => fn thy =>
@@ -1253,11 +1063,9 @@ local
   val partition_self = List.partition (fn ((s,_),_) => s = "self")
 in
 
-fun exec_deep0 {output_header_thy, seri_args, filename_thy, tmp_export_code, ...} (env, l_obj) =
+fun exec_deep0 {output_header_thy, seri_args, filename_thy, ...} (env, l_obj) =
 let open Generation_mode
-    val of_arg = META.isabelle_of_compiler_env_config META.isabelle_apply I
-    fun def s = Named_Target.theory_map (snd o Specification.definition_cmd NONE [] [] (Binding.empty_atts, s) false)
-    val (seri_args0, seri_args) = partition_self seri_args
+    val (seri_args0, _) = partition_self seri_args
  in
   fn thy0 =>
   let
@@ -1266,21 +1074,7 @@ let open Generation_mode
                                              From.string
                                              (Option.map (Deep.absolute_path thy0) filename_thy)))
                          env
-    val l = case seri_args of [] => [] | _ =>
-      let val name_main = Deep.mk_free (Proof_Context.init_global thy0)
-                                       Deep0.Export_code_env.Isabelle.argument_main []
-      in thy0
-      |> def (String.concatWith " "
-              (  "(" (* polymorphism weakening needed by export_code *)
-                  ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
-              :: "="
-              :: To_string0 (of_arg env)
-              :: []))
-      |> Deep.export_code_cmd' seri_args
-                               tmp_export_code
-                               (fn (((_, _), (msg, _)), _) => fn err => if err <> 0 then error msg else ())
-                               [name_main]
-      end
+    val l = []
   in
     case seri_args0 of [] => l
     | _ => ([], case (output_header_thy, filename_thy) of
@@ -1291,7 +1085,7 @@ let open Generation_mode
   end
   |> (fn l => let val (l_warn, l) = (map fst l, map snd l) in
       if Deep.list_all_eq l then
-        (List.concat l_warn, hd l)
+        (List.concat l_warn, case l of [] => "" | x :: _ => x)
       else
         error "There is an extracted language which does not produce a similar Isabelle content as the others"
       end)

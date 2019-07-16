@@ -1185,8 +1185,8 @@ fun mk_free ctxt s l =
     end
   end
 
-val list_all_eq = fn x0 :: xs =>
-  List.all (fn x1 => x0 = x1) xs
+val list_all_eq = fn [] => true
+                   | x0 :: xs => List.all (fn x1 => x0 = x1) xs
 
 end
 \<close>
@@ -1437,7 +1437,7 @@ let open Generation_mode
   end
   |> (fn l => let val (l_warn, l) = (map fst l, map snd l) in
       if Deep.list_all_eq l then
-        (List.concat l_warn, hd l)
+        (List.concat l_warn, case l of [] => "" | x :: _ => x)
       else
         error "There is an extracted language which does not produce a similar Isabelle content as the others"
       end)
