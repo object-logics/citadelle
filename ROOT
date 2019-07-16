@@ -134,6 +134,7 @@ session "Max-dirty" in "src" = "HOL-Library" +
     "../examples/empirical_evaluation/Class_model"
 
     "../src/compiler/Generator_static"
+    "../src/compiler/meta/Printer_init"
 
     "../doc/Employee_AnalysisModel_UMLPart_generated"
     "../doc/Employee_DesignModel_UMLPart_generated"
