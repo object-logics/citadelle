@@ -367,47 +367,6 @@ except that it additionally contains the option @{keyword "open"} inspired
 from the command @{command export_code} (with the same semantics).
 \<close>
 
-text \<open>
-\begin{matharray}{rcl}
-  @{command_def lazy_code_printing} & : & @{text "theory \<rightarrow> theory"} \\
-  @{command_def apply_code_printing} & : & @{text "theory \<rightarrow> theory"} \\
-  @{command_def apply_code_printing_reflect} & : & @{text "local_theory \<rightarrow> local_theory"}
-\end{matharray}
-
-@{rail \<open>
-  @@{command lazy_code_printing}
-      ( ( printing_const | printing_typeconstructor
-      | printing_class | printing_class_relation | printing_class_instance
-      | printing_module ) + '|' )
-  ;
-  @@{command apply_code_printing} '(' ')'
-  ;
-  @@{command apply_code_printing_reflect} text
-  ;
-\<close>}
-\<close>
-
-text\<open>
-@{command lazy_code_printing} has the same semantics as @{command code_printing}
-or @{command ML},
-except that no side effects occur until we give more details about its intended future semantics:
-this will be precised by calling
-@{command apply_code_printing} or @{command apply_code_printing_reflect}.
-\<close>
-
-text\<open>
-@{command apply_code_printing} repeatedly calls @{command code_printing}
-to all previously registered elements with @{command lazy_code_printing} (the order is preserved).
-\<close>
-
-text\<open>
-@{command apply_code_printing_reflect} repeatedly calls @{command ML}
-to all previously registered elements with @{command lazy_code_printing} (the order is preserved).
-As a consequence, code for other targets (Haskell, OCaml, Scala) are ignored.
-Moreover before the execution of the overall,
-it is possible to give an additional piece of SML code as argument to priorly execute.
-\<close>
-
 (*<*)
 end
 (*>*)

@@ -91,7 +91,6 @@ definition "main =
 subsection\<open>Statically Executing the Exportation\<close>
 
 text\<open>
-@{verbatim "apply_code_printing ()"} \\
 @{verbatim "export_code main"} \\
 @{verbatim "  (* in Haskell *)"} \\
 @{verbatim "  (* in OCaml module_name M *)"} \\

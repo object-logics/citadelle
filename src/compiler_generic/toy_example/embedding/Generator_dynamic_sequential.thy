@@ -100,11 +100,6 @@ was defined at Isabelle side.
 As a consequence, experimentations in ``deep'' and ``shallow'' are performed
 without leaving the editing session, in the same as the one the meta-compiler is actually running.\<close>
 
-apply_code_printing_reflect \<open>
-  val stdout_file = Unsynchronized.ref ""
-\<close> text\<open>This variable is not used in this theory (only in \<^file>\<open>Generator_static.thy\<close>),
-       but needed for well typechecking the reflected SML code.\<close>
-
 code_reflect' open META
    functions (* executing the compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow
