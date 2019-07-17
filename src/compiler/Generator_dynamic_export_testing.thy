@@ -751,25 +751,37 @@ end
 
 structure Bind_META = struct open Bind_Isabelle
 
+type T = META.all_meta list
+
 structure Meta_Cmd_Data = Theory_Data
   (open META
-   type T = META.all_meta list
+   type T = T
    val empty = []
    val extend = I
    val merge = #2)
 
-fun ML_context_exec source =
+fun ML_context_exec pos ants =
   ML_Context.exec (fn () =>
-          ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) source) #>
+    ML_Context.eval (ML_Compiler.verbose false ML_Compiler.flags)
+                    pos
+                    ants) #>
         Local_Theory.propagate_ml_env
 
-fun meta_command0 s_put f_get source =
+fun meta_command0 s_put f_get constraint source =
+  let val name = "meta_command"
+  in
   Context.Theory 
-  #> ML_context_exec (Input.string ("let open META val ML = META.SML in Context.>> (Context.map_theory (" ^ s_put ^ " (" ^ source ^ "))) end"))
+  #> ML_context_exec (Input.pos_of source)
+       (ML_Lex.read "let open META val ML = META.SML val "
+        @ ML_Lex.read_set_range (Input.range_of source) name
+        @ ML_Lex.read (" : " ^ constraint ^ " = ")
+        @ ML_Lex.read_source false source
+        @ ML_Lex.read (" in Context.>> (Context.map_theory (" ^ s_put ^ " " ^ name ^ ")) end"))
   #> Context.map_theory_result (fn thy => (f_get thy, thy))
   #> fst
+  end
 
-val meta_command = meta_command0 "Bind_META.Meta_Cmd_Data.put" Meta_Cmd_Data.get
+val meta_command = meta_command0 "Bind_META.Meta_Cmd_Data.put" Meta_Cmd_Data.get "Bind_META.T"
 
 local
   open META
@@ -840,7 +852,7 @@ fun all_meta_tr aux top thy_o = fn
         (get_thy \<^here>
                  (fn thy =>
                    get_thy \<^here>
-                           (meta_command (To_string0 source))
+                           (meta_command (Input.string (To_string0 source)))
                            (if forall (fn ((key, _), _) =>
                                         Keyword.is_vacuous (Thy_Header.get_keywords thy) key)
                                       tr
@@ -863,7 +875,7 @@ fun all_meta_thy aux top_theory top_local_theory = fn
 | META_boot_setup_env _ => I
 | META_all_meta_embedding (META_generic (OclGeneric source)) =>
     (fn (env, thy) =>
-      all_meta_thys aux top_theory top_local_theory (meta_command (To_string0 source) thy) (env, thy))
+      all_meta_thys aux top_theory top_local_theory (meta_command (Input.string (To_string0 source)) thy) (env, thy))
 | META_all_meta_embedding meta => fn (env, thy) => aux (semi__aux (SOME thy) meta) (env, thy)
 
 and all_meta_thys aux = fold oo all_meta_thy aux
@@ -1255,8 +1267,10 @@ fun mapM_deep f (mode : ('compiler_env_config_ext, 'a) generation_mode) tr = tr
                        , deep = deep
                        , shallow = #shallow mode })
 
+type T = (unit META.compiler_env_config_ext, theory) generation_mode
+
 structure Data_gen = Theory_Data
-  (type T = (unit META.compiler_env_config_ext, theory) generation_mode
+  (type T = T
    val empty = {deep = [], shallow = [], syntax_print = [NONE]}
    val extend = I
    fun merge (e1, e2) = { deep = #deep e1 @ #deep e2
@@ -1389,15 +1403,24 @@ fun update_compiler_config f =
                 , shallow = map (apfst (META.compiler_env_config_update f)) (#shallow mode)
                 , syntax_print = #syntax_print mode })
 
-fun meta_command0 s_put f_get f_get0 source =
+fun meta_command0 s_put f_get f_get0 constraint source =
+  let val name = "meta_command'"
+  in
   Context.Theory 
-  #> Bind_META.ML_context_exec (Input.string ("let open META val ML = META.SML in Context.>> (Context.map_theory (fn thy => " ^ s_put ^ " ((" ^ source ^ ") (" ^ f_get0 ^ " thy)) thy)) end"))
+  #> Bind_META.ML_context_exec (Input.pos_of source)
+       (ML_Lex.read "let open META val ML = META.SML val "
+        @ ML_Lex.read_set_range (Input.range_of source) name
+        @ ML_Lex.read (" : " ^ constraint ^ " = ")
+        @ ML_Lex.read_source false source
+        @ ML_Lex.read (" in Context.>> (Context.map_theory (fn thy => " ^ s_put ^ " (" ^ name ^ " (" ^ f_get0 ^ " thy)) thy)) end"))
   #> Context.map_theory_result (fn thy => (f_get thy, thy))
   #> fst
+  end
 
 val meta_command = meta_command0 "Bind_META.Meta_Cmd_Data.put"
                                  Bind_META.Meta_Cmd_Data.get
                                  "Generation_mode.Data_gen.get"
+                                 "Generation_mode.T -> Bind_META.T"
 end
 \<close>
 
