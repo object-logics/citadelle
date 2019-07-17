@@ -195,14 +195,13 @@ structure Toplevel' = struct
 end
 
 structure Outer_Syntax' = struct
+  fun command' f thy =
+    fold snd (f thy NONE) [] |> rev
+                             |> (fn tr => fold (fn Toplevel'.Theory f => f
+                                                 | Toplevel'.Keep f => tap f
+                                                 | Toplevel'.Read_Write _ => I) tr thy)
   fun command name_pos comment parse =
-    Outer_Syntax.command name_pos comment
-      (parse >> (fn f =>
-        Toplevel.theory (fn thy =>
-          fold snd (f thy NONE) [] |> rev
-                                   |> (fn tr => fold (fn Toplevel'.Theory f => f
-                                                       | Toplevel'.Keep f => tap f
-                                                       | Toplevel'.Read_Write _ => I) tr thy))))
+    Outer_Syntax.command name_pos comment (parse >> (Toplevel.theory o command'))
 end
 
 structure Old_Datatype_Aux' = struct
@@ -1282,95 +1281,96 @@ fun thy_switch \<^cancel>\<open>pos1 pos2\<close> f mode tr =
 
 in
 
+fun outer_syntax_commands'''' is_safe mk_string get_all_meta_embed name thy _ =
+  (* WARNING: Whenever there would be errors raised by functions taking "thy" as input,
+              they will not be shown.
+              So the use of this "thy" can be considered as safe, as long as errors do not happen. *)
+  let
+    open Generation_mode
+    val get_all_m = get_all_meta_embed name
+    val m_tr = (Data_gen.get thy, [])
+      |-> mapM_syntax_print (META.mapM (fn n =>
+            pair n
+                 o cons (\<^command_keyword>\<open>print_syntax\<close>,
+                         Toplevel'.keep_theory (fn thy =>
+                           writeln (mk_string
+                                     (Proof_Context.init_global
+                                       (case n of NONE => thy
+                                                | SOME n => Config.put_global ML_Print_Depth.print_depth n thy))
+                                     name)))))
+  in \<^cancel>\<open>let
+       val thy_o = is_safe thy
+       val l_obj = get_all_m thy_o
+                   (* In principle, it is fine if (SOME thy) is provided to
+                      get_all_m. However, because certain types of errors are most of the
+                      time happening whenever certain specific operations depending on thy
+                      are explicitly performed, and because get_all_m was intentionally set
+                      to not interactively manage such errors, then these errors (whenever
+                      they are happening) could possibly not appear in the output
+                      window. Although the computation would be in any case interrupted as
+                      usual (but with only minimal debugging information, such as a simple
+                      red underlining color).
+                      
+                      Generally, whenever get_all_m is called during the evaluating commands
+                      coming from generated files (which is not the case here, but will be
+                      later), this restriction can normally be removed (i.e., by writing
+                      (SOME thy)), as for the case of generated files, we are taking the
+                      assumption that errors (if they are happening) are as hard to detect
+                      as if an error was raised somewhere else by the generator itself.
+                      Another assumption nevertheless related with the generator is that it
+                      is supposed to explicitly not raise errors, however here this
+                      get_all_m is not situated below a generating part. This is why we are
+                      tempted to mostly give NONE to get_all_m, unless the calling command
+                      is explicitly taking the responsibility of a potential failure. *)
+       val m_tr = m_tr
+                  |-> thy_deep exec_deep Toplevel'.keep l_obj
+     in ( m_tr
+          |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
+                let val (tps, disp_time) = disp_time Toplevel'.keep_output
+                    fun aux thy_o =
+                      fold_thy_shallow
+                        (K (cons (Toplevel'.read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
+                        (fn msg => fn l =>
+                          apsnd (disp_time msg)
+                          #> Bind_META.all_meta_trs (aux thy_o o META.Fold_meta)
+                                                    { context_of = Toplevel.context_of
+                                                    , keep = Toplevel.keep
+                                                    , generic_theory = Toplevel.generic_theory
+                                                    , theory = Toplevel.theory
+                                                    , begin_local_theory = Toplevel.begin_local_theory
+                                                    , local_theory' = Toplevel.local_theory'
+                                                    , local_theory = Toplevel.local_theory
+                                                    , local_theory_to_proof' = Toplevel.local_theory_to_proof'
+                                                    , local_theory_to_proof = Toplevel.local_theory_to_proof
+                                                    , proof' = Toplevel.proof'
+                                                    , proofs = Toplevel.proofs
+                                                    , proof = Toplevel.proof
+                                                      (* *)
+                                                    , dual = #par, tr_raw = I
+                                                    , tr_report = report, tr_report_o = report_o
+                                                    , pr_report = report, pr_report_o = report_o }
+                                                    thy_o
+                                                    l)
+                in aux thy_o l_obj (env, acc)
+                   |> META.map_prod
+                        (fn env => (env, thy_init))
+                        (Toplevel'.keep_output tps Markup.operator "") end))
+        , Data_gen.put)
+        handle THY_REQUIRED pos =>
+          m_tr |-> thy_switch pos \<^here> (thy_shallow NONE get_all_m)
+     end
+     handle THY_REQUIRED pos =>
+       \<close>m_tr |-> thy_switch \<^cancel>\<open>pos \<^here>\<close> (fn mode => fn thy => 
+                                        let val l_obj = get_all_m (SOME thy) in
+                                          (thy_deep (tap oo exec_deep0) tap l_obj
+                                             #~> thy_shallow (SOME (K l_obj)) get_all_m) mode thy
+                                        end)
+  end
+  |> uncurry Toplevel'.setup_theory
+
 fun outer_syntax_commands''' is_safe mk_string cmd_spec cmd_descr parser get_all_meta_embed =
- let open Generation_mode in
   Outer_Syntax'.command cmd_spec cmd_descr
-    (parser >> (fn name => fn thy => fn _ =>
-      (* WARNING: Whenever there would be errors raised by functions taking "thy" as input,
-                  they will not be shown.
-                  So the use of this "thy" can be considered as safe, as long as errors do not happen. *)
-      let
-        val get_all_m = get_all_meta_embed name
-        val m_tr = (Data_gen.get thy, [])
-          |-> mapM_syntax_print (META.mapM (fn n =>
-                pair n
-                     o cons (\<^command_keyword>\<open>print_syntax\<close>,
-                             Toplevel'.keep_theory (fn thy =>
-                               writeln (mk_string
-                                         (Proof_Context.init_global
-                                           (case n of NONE => thy
-                                                    | SOME n => Config.put_global ML_Print_Depth.print_depth n thy))
-                                         name)))))
-      in \<^cancel>\<open>let
-           val thy_o = is_safe thy
-           val l_obj = get_all_m thy_o
-                       (* In principle, it is fine if (SOME thy) is provided to
-                          get_all_m. However, because certain types of errors are most of the
-                          time happening whenever certain specific operations depending on thy
-                          are explicitly performed, and because get_all_m was intentionally set
-                          to not interactively manage such errors, then these errors (whenever
-                          they are happening) could possibly not appear in the output
-                          window. Although the computation would be in any case interrupted as
-                          usual (but with only minimal debugging information, such as a simple
-                          red underlining color).
-                          
-                          Generally, whenever get_all_m is called during the evaluating commands
-                          coming from generated files (which is not the case here, but will be
-                          later), this restriction can normally be removed (i.e., by writing
-                          (SOME thy)), as for the case of generated files, we are taking the
-                          assumption that errors (if they are happening) are as hard to detect
-                          as if an error was raised somewhere else by the generator itself.
-                          Another assumption nevertheless related with the generator is that it
-                          is supposed to explicitly not raise errors, however here this
-                          get_all_m is not situated below a generating part. This is why we are
-                          tempted to mostly give NONE to get_all_m, unless the calling command
-                          is explicitly taking the responsibility of a potential failure. *)
-           val m_tr = m_tr
-                      |-> thy_deep exec_deep Toplevel'.keep l_obj
-         in ( m_tr
-              |-> mapM_shallow (META.mapM (fn (env, thy_init) => fn acc =>
-                    let val (tps, disp_time) = disp_time Toplevel'.keep_output
-                        fun aux thy_o =
-                          fold_thy_shallow
-                            (K (cons (Toplevel'.read_write_keep (Toplevel.Load_backup, Toplevel.Store_default))))
-                            (fn msg => fn l =>
-                              apsnd (disp_time msg)
-                              #> Bind_META.all_meta_trs (aux thy_o o META.Fold_meta)
-                                                        { context_of = Toplevel.context_of
-                                                        , keep = Toplevel.keep
-                                                        , generic_theory = Toplevel.generic_theory
-                                                        , theory = Toplevel.theory
-                                                        , begin_local_theory = Toplevel.begin_local_theory
-                                                        , local_theory' = Toplevel.local_theory'
-                                                        , local_theory = Toplevel.local_theory
-                                                        , local_theory_to_proof' = Toplevel.local_theory_to_proof'
-                                                        , local_theory_to_proof = Toplevel.local_theory_to_proof
-                                                        , proof' = Toplevel.proof'
-                                                        , proofs = Toplevel.proofs
-                                                        , proof = Toplevel.proof
-                                                          (* *)
-                                                        , dual = #par, tr_raw = I
-                                                        , tr_report = report, tr_report_o = report_o
-                                                        , pr_report = report, pr_report_o = report_o }
-                                                        thy_o
-                                                        l)
-                    in aux thy_o l_obj (env, acc)
-                       |> META.map_prod
-                            (fn env => (env, thy_init))
-                            (Toplevel'.keep_output tps Markup.operator "") end))
-            , Data_gen.put)
-            handle THY_REQUIRED pos =>
-              m_tr |-> thy_switch pos \<^here> (thy_shallow NONE get_all_m)
-         end
-         handle THY_REQUIRED pos =>
-           \<close>m_tr |-> thy_switch \<^cancel>\<open>pos \<^here>\<close> (fn mode => fn thy => 
-                                            let val l_obj = get_all_m (SOME thy) in
-                                              (thy_deep (tap oo exec_deep0) tap l_obj
-                                                 #~> thy_shallow (SOME (K l_obj)) get_all_m) mode thy
-                                            end)
-      end
-      |> uncurry Toplevel'.setup_theory))
- end
+    (parser >> outer_syntax_commands'''' is_safe mk_string get_all_meta_embed)
 end
 
 fun outer_syntax_commands'' mk_string = outer_syntax_commands''' (K NONE) mk_string
