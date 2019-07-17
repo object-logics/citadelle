@@ -49,6 +49,124 @@ imports "../../compiler_generic/Init"
 begin
 
 ML{*
+structure Isabelle_Code_Target =
+struct
+(*  Title:      Tools/Code/code_target.ML
+    Author:     Florian Haftmann, TU Muenchen
+
+Generic infrastructure for target language data.
+*)
+
+open Basic_Code_Symbol;
+open Basic_Code_Thingol;
+
+
+
+(** checking and parsing of symbols **)
+
+
+val parse_classrel_ident = Parse.class --| @{keyword "<"} -- Parse.class;
+
+
+val parse_inst_ident = Parse.name --| @{keyword "::"} -- Parse.class;
+
+
+
+(** serializations and serializer **)
+
+(* serialization: abstract nonsense to cover different destinies for generated code *)
+
+
+
+
+
+(* serializers: functions producing serializations *)
+
+
+
+(** theory data **)
+
+
+
+(** serializer usage **)
+
+(* technical aside: pretty printing width *)
+
+
+
+(* montage *)
+
+
+
+(* code generation *)
+
+fun prep_destination (s, pos) =
+  if s = "" then NONE
+  else
+    let
+      val _ = Position.report pos Markup.language_path;
+      val path = Path.explode s;
+      val _ = Position.report pos (Markup.path (Path.smart_implode path));
+    in SOME path end;
+
+
+fun export_code_cmd all_public raw_cs seris ctxt =
+  Code_Target.export_code ctxt all_public
+    (Code_Thingol.read_const_exprs ctxt raw_cs)
+    ((map o apfst o apsnd) prep_destination seris);
+
+
+
+(** serializer configuration **)
+
+(* reserved symbol names *)
+
+
+
+(* checking of syntax *)
+
+
+
+(* custom symbol names *)
+
+
+
+(* custom printings *)
+
+
+
+(* concrete syntax *)
+
+
+
+(** Isar setup **)
+
+fun parse_single_symbol_pragma parse_keyword parse_isa parse_target =
+  parse_keyword |-- Parse.!!! (parse_isa --| (@{keyword "\<rightharpoonup>"} || @{keyword "=>"})
+    -- Parse.and_list1 (@{keyword "("} |-- (Parse.name --| @{keyword ")"} -- Scan.option parse_target)));
+
+fun parse_symbol_pragma parse_const parse_tyco parse_class parse_classrel parse_inst parse_module =
+  parse_single_symbol_pragma @{keyword "constant"} Parse.term parse_const
+    >> Constant
+  || parse_single_symbol_pragma @{keyword "type_constructor"} Parse.type_const parse_tyco
+    >> Type_Constructor
+  || parse_single_symbol_pragma @{keyword "type_class"} Parse.class parse_class
+    >> Type_Class
+  || parse_single_symbol_pragma @{keyword "class_relation"} parse_classrel_ident parse_classrel
+    >> Class_Relation
+  || parse_single_symbol_pragma @{keyword "class_instance"} parse_inst_ident parse_inst
+    >> Class_Instance
+  || parse_single_symbol_pragma @{keyword "code_module"} Parse.name parse_module
+    >> Code_Symbol.Module;
+
+fun parse_symbol_pragmas parse_const parse_tyco parse_class parse_classrel parse_inst parse_module =
+  Parse.enum1 "|" (Parse.group (fn () => "code symbol pragma")
+    (parse_symbol_pragma parse_const parse_tyco parse_class parse_classrel parse_inst parse_module));
+
+end
+*}
+
+ML{*
 structure Code_printing = struct
 datatype code_printing = Code_printing of
      (string * (bstring * Code_Printer.raw_const_syntax option) list,

@@ -102,6 +102,17 @@ apply_code_printing_reflect \<open>
 \<close>
 ML \<open>warning "apply_code_printing_reflect must be enabled"\<close>
 
+ML\<open>
+structure Isabelle_Code_Target =
+struct
+fun export_code_cmd all_public raw_cs seris ctxt = warning "Skipping code export"
+end
+structure Code_printing =
+struct
+fun apply_code_printing thy = tap (fn _ => warning "Skipping code printing") thy
+end
+\<close>
+
 code_reflect' open META
    functions (* executing the compiler as monadic combinators for deep and shallow *)
              fold_thy_deep fold_thy_shallow

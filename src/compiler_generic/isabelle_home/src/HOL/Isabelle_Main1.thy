@@ -40,7 +40,6 @@
  ******************************************************************************)
 
 theory   Isabelle_Main1
-imports  "../Tools/Code/Isabelle_code_target"
-         "../Tools/Code/Isabelle_code_runtime"
+imports "../Tools/Code/Isabelle_code_runtime"
 begin
 end
