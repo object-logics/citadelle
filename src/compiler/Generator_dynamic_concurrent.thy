@@ -1179,6 +1179,8 @@ fun thy_shallow l_obj get_all_meta_embed =
                                          |> Local_Theory.new_group
                                          |> f
                                          |> Local_Theory.reset_group
+                                            \<comment> \<open>Note: \<^ML>\<open>Local_Theory.reset\<close> is mandatory
+                                                   for the cases listed in \<^ML>\<open>Named_Target.switch\<close>.\<close>
                                          |> Local_Theory.reset
                       fun not_used p _ = error ("not used " ^ Position.here p)
                       val context_of = I
