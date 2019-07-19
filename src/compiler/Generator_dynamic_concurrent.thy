@@ -44,7 +44,7 @@ section\<open>Dynamic Meta Embedding with Reflection\<close>
 theory Generator_dynamic_concurrent
 imports "FOCL.Printer"
         "FOCL.Isabelle_Main2"
-        "FOCL.Old_Datatype"
+        "~~/src/HOL/Library/Old_Datatype"
   keywords (* OCL (USE tool) *)
            "Between"
            "Attributes" "Operations" "Constraints"
@@ -184,15 +184,6 @@ structure Toplevel' = struct
   fun read_write_keep rw = (\<^command_keyword>\<open>setup\<close>, fn tr => tr |> Toplevel.read_write rw |> Toplevel.keep (K ()))
   fun setup_theory (res, tr) f = rev ((\<^command_keyword>\<open>setup\<close>, Toplevel.theory (f res)) :: tr)
   fun keep_output tps fmt msg = cons (\<^command_keyword>\<open>print_syntax\<close>, Toplevel.keep (fn _ => out_intensify' tps fmt msg))
-end
-
-structure Old_Datatype_Aux' = struct
-  fun default_config' n =
-    if n = 0 then
-      Old_Datatype_Aux.default_config
-    else
-      let val _ = warning "Type of datatype not available in this running version of Isabelle"
-      in Old_Datatype_Aux.default_config end
 end
 
 structure Resources' = struct
@@ -461,8 +452,7 @@ fun end' top =
 structure Cmd = struct open META open META_overload
 fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
 
-fun datatype' top (Datatypea (version, l)) = 
-  case version of Datatype_new => #local_theory top NONE NONE
+fun datatype' top (Datatypea (version, l)) = case version of Datatype_new => #local_theory top NONE NONE
   (BNF_FP_Def_Sugar.co_datatype_cmd
     BNF_Util.Least_FP
     BNF_LFP.construct_lfp
@@ -476,8 +466,10 @@ fun datatype' top (Datatypea (version, l)) =
             , [])) l)))
   | _ => #theory top
   ((snd oo Old_Datatype.add_datatype_cmd
-     (Old_Datatype_Aux'.default_config'
-       (case version of Datatype_old => 0 | Datatype_old_atomic => 1 | _ => 2)))
+     (tap
+       (fn _ => case version of Datatype_old => ()
+                              | _ => warning "Type of datatype not available in this running version of Isabelle")
+       Old_Datatype_Aux.default_config))
     (map (fn ((n, v), l) =>
            ( (To_sbinding n, map (fn v => (To_string0 v, NONE)) v, NoSyn)
            , List.map (fn (n, l) => (To_sbinding n, List.map of_semi__typ l, NoSyn)) l))

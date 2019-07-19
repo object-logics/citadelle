@@ -44,7 +44,6 @@ section\<open>Dynamic Meta Embedding with Reflection\<close>
 theory Generator_dynamic_sequential
 imports Printer
         "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main2"
-        "~~/src/HOL/Library/Old_Datatype"
   keywords (* OCL (USE tool) *)
            "Between"
            "Attributes" "Operations" "Constraints"
@@ -207,15 +206,6 @@ structure Outer_Syntax' = struct
                                                  | Toplevel'.Read_Write _ => I) tr thy)
   fun command name_pos comment parse =
     Outer_Syntax.command name_pos comment (parse >> (Toplevel.theory o command'))
-end
-
-structure Old_Datatype_Aux' = struct
-  fun default_config' n =
-    if n = 0 then
-      Old_Datatype_Aux.default_config
-    else
-      let val _ = warning "Type of datatype not available in this running version of Isabelle"
-      in Old_Datatype_Aux.default_config end
 end
 
 structure Resources' = struct
@@ -484,8 +474,7 @@ fun end' top =
 structure Cmd = struct open META open META_overload
 fun input_source ml = Input.source false (of_semi__term' ml) (Position.none, Position.none)
 
-fun datatype' top (Datatypea (version, l)) = 
-  case version of Datatype_new => #local_theory top NONE NONE
+fun datatype' top (Datatypea (version, l)) = \<^cancel>\<open>case version of Datatype_new =>\<close> #local_theory top NONE NONE
   (BNF_FP_Def_Sugar.co_datatype_cmd
     BNF_Util.Least_FP
     BNF_LFP.construct_lfp
@@ -497,14 +486,16 @@ fun datatype' top (Datatypea (version, l)) =
                                          , NoSyn)) l)
               , (To_binding "", To_binding "", To_binding ""))
             , [])) l)))
-  | _ => #theory top
-  ((snd oo Old_Datatype.add_datatype_cmd
-     (Old_Datatype_Aux'.default_config'
-       (case version of Datatype_old => 0 | Datatype_old_atomic => 1 | _ => 2)))
+  |> \<^cancel>\<open>| _ => #theory top\<close>
+  (\<^cancel>\<open>snd oo Old_Datatype.add_datatype_cmd\<close>
+     (tap
+       (fn _ => case version of Datatype_new => ()
+                              | _ => warning "Type of datatype not available in this running version of Isabelle")
+       ) \<^cancel>\<open>
     (map (fn ((n, v), l) =>
            ( (To_sbinding n, map (fn v => (To_string0 v, NONE)) v, NoSyn)
            , List.map (fn (n, l) => (To_sbinding n, List.map of_semi__typ l, NoSyn)) l))
-         l))
+         l)\<close>)
 
 fun type_synonym top (Type_synonym ((n, v), l)) = #theory top (fn thy => let val s_bind = To_sbinding n in
   (snd o Typedecl.abbrev_global
