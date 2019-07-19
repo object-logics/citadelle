@@ -39,7 +39,7 @@ imports Main
   keywords "code_reflect'" :: thy_decl
 begin
 
-ML{*
+ML \<open>
 structure Code_Runtime' =
 struct
 (*  Title:      Tools/Code/code_runtime.ML
@@ -55,7 +55,7 @@ open Basic_Code_Symbol;
 (* technical prerequisites *)
 
 
-val trace = Attrib.setup_config_bool @{binding "code_runtime_trace"} (K false);
+val trace = Attrib.setup_config_bool \<^binding>\<open>code_runtime_trace\<close> (K false);
 
 fun compile_ML verbose code context =
  (if Config.get_generic context trace then tracing code else ();
@@ -113,7 +113,7 @@ fun runtime_code'' ctxt module_name program tycos consts all_public =
     val thy = Proof_Context.theory_of ctxt;
     val (ml_modules, target_names) =
       Code_Target.produce_code_for ctxt
-        Code_Runtime.target NONE module_name [] program all_public (map Constant consts @ map Type_Constructor tycos);
+        Code_Runtime.target module_name NONE [] program all_public (map Constant consts @ map Type_Constructor tycos);
     val ml_code = space_implode "\n\n" (map snd ml_modules);
     val (consts', tycos') = chop (length consts) target_names;
     val consts_map = map2 (fn const =>
@@ -189,18 +189,18 @@ fun process_reflection (code, (tyco_map, (constr_map, const_map))) module_name N
       |> fold (add_eval_tyco o apsnd Code_Printer.str) tyco_map
       |> fold (add_eval_constr o apsnd Code_Printer.str) constr_map
       |> fold (add_eval_const o apsnd Code_Printer.str) const_map
-  | process_reflection (code, _) _ (SOME file_name) thy =
+  | process_reflection (code, _) _ (SOME binding) thy =
       let
+        val code_binding = Path.map_binding Code_Target.code_path binding;
         val preamble =
           "(* Generated from " ^
             Path.implode (Resources.thy_path (Path.basic (Context.theory_name thy))) ^
           "; DO NOT EDIT! *)";
-        val _ = File.write (Path.explode file_name) (preamble ^ "\n\n" ^ code);
-      in
-        thy
-      end;
+        val thy' = Code_Target.export code_binding (preamble ^ "\n\n" ^ code) thy;
+        val _ = Code_Target.code_export_message thy';
+      in thy' end;
 
-fun gen_code_reflect prep_type prep_const all_public raw_datatypes raw_functions module_name some_file thy  =
+fun gen_code_reflect prep_type prep_const all_public raw_datatypes raw_functions module_name file_prefix thy =
   let
     val ctxt = Proof_Context.init_global thy;
     val datatypes = map (fn (raw_tyco, raw_cos) =>
@@ -214,7 +214,7 @@ fun gen_code_reflect prep_type prep_const all_public raw_datatypes raw_functions
       |> (apsnd o apsnd) (chop (length constrs));
   in
     thy
-    |> process_reflection result module_name some_file
+    |> process_reflection result module_name file_prefix
   end;
 
 val code_reflect_cmd = gen_code_reflect Code_Target.read_tyco Code.read_const;
@@ -225,22 +225,24 @@ val code_reflect_cmd = gen_code_reflect Code_Target.read_tyco Code.read_const;
 local
 
 val parse_datatype =
-  Parse.name -- Scan.optional (@{keyword "="} |--
+  Parse.name -- Scan.optional (\<^keyword>\<open>=\<close> |--
     (((Parse.sym_ident || Parse.string) >> (fn "_" => NONE | _ => Scan.fail ()))
-    || ((Parse.term ::: (Scan.repeat (@{keyword "|"} |-- Parse.term))) >> SOME))) (SOME []);
+    || ((Parse.term ::: (Scan.repeat (\<^keyword>\<open>|\<close> |-- Parse.term))) >> SOME))) (SOME []);
 
 in
 
 val _ =
-  Outer_Syntax.command @{command_keyword code_reflect'}
+  Outer_Syntax.command \<^command_keyword>\<open>code_reflect'\<close>
     "enrich runtime environment with generated code"
-    (Scan.optional (@{keyword "open"} |-- Scan.succeed true) false --
-     Parse.name -- Scan.optional (@{keyword "datatypes"} |-- Parse.!!! (parse_datatype
-      ::: Scan.repeat (@{keyword "and"} |-- parse_datatype))) []
-    -- Scan.optional (@{keyword "functions"} |-- Parse.!!!  (Scan.repeat1 Parse.name)) []
-    -- Scan.option (@{keyword "file"} |-- Parse.!!! Parse.name)
-    >> (fn ((((all_public, module_name), raw_datatypes), raw_functions), some_file) => Toplevel.theory
-      (code_reflect_cmd all_public raw_datatypes raw_functions module_name some_file)));
+    (Scan.optional (\<^keyword>\<open>open\<close> |-- Scan.succeed true) false --
+     Parse.name -- Scan.optional (\<^keyword>\<open>datatypes\<close> |-- Parse.!!! (parse_datatype
+      ::: Scan.repeat (\<^keyword>\<open>and\<close> |-- parse_datatype))) []
+    -- Scan.optional (\<^keyword>\<open>functions\<close> |-- Parse.!!!  (Scan.repeat1 Parse.name)) []
+    -- Scan.option (\<^keyword>\<open>file_prefix\<close> |-- Parse.!!! (Parse.position Parse.embedded))
+    >> (fn ((((all_public, module_name), raw_datatypes), raw_functions), file_prefix) =>
+      Toplevel.theory (fn thy =>
+        code_reflect_cmd all_public raw_datatypes raw_functions module_name
+          (Option.map Path.explode_binding file_prefix) thy)));
 
 end; (*local*)
 
@@ -248,6 +250,6 @@ end; (*local*)
 (** using external SML files as substitute for proper definitions -- only for polyml!  **)
 
 end
-*}
+\<close>
 
 end

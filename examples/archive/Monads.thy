@@ -202,7 +202,7 @@ proof
   let ?S = "\<lambda>n::nat. if n=0 then a else b"
   have "chain ?S" using `a \<subseteq> b` by(auto simp: chain_def)
   hence "f(UN n. ?S n) = (UN n. f(?S n))"
-    using assms by(simp add: cont_def)
+    using assms by (metis cont_def)
   moreover have "(UN n. ?S n) = b" using `a \<subseteq> b` by (auto split: if_splits)
   moreover have "(UN n. f(?S n)) = f a \<union> f b" by (auto split: if_splits)
   ultimately show "f a \<subseteq> f b" by (metis Un_upper1)
@@ -426,7 +426,7 @@ where "mbind' [] iostep \<sigma> = Some([], \<sigma>)" |
                 (case iostep a \<sigma> of
                      None   \<Rightarrow> None
                   |  Some (out, \<sigma>') \<Rightarrow> (case mbind' S iostep \<sigma>' of
-                                          None    \<Rightarrow> None   (*  fail-strict *)
+                                          None    \<Rightarrow> None   \<comment> \<open>fail-strict\<close>
                                         | Some(outs,\<sigma>'') \<Rightarrow> Some(out#outs,\<sigma>'')))"
 notation mbind' ("mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p") (* future name: mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>S\<^sub>t\<^sub>o\<^sub>p *)
 
@@ -447,7 +447,7 @@ where "mbind'' [] iostep \<sigma> = Some([], \<sigma>)" |
                 (case iostep a \<sigma> of
                      None           \<Rightarrow> mbind'' S iostep \<sigma>
                   |  Some (out, \<sigma>') \<Rightarrow> (case mbind'' S iostep \<sigma>' of
-                                          None    \<Rightarrow> None   (*  does not occur *)
+                                          None    \<Rightarrow> None   \<comment> \<open>does not occur\<close>
                                         | Some(outs,\<sigma>'') \<Rightarrow> Some(out#outs,\<sigma>'')))"
 
 notation mbind'' ("mbind\<^sub>F\<^sub>a\<^sub>i\<^sub>l\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e") (* future name: mbind\<^sub>P\<^sub>u\<^sub>r\<^sub>g\<^sub>e\<^sub>F\<^sub>a\<^sub>i\<^sub>l *)
@@ -589,37 +589,98 @@ lemmas aux = trans[OF HOL.neq_commute,OF Option.not_None_eq]
 
 lemma bind_assoc_SBE: "(y :\<equiv> (x :\<equiv> m; k); h y) = (x :\<equiv> m; (y :\<equiv> k; h y))"
 proof (rule ext, rename_tac z, simp add: unit_SBE_def bind_SBE_def,
-       case_tac "m z", simp_all add: Let_def Set.image_iff, safe)
-  case goal1 then show ?case
-       by(rule_tac x="(a, b)" in bexI, simp_all)
+       case_tac "m z", simp_all add: Let_def Set.image_iff, safe, goal_cases)
+  case 1 then show ?case
+       by force
 next
-  case goal2 then show ?case
-       apply(rule_tac  x="(aa,b)" in bexI, simp_all add:split_def)
+  case 2 fix z a aa b ab ba show "m z = Some a \<Longrightarrow>
+       (aa, b) \<in> a \<Longrightarrow>
+       (ab, ba) \<in> the (k b) \<Longrightarrow>
+       None = h ab ba \<Longrightarrow>
+       \<forall>x\<in>a. None \<noteq> (case x of (out, x) \<Rightarrow> k x) \<Longrightarrow> \<exists>x\<in>a. None =
+              (case x of
+               (out, \<sigma>') \<Rightarrow>
+                 case k \<sigma>' of None \<Rightarrow> None
+                 | Some S \<Rightarrow>
+                     let S' = (\<lambda>(x, y). h x y) ` S
+                     in if None \<in> S' then None else Some (\<Union> (the ` S')))"
+    apply(rule_tac  x="(aa,b)" in bexI, simp_all add:split_def)
+    apply(erule_tac x="(aa,b)" in ballE)
+     apply(auto simp: aux image_def split_def intro!: rev_bexI)
+    done
+next
+  case 3 then show ?case
+       by force
+next
+  case 4 fix z a aa b show "m z = Some a \<Longrightarrow>
+       \<forall>y\<in>a. \<forall>x\<in>the (case y of (out, x) \<Rightarrow> k x).
+                 None \<noteq> (case x of (x, xa) \<Rightarrow> h x xa) \<Longrightarrow>
+       \<forall>x\<in>a. None \<noteq> (case x of (out, x) \<Rightarrow> k x) \<Longrightarrow>
+       (aa, b) \<in> a \<Longrightarrow>
+       None =
+       (case k b of None \<Rightarrow> None
+        | Some S \<Rightarrow>
+            let S' = (\<lambda>(x, y). h x y) ` S
+            in if None \<in> S' then None else Some (\<Union> (the ` S'))) \<Longrightarrow>
+       False"
+       apply(erule_tac Q="None = \<comment> \<open>FIXME to be shorten\<close> (case k b of None \<Rightarrow> None | Some S \<Rightarrow> let S' = (\<lambda>(x, y). h x y) ` S in if None \<in> S' then None else Some (\<Union>(the ` S')))" in contrapos_pp)
        apply(erule_tac x="(aa,b)" in ballE)
-       apply(auto simp: aux image_def split_def intro!: rev_bexI)
+        apply(auto simp: aux Option.not_None_eq image_def split_def intro!: rev_bexI)
        done
 next
-  case goal3 then show ?case
-       by(rule_tac x="(a, b)" in bexI, simp_all)
-next
-  case goal4 then show ?case
-       apply(erule_tac Q="None = (* FIXME to be shorten *) (case k b of None \<Rightarrow> None | Some S \<Rightarrow> let S' = (\<lambda>(x, y). h x y) ` S in if None \<in> S' then None else Some (\<Union>(the ` S')))" in contrapos_pp)
-       apply(erule_tac x="(aa,b)" in ballE)
-       apply(auto simp: aux Option.not_None_eq image_def split_def intro!: rev_bexI)
-       done
-next
-  case goal5 then show ?case
+  case 5 fix z a aa b ab ba aaa baa show " m z = Some a \<Longrightarrow>
+       \<forall>y\<in>a. \<forall>x\<in>the (case y of (out, x) \<Rightarrow> k x).
+                 None \<noteq> (case x of (x, xa) \<Rightarrow> h x xa) \<Longrightarrow>
+       \<forall>x\<in>a. None \<noteq> (case x of (out, x) \<Rightarrow> k x) \<Longrightarrow>
+       \<forall>x\<in>a. None \<noteq>
+              (case x of
+               (out, \<sigma>') \<Rightarrow>
+                 case k \<sigma>' of None \<Rightarrow> None
+                 | Some S \<Rightarrow>
+                     let S' = (\<lambda>(x, y). h x y) ` S
+                     in if None \<in> S' then None else Some (\<Union> (the ` S'))) \<Longrightarrow>
+       (ab, ba) \<in> a \<Longrightarrow>
+       (aaa, baa) \<in> the (k ba) \<Longrightarrow>
+       (aa, b) \<in> the (h aaa baa) \<Longrightarrow>
+       (aa, b)
+       \<in> (\<Union>a\<in>a. the (case a of
+                      (out, \<sigma>') \<Rightarrow>
+                        case k \<sigma>' of None \<Rightarrow> None
+                        | Some S \<Rightarrow>
+                            let S' = (\<lambda>(x, y). h x y) ` S
+                            in if None \<in> S' then None else Some (\<Union> (the ` S'))))"
        apply simp apply((erule_tac x="(ab,ba)" in ballE)+)
        apply(simp_all add: aux Option.not_None_eq, (erule exE)+, simp add:split_def)
        apply(erule rev_bexI,case_tac "None\<in>(\<lambda>p. h (fst p) (snd p))`y",auto simp:split_def)
-       done
-
+    done
 next
-  case goal6 then show ?case
-       apply simp apply((erule_tac x="(a,b)" in ballE)+)
-       apply(simp_all add: aux Option.not_None_eq, (erule exE)+, simp add:split_def)
-       apply(erule rev_bexI, case_tac "None\<in>(\<lambda>p. h(fst p)(snd p))`y",auto simp:split_def)
-       done
+  case 6 fix z a aa b aaa ba show " m z = Some a \<Longrightarrow>
+       \<forall>y\<in>a. \<forall>x\<in>the (case y of (out, x) \<Rightarrow> k x).
+                 None \<noteq> (case x of (x, xa) \<Rightarrow> h x xa) \<Longrightarrow>
+       \<forall>x\<in>a. None \<noteq> (case x of (out, x) \<Rightarrow> k x) \<Longrightarrow>
+       \<forall>x\<in>a. None \<noteq>
+              (case x of
+               (out, \<sigma>') \<Rightarrow>
+                 case k \<sigma>' of None \<Rightarrow> None
+                 | Some S \<Rightarrow>
+                     let S' = (\<lambda>(x, y). h x y) ` S
+                     in if None \<in> S' then None else Some (\<Union> (the ` S'))) \<Longrightarrow>
+       (aaa, ba) \<in> a \<Longrightarrow>
+       (aa, b)
+       \<in> the (case k ba of None \<Rightarrow> None
+               | Some S \<Rightarrow>
+                   let S' = (\<lambda>(x, y). h x y) ` S
+                   in if None \<in> S' then None else Some (\<Union> (the ` S'))) \<Longrightarrow>
+       (aa, b)
+       \<in> (\<Union>x\<in>a. \<Union>a\<in>the (case x of (out, x) \<Rightarrow> k x).
+                    the (case a of (x, xa) \<Rightarrow> h x xa))"
+    apply simp
+    apply (case_tac "k ba") apply auto[1]
+     apply simp
+    apply((erule_tac x="(aaa,ba)" in ballE)+)
+        apply(simp_all add: aux Option.not_None_eq, (erule exE)+, simp add:split_def)
+    apply(erule rev_bexI, case_tac "None \<in> (\<lambda>x. h (fst x) (snd x)) ` a",auto simp:split_def)
+    done
 qed
 
 

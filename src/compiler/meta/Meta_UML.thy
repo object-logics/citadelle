@@ -709,7 +709,7 @@ definition "map_class_gen_h'_inh f =
     f isub_name
       name
       (\<lambda>n. let n = String.to_list n in
-           if (* TODO use \<triangleq> *) n = String.to_list name then EQ else
+           if \<comment> \<open>TODO use \<^term>\<open>(\<triangleq>)\<close>\<close> n = String.to_list name then EQ else
            if l_mem (of_linh l_inh) n then GT else
            if l_mem l_subtree n then LT else
            UN'))"

@@ -799,7 +799,7 @@ fun meta_command0 s_put f_get constraint source =
        (ML_Lex.read "let open META val ML = META.SML val "
         @ ML_Lex.read_set_range (Input.range_of source) name
         @ ML_Lex.read (" : " ^ constraint ^ " = ")
-        @ ML_Lex.read_source false source
+        @ ML_Lex.read_source source
         @ ML_Lex.read (" in Context.>> (Context.map_theory (" ^ s_put ^ " " ^ name ^ ")) end"))
   #> Context.map_theory_result (fn thy => (f_get thy, thy))
   #> fst
@@ -1088,7 +1088,7 @@ fun meta_command0 s_put f_get f_get0 constraint source =
        (ML_Lex.read "let open META val ML = META.SML val "
         @ ML_Lex.read_set_range (Input.range_of source) name
         @ ML_Lex.read (" : " ^ constraint ^ " = ")
-        @ ML_Lex.read_source false source
+        @ ML_Lex.read_source source
         @ ML_Lex.read (" in Context.>> (Context.map_theory (fn thy => " ^ s_put ^ " (" ^ name ^ " (" ^ f_get0 ^ " thy)) thy)) end"))
   #> Context.map_theory_result (fn thy => (f_get thy, thy))
   #> fst
@@ -1230,13 +1230,13 @@ fun thy_shallow l_obj get_all_meta_embed =
                 (K o K thy0)
                 (fn msg =>
                   let val () = disp_time msg ()
-                      fun in_self f lthy = lthy
-                                         |> Local_Theory.new_group
-                                         |> f
-                                         |> Local_Theory.reset_group
-                                            \<comment> \<open>Note: \<^ML>\<open>Local_Theory.reset\<close> is mandatory
-                                                   for the cases listed in \<^ML>\<open>Named_Target.switch\<close>.\<close>
-                                         |> Local_Theory.reset
+                      fun in_self f =
+                        \<comment> \<open>Note: This function is not equivalent to \<^ML>\<open>Local_Theory.subtarget\<close>.\<close>
+                        Local_Theory.new_group
+                        #> f
+                        #> Local_Theory.reset_group
+                        #> (fn lthy =>
+                            #1 (Named_Target.switch NONE (Context.Proof lthy)) lthy |> Context.the_proof)
                       fun not_used p _ = error ("not used " ^ Position.here p)
                       val context_of = I
                       fun proof' f = f true

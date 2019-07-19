@@ -28,10 +28,10 @@ sig
   val local_theory_to_proof: command_keyword -> string ->
     (local_theory -> Proof.state) parser -> unit
   val bootstrap: bool Config.T
-  val parse_tokens: theory -> Proof.state option -> Token.T list -> Toplevel.transitions list
-  val parse: theory -> Proof.state option -> Position.T -> string -> Toplevel.transitions list
   val parse_spans: Token.T list -> Command_Span.span list
   val make_span: Token.T list -> Command_Span.span
+  val parse_span: theory -> Proof.state option -> (unit -> theory) -> Token.T list -> Toplevel.transitions
+  val parse_text: theory -> Proof.state option -> (unit -> theory) -> Position.T -> string -> Toplevel.transitions list
   val command_reports: theory -> Token.T -> Position.report_text list
   val check_command: Proof.context -> command_keyword -> string
 end;
@@ -190,60 +190,6 @@ val local_theory_to_proof = local_theory_command Toplevel.local_theory_to_proof;
 
 (** toplevel parsing **)
 
-(* parse commands *)
-
-val bootstrap =
-  Config.bool (Config.declare ("Outer_Syntax.bootstrap", \<^here>) (K (Config.Bool true)));
-
-local
-
-val before_command =
-  Scan.option (Parse.position (Parse.private >> K true || Parse.qualified >> K false));
-
-fun parse_command thy st =
-  Scan.ahead (before_command |-- Parse.position Parse.command) :|-- (fn (name, pos) =>
-    let
-      val keywords = Thy_Header.get_keywords thy;
-      val command_tags = Parse.command -- Parse.tags;
-      fun tr0 name =
-        Toplevel.empty
-        |> Toplevel.name name
-        |> Toplevel.position pos
-        |> Keyword.is_proof_open keywords name ? Toplevel.skip_proof_open
-        |> Keyword.is_proof_close keywords name ? Toplevel.skip_proof_close;
-    in
-      (case lookup_commands thy name of
-        SOME (Command {command_parser = Parser parse, ...}) =>
-          Parse.!!! (command_tags |-- parse) >> (fn f => f thy st tr0)
-      | SOME (Command {command_parser = Restricted_Parser parse, ...}) =>
-          before_command :|-- (fn restricted =>
-            Parse.!!! (command_tags |-- parse restricted)) >> (fn f => f thy st tr0)
-      | NONE =>
-          Scan.fail_with (fn _ => fn _ =>
-            let
-              val msg =
-                if Config.get_global thy bootstrap
-                then "missing theory context for command "
-                else "undefined command ";
-            in msg ^ quote (Markup.markup Markup.keyword1 name) end))
-    end);
-
-in
-
-fun parse_tokens thy st =
-  filter Token.is_proper
-  #> Source.of_list
-  #> Source.source Token.stopper (Scan.bulk (fn xs => Parse.!!! (parse_command thy st) xs))
-  #> Source.exhaust;
-
-fun parse thy st pos text =
-  Symbol_Pos.explode (text, pos)
-  |> Token.tokenize (Thy_Header.get_keywords thy) {strict = false}
-  |> parse_tokens thy st;
-
-end;
-
-
 (* parse spans *)
 
 local
@@ -285,6 +231,75 @@ fun make_span toks =
   | _ => Command_Span.Span (Command_Span.Malformed_Span, toks));
 
 
+(* parse commands *)
+
+val bootstrap = Config.declare_bool ("Outer_Syntax.bootstrap", \<^here>) (K true);
+
+local
+
+val before_command =
+  Scan.option (Parse.position (Parse.private >> K true || Parse.qualified >> K false));
+
+fun parse_command thy st markers =
+  Scan.ahead (before_command |-- Parse.position Parse.command) :|-- (fn (name, pos) =>
+    let
+      val keywords = Thy_Header.get_keywords thy;
+      fun tr0 name =
+        Toplevel.empty
+        |> Toplevel.name name
+        |> Toplevel.position pos
+        |> Keyword.is_proof_open keywords name ? Toplevel.skip_proof_open
+        |> Keyword.is_proof_close keywords name ? Toplevel.skip_proof_close;
+      val command_markers =
+        Parse.command |-- Document_Source.old_tags >>
+          (fn tags => Toplevel.markers (map Document_Marker.legacy_tag tags @ markers) o tr0);
+    in
+      (case lookup_commands thy name of
+        SOME (Command {command_parser = Parser parse, ...}) =>
+          Parse.!!! (command_markers -- parse) >> (fn (tr0, f) => f thy st tr0)
+      | SOME (Command {command_parser = Restricted_Parser parse, ...}) =>
+          before_command :|-- (fn restricted =>
+            Parse.!!! (command_markers -- parse restricted)) >> (fn (tr0, f) => f thy st tr0)
+      | NONE =>
+          Scan.fail_with (fn _ => fn _ =>
+            let
+              val msg =
+                if Config.get_global thy bootstrap
+                then "missing theory context for command "
+                else "undefined command ";
+            in msg ^ quote (Markup.markup Markup.keyword1 name) end))
+    end);
+
+in
+
+fun parse_span thy st init span =
+  let
+    val range = Token.range_of span;
+    val core_range = Token.core_range_of span;
+
+    val markers = map Token.input_of (filter Token.is_document_marker span);
+    fun parse () =
+      filter Token.is_proper span
+      |> Source.of_list
+      |> Source.source Token.stopper (Scan.bulk (fn xs => Parse.!!! (parse_command thy st markers) xs))
+      |> Source.exhaust;
+  in
+    (case parse () of
+      [tr] => Toplevel.modify_init init tr
+    | [] => Toplevel.ignored (#1 range)
+    | _ => Toplevel.malformed (#1 core_range) "Exactly one command expected")
+    handle ERROR msg => Toplevel.malformed (#1 core_range) msg
+  end;
+
+fun parse_text thy st init pos text =
+  Symbol_Pos.explode (text, pos)
+  |> Token.tokenize (Thy_Header.get_keywords thy) {strict = false}
+  |> parse_spans
+  |> map (Command_Span.content #> parse_span thy st init);
+
+end;
+
+
 (* check commands *)
 
 fun command_reports thy tok =
@@ -311,15 +326,14 @@ fun check_command ctxt (name, pos) =
       in name end
     else
       let
-        val completion =
-          Completion.make (name, pos)
+        val completion_report =
+          Completion.make_report (name, pos)
             (fn completed =>
               Keyword.dest_commands keywords
               |> filter completed
               |> sort_strings
               |> map (fn a => (a, (Markup.commandN, a))));
-        val report = Markup.markup_report (Completion.reported_text completion);
-      in error ("Bad command " ^ quote name ^ Position.here pos ^ report) end
+      in error ("Bad command " ^ quote name ^ Position.here pos ^ completion_report) end
   end;
 
 

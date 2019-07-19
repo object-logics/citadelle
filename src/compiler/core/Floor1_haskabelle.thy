@@ -105,9 +105,9 @@ definition "hsk_stmt version names app_end =
         let l_data = L.map (map_prod (hsk_typespec names) (L.map (map_prod (hsk_name names) (L.map (hsk_type names))))) l
           ; l_data' = concat (L.map (L.map (\<lambda>(s, _). (s, gen_zero s)) o snd) l_data) in
         ( O.datatype (Datatype version (L.map (map_prod id (L.map (map_prod gen_zero id))) l_data))
-          # (* For each constructor, we additionally generate an alias definition, for it to be used
+          # \<comment> \<open>For each constructor, we additionally generate an alias definition, for it to be used
                in the SML code generated part as an alternative of the SML generated constructor:
-               its type will be not curried (whereas the SML type of the constructor will be). *)
+               its type will be not curried (whereas the SML type of the constructor will be).\<close>
             L.map (\<lambda>(s, s'). O.definition (Definition (Term_rewrite (b s) \<open>=\<close> (b s')))) l_data'
         , L.map fst l_data')
     | TypeSynonym [(t0, t1)] \<Rightarrow> ([O.type_synonym (Type_synonym (hsk_typespec names t0) (hsk_type names t1))], [])

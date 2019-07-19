@@ -299,7 +299,7 @@ intended by the standard---rather by pointers between objects as is
 done in our ``design model''.
 To be precise, this theory contains the formalization of the data-part
 covered by the \UML class model (see \autoref{fig:\<close> @@ n_thy \<open>person-ana\<close> @@ \<open>}):\<close>
-(* (see \autoref{ex:employee-design:uml})*) ])
+\<^cancel>\<open> (see \autoref{ex:employee-design:uml})\<close> ])
             , txt_raw''d' (\<lambda> n_thy. [ \<open>
 
 \begin{figure}
@@ -323,18 +323,18 @@ by the attribute  \inlineocl+boss+ and the operation \inlineocl+employees+ (to b
 captured by the subsequent theory).
 \<close> ]
             , section \<open>The Construction of the Object Universe\<close>
-            (*, txt'' [ \<open>
+            \<^cancel>\<open>, txt'' [ \<open>
    Ideally, the following is generated automatically from a \UML class model.  \<close> ]
-            *), txt'' [ \<open>
+            \<close>, txt'' [ \<open>
    Our data universe  consists in the concrete class diagram just of node's,
 and implicitly of the class object. Each class implies the existence of a class
 type defined for the corresponding object representations as follows: \<close> ]
-            (*, PRINT_latex_infra_datatype_class*)
+            \<^cancel>\<open>, PRINT_latex_infra_datatype_class\<close>
             , PRINT_infra_datatype_class_1
             , PRINT_infra_datatype_class_2
             , PRINT_infra_datatype_equiv_2of1
             , PRINT_infra_datatype_equiv_1of2
-            (*, PRINT_infra_datatype_equiv_1_idempo*)
+            \<^cancel>\<open>, PRINT_infra_datatype_equiv_1_idempo\<close>
             , txt'' [ \<open>
    Now, we construct a concrete ``universe of OclAny types'' by injection into a
 sum type containing the class types. This type of OclAny will be used as instance
@@ -348,9 +348,9 @@ one-to-one correspondance of \OCL-types to types of the meta-language \HOL. \<cl
             , PRINT_infra_type_synonym_class_higher
             , PRINT_infra_type_synonym_class_rec
             , PRINT_infra_enum_syn
-            (*, txt'' [ \<open>
+            \<^cancel>\<open>, txt'' [ \<open>
    Just a little check: \<close> ]
-            *), txt'' [ \<open>
+            \<close>, txt'' [ \<open>
    To reuse key-elements of the library like referential equality, we have
 to show that the object universe belongs to the type class ``oclany,'' \ie,
  each class type has to provide a function @{term oid_of} yielding the Object ID (oid) of the object. \<close> ]
@@ -450,9 +450,9 @@ functions into the object universes; we show that this is sufficient ``character
   \label{sec:\<close> @@ n_thy \<open>edm-accessors\<close> @@ \<open>}\<close> ])
             , txt''a' (\<lambda>n_thy. [ \<open>
   \label{sec:\<close> @@ n_thy \<open>eam-accessors\<close> @@ \<open>}\<close> ])
-            (*, txt'' [ \<open>
+            \<^cancel>\<open>, txt'' [ \<open>
    Should be generated entirely from a class-diagram. \<close> ]
-            *), subsection_def
+            \<close>, subsection_def
             , txt''a [ \<open>
    We start with a oid for the association; this oid can be used
 in presence of association classes to represent the association inside an object,
@@ -689,17 +689,18 @@ definition "compiler_env_config_update f env =
     env'
       \<lparr> D_output_disable_thy := D_output_disable_thy env
       , D_output_header_thy := D_output_header_thy env
-      (*D_ocl_oid_start*)
-      (*D_output_position*)
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_ocl_oid_start\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_output_position\<close>\<close>
       , D_ocl_semantics := D_ocl_semantics env
-      (*D_input_class*)
-      (*D_input_meta*)
-      (*D_input_instance*)
-      (*D_input_state*)
-      (*D_output_header_force*)
-      (*D_output_auto_bootstrap*)
-      (*D_ocl_accessor*)
-      (*D_ocl_HO_type*)
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_input_class\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_input_meta\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_input_instance\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_input_state\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_output_header_force\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_output_auto_bootstrap\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_ocl_accessor\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_ocl_HO_type\<close>\<close>
+      \<^cancel>\<open>\<close>\<comment>\<open>\<^term>\<open>D_hsk_constr\<close>\<close>
       , D_output_sorry_dirty := D_output_sorry_dirty env \<rparr>
   else
     fst (fold_thy''

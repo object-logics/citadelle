@@ -308,17 +308,17 @@ definition "compiler_env_config_update f env =
     env'
       \<lparr> D_output_disable_thy := D_output_disable_thy env
       , D_output_header_thy := D_output_header_thy env
-      (*D_toy_oid_start*)
-      (*D_output_position*)
+      \<comment>\<open>\<^term>\<open>D_toy_oid_start\<close>\<close>
+      \<comment>\<open>\<^term>\<open>D_output_position\<close>\<close>
       , D_toy_semantics := D_toy_semantics env
-      (*D_input_class*)
-      (*D_input_meta*)
-      (*D_input_instance*)
-      (*D_input_state*)
-      (*D_output_header_force*)
-      (*D_output_auto_bootstrap*)
-      (*D_toy_accessor*)
-      (*D_toy_HO_type*)
+      \<comment>\<open>\<^term>\<open>D_input_class\<close>\<close>
+      \<comment>\<open>\<^term>\<open>D_input_meta\<close>\<close>
+      \<comment>\<open>\<^term>\<open>D_input_instance\<close>\<close>
+      \<comment>\<open>\<^term>\<open>D_input_state\<close>\<close>
+      \<comment>\<open>\<^term>\<open>D_output_header_force\<close>\<close>
+      \<comment>\<open>\<^term>\<open>D_output_auto_bootstrap\<close>\<close>
+      \<comment>\<open>\<^term>\<open>D_toy_accessor\<close>\<close>
+      \<comment>\<open>\<^term>\<open>D_toy_HO_type\<close>\<close>
       , D_output_sorry_dirty := D_output_sorry_dirty env \<rparr>
   else
     fst (fold_thy''

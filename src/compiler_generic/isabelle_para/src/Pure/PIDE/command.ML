@@ -70,7 +70,8 @@ fun read_file_node file_node master_dir pos src_path =
     val text = File.read full_path;
     val lines = split_lines text;
     val digest = SHA1.digest text;
-  in {src_path = src_path, lines = lines, digest = digest, pos = Path.position full_path} end
+    val file_pos = Position.copy_id pos (Path.position full_path);
+  in {src_path = src_path, lines = lines, digest = digest, pos = file_pos} end
   handle ERROR msg => error (msg ^ Position.here pos);
 
 val read_file = read_file_node "";
@@ -144,14 +145,17 @@ fun read keywords thy st master_dir init blobs_info span =
 
     val token_reports = map (reports_of_token keywords) span;
     val _ = Position.reports_text (maps #2 token_reports @ maps command_reports span);
+
+    val verbatim =
+      span |> map_filter (fn tok =>
+        if Token.kind_of tok = Token.Verbatim then SOME (Token.pos_of tok) else NONE);
+    val _ =
+      if null verbatim then ()
+      else legacy_feature ("Old-style {* verbatim *} token -- use \<open>cartouche\<close> instead" ^
+        Position.here_list verbatim);
   in
     if exists #1 token_reports then Toplevel.malformed pos "Malformed command syntax"
-    else
-      (case Outer_Syntax.parse_tokens thy st (resolve_files keywords master_dir blobs_info span) of
-        [tr] => Toplevel.modify_init init tr
-      | [] => Toplevel.ignored (#1 (Token.range_of span))
-      | _ => Toplevel.malformed (#1 core_range) "Exactly one command expected")
-      handle ERROR msg => Toplevel.malformed (#1 core_range) msg
+    else Outer_Syntax.parse_span thy st init (resolve_files keywords master_dir blobs_info span)
   end;
 
 end;
@@ -165,7 +169,10 @@ type eval_states = (Toplevel.transitions, Toplevel.state list) eval_state;
 fun init_eval_state opt_thy =
  {failed = false,
   command = [],
-  state = [case opt_thy of NONE => Toplevel.toplevel | SOME thy => Toplevel.theory_toplevel thy]};
+  state =
+    [case opt_thy of
+      NONE => Toplevel.init_toplevel ()
+    | SOME thy => Toplevel.theory_toplevel thy]};
 
 datatype eval =
   Eval of
@@ -180,7 +187,7 @@ val eval_running = Execution.is_running_exec o eval_exec_id;
 fun eval_finished (Eval {eval_process, ...}) = Lazy.is_finished eval_process;
 
 fun eval_result (Eval {eval_process, ...}) =
-  task_context (Future.worker_subgroup ()) Lazy.force eval_process;
+  Exn.release (Lazy.finished_result eval_process);
 
 val eval_result_command = #command o eval_result;
 val eval_result_state = List.last o #state o eval_result;
@@ -193,6 +200,10 @@ fun reset_state keywords tr st0 = Toplevel.setmp_thread_position tr (fn () =>
     val res =
       if Keyword.is_theory_body keywords name then Toplevel.reset_theory st0
       else if Keyword.is_proof keywords name then Toplevel.reset_proof st0
+      else if Keyword.is_theory_end keywords name then
+        (case Toplevel.reset_notepad st0 of
+          NONE => Toplevel.reset_theory st0
+        | some => some)
       else NONE;
   in
     (case res of
@@ -202,8 +213,12 @@ fun reset_state keywords tr st0 = Toplevel.setmp_thread_position tr (fn () =>
 
 fun run keywords int tr st =
   if Future.proofs_enabled 1 andalso Keyword.is_diag keywords (Toplevel.name_of tr) then
-    (Execution.fork {name = "Toplevel.diag", pos = Toplevel.pos_of tr, pri = ~1}
-      (fn () => Toplevel.command_exception int tr st); ([], SOME st))
+    let
+      val (tr1, tr2) = Toplevel.fork_presentation tr;
+      val _ =
+        Execution.fork {name = "Toplevel.diag", pos = Toplevel.pos_of tr, pri = ~1}
+          (fn () => Toplevel.command_exception int tr1 st);
+    in Toplevel.command_errors int tr2 st end
   else Toplevel.command_errors int tr st;
 
 fun check_token_comments ctxt tok =
@@ -248,10 +263,7 @@ fun eval_state' keywords span tr state =
     val errs2 =
       (case result of
         NONE => []
-      | SOME st' =>
-          (case try Toplevel.presentation_context st' of
-            NONE => []
-          | SOME ctxt' => check_span_comments ctxt' span tr));
+      | SOME st' => check_span_comments (Toplevel.presentation_context st') span tr);
     val errs = errs1 @ errs2;
     val _ = List.app (Future.error_message (Toplevel.pos_of tr)) errs;
   in
@@ -260,10 +272,14 @@ fun eval_state' keywords span tr state =
         let
           val _ = status tr Markup.failed;
           val _ = status tr Markup.finished;
-          val _ = if null errs then (report tr (Markup.bad ()); Exn.interrupt ()) else ();
+          val _ = if null errs then (status tr Markup.canceled; Exn.interrupt ()) else ();
         in {failed = true, command = tr, state = st} end
     | SOME st' =>
         let
+          val _ =
+            if Keyword.is_theory_end keywords (Toplevel.name_of tr) andalso
+              can (Toplevel.end_theory Position.none) st'
+            then status tr Markup.finalized else ();
           val _ = status tr Markup.finished;
         in {failed = false, command = tr, state = st'} end)
   end;
@@ -295,7 +311,8 @@ fun eval keywords master_dir init blobs_info command_id span eval0 =
               read keywords thy st master_dir init blobs_info span |> Toplevel.exec_id exec_id) ();
       in eval_state keywords span tr eval_state0 end;
   in
-    Eval {command_id = command_id, exec_id = exec_id, eval_process = Lazy.lazy_name "Command.eval" process}
+    Eval {command_id = command_id, exec_id = exec_id,
+      eval_process = Lazy.lazy_name "Command.eval" process}
   end;
 
 end;
@@ -457,7 +474,7 @@ local
 fun run_process execution_id exec_id process =
   let val group = Future.worker_subgroup () in
     if Execution.running execution_id exec_id [group] then
-      ignore (task_context group Lazy.force_result process)
+      ignore (task_context group (fn () => Lazy.force_result {strict = true} process) ())
     else ()
   end;
 
@@ -480,7 +497,7 @@ fun fork_print execution_id deps (Print {name, delay, pri, exec_id, print_proces
   in
     (case delay of
       NONE => fork ()
-    | SOME d => ignore (Event_Timer.request (Time.now () + d) fork))
+    | SOME d => ignore (Event_Timer.request {physical = true} (Time.now () + d) fork))
   end;
 
 fun run_print execution_id (print as Print {exec_id, print_process, ...}) =

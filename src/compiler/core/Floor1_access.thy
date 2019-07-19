@@ -517,7 +517,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
     ; App_a = \<lambda>l. C.apply (if is_design then [] else l)
     ; App_d = \<lambda>l. C.apply (if is_design then l else []) in
   (if is_design then
-     (* TODO extend the support to object inherited attributes *)
+     \<comment> \<open>TODO extend the support to object inherited attributes\<close>
      map_class_arg_only_var''
    else
      map_class_arg_only_var')
@@ -557,7 +557,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
    ; vs_t = \<open>t\<close>
    ; vs_sel_any = \<open>sel_any\<close>
 
-     (* *)
+     \<comment> \<open>\<close>
    ; l_thes = \<lambda>l l_when. Some (l @@@@ [Term_pat \<open>thesis\<close>], l_when)
    ; l_thes0 = \<lambda>l l_when. Some (l @@@@ [Term_pat \<open>t\<close>], l_when)
    ; hol_d = L.map hol_definition
@@ -571,13 +571,13 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
                                            (T.thm var_def_dot))
                                    (T.thm \<open>foundation16\<close>)]]
  , C.apply [M.case_tac (a var_X (b var_tau)), M.simp_add [hol_definition \<open>bot_option\<close>]]
- (* *)
+ \<comment> \<open>\<close>
  , App_f' [v_a0]
           (l_thes [Term_binop (a var_X (b var_tau)) \<open>=\<close> (a \<open>Some\<close> (b v_a0))]
                   [Term_binop (a var_X (b var_tau)) \<open>\<noteq>\<close> (b \<open>null\<close>)])
           [C.apply_end [M.simp_all]]
  , C.apply [insert_that, M.case_tac (b v_a0), M.simp_add (L.map hol_definition [\<open>null_option\<close>, \<open>bot_option\<close>]), M.clarify]
- (* *)
+ \<comment> \<open>\<close>
  , App_f [v_a] (l_thes [ Term_binop (a var_X (b var_tau)) \<open>=\<close> (f_ss v_a) ] [])
  , C.apply [M.case_tac (Term_app \<open>heap\<close> [ a var_in_when_state (b var_tau)
                                           , a \<open>oid_of\<close> (b v_a)]), M.simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>])]
@@ -589,7 +589,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
                                      , var_in_when_state
                                      , \<open>defined\<close>, \<open>OclValid\<close>, \<open>false\<close>, \<open>true\<close>, \<open>invalid\<close>, \<open>bot_fun\<close>])
                             [T.thm \<open>if_split_asm\<close>]]
- (* *)
+ \<comment> \<open>\<close>
  , App_f [v_b] (l_thes [ Term_binop (a var_X (b var_tau)) \<open>=\<close> (f_ss v_a)
                        , Term_rewrite (Term_app \<open>heap\<close> [ a var_in_when_state (b var_tau)
                                                            , a \<open>oid_of\<close> (b v_a)])
@@ -607,13 +607,12 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
                                                , b (print_access_oid_uniq_name' name_from isub_name (isup_attr \<open>\<close>)) ])
          , M.simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>])
          , M.simp_add (hol_d [print_access_select_obj_name' isub_name (isup_attr \<open>\<close>)]) ]
- (* *)
+ \<comment> \<open>\<close>
  , C.fix_let
      [v_r, v_typeoid]
      [ ( Term_pat vs_t
        , Term_rewrite (f_ss v_r) \<open>\<in>\<close> (Term_binop
-                                              (Term_parenthesis
-                                                (Term_binop (b \<open>Some\<close>) \<open>o\<close> (b (print_astype_from_universe_name name_to))))
+                                              (Term_lam \<open>x\<close> (\<lambda>x. Term_app \<open>Some\<close> [Term_app (print_astype_from_universe_name name_to) [b x]]))
                                               \<open>`\<close>
                                               (a \<open>ran\<close> (a \<open>heap\<close> (a var_in_when_state (b var_tau))))))
      , ( Term_pat vs_sel_any
@@ -632,7 +631,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
            , []))
      []
  , App_d [ M.case_tac (b v_typeoid), M.simp_add (hol_d [print_access_select_name isup_attr isub_name]) ]
- (* *)
+ \<comment> \<open>\<close>
  , App_d_f [v_opt]
      (l_thes0
        [ Term_rewrite (Term_applys (Term_case (b v_opt)
@@ -644,7 +643,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
                       (f_ss v_r) ]
        [])
  , App_d [ M.case_tac (b v_opt), M.auto_simp_add (hol_d [\<open>null_fun\<close>, \<open>null_option\<close>, \<open>bot_option\<close>]) ]
- (* *)
+ \<comment> \<open>\<close>
  , App_f' [v_aa]
      (l_thes0
        [Term_rewrite (ap' vs_sel_any [ b v_aa, b var_tau ]) \<open>=\<close> (f_ss v_r)]
@@ -656,7 +655,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
                                              else
                                                var_select_object_set_any_exec))
                                    (T.thm \<open>foundation22\<close>)), M.erule (T.thm \<open>exE\<close>) ]
- (* *)
+ \<comment> \<open>\<close>
  , App_f' [v_e]
      (l_thes0
        []
@@ -672,7 +671,7 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
  , C.apply [ insert_that, M.simp_add (hol_d [print_access_deref_oid_name isub_name_to]) ]
  , C.apply [ M.case_tac (Term_app \<open>heap\<close> [ a var_in_when_state (b var_tau), b v_e ])
        , M.simp_add (hol_d [\<open>invalid\<close>, \<open>bot_option\<close>]), M.simp ]
- (* *)
+ \<comment> \<open>\<close>
  , App_f [v_aaa]
      (l_thes0
        [ Term_rewrite (Term_case (b v_aaa)
@@ -689,8 +688,8 @@ definition "print_access_is_repr = start_map'''' O.lemma o (\<lambda>expr design
  , C.apply [ M.rule (T.where (T.thm \<open>exI\<close>) [(\<open>x\<close>, a (isub_name_to datatype_in) (b v_r))])
        , M.simp_add_split (thol_d [print_astype_from_universe_name name_to, \<open>Let\<close>, var_reconst_basetype])
                             [T.thm \<open>if_split_asm\<close>] ] ])
-                (C.by [ M.rule' ]) ] else [] (* TODO *))
-      | _ \<Rightarrow> [] (* TODO *))) expr)"
+                (C.by [ M.rule' ]) ] else [] \<comment> \<open>TODO\<close>)
+      | _ \<Rightarrow> [] \<comment> \<open>TODO\<close>)) expr)"
 
 definition "print_access_repr_allinst = start_map''''' O.lemma o (\<lambda>expr (sorry, dirty) design_analysis.
   if sorry = Some Gen_sorry | sorry = None & dirty then

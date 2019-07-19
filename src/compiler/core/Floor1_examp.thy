@@ -57,9 +57,9 @@ definition "print_examp_oclbase_gen =
   | OclDefReal (nb0, nb1) \<Rightarrow>
         let name = S.flatten [ var_OclReal, nb0, \<open>_\<close>, nb1 ]
           ; b = \<lambda>s. Term_basic [s]
-          ; ab_name = b (S.flatten [nb0(*(* WARNING
-                                          uncomment this as soon as OCL_basic_type_Real.thy
-                                          is not implemented as 'nat' *), \<open>.\<close>, nb1*)]) in
+          ; ab_name = b (S.flatten [nb0] \<comment> \<open>WARNING
+                          replace with \<^term>\<open>[nb0 , \<open>.\<close>, nb1]\<close> as soon as \<^file>\<open>../../basic_types/UML_Real.thy\<close>
+                          is not implemented as \<^typ>\<open>nat\<close>\<close>) in
         (ab_name, Definition_where2
           name
           (b (S.flatten [String.to_bold_number nb0, \<open>.\<close>, String.to_bold_number nb1]))
@@ -129,14 +129,14 @@ definition "filter_ocl_exn s v =
 
 definition "print_examp_instance_draw_list_attr_aux_base =
  (\<lambda> (_, ShallB_term t) \<Rightarrow>
-      Return_val (fst (print_examp_oclbase_gen t)) (* some typing errors are not returned here but some could be raised later, since further checks will occur when evaluating meta embedded commands *)
+      Return_val (fst (print_examp_oclbase_gen t)) \<comment> \<open>some typing errors are not returned here but some could be raised later, since further checks will occur when evaluating meta embedded commands\<close>
   | (ty, ShallB_str s) \<Rightarrow> filter_ocl_exn s (Return_err (Return_err_ty (ty, ShallB_str s)))
   | e \<Rightarrow> Return_err (Return_err_ty e))"
 
 fun print_examp_instance_draw_list_attr_aux where
    "print_examp_instance_draw_list_attr_aux f_oid_rec e =
     (\<lambda>
-     (* object case 2 *)
+     \<comment> \<open>object case 2\<close>
        (OclTy_collection _ ty, ShallB_list l) \<Rightarrow>
          list_bind\<^sub>e\<^sub>r\<^sub>r (\<lambda>e. print_examp_instance_draw_list_attr_aux f_oid_rec (ty, e)) Term_list l
      | (OclTy_pair ty1 ty2, ShallB_list [e1, e2]) \<Rightarrow>
@@ -145,14 +145,14 @@ fun print_examp_instance_draw_list_attr_aux where
                     [ print_examp_instance_draw_list_attr_aux f_oid_rec (ty1, e1)
                     , print_examp_instance_draw_list_attr_aux f_oid_rec (ty2, e2) ]
      | (OclTy_object (OclTyObj (OclTyCore_pre _) _), shall) \<Rightarrow> f_oid_rec e
-     (* base cases *)
+     \<comment> \<open>base cases\<close>
      | (OclTy_base_integer, _) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base e
      | (OclTy_base_real, _) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base e
      | (OclTy_base_string, _) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base e
      | (OclTy_class_syn _, _) \<Rightarrow> print_examp_instance_draw_list_attr_aux_base e
-     (* enum case *)
+     \<comment> \<open>enum case\<close>
      | (OclTy_enum _, ShallB_str s) \<Rightarrow> filter_ocl_exn s (Return_val (Term_basic [pref_constr_enum s]))
-     (* type error *)
+     \<comment> \<open>type error\<close>
      | e \<Rightarrow> Return_err (Return_err_ty e)) e"
 
 definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
@@ -172,9 +172,9 @@ definition "print_examp_instance_draw_list_attr = (\<lambda>(f_oid, f_oid_rec).
      ( case obj of
          (t_obj, None) \<Rightarrow> Return_val (case t_obj of Some ty_obj \<Rightarrow> Return_obj ty_obj
                                                   | _ \<Rightarrow> Return_exp (b \<open>None\<close>))
-       (* object case 1 *)
+       \<comment> \<open>object case 1\<close>
        | (_, Some (OclTy_object (OclTyObj (OclTyCore ty_obj) _), _)) \<Rightarrow> Return_val (Return_obj ty_obj)
-       (* *)
+       \<comment> \<open>\<close>
        | (_, Some (ty, pre_post, shallow)) \<Rightarrow>
          map\<^sub>e\<^sub>r\<^sub>r Return_exp (filter_ty_err pre_post Term_some (print_examp_instance_draw_list_attr_aux f_oid_rec (ty, shallow))))
      (\<lambda> Return_obj ty_obj \<Rightarrow> filter_ty_err None id (f_oid ty_obj)
@@ -255,8 +255,8 @@ fun print_examp_instance_app_constr2_notmp where
 fun print_examp_instance_app_constr2_notmp' where
    "print_examp_instance_app_constr2_notmp' l_attr e =
  (case l_attr of
-    OclAttrNoCast _ \<Rightarrow> e (* NOTE: to be enclosed in a potentially not mandatory parenthesis *)
-  | OclAttrCast ty (OclAttrNoCast _) _ \<Rightarrow> Term_annot' e (wrap_oclty ty) (* NOTE: to be enclosed in a mandatory parenthesis *)
+    OclAttrNoCast _ \<Rightarrow> e \<comment> \<open>NOTE: to be enclosed in a potentially not mandatory parenthesis\<close>
+  | OclAttrCast ty (OclAttrNoCast _) _ \<Rightarrow> Term_annot' e (wrap_oclty ty) \<comment> \<open>NOTE: to be enclosed in a mandatory parenthesis\<close>
   | OclAttrCast ty l_attr _ \<Rightarrow>
       Term_postunary (Term_parenthesis (print_examp_instance_app_constr2_notmp' l_attr e)) (Term_basic [dot_astype ty]))"
 
@@ -340,7 +340,7 @@ definition \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_at
                           case case shall of ShallB_list l \<Rightarrow> L.flatten (L.map find_map l)
                                            | _ \<Rightarrow> find_map shall of
                             [] \<Rightarrow> (accu, rbt)
-                          | l \<Rightarrow> (* some rhs variables are authorized because some could have been introduced in HOL side (between 2 meta embedded commands) *)
+                          | l \<Rightarrow> \<comment> \<open>some rhs variables are authorized because some could have been introduced in HOL side (between 2 meta embedded commands)\<close>
                                  ( if pre_post = None then
                                      (Error, S.flatten [ \<open>Extra variables on rhs: \<close>, String_concatWith \<open>, \<close> (L.map (\<lambda>s. \<open>"\<close> @@ s @@ \<open>"\<close>) l)
                                                      , \<open> in the definition of "\<close>, Inst_name_ocli, \<open>"\<close> ]) # accu
@@ -362,7 +362,7 @@ definition \<open>print_examp_def_st_assoc_build_rbt_gen_typecheck check_ty f_at
                 ocli
                 (if Inst_name_ocli \<triangleq> v_null
                   | Inst_name_ocli \<triangleq> v_invalid
-                  | \<not> f_attr_none Inst_name_ocli (* e.g.: this constant should be (already) defined so that oclAllInstances can receive it as argument *) then
+                  | \<not> f_attr_none Inst_name_ocli \<comment> \<open>e.g.: this constant should be (already) defined so that \<open>oclAllInstances\<close> can receive it as argument\<close> then
                    (Error, S.flatten [ \<open>Bad head of lhs: existing constant "\<close>, Inst_name_ocli, \<open>"\<close> ]) # l
                  else
                    l)
@@ -440,7 +440,7 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
          L.map (\<lambda> (b, msg) \<Rightarrow> (b, S.flatten [ assoc oid
                                              , \<open> \<close>
                                              , case name_attr of None \<Rightarrow> \<open>/* unnamed attribute */\<close> | Some s \<Rightarrow> \<open>.\<close> @@ s
-                                             , \<open> \<cong> Set{\<close> (* '\<cong>' instead of '=' because the lhs can be 'invalid' or 'null'! *)
+                                             , \<open> \<cong> Set{\<close> \<comment> \<open>\<open>\<cong>\<close> instead of \<open>=\<close> because the lhs can be \<open>invalid\<close> or \<open>null\<close>!\<close>
                                              , let l = L.map assoc l in
                                                if l = [] then \<open>\<close> else \<open> \<close> @@ String_concatWith \<open> , \<close> l @@ \<open> \<close>
                                              , \<open>}\<close>
@@ -451,10 +451,10 @@ definition "check_single = (\<lambda> (name_attr, oid, l_oid) l_mult l.
        if list_ex (list_all fst) l_typed then
          ( Warning
          , if list_ex (list_ex (Not o fst)) l_typed then
-             (* at least 1 warning *)
+             \<comment> \<open>at least 1 warning\<close>
              L.map (filter (Not o fst)) l_typed
            else
-             (* 0 warning *)
+             \<comment> \<open>0 warning\<close>
              [[hd (hd l_typed)]])
        else
          (Error, L.map (filter (Not o fst)) l_typed) in
@@ -506,9 +506,9 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
  (\<lambda> (ty1, mult1) (ty2, mult2).
   let role1 = TyRole mult1
     ; role2 = TyRole mult2
-    ; s = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
-    ; s' = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
-    ; s'' = (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+    ; s = \<comment> \<open>01\<close> \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+    ; s' = \<comment> \<open>01\<close> \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+    ; s'' = \<comment> \<open>01\<close> \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
     ; (name, (mult_from, mult_to), l) =
         case
           let f = \<lambda>g.
@@ -532,7 +532,7 @@ definition "check_single_ty rbt_init rbt' l_attr_gen l_oid x =
                 (name_from, name_to) \<Rightarrow> [name_from, name_to]
             , (TyObjN_role_multip o_from, TyObjN_role_multip o_to)
             , deref_assocs_list s x (L.map (if ( TyObjN_ass_switch o_from
-                                                  , TyObjN_ass_switch o_to) = (0, 1) then(*01*) id else(*10*) rev)
+                                               , TyObjN_ass_switch o_to) = (0, 1) then \<comment> \<open>01\<close> id else \<comment> \<open>10\<close> rev)
                                               (case l_attr_gen (TyObj_ass_id ty_obj) of Some l_attr \<Rightarrow> l_attr)))
         | None \<Rightarrow> ([role1, role2], (mult1, mult2), []) in
   (\<lambda>acc.
@@ -630,7 +630,7 @@ definition \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
 
   case class_unflat (l_spec1, l_spec2) of None \<Rightarrow> [ raise_ml [(Error, \<open>The universe of classes contains a cycle\<close>)]
                                                              \<open> error(s)\<close> ]
-                                        | Some spec \<Rightarrow> (* cycles could still occur, but not in "spec" *)
+                                        | Some spec \<Rightarrow> \<comment> \<open>cycles could still occur, but not in "spec"\<close>
   let raise_ml_warn = \<lambda>s raise_ml l. raise_ml ((Warning, s) # l)
     ; raise_ml =
       (if length l_spec1 + (if list_ex (\<lambda> c. cl_name_to_string c \<triangleq> const_oclany) l_spec1 then 0 else 1)
@@ -694,9 +694,9 @@ definition \<open>print_examp_instance_defassoc_typecheck_gen l_ocli env =
              Cons ( TyObj_ass_id ty_obj
                   , L.map ( (\<lambda>(x , y). [x , y])
                              o (if TyObjN_ass_switch (TyObj_from ty_obj) < TyObjN_ass_switch (TyObj_to ty_obj) then
-                                  (*01*) \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
+                                  \<comment> \<open>01\<close> \<lambda> [x0, x1] \<Rightarrow> (x0, x1)
                                 else
-                                  (*10*) \<lambda> [x0, x1] \<Rightarrow> (x1, x0)))
+                                  \<comment> \<open>10\<close> \<lambda> [x0, x1] \<Rightarrow> (x1, x0)))
                              l_attr)) rbt [])
       ; l_oid_gen = L.map
           (\<lambda> (ocli, oids).

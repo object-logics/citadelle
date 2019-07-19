@@ -100,29 +100,29 @@ definition \<open>print_abr sprintf_int write_file =
 
 definition "main sprintf_int write_file = print_abr (\<lambda>n. \<lless>sprintf_int n\<ggreater>) (\<lambda>f l. write_file (String.to_list f) (L.map String.to_list l))
  (let f = List.fold (\<lambda> n l. (1, n) # (n, 1) # l) in
-  [ (* 0 *) (1, 0)
-  , (* 1 *) (1, 1) ]
+  [ \<comment> \<open>0\<close> (1, 0)
+  , \<comment> \<open>1\<close> (1, 1) ]
  @@@@
-  f [ 2, 3, 4, 5, 6, 7(*, 8, 9*) ]
-    [ (* 6 *) (2, 2) ]
+  f [ 2, 3, 4, 5, 6, 7\<^cancel>\<open>, 8, 9\<close> ]
+    [ \<comment> \<open>6\<close> (2, 2) ]
 
  @@@@
   f [ 12, 14, 20, 30, 39, 42, 56 ]
-    [ (* 14 *) (2, 3)
-    , (* 30 *) (2, 4)
-    , (* 12 *) (3, 2)
-    , (* 39 *) (3, 3)
-    , (* 20 *) (4, 2)
-    , (* 30 *) (5, 2)
-    , (* 42 *) (6, 2)
-    , (* 56 *) (7, 2) ]
-(*
+    [ \<comment> \<open>14\<close> (2, 3)
+    , \<comment> \<open>30\<close> (2, 4)
+    , \<comment> \<open>12\<close> (3, 2)
+    , \<comment> \<open>39\<close> (3, 3)
+    , \<comment> \<open>20\<close> (4, 2)
+    , \<comment> \<open>30\<close> (5, 2)
+    , \<comment> \<open>42\<close> (6, 2)
+    , \<comment> \<open>56\<close> (7, 2) ]
+\<^cancel>\<open>
  @@@@
   f [ 62, 72, 84, 90 ]
-    [ (* 62 *) (2, 5)
-    , (* 84 *) (4, 3)
-    , (* 72 *) (8, 2)
-    , (* 90 *) (9, 2) ]*))"
+    [ \<comment> \<open>62\<close> (2, 5)
+    , \<comment> \<open>84\<close> (4, 3)
+    , \<comment> \<open>72\<close> (8, 2)
+    , \<comment> \<open>90\<close> (9, 2) ]\<close>)"
 (*
 export_code open main
   in OCaml module_name M file "class_model_isabelle.ml"

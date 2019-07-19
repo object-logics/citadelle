@@ -186,6 +186,15 @@ structure Toplevel' = struct
   fun keep_output tps fmt msg = cons (\<^command_keyword>\<open>print_syntax\<close>, Toplevel.keep (fn _ => out_intensify' tps fmt msg))
 end
 
+structure Old_Datatype_Aux' = struct
+  fun default_config' n =
+    if n = 0 then
+      Old_Datatype_Aux.default_config
+    else
+      let val _ = warning "Type of datatype not available in this running version of Isabelle"
+      in Old_Datatype_Aux.default_config end
+end
+
 structure Resources' = struct
   fun check_path' check_file ctxt dir (name, pos) =
     let
@@ -467,7 +476,7 @@ fun datatype' top (Datatypea (version, l)) =
             , [])) l)))
   | _ => #theory top
   ((snd oo Old_Datatype.add_datatype_cmd
-     (Old_Datatype_Aux.default_config'
+     (Old_Datatype_Aux'.default_config'
        (case version of Datatype_old => 0 | Datatype_old_atomic => 1 | _ => 2)))
     (map (fn ((n, v), l) =>
            ( (To_sbinding n, map (fn v => (To_string0 v, NONE)) v, NoSyn)
@@ -767,7 +776,7 @@ fun meta_command0 s_put f_get constraint source =
        (ML_Lex.read "let open META val ML = META.SML val "
         @ ML_Lex.read_set_range (Input.range_of source) name
         @ ML_Lex.read (" : " ^ constraint ^ " = ")
-        @ ML_Lex.read_source false source
+        @ ML_Lex.read_source source
         @ ML_Lex.read (" in Context.>> (Context.map_theory (" ^ s_put ^ " " ^ name ^ ")) end"))
   #> Context.map_theory_result (fn thy => (f_get thy, thy))
   #> fst
@@ -1056,7 +1065,7 @@ fun meta_command0 s_put f_get f_get0 constraint source =
        (ML_Lex.read "let open META val ML = META.SML val "
         @ ML_Lex.read_set_range (Input.range_of source) name
         @ ML_Lex.read (" : " ^ constraint ^ " = ")
-        @ ML_Lex.read_source false source
+        @ ML_Lex.read_source source
         @ ML_Lex.read (" in Context.>> (Context.map_theory (fn thy => " ^ s_put ^ " (" ^ name ^ " (" ^ f_get0 ^ " thy)) thy)) end"))
   #> Context.map_theory_result (fn thy => (f_get thy, thy))
   #> fst
@@ -1198,13 +1207,13 @@ fun thy_shallow l_obj get_all_meta_embed =
                 (K o K thy0)
                 (fn msg =>
                   let val () = disp_time msg ()
-                      fun in_self f lthy = lthy
-                                         |> Local_Theory.new_group
-                                         |> f
-                                         |> Local_Theory.reset_group
-                                            \<comment> \<open>Note: \<^ML>\<open>Local_Theory.reset\<close> is mandatory
-                                                   for the cases listed in \<^ML>\<open>Named_Target.switch\<close>.\<close>
-                                         |> Local_Theory.reset
+                      fun in_self f =
+                        \<comment> \<open>Note: This function is not equivalent to \<^ML>\<open>Local_Theory.subtarget\<close>.\<close>
+                        Local_Theory.new_group
+                        #> f
+                        #> Local_Theory.reset_group
+                        #> (fn lthy =>
+                            #1 (Named_Target.switch NONE (Context.Proof lthy)) lthy |> Context.the_proof)
                       fun not_used p _ = error ("not used " ^ Position.here p)
                       val context_of = I
                       fun proof' f = f true

@@ -208,7 +208,7 @@ definition "print_iskindof_up_eq_asty = start_map O.lemma o map_class_gen_h'''''
                         let (l_subst, accu) = L.mapM (\<lambda> _ (cpt, l_sub).
                           let l_sub = String.natural_to_digit10 cpt # l_sub in
                           ( M.subst_l
-                              l_sub (* subst could fail without the list of integers *)
+                              l_sub \<comment> \<open>subst could fail without the list of integers\<close>
                               (T.thm \<open>cp_OclOr\<close>)
                           , Succ cpt
                           , l_sub)) next accu in
@@ -251,7 +251,7 @@ definition "print_iskindof_up_larger = start_map O.lemma o
                                            Some (print_iskindof_up_larger_name name_pers n)
                                          else None in
                                      (v # l, v \<noteq> None))
-              (rev (* priority of '_ or _' is right to left so we reverse *) name_pred)
+              (rev \<comment> \<open>priority of \<open>'_\<close> or \<open>_'\<close> is right to left so we reverse\<close> name_pred)
               ([], False))
          of Some meth_last # l \<Rightarrow>
            L.map M.rule
@@ -398,7 +398,7 @@ definition "print_iskindof_up_d_cast = start_map O.lemma o
              ; name_pred_inh_sib = L.map fst name_pred_inh_sib_gen
              ; f0 = \<lambda>name_pred. let name_pred = case name_pred of OclClass n _ _ \<Rightarrow> n in
                                 [ M.rule (T.thm (print_istypeof_up_d_cast_name name_pred name_any name_pers))
-                                , M.simp_only [] (* FIXME use wildcard *)
+                                , M.simp_only [] \<comment> \<open>FIXME use wildcard\<close>
                                 , M.simp_only [T.thm var_isdef]] in
            [ C.apply (  M.insert [T.OF_l (T.thm (print_iskindof_up_istypeof_name name_mid name_any)) (L.map T.thm [var_iskin, var_isdef])]
                   # (case L.flatten [ name_pred_inh, name_pred_inh_sib ]

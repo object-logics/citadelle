@@ -1,10 +1,10 @@
-(*  Title:      Pure/Thy/thy_syntax.ML
+(*  Title:      Pure/Thy/thy_element.ML
     Author:     Makarius
 
-Theory syntax elements.
+Theory elements: statements with optional proof.
 *)
 
-signature THY_SYNTAX =
+signature THY_ELEMENT =
 sig
   datatype 'a element = Element of 'a * ('a element list * 'a) option
   val atom: 'a -> 'a element
@@ -15,7 +15,7 @@ sig
   val parse_elements: Keyword.keywords -> (Command_Span.kind -> 'a) -> ('a -> Command_Span.kind) -> 'a list -> 'a element list
 end;
 
-structure Thy_Syntax: THY_SYNTAX =
+structure Thy_Element: THY_ELEMENT =
 struct
 
 (* datatype element: command with optional proof *)
@@ -55,25 +55,23 @@ fun stopper f_mk f = Scan.stopper (K (eof f_mk)) (is_eof f);
 
 local
 
-fun command_with f pred =
-  Scan.one
-    (fn name => case f name of Command_Span.Command_Span (name, _) => pred name | _ => false);
-
 fun parse_element keywords f =
   let
-    val proof_atom =
+    fun category pred other =
       Scan.one
-        (fn name =>
-          case f name of Command_Span.Command_Span (name, _) => Keyword.is_proof_body keywords name
-          | _ => true) >> atom;
-    fun proof_element x =
-      (command_with f (Keyword.is_proof_goal keywords) -- proof_rest >> element || proof_atom) x
-    and proof_rest x =
-      (Scan.repeat proof_element -- command_with f (Keyword.is_qed keywords)) x;
-  in
-    command_with f (Keyword.is_theory_goal keywords) -- proof_rest >> element ||
-    Scan.one (not_eof f) >> atom
-  end;
+        (fn name => case f name of Command_Span.Command_Span (name, _) =>
+            pred keywords name
+          | _ => other);
+
+    fun theory_element x =
+      (category Keyword.is_theory_goal false -- proof >> element) x
+    and proof_element x =
+      (category Keyword.is_proof_goal false -- proof >> element ||
+        category Keyword.is_proof_body true >> atom) x
+    and proof x = (Scan.repeat proof_element -- category Keyword.is_qed false) x;
+
+    val default_element = Scan.one (not_eof f) >> atom;
+  in theory_element || default_element end;
 
 in
 

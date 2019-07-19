@@ -40,8 +40,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-session "OCL" in "src" = HOL +
-  description {* Featherweight OCL *}
+session OCL in src = HOL +
+  description \<open>Featherweight OCL\<close>
   options [document=pdf,document_output=document_generated,
            document_variants="annex-a=annexa,-theory,-afp,-noexample,-proof,-ML:document=afp,-annexa,-noexample:outline=-annexa,-noexample,afp,/proof,/ML",
            show_question_marks = false]
@@ -67,8 +67,8 @@ session "OCL" in "src" = HOL +
     "root.tex"
     "FOCL_Syntax.tex"
 
-session "FOCL" in "src" = "HOL-Library" +
-  description {* Citadelle (Sequential) *}
+session FOCL in src = "HOL-Library" +
+  description \<open>Citadelle (Sequential)\<close>
   options [document=pdf,document_output=document_generated,
            document_variants="document=noexample,-afp,-annexa",
            show_question_marks = false]
@@ -92,36 +92,36 @@ session "FOCL" in "src" = "HOL-Library" +
     "root.tex"
     "FOCL_Syntax.tex"
 
-session "Citadelle" in "src" = "FOCL" +
-  description {* Citadelle (Concurrent) *}
+session Citadelle in src = FOCL +
+  description \<open>Citadelle (Concurrent)\<close>
   sessions
     FOCL
   theories
     "compiler/Generator_dynamic_concurrent"
     "compiler/Generator_dynamic_export_testing"
 
-session "Citadelle_C_init" in "src" = "Citadelle" +
+session Citadelle_C_init in src = Citadelle +
   theories
     "../examples/C_Model_init"
 
-session "Citadelle_C_deep-dirty" in "src" = "Citadelle_C_init" +
+session "Citadelle_C_deep-dirty" in src = Citadelle_C_init +
   options [quick_and_dirty]
   theories
     "../doc/Meta_C_generated"
 
-session "Citadelle_C_shallow-dirty" in "src" = "Citadelle_C_init" +
+session "Citadelle_C_shallow-dirty" in src = Citadelle_C_init +
   options [quick_and_dirty]
   theories
     "../examples/C_Model_core"
 
-session "Citadelle_C_model-dirty" in "src" = "Citadelle_C_shallow-dirty" +
+session "Citadelle_C_model-dirty" in src = "Citadelle_C_shallow-dirty" +
   options [quick_and_dirty]
   theories
     "../examples/C_Model_ml"
 
 (******************************************************)
 
-session "Max-dirty" in "src" = "HOL-Library" (* Note: replacing with FOCL will fail! *) +
+session "Max-dirty" in src = "HOL-Library" (* Note: replacing with FOCL will fail! *) +
   options [quick_and_dirty,document=pdf,document_output=document_generated,
            document_variants="document=afp,-annexa,-noexample",
            show_question_marks = false]

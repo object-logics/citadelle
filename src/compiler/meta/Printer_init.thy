@@ -48,7 +48,7 @@ imports Isabelle_Meta_Model.Init
            :: thy_decl
 begin
 
-ML{*
+ML \<open>
 structure Isabelle_Code_Target =
 struct
 (*  Title:      Tools/Code/code_target.ML
@@ -62,29 +62,40 @@ open Basic_Code_Thingol;
 
 
 
+
+
+
+
 (** checking and parsing of symbols **)
 
 
-val parse_classrel_ident = Parse.class --| @{keyword "<"} -- Parse.class;
-
-
-val parse_inst_ident = Parse.name --| @{keyword "::"} -- Parse.class;
-
-
-
-(** serializations and serializer **)
-
-(* serialization: abstract nonsense to cover different destinies for generated code *)
 
 
 
 
+val parse_classrel_ident = Parse.class --| \<^keyword>\<open><\<close> -- Parse.class;
 
-(* serializers: functions producing serializations *)
+
+
+val parse_inst_ident = Parse.name --| \<^keyword>\<open>::\<close> -- Parse.class;
+
+
+
+
 
 
 
 (** theory data **)
+
+
+
+
+
+
+
+
+
+(** serializers **)
 
 
 
@@ -100,20 +111,29 @@ val parse_inst_ident = Parse.name --| @{keyword "::"} -- Parse.class;
 
 (* code generation *)
 
-fun prep_destination (s, pos) =
-  if s = "" then NONE
+fun prep_destination (location, (s, pos)) =
+  if location = {physical = false}
+  then (location, Path.explode_pos (s, pos))
   else
     let
+      val _ =
+        if s = ""
+        then error ("Bad bad empty " ^ Markup.markup Markup.keyword2 "file" ^ " argument")
+        else ();
+      val _ =
+        legacy_feature
+          (Markup.markup Markup.keyword1 "export_code" ^ " with " ^
+            Markup.markup Markup.keyword2 "file" ^ " argument" ^ Position.here pos);
       val _ = Position.report pos Markup.language_path;
-      val path = Path.explode s;
+      val path = #1 (Path.explode_pos (s, pos));
       val _ = Position.report pos (Markup.path (Path.smart_implode path));
-    in SOME path end;
+    in (location, (path, pos)) end;
 
 
-fun export_code_cmd all_public raw_cs seris ctxt =
-  Code_Target.export_code ctxt all_public
-    (Code_Thingol.read_const_exprs ctxt raw_cs)
-    ((map o apfst o apsnd) prep_destination seris);
+fun export_code_cmd all_public raw_cs seris lthy =
+  let
+    val cs = Code_Thingol.read_const_exprs lthy raw_cs;
+  in Code_Target.export_code all_public cs ((map o apfst o apsnd o Option.map) prep_destination seris) lthy end;
 
 
 
@@ -141,41 +161,63 @@ fun export_code_cmd all_public raw_cs seris ctxt =
 
 (** Isar setup **)
 
+val (constantK, type_constructorK, type_classK, class_relationK, class_instanceK, code_moduleK) =
+  (\<^keyword>\<open>constant\<close>, \<^keyword>\<open>type_constructor\<close>, \<^keyword>\<open>type_class\<close>,
+    \<^keyword>\<open>class_relation\<close>, \<^keyword>\<open>class_instance\<close>, \<^keyword>\<open>code_module\<close>);
+
+val parse_constants = constantK |-- Scan.repeat1 Parse.term >> map Constant;
+
+val parse_type_constructors = type_constructorK |-- Scan.repeat1 Parse.type_const >> map Type_Constructor;
+
+val parse_classes = type_classK |-- Scan.repeat1 Parse.class >> map Type_Class;
+
+val parse_class_relations = class_relationK |-- Scan.repeat1 parse_classrel_ident >> map Class_Relation;
+
+val parse_instances = class_instanceK |-- Scan.repeat1 parse_inst_ident >> map Class_Instance;
+
+val parse_simple_symbols : (string, string, string, string * string, string * string, string)
+                           Basic_Code_Symbol.attr list parser
+                         = Scan.repeats1 (parse_constants || parse_type_constructors || parse_classes
+  || parse_class_relations || parse_instances);
+
 fun parse_single_symbol_pragma parse_keyword parse_isa parse_target =
-  parse_keyword |-- Parse.!!! (parse_isa --| (@{keyword "\<rightharpoonup>"} || @{keyword "=>"})
-    -- Parse.and_list1 (@{keyword "("} |-- (Parse.name --| @{keyword ")"} -- Scan.option parse_target)));
+  parse_keyword |-- Parse.!!! (parse_isa --| (\<^keyword>\<open>\<rightharpoonup>\<close> || \<^keyword>\<open>=>\<close>)
+    -- Parse.and_list1 (\<^keyword>\<open>(\<close> |-- (Parse.name --| \<^keyword>\<open>)\<close> -- Scan.option parse_target)));
 
 fun parse_symbol_pragma parse_const parse_tyco parse_class parse_classrel parse_inst parse_module =
-  parse_single_symbol_pragma @{keyword "constant"} Parse.term parse_const
+  parse_single_symbol_pragma constantK Parse.term parse_const
     >> Constant
-  || parse_single_symbol_pragma @{keyword "type_constructor"} Parse.type_const parse_tyco
+  || parse_single_symbol_pragma type_constructorK Parse.type_const parse_tyco
     >> Type_Constructor
-  || parse_single_symbol_pragma @{keyword "type_class"} Parse.class parse_class
+  || parse_single_symbol_pragma type_classK Parse.class parse_class
     >> Type_Class
-  || parse_single_symbol_pragma @{keyword "class_relation"} parse_classrel_ident parse_classrel
+  || parse_single_symbol_pragma class_relationK parse_classrel_ident parse_classrel
     >> Class_Relation
-  || parse_single_symbol_pragma @{keyword "class_instance"} parse_inst_ident parse_inst
+  || parse_single_symbol_pragma class_instanceK parse_inst_ident parse_inst
     >> Class_Instance
-  || parse_single_symbol_pragma @{keyword "code_module"} Parse.name parse_module
-    >> Code_Symbol.Module;
+  || parse_single_symbol_pragma code_moduleK Parse.name parse_module
+    >> Module;
 
 fun parse_symbol_pragmas parse_const parse_tyco parse_class parse_classrel parse_inst parse_module =
   Parse.enum1 "|" (Parse.group (fn () => "code symbol pragma")
     (parse_symbol_pragma parse_const parse_tyco parse_class parse_classrel parse_inst parse_module));
 
 end
-*}
+\<close>
 
-ML{*
+ML \<open>
 structure Code_printing = struct
 datatype code_printing = Code_printing of
-     (string * (bstring * Code_Printer.raw_const_syntax option) list,
-      string * (bstring * Code_Printer.tyco_syntax option) list,
-      string * (bstring * string option) list,
-      (string * string) * (bstring * unit option) list,
-      (xstring * string) * (bstring * unit option) list,
-      bstring * (bstring * (string * string list) option) list)
-      Code_Symbol.attr
+     (string * (string * Code_Printer.raw_const_syntax option) list,
+      string * (string * Code_Printer.tyco_syntax option) list,
+      string * (string * string option) list,
+      (string * string) * (string * unit option) list,
+      (string * string) * (string * unit option) list,
+      string * (string * (string * (string, string, string, string * string, string * string, string)
+                                   Basic_Code_Symbol.attr list)
+                         option)
+               list)
+      Basic_Code_Symbol.attr
       list
 
 structure Data_code = Theory_Data
@@ -190,7 +232,7 @@ val () =
   Outer_Syntax.command @{command_keyword lazy_code_printing} "declare dedicated printing for code symbols"
     (Isabelle_Code_Target.parse_symbol_pragmas (Code_Printer.parse_const_syntax) (Code_Printer.parse_tyco_syntax)
       Parse.string (Parse.minus >> K ()) (Parse.minus >> K ())
-      (Parse.text -- Scan.optional (@{keyword "attach"} |-- Scan.repeat1 Parse.term) [])
+      (Parse.text -- Scan.optional (\<^keyword>\<open>for\<close> |-- Isabelle_Code_Target.parse_simple_symbols) [])
       >> (fn code =>
             Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing code :: l)))))
 
@@ -220,8 +262,7 @@ val () =
     (Parse.ML_source >> (fn src => Toplevel.theory (apply_code_printing_reflect o reflect_ml src)))
 
 end
-
-*}
+\<close>
 
 ML_file "~~/src/Doc/antiquote_setup.ML"
 

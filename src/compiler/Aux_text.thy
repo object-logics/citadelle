@@ -49,7 +49,7 @@ imports Main
 begin
 
 ML\<open>
-datatype code_printing = Code_printing of string
+datatype code_printing = Code_printing of string * Position.T
 
 structure Data_code = Theory_Data
   (type T = code_printing list Symtab.table
@@ -68,7 +68,7 @@ val _ =
             Toplevel.theory (Data_code.map (Symtab.map_default (code_empty, []) (fn l => Code_printing (Input.source_content code) :: l)))
        end))
 
-fun of_text s =
+fun of_text (s, _) =
   let val s = String.substring (s, 2, String.size s - 4)
       val langle = "\<langle>"
       val rangle = "\<rangle>" in

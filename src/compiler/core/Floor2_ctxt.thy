@@ -72,7 +72,7 @@ definition "print_ctxt_is_name_at_gen var s =
     ; s = String.to_list s in
   case var of _ # _ \<Rightarrow>
     let lg_var = length var in
-    if (* TODO use \<triangleq> *) L.take_last lg_var s = var then
+    if \<comment> \<open>TODO use \<^term>\<open>(\<triangleq>)\<close>\<close> L.take_last lg_var s = var then
       Some \<lless>L.take_first (length s - lg_var) s\<ggreater>
     else
       None)"
@@ -87,7 +87,7 @@ definition "print_ctxt_to_ocl_gen_split s =
     (_, Some _, s) \<Rightarrow> Some s
   | _ \<Rightarrow> None)"
 definition "print_ctxt_to_ocl_gen l_access f var =
- (let l_ex = \<lambda>s. (*print_ctxt2_is_accessor ty*)
+ (let l_ex = \<lambda>s. \<^cancel>\<open>print_ctxt2_is_accessor ty\<close>
                  list_ex (case print_ctxt_to_ocl_gen_split s of
                             Some s \<Rightarrow> \<lambda>n. String\<^sub>b\<^sub>a\<^sub>s\<^sub>e.to_list n = s
                           | _ \<Rightarrow> \<lambda>_. False) l_access in
@@ -129,10 +129,10 @@ definition "print_ctxt_pre_post_interp = (\<lambda>(sorry, dirty) name ctxt e_na
         [ e_name
         , f e_pre
         , f e_post ]
-        (*apply(unfold_locales, simp only: dot__aaa_Person Let_def, auto)*)
+        \<comment> \<open>\<^theory_text>\<open>apply(unfold_locales, simp only: dot__aaa_Person Let_def, auto)\<close>\<close>
         C.sorry))
   else
-    None (* not yet implemented *))"
+    None \<comment> \<open>not yet implemented\<close>)"
 
 definition "print_ctxt_pre_post = (\<lambda>f. map_prod L.flatten id o f) o L.mapM (\<lambda>x env. (x env, env)) o (\<lambda> ctxt.
  let ty_name = ty_obj_to_string (Ctxt_ty ctxt) in
@@ -247,7 +247,7 @@ definition "print_ctxt_inv = (\<lambda>f. map_prod L.flatten id o f) o L.mapM (\
                                    (f_tau (cross_abs (\<lambda>s x. Term_app var_OclForall_set
                                                               [ a allinst_at_when (b Ctxt_ty_n)
                                                               , Term_lambda s x])
-                                                     (Suc nb_var (* nb_var + \<open>self\<close> *))
+                                                     (Suc nb_var \<comment> \<open>\<^term>\<open>nb_var + 1 \<comment> \<open>self\<close>\<close>\<close>)
                                                      (case e env of T_pure e _ \<Rightarrow> e)) )))]) ])
       [(\<open>OclAllInstances_at_pre\<close>, var_at_when_hol_pre, \<lambda>env. print_ctxt_to_ocl_pre env term)
       ,(\<open>OclAllInstances_at_post\<close>, var_at_when_hol_post, \<lambda>env. print_ctxt_to_ocl_post env term)])

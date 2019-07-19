@@ -85,10 +85,10 @@ definition "of_TLD_aux f_rec a b = (\<lambda>f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 
   (ap2 a (b \<open>RecUpdate\<close>) (of_list a b (of_pair a b (of_Name a b) id)) id)
   (ap3 a (b \<open>DoBlock\<close>) (of_string a b) (of_list a b id) (of_string a b))
   (ar1 a (b \<open>Parenthesized\<close>))
-  (* *)
+  \<comment> \<open>\<^theory_text>\<open>and\<close>\<close>
   (ap1 a (b \<open>Generator\<close>) (of_pair a b id id))
   (ar1 a (b \<open>Guard\<close>))
-  (* *)
+  \<comment> \<open>\<^theory_text>\<open>and\<close>\<close>
   (ar2 a (b \<open>DoGenerator\<close>) id)
   (ar1 a (b \<open>DoQualifier\<close>))
   (ap1 a (b \<open>DoLetStmt\<close>) (of_list a b (of_pair a b id id)))"

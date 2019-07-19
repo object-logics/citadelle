@@ -46,7 +46,7 @@ imports Core_init
 begin
 
 definition "print_ctxt_const ctxt env =
- (let Ty_par = Typ_apply_paren \<open>(\<close> \<open>)\<close> (* because of potential ambiguities *)
+ (let Ty_par = Typ_apply_paren \<open>(\<close> \<open>)\<close> \<comment> \<open>because of potential ambiguities\<close>
     ; l_enum = List.map_filter (\<lambda> META_enum e \<Rightarrow> Some e | _ \<Rightarrow> None) (D_input_meta env)
     ; l_syn = List.map_filter (\<lambda> META_class_synonym c \<Rightarrow> Some c | _ \<Rightarrow> None) (D_input_meta env) in
   map_prod (map_prod id (rev o L.map O.type_synonym)) (rev o L.map O.consts)

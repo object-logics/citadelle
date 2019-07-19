@@ -194,7 +194,7 @@ definition "print_allinst_istypeof = start_map'' O.lemma o (\<lambda>expr base_a
               , [M.simp_only (L.flatten [L.map T.thm [ d var_OclForall_set, \<open>refl\<close>, \<open>if_True\<close> ], [T.simplified (T.thm \<open>OclAllInstances_generic_defined\<close>) (T.thm (d \<open>OclValid\<close>))]])]
               , [M.simp_only [T.thm (d \<open>OclAllInstances_generic\<close>)]]
               , [s (T.thm var_Abs_Set_inverse), M.simp_add [d \<open>bot_option\<close>]] ] )
-           (C.by [M.simp (*M.simp_add [S.flatten [isub_name const_oclistypeof, \<open>_\<close>, name]]*)]))
+           (C.by [M.simp \<comment> \<open>\<^term>\<open>M.simp_add [S.flatten [isub_name const_oclistypeof, \<open>_\<close>, name]]\<close>\<close>]))
         [M.simp]
     , gen_pre_post
         (\<lambda>s. S.flatten [name, \<open>_\<close>, s, \<open>_\<close>, isub_name const_oclistypeof, \<open>2\<close>])

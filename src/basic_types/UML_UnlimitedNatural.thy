@@ -139,37 +139,37 @@ integers abstractly, we provide here as example some convenient shortcuts. *}
 locale OclUnlimitedNatural
 
 definition OclNat0 ::"('\<AA>)UnlimitedNatural" (*"\<zero>"*)
-where      "OclNat0(*\<zero>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>0::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat0 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>0::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat1 ::"('\<AA>)UnlimitedNatural" (*"\<one>"*)
-where      "OclNat1(*\<one>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>1::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat1 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>1::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat2 ::"('\<AA>)UnlimitedNatural" (*"\<two>"*)
-where      "OclNat2(*\<two>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>2::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat2 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>2::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat3 ::"('\<AA>)UnlimitedNatural" (*"\<three>"*)
-where      "OclNat3(*\<three>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>3::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat3 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>3::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat4 ::"('\<AA>)UnlimitedNatural" (*"\<four>"*)
-where      "OclNat4(*\<four>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>4::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat4 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>4::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat5 ::"('\<AA>)UnlimitedNatural" (*"\<five>"*)
-where      "OclNat5(*\<five>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>5::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat5 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>5::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat6 ::"('\<AA>)UnlimitedNatural" (*"\<six>"*)
-where      "OclNat6(*\<six>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>6::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat6 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>6::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat7 ::"('\<AA>)UnlimitedNatural" (*"\<seven>"*)
-where      "OclNat7(*\<seven>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>7::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat7 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>7::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat8 ::"('\<AA>)UnlimitedNatural" (*"\<eight>"*)
-where      "OclNat8(*\<eight>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>8::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat8 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>8::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat9 ::"('\<AA>)UnlimitedNatural" (*"\<nine>"*)
-where      "OclNat9(*\<nine>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>9::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat9 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>9::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 definition OclNat10 ::"('\<AA>)UnlimitedNatural" (*"\<one>\<zero>"*)
-where      "OclNat10(*\<one>\<zero>*) = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>10::nat\<rfloor>\<rfloor>\<rfloor>)"
+where      "OclNat10 = (\<lambda> _ . \<lfloor>\<lfloor>\<lfloor>10::nat\<rfloor>\<rfloor>\<rfloor>)"
 
 context OclUnlimitedNatural
 begin
@@ -247,7 +247,7 @@ definition OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub
 where "x *\<^sub>n\<^sub>a\<^sub>t y \<equiv> \<lambda> \<tau>. if (\<mu> x) \<tau> = true \<tau> \<and> (\<mu> y) \<tau> = true \<tau>
                        then \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x \<tau>\<rceil>\<rceil>\<rceil> * \<lceil>\<lceil>\<lceil>y \<tau>\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>
                        else invalid \<tau> "
-interpretation OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : profile_bin\<^sub>d_\<^sub>d "( *\<^sub>n\<^sub>a\<^sub>t)" "\<lambda> x y. \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x\<rceil>\<rceil>\<rceil> * \<lceil>\<lceil>\<lceil>y\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>"
+interpretation OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l : profile_bin\<^sub>d_\<^sub>d "(*\<^sub>n\<^sub>a\<^sub>t)" "\<lambda> x y. \<lfloor>\<lfloor>\<lfloor>\<lceil>\<lceil>\<lceil>x\<rceil>\<rceil>\<rceil> * \<lceil>\<lceil>\<lceil>y\<rceil>\<rceil>\<rceil>\<rfloor>\<rfloor>\<rfloor>"
          apply (unfold_locales, auto simp:OclMult\<^sub>U\<^sub>n\<^sub>l\<^sub>i\<^sub>m\<^sub>i\<^sub>t\<^sub>e\<^sub>d\<^sub>N\<^sub>a\<^sub>t\<^sub>u\<^sub>r\<^sub>a\<^sub>l_def bot_option_def null_option_def infinity_option_def)
          sorry
 (* TODO: special locale setup.*)

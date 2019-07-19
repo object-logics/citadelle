@@ -38,7 +38,7 @@ theory Isabelle_Cartouche_Examples
 imports Main
 begin
 
-ML {*
+ML \<open>
 (*  Title:      HOL/ex/Cartouche_Examples.thy
     Author:     Makarius
 *)
@@ -56,15 +56,15 @@ ML {*
     fun string_tr f f_mk accu content args =
       let fun err () = raise TERM ("string_tr", args) in
         (case args of
-          [(c as Const (@{syntax_const "_constrain"}, _)) $ Free (s, _) $ p] =>
+          [(c as Const (\<^syntax_const>\<open>_constrain\<close>, _)) $ Free (s, _) $ p] =>
             (case Term_Position.decode_position p of
               SOME (pos, _) => c $ f (mk_string f_mk accu (content (s, pos))) $ p
             | NONE => err ())
         | _ => err ())
       end;
   end;
-*}
+\<close>
 
-syntax "_cartouche_string" :: "cartouche_position \<Rightarrow> _"  ("_")
+syntax "_cartouche_string" :: \<open>cartouche_position \<Rightarrow> _\<close>  ("_")
 
 end

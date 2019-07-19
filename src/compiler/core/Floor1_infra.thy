@@ -265,8 +265,8 @@ definition "print_infra_datatype_equiv_1_idempo = start_map'' O.lemma o (\<lambd
       []
       (Term_rewrite (a f_1of2 (a f_2of1 (b var_X))) \<open>=\<close> (b var_X))
       [ C.apply [M.case_tac (b var_X), M.simp]
-      (*, C.fix (var_oid # l_inherited')*)
-      (* TODO below *) ]
+      \<^cancel>\<open>, \<close>\<comment> \<open>\<^term>\<open>C.fix (var_oid # l_inherited')\<close>\<close>
+      \<comment> \<open>TODO below\<close> ]
       C.sorry ]) expr)"
 (*
 (*
@@ -345,10 +345,10 @@ definition "print_infra_type_synonym_class _ = start_map id
      ty OclTy_base_void ty_void #
      ty OclTy_base_boolean ty_boolean #
      ty OclTy_base_integer ty_integer #
-     (*ty OclTy_base_unlimitednatural ty_unlimitednatural #*)
+     \<^cancel>\<open>\<close>\<comment> \<open>\<^term>\<open>ty OclTy_base_unlimitednatural ty_unlimitednatural\<close>\<close>\<^cancel>\<open>#\<close>
      ty OclTy_base_real ty_real #
      ty OclTy_base_string ty_string #
-     (* *)
+     \<comment> \<open>\<close>
      Type_synonym'' var_val' [\<open>'\<alpha>\<close>] (\<lambda> [alpha] \<Rightarrow> Typ_apply (Typ_base \<open>val\<close>) [Typ_base \<open>\<AA>\<close>, Typ_base alpha ]) #
      [])
    @@@@
@@ -371,7 +371,7 @@ definition "print_infra_type_synonym_class_rec = (\<lambda>expr env.
                           (snd (fold_class (\<lambda>_ _ l_attr _ _ _.
                                              Pair () o List.fold
                                                (\<lambda>(_, t) l.
-                                                 let f = (* WARNING we may test with RBT instead of List *)
+                                                 let f = \<comment> \<open>WARNING we may test with RBT instead of List\<close>
                                                          \<lambda>t l.
                                                            let (tit, body) = print_infra_type_synonym_class_rec_aux t in
                                                            if String.assoc tit l = None then (String.to_String\<^sub>b\<^sub>a\<^sub>s\<^sub>e tit, body) # l else l in

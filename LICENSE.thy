@@ -123,7 +123,7 @@ This file is part of HOL-TestGen.
 \<close> defines 2005-2007 ethz
           2009 wolff
           2009,2012 brucker
-          2013-2016 "u-psud"
+          2013-2019 "u-psud"
           2013-2016 "irt-systemx"
 
 check_license Miscellaneous_Monads
