@@ -45,8 +45,8 @@ session Meta_Isabelle (AFP) = "HOL-Library" +
   description {* Meta_Isabelle *}
   options [timeout = 600, document = pdf, document_output = document_generated]
   theories [document = false]
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
+    "isabelle_home/src/HOL/ex/Isabelle_Cartouche_Examples"
+    "isabelle_home/src/Tools/Code/Isabelle_code_runtime"
   theories
     "meta_isabelle/Parser_Pure"
     "meta_isabelle/Meta_Isabelle"
@@ -59,9 +59,9 @@ session Isabelle_Meta_Model (AFP) = "HOL-Library" +
   description {* Isabelle_Meta_Model containing a Toy Example *}
   options [timeout = 600, document = pdf, document_output = document_generated]
   theories [document = false]
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-    "isabelle_home/src/HOL/Isabelle_Main2"
+    "isabelle_home/src/HOL/ex/Isabelle_Cartouche_Examples"
+    "isabelle_home/src/Tools/Code/Isabelle_code_runtime"
+    "isabelle_home/src/Pure/Isar/Isabelle_typedecl"
   theories
     "meta_isabelle/Parser_Pure"
     "meta_isabelle/Meta_Isabelle"
@@ -89,9 +89,9 @@ session Toy_All = "HOL-Library" +
   description {* Toy_All *}
   options [timeout = 600, document = pdf, document_output = document_generated]
   theories [document = false]
-    "isabelle_home/src/HOL/Isabelle_Main0"
-    "isabelle_home/src/HOL/Isabelle_Main1"
-    "isabelle_home/src/HOL/Isabelle_Main2"
+    "isabelle_home/src/HOL/ex/Isabelle_Cartouche_Examples"
+    "isabelle_home/src/Tools/Code/Isabelle_code_runtime"
+    "isabelle_home/src/Pure/Isar/Isabelle_typedecl"
   theories
     "toy_example/embedding/Generator_static"
     (* "toy_example/embedding/Generator_dynamic_sequential" (* is imported by the following examples *) *)

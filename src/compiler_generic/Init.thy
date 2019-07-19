@@ -40,7 +40,7 @@
  ******************************************************************************)
 
 theory Init
-  imports "isabelle_home/src/HOL/Isabelle_Main0"
+  imports "isabelle_home/src/HOL/ex/Isabelle_Cartouche_Examples"
           "HOL-Library.Code_Target_Numeral"
 begin
 

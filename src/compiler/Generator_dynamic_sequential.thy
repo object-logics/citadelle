@@ -43,7 +43,7 @@ section\<open>Dynamic Meta Embedding with Reflection\<close>
 
 theory Generator_dynamic_sequential
 imports Printer
-        "../compiler_generic/isabelle_home/src/HOL/Isabelle_Main2"
+        "../compiler_generic/isabelle_home/src/Pure/Isar/Isabelle_typedecl"
   keywords (* OCL (USE tool) *)
            "Between"
            "Attributes" "Operations" "Constraints"

@@ -43,7 +43,7 @@ section\<open>Dynamic Meta Embedding with Reflection\<close>
 
 theory Generator_dynamic_sequential
 imports Printer
-        "../../isabelle_home/src/HOL/Isabelle_Main2"
+        "../../isabelle_home/src/Pure/Isar/Isabelle_typedecl"
 (*<*)
   keywords (* Toy language *)
            "Between"

@@ -42,8 +42,8 @@
 section\<open>Dynamic Meta Embedding with Reflection\<close>
 
 theory Generator_dynamic_export_testing
-imports "FOCL.Printer"
-        "FOCL.Isabelle_Main2"
+imports FOCL.Printer
+        FOCL.Isabelle_typedecl
         "~~/src/HOL/Library/Old_Datatype"
   keywords (* OCL (USE tool) *)
            "Between"

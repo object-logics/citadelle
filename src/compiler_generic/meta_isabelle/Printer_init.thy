@@ -43,7 +43,7 @@ section\<open>Initializing the Printer\<close>
 
 theory  Printer_init
 imports "../Init"
-        "../isabelle_home/src/HOL/Isabelle_Main1"
+        "../isabelle_home/src/Tools/Code/Isabelle_code_runtime"
 begin
 
 text\<open>At the time of writing, the following target languages supported

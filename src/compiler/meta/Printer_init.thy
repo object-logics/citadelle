@@ -43,7 +43,7 @@ section\<open>Initializing the Printer\<close>
 
 theory  Printer_init
 imports Isabelle_Meta_Model.Init
-        Isabelle_Meta_Model.Isabelle_Main1
+        Isabelle_Meta_Model.Isabelle_code_runtime
   keywords "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect"
            :: thy_decl
 begin
