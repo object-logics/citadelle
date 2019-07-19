@@ -121,13 +121,14 @@ session "Citadelle_C_model-dirty" in "src" = "Citadelle_C_shallow-dirty" +
 
 (******************************************************)
 
-session "Max-dirty" in "src" = "HOL-Library" +
+session "Max-dirty" in "src" = "HOL-Library" (* Note: replacing with FOCL will fail! *) +
   options [quick_and_dirty,document=pdf,document_output=document_generated,
            document_variants="document=afp,-annexa,-noexample",
            show_question_marks = false]
   sessions
     OCL
     FOCL
+    Isabelle_Meta_Model
   theories
     "../src/basic_types/UML_UnlimitedNatural"
 

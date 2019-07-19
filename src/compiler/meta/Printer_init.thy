@@ -42,8 +42,8 @@
 section\<open>Initializing the Printer\<close>
 
 theory  Printer_init
-imports "../../compiler_generic/Init"
-        "../../compiler_generic/isabelle_home/src/HOL/Isabelle_Main1"
+imports Isabelle_Meta_Model.Init
+        Isabelle_Meta_Model.Isabelle_Main1
   keywords "lazy_code_printing" "apply_code_printing" "apply_code_printing_reflect"
            :: thy_decl
 begin
