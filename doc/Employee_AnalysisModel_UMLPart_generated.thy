@@ -3582,7 +3582,7 @@ shows "(is_represented_in_state (in_post_state) (X .boss) (Person) (\<tau>))"
   apply(case_tac "b", simp_all add: invalid_def bot_option_def)
   apply(simp add: deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_def deref_assocs_def)
   apply(case_tac "(assocs ((in_post_state (\<tau>))) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss))", simp add: invalid_def bot_option_def, simp add: select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def)
-  proof - fix r typeoid          let ?t = "(Some ((Some (r)))) \<in> (Some o OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>) ` (ran ((heap ((in_post_state (\<tau>))))))"
+  proof - fix r typeoid          let ?t = "(Some ((Some (r)))) \<in> (\<lambda>x. (Some ((OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> (x))))) ` (ran ((heap ((in_post_state (\<tau>))))))"
           let ?sel_any = "(select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_post_state) (reconst_basetype))))" show "((?sel_any) (typeoid) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
   proof - fix aa show "((?sel_any) (aa) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t" when "\<tau> \<Turnstile> (\<delta> (((?sel_any) (aa))))"
   apply(insert that, drule select_object_any_exec\<^sub>S\<^sub>e\<^sub>t[simplified foundation22], erule exE)
@@ -3615,7 +3615,7 @@ shows "(is_represented_in_state (in_pre_state) (X .boss@pre) (Person) (\<tau>))"
   apply(case_tac "b", simp_all add: invalid_def bot_option_def)
   apply(simp add: deref_assocs\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss_def deref_assocs_def)
   apply(case_tac "(assocs ((in_pre_state (\<tau>))) (oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_0___boss))", simp add: invalid_def bot_option_def, simp add: select\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n__boss_def)
-  proof - fix r typeoid          let ?t = "(Some ((Some (r)))) \<in> (Some o OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA>) ` (ran ((heap ((in_pre_state (\<tau>))))))"
+  proof - fix r typeoid          let ?t = "(Some ((Some (r)))) \<in> (\<lambda>x. (Some ((OclAsType\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n_\<AA> (x))))) ` (ran ((heap ((in_pre_state (\<tau>))))))"
           let ?sel_any = "(select_object_any\<^sub>S\<^sub>e\<^sub>t ((deref_oid\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n (in_pre_state) (reconst_basetype))))" show "((?sel_any) (typeoid) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t"
   proof - fix aa show "((?sel_any) (aa) (\<tau>)) = (Some ((Some (r)))) \<Longrightarrow> ?t" when "\<tau> \<Turnstile> (\<delta> (((?sel_any) (aa))))"
   apply(insert that, drule select_object_any_exec\<^sub>S\<^sub>e\<^sub>t[simplified foundation22], erule exE)
