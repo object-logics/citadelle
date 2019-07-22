@@ -190,6 +190,15 @@ val is_improper = command_category [Keyword.qed_script, Keyword.prf_script, Keyw
 end;
 \<close>
 
+text \<open> Notes:
+  \<^item> The next structure contains a duplicated copy of the type
+  \<^ML_type>\<open>Token.T\<close>, since it is not possible to set an arbitrary
+  \<^emph>\<open>slot\<close> value in \<^ML_structure>\<open>Token\<close>.
+
+  \<^item> Parsing priorities in C and HOL slightly differ, see for instance
+  \<^ML>\<open>Token.explode\<close>.
+\<close>
+
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/token.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Isar/token.ML
