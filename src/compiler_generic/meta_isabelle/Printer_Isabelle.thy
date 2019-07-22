@@ -404,21 +404,23 @@ definition "String_concat_map s f l = String_concat s (L.map f l)"
 definition \<open>of_semi__theories env =
  (\<lambda> Theories_one t \<Rightarrow> of_semi__theory env t
   | Theories_locale data l \<Rightarrow>
-      \<open>locale %s =
-%s
+      \<open>locale %s%s
 begin
 %s
-end\<close>   (To_string (HolThyLocale_name data))
-        (String_concat_map
-           \<open>
+end\<close>    (To_string (HolThyLocale_name data))
+        (case HolThyLocale_header data of [] \<Rightarrow> \<open>\<close>
+         | l \<Rightarrow> \<open> =
+%s\<close>
+                  (String_concat_map
+                     \<open>
 \<close>
-           (\<lambda> (l_fix, o_assum).
-                \<open>%s%s\<close> (String_concat_map \<open>
+                    (\<lambda> (l_fix, o_assum).
+                      \<open>%s%s\<close> (String_concat_map \<open>
 \<close> (\<lambda>(e, ty). \<open>fixes "%s" :: "%s"\<close> (of_semi__term e) (of_semi__typ ty)) l_fix)
-                                (case o_assum of None \<Rightarrow> \<open>\<close>
-                                               | Some (name, e) \<Rightarrow> \<open>
+                             (case o_assum of None \<Rightarrow> \<open>\<close>
+                                            | Some (name, e) \<Rightarrow> \<open>
 assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
-           (HolThyLocale_header data))
+           l))
         (String_concat_map \<open>
 
 \<close> (String_concat_map \<open>
