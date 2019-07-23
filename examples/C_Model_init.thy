@@ -38,7 +38,7 @@
 
 theory C_Model_init
   imports "FOCL.Printer_init"
-          "FOCL.Old_Datatype"
+          "Citadelle.Old_Datatype"
 begin
 
 type_synonym int = integer
