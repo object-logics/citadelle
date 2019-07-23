@@ -183,16 +183,12 @@ subsection {* Regression Testing *}
 
 ML\<open>
 structure Haskabelle = struct
-fun export dst thy =
-  let
-    val thy_name = Context.theory_name thy
-    val ctxt = Proof_Context.init_global thy
-  in Code_Target.export_code
-       ctxt
-       false
-       (Code_Thingol.read_const_exprs ctxt [thy_name ^ "._"])
-       [(((("Haskell", thy_name), SOME dst)), [])]
-  end
+fun export dst thy_name ctxt =
+  Code_Target.export_code
+    false
+    (Code_Thingol.read_const_exprs ctxt [thy_name ^ "._"])
+    [(((("Haskell", thy_name), SOME dst)), [])]
+    ctxt
 end
 \<close>
 

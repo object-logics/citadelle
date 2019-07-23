@@ -245,7 +245,7 @@ instance Printer Isa.Module where
                text "imports " <> fsep  imps' $+$
                text "begin" $+$
                (vcat $ (map (pprint' adapt reserved) cmds ++
-                        if exportCode then [text "ML\\<open>Haskabelle.export (Path.variable \"REGRESSION_DST\") @{theory}\\<close>"] else [])) $+$
+                        if exportCode then [text "setup\\<open>fn thy => Named_Target.theory_map (Haskabelle.export (Path.variable \"REGRESSION_DST\") (Context.theory_name thy)) thy\\<close>"] else [])) $+$
                text "\nend\n"
 
 instance Printer Isa.Function_Stmt where
