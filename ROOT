@@ -94,8 +94,6 @@ session FOCL in src = "HOL-Library" +
 
 session Citadelle in src = FOCL +
   description \<open>Citadelle (Concurrent)\<close>
-  sessions
-    FOCL
   theories
     "compiler/Generator_dynamic_concurrent"
     "compiler/Generator_dynamic_export_testing"
