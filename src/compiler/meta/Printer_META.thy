@@ -60,29 +60,7 @@ definition "of\<^sub>e\<^sub>n\<^sub>v_semi__theory env =
             (\<lambda> Theory_section section_title \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_section env section_title
              | x \<Rightarrow> of_semi__theory env x)"
 
-definition \<open>of\<^sub>e\<^sub>n\<^sub>v_semi__theories env =
- (\<lambda> Theories_one t \<Rightarrow> of\<^sub>e\<^sub>n\<^sub>v_semi__theory env t
-  | Theories_locale data l \<Rightarrow>
-      \<open>locale %s =
-%s
-begin
-%s
-end\<close>   (To_string (HolThyLocale_name data))
-        (String_concat_map
-           \<open>
-\<close>
-           (\<lambda> (l_fix, o_assum).
-                \<open>%s%s\<close> (String_concat_map \<open>
-\<close> (\<lambda>(e, ty). \<open>fixes "%s" :: "%s"\<close> (of_semi__term e) (of_semi__typ ty)) l_fix)
-                                (case o_assum of None \<Rightarrow> \<open>\<close>
-                                               | Some (name, e) \<Rightarrow> \<open>
-assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
-           (HolThyLocale_header data))
-        (String_concat_map \<open>
-
-\<close> (String_concat_map \<open>
-
-\<close> (of\<^sub>e\<^sub>n\<^sub>v_semi__theory env)) l))\<close>
+definition \<open>of\<^sub>e\<^sub>n\<^sub>v_semi__theories = of_semi__theories0 of\<^sub>e\<^sub>n\<^sub>v_semi__theory\<close>
 
 (* *)
 

@@ -401,7 +401,7 @@ definition "of_semi__theory env =
 
 definition "String_concat_map s f l = String_concat s (L.map f l)"
 
-definition \<open>of_semi__theories env =
+definition \<open>of_semi__theories0 = (\<lambda> of_semi__theory env.
  (\<lambda> Theories_one t \<Rightarrow> of_semi__theory env t
   | Theories_locale data l \<Rightarrow>
       \<open>locale %s%s
@@ -425,7 +425,9 @@ assumes %s: "%s"\<close> (To_string name) (of_semi__term e)))
 
 \<close> (String_concat_map \<open>
 
-\<close> (of_semi__theory env)) l))\<close>
+\<close> (of_semi__theory env)) l)))\<close>
+
+definition \<open>of_semi__theories = of_semi__theories0 of_semi__theory\<close>
 
 end
 
@@ -470,6 +472,7 @@ lemmas [code] =
   Print.of_code_reflect'_def
   Print.of_semi__theory_def
   Print.String_concat_map_def
+  Print.of_semi__theories0_def
   Print.of_semi__theories_def
 
   \<comment> \<open>fun\<close>
