@@ -658,15 +658,15 @@ argument. However some difficulties are happening: in contrast to ML, it is a wi
 practice in C to write directives in a C file, and use a preprocessor tool to determine the final
 source code to really take in consideration as ``compilation starting point'', or ``prover IDE
 support point''. This actually generates a new challenge for the Isabelle document model, since one
-popular directive is \<^C>\<open>#include <file>
-\<close> to refer to a specific source code file to copy-paste inside the source containing that
-directive, and to replace it. In an ideal setting, end-users would hope to see \<open>file\<close>
-be automatically loaded and subsequently automatically managed, but to our view, making this
-behavior happen using a native Isabelle 2018 version appears to be not possible (without touching
-its source code). The next part is going to develop on this limitation in more
-detail. \<^footnote>\<open>In comparison with the ML language, ML antiquotations can also refer to
-external files, for example in formal comments. Unfortunately, the problem is still present in ML:
-files referred to when using this technique are not loaded in the document model.\<close> \<close>
+popular directive is \<^C>\<open>#include <file>\<close> to refer to a specific source code file to
+copy-paste inside the source containing that directive, and to replace it. In an ideal setting,
+end-users would hope to see \<open>file\<close> be automatically loaded and subsequently
+automatically managed, but to our view, making this behavior happen using a native Isabelle 2018
+version appears to be not possible (without touching its source code). The next part is going to
+develop on this limitation in more detail. \<^footnote>\<open>In comparison with the ML language, ML
+antiquotations can also refer to external files, for example in formal comments. Unfortunately, the
+problem is still present in ML: files referred to when using this technique are not loaded in the
+document model.\<close> \<close>
 
 subsubsection \<open>The Document Model\<close>
 
@@ -727,12 +727,11 @@ text \<open>
   \<^theory_text>\<open>bibtex_file\<close>, \<^theory_text>\<open>ML_file\<close>.
   \<^item> In terms of recursivity, for the case of a chain of sub-documents of the form (theory
   file: \<^theory_text>\<open>C_file\<close>) \<open>\<Longrightarrow>\<close> (C file0:
-  \<^C>\<open>#include <file1.c>
-  \<close>) \<open>\<Longrightarrow>\<close> (C file1: \<^C>\<open>#include <file2.c>
-  \<close>) \<open>\<Longrightarrow>\<close> (C file2: \<^C>\<open>#include <file3.c>
-  \<close>), we ideally expect a modification in \<open>file3.c\<close> be taken into account in all
-  ancestor files including the initial theory, provoking the associated command of the theory be
-  reevaluated.
+  \<^C>\<open>#include <file1.c>\<close>) \<open>\<Longrightarrow>\<close> (C file1:
+  \<^C>\<open>#include <file2.c>\<close>) \<open>\<Longrightarrow>\<close> (C file2:
+  \<^C>\<open>#include <file3.c>\<close>), we ideally expect a modification in
+  \<open>file3.c\<close> be taken into account in all ancestor files including the initial theory,
+  provoking the associated command of the theory be reevaluated.
   \<^item> When a theory is depending on other theories (such as \<^theory>\<open>Isabelle_C.C_Eval\<close>
   depending on \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> and
   \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>), modifying the list of theories in importation
@@ -776,12 +775,12 @@ make the error disappear at the position it is indicating can be detailed as fol
   semantically processed at parsing time.
 
   For example, whereas the code \<^C>\<open>#define i int
-  i a;\<close> succeeds, replacing its first line with the directive \<^C>\<open>#include <file.c>
-  \<close> will not initially work, even if \<open>file.c\<close> contains
-  \<^C>\<open>#define i int\<close>, as the former directive has been left for semantic back-end
-  treatment. One way of solving this would be to modify the C code in input for it to be already
-  preprocessed (without directives), another way would be adding a specific new semantic back-end
-  implementing the automation of the preprocessing task (as done in our l4v back-end).
+  i a;\<close> succeeds, replacing its first line with the directive
+  \<^C>\<open>#include <file.c>\<close> will not initially work, even if \<open>file.c\<close>
+  contains \<^C>\<open>#define i int\<close>, as the former directive has been left for semantic
+  back-end treatment. One way of solving this would be to modify the C code in input for it to be
+  already preprocessed (without directives), another way would be adding a specific new semantic
+  back-end implementing the automation of the preprocessing task (as done in our l4v back-end).
   
   \<^item> Ultimately, modifying the grammar with new rules cancelling the exception would only work
   if the problem really relies on the grammar, as it was mentioned for the acceptance state.
