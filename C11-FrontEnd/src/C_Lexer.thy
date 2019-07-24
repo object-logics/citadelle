@@ -1055,7 +1055,7 @@ val scan_directive =
                       | Token (_, (Error _, _)) => true
                       | _ => false in
         ($$$ "#" >> (single o token (Sharp 1)))
-    @@@ (   (   blanks @@@ (scan_ident >> token Ident >> single)
+    @@@ (   (   blanks @@@ (C_Scan.this_string "include" >> token Ident >> single)
             @@@ blanks @@@ (scan_token scan_file File >> single)
             @@@ blanks) --| Scan.ahead newline
          || Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
