@@ -221,12 +221,19 @@ fun local_theory' target f gthy =
       |> Local_Theory.reset_group;
   in finish lthy' end
 val generic_theory = I
+fun keep'' f = tap (f o Context.proof_of)
 end
 \<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/isar_cmd.ML\<close>\<close> \<open>
 structure C_Inner_Isar_Cmd = 
 struct
+
+
+(** theory declarations **)
+
+(* generic setup *)
+
 fun setup0 f_typ f_val src =
  fn NONE =>
     let val setup = "setup"
@@ -253,6 +260,32 @@ fun setup0 f_typ f_val src =
     end
 val setup = setup0 (fn a => fn b => a ^ " -> " ^ b) (fn a => fn b => a ^ " " ^ b)
 val setup' = setup0 (K I) K
+
+
+(* print theorems, terms, types etc. *)
+
+local
+
+fun string_of_term ctxt s =
+  let
+    val t = Syntax.read_term ctxt s;
+    val T = Term.type_of t;
+    val ctxt' = Variable.auto_fixes t ctxt;
+  in
+    Pretty.string_of
+      (Pretty.block [Pretty.quote (Syntax.pretty_term ctxt' t), Pretty.fbrk,
+        Pretty.str "::", Pretty.brk 1, Pretty.quote (Syntax.pretty_typ ctxt' T)])
+  end;
+
+fun print_item string_of (modes, arg) ctxt =
+  Print_Mode.with_modes modes (fn () => writeln (string_of ctxt arg)) ();
+
+in
+
+val print_term = print_item string_of_term;
+
+end;
+
 end
 \<close>
 
@@ -381,6 +414,9 @@ fun theorem spec schematic =
     (C_Isar_Cmd.theorem schematic)
 end
 
+val opt_modes =
+  Scan.optional (\<^keyword>\<open>(\<close> |-- Parse.!!! (Scan.repeat1 Parse.name --| \<^keyword>\<open>)\<close>)) [];
+
 val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Transition.Bottom_up ("\<approx>setup", \<^here>)
                       #> C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Transition.Top_down ("\<approx>setup\<Down>", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Parse.ML_source C_Transition.Bottom_up ("setup", \<^here>)
@@ -420,7 +456,12 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.local_command'
                           ("declare", \<^here>)
                           (Parse.and_list1 Parse.thms1 -- Parse.for_fixes)
-                          C_Isar_Cmd.declare)
+                          C_Isar_Cmd.declare
+                      #> C_Inner_Syntax.command0
+                          (C_Inner_Toplevel.keep'' o C_Inner_Isar_Cmd.print_term)
+                          (C_Token.syntax' (opt_modes -- Parse.term))
+                          C_Transition.Bottom_up
+                          ("term", \<^here>))
 in end
 \<close>
 
