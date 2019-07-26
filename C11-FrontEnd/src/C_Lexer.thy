@@ -376,7 +376,6 @@ val lexer_trace = Attrib.setup_config_bool @{binding C_lexer_trace} (K false);
 val parser_trace = Attrib.setup_config_bool @{binding C_parser_trace} (K false);
 val ML_verbose = Attrib.setup_config_bool @{binding C_ML_verbose} (K true);
 val starting_env = Attrib.setup_config_string @{binding C_starting_env} (K "empty");
-val export_file_exist = Attrib.setup_config_bool @{binding C_export_file_exist} (K true);
 
 end
 \<close>
@@ -953,6 +952,16 @@ val escape_char = [ ("n", #"\n")
                   , ("?", #"?")
                   , ("'", #"'")
                   , ("\"", #"\"") ]
+
+val _ = \<comment> \<open>printing a ML function translating code point from \<^ML_type>\<open>int -> string\<close>\<close>
+ fn _ => 
+  app (fn (x0, x) => writeln (" | "
+                              ^ string_of_int (Char.ord x)
+                              ^ " => \"\\\\"
+                              ^ (if exists (fn x1 => x0 = x1) ["\"", "\\"] then "\\" ^ x0 else x0)
+                              ^ "\""))
+      escape_char
+
 fun scan_escape s0 =
   let val oct = one' C_Symbol.is_ascii_oct
       val hex = one' Symbol.is_ascii_hex

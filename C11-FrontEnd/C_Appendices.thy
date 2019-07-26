@@ -439,7 +439,6 @@ text \<open>
     @{attribute_def C_parser_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
     @{attribute_def C_ML_verbose} & : & \<open>attribute\<close> & default \<open>true\<close> \\
     @{attribute_def C_starting_env} & : & \<open>attribute\<close> & default \<open>empty\<close> \\
-    @{attribute_def C_export_file_exist} & : & \<open>attribute\<close> & default \<open>true\<close> \\
   \end{tabular}
 
   \<^rail>\<open>
@@ -484,12 +483,13 @@ text \<open>
   is understood as being processed by
   \<^theory_text>\<open>C\<close> instead of \<^theory_text>\<open>ML\<close>.
 
-  \<^descr> \<^theory_text>\<open>C_export_file\<close> dumps all
-  existing previous C code to \<open>T.c\<close>, where
-  \<open>T.thy\<close> is the name of the current working theory. The
-  dump is actually restricted to \<open>T\<close> (parent theories are
-  ignored).
-\<close>
+  \<^descr> \<^theory_text>\<open>C_export_file\<close> is similar to
+  \<^theory_text>\<open>generate_file fic = \<open>code\<close>
+    export_generated_files fic\<close>, except that
+    \<^item> \<open>code\<close> refers to the dump of all existing previous C code in the current
+    theory (parent theories are ignored),
+    \<^item> and ML antiquotations in \<open>code\<close> are not analyzed by
+    \<^theory_text>\<open>generate_file\<close>. \<close>
 
 text \<open>
 
@@ -510,10 +510,6 @@ text \<open>
   command (e.g., \<^theory_text>\<open>C_file\<close>,
   \<^theory_text>\<open>C\<close>) initialized with the environment of
   the previous C command if existing.
-
-  \<^descr> @{attribute_def C_export_file_exist} makes \<^theory_text>\<open>C_export_file\<close>
-  raise either an error, or just an information message informing about the existence of the target
-  file.
 \<close>
 
 subsection \<open>Inner Syntax Commands\<close>
