@@ -1417,7 +1417,7 @@ fun err_dup_command name ps =
 (* command parsers *)
 
 datatype command_parser =
-  Parser of Symbol_Pos.T list * (bool * Symbol_Pos.T list) -> C_Transition.eval_time c_parser;
+  Parser of (Symbol_Pos.T list * (bool * Symbol_Pos.T list)) * Position.range -> C_Transition.eval_time c_parser;
 
 datatype command = Command of
  {comment: string,
@@ -1522,12 +1522,13 @@ end
 
 fun parse_command thy =
   Scan.ahead (before_command |-- C_Parse.position C_Parse.command) :|-- (fn (name, pos) =>
-    let val command_tags = before_command --| C_Parse.command;
+    let val command_tags = before_command -- C_Parse.range C_Parse.command
+                           >> (fn (cmd, (_, range)) => (cmd, range));
     in
       case lookup_commands thy name of
         SOME (cmd as Command {command_parser = Parser parse, ...}) =>
           C_Parse.!!! (command_tags :|-- parse)
-          >> (pair [((pos, command_markup false (name, cmd)), "")])
+          >> pair [((pos, command_markup false (name, cmd)), "")]
       | NONE =>
           Scan.fail_with (fn _ => fn _ =>
             let

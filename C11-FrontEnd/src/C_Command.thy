@@ -294,19 +294,21 @@ structure C_Inner_Syntax =
 struct
 fun command00 f kind scan dir name =
   C_Annotation.command'' kind name ""
-    (fn (stack1, (to_delay, stack2)) =>
+    (fn ((stack1, (to_delay, stack2)), _) =>
       C_Parse.range scan >>
         (fn (src, range) =>
-          C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src))))
+          C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src range))))
 
 fun command00_no_range f kind dir name =
   C_Annotation.command'' kind name ""
-    (fn (stack1, (to_delay, stack2)) =>
+    (fn ((stack1, (to_delay, stack2)), range) =>
       Scan.succeed () >>
-        K (C_Transition.Parsing ((stack1, stack2), (Position.no_range, dir, Symtab.empty, to_delay, f))))
+        K (C_Transition.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f range))))
 
-fun command f = command00 f Keyword.thy_decl
-fun command_no_range f = command00_no_range f Keyword.thy_decl
+fun command f = command00 (K o f) Keyword.thy_decl
+fun command_range f = command00_no_range f Keyword.thy_decl
+fun command_range' f = command_range (K o f)
+fun command_no_range f = command00_no_range (K f) Keyword.thy_decl
 
 fun command0 f = command (K o f)
 fun local_command' spec scan f =
@@ -316,7 +318,7 @@ fun local_command' spec scan f =
           spec
 val command0_no_range = command_no_range o K
 
-fun command0' f = command00 (K o f)
+fun command0' f = command00 (K o K o f)
 end
 \<close>
 
