@@ -199,6 +199,8 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                          |> Flags)
                     , pos1
                     , pos2))
+       | C_Lex.Float s =>
+          return0 (C_Grammar.Tokens.cfloat (CFloat (From_string (implode (map #1 s))), pos1, pos2))
        | C_Lex.Ident => 
           let val (name, arg) = C_Grammar_Rule_Lib.getNewName arg
               val ident0 = C_Grammar_Rule_Lib.mkIdent (C_Grammar_Rule_Lib.posOf' false (pos1, pos2)) src name

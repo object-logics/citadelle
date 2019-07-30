@@ -562,7 +562,7 @@ datatype token_kind =
   (**)
   Char of bool * Symbol.symbol list |
   Integer of int * C_Ast.CIntRepr * C_Ast.CIntFlag list |
-  Float |
+  Float of Symbol_Pos.T list |
   String of bool * Symbol.symbol list |
   File of bool * Symbol.symbol list |
   (**)
@@ -741,7 +741,7 @@ local
 val token_kind_markup0 =
  fn Char _ => (Markup.ML_char, "")
   | Integer _ => (Markup.ML_numeral, "")
-  | Float => (Markup.ML_numeral, "")
+  | Float _ => (Markup.ML_numeral, "")
   | ClangC => (Markup.ML_numeral, "")
   | String _ => (Markup.ML_string, "")
   | File _ => (Markup.ML_string, "")
@@ -1050,7 +1050,7 @@ fun scan_fragment blanks =
   || comments
   || Scan.max token_leq (Scan.literal lexicon >> token Keyword)
                         (   scan_clangversion >> token ClangC
-                         || scan_float >> token Float
+                         || scan_token scan_float Float
                          || scan_token scan_int Integer
                          || scan_ident >> token Ident)
 
