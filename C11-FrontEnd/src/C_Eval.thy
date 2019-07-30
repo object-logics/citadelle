@@ -184,46 +184,45 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
      | SOME (Right (tok as C_Lex.Token (_, (C_Lex.Directive _, _)))) =>
         makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env_Ext.map_stream_ignored (cons (Right tok)) arg)
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
-       case tok of
-         C_Lex.Char (b, [c]) =>
-          return0 (C_Grammar.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2))
-       | C_Lex.String (b, s) =>
-          return0 (C_Grammar.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2))
-       | C_Lex.Integer (i, repr, flag) =>
-          return0 (C_Grammar.Tokens.cint
-                    ( CInteger i repr
-                        (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
-                                              flag
-                                              ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
-                                         |> map #1)
-                         |> Flags)
-                    , pos1
-                    , pos2))
-       | C_Lex.Float s =>
-          return0 (C_Grammar.Tokens.cfloat (CFloat (From_string (implode (map #1 s))), pos1, pos2))
-       | C_Lex.Ident => 
-          let val (name, arg) = C_Grammar_Rule_Lib.getNewName arg
-              val ident0 = C_Grammar_Rule_Lib.mkIdent (C_Grammar_Rule_Lib.posOf' false (pos1, pos2)) src name
-          in return0
-               (if C_Grammar_Rule_Lib.isTypeIdent src arg then
-                  C_Grammar.Tokens.tyident (ident0, pos1, pos2)
-                else
-                  C_Grammar.Tokens.ident (ident0, pos1, pos2))
-          end
-       | _ => 
-          C_Grammar_Tokens.token_of_string
-                          (C_Grammar.Tokens.error (pos1, pos2))
-                          (ClangCVersion0 (From_string src))
-                          (CChar #"0" false)
-                          (CFloat (From_string src))
-                          (CInteger 0 DecRepr (Flags 0))
-                          (CString0 (From_string src, false))
-                          (Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
-                          src
-                          pos1
-                          pos2
-                          src
-          |> return0
+        return0
+          (case tok of
+             C_Lex.Char (b, [c]) =>
+              C_Grammar.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2)
+           | C_Lex.String (b, s) =>
+              C_Grammar.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2)
+           | C_Lex.Integer (i, repr, flag) =>
+              C_Grammar.Tokens.cint
+               ( CInteger i repr
+                   (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
+                                         flag
+                                         ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
+                                    |> map #1)
+                    |> Flags)
+               , pos1
+               , pos2)
+           | C_Lex.Float s =>
+              C_Grammar.Tokens.cfloat (CFloat (From_string (implode (map #1 s))), pos1, pos2)
+           | C_Lex.Ident => 
+              let val (name, arg) = C_Grammar_Rule_Lib.getNewName arg
+                  val ident0 = C_Grammar_Rule_Lib.mkIdent (C_Grammar_Rule_Lib.posOf' false (pos1, pos2)) src name
+              in if C_Grammar_Rule_Lib.isTypeIdent src arg then
+                   C_Grammar.Tokens.tyident (ident0, pos1, pos2)
+                 else
+                   C_Grammar.Tokens.ident (ident0, pos1, pos2)
+              end
+           | _ => 
+              C_Grammar_Tokens.token_of_string
+                              (C_Grammar.Tokens.error (pos1, pos2))
+                              (ClangCVersion0 (From_string src))
+                              (CChar #"0" false)
+                              (CFloat (From_string src))
+                              (CInteger 0 DecRepr (Flags 0))
+                              (CString0 (From_string src, false))
+                              (Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
+                              src
+                              pos1
+                              pos2
+                              src)
   end
 end
 \<close>
