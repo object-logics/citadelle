@@ -202,7 +202,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         return0
           (case tok of
              C_Lex.Char (b, [c]) =>
-              C_Grammar.Tokens.cchar (CChar (String.sub (c,0)) b, pos1, pos2)
+              C_Grammar.Tokens.cchar (CChar (String.sub (c, 0)) b, pos1, pos2)
            | C_Lex.String (b, s) =>
               C_Grammar.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2)
            | C_Lex.Integer (i, repr, flag) =>

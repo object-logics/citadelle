@@ -63,7 +63,6 @@ val err_prefix = "C lexical error: ";
 
 fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
 fun opt x = Scan.optional x [];
-fun opt'' x = Scan.optional (x >> K true) false;
 fun one f = Scan.one (f o Symbol_Pos.symbol)
 fun many f = Scan.many (f o Symbol_Pos.symbol)
 fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
@@ -708,19 +707,23 @@ val token_list_of =
   end
 
 local
-  fun warn0 pos l s =
-    if exists (not o Symbol.is_printable) l then
-      app (fn (s, pos) =>
-            if Symbol.is_printable s
-            then ()
-            else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
-                                    (Symbol_Pos.explode (s, pos))
-    else ()
+
+fun warn0 pos l s =
+  if exists (not o Symbol.is_printable) l then
+    app (fn (s, pos) =>
+          if Symbol.is_printable s
+          then ()
+          else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
+                                  (Symbol_Pos.explode (s, pos))
+  else ()
+
 fun unknown pos = Output.information ("Unknown symbol" ^ Position.here pos)
+
 val app_directive =
       app (fn Token (_, (Error (msg, _), _)) => warning msg
             | Token ((pos, _), (Unknown, _)) => unknown pos
             | _ => ())
+
 in
 val warn = fn
     Token ((pos, _), (Char (_, l), s)) => warn0 pos l s
@@ -736,8 +739,8 @@ end
 
 fun check_error tok =
   case kind_of tok of
-    Error (msg, _) => SOME msg
-  | _ => NONE;
+    Error (msg, _) => [msg]
+  | _ => [];
 
 (* markup *)
 
@@ -998,7 +1001,7 @@ fun scan_str s0 =
 fun scan_gap xs = ($$ "\\" -- scan_blanks1 -- $$ "\\" >> K []) xs;
 
 fun scan_string0 s0 msg repeats =
-  opt'' ($$ "L") --
+  Scan.optional ($$ "L" >> K true) false --
     (Scan.ahead ($$ s0) |--
       !!! ("unclosed " ^ msg ^ " literal")
         ($$ s0 |-- repeats (scan_gap || scan_str s0) --| $$ s0))
@@ -1026,10 +1029,7 @@ end;
 
 (* scan tokens *)
 
-val check =
-  fold (fn tok =>
-         let val () = warn tok
-         in case check_error tok of SOME s => cons s | NONE => I end)
+val check = fold (tap warn #> fold cons o check_error)
 
 local
 
