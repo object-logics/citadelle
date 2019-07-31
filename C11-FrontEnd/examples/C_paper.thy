@@ -50,8 +50,7 @@ val _ = Theory.setup (   command C_Transition.Bottom_up ("ML_setup", \<^here>)
                       #> command C_Transition.Top_down ("ML_setup\<Down>", \<^here>))
 end
 
-val C' = C_Module.C' (fn _ => fn _ => fn pos =>
-                       tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
+val C' = C_Module.C'
 
 fun C_define dir name _ _ =
   Context.map_theory 

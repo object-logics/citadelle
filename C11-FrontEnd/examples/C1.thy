@@ -283,8 +283,7 @@ declare [[C_parser_trace = false]]
 
 ML\<open>
 val C = tap o C_Module.C
-val C' = C_Module.C' (fn _ => fn _ => fn pos =>
-                       tap (fn _ => warning ("Parser: No matching grammar rule " ^ Position.here pos)))
+val C' = C_Module.C'
 \<close>
 
 C \<comment> \<open>Nesting C code without propagating the C environment\<close> \<open>
