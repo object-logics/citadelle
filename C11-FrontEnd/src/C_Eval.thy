@@ -138,19 +138,32 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
 
 fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
   let val (token, arg) = C_Env_Ext.map_stream_lang' (fn [] => (NONE, []) | x :: xs => (SOME x, xs)) arg
-      fun return0' f x =
-        let val (arg, stack_ml) = f stack (arg, stack_ml)
-        in (x, ((stack, stack_ml, stack_pos, stack_tree), arg)) end
-      val return0 = return0' advance_hook
+      fun return0' f =
+        (arg, stack_ml)
+        |> advance_hook stack
+        |> f
+        |> (fn (arg, stack_ml) => rpair ((stack, stack_ml, stack_pos, stack_tree), arg))
+      val return0 = return0' I
       open C_Ast
+      fun token_err pos1 pos2 src =
+        C_Grammar_Tokens.token_of_string
+          (C_Grammar.Tokens.error (pos1, pos2))
+          (ClangCVersion0 (From_string src))
+          (CChar #"0" false)
+          (CFloat (From_string src))
+          (CInteger 0 DecRepr (Flags 0))
+          (CString0 (From_string src, false))
+          (Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
+          src
+          pos1
+          pos2
+          src
       open C_Scan
   in
     case token
     of NONE => 
         return0'
-          (fn stack => 
-            advance_hook stack
-            #> tap (fn (arg, _) => 
+          (tap (fn (arg, _) => 
               fold (uncurry
                      (fn pos => 
                        fold_rev (fn (syms, _, _) => fn () =>
@@ -212,19 +225,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                  else
                    C_Grammar.Tokens.ident (ident0, pos1, pos2)
               end
-           | _ => 
-              C_Grammar_Tokens.token_of_string
-                              (C_Grammar.Tokens.error (pos1, pos2))
-                              (ClangCVersion0 (From_string src))
-                              (CChar #"0" false)
-                              (CFloat (From_string src))
-                              (CInteger 0 DecRepr (Flags 0))
-                              (CString0 (From_string src, false))
-                              (Ident (From_string src, 0, OnlyPos NoPosition (NoPosition, 0)))
-                              src
-                              pos1
-                              pos2
-                              src)
+           | _ => token_err pos1 pos2 src)
   end
 end
 \<close>
