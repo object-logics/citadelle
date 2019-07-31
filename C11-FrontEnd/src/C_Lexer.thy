@@ -568,7 +568,7 @@ datatype token_kind =
   (**)
   Space | Comment of token_kind_comment | Sharp of int |
   (**)
-  Error of string * token_group | Directive of token_kind_directive | EOF
+  Unknown | Error of string * token_group | Directive of token_kind_directive | EOF
 
 and token_kind_directive = Inline of token_group (* a not yet analyzed directive *)
                          | Include of token_group
@@ -716,16 +716,21 @@ local
             else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
                                     (Symbol_Pos.explode (s, pos))
     else ()
+fun unknown pos = Output.information ("Unknown symbol" ^ Position.here pos)
+val app_directive =
+      app (fn Token (_, (Error (msg, _), _)) => warning msg
+            | Token ((pos, _), (Unknown, _)) => unknown pos
+            | _ => ())
 in
 val warn = fn
     Token ((pos, _), (Char (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (String (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
+  | Token ((pos, _), (Unknown, _)) => unknown pos
   | Token (_, (Comment (Comment_suspicious (SOME (explicit, msg, _))), _)) => (if explicit then warning else tracing) msg
   | Token ((pos, _), (Directive (Inline _), _)) => warning ("Ignored directive" ^ Position.here pos)
-  | Token (_, (Directive (kind as Conditional _), _)) => 
-      app (fn Token (_, (Error (msg, _), _)) => warning msg | _ => ())
-          (token_list_of kind)
+  | Token (_, (Directive (kind as Conditional _), _)) => app_directive (token_list_of kind)
+  | Token (_, (Directive (Define (_, _, _, Group1 (_, toks4))), _)) => app_directive toks4
   | _ => ();
 end
 
@@ -746,6 +751,7 @@ val token_kind_markup0 =
   | String _ => (Markup.ML_string, "")
   | File _ => (Markup.ML_string, "")
   | Sharp _ => (Markup.antiquote, "")
+  | Unknown => (Markup.intensify, "")
   | Error (msg, _) => (Markup.bad (), msg)
   | _ => (Markup.empty, "");
 
@@ -1049,6 +1055,7 @@ fun scan_fragment blanks =
                          || scan_token scan_float Float
                          || scan_token scan_int Integer
                          || scan_ident >> token Ident)
+  || Scan.one (Symbol.is_printable o #1) >> single >> token Unknown
 
 (* scan tokens, directive part *)
 
