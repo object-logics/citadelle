@@ -556,14 +556,19 @@ datatype token_kind_comment =
    Comment_formal of C_Antiquote.antiq
  | Comment_suspicious of (bool * string * ((Position.T * Markup.T) * string) list) option
 
+datatype token_kind_encoding =
+   Encoding_L
+ | Encoding_default
+ | Encoding_file of string (* error message *) option
+
 datatype token_kind =
   Keyword | Ident | Type_ident | GnuC | ClangC |
   (**)
-  Char of bool * Symbol.symbol list |
+  Char of token_kind_encoding * Symbol.symbol list |
   Integer of int * C_Ast.CIntRepr * C_Ast.CIntFlag list |
   Float of Symbol_Pos.T list |
-  String of bool * Symbol.symbol list |
-  File of bool * Symbol.symbol list |
+  String of token_kind_encoding * Symbol.symbol list |
+  File of token_kind_encoding * Symbol.symbol list |
   (**)
   Space | Comment of token_kind_comment | Sharp of int |
   (**)
@@ -734,6 +739,10 @@ val warn = fn
   | Token ((pos, _), (Directive (Inline _), _)) => warning ("Ignored directive" ^ Position.here pos)
   | Token (_, (Directive (kind as Conditional _), _)) => app_directive (token_list_of kind)
   | Token (_, (Directive (Define (_, _, _, Group1 (_, toks4))), _)) => app_directive toks4
+  | Token (_, (Directive (Include (Group2 (_, _, toks))), _)) =>
+    (case toks of [Token (_, (String _, _))] => ()
+                | [Token (_, (File _, _))] => ()
+                | _ => Output.information ("Expecting at least and at most one file" ^ Position.here (Position.range_position (pos_of (hd toks), end_pos_of (List.last toks)))))
   | _ => ();
 end
 
@@ -1001,7 +1010,7 @@ fun scan_str s0 =
 fun scan_gap xs = ($$ "\\" -- scan_blanks1 -- $$ "\\" >> K []) xs;
 
 fun scan_string0 s0 msg repeats =
-  Scan.optional ($$ "L" >> K true) false --
+  Scan.optional ($$ "L" >> K Encoding_L) Encoding_default --
     (Scan.ahead ($$ s0) |--
       !!! ("unclosed " ^ msg ^ " literal")
         ($$ s0 |-- repeats (scan_gap || scan_str s0) --| $$ s0))
@@ -1012,14 +1021,27 @@ in
 
 val scan_char = scan_string0 "'" "char" Scan.repeats1
 val scan_string = scan_string0 "\"" "string" Scan.repeats
+fun scan_string' src =
+  case
+    Source.source
+      Symbol_Pos.stopper
+      (Scan.recover (Scan.bulk (!!! "bad input" scan_string >> K NONE))
+                    (fn msg => C_Scan.one_not_eof >> K [SOME msg]))
+      (Source.of_list src)
+    |> Source.exhaust
+  of
+      [NONE] => NONE
+    | [] => SOME "Empty input"
+    | l => case map_filter I l of msg :: _ => SOME msg
+                                | _ => SOME "More than one string"
 val scan_file =
   let fun scan s_l s_r =
     Scan.ahead ($$ s_l) |--
         !!! ("unclosed file literal")
           ($$ s_l |-- Scan.repeats (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r) >> (fn s => [#1 s])) --| $$ s_r)
   in
-     scan "\"" "\"" >> pair false
-  || scan "<" ">" >> pair true
+     Scan.trace (scan "\"" "\"") >> (fn (s, src) => String (Encoding_file (scan_string' src), s))
+  || scan "<" ">" >> (fn s => File (Encoding_default, s))
   end
 
 val recover_char = recover_string0 "'" Scan.repeats1
@@ -1060,19 +1082,15 @@ fun scan_fragment blanks =
 (* scan tokens, directive part *)
 
 val scan_directive =
-  let val many1_no_eol = many1 C_Symbol.is_ascii_blank_no_line
-      val blanks = Scan.repeat (many1_no_eol >> token Space || comments)
-      val f_filter = fn Token (_, (Space, _)) => true
+  let val f_filter = fn Token (_, (Space, _)) => true
                       | Token (_, (Comment _, _)) => true
                       | Token (_, (Error _, _)) => true
                       | _ => false in
         ($$$ "#" >> (single o token (Sharp 1)))
-    @@@ (   (   blanks @@@ (C_Scan.this_string "include" >> token Ident >> single)
-            @@@ blanks @@@ (scan_token scan_file File >> single)
-            @@@ blanks) --| Scan.ahead (newline || Scan.one Symbol_Pos.is_eof >> single)
-         || Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
-                         || $$$ "#" >> token (Sharp 1)
-                         || scan_fragment many1_no_eol))
+    @@@ Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
+                     || $$$ "#" >> token (Sharp 1)
+                     || scan_token scan_file I
+                     || scan_fragment (many1 C_Symbol.is_ascii_blank_no_line))
     >> (fn tokens => Inline (Group1 (filter f_filter tokens, filter_out f_filter tokens)))
   end
 
@@ -1114,9 +1132,9 @@ val not_cond =
                                                       :: (tok2 as Token (_, (Ident, "include")))
                                                       :: toks)))
                         , s)) =>
-              Token (pos, ( case toks of [Token (_, (File _, _))] =>
-                              Directive (Include (Group2 (toks_bl, [tok1, tok2], toks)))
-                            | _ => Error ("Expecting at least and at most one file" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
+              Token (pos, ( case toks of [] =>
+                              Error ("Expecting at least one file" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
+                            | _ => Directive (Include (Group2 (toks_bl, [tok1, tok2], toks)))
                           , s))
           | Token (pos, ( Directive (Inline (Group1 ( toks_bl
                                                     , (tok1 as Token (_, (Sharp _, _)))

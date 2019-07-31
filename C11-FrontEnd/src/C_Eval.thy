@@ -144,6 +144,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         |> f
         |> (fn (arg, stack_ml) => rpair ((stack, stack_ml, stack_pos, stack_tree), arg))
       val return0 = return0' I
+      val encoding = fn C_Lex.Encoding_L => true | _ => false
       open C_Ast
       fun token_err pos1 pos2 src =
         C_Grammar_Tokens.token_of_string
@@ -199,12 +200,17 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
      | SOME (Right (tok as C_Lex.Token (_, (C_Lex.Directive _, _)))) =>
         makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env_Ext.map_stream_ignored (cons (Right tok)) arg)
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
+      case tok of 
+        C_Lex.String (C_Lex.Encoding_file (SOME err), _) =>
+        return0' (apfst (C_Env.map_env_tree (C_Env.map_error_lines (cons (err ^ Position.here pos1)))))
+                 (token_err pos1 pos2 src)
+      | _ =>
         return0
           (case tok of
              C_Lex.Char (b, [c]) =>
-              C_Grammar.Tokens.cchar (CChar (String.sub (c, 0)) b, pos1, pos2)
+              C_Grammar.Tokens.cchar (CChar (String.sub (c, 0)) (encoding b), pos1, pos2)
            | C_Lex.String (b, s) =>
-              C_Grammar.Tokens.cstr (CString0 (From_string (implode s), b), pos1, pos2)
+              C_Grammar.Tokens.cstr (CString0 (From_string (implode s), encoding b), pos1, pos2)
            | C_Lex.Integer (i, repr, flag) =>
               C_Grammar.Tokens.cint
                ( CInteger i repr

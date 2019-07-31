@@ -489,4 +489,15 @@ if then else ;
 FOO(FOO(a,b,c))
 #endif\<close>
 
+C \<comment> \<open>Header Names in Directives\<close> \<open>
+#define F <stdio.h>
+#define G "stdio\h" // expecting an error whenever expanded
+#define H "stdio_h" // can be used anywhere without errors
+int f = /*F*/ "";
+int g = /*G*/ "";
+int h =   H   "";
+
+#include F
+\<close>
+
 end
