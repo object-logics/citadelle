@@ -1132,7 +1132,13 @@ val not_cond =
                                    else if key = (*( *)")" then Left (rev (tok2 :: toks_bl), rev (tok1 :: toks_acc), toks)
                                    else Right ("Expecting a colon delimiter or a closing parenthesis" ^ Position.here (#1 pos2))
                                | Token (pos1, (Ident, _)) :: _ => Right ("Expecting a colon delimiter or a closing parenthesis" ^ Position.here (#2 pos1))
-                               | _ => Right ("Expecting an identifier" ^ Position.here (#2 pos))
+                               | (tok1 as Token (_, (Keyword, key1))) :: (tok2 as Token (pos2, (Keyword, key2))) :: toks =>
+                                   if key1 = "..." then
+                                     if key2 = (*( *)")" then Left (rev (tok2 :: toks_bl), rev (tok1 :: toks_acc), toks)
+                                     else Right ("Expecting a closing parenthesis" ^ Position.here (#1 pos2))
+                                   else
+                                     Right ("Expecting an identifier or the keyword '...'" ^ Position.here (#2 pos))
+                               | _ => Right ("Expecting an identifier or the keyword '...'" ^ Position.here (#2 pos))
                           in case
                               case toks of
                                 (tok2 as Token (_, (Keyword, (*( *)")"))) :: toks => Left ([tok2], [], toks)
