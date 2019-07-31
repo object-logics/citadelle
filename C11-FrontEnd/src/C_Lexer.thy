@@ -1135,7 +1135,7 @@ val not_cond =
                                | _ => Right ("Expecting an identifier" ^ Position.here (#2 pos))
                           in case
                               case toks of
-                                (tok1 as Token (_, (Ident, _))) :: (tok2 as Token (_, (Keyword, (*( *)")"))) :: toks => Left ([tok2], [tok1], toks)
+                                (tok2 as Token (_, (Keyword, (*( *)")"))) :: toks => Left ([tok2], [], toks)
                               | _ => take_prefix' [] [] pos toks
                              of Left (toks_bl, toks_acc, toks) => Left (SOME (Group1 (tok3' :: toks_bl, toks_acc)), Group1 ([], toks))
                               | Right x => Right x
