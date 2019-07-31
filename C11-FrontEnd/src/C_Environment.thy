@@ -104,8 +104,11 @@ type env_lang = { var_table : var_table \<comment> \<open>current active table i
          during the lexing process.
          Another pass on the parsed tree is required. *)
 
+type error_lines = string list
+
 type env_tree = { context : Context.generic
-                , reports_text : C_Position.reports_text }
+                , reports_text : C_Position.reports_text
+                , error_lines : error_lines }
 
 type rule_static = (env_tree -> env_lang * env_tree) option
 
@@ -228,11 +231,14 @@ fun map_env_directives f {var_table, scopes, namesupply, stream_ignored, env_dir
 
 (**)
 
-fun map_context f {context, reports_text} =
-                     {context = f context, reports_text = reports_text}
+fun map_context f {context, reports_text, error_lines} =
+                     {context = f context, reports_text = reports_text, error_lines = error_lines}
 
-fun map_reports_text f {context, reports_text} =
-                     {context = context, reports_text = f reports_text}
+fun map_reports_text f {context, reports_text, error_lines} =
+                     {context = context, reports_text = f reports_text, error_lines = error_lines}
+
+fun map_error_lines f {context, reports_text, error_lines} =
+                     {context = context, reports_text = reports_text, error_lines = f error_lines}
 
 (**)
 
@@ -241,7 +247,7 @@ val empty_env_lang : env_lang =
          scopes = [], namesupply = 0, stream_ignored = [],
          env_directives = Symtab.empty}
 fun empty_env_tree context =
-        {context = context, reports_text = []}
+        {context = context, reports_text = [], error_lines = []}
 val empty_rule_output : rule_output = 
         {output_pos = NONE, output_vacuous = true, output_env = NONE}
 fun make env_lang stream_lang env_tree =

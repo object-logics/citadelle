@@ -172,8 +172,8 @@ fun env context =
   | "empty" => C_Env.empty_env_lang
   | s => error ("Unknown option: " ^ s ^ Position.here (Config.pos_of C_Options.starting_env))
 
-fun err _ _ pos _ =
-  error ("Parser: No matching grammar rule" ^ Position.here pos)
+fun err _ _ pos =
+  C_Env.map_error_lines (cons ("Parser: No matching grammar rule" ^ Position.here pos))
 
 fun accept env_lang (_, (res, _, _)) =
   C_Env.map_context
@@ -205,14 +205,17 @@ fun C source =
   exec_eval source
   #> Local_Theory.propagate_ml_env
 
-fun C' err env_lang src =
+fun C' env_lang src =
   C_Env.empty_env_tree
   #> C_Context.eval_source'
        env_lang
        err
        accept
        src
-  #> (fn {context, reports_text} => C_Stack.Data_Tree.map (curry C_Stack.Data_Tree_Args.merge reports_text) context)
+  #> (fn {context, reports_text, error_lines} => 
+     tap (fn _ => case error_lines of [] => () | l => warning (cat_lines (rev l)))
+         (C_Stack.Data_Tree.map (curry C_Stack.Data_Tree_Args.merge (reports_text, []))
+                                context))
 
 fun C_export_file (pos, _) lthy =
   let

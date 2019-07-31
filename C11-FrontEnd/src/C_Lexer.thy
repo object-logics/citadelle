@@ -1020,14 +1020,10 @@ end;
 
 (* scan tokens *)
 
-fun check input =
-  case fold (fn tok =>
-              let val () = warn tok
-              in case check_error tok of SOME s => cons s | NONE => I end)
-            input
-            []
-  of [] => ()
-   | l => error (cat_lines (rev l))
+val check =
+  fold (fn tok =>
+         let val () = warn tok
+         in case check_error tok of SOME s => cons s | NONE => I end)
 
 local
 
@@ -1283,11 +1279,15 @@ fun reader scan syms =
 
     val _ = app (fn pos => Output.information ("Backslash newline" ^ Position.here pos)) input0
     val _ = Position.reports_text (map (fn pos => ((pos, Markup.intensify), "")) input0);
-    val _ = check input1;
-  in input1
+  in (input1, check input1)
 end;
 
 in
+
+fun op @@ ((input1, f_error_lines1), (input2, f_error_lines2)) =
+  (input1 @ input2, f_error_lines1 #> f_error_lines2)
+
+val read_init = ([], I)
 
 fun read text = (reader scan_ml o Symbol_Pos.explode) (text, Position.none);
 
