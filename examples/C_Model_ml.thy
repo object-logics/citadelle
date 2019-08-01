@@ -53,7 +53,7 @@ declare [[default_code_width = 236]]
 
 code_reserved SML Ident error
 
-meta_command' \<comment>\<open>\<^theory_text>\<open>code_reflect' open C_Ast functions main String.to_list String.explode S.flatten\<close>\<close> \<open>
+meta_command' \<comment>\<open>\<^theory_text>\<open>code_reflect' open C_Ast functions main String.to_list String.explode String.meta_of_logic S.flatten\<close>\<close> \<open>
 let
   open META
   fun meta_command {shallow, deep = _, syntax_print = _} =
@@ -61,7 +61,7 @@ let
       (Code_reflect
         ( true
         , From.string "C_Ast"
-        , map From.string [ "main", "String.to_list", "String.explode", "S.flatten" ]
+        , map From.string [ "main", "String.to_list", "String.explode", "String.meta_of_logic", "S.flatten" ]
          @ (shallow
             |> hd
             |> fst
