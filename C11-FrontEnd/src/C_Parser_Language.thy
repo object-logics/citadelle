@@ -214,7 +214,7 @@ struct
   type 'a monad = arg -> 'a * arg
 
   (**)
-  val To_string0 = String.implode o to_list
+  val To_string0 = meta_of_logic
   fun reverse l = rev l
 
   fun report [] _ _ = I
@@ -579,7 +579,7 @@ subsection \<open>Overloading Grammar Rules\<close>
 ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close> \<open>
 structure C_Grammar_Rule_Wrap_Overloading = struct
 open C_Grammar_Rule_Lib
-val To_string0 = String.implode o C_Ast.to_list
+val To_string0 = C_Ast.meta_of_logic
 
 val update_env =
  fn C_Transition.Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_tree (f x (#env_lang arg) #> #2) arg))

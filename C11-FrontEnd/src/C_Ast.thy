@@ -146,7 +146,7 @@ fun flip f b a = f a b
 val Reversed = I
 (**)
 val From_string = C_Ast.SS_base o C_Ast.ST
-val From_char_hd = hd o String.explode
+val From_char_hd = hd o C_Ast.explode
 (**)
 open C_Ast
 end
