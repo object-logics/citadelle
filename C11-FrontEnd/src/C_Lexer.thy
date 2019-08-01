@@ -937,10 +937,17 @@ fun scan_intgnu x =
   x -- opt scan_suffix_gnu_int
   >> (fn ((s1', read, repr), l) => (read (map (Symbol_Pos.content o single) s1'), repr, l))
 
-val scan_intoct = scan_intgnu ($$ "0" |-- (   many (fn x => x = "0")
-                                              >> (fn xs => (xs, read_dec, DecRepr))
-                                           || many C_Symbol.is_ascii_oct
-                                              >> (fn xs => (xs, read_oct, OctalRepr))))
+val scan_intoct = scan_intgnu ($$ "0" |--
+                               scan_full
+                                 !!!
+                                 Symbol.is_ascii_digit
+                                 "Invalid digit in octal constant"
+                                 (Scan.max
+                                   (fn ((xs2, _, _), (xs1, _, _)) => length xs2 < length xs1)
+                                   (many C_Symbol.is_ascii_oct
+                                      >> (fn xs => (xs, read_oct, OctalRepr)))
+                                   (many (fn x => x = "0")
+                                      >> (fn xs => (xs, read_dec, DecRepr)))))
 val scan_intdec = scan_intgnu (one C_Symbol.is_ascii_digit1 -- many Symbol.is_ascii_digit
                                >> (fn (x, xs) => (x :: xs, read_dec, DecRepr)))
 val scan_inthex = scan_intgnu (($$ "0" -- ($$ "x" || $$ "X")) |-- many1_hex
@@ -976,7 +983,10 @@ in
 val scan_int = scan_inthex
             || scan_intoct
             || scan_intdec
-             
+
+val recover_int =
+     many1 (fn s => Symbol.is_ascii_hex s orelse member (op =) (raw_explode "xXuUlLij") s)
+
 val scan_float = scan_floatdec
               || scan_floathex
               || scan_floatfail @@@ !!! "Hexadecimal floating constant requires an exponent" Scan.fail
@@ -1321,6 +1331,7 @@ fun recover msg =
   recover_string ||
   Symbol_Pos.recover_cartouche ||
   C_Symbol_Pos.recover_comment ||
+  recover_int ||
   one' Symbol.not_eof)
   >> token (Error (msg, Group1 ([], [])));
 
