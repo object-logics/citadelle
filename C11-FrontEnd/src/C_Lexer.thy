@@ -142,6 +142,17 @@ struct
 
 val !!! = Symbol_Pos.!!!
 
+fun !!!! text scan =
+  let
+    fun get_pos [] = " (end-of-input)"
+      | get_pos ((_, pos) :: _) = Position.here pos;
+
+    fun err ((_, syms), msg) = fn () =>
+      text () ^ get_pos syms ^
+      Markup.markup Markup.no_report (" at " ^ Symbol.beginning 10 (map Symbol_Pos.symbol syms)) ^
+      (case msg of NONE => "" | SOME m => "\n" ^ m ());
+  in Scan.!! err scan end;
+
 val $$ = Symbol_Pos.$$
 
 val $$$ = Symbol_Pos.$$$
@@ -858,6 +869,10 @@ val err_prefix = "C lexical error: ";
 
 fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
 
+fun !!!! msg = C_Symbol_Pos.!!!! (fn () => err_prefix ^ msg);
+
+val many1_blanks_no_line = many1 C_Symbol.is_ascii_blank_no_line
+
 (* identifiers *)
 
 val scan_ident =
@@ -1086,17 +1101,17 @@ val comments =
                || Scan.fail_with (fn _ => fn _ => msg))
   || C_Symbol_Pos.scan_comment_no_nest err_prefix >> token (Comment (Comment_suspicious NONE))
 
-fun scan_fragment blanks =
-     scan_token scan_char Char
-  || scan_token scan_string String
-  || blanks >> token Space
+fun scan_fragment blanks comments non_blanks =
+     non_blanks (scan_token scan_char Char)
+  || non_blanks (scan_token scan_string String)
+  || blanks
   || comments
-  || Scan.max token_leq (Scan.literal lexicon >> token Keyword)
-                        (   scan_clangversion >> token ClangC
-                         || scan_token scan_float Float
-                         || scan_token scan_int Integer
-                         || scan_ident >> token Ident)
-  || Scan.one (Symbol.is_printable o #1) >> single >> token Unknown
+  || non_blanks (Scan.max token_leq (Scan.literal lexicon >> token Keyword)
+                                    (   scan_clangversion >> token ClangC
+                                     || scan_token scan_float Float
+                                     || scan_token scan_int Integer
+                                     || scan_ident >> token Ident))
+  || non_blanks (Scan.one (Symbol.is_printable o #1) >> single >> token Unknown)
 
 (* scan tokens, directive part *)
 
@@ -1109,7 +1124,7 @@ val scan_directive =
     @@@ Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
                      || $$$ "#" >> token (Sharp 1)
                      || scan_token scan_file I
-                     || scan_fragment (many1 C_Symbol.is_ascii_blank_no_line))
+                     || scan_fragment (many1_blanks_no_line >> token Space) comments I)
     >> (fn tokens => Inline (Group1 (filter f_filter tokens, filter_out f_filter tokens)))
   end
 
@@ -1280,8 +1295,19 @@ end
 
 (* scan tokens, main *)
 
-val scan_ml = scan_token scan_directive Directive
-           || scan_fragment scan_blanks1;
+val scan_ml =
+  Scan.depend
+    let
+      fun non_blanks st scan = scan >> pair st 
+      fun scan_frag st =
+        scan_fragment (   C_Basic_Symbol_Pos.newline >> token Space >> pair true
+                       || many1_blanks_no_line >> token Space >> pair st)
+                      (non_blanks st comments)
+                      (non_blanks false)
+    in
+      fn true => scan_token scan_directive Directive >> pair false || scan_frag true
+       | false => scan_frag false
+    end;
 
 fun recover msg =
  (recover_char ||
@@ -1315,8 +1341,9 @@ fun reader scan syms =
       Source.of_list syms
       |> Source.source Symbol_Pos.stopper (Scan.bulk (backslash1 >> K NONE || backslash2 >> SOME))
       |> Source.map_filter I
-      |> Source.source Symbol_Pos.stopper
-                       (Scan.recover (Scan.bulk (!!! "bad input" scan)) (fn msg => recover msg >> single))
+      |> Source.source' true
+                        Symbol_Pos.stopper
+                        (Scan.recover (Scan.bulk (!!!! "bad input" scan)) (fn msg => Scan.lift (recover msg) >> single))
       |> Source.source stopper scan_directive_cond
       |> Source.exhaust
       |> (fn input => input @ termination);
