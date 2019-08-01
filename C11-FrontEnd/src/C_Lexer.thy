@@ -1343,7 +1343,8 @@ fun reader scan syms =
       |> Source.map_filter I
       |> Source.source' true
                         Symbol_Pos.stopper
-                        (Scan.recover (Scan.bulk (!!!! "bad input" scan)) (fn msg => Scan.lift (recover msg) >> single))
+                        (Scan.recover (Scan.bulk (!!!! "bad input" scan))
+                                      (fn msg => Scan.lift (recover msg) >> single))
       |> Source.source stopper scan_directive_cond
       |> Source.exhaust
       |> (fn input => input @ termination);
