@@ -55,32 +55,9 @@ from a raw string: \<^ML_type>\<open>Position.T -> string -> 'token list\<close>
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/scan.ML\<close>\<close> \<open>
 structure C_Scan =
 struct
-open Basic_Symbol_Pos;
-
 datatype ('a, 'b) either = Left of 'a | Right of 'b
 
-val err_prefix = "C lexical error: ";
-
-fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
 fun opt x = Scan.optional x [];
-fun one f = Scan.one (f o Symbol_Pos.symbol)
-fun many f = Scan.many (f o Symbol_Pos.symbol)
-fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
-val one' = Scan.single o one
-fun scan_full mem msg scan =
-  scan --| (Scan.ahead (one' (not o mem)) || !!! msg Scan.fail)
-fun this_string s =
-  (fold (fn s0 => uncurry (fn acc => one (fn s1 => s0 = s1) >> (fn x => x :: acc)))
-        (Symbol.explode s)
-   o pair [])
-  >> rev
-val one_not_eof = Scan.one (Symbol.not_eof o #1)
-fun unless_eof scan = Scan.unless scan one_not_eof >> single
-val repeats_one_not_eof = Scan.repeats o unless_eof
-val newline =   $$$ "\n"
-             || $$$ "\^M" @@@ $$$ "\n"
-             || $$$ "\^M"
-val repeats_until_nl = repeats_one_not_eof newline
 end
 \<close>
 
@@ -134,12 +111,43 @@ ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/symbol_pos.ML\<close>\<c
 Symbols with explicit position information.
 *)
 \<open>
+structure C_Basic_Symbol_Pos =   (*not open by default*)
+struct
+open Basic_Symbol_Pos;
+
+fun one f = Scan.one (f o Symbol_Pos.symbol)
+fun many f = Scan.many (f o Symbol_Pos.symbol)
+fun many1 f = Scan.many1 (f o Symbol_Pos.symbol)
+val one' = Scan.single o one
+fun scan_full !!! mem msg scan =
+  scan --| (Scan.ahead (one' (not o mem)) || !!! msg Scan.fail)
+fun this_string s =
+  (fold (fn s0 => uncurry (fn acc => one (fn s1 => s0 = s1) >> (fn x => x :: acc)))
+        (Symbol.explode s)
+   o pair [])
+  >> rev
+val one_not_eof = Scan.one (Symbol.not_eof o #1)
+fun unless_eof scan = Scan.unless scan one_not_eof >> single
+val repeats_one_not_eof = Scan.repeats o unless_eof
+val newline =   $$$ "\n"
+             || $$$ "\^M" @@@ $$$ "\n"
+             || $$$ "\^M"
+val repeats_until_nl = repeats_one_not_eof newline
+end
+
 structure C_Symbol_Pos =
 struct
+
+(* basic scanners *)
+
 val !!! = Symbol_Pos.!!!
+
 val $$ = Symbol_Pos.$$
+
 val $$$ = Symbol_Pos.$$$
+
 val ~$$$ = Symbol_Pos.~$$$
+
 
 (* scan string literals *)
 
@@ -168,10 +176,11 @@ in
 
 fun scan_string_qq_multi err_prefix stop = scan_strs "\"" err_prefix "the comment delimiter" stop;
 fun scan_string_bq_multi err_prefix stop = scan_strs "`" err_prefix "the comment delimiter" stop;
-fun scan_string_qq_inline err_prefix = scan_strs "\"" err_prefix "the same line" C_Scan.newline;
-fun scan_string_bq_inline err_prefix = scan_strs "`" err_prefix "the same line" C_Scan.newline;
+fun scan_string_qq_inline err_prefix = scan_strs "\"" err_prefix "the same line" C_Basic_Symbol_Pos.newline;
+fun scan_string_bq_inline err_prefix = scan_strs "`" err_prefix "the same line" C_Basic_Symbol_Pos.newline;
 
 end;
+
 
 (* nested text cartouches *)
 
@@ -194,7 +203,8 @@ fun scan_cartouche err_prefix err_suffix stop =
       (Scan.provide is_none (SOME 0) (scan_cartouche_depth stop));
 
 fun scan_cartouche_multi err_prefix stop = scan_cartouche err_prefix "the comment delimiter" stop;
-fun scan_cartouche_inline err_prefix = scan_cartouche err_prefix "the same line" C_Scan.newline;
+fun scan_cartouche_inline err_prefix = scan_cartouche err_prefix "the same line" C_Basic_Symbol_Pos.newline;
+
 
 (* C-style comments *)
 
@@ -218,13 +228,13 @@ fun scan_comment err_prefix =
   Scan.ahead ($$ par_l -- $$ "*") |--
     !!! (fn () => err_prefix ^ "unclosed comment")
       ($$$ par_l @@@ $$$ "*" @@@ scan_cmts @@@ $$$ "*" @@@ $$$ par_r)
-  || $$$ "/" @@@ $$$ "/" @@@ C_Scan.repeats_until_nl;
+  || $$$ "/" @@@ $$$ "/" @@@ C_Basic_Symbol_Pos.repeats_until_nl;
 
 fun scan_comment_no_nest err_prefix =
   Scan.ahead ($$ par_l -- $$ "*") |--
     !!! (fn () => err_prefix ^ "unclosed comment")
       ($$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2) @@@ $$$ "*" @@@ $$$ par_r)
-  || $$$ "/" @@@ $$$ "/" @@@ C_Scan.repeats_until_nl;
+  || $$$ "/" @@@ $$$ "/" @@@ C_Basic_Symbol_Pos.repeats_until_nl;
 
 val recover_comment =
   $$$ par_l @@@ $$$ "*" @@@ Scan.repeats (scan_body1 || scan_body2);
@@ -256,7 +266,7 @@ type antiq = { explicit: bool
 
 (* scan *)
 
-open Basic_Symbol_Pos;
+open C_Basic_Symbol_Pos;
 
 local
 
@@ -282,10 +292,10 @@ val scan_antiq_body_multi_recover =
 val scan_antiq_body_inline =
   Scan.trace (C_Symbol_Pos.scan_string_qq_inline err_prefix || C_Symbol_Pos.scan_string_bq_inline err_prefix) >> #2 ||
   C_Symbol_Pos.scan_cartouche_inline err_prefix ||
-  C_Scan.unless_eof C_Scan.newline;
+  unless_eof newline;
 
 val scan_antiq_body_inline_recover =
-  C_Scan.unless_eof C_Scan.newline;
+  unless_eof newline;
 
 fun control_name sym = (case Symbol.decode sym of Symbol.Control name => name);
 
@@ -391,6 +401,8 @@ structure C_Lex =
 struct
 
 open C_Scan;
+open C_Basic_Symbol_Pos;
+
 
 (** keywords **)
 
@@ -839,7 +851,12 @@ val token_report = token_report0
 end;
 
 
+
 (** scanners **)
+
+val err_prefix = "C lexical error: ";
+
+fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
 
 (* identifiers *)
 
@@ -895,7 +912,8 @@ val scan_suffix_int =
   end
 
 val scan_suffix_gnu_int0 = scan_suffix_gnu FlagImag
-val scan_suffix_gnu_int = scan_full (member (op =) (raw_explode "uUlLij"))
+val scan_suffix_gnu_int = scan_full !!!
+                                    (member (op =) (raw_explode "uUlLij"))
                                     "Invalid integer constant suffix"
                                     (   scan_suffix_int @@@ opt scan_suffix_gnu_int0
                                      || scan_suffix_gnu_int0 @@@ opt scan_suffix_int)
@@ -920,7 +938,8 @@ val scan_exppart = scan_signpart "e" "E"
 
 val scan_suffix_float = $$$ "f" || $$$ "F" || $$$ "l" || $$$ "L"
 val scan_suffix_gnu_float0 = Scan.trace (scan_suffix_gnu ()) >> #2
-val scan_suffix_gnu_float = scan_full (member (op =) (raw_explode "fFlLij"))
+val scan_suffix_gnu_float = scan_full !!!
+                                      (member (op =) (raw_explode "fFlLij"))
                                       "Invalid float constant suffix"
                                       (   scan_suffix_float @@@ opt scan_suffix_gnu_float0
                                        || scan_suffix_gnu_float0 @@@ opt scan_suffix_float)
@@ -1026,7 +1045,7 @@ fun scan_string' src =
     Source.source
       Symbol_Pos.stopper
       (Scan.recover (Scan.bulk (!!! "bad input" scan_string >> K NONE))
-                    (fn msg => C_Scan.one_not_eof >> K [SOME msg]))
+                    (fn msg => C_Basic_Symbol_Pos.one_not_eof >> K [SOME msg]))
       (Source.of_list src)
     |> Source.exhaust
   of
@@ -1282,7 +1301,7 @@ fun reader scan syms =
           val pos2 = Position.advance Symbol.space pos1;
         in [Token (Position.range (pos1, pos2), (Space, Symbol.space))] end;
 
-    val backslash1 = $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ C_Scan.newline
+    val backslash1 = $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ C_Basic_Symbol_Pos.newline
     val backslash2 = Scan.one (not o Symbol_Pos.is_eof)
 
     val input0 =

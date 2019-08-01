@@ -576,7 +576,7 @@ open Basic_Symbol_Pos;
 
 val err_prefix = "Annotation lexical error: ";
 
-val !!! = C_Scan.!!!;
+fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
 
 
 (* scan stack *)
