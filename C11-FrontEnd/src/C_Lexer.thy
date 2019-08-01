@@ -1101,11 +1101,12 @@ val comments =
                || Scan.fail_with (fn _ => fn _ => msg))
   || C_Symbol_Pos.scan_comment_no_nest err_prefix >> token (Comment (Comment_suspicious NONE))
 
-fun scan_fragment blanks comments non_blanks =
+fun scan_fragment blanks comments sharps non_blanks =
      non_blanks (scan_token scan_char Char)
   || non_blanks (scan_token scan_string String)
   || blanks
   || comments
+  || non_blanks sharps
   || non_blanks (Scan.max token_leq (Scan.literal lexicon >> token Keyword)
                                     (   scan_clangversion >> token ClangC
                                      || scan_token scan_float Float
@@ -1115,16 +1116,21 @@ fun scan_fragment blanks comments non_blanks =
 
 (* scan tokens, directive part *)
 
+val scan_sharp1 = $$$ "#"
+val scan_sharp2 = $$$ "#" @@@ $$$ "#"
+
 val scan_directive =
   let val f_filter = fn Token (_, (Space, _)) => true
                       | Token (_, (Comment _, _)) => true
                       | Token (_, (Error _, _)) => true
-                      | _ => false in
-        ($$$ "#" >> (single o token (Sharp 1)))
-    @@@ Scan.repeat (   $$$ "#" @@@ $$$ "#" >> token (Sharp 2)
-                     || $$$ "#" >> token (Sharp 1)
-                     || scan_token scan_file I
-                     || scan_fragment (many1_blanks_no_line >> token Space) comments I)
+                      | _ => false
+      val sharp1 = scan_sharp1 >> token (Sharp 1)
+  in    (sharp1 >> single)
+    @@@ Scan.repeat (   scan_token scan_file I
+                     || scan_fragment (many1_blanks_no_line >> token Space)
+                                      comments
+                                      (scan_sharp2 >> token (Sharp 2) || sharp1)
+                                      I)
     >> (fn tokens => Inline (Group1 (filter f_filter tokens, filter_out f_filter tokens)))
   end
 
@@ -1303,6 +1309,7 @@ val scan_ml =
         scan_fragment (   C_Basic_Symbol_Pos.newline >> token Space >> pair true
                        || many1_blanks_no_line >> token Space >> pair st)
                       (non_blanks st comments)
+                      ((scan_sharp2 || scan_sharp1) >> token Keyword)
                       (non_blanks false)
     in
       fn true => scan_token scan_directive Directive >> pair false || scan_frag true
