@@ -242,6 +242,7 @@ structure C_Ast : sig
   val cStorageSpec : 'a cStorageSpecifier -> 'a cDeclarationSpecifier
   val flagLongLong : cIntFlag
   val flagUnsigned : cIntFlag
+  val meta_of_logic : abr_string -> string
   val cBuiltinVaArg : 'a cExpression -> 'a cDeclaration -> 'a -> 'a cBuiltinThing
   val cNestedFunDef : 'a cFunctionDef -> 'a cCompoundBlockItem
   val cNoreturnQual : 'a -> 'a cFunctionSpecifier
@@ -726,6 +727,8 @@ fun cStorageSpec x = CStorageSpec0 x;
 val flagLongLong : cIntFlag = FlagLongLong0;
 
 val flagUnsigned : cIntFlag = FlagUnsigned0;
+
+fun meta_of_logic x = ((String.implode o List.map (fn k => if 0 <= k andalso k < 128 then (Char.chr o IntInf.toInt) k else raise Fail "Non-ASCII character in literal")) o to_list) x;
 
 fun cBuiltinVaArg x = (fn a => fn b => CBuiltinVaArg0 (x, a, b));
 
