@@ -1079,13 +1079,15 @@ fun scan_string' src =
     | l => case map_filter I l of msg :: _ => SOME msg
                                 | _ => SOME "More than one string"
 val scan_file =
-  let fun scan s_l s_r =
+  let fun scan !!! s_l s_r =
     Scan.ahead ($$ s_l) |--
-        !!! ("unclosed file literal")
-          ($$ s_l |-- Scan.repeats (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r) >> (fn s => [#1 s])) --| $$ s_r)
+          !!!
+          ($$ s_l |-- Scan.repeats (Scan.unless newline (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r) >> (fn s => [#1 s]))) --| $$ s_r)
   in
-     Scan.trace (scan "\"" "\"") >> (fn (s, src) => String (Encoding_file (scan_string' src), s))
-  || scan "<" ">" >> (fn s => File (Encoding_default, s))
+     Scan.trace (scan (!!! ("unclosed file literal")) "\"" "\"") >> (fn (s, src) => String (Encoding_file (scan_string' src), s))
+  || scan I \<comment> \<open>Due to conflicting symbols, raising \<^ML>\<open>Symbol_Pos.!!!\<close> here will not let a potential
+                legal \<^ML>\<open>"<"\<close> symbol be tried and parsed as a \<^emph>\<open>keyword\<close>.\<close>
+            "<" ">" >> (fn s => File (Encoding_default, s))
   end
 
 val recover_char = recover_string0 "'" Scan.repeats1
