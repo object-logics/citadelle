@@ -1,6 +1,7 @@
 (* Generated from C_Model_ml.thy; DO NOT EDIT! *)
 
 structure C_Ast : sig
+  datatype num = One | Bit0 of num | Bit1 of num
   datatype char = Chara of bool * bool * bool * bool * bool * bool * bool * bool
   datatype string_b_a_s_e = ST of string | STa of int list
   datatype abr_string = SS_base of string_b_a_s_e | String_concatWith of abr_string * abr_string list
@@ -64,6 +65,7 @@ structure C_Ast : sig
   val fold : ('a -> 'b -> 'b) -> 'a list -> 'b -> 'b
   val rev : 'a list -> 'a list
   val foldl : ('a -> 'b -> 'a) -> 'a -> 'b list -> 'a
+  val map : ('a -> 'b) -> 'a list -> 'b list
   val flatten : abr_string list -> abr_string
   val translation_unit : nodeInfo cTranslationUnit * (comment list * int list) -> unit
   val main : nodeInfo cTranslationUnit * (comment list * int list) -> unit
@@ -192,6 +194,9 @@ structure C_Ast : sig
   val cVoidType : 'a -> 'a cTypeSpecifier
   val cXorAssOp : cAssignOp
   val octalRepr : cIntRepr
+  val bit_cut_integer : int -> int * bool
+  val char_of_integer : int -> char
+  val explode : string -> char list
   val cAlignSpec : 'a cAlignmentSpecifier -> 'a cDeclarationSpecifier
   val cBlockDecl : 'a cDeclaration -> 'a cCompoundBlockItem
   val cBlockStmt : 'a cStatement -> 'a cCompoundBlockItem
@@ -249,6 +254,8 @@ structure C_Ast : sig
   val cGenericSelection : 'a cExpression -> ('a cDeclaration optiona * 'a cExpression) list -> 'a -> 'a cExpression
   val cBuiltinTypesCompatible : 'a cDeclaration -> 'a cDeclaration -> 'a -> 'a cBuiltinThing
 end = struct
+
+datatype num = One | Bit0 of num | Bit1 of num;
 
 datatype char = Chara of bool * bool * bool * bool * bool * bool * bool * bool;
 
@@ -348,6 +355,9 @@ fun rev xs = fold (fn a => fn b => a :: b) xs [];
 
 fun foldl f a [] = a
   | foldl f a (x :: xs) = foldl f (f a x) xs;
+
+fun map f [] = []
+  | map f (x21 :: x22) = f x21 :: map f x22;
 
 fun flatten x = String_concatWith (SS_base (ST ""), x);
 
@@ -604,6 +614,28 @@ fun cVoidType x = CVoidType0 x;
 val cXorAssOp : cAssignOp = CXorAssOp0;
 
 val octalRepr : cIntRepr = OctalRepr0;
+
+fun bit_cut_integer k = (if k = (0 : IntInf.int) then ((0 : IntInf.int), false) else let
+                                                                                       val (r, s) = Integer.div_mod (abs k) (abs (2 : IntInf.int));
+                                                                                     in
+                                                                                       ((if (0 : IntInf.int) < k then r else ~ r - s), s = (1 : IntInf.int))
+                                                                                     end);
+
+fun char_of_integer k = let
+                          val (q0, b0) = bit_cut_integer k;
+                          val (q1, b1) = bit_cut_integer q0;
+                          val (q2, b2) = bit_cut_integer q1;
+                          val (q3, b3) = bit_cut_integer q2;
+                          val (q4, b4) = bit_cut_integer q3;
+                          val (q5, b5) = bit_cut_integer q4;
+                          val (q6, b6) = bit_cut_integer q5;
+                          val a = bit_cut_integer q6;
+                          val (_, aa) = a;
+                        in
+                          Chara (b0, b1, b2, b3, b4, b5, b6, aa)
+                        end;
+
+fun explode s = map char_of_integer ((List.map (fn c => let val k = Char.ord c in if k < 128 then IntInf.fromInt k else raise Fail "Non-ASCII character in literal" end)  o String.explode) s);
 
 fun cAlignSpec x = CAlignSpec0 x;
 
