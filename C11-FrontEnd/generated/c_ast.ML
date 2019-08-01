@@ -1,7 +1,8 @@
 (* Generated from C_Model_ml.thy; DO NOT EDIT! *)
 
 structure C_Ast : sig
-  datatype string_b_a_s_e = ST of string | STa of char list
+  datatype char = Chara of bool * bool * bool * bool * bool * bool * bool * bool
+  datatype string_b_a_s_e = ST of string | STa of int list
   datatype abr_string = SS_base of string_b_a_s_e | String_concatWith of abr_string * abr_string list
   datatype name = Name0 of int
   datatype cChar = CChar0 of char * bool | CChars0 of char list * bool
@@ -71,9 +72,9 @@ structure C_Ast : sig
   val cFor : ('a cExpression optiona, 'a cDeclaration) either -> 'a cExpression optiona -> 'a cExpression optiona -> 'a cStatement -> 'a -> 'a cStatement
   val cVar : ident -> 'a -> 'a cExpression
   val name : int -> name
-  val foldl_one : ('a -> char -> 'a) -> 'a -> string -> 'a
-  val foldlb : ('a -> char -> 'a) -> 'a -> string_b_a_s_e -> 'a
-  val foldla : ('a -> char -> 'a) -> 'a -> abr_string -> 'a
+  val foldl_one : ('a -> int -> 'a) -> 'a -> string -> 'a
+  val foldlb : ('a -> int -> 'a) -> 'a -> string_b_a_s_e -> 'a
+  val foldla : ('a -> int -> 'a) -> 'a -> abr_string -> 'a
   val cAttr : ident -> 'a cExpression list -> 'a -> 'a cAttribute
   val cAuto : 'a -> 'a cStorageSpecifier
   val cCall : 'a cExpression -> 'a cExpression list -> 'a -> 'a cExpression
@@ -121,7 +122,7 @@ structure C_Ast : sig
   val cUnary : cUnaryOp -> 'a cExpression -> 'a -> 'a cExpression
   val cWhile : 'a cExpression -> 'a cStatement -> bool -> 'a -> 'a cStatement
   val cXorOp : cBinaryOp
-  val to_list : abr_string -> char list
+  val to_list : abr_string -> int list
   val cAsmExt : 'a cStringLiteral -> 'a -> 'a cExternalDeclaration
   val cAssign : cAssignOp -> 'a cExpression -> 'a cExpression -> 'a -> 'a cExpression
   val cBinary : cBinaryOp -> 'a cExpression -> 'a cExpression -> 'a -> 'a cExpression
@@ -249,7 +250,9 @@ structure C_Ast : sig
   val cBuiltinTypesCompatible : 'a cDeclaration -> 'a cDeclaration -> 'a -> 'a cBuiltinThing
 end = struct
 
-datatype string_b_a_s_e = ST of string | STa of char list;
+datatype char = Chara of bool * bool * bool * bool * bool * bool * bool * bool;
+
+datatype string_b_a_s_e = ST of string | STa of int list;
 
 datatype abr_string = SS_base of string_b_a_s_e | String_concatWith of abr_string * abr_string list;
 
@@ -362,7 +365,7 @@ fun cVar x = (fn a => CVar0 (x, a));
 
 fun name x = Name0 x;
 
-fun foldl_one f accu s = foldl f accu (String.explode s);
+fun foldl_one f accu = foldl f accu o (List.map (fn c => let val k = Char.ord c in if k < 128 then IntInf.fromInt k else raise Fail "Non-ASCII character in literal" end)  o String.explode);
 
 fun foldlb f accu = (fn a => (case a of ST aa => foldl_one f accu aa | STa aa => foldl f accu aa));
 
