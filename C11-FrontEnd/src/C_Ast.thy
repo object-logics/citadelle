@@ -145,7 +145,16 @@ val id = I
 fun flip f b a = f a b
 val Reversed = I
 (**)
-val From_string = C_Ast.SS_base o C_Ast.ST
+val From_string =
+    C_Ast.SS_base
+  o C_Ast.ST
+  o implode
+  o map (fn s => \<comment> \<open>prevent functions in \<^file>\<open>~~/src/HOL/String.thy\<close> of raising additional errors
+                     (e.g., see the ML code associated to \<^term>\<open>String.asciis_of_literal\<close>)\<close>
+          if Symbol.is_char s then s
+          else if Symbol.is_utf8 s then translate_string (fn c => "\\" ^ string_of_int (ord c)) s
+          else s)
+  o Symbol.explode
 val From_char_hd = hd o C_Ast.explode
 (**)
 open C_Ast

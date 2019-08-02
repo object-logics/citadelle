@@ -511,4 +511,12 @@ C \<comment> \<open>Parsing tokens as directives only when detecting space symbo
 a a /*#include <>*/ // must not be considered as a directive
 \<close>
 
+C \<comment> \<open>Universal character names in identifiers and Isabelle symbols\<close> \<open>
+#include <stdio.h>
+int main () {
+  char * ó\<^url>ò = "ó\<^url>ò";
+  printf ("%s", ó\<^url>ò);
+}
+\<close>
+
 end

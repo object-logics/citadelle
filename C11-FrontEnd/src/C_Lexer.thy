@@ -875,9 +875,19 @@ val many1_blanks_no_line = many1 C_Symbol.is_ascii_blank_no_line
 
 (* identifiers *)
 
+val scan_ident_sym =
+  let val hex = one' Symbol.is_ascii_hex
+  in   one' C_Symbol.is_identletter
+    || $$$ "\\" @@@ $$$ "u" @@@ hex @@@ hex @@@ hex @@@ hex
+    || $$$ "\\" @@@ $$$ "U" @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex
+    || one' Symbol.is_symbolic
+    || one' Symbol.is_control
+    || one' (fn s => s = Symbol.open_ orelse s = Symbol.close orelse Symbol.is_utf8 s)
+  end
+  
 val scan_ident =
-      one C_Symbol.is_identletter
-  ::: many (fn s => C_Symbol.is_identletter s orelse Symbol.is_ascii_digit s);
+      scan_ident_sym
+  @@@ Scan.repeats (scan_ident_sym || one' Symbol.is_ascii_digit);
 
 val keywords_ident =
   map_filter

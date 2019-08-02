@@ -159,6 +159,9 @@ sig
   val decode_error' : NodeInfo -> Position.range
 
   (* Language.C.Data.Ident *)
+  val quad : string list -> int
+  val ident_encode : string -> int
+  val ident_decode : int -> string
   val mkIdent : Position * int -> string -> Name -> Ident
   val internalIdent : string -> Ident
 
@@ -215,6 +218,9 @@ struct
 
   (**)
   val To_string0 = meta_of_logic
+  val ident_encode =
+    Word8Vector.foldl (fn (w, acc) => Word8.toInt w + acc * 256) 0 o Byte.stringToBytes
+  fun ident_decode nb = radixpand (256, nb) |> map chr |> implode
   fun reverse l = rev l
 
   fun report [] _ _ = I
@@ -366,18 +372,22 @@ struct
     val bits14 = Integer.pow 14 2
     val bits21 = Integer.pow 21 2
     val bits28 = Integer.pow 28 2
-    fun quad s = case s of
-      [] => 0
-    | c1 :: [] => ord c1
-    | c1 :: c2 :: [] => ord c2 * bits7 + ord c1
-    | c1 :: c2 :: c3 :: [] => ord c3 * bits14 + ord c2 * bits7 + ord c1
-    | c1 :: c2 :: c3 :: c4 :: s => ((ord c4 * bits21
-                                     + ord c3 * bits14
-                                     + ord c2 * bits7
-                                     + ord c1)
-                                    mod bits28)
-                                   + (quad s mod bits28)
-    fun internalIdent0 pos s = Ident (From_string s, quad (Symbol.explode s), pos)
+  in
+  fun quad s = case s of
+    [] => 0
+  | c1 :: [] => ord c1
+  | c1 :: c2 :: [] => ord c2 * bits7 + ord c1
+  | c1 :: c2 :: c3 :: [] => ord c3 * bits14 + ord c2 * bits7 + ord c1
+  | c1 :: c2 :: c3 :: c4 :: s => ((ord c4 * bits21
+                                   + ord c3 * bits14
+                                   + ord c2 * bits7
+                                   + ord c1)
+                                  mod bits28)
+                                 + (quad s mod bits28)
+  end
+
+  local
+    fun internalIdent0 pos s = Ident (From_string s, ident_encode s, pos)
   in
   fun mkIdent (pos, len) s name = internalIdent0 (mkNodeInfo' pos (pos, len) name) s
   val internalIdent = internalIdent0 (mkNodeInfoOnlyPos internalPos)
@@ -392,21 +402,21 @@ struct
   (* Language.C.Parser.ParserMonad *)
   fun getNewName env =
     (Name (C_Env_Ext.get_namesupply env), C_Env_Ext.map_namesupply (fn x => x + 1) env)
-  fun addTypedef (Ident0 (i, _, node)) env =
+  fun addTypedef (Ident0 (_, i, node)) env =
     let val (pos1, _) = decode_error' node
         val id = serial ()
-        val name = To_string0 i
+        val name = ident_decode i
         val pos = [pos1]
     in ((), env |> C_Env_Ext.map_tyidents (Symtab.update (name, (pos, id)))
                 |> C_Env_Ext.map_reports_text (report pos (markup_tvar true pos) (name, id))) end
-  fun shadowTypedef0 ret global f (Ident0 (i, _, node), params) env =
+  fun shadowTypedef0 ret global f (Ident0 (_, i, node), params) env =
     let val (pos1, _) = decode_error' node
         val id = serial ()
-        val name = To_string0 i
+        val name = ident_decode i
         val pos = [pos1]
         val markup_data = {global = global, params = params, ret = ret}
         val update_id = Symtab.update (name, (pos, id, markup_data))
-    in ((), env |> C_Env_Ext.map_tyidents (Symtab.delete_safe (To_string0 i))
+    in ((), env |> C_Env_Ext.map_tyidents (Symtab.delete_safe name)
                 |> C_Env_Ext.map_idents update_id
                 |> f update_id
                 |> C_Env_Ext.map_reports_text (report pos (markup_var true (pos1, markup_data) pos) (name, id))) end
@@ -579,7 +589,6 @@ subsection \<open>Overloading Grammar Rules\<close>
 ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close> \<open>
 structure C_Grammar_Rule_Wrap_Overloading = struct
 open C_Grammar_Rule_Lib
-val To_string0 = C_Ast.meta_of_logic
 
 val update_env =
  fn C_Transition.Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_tree (f x (#env_lang arg) #> #2) arg))
@@ -591,8 +600,8 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env C_Transition.Bottom
   ( env_lang
   , fold
       let open C_Ast
-      in fn CTypeSpec0 (CTypeDef0 (Ident0 (i, _, node), _)) =>
-            let val name = To_string0 i
+      in fn CTypeSpec0 (CTypeDef0 (Ident0 (_, i, node), _)) =>
+            let val name = ident_decode i
                 val pos1 = [decode_error' node |> #1]
             in case Symtab.lookup (#var_table env_lang |> #tyidents) name of
                  NONE => I
@@ -610,8 +619,8 @@ val type_specifier3 : (CDeclSpec list) -> unit monad = specifier3
 val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom_up (fn e => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_Ast
-    in fn CVar0 (Ident0 (i, _, node), _) =>
-          let val name = To_string0 i
+    in fn CVar0 (Ident0 (_, i, node), _) =>
+          let val name = ident_decode i
               val pos1 = decode_error' node |> #1
           in case Symtab.lookup (#var_table env_lang |> #idents) name of
                NONE => C_Env.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ())
