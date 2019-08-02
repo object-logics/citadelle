@@ -1051,16 +1051,14 @@ fun scan_str s0 =
      >> (fn s => [#1 s])
   || $$ "\\" |-- !!! "bad escape character" (scan_escape s0);
 
-fun scan_gap xs = ($$ "\\" -- scan_blanks1 -- $$ "\\" >> K []) xs;
-
 fun scan_string0 s0 msg repeats =
   Scan.optional ($$ "L" >> K Encoding_L) Encoding_default --
     (Scan.ahead ($$ s0) |--
       !!! ("unclosed " ^ msg ^ " literal")
-        ($$ s0 |-- repeats (scan_gap || scan_str s0) --| $$ s0))
+        ($$ s0 |-- repeats (scan_str s0) --| $$ s0))
 
 fun recover_string0 s0 repeats =
-  opt ($$$ "L") @@@ $$$ s0 @@@ repeats (scan_gap || Scan.permissive (Scan.trace (scan_str s0) >> #2));
+  opt ($$$ "L") @@@ $$$ s0 @@@ repeats (Scan.permissive (Scan.trace (scan_str s0) >> #2));
 in
 
 val scan_char = scan_string0 "'" "char" Scan.repeats1
