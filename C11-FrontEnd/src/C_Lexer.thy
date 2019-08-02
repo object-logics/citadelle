@@ -1047,8 +1047,9 @@ fun scan_escape s0 =
   end
 
 fun scan_str s0 =
-     Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s0 andalso s <> "\\")
+     Scan.unless newline (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s0 andalso s <> "\\"))
      >> (fn s => [#1 s])
+  || Scan.ahead newline |-- !!! "bad newline" Scan.fail
   || $$ "\\" |-- !!! "bad escape character" (scan_escape s0);
 
 fun scan_string0 s0 msg repeats =
