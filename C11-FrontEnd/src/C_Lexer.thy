@@ -882,7 +882,7 @@ val scan_ident_sym =
     || $$$ "\\" @@@ $$$ "U" @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex
     || one' Symbol.is_symbolic
     || one' Symbol.is_control
-    || one' (fn s => s = Symbol.open_ orelse s = Symbol.close orelse Symbol.is_utf8 s)
+    || one' Symbol.is_utf8
   end
   
 val scan_ident =
