@@ -277,6 +277,20 @@ i jj = jj;
 j j = jj;
 \<close>
 
+C \<comment> \<open>Nesting type definitions\<close> \<open>
+typedef int j;
+j a = 0;
+typedef int k;
+int main (int c) {
+  j b = 0;
+  typedef int k;
+  typedef k l;
+  k a = c;
+  l a = 0;
+}
+k a = a;
+\<close>
+
 subsubsection \<open>2\<close>
 
 declare [[C_parser_trace = false]]

@@ -85,12 +85,14 @@ ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<ope
 structure C_Env = struct
 datatype 'a parse_status = Parsed of 'a | Previous_in_stack
 
-type markup_ident = { global : bool (*true: global*)
+type markup_global = bool (*true: global*)
+
+type markup_ident = { global : markup_global
                     , params : C_Ast.CDerivedDeclr list
                     , ret : C_Ast.CDeclSpec list parse_status }
 
-type var_table = { tyidents : (Position.T list * serial) Symtab.table
-                 , idents : (Position.T list * serial * markup_ident) Symtab.table }
+type var_table = { tyidents : (Position.T list * serial * markup_global) Symtab.table (*ident name*) 
+                 , idents : (Position.T list * serial * markup_ident) Symtab.table (*ident name*) }
 
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) C_Scan.either list
 
