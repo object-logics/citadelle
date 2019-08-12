@@ -704,7 +704,14 @@ val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom
       env_tree))
 
 
-(*enum, struct, union (report define)*)
+(*(type) enum, struct, union (report define & report bound)*)
+
+fun report_enum_bound i node env_lang =
+  let open C_Ast
+      val name = ident_decode i
+      val pos1 = [decode_error' node |> #1]
+  in C_Env.map_reports_text (markup_var_enum (Right (pos1, Symtab.lookup (C_Env_Ext.get_tyidents'_enum env_lang) name)) pos1 name)
+  end
 
 local
 val look_tyidents'_enum = C_Env_Ext.list_lookup o C_Env_Ext.get_tyidents'_enum
@@ -713,15 +720,18 @@ val declaration : (CDecl) -> unit monad = update_env C_Transition.Bottom_up (fn 
   in
    fn CDecl0 (l, _, _) =>
       fold
-        (fn CTypeSpec0 (CEnumType0 (CEnum0 (Some (Ident0 (_, i, node)), _, _, _), _)) =>
-            (fn (env_lang, env_tree) =>
-              let val name = ident_decode i
-                  val pos1 = [decode_error' node |> #1]
-                  val data = (pos1, serial (), null (C_Env.get_scopes env_lang))
-              in
-                ( C_Env_Ext.map_tyidents'_enum (Symtab.update (name, data)) env_lang
-                , C_Env.map_reports_text (markup_var_enum (Left (data, look_tyidents'_enum env_lang name)) pos1 name) env_tree)
-              end)
+        (fn CTypeSpec0 (CEnumType0 (CEnum0 (Some (Ident0 (_, i, node)), body, _, _), _)) =>
+            (case body of
+               None => (fn (env_lang, env_tree) => (env_lang, report_enum_bound i node env_lang env_tree))
+             | Some _ =>
+                fn (env_lang, env_tree) =>
+                 let val name = ident_decode i
+                     val pos1 = [decode_error' node |> #1]
+                     val data = (pos1, serial (), null (C_Env.get_scopes env_lang))
+                 in
+                   ( C_Env_Ext.map_tyidents'_enum (Symtab.update (name, data)) env_lang
+                   , C_Env.map_reports_text (markup_var_enum (Left (data, look_tyidents'_enum env_lang name)) pos1 name) env_tree)
+                 end)
           | _ => I)
         l
     | _ => I
@@ -735,19 +745,16 @@ val declaration3 = declaration
 end
 
 
-(*enum, struct, union (report bound)*)
+(*(type) enum, struct, union (report bound)*)
 
 local
 fun declaration_specifier env_lang =
   let open C_Ast
   in
-   fold
-    (fn CTypeSpec0 (CEnumType0 (CEnum0 (Some (Ident0 (_, i, node)), _, _, _), _)) => 
-        let val name = ident_decode i
-            val pos1 = [decode_error' node |> #1]
-        in C_Env.map_reports_text (markup_var_enum (Right (pos1, Symtab.lookup (C_Env_Ext.get_tyidents'_enum env_lang) name)) pos1 name)
-        end
-      | _ => I)
+    fold
+      (fn CTypeSpec0 (CEnumType0 (CEnum0 (Some (Ident0 (_, i, node)), _, _, _), _)) => 
+          report_enum_bound i node env_lang
+        | _ => I)
   end
 in
 val declaration_specifier2 : (CDeclSpec list) -> unit monad = update_env C_Transition.Bottom_up (fn d => fn env_lang => fn env_tree =>
