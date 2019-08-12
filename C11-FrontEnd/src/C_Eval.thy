@@ -405,7 +405,7 @@ val print = tracing o cat_lines o print0 ""
 open C_Scan
 in
 
-fun markup_directive_command def ps (name, id) =
+fun markup_directive_command def (ps, id, _) name =
   let 
     fun markup_elem name = (name, (name, []): Markup.T);
     val (varN, var) = markup_elem "directive command";
@@ -418,12 +418,12 @@ fun markup_directive_command def ps (name, id) =
   end
 
 fun directive_update (name, pos) f tab =
-  let val id = serial ()
-      val pos = [pos]
-      val _ = Position.reports_text (C_Grammar_Rule_Lib.report pos (markup_directive_command true pos) (name, id) [])
-  in Symtab.update (name, (pos, id, f)) tab end
+  let val pos = [pos]
+      val data = (pos, serial (), f)
+      val _ = Position.reports_text (C_Grammar_Rule_Lib.report pos (markup_directive_command true data) name [])
+  in Symtab.update (name, data) tab end
 
-fun markup_directive_define def in_direct ps (name, id) =
+fun markup_directive_define def in_direct (ps, id, _) name =
   let 
     fun markup_elem name = (name, (name, []): Markup.T);
     val (varN, var) = markup_elem "directive define";
@@ -490,12 +490,12 @@ fun eval env err accept (ants, ants_err) {context, reports_text, error_lines} =
                   fun subst_directive tok (range1 as (pos1, _)) name (env_dir, env_tree) =
                     case Symtab.lookup env_dir name of
                       NONE => (Right (Left tok), (env_dir, env_tree))
-                    | SOME (pos0, id, toks) =>
-                        let val _ = Position.reports [(pos1, Markup.language_antiquotation)]
-                        in
+                    | SOME (data as (_, _, toks)) =>
                           ( Right (Right (pos1, map (C_Lex.set_range range1) toks))
-                          , (env_dir, C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (markup_directive_define false false pos0) (name, id)) env_tree))
-                        end
+                          , (env_dir, C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (cons (C_Grammar_Rule_Lib.markup_init Markup.language_antiquotation)
+                                                                                                o markup_directive_define false false data)
+                                                                                               name)
+                                                             env_tree))
                 in
                  fn Left (tag, antiq, toks, l_antiq) =>
                       fold_map (fn antiq as (C_Transition.Antiq_stack (_, C_Transition.Lexing (_, exec)), _) =>
@@ -515,12 +515,12 @@ fun eval env err accept (ants, ants_err) {context, reports_text, error_lines} =
                          apsnd (C_Env.map_reports_text (append (map (fn tok => ((C_Lex.pos_of tok, Markup.antiquote), "")) (C_Lex.directive_tail_cmds_of dir))))
                          #>
                          let val name = C_Lex.content_of dir_tok
-                             val pos1 = C_Lex.pos_of dir_tok
+                             val pos1 = [C_Lex.pos_of dir_tok]
                          in
                            case Symtab.lookup (Directives.get context) name of
-                             NONE => apsnd (C_Env.map_reports_text (cons ((pos1, Markup.antiquote), "")))
-                           | SOME (pos0, id, exec) =>
-                               apsnd (C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (markup_directive_command false pos0) (name, id)))
+                             NONE => apsnd (C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos1 (fn _ => [C_Grammar_Rule_Lib.markup_init Markup.antiquote]) name))
+                           | SOME (data as (_, _, exec)) =>
+                               apsnd (C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos1 (markup_directive_command false data) name))
                                #> exec dir
                                #> (fn (_, _, env) => env)
                          end)
