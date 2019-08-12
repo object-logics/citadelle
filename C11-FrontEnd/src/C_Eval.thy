@@ -143,7 +143,11 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
         |> advance_hook stack
         |> f
         |> (fn (arg, stack_ml) => rpair ((stack, stack_ml, stack_pos, stack_tree), arg))
-      val return0 = return0' I
+      fun return0 x = \<comment> \<open>Warning: \<open>advance_hook\<close> must not be early evaluated here, as it might
+                                   generate undesirable markup reporting (in annotation commands).\<close>
+                      \<comment> \<open>Todo: Arrange \<open>advance_hook\<close> as a pure function, so that the overall could
+                                be eta-simplified.\<close>
+        return0' I x
       val encoding = fn C_Lex.Encoding_L => true | _ => false
       open C_Ast
       fun token_err pos1 pos2 src =
