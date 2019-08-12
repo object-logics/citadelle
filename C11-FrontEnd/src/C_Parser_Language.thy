@@ -411,11 +411,13 @@ struct
   (* Language.C.Parser.ParserMonad *)
   fun getNewName env =
     (Name (C_Env_Ext.get_namesupply env), C_Env_Ext.map_namesupply (fn x => x + 1) env)
+
   fun addTypedef (Ident0 (_, i, node)) env =
     let val name = ident_decode i
         val pos1 = [decode_error' node |> #1]
         val data = (pos1, serial (), null (C_Env_Ext.get_scopes env))
-    in ((), env |> C_Env_Ext.map_tyidents (Symtab.update (name, data))
+    in ((), env |> C_Env_Ext.map_idents (Symtab.delete_safe name)
+                |> C_Env_Ext.map_tyidents (Symtab.update (name, data))
                 |> C_Env_Ext.map_reports_text (report pos1 (markup_tvar (Left data) NONE) name)) end
   fun shadowTypedef0 ret global f (Ident0 (_, i, node), params) env =
     let val name = ident_decode i
