@@ -749,11 +749,17 @@ fun declaration_specifier env_lang =
         end
       | _ => I)
   end
-
 in
 val declaration_specifier2 : (CDeclSpec list) -> unit monad = update_env C_Transition.Bottom_up (fn d => fn env_lang => fn env_tree =>
+  let open C_Ast
+  in
   ( env_lang
-  , declaration_specifier env_lang d env_tree))
+  , env_tree |>
+     (if exists (fn CStorageSpec0 (CTypedef0 _) => true | _ => false) d then
+        I
+      else
+        declaration_specifier env_lang d))
+  end)
 
 val function_definition4 : (CFunDef) -> unit monad = update_env C_Transition.Bottom_up (fn d => fn env_lang => fn env_tree =>
   ( env_lang
