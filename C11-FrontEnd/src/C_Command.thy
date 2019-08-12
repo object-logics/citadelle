@@ -277,7 +277,7 @@ val _ =
                       val data = (pos, serial (), toks)
                   in
                     ( Symtab.update (name, data) env_dir
-                    , env_tree |> C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos (C_Context.markup_directive_define true false data) name)
+                    , env_tree |> C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos (C_Context.markup_directive_define false (C_Ast.Left data) NONE) name)
                                |> map_ctxt)
                   end)
             end
@@ -298,7 +298,7 @@ val _ =
                        NONE => (env_dir, C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (fn _ => [C_Grammar_Rule_Lib.markup_init Markup.intensify]) name) env_tree)
                      | SOME data =>
                          ( Symtab.delete name env_dir
-                         , C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (C_Context.markup_directive_define false true data) name)
+                         , C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (C_Context.markup_directive_define true (C_Ast.Right [pos1]) (SOME data)) name)
                                                   env_tree)
                   end))
           | _ => fn env => (NONE, [], env)))))

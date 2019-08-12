@@ -405,8 +405,9 @@ val print = tracing o cat_lines o print0 ""
 open C_Scan
 in
 
-fun markup_directive_command def (ps, id, _) name =
+fun markup_directive_command def data name =
   let 
+    val (def, (ps, id, _)) = case def of C_Ast.Left data => (true, data) | C_Ast.Right _ => (false, the data)
     fun markup_elem name = (name, (name, []): Markup.T);
     val (varN, var) = markup_elem "directive command";
     val entity = Markup.entity varN name
@@ -420,11 +421,12 @@ fun markup_directive_command def (ps, id, _) name =
 fun directive_update (name, pos) f tab =
   let val pos = [pos]
       val data = (pos, serial (), f)
-      val _ = Position.reports_text (C_Grammar_Rule_Lib.report pos (markup_directive_command true data) name [])
+      val _ = Position.reports_text (C_Grammar_Rule_Lib.report pos (markup_directive_command (C_Ast.Left data) NONE) name [])
   in Symtab.update (name, data) tab end
 
-fun markup_directive_define def in_direct (ps, id, _) name =
+fun markup_directive_define in_direct def data name =
   let 
+    val (def, (ps, id, _)) = case def of C_Ast.Left data => (true, data) | C_Ast.Right _ => (false, the data)
     fun markup_elem name = (name, (name, []): Markup.T);
     val (varN, var) = markup_elem "directive define";
     val entity = Markup.entity varN name
@@ -493,7 +495,7 @@ fun eval env err accept (ants, ants_err) {context, reports_text, error_lines} =
                     | SOME (data as (_, _, toks)) =>
                           ( Right (Right (pos1, map (C_Lex.set_range range1) toks))
                           , (env_dir, C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (cons (C_Grammar_Rule_Lib.markup_init Markup.language_antiquotation)
-                                                                                                o markup_directive_define false false data)
+                                                                                                o markup_directive_define false (C_Ast.Right [pos1]) (SOME data))
                                                                                                name)
                                                              env_tree))
                 in
@@ -520,7 +522,7 @@ fun eval env err accept (ants, ants_err) {context, reports_text, error_lines} =
                            case Symtab.lookup (Directives.get context) name of
                              NONE => apsnd (C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos1 (fn _ => [C_Grammar_Rule_Lib.markup_init Markup.antiquote]) name))
                            | SOME (data as (_, _, exec)) =>
-                               apsnd (C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos1 (markup_directive_command false data) name))
+                               apsnd (C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos1 (markup_directive_command (C_Ast.Right pos1) (SOME data)) name))
                                #> exec dir
                                #> (fn (_, _, env) => env)
                          end)

@@ -141,8 +141,8 @@ sig
   val markup_init : Markup.T -> reports_text0'
   val markup_init' : Markup.T -> string -> reports_text0'
   val report : Position.T list -> ('a -> reports_text0) -> 'a -> C_Position.reports_text -> C_Position.reports_text
-  val markup_tvar : bool -> Position.T list * serial * C_Env.markup_global -> string -> reports_text0
-  val markup_var : bool -> Position.T list * serial * C_Env.markup_ident -> string -> reports_text0
+  val markup_tvar : (C_Env.markup_tydata, Position.T list) C_Ast.either -> C_Env.markup_tydata option -> string -> reports_text0
+  val markup_var : (C_Env.markup_data, Position.T list) C_Ast.either -> C_Env.markup_data option -> string -> reports_text0
 
   (* Language.C.Data.RList *)
   val empty : 'a list Reversed
@@ -236,8 +236,9 @@ struct
         let val ms = markup x
         in fold (fn p => fold (fn {markup, markup_body} => cons ((p, markup), markup_body)) ms) ps end
 
-  fun markup_tvar def (ps, id, global) name =
-    let 
+  fun markup_tvar def data name =
+    let
+      val (def, (ps, id, global)) = case def of Left data => (true, data) | Right _ => (false, the data)
       fun markup_elem name = (name, (name, []): Markup.T);
       val (tvarN, tvar) = markup_elem ("C " ^ (if global then "global" else "local") ^ " type variable");
       val entity = Markup.entity tvarN name
@@ -278,8 +279,9 @@ struct
         | C_Ast.CFunSpec0 _ => "fun"
         | C_Ast.CAlignSpec0 _ => "align"
 
-  fun markup_var def (ps, id, {global, params, ret}) name =
+  fun markup_var def data name =
     let 
+      val (def, (ps, id, {global, params, ret})) = case def of Left data => (true, data) | Right _ => (false, the data)
       fun markup_elem name = (name, (name, []): Markup.T);
       val (varN, var) = markup_elem ("C " ^ (if global then "global" else "local") ^ " variable");
       val entity = Markup.entity varN name
@@ -411,10 +413,10 @@ struct
     (Name (C_Env_Ext.get_namesupply env), C_Env_Ext.map_namesupply (fn x => x + 1) env)
   fun addTypedef (Ident0 (_, i, node)) env =
     let val name = ident_decode i
-        val pos = [decode_error' node |> #1]
-        val data = (pos, serial (), null (C_Env_Ext.get_scopes env))
+        val pos1 = [decode_error' node |> #1]
+        val data = (pos1, serial (), null (C_Env_Ext.get_scopes env))
     in ((), env |> C_Env_Ext.map_tyidents (Symtab.update (name, data))
-                |> C_Env_Ext.map_reports_text (report pos (markup_tvar true data) name)) end
+                |> C_Env_Ext.map_reports_text (report pos1 (markup_tvar (Left data) NONE) name)) end
   fun shadowTypedef0 ret global f (Ident0 (_, i, node), params) env =
     let val name = ident_decode i
         val pos = [decode_error' node |> #1]
@@ -423,7 +425,7 @@ struct
     in ((), env |> C_Env_Ext.map_tyidents (Symtab.delete_safe name)
                 |> C_Env_Ext.map_idents update_id
                 |> f update_id
-                |> C_Env_Ext.map_reports_text (report pos (markup_var true data) name)) end
+                |> C_Env_Ext.map_reports_text (report pos (markup_var (Left data) NONE) name)) end
   fun shadowTypedef_fun ident env =
     shadowTypedef0 C_Env.Previous_in_stack
                    (case C_Env_Ext.get_scopes env of _ :: [] => true | _ => false)
@@ -606,9 +608,10 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env C_Transition.Bottom
       let open C_Ast
       in fn CTypeSpec0 (CTypeDef0 (Ident0 (_, i, node), _)) =>
             let val name = ident_decode i
+                val pos1 = [decode_error' node |> #1]
             in case Symtab.lookup (#var_table env_lang |> #tyidents) name of
                  NONE => I
-               | SOME data => C_Env.map_reports_text (report [decode_error' node |> #1] (markup_tvar false data) name) end
+               | SOME data => C_Env.map_reports_text (report pos1 (markup_tvar (Right pos1) (SOME data)) name) end
           | _ => I
       end
       l
@@ -624,11 +627,12 @@ val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom
   , let open C_Ast
     in fn CVar0 (Ident0 (_, i, node), _) =>
           let val name = ident_decode i
+              val pos1 = [decode_error' node |> #1]
           in 
-            C_Env.map_reports_text (report [decode_error' node |> #1]
+            C_Env.map_reports_text (report pos1
                                            (case Symtab.lookup (#var_table env_lang |> #idents) name of
                                               NONE => (fn _ => [markup_init (Markup.keyword_properties Markup.free)])
-                                            | SOME data => markup_var false data)
+                                            | SOME data => markup_var (Right pos1) (SOME data))
                                            name)
           end
         | _ => I

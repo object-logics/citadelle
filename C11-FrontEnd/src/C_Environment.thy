@@ -91,8 +91,11 @@ type markup_ident = { global : markup_global
                     , params : C_Ast.CDerivedDeclr list
                     , ret : C_Ast.CDeclSpec list parse_status }
 
-type var_table = { tyidents : (Position.T list * serial * markup_global) Symtab.table (*ident name*) 
-                 , idents : (Position.T list * serial * markup_ident) Symtab.table (*ident name*) }
+type markup_tydata = Position.T list * serial * markup_global
+type markup_data = Position.T list * serial * markup_ident
+
+type var_table = { tyidents : markup_tydata Symtab.table (*ident name*) 
+                 , idents : markup_data Symtab.table (*ident name*) }
 
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) C_Scan.either list
 
