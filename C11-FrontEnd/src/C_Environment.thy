@@ -91,11 +91,10 @@ type markup_ident = { global : markup_global
                     , params : C_Ast.CDerivedDeclr list
                     , ret : C_Ast.CDeclSpec list parse_status }
 
-type markup_tydata = Position.T list * serial * markup_global
-type markup_data = Position.T list * serial * markup_ident
+type 'a markup_store = Position.T list * serial * 'a
 
-type var_table = { tyidents : markup_tydata Symtab.table (*ident name*) 
-                 , idents : markup_data Symtab.table (*ident name*) }
+type var_table = { tyidents : markup_global markup_store Symtab.table (*ident name*) 
+                 , idents : markup_ident markup_store Symtab.table (*ident name*) }
 
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) C_Scan.either list
 
@@ -316,7 +315,11 @@ fun map_stream_ignored f = C_Env.map_env_lang (C_Env.map_stream_ignored f)
 
 (**)
 
+fun get_idents (t:C_Env.T) = #env_lang t |> #var_table |> #idents
 fun get_tyidents (t:C_Env.T) = #env_lang t |> #var_table |> #tyidents
+
+fun get_idents' (env:C_Env.env_lang) = env |> #var_table |> #idents
+fun get_tyidents' (env:C_Env.env_lang) = env |> #var_table |> #tyidents
 
 (**)
 
@@ -362,8 +365,11 @@ fun map_stream_lang' f {env_lang, env_tree, rule_output, rule_input, stream_hook
 fun context_map (f : C_Env.env_tree -> C_Env.env_tree) =
   C_Env.empty_env_tree #> f #> #context
 
+(**)
 
-end 
+fun list_lookup tab name = flat (map (fn (x, _, _) => x) (the_list (Symtab.lookup tab name)))
+
+end
 
 \<close>
 

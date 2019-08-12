@@ -277,7 +277,7 @@ val _ =
                       val data = (pos, serial (), toks)
                   in
                     ( Symtab.update (name, data) env_dir
-                    , env_tree |> C_Env.map_reports_text (C_Grammar_Rule_Lib.report pos (C_Context.markup_directive_define false (C_Ast.Left data) NONE) name)
+                    , env_tree |> C_Context.markup_directive_define false (C_Ast.Left (data, C_Env_Ext.list_lookup env_dir name)) pos name
                                |> map_ctxt)
                   end)
             end
@@ -293,13 +293,10 @@ val _ =
                 ( NONE
                 , []
                 , let val name = C_Lex.content_of tok
-                      val pos1 = C_Lex.pos_of tok
-                  in case Symtab.lookup env_dir name of
-                       NONE => (env_dir, C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (fn _ => [C_Grammar_Rule_Lib.markup_init Markup.intensify]) name) env_tree)
-                     | SOME data =>
-                         ( Symtab.delete name env_dir
-                         , C_Env.map_reports_text (C_Grammar_Rule_Lib.report [pos1] (C_Context.markup_directive_define true (C_Ast.Right [pos1]) (SOME data)) name)
-                                                  env_tree)
+                      val pos1 = [C_Lex.pos_of tok]
+                      val data = Symtab.lookup env_dir name
+                  in ( (case data of NONE => env_dir | SOME _ => Symtab.delete name env_dir)
+                     , C_Context.markup_directive_define true (C_Ast.Right (pos1, data)) pos1 name env_tree)
                   end))
           | _ => fn env => (NONE, [], env)))))
 in end
