@@ -138,7 +138,7 @@ sig
   (* position reports *)
   val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Position.reports_text -> C_Position.reports_text
   val markup_tvar : bool -> Position.T list * serial * C_Env.markup_global -> string -> Markup.T list
-  val markup_var : bool -> Position.T * C_Env.markup_ident -> Position.T list -> string * serial -> Markup.T list
+  val markup_var : bool -> Position.T -> Position.T list * serial * C_Env.markup_ident -> string -> Markup.T list
 
   (* Language.C.Data.RList *)
   val empty : 'a list Reversed
@@ -269,7 +269,7 @@ struct
         | C_Ast.CFunSpec0 _ => "fun"
         | C_Ast.CAlignSpec0 _ => "align"
 
-  fun markup_var def (pos1, {global, params, ret}) ps (name, id) =
+  fun markup_var def pos1 (ps, id, {global, params, ret}) name =
     let 
       fun markup_elem name = (name, (name, []): Markup.T);
       val (varN, var) = markup_elem ("C " ^ (if global then "global" else "local") ^ " variable");
@@ -422,7 +422,7 @@ struct
     in ((), env |> C_Env_Ext.map_tyidents (Symtab.delete_safe name)
                 |> C_Env_Ext.map_idents update_id
                 |> f update_id
-                |> C_Env_Ext.map_reports_text (report pos (markup_var true (pos1, markup_data) pos) (name, id))) end
+                |> C_Env_Ext.map_reports_text (report pos (markup_var true pos1 (pos, id, markup_data)) name)) end
   fun shadowTypedef_fun ident env =
     shadowTypedef0 C_Env.Previous_in_stack
                    (case C_Env_Ext.get_scopes env of _ :: [] => true | _ => false)
@@ -628,7 +628,7 @@ val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom
           in case Symtab.lookup (#var_table env_lang |> #idents) name of
                NONE => C_Env.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ())
              | SOME (pos0, id, markup_data) =>
-                 C_Env.map_reports_text (report [pos1] (markup_var false (pos1, markup_data) pos0) (name, id))
+                 C_Env.map_reports_text (report [pos1] (markup_var false pos1 (pos0, id, markup_data)) name)
           end
         | _ => I
     end
