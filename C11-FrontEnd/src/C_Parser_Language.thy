@@ -609,9 +609,13 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env C_Transition.Bottom
       in fn CTypeSpec0 (CTypeDef0 (Ident0 (_, i, node), _)) =>
             let val name = ident_decode i
                 val pos1 = [decode_error' node |> #1]
-            in case Symtab.lookup (#var_table env_lang |> #tyidents) name of
-                 NONE => I
-               | SOME data => C_Env.map_reports_text (report pos1 (markup_tvar (Right pos1) (SOME data)) name) end
+            in 
+              C_Env.map_reports_text (report pos1
+                                             (case Symtab.lookup (#var_table env_lang |> #tyidents) name of
+                                                NONE => (fn _ => [markup_init (Markup.keyword_properties Markup.free)])
+                                              | SOME data => markup_tvar (Right pos1) (SOME data))
+                                             name)
+            end
           | _ => I
       end
       l
