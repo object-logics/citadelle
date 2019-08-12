@@ -189,6 +189,12 @@ sig
 
   (* Language.C.Parser.ParserMonad *)
   val getNewName : Name monad
+  val shadowTypedef0' : C_Ast.CDeclSpec list C_Env.parse_status ->
+                        bool ->
+                        C_Ast.ident * C_Ast.CDerivedDeclr list ->
+                        C_Env.env_lang ->
+                        C_Env.env_tree ->
+                        C_Env.env_lang * C_Env.env_tree
   val isTypeIdent : string -> arg -> bool
   val enterScope : unit monad
   val leaveScope : unit monad
@@ -244,7 +250,9 @@ struct
                                'b
   fun markup_init markup = { markup = markup, markup_body = "" }
   val look_idents = C_Env_Ext.list_lookup o C_Env_Ext.get_idents
+  val look_idents' = C_Env_Ext.list_lookup o C_Env_Ext.get_idents'
   val look_tyidents_typedef = C_Env_Ext.list_lookup o C_Env_Ext.get_tyidents_typedef
+  val look_tyidents'_typedef = C_Env_Ext.list_lookup o C_Env_Ext.get_tyidents'_typedef
   val To_string0 = meta_of_logic
   val ident_encode =
     Word8Vector.foldl (fn (w, acc) => Word8.toInt w + acc * 256) 0 o Byte.stringToBytes
@@ -484,15 +492,26 @@ struct
     in ((), env |> C_Env_Ext.map_idents (Symtab.delete_safe name)
                 |> C_Env_Ext.map_tyidents_typedef (Symtab.update (name, data))
                 |> C_Env_Ext.map_reports_text (markup_tvar (Left (data, flat [ look_idents env name, look_tyidents_typedef env name ])) pos1 name)) end
-  fun shadowTypedef0 ret global f (Ident0 (_, i, node), params) env =
+  fun shadowTypedef0'' ret global (Ident0 (_, i, node), params) env_lang env_tree =
     let val name = ident_decode i
         val pos = [decode_error' node |> #1]
         val data = (pos, serial (), {global = global, params = params, ret = ret})
         val update_id = Symtab.update (name, data)
-    in ((), env |> C_Env_Ext.map_tyidents_typedef (Symtab.delete_safe name)
-                |> C_Env_Ext.map_idents update_id
-                |> f update_id
-                |> C_Env_Ext.map_reports_text (markup_var (Left (data, flat [ look_idents env name, look_tyidents_typedef env name ])) pos name)) end
+    in ( env_lang |> C_Env_Ext.map_tyidents'_typedef (Symtab.delete_safe name)
+                  |> C_Env_Ext.map_idents' update_id
+       , update_id
+       , env_tree |> C_Env.map_reports_text (markup_var (Left (data, flat [ look_idents' env_lang name, look_tyidents'_typedef env_lang name ])) pos name)) end
+  fun shadowTypedef0' ret global ident env_lang env_tree =
+    let val (env_lang, _, env_tree) = shadowTypedef0'' ret global ident env_lang env_tree 
+    in (env_lang, env_tree) end
+  fun shadowTypedef0 ret global f ident env =
+    let val (update_id, env) =
+          C_Env.map_env_lang_tree'
+            (fn env_lang => fn env_tree => 
+              let val (env_lang, update_id, env_tree) = shadowTypedef0'' ret global ident env_lang env_tree 
+              in (update_id, (env_lang, env_tree)) end)
+            env
+    in ((), f update_id env) end
   fun shadowTypedef_fun ident env =
     shadowTypedef0 C_Env.Previous_in_stack
                    (case C_Env_Ext.get_scopes env of _ :: [] => true | _ => false)
@@ -745,6 +764,28 @@ val declaration3 = declaration
 end
 
 
+(*(basic) enum, struct, union (report define)*)
+
+local
+val enumerator : ( ( Ident * CExpr Maybe ) ) -> unit monad = update_env C_Transition.Bottom_up (fn id => fn env_lang =>
+  let open C_Ast
+  in
+    fn (ident as Ident0 (_, _, node), _) =>
+      C_Grammar_Rule_Lib.shadowTypedef0'
+        (C_Env.Parsed [CTypeSpec0 (CIntType0 node)])
+        (null (C_Env.get_scopes env_lang))
+        (ident, [])
+        env_lang
+  end
+    id)
+in
+val enumerator1 = enumerator
+val enumerator2 = enumerator
+val enumerator3 = enumerator
+val enumerator4 = enumerator
+end
+
+
 (*(type) enum, struct, union (report bound)*)
 
 local
@@ -768,7 +809,8 @@ val declaration_specifier2 : (CDeclSpec list) -> unit monad = update_env C_Trans
         declaration_specifier env_lang d))
   end)
 
-val function_definition4 : (CFunDef) -> unit monad = update_env C_Transition.Bottom_up (fn d => fn env_lang => fn env_tree =>
+local
+val f_definition : (CFunDef) -> unit monad = update_env C_Transition.Bottom_up (fn d => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_Ast
     in
@@ -776,6 +818,10 @@ val function_definition4 : (CFunDef) -> unit monad = update_env C_Transition.Bot
     end
       d
       env_tree))
+in
+val function_definition4 = f_definition
+val nested_function_definition2 = f_definition
+end
 
 local
 val parameter_type_list : ( ( CDecl list * Bool ) ) -> unit monad = update_env C_Transition.Bottom_up (fn d => fn env_lang => fn env_tree =>

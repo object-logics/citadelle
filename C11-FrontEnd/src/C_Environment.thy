@@ -252,6 +252,12 @@ fun map_env_lang_tree f {env_lang, env_tree, rule_output, rule_input, stream_hoo
                     rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
                 end
 
+fun map_env_lang_tree' f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+                let val (res, (env_lang, env_tree)) = f env_lang env_tree
+                in (res, {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
+                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang})
+                end
+
 (**)
 
 fun get_scopes (t : env_lang) = #scopes t
@@ -320,7 +326,8 @@ fun map_tyidents_enum f = map_tyidents (Symtab.map_default (C_Env.namespace_enum
 fun map_tyidents'_typedef f = map_tyidents' (Symtab.map_default (C_Env.namespace_typedef, Symtab.empty) f)
 fun map_tyidents'_enum f = map_tyidents' (Symtab.map_default (C_Env.namespace_enum, Symtab.empty) f)
 end
-fun map_idents f = C_Env.map_env_lang (C_Env.map_var_table (C_Env.map_idents f))
+fun map_idents' f = C_Env.map_var_table (C_Env.map_idents f)
+fun map_idents f = C_Env.map_env_lang (map_idents' f)
 
 (**)
 

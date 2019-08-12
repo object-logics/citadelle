@@ -291,6 +291,35 @@ int main (int c) {
 k a = a;
 \<close>
 
+C \<comment> \<open>Reporting \<open>enum\<close>\<close> \<open>
+enum a b; // bound case: undeclared
+enum a {aaa}; // define case
+enum a {aaa}; // define case: redefined
+enum a _; // bound case
+
+__thread (f ( enum a,  enum a vv));
+
+enum a /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Grammar_Rule_Wrap_Overloading.function_definition4\<close>\<close>*/ f (enum a a) {
+}
+
+__thread enum a /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Grammar_Rule_Wrap_Overloading.declaration_specifier2\<close>\<close>*/ f (enum a a) {
+  enum c {ccc}; // define case
+  __thread enum c f (enum c a) {
+    return 0;
+  }
+  enum c /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Grammar_Rule_Wrap_Overloading.nested_function_definition2\<close>\<close>*/ f (enum c a) {
+    return 0;
+  }
+  return 0;
+}
+
+enum z {zz}; // define case
+int main (enum z *x) /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Grammar_Rule_Wrap_Overloading.parameter_type_list2\<close>\<close>*/ {
+  return zz; }
+int main (enum a *x, ...) /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Grammar_Rule_Wrap_Overloading.parameter_type_list3\<close>\<close>*/ {
+  return zz; }
+\<close>
+
 subsubsection \<open>2\<close>
 
 declare [[C_parser_trace = false]]
