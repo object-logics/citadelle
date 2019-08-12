@@ -137,7 +137,7 @@ sig
 
   (* position reports *)
   val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Position.reports_text -> C_Position.reports_text
-  val markup_tvar : bool -> C_Env.markup_global -> Position.T list -> string * serial -> Markup.T list
+  val markup_tvar : bool -> Position.T list * serial * C_Env.markup_global -> string -> Markup.T list
   val markup_var : bool -> Position.T * C_Env.markup_ident -> Position.T list -> string * serial -> Markup.T list
 
   (* Language.C.Data.RList *)
@@ -228,7 +228,7 @@ struct
         let val ms = markup x
         in fold (fn p => fold (fn m => cons ((p, m), "")) ms) ps end
 
-  fun markup_tvar def global ps (name, id) =
+  fun markup_tvar def (ps, id, global) name =
     let 
       fun markup_elem name = (name, (name, []): Markup.T);
       val (tvarN, tvar) = markup_elem ("C " ^ (if global then "global" else "local") ^ " type variable");
@@ -411,7 +411,7 @@ struct
         val pos = [pos1]
         val global = null (C_Env_Ext.get_scopes env)
     in ((), env |> C_Env_Ext.map_tyidents (Symtab.update (name, (pos, id, global)))
-                |> C_Env_Ext.map_reports_text (report pos (markup_tvar true global pos) (name, id))) end
+                |> C_Env_Ext.map_reports_text (report pos (markup_tvar true (pos, id, global)) name)) end
   fun shadowTypedef0 ret global f (Ident0 (_, i, node), params) env =
     let val (pos1, _) = decode_error' node
         val id = serial ()
@@ -608,7 +608,7 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env C_Transition.Bottom
                 val pos1 = [decode_error' node |> #1]
             in case Symtab.lookup (#var_table env_lang |> #tyidents) name of
                  NONE => I
-               | SOME (pos0, id, global) => C_Env.map_reports_text (report pos1 (markup_tvar false global pos0) (name, id)) end
+               | SOME (pos0, id, global) => C_Env.map_reports_text (report pos1 (markup_tvar false (pos0, id, global)) name) end
           | _ => I
       end
       l
