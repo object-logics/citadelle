@@ -245,8 +245,8 @@ struct
     in
       tvar ::
       (if global
-       then if def then cons (Markup.keyword_properties Markup.free) else cons (Markup.keyword_properties Markup.ML_keyword3)
-       else cons (Markup.keyword_properties Markup.skolem))
+       then if def then cons Markup.free else cons Markup.ML_keyword3
+       else cons Markup.skolem)
         (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
       |> map markup_init
     end
@@ -311,8 +311,8 @@ struct
              | (SOME params, SOME ret) => params ^ " " ^ ret }
       :: map markup_init
              ((if global
-               then if def then cons (Markup.keyword_properties Markup.free) else I (*black constant*)
-               else cons (Markup.keyword_properties Markup.bound))
+               then if def then cons Markup.free else I (*black constant*)
+               else cons Markup.bound)
                 (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps))
     end
 
@@ -612,7 +612,7 @@ val specifier3 : (CDeclSpec list) -> unit monad = update_env C_Transition.Bottom
             in 
               C_Env.map_reports_text (report pos1
                                              (case Symtab.lookup (#var_table env_lang |> #tyidents) name of
-                                                NONE => (fn _ => [markup_init (Markup.keyword_properties Markup.free)])
+                                                NONE => (fn _ => [markup_init Markup.free])
                                               | SOME data => markup_tvar (Right pos1) (SOME data))
                                              name)
             end
@@ -635,7 +635,7 @@ val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom
           in 
             C_Env.map_reports_text (report pos1
                                            (case Symtab.lookup (#var_table env_lang |> #idents) name of
-                                              NONE => (fn _ => [markup_init (Markup.keyword_properties Markup.free)])
+                                              NONE => (fn _ => [markup_init Markup.free])
                                             | SOME data => markup_var (Right pos1) (SOME data))
                                            name)
           end

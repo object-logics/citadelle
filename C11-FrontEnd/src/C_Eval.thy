@@ -432,7 +432,7 @@ fun markup_directive_define in_direct def data name =
     val entity = Markup.entity varN name
   in
     var ::
-    (cons (Markup.keyword_properties (if def orelse in_direct then Markup.operator else Markup.antiquote)))
+    (cons (if def orelse in_direct then Markup.operator else Markup.antiquote))
       (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
     |> map C_Grammar_Rule_Lib.markup_init
   end
