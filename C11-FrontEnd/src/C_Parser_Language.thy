@@ -594,7 +594,7 @@ structure C_Grammar_Rule_Wrap_Overloading = struct
 open C_Grammar_Rule_Lib
 
 val update_env =
- fn C_Transition.Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_tree (f x (#env_lang arg) #> #2) arg))
+ fn C_Transition.Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_lang_tree (f x) arg))
   | C_Transition.Top_down => fn f => fn x => pair () ##> (fn arg => C_Env_Ext.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
 
 (*type variable definition*)

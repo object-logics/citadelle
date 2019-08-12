@@ -244,6 +244,14 @@ fun map_error_lines f {context, reports_text, error_lines} =
 
 (**)
 
+fun map_env_lang_tree f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+                let val (env_lang, env_tree) = f env_lang env_tree
+                in {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
+                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
+                end
+
+(**)
+
 val empty_env_lang : env_lang = 
         {var_table = {tyidents = Symtab.make [], idents = Symtab.make []}, 
          scopes = [], namesupply = 0, stream_ignored = [],
