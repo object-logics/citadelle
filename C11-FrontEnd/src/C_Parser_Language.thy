@@ -71,6 +71,8 @@ sig
 
   (* type aliases *)
   type class_Pos = C_Ast.class_Pos
+  type reports_text0' = { markup : Markup.T, markup_body : string }
+  type reports_text0 = reports_text0' list
     (**)
   type NodeInfo = C_Ast.nodeInfo
   type CStorageSpec = NodeInfo C_Ast.cStorageSpecifier
@@ -136,9 +138,11 @@ sig
   val >> : unit monad * 'a monad -> 'a monad
 
   (* position reports *)
-  val report : Position.T list -> ('a -> Markup.T list) -> 'a -> C_Position.reports_text -> C_Position.reports_text
-  val markup_tvar : bool -> Position.T list * serial * C_Env.markup_global -> string -> Markup.T list
-  val markup_var : bool -> Position.T -> Position.T list * serial * C_Env.markup_ident -> string -> Markup.T list
+  val markup_init : Markup.T -> reports_text0'
+  val markup_init' : Markup.T -> string -> reports_text0'
+  val report : Position.T list -> ('a -> reports_text0) -> 'a -> C_Position.reports_text -> C_Position.reports_text
+  val markup_tvar : bool -> Position.T list * serial * C_Env.markup_global -> string -> reports_text0
+  val markup_var : bool -> Position.T list * serial * C_Env.markup_ident -> string -> reports_text0
 
   (* Language.C.Data.RList *)
   val empty : 'a list Reversed
@@ -217,6 +221,10 @@ struct
   type 'a monad = arg -> 'a * arg
 
   (**)
+  type reports_text0' = { markup : Markup.T, markup_body : string }
+  type reports_text0 = reports_text0' list
+  fun markup_init markup = { markup = markup, markup_body = "" }
+  fun markup_init' markup markup_body = { markup = markup, markup_body = markup_body }
   val To_string0 = meta_of_logic
   val ident_encode =
     Word8Vector.foldl (fn (w, acc) => Word8.toInt w + acc * 256) 0 o Byte.stringToBytes
@@ -226,7 +234,7 @@ struct
   fun report [] _ _ = I
     | report ps markup x =
         let val ms = markup x
-        in fold (fn p => fold (fn m => cons ((p, m), "")) ms) ps end
+        in fold (fn p => fold (fn {markup, markup_body} => cons ((p, markup), markup_body)) ms) ps end
 
   fun markup_tvar def (ps, id, global) name =
     let 
@@ -239,6 +247,7 @@ struct
        then if def then cons (Markup.keyword_properties Markup.free) else cons (Markup.keyword_properties Markup.ML_keyword3)
        else cons (Markup.keyword_properties Markup.skolem))
         (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
+      |> map markup_init
     end
 
    fun string_of_list f =
@@ -269,44 +278,40 @@ struct
         | C_Ast.CFunSpec0 _ => "fun"
         | C_Ast.CAlignSpec0 _ => "align"
 
-  fun markup_var def pos1 (ps, id, {global, params, ret}) name =
+  fun markup_var def (ps, id, {global, params, ret}) name =
     let 
       fun markup_elem name = (name, (name, []): Markup.T);
       val (varN, var) = markup_elem ("C " ^ (if global then "global" else "local") ^ " variable");
       val entity = Markup.entity varN name
-      val params =
-        string_of_list
-          (fn C_Ast.CPtrDeclr0 _ => "pointer"
-            | C_Ast.CArrDeclr0 _ => "array"
-            | C_Ast.CFunDeclr0 (C_Ast.Left _, _, _) => "function [...] ->"
-            | C_Ast.CFunDeclr0 (C_Ast.Right (l_decl, _), _, _) =>
-               "function "
-               ^ (String.concatWith
-                   " -> "
-                   (map (fn CDecl0 ([decl], _, _) => string_of_cDeclarationSpecifier decl
-                          | CDecl0 (l, _, _) => "(" ^ String.concatWith " " (map string_of_cDeclarationSpecifier l) ^ ")"
-                          | CStaticAssert0 _ => "static_assert")
-                        l_decl))
-               ^ " ->")
-          params
-      val ret =
-        case ret of C_Env.Previous_in_stack => SOME "..."
-                  | C_Env.Parsed ret => string_of_list string_of_cDeclarationSpecifier ret
-      val _ = Output.report
-                [ Position.reported_text
-                    pos1
-                    Markup.typing
-                    (case (params, ret) of
-                       (NONE, NONE) => let val _ = warning "markup_var: Not yet implemented" in "" end
-                     | (SOME params, NONE) => params
-                     | (NONE, SOME ret) => ret
-                     | (SOME params, SOME ret) => params ^ " " ^ ret) ]
     in
-      var ::
-      (if global
-       then if def then cons (Markup.keyword_properties Markup.free) else I (*black constant*)
-       else cons (Markup.keyword_properties Markup.bound))
-        (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
+      markup_init var
+      :: { markup = Markup.typing
+         , markup_body =
+            case ( string_of_list
+                    (fn C_Ast.CPtrDeclr0 _ => "pointer"
+                      | C_Ast.CArrDeclr0 _ => "array"
+                      | C_Ast.CFunDeclr0 (C_Ast.Left _, _, _) => "function [...] ->"
+                      | C_Ast.CFunDeclr0 (C_Ast.Right (l_decl, _), _, _) =>
+                         "function "
+                         ^ (String.concatWith
+                             " -> "
+                             (map (fn CDecl0 ([decl], _, _) => string_of_cDeclarationSpecifier decl
+                                    | CDecl0 (l, _, _) => "(" ^ String.concatWith " " (map string_of_cDeclarationSpecifier l) ^ ")"
+                                    | CStaticAssert0 _ => "static_assert")
+                                  l_decl))
+                         ^ " ->")
+                    params
+                 , case ret of C_Env.Previous_in_stack => SOME "..."
+                             | C_Env.Parsed ret => string_of_list string_of_cDeclarationSpecifier ret)
+            of (NONE, NONE) => let val _ = warning "markup_var: Not yet implemented" in "" end
+             | (SOME params, NONE) => params
+             | (NONE, SOME ret) => ret
+             | (SOME params, SOME ret) => params ^ " " ^ ret }
+      :: map markup_init
+             ((if global
+               then if def then cons (Markup.keyword_properties Markup.free) else I (*black constant*)
+               else cons (Markup.keyword_properties Markup.bound))
+                (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps))
     end
 
   (**)
@@ -422,7 +427,7 @@ struct
     in ((), env |> C_Env_Ext.map_tyidents (Symtab.delete_safe name)
                 |> C_Env_Ext.map_idents update_id
                 |> f update_id
-                |> C_Env_Ext.map_reports_text (report pos (markup_var true pos1 (pos, id, markup_data)) name)) end
+                |> C_Env_Ext.map_reports_text (report pos (markup_var true (pos, id, markup_data)) name)) end
   fun shadowTypedef_fun ident env =
     shadowTypedef0 C_Env.Previous_in_stack
                    (case C_Env_Ext.get_scopes env of _ :: [] => true | _ => false)
@@ -626,9 +631,9 @@ val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom
           let val name = ident_decode i
               val pos1 = decode_error' node |> #1
           in case Symtab.lookup (#var_table env_lang |> #idents) name of
-               NONE => C_Env.map_reports_text (report [pos1] (fn () => [Markup.keyword_properties Markup.free]) ())
+               NONE => C_Env.map_reports_text (report [pos1] (fn () => [markup_init (Markup.keyword_properties Markup.free)]) ())
              | SOME (pos0, id, markup_data) =>
-                 C_Env.map_reports_text (report [pos1] (markup_var false pos1 (pos0, id, markup_data)) name)
+                 C_Env.map_reports_text (report [pos1] (markup_var false (pos0, id, markup_data)) name)
           end
         | _ => I
     end

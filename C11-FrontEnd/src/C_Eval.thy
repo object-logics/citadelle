@@ -410,12 +410,14 @@ fun markup_directive_command def ps (name, id) =
     var ::
     ((if def then I else cons (Markup.keyword_properties Markup.keyword1)))
       (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
+    |> map C_Grammar_Rule_Lib.markup_init
   end
 
 fun directive_update (name, pos) f tab =
   let val id = serial ()
-      val _ = Position.reports (map (pair pos) (markup_directive_command true [pos] (name, id)))
-  in Symtab.update (name, ([pos], id, f)) tab end
+      val pos = [pos]
+      val _ = Position.reports_text (C_Grammar_Rule_Lib.report pos (markup_directive_command true pos) (name, id) [])
+  in Symtab.update (name, (pos, id, f)) tab end
 
 fun markup_directive_define def in_direct ps (name, id) =
   let 
@@ -426,6 +428,7 @@ fun markup_directive_define def in_direct ps (name, id) =
     var ::
     (cons (Markup.keyword_properties (if def orelse in_direct then Markup.operator else Markup.antiquote)))
       (map (fn pos => Markup.properties (Position.entity_properties_of def id pos) entity) ps)
+    |> map C_Grammar_Rule_Lib.markup_init
   end
 
 fun eval env err accept (ants, ants_err) {context, reports_text, error_lines} =
