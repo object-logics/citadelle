@@ -257,9 +257,9 @@ always properly enriched with declared variable information at any time, because
 
 subsubsection \<open>Example\<close>
 
-text \<open> As illustration, \<^ML>\<open>C_Grammar_Rule_Lib.markup_var true\<close> is
+text \<open> As illustration, \<^ML>\<open>C_Grammar_Rule_Lib.markup_var o C_Ast.Left\<close> is
 (implicitly) called by a rule code while a variable being declared is encountered. Later, a call to
-\<^ML>\<open>C_Grammar_Rule_Lib.markup_var false\<close> in
+\<^ML>\<open>C_Grammar_Rule_Lib.markup_var o C_Ast.Right\<close> in
 \<^ML_structure>\<open>C_Grammar_Rule_Wrap\<close> (actually, in
 \<^ML_structure>\<open>C_Grammar_Rule_Wrap_Overloading\<close>) is made after the execution of
 another rule code to signal the position of a variable in use, together with the information
@@ -279,9 +279,9 @@ variable being declared is global or not is implemented in
 \<^ML>\<open>C_Grammar_Rule_Lib.doFuncParamDeclIdent\<close>. The two functions come from
 \<^url>\<open>https://github.com/visq/language-c/blob/master/src/Language/C/Parser/Parser.y\<close>
 (so do any functions in \<^ML_structure>\<open>C_Grammar_Rule_Lib\<close>). Ultimately, they are
-both calling \<^ML>\<open>C_Grammar_Rule_Lib.markup_var true\<close> at some point.
+both calling \<^ML>\<open>C_Grammar_Rule_Lib.markup_var o C_Ast.Left\<close> at some point.
 \<^item> \<^bold>\<open>Retrieving the information at use time\<close>
-\<^ML>\<open>C_Grammar_Rule_Lib.markup_var false\<close> is only called by
+\<^ML>\<open>C_Grammar_Rule_Lib.markup_var o C_Ast.Right\<close> is only called by
 \<^ML>\<open>C_Grammar_Rule_Wrap.primary_expression1\<close>, while treating a variable being
 already declared. In particular the second argument of
 \<^ML>\<open>C_Grammar_Rule_Lib.markup_var\<close> is just provided by what has been computed by the
