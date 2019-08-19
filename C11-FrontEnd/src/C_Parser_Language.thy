@@ -155,6 +155,8 @@ sig
   val markup_tvar : (C_Env.markup_global, C_Position.reports_text) reports_base
   val markup_var_enum : (C_Env.markup_global, C_Position.reports_text) reports_base
   val markup_var : (C_Env.markup_ident, C_Position.reports_text) reports_base
+  val markup_var_bound : (C_Env.markup_ident, C_Position.reports_text) reports_base
+  val markup_var_improper : (C_Env.markup_ident, C_Position.reports_text) reports_base
 
   (* Language.C.Data.RList *)
   val empty : 'a list Reversed
@@ -229,6 +231,7 @@ sig
   val emptyDeclr : CDeclrR
   val mkVarDeclr : Ident -> NodeInfo -> CDeclrR
   val doDeclIdent : CDeclSpec list -> CDeclrR -> unit monad
+  val ident_of_decl : (Ident list, CDecl list * bool) C_Ast.either -> (Ident * CDerivedDeclr list * CDeclSpec list) list
   val doFuncParamDeclIdent : CDeclr -> unit monad
 end
 
@@ -388,6 +391,12 @@ struct
       (fn cons' => fn def =>
        fn true => if def then cons' Markup.free else I (*black constant*)
         | false => cons' Markup.bound)
+
+  val markup_var_bound =
+    markup_make' typing #global "variable" (fn cons' => K (K (cons' Markup.bound)))
+
+  val markup_var_improper =
+    markup_make' typing #global "variable" (fn cons' => K (K (cons' Markup.improper)))
 
   (**)
   val return = pair
@@ -639,21 +648,56 @@ struct
        else shadowTypedef ( ident
                           , case reverseDeclr decl of CDeclr0 (_, params, _, _, _) => params
                           , declspecs)
-  val doFuncParamDeclIdent =
-    fn CDeclr0 (mIdent0, param0 as CFunDeclr0 (Right (params, _), _, _) :: _, _, _, _) =>
-        (case mIdent0 of None => return ()
-                       | Some mIdent0 => shadowTypedef_fun (mIdent0, param0))
-        >>
-        sequence_
-          shadowTypedef
-          (maps (fn CDecl0 (ret, l, _) =>
-                       maps (fn ((Some (CDeclr0 (Some mIdent, params, _, _, _)),_),_) =>
-                                  [(mIdent, params, ret)]
-                              | _ => [])
-                            l
-                  | _ => [])
-                params)
-     | _ => return ()
+
+  val ident_of_decl =
+    fn Left params => map (fn i => (i, [], [])) params
+     | Right (params, _) =>
+        maps (fn CDecl0 (ret, l, _) =>
+                   maps (fn ((Some (CDeclr0 (Some mIdent, params, _, _, _)),_),_) =>
+                              [(mIdent, params, ret)]
+                          | _ => [])
+                        l
+               | _ => [])
+             params
+
+  local
+  fun sequence_' f = sequence_ f o ident_of_decl
+  val is_fun = fn CFunDeclr0 _ => true | _ => false
+  in
+  fun doFuncParamDeclIdent (CDeclr0 (mIdent0, param0, _, _, node0)) =
+    let val (param_not_fun, param0') = chop_prefix (not o is_fun) param0
+        val () =
+          if null param_not_fun then ()
+          else Output.information ("Not a function" ^ Position.here (decode_error' (case mIdent0 of None => node0 | Some (Ident0 (_, _, node)) => node) |> #1))
+        val (param_fun, param0') = chop_prefix is_fun param0'
+    in
+      (case mIdent0 of None => return ()
+                     | Some mIdent0 => shadowTypedef_fun (mIdent0, param0))
+      >>
+      sequence_ shadowTypedef
+                (maps (fn CFunDeclr0 (params, _, _) => ident_of_decl params | _ => []) param_fun)
+      >>
+      sequence_
+        (fn CFunDeclr0 (params, _, _) =>
+            C_Env.map_env_tree
+              (pair Symtab.empty
+               #> sequence_'
+                  (fn (Ident0 (_, i, node), params, ret) => fn (env_lang, env_tree) => pair ()
+                    let
+                      val name = ident_decode i
+                      val pos = [decode_error' node |> #1]
+                      val data = (pos, serial (), {global = false, params = params, ret = C_Env.Parsed ret})
+                    in
+                      ( env_lang |> Symtab.update (name, data)
+                      , env_tree |> C_Env.map_reports_text (markup_var_improper (Left (data, C_Env_Ext.list_lookup env_lang name)) pos name))
+                    end)
+                  params
+               #> #2 o #2)
+            #> pair ()
+          | _ => return ())
+        param0'
+    end
+  end
 
   (**)
   structure List = struct val reverse = rev end
@@ -685,6 +729,7 @@ open C_Grammar_Rule_Lib
 val update_env =
  fn C_Transition.Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_lang_tree (f x) arg))
   | C_Transition.Top_down => fn f => fn x => pair () ##> (fn arg => C_Env_Ext.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
+
 
 (*type variable (report bound)*)
 
@@ -720,6 +765,55 @@ val primary_expression1 : (CExpr) -> unit monad = update_env C_Transition.Bottom
         | _ => I
     end
       e
+      env_tree))
+
+
+(*basic variable, parameter functions (report bound)*)
+
+val declarator1 : (CDeclrR) -> unit monad = update_env C_Transition.Bottom_up (fn d => fn env_lang => fn env_tree =>
+  ( env_lang
+  , let open C_Ast
+        fun markup markup_var params =
+         pair Symtab.empty
+         #> fold
+              (fn (Ident0 (_, i, node), params, ret) => fn (env_lang, env_tree) =>
+                let
+                  val name = ident_decode i
+                  val pos = [decode_error' node |> #1]
+                  val data = (pos, serial (), {global = false, params = params, ret = C_Env.Parsed ret})
+                in
+                  ( env_lang |> Symtab.update (name, data)
+                  , env_tree |> C_Env.map_reports_text (markup_var (Left (data, C_Env_Ext.list_lookup env_lang name)) pos name))
+                end)
+              (ident_of_decl params)
+         #> #2
+    in fn CDeclrR0 (_, param0, _, _, _) =>
+      (case rev param0 of
+        CFunDeclr0 (params, _, _) :: param0 =>
+          pair param0 o markup markup_var_bound params
+      | param0 => pair param0)
+        #->
+        fold
+         (fn CFunDeclr0 (params, _, _) => markup markup_var_improper params
+           | _ => I)
+    end
+      d
+      env_tree))
+
+
+(*old style syntax for functions (legacy feature)*)
+
+val external_declaration1 : (CExtDecl) -> unit monad = update_env C_Transition.Bottom_up (fn f => fn env_lang => fn env_tree =>
+  ( env_lang
+  , let open C_Ast
+    in fn CFDefExt0 (CFunDef0 (_, _, l, _, node)) => 
+          if null l then
+            I
+          else
+            tap (fn _ => legacy_feature ("Scope analysing for old function syntax not implemented" ^ Position.here (decode_error' node |> #1)))
+        | _ => I
+    end
+      f
       env_tree))
 
 

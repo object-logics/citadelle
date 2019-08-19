@@ -475,6 +475,35 @@ int main3 () { main2 (); }
 
 declare [[C_starting_env = empty]]
 
+subsubsection \<open>7\<close>
+
+C \<open>int f (int z);\<close>
+C \<open>int * f (int z);\<close>
+C \<open>int (* f) (int z /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Grammar_Rule_Wrap_Overloading.declarator1\<close>\<close>*/);\<close>
+C \<open>typedef int (* f) (int z);\<close>
+C \<open>int f (int z) {}\<close>
+C \<open>int * f (int z) {return z;}\<close>
+C \<open>int ((* f) (int z1, int z2)) {return z1 + z2;}\<close>
+C \<open>int (* (* f) (int z1, int z2)) {return z1 + z2;}\<close>
+C \<open>typedef int (* f) (int z); f uuu (int b) {return b;};\<close>
+C \<open>typedef int (* (* f) (int z, int z)) (int a); f uuu (int b) {return b;};\<close>
+C \<open>struct z { int (* f) (int z); int (* (* ff) (int z)) (int a); };\<close>
+C \<open>double (* (* f (int a /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Grammar_Rule_Wrap_Overloading.declarator1\<close>\<close>*/)) (int a, double d)) (char a);\<close>
+C \<open>double (* (((* f) []) (int a)) (int b, double c)) (char d) {int a = b + c + d;}\<close>
+C \<open>double ((*((f) (int a))) (int a /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Grammar_Rule_Lib.doFuncParamDeclIdent\<close>\<close>*/, double)) (char c) {int a = 0;}\<close>
+
+C \<comment> \<open>Nesting functions\<close> \<open>
+double (* (* f (int a)) (int a, double)) (char c) {
+double (* (* f (int a)) (double a, int a)) (char) {
+  return a;
+}
+}
+\<close>
+
+C \<comment> \<open>Old function syntax\<close> \<open>
+f (x) int x; {return x;}
+\<close>
+
 subsection \<open>General commands\<close>
 
 locale zz begin definition "z' = ()"
