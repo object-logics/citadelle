@@ -280,7 +280,7 @@ fun exec_tree' l env_tree = env_tree
                      "")
           l
 
-fun uncurry_context f pos = uncurry (fn x => fn arg => map_env_tree (f pos x (#env_lang arg)) arg)
+fun uncurry_context f pos = uncurry (fn x => fn arg => map_env_tree' (f pos x (#env_lang arg)) arg)
 
 fun eval env_lang start err accept stream_lang =
  make env_lang stream_lang
@@ -328,7 +328,7 @@ fun eval env_lang start err accept stream_lang =
                    arg)
           end)
  #> snd
- #> #env_tree
+ #> apsnd #env_tree
 end
 \<close>
 
@@ -558,12 +558,12 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
 (* derived versions *)
 
 fun eval' env start err accept ants =
-  Context.>> (fn context =>
-               C_Env_Ext.context_map
+  Context.>>> (fn context =>
+               C_Env_Ext.context_map'
                  (eval (env context) (start context) err accept ants
-                  #> tap (Position.reports_text o #reports_text)
-                  #> tap (#error_lines #> (fn [] => () | l => error (cat_lines (rev l))))
-                  #> (C_Env.empty_env_tree o #context))
+                  #> apsnd (tap (Position.reports_text o #reports_text)
+                            #> tap (#error_lines #> (fn [] => () | l => error (cat_lines (rev l))))
+                            #> (C_Env.empty_env_tree o #context)))
                  context)
 end;
 

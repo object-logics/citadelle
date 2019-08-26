@@ -238,6 +238,11 @@ fun map_env_directives f {var_table, scopes, namesupply, stream_ignored, env_dir
 fun map_context f {context, reports_text, error_lines} =
                      {context = f context, reports_text = reports_text, error_lines = error_lines}
 
+fun map_context' f {context, reports_text, error_lines} =
+                  let val (res, context) = f context
+                  in (res, {context = context, reports_text = reports_text, error_lines = error_lines})
+                  end
+
 fun map_reports_text f {context, reports_text, error_lines} =
                      {context = context, reports_text = f reports_text, error_lines = error_lines}
 
@@ -245,6 +250,12 @@ fun map_error_lines f {context, reports_text, error_lines} =
                      {context = context, reports_text = reports_text, error_lines = f error_lines}
 
 (**)
+
+fun map_env_tree' f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
+                let val (res, env_tree) = f env_tree
+                in (res, {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
+                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang})
+                end
 
 fun map_env_lang_tree f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
                 let val (env_lang, env_tree) = f env_lang env_tree
@@ -398,6 +409,9 @@ fun map_stream_lang' f {env_lang, env_tree, rule_output, rule_input, stream_hook
 
 fun context_map (f : C_Env.env_tree -> C_Env.env_tree) =
   C_Env.empty_env_tree #> f #> #context
+
+fun context_map' (f : C_Env.env_tree -> 'a * C_Env.env_tree) =
+  C_Env.empty_env_tree #> f #> apsnd #context
 
 (**)
 

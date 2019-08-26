@@ -166,6 +166,53 @@ structure Data_Accept = Generic_Data
    val extend = I
    val merge = #2)
 
+structure Data_Term = Generic_Data
+  (type T = (C_Grammar_Rule.start_happy -> C_Env.env_lang -> term) Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = #2)
+
+structure C_Term =
+struct
+val key_translation_unit = \<open>translation_unit\<close>
+val key_external_declaration = \<open>external_declaration\<close>
+val key_statement = \<open>statement\<close>
+val key_expression = \<open>expression\<close>
+val key_default = \<open>default\<close>
+
+local
+val source_content = Input.source_content #> #1
+in
+val key0_translation_unit = source_content key_translation_unit
+val key0_external_declaration = source_content key_external_declaration
+val key0_statement = source_content key_statement
+val key0_expression = source_content key_expression
+val key0_default = source_content key_default
+end
+
+val tok0_translation_unit = (key0_translation_unit, C_Grammar.Tokens.start_translation_unit)
+val tok0_external_declaration = (key0_external_declaration, C_Grammar.Tokens.start_external_declaration)
+val tok0_statement = (key0_statement, C_Grammar.Tokens.start_statement)
+val tok0_expression = (key0_expression, C_Grammar.Tokens.start_expression)
+
+val tok_translation_unit = (key_translation_unit, C_Grammar.Tokens.start_translation_unit)
+val tok_external_declaration = (key_external_declaration, C_Grammar.Tokens.start_external_declaration)
+val tok_statement = (key_statement, C_Grammar.Tokens.start_statement)
+val tok_expression = (key_expression, C_Grammar.Tokens.start_expression)
+
+val tokens = [ tok0_translation_unit
+             , tok0_external_declaration
+             , tok0_statement
+             , tok0_expression ]
+
+fun map_translation_unit f = Context.theory_map (Data_Term.map (Symtab.update (key0_translation_unit, f o the o C_Grammar_Rule.start_happy1)))
+fun map_external_declaration f = Context.theory_map (Data_Term.map (Symtab.update (key0_external_declaration, f o the o C_Grammar_Rule.start_happy2)))
+fun map_statement f = Context.theory_map (Data_Term.map (Symtab.update (key0_statement, f o the o C_Grammar_Rule.start_happy3)))
+fun map_expression f = Context.theory_map (Data_Term.map (Symtab.update (key0_expression, f o the o C_Grammar_Rule.start_happy4)))
+fun map_default f = Context.theory_map (Data_Term.map (Symtab.update (key0_default, f)))
+
+end
+
 fun env context =
   case Config.get (Context.proof_of context) C_Options.starting_env of
     "last" => Data_In_Env.get context
@@ -175,22 +222,47 @@ fun env context =
 fun start source context =
  Input.range_of source
  |>
-  (case Config.get (Context.proof_of context) C_Options.starting_rule of
-    "translation_unit" => C_Grammar.Tokens.start_translation_unit
-  | "external_declaration" => C_Grammar.Tokens.start_external_declaration
-  | "statement" => C_Grammar.Tokens.start_statement
-  | "expression" => C_Grammar.Tokens.start_expression
-  | s => error ("Unknown option: " ^ s ^ Position.here (Config.pos_of C_Options.starting_rule)))
+  let val s = Config.get (Context.proof_of context) C_Options.starting_rule
+  in case AList.lookup (op =) C_Term.tokens s of
+       SOME tok => tok
+     | NONE => error ("Unknown option: " ^ s ^ Position.here (Config.pos_of C_Options.starting_rule))
+  end
 
-fun err _ _ pos =
+fun err0 _ _ pos =
   C_Env.map_error_lines (cons ("Parser: No matching grammar rule" ^ Position.here pos))
 
+val err = pair () oooo err0
+
+fun accept0 f env_lang res =
+  Data_In_Env.put env_lang
+  #> (fn context => f context res env_lang (Data_Accept.get context res env_lang context))
+
 fun accept env_lang (_, (res, _, _)) =
-  C_Env.map_context
-    (Data_In_Env.put env_lang
-     #> (fn context => Data_Accept.get context res env_lang context))
+  pair () o C_Env.map_context (accept0 (K (K (K I))) env_lang res)
 
 val eval_source = C_Context.eval_source env start err accept
+
+fun eval_source' start_rule =
+  let 
+    val (key, start) =
+      case start_rule of NONE => (C_Term.key_default, start)
+                       | SOME (key, start_rule) => (key, fn source => fn _ => start_rule (Input.range_of source))
+    val (key, pos) = Input.source_content key
+  in
+    C_Context.eval_source
+      env
+      start
+      (pair Term.dummy oooo err0)
+      (fn env_lang => fn (_, (res, _, _)) =>
+        C_Env.map_context'
+          (accept0
+            (fn context =>
+              pair oo (case Symtab.lookup (Data_Term.get context) key of
+                         NONE => tap (fn _ => warning ("Representation function associated to \"" ^ key ^ "\"" ^ Position.here pos ^ " not found (returning a dummy term)")) (fn _ => fn _ => @{term "()"})
+                       | SOME f => f))
+            env_lang
+            res))
+  end
 
 fun eval_in text ctxt = C_Context.eval_in ctxt env (start text) err accept
 
@@ -224,7 +296,7 @@ fun C' env_lang src context =
        err
        accept
        src
-  |> (fn {context, reports_text, error_lines} => 
+  |> (fn (_, {context, reports_text, error_lines}) => 
      tap (fn _ => case error_lines of [] => () | l => warning (cat_lines (rev l)))
          (C_Stack.Data_Tree.map (curry C_Stack.Data_Tree_Args.merge (reports_text, []))
                                 context))
@@ -682,5 +754,49 @@ val _ =
   Outer_Syntax.local_theory \<^command_keyword>\<open>C_export_file\<close> "diagnostic C text"
     (Scan.succeed () >> K (C_Module.C_export_file Position.no_range));
 in end\<close>
+
+subsection \<open>Syntax for Pure Term\<close>
+
+syntax "_C_translation_unit" :: \<open>cartouche_position \<Rightarrow> string\<close> ("\<^C>\<^sub>u\<^sub>n\<^sub>i\<^sub>t _")
+syntax "_C_external_declaration" :: \<open>cartouche_position \<Rightarrow> string\<close> ("\<^C>\<^sub>d\<^sub>e\<^sub>c\<^sub>l _")
+syntax "_C_expression" :: \<open>cartouche_position \<Rightarrow> string\<close> ("\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r _")
+syntax "_C_statement" :: \<open>cartouche_position \<Rightarrow> string\<close> ("\<^C>\<^sub>s\<^sub>t\<^sub>m\<^sub>t _")
+syntax "_C" :: \<open>cartouche_position \<Rightarrow> string\<close> ("\<^C> _")
+
+parse_translation \<open>
+[ (\<^syntax_const>\<open>_C_translation_unit\<close>, SOME C_Module.C_Term.tok_translation_unit)
+, (\<^syntax_const>\<open>_C_external_declaration\<close>, SOME C_Module.C_Term.tok_external_declaration)
+, (\<^syntax_const>\<open>_C_expression\<close>, SOME C_Module.C_Term.tok_expression)
+, (\<^syntax_const>\<open>_C_statement\<close>, SOME C_Module.C_Term.tok_statement)
+, (\<^syntax_const>\<open>_C\<close>, NONE) ]
+|> map
+   (apsnd
+        (fn start_rule => fn _ => fn args =>
+          let val msg = (case start_rule of NONE => C_Module.C_Term.key_default
+                                          | SOME (key, _) => key)
+                        |> Input.source_content |> #1
+              fun err () = raise TERM (msg, args)
+          in
+           case args of
+             [(c as Const (\<^syntax_const>\<open>_constrain\<close>, _)) $ Free (s, _) $ p] =>
+              (case Term_Position.decode_position p of
+                SOME (pos, _) =>
+                c
+                $ C_Module.eval_source'
+                    start_rule
+                    (uncurry
+                      (Input.source false)
+                      let val s0 = Symbol_Pos.explode (s, pos)
+                          val s = Symbol_Pos.cartouche_content s0
+                      in
+                        ( Symbol_Pos.implode s
+                        , case s of [] => Position.no_range
+                                  | (_, pos0) :: _ => Position.range (pos0, s0 |> List.last |> snd))
+                      end)
+                $ p
+              | NONE => err ())
+           | _ => err ()
+          end))
+\<close>
 
 end

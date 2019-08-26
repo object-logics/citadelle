@@ -526,6 +526,8 @@ int jjj = b;
 */
 \<close>
 
+declare [[ML_source_trace = false]]
+
 C \<comment> \<open>Backslash newlines must be supported by \<^ML>\<open>C_Token.syntax'\<close> (in particular in keywords)\<close> \<open>
 //@  lem\
 ma (i\
@@ -546,22 +548,56 @@ txt\
 001\<close>)
 \<close>
 
-subsection \<open>Parameterizing Starting Rule\<close>
+subsection \<open>Starting Parsing Rule\<close>
 
-C \<open>
+subsubsection \<open>Basics\<close>
+
+C \<comment> \<open>Parameterizing starting rule\<close> \<open>
 /*@
 declare [[C_starting_rule = "statement"]]
 C \<open>while (a) {}\<close>
 C \<open>a = 2;\<close>
 declare [[C_starting_rule = "expression"]]
-C \<open>2 + 2\<close>
+C \<open>2 + 3\<close>
+C \<open>a = 2\<close>
 C \<open>a[1]\<close>
 C \<open>&a\<close>
 C \<open>a\<close>
 */
 \<close>
 
+subsubsection \<open>Embedding in inner terms\<close>
+
+term \<open>\<^C> \<comment> \<open>default behavior of parsing depending on the activated option\<close> \<open>0\<close>\<close>
+term \<open>\<^C>\<^sub>u\<^sub>n\<^sub>i\<^sub>t \<comment> \<open>force the explicit parsing\<close> \<open>f () {while (a) {}; return 0;} int a = 0;\<close>\<close>
+term \<open>\<^C>\<^sub>d\<^sub>e\<^sub>c\<^sub>l \<comment> \<open>force the explicit parsing\<close> \<open>int a = 0; \<close>\<close>
+term \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r \<comment> \<open>force the explicit parsing\<close> \<open>a\<close>\<close>
+term \<open>\<^C>\<^sub>s\<^sub>t\<^sub>m\<^sub>t \<comment> \<open>force the explicit parsing\<close> \<open>while (a) {}\<close>\<close>
+
 declare [[C_starting_rule = "translation_unit"]]
+
+term \<open>\<^C> \<comment> \<open>default behavior of parsing depending on the current option\<close> \<open>int a = 0;\<close>\<close>
+
+subsubsection \<open>User defined setup of syntax\<close>
+
+setup \<open>C_Module.C_Term.map_expression (fn _ => fn _ => @{term "10 :: nat"})\<close>
+setup \<open>C_Module.C_Term.map_statement (fn _ => fn _ => @{term "20 :: nat"})\<close>
+value \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>1\<close> + \<^C>\<^sub>s\<^sub>t\<^sub>m\<^sub>t\<open>for (;;);\<close>\<close>
+
+setup \<comment> \<open>redefinition\<close> \<open>C_Module.C_Term.map_expression (fn _ => fn _ => @{term "1000 :: nat"})\<close>
+value \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>1\<close> + \<^C>\<^sub>s\<^sub>t\<^sub>m\<^sub>t\<open>for (;;);\<close>\<close>
+
+setup \<open>C_Module.C_Term.map_default (fn _ => fn _ => @{term "True"})\<close>
+
+subsubsection \<open>Validity of context for annotations\<close>
+
+ML \<comment> \<open>Execution of annotations in term (valid context in \<^theory_text>\<open>ML\<close>)\<close> \<open>
+\<^term>\<open> \<^C> \<open>int c = 0; /*@ ML \<open>()\<close> */\<close> \<close>
+\<close>
+
+definition \<comment> \<open>Error while trying to execute annotations (invalid context in \<^theory_text>\<open>definition\<close>)\<close> \<open>
+term = \<^C> \<open>int c = 0; /* @ ML \<open>()\<close> */\<close>
+\<close>
 
 section \<open>Miscellaneous\<close>
 
