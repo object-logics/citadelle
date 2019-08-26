@@ -1,12 +1,20 @@
 open C_Ast open C_Grammar_Rule_Lib
 
+type start_happy = (CTranslUnit, (CExtDecl, (CStat, (CExpr, unit) either) either) either) either
+
+fun start_happy4 (x : start_happy) = case x of Right (Right (Right (Left x))) => SOME x | _ => NONE
+fun start_happy3 (x : start_happy) = case x of Right (Right (Left x)) => SOME x | _ => NONE
+fun start_happy2 (x : start_happy) = case x of Right (Left x) => SOME x | _ => NONE
+fun start_happy1 (x : start_happy) = case x of Left x => SOME x | _ => NONE
+
 %%
 %pure
 %name C_Grammar
 %arg (_) : Header.arg
 %nodefault
 
-%nonterm translation_unit of CTranslUnit
+%nonterm start_happy of (CTranslUnit, (CExtDecl, (CStat, (CExpr, unit) either) either) either) either
+       | translation_unit of CTranslUnit
        | ext_decl_list of (CExtDecl list) Reversed
        | external_declaration of CExtDecl
        | function_definition of CFunDef
@@ -138,7 +146,11 @@ open C_Ast open C_Grammar_Rule_Lib
        | attribute of CAttr Maybe
        | attribute_params of (CExpr list) Reversed
 
-%term error
+%term start_translation_unit
+    | start_external_declaration
+    | start_statement
+    | start_expression
+    | error
     | x28 of string
     | x29 of string
     | x5b of string
@@ -370,6 +382,11 @@ open C_Ast open C_Grammar_Rule_Lib
 %%
 
 (* production *)
+start_happy : start_translation_unit translation_unit ((Left) translation_unit1)
+            | start_external_declaration external_declaration ((Right o Left) external_declaration1)
+            | start_statement statement ((Right o Right o Left) statement1)
+            | start_expression expression ((Right o Right o Right o Left) expression1)
+
 translation_unit : ext_decl_list ((*%*)(fn happy_var_1 => let val decls = reverse happy_var_1 in case decls of [] => bind (getNewName) (fn n => bind (getCurrentPosition) (fn p => return (CTranslUnit decls (mkNodeInfo' p (p, 0) n)))) | (d :: ds) => withNodeInfo_CExtDecl d (CTranslUnit decls) end) ext_decl_list1)
 
 ext_decl_list :  (empty)
