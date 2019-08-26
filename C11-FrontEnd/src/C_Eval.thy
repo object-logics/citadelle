@@ -283,7 +283,7 @@ fun exec_tree' l env_tree = env_tree
 
 fun uncurry_context f pos = uncurry (fn x => fn arg => map_env_tree (f pos x (#env_lang arg)) arg)
 
-fun eval env_lang err accept stream_lang =
+fun eval env_lang start err accept stream_lang =
  make env_lang stream_lang
  #> C_Grammar_Parser.makeLexer
  #> C_Grammar_Parser.parse
@@ -305,6 +305,7 @@ fun eval env_lang err accept stream_lang =
           #> exec_tree' (rev stack_tree)
           #> err env_lang stack (Position.range_position (case hd stack_tree of Tree ({rule_pos = (rule_pos1, _), ...}, _) => (rule_pos1, next_pos2))))
       , Position.none
+      , start
       , uncurry_context (fn _ => fn (stack, _, _, stack_tree) => fn env_lang =>
           exec_tree' stack_tree
           #> accept env_lang (stack |> hd |> C_Stack.map_svalue0 C_Grammar_Rule.reduce0))
@@ -434,7 +435,7 @@ fun markup_directive_define in_direct =
       #> (case err of C_Ast.Left _ => I | C_Ast.Right (_, msg, f) => tap (fn _ => Output.information msg) #> f)
       #> (if def then cons' Markup.free else if in_direct then I else cons' Markup.antiquote))
 
-fun eval env err accept (ants, ants_err) {context, reports_text, error_lines} =
+fun eval env start err accept (ants, ants_err) {context, reports_text, error_lines} =
   let val error_lines = ants_err error_lines
       fun scan_comment tag pos (antiq as {explicit, body, ...}) cts =
            let val (res, l_comm) = scan_antiq context body
@@ -548,6 +549,7 @@ fun eval env err accept (ants, ants_err) {context, reports_text, error_lines} =
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
   in C_Language.eval env
+                     start
                      err
                      accept
                      ants_stack
@@ -556,25 +558,25 @@ fun eval env err accept (ants, ants_err) {context, reports_text, error_lines} =
 
 (* derived versions *)
 
-fun eval' env err accept ants =
+fun eval' env start err accept ants =
   Context.>> (fn context =>
                C_Env_Ext.context_map
-                 (eval (env context) err accept ants
+                 (eval (env context) start err accept ants
                   #> tap (Position.reports_text o #reports_text)
                   #> tap (#error_lines #> (fn [] => () | l => error (cat_lines (rev l))))
                   #> (C_Env.empty_env_tree o #context))
                  context)
 end;
 
-fun eval_source env err accept source =
-  eval' env err accept (C_Lex.read_source source);
+fun eval_source env start err accept source =
+  eval' env (start source) err accept (C_Lex.read_source source);
 
-fun eval_source' env err accept source =
-  eval env err accept (C_Lex.read_source source);
+fun eval_source' env start err accept source =
+  eval env (start source) err accept (C_Lex.read_source source);
 
-fun eval_in ctxt env err accept toks =
+fun eval_in ctxt env start err accept toks =
   Context.setmp_generic_context (Option.map Context.Proof ctxt)
-    (fn () => eval' env err accept toks) ();
+    (fn () => eval' env start err accept toks) ();
 
 fun expression struct_open range name constraint body ants context = context |>
   ML_Context.exec let val verbose = Config.get (Context.proof_of context) C_Options.ML_verbose

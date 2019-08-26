@@ -161,7 +161,7 @@ structure Data_In_Env = Generic_Data
    val merge = K empty)
 
 structure Data_Accept = Generic_Data
-  (type T = C_Ast.CTranslUnit -> C_Env.env_lang -> Context.generic -> Context.generic
+  (type T = C_Grammar_Rule.start_happy -> C_Env.env_lang -> Context.generic -> Context.generic
    fun empty _ _ = I
    val extend = I
    val merge = #2)
@@ -172,6 +172,8 @@ fun env context =
   | "empty" => C_Env.empty_env_lang
   | s => error ("Unknown option: " ^ s ^ Position.here (Config.pos_of C_Options.starting_env))
 
+val start = C_Grammar.Tokens.start_translation_unit o Input.range_of
+
 fun err _ _ pos =
   C_Env.map_error_lines (cons ("Parser: No matching grammar rule" ^ Position.here pos))
 
@@ -180,9 +182,9 @@ fun accept env_lang (_, (res, _, _)) =
     (Data_In_Env.put env_lang
      #> (fn context => Data_Accept.get context res env_lang context))
 
-val eval_source = C_Context.eval_source env err accept
+val eval_source = C_Context.eval_source env start err accept
 
-fun eval_in ctxt = C_Context.eval_in ctxt env err accept
+fun eval_in text ctxt = C_Context.eval_in ctxt env (start text) err accept
 
 fun exec_eval source =
   Data_In_Source.map (cons source)
@@ -209,6 +211,7 @@ fun C' env_lang src =
   C_Env.empty_env_tree
   #> C_Context.eval_source'
        env_lang
+       start
        err
        accept
        src
