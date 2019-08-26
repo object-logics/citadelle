@@ -120,17 +120,16 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
           let
             val len = len - 1
           in
-            tap (fn stack_ml =>
-              if length stack_ml = 1 orelse length stack_ml - len = 1 then
-                warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (ml_exec |> #1 |> Position.range_position))
-              else ())
-            #>
-            tap (fn stack_ml =>
-              if length stack_ml - len <= 0 then
-                error ("Maximum depth reached (" ^ Int.toString (len - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
-              else ())
-            #>
-            nth_map len (cons ml_exec)
+            fn stack_ml =>
+              stack_ml
+              |> (if length stack_ml <= len then
+                   tap (fn _ => warning ("Maximum depth reached (" ^ Int.toString (len - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position)))
+                   #> tap (fn _ => warning ("Unevaluated code" ^ Position.here (ml_exec |> #1 |> Position.range_position)))
+                   #> I
+                  else if length stack_ml - len <= 2 then
+                   tap (fn _ => warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (ml_exec |> #1 |> Position.range_position)))
+                   #> I
+                  else nth_map len (cons ml_exec))
           end
       end)
     l
