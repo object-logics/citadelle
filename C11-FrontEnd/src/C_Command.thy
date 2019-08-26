@@ -172,7 +172,15 @@ fun env context =
   | "empty" => C_Env.empty_env_lang
   | s => error ("Unknown option: " ^ s ^ Position.here (Config.pos_of C_Options.starting_env))
 
-val start = C_Grammar.Tokens.start_translation_unit o Input.range_of
+fun start source context =
+ Input.range_of source
+ |>
+  (case Config.get (Context.proof_of context) C_Options.starting_rule of
+    "translation_unit" => C_Grammar.Tokens.start_translation_unit
+  | "external_declaration" => C_Grammar.Tokens.start_external_declaration
+  | "statement" => C_Grammar.Tokens.start_statement
+  | "expression" => C_Grammar.Tokens.start_expression
+  | s => error ("Unknown option: " ^ s ^ Position.here (Config.pos_of C_Options.starting_rule)))
 
 fun err _ _ pos =
   C_Env.map_error_lines (cons ("Parser: No matching grammar rule" ^ Position.here pos))
@@ -207,15 +215,16 @@ fun C source =
   exec_eval source
   #> Local_Theory.propagate_ml_env
 
-fun C' env_lang src =
-  C_Env.empty_env_tree
-  #> C_Context.eval_source'
+fun C' env_lang src context =
+  context
+  |> C_Env.empty_env_tree
+  |> C_Context.eval_source'
        env_lang
-       start
+       (fn src => start src context)
        err
        accept
        src
-  #> (fn {context, reports_text, error_lines} => 
+  |> (fn {context, reports_text, error_lines} => 
      tap (fn _ => case error_lines of [] => () | l => warning (cat_lines (rev l)))
          (C_Stack.Data_Tree.map (curry C_Stack.Data_Tree_Args.merge (reports_text, []))
                                 context))

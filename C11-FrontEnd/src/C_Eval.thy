@@ -561,7 +561,7 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
 fun eval' env start err accept ants =
   Context.>> (fn context =>
                C_Env_Ext.context_map
-                 (eval (env context) start err accept ants
+                 (eval (env context) (start context) err accept ants
                   #> tap (Position.reports_text o #reports_text)
                   #> tap (#error_lines #> (fn [] => () | l => error (cat_lines (rev l))))
                   #> (C_Env.empty_env_tree o #context))

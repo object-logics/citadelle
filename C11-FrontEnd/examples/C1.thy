@@ -546,6 +546,23 @@ txt\
 001\<close>)
 \<close>
 
+subsection \<open>Parameterizing Starting Rule\<close>
+
+C \<open>
+/*@
+declare [[C_starting_rule = "statement"]]
+C \<open>while (a) {}\<close>
+C \<open>a = 2;\<close>
+declare [[C_starting_rule = "expression"]]
+C \<open>2 + 2\<close>
+C \<open>a[1]\<close>
+C \<open>&a\<close>
+C \<open>a\<close>
+*/
+\<close>
+
+declare [[C_starting_rule = "translation_unit"]]
+
 section \<open>Miscellaneous\<close>
 
 C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>

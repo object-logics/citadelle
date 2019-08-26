@@ -439,6 +439,7 @@ text \<open>
     @{attribute_def C_parser_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
     @{attribute_def C_ML_verbose} & : & \<open>attribute\<close> & default \<open>true\<close> \\
     @{attribute_def C_starting_env} & : & \<open>attribute\<close> & default \<open>empty\<close> \\
+    @{attribute_def C_starting_rule} & : & \<open>attribute\<close> & default \<open>translation_unit\<close> \\
   \end{tabular}
 
   \<^rail>\<open>
@@ -451,17 +452,17 @@ text \<open>
     ;
   \<close>
 
-  \<^descr> \<^theory_text>\<open>C_file name\<close> resembles to
-  \<^theory_text>\<open>ML_file name\<close>: it reads the given C
-  file, and let any attached semantic back-ends to proceed for further
-  subsequent evaluation. Top-level C bindings are stored within the
-  (global or local) theory context; the initial environment is set by
-  default to be an empty one, or the one returned by a previous
-  \<^theory_text>\<open>C_file\<close> (depending on @{attribute_def
-    C_starting_env}). Multiple \<^theory_text>\<open>C_file\<close>
-  commands may be used to build larger C projects if they are all
-  written in a single theory file (existing parent theories are
-  ignored, and not affecting the current working theory).
+  \<^descr> \<^theory_text>\<open>C_file name\<close> resembles to \<^theory_text>\<open>ML_file
+  name\<close>: it reads the given C file, and let any attached semantic back-ends to proceed for
+  further subsequent evaluation. Top-level C bindings are stored within the (global or local) theory
+  context; the initial environment is set by default to be an empty one, or the one returned by a
+  previous \<^theory_text>\<open>C_file\<close> (depending on @{attribute_def C_starting_env}). The
+  entry-point of the grammar taken as initial starting parser is read from @{attribute_def
+    C_starting_rule} (see
+  \<^url>\<open>https://www.haskell.org/happy/doc/html/sec-directives.html#sec-parser-name\<close>).
+  Multiple \<^theory_text>\<open>C_file\<close> commands may be used to build larger C projects if
+  they are all written in a single theory file (existing parent theories are ignored, and not
+  affecting the current working theory).
 
   \<^descr> \<^theory_text>\<open>C\<close> is similar to
   \<^theory_text>\<open>C_file\<close>, but evaluates directly the
@@ -506,10 +507,13 @@ text \<open>
   \<^theory_text>\<open>ML\<close> commands are acting similarly as
   their default verbose configuration in top-level.
 
-  \<^descr> @{attribute_def C_starting_env} makes the start of a C
+  \<^descr> @{attribute C_starting_env} makes the start of a C
   command (e.g., \<^theory_text>\<open>C_file\<close>,
   \<^theory_text>\<open>C\<close>) initialized with the environment of
   the previous C command if existing.
+
+  \<^descr> @{attribute C_starting_rule} sets which parsing function will be used to parse the next
+  C commands (e.g., \<^theory_text>\<open>C_file\<close>, \<^theory_text>\<open>C\<close>).
 \<close>
 
 subsection \<open>Inner Syntax Commands\<close>
