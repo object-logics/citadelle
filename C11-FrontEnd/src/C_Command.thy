@@ -167,7 +167,7 @@ structure Data_Accept = Generic_Data
    val merge = #2)
 
 structure Data_Term = Generic_Data
-  (type T = (C_Grammar_Rule.start_happy -> C_Env.env_lang -> term) Symtab.table
+  (type T = (C_Grammar_Rule.start_happy -> C_Env.env_lang -> local_theory -> term) Symtab.table
    val empty = Symtab.empty
    val extend = I
    val merge = #2)
@@ -233,16 +233,16 @@ fun err0 _ _ pos =
 
 val err = pair () oooo err0
 
-fun accept0 f env_lang res =
+fun accept0 f env_lang ast =
   Data_In_Env.put env_lang
-  #> (fn context => f context res env_lang (Data_Accept.get context res env_lang context))
+  #> (fn context => f context ast env_lang (Data_Accept.get context ast env_lang context))
 
-fun accept env_lang (_, (res, _, _)) =
-  pair () o C_Env.map_context (accept0 (K (K (K I))) env_lang res)
+fun accept env_lang (_, (ast, _, _)) =
+  pair () o C_Env.map_context (accept0 (K (K (K I))) env_lang ast)
 
 val eval_source = C_Context.eval_source env start err accept
 
-fun eval_source' start_rule =
+fun eval_source' ctxt start_rule =
   let 
     val (key, start) =
       case start_rule of NONE => (C_Term.key_default, start)
@@ -253,15 +253,15 @@ fun eval_source' start_rule =
       env
       start
       (pair Term.dummy oooo err0)
-      (fn env_lang => fn (_, (res, _, _)) =>
+      (fn env_lang => fn (_, (ast, _, _)) =>
         C_Env.map_context'
           (accept0
             (fn context =>
               pair oo (case Symtab.lookup (Data_Term.get context) key of
                          NONE => tap (fn _ => warning ("Representation function associated to \"" ^ key ^ "\"" ^ Position.here pos ^ " not found (returning a dummy term)")) (fn _ => fn _ => @{term "()"})
-                       | SOME f => f))
+                       | SOME f => fn ast => fn env_lang => f ast env_lang ctxt))
             env_lang
-            res))
+            ast))
   end
 
 fun eval_in text ctxt = C_Context.eval_in ctxt env (start text) err accept
@@ -771,7 +771,7 @@ parse_translation \<open>
 , (\<^syntax_const>\<open>_C\<close>, NONE) ]
 |> map
    (apsnd
-        (fn start_rule => fn _ => fn args =>
+        (fn start_rule => fn ctxt => fn args =>
           let val msg = (case start_rule of NONE => C_Module.C_Term.key_default
                                           | SOME (key, _) => key)
                         |> Input.source_content |> #1
@@ -783,6 +783,7 @@ parse_translation \<open>
                 SOME (pos, _) =>
                 c
                 $ C_Module.eval_source'
+                    ctxt
                     start_rule
                     (uncurry
                       (Input.source false)

@@ -580,14 +580,14 @@ term \<open>\<^C> \<comment> \<open>default behavior of parsing depending on the
 
 subsubsection \<open>User defined setup of syntax\<close>
 
-setup \<open>C_Module.C_Term.map_expression (fn _ => fn _ => @{term "10 :: nat"})\<close>
-setup \<open>C_Module.C_Term.map_statement (fn _ => fn _ => @{term "20 :: nat"})\<close>
+setup \<open>C_Module.C_Term.map_expression (fn _ => fn _ => fn _ => @{term "10 :: nat"})\<close>
+setup \<open>C_Module.C_Term.map_statement (fn _ => fn _ => fn _ => @{term "20 :: nat"})\<close>
 value \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>1\<close> + \<^C>\<^sub>s\<^sub>t\<^sub>m\<^sub>t\<open>for (;;);\<close>\<close>
 
-setup \<comment> \<open>redefinition\<close> \<open>C_Module.C_Term.map_expression (fn _ => fn _ => @{term "1000 :: nat"})\<close>
+setup \<comment> \<open>redefinition\<close> \<open>C_Module.C_Term.map_expression (fn _ => fn _ => fn _ => @{term "1000 :: nat"})\<close>
 value \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>1\<close> + \<^C>\<^sub>s\<^sub>t\<^sub>m\<^sub>t\<open>for (;;);\<close>\<close>
 
-setup \<open>C_Module.C_Term.map_default (fn _ => fn _ => @{term "True"})\<close>
+setup \<open>C_Module.C_Term.map_default (fn _ => fn _ => fn _ => @{term "True"})\<close>
 
 subsubsection \<open>Validity of context for annotations\<close>
 
