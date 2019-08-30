@@ -343,16 +343,16 @@ val _ =
           (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
               let val map_ctxt = 
                   case (tok3, toks) of
-                    (C_Lex.Token (_, (C_Lex.Ident, ident)),
+                    (C_Lex.Token ((pos, _), (C_Lex.Ident, ident)),
                      [C_Lex.Token (_, (C_Lex.Integer (_, C_Ast.DecRepr0, []), integer))]) =>
                       C_Env.map_context
                         (Context.map_theory
                           (Named_Target.theory_map
                             (Specification.definition_cmd
-                              NONE
+                              (SOME (Binding.make (ident, pos), NONE, NoSyn))
                               []
                               []
-                              ((Binding.make ("", Position.none), []), ident ^ " \<equiv> " ^ integer)
+                              (Binding.empty_atts, ident ^ " \<equiv> " ^ integer)
                               true
                              #> tap (fn ((_, (_, t)), ctxt) => Output.information ("Generating " ^ Pretty.string_of (Syntax.pretty_term ctxt (Thm.prop_of t)) ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks)))))
                              #> #2)))
