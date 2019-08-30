@@ -754,7 +754,6 @@ val warn = fn
   | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (Unknown, _)) => unknown pos
   | Token (_, (Comment (Comment_suspicious (SOME (explicit, msg, _))), _)) => (if explicit then warning else tracing) msg
-  | Token ((pos, _), (Directive (Inline _), _)) => warning ("Ignored directive" ^ Position.here pos)
   | Token (_, (Directive (kind as Conditional _), _)) => app_directive (token_list_of kind)
   | Token (_, (Directive (Define (_, _, _, Group1 (_, toks4))), _)) => app_directive toks4
   | Token (_, (Directive (Include (Group2 (_, _, toks))), _)) =>
