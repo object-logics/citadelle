@@ -662,21 +662,15 @@ val group_list_of = fn
 fun content_of (Token (_, (_, x))) = x;
 fun token_leq (tok, tok') = content_of tok <= content_of tok';
 
-val directive_first_cmd_of = fn
-   Inline (Group1 (_, _ :: tok2 :: _)) => SOME tok2
- | Include (Group2 (_, [_, tok2], _)) => SOME tok2
- | Define (Group1 (_, [_, tok2]), _, _, _) => SOME tok2
- | Undef (Group2 (_, [_, tok2], _)) => SOME tok2
- | Conditional (c1, _, _, _) =>
-     (case c1 of Group3 ((_, _, [_, tok2], _), _) => SOME tok2
-               | _ => error "Only expecting Group3")
- | _ => NONE
-
-val directive_tail_cmds_of = fn
-   Conditional (_, cs2, c3, c4) =>
+val directive_cmds = fn
+   Inline (Group1 (_, _ :: tok2 :: _)) => [tok2]
+ | Include (Group2 (_, [_, tok2], _)) => [tok2]
+ | Define (Group1 (_, [_, tok2]), _, _, _) => [tok2]
+ | Undef (Group2 (_, [_, tok2], _)) => [tok2]
+ | Conditional (c1, cs2, c3, c4) =>
      maps (fn Group3 ((_, _, [_, tok2], _), _) => [tok2]
             | _ => error "Only expecting Group3")
-          (flat [cs2, the_list c3, [c4]])
+          (flat [[c1], cs2, the_list c3, [c4]])
  | _ => []
 
 fun is_keyword (Token (_, (Keyword, _))) = true

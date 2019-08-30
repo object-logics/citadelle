@@ -331,58 +331,60 @@ subsubsection \<open>Initialization\<close>
 
 ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
+fun return f (env_cond, env) = ([], (env_cond, f env))
+
 val _ =
   Theory.setup
   (Context.theory_map
     (C_Context.Directives.map
       (C_Context.directive_update ("define", \<^here>)
-        (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
-            let val map_ctxt = 
-                case (tok3, toks) of
-                  (C_Lex.Token (_, (C_Lex.Ident, ident)),
-                   [C_Lex.Token (_, (C_Lex.Integer (_, C_Ast.DecRepr0, []), integer))]) =>
-                    C_Env.map_context
-                      (Context.map_theory
-                        (Named_Target.theory_map
-                          (Specification.definition_cmd
-                            NONE
-                            []
-                            []
-                            ((Binding.make ("", Position.none), []), ident ^ " \<equiv> " ^ integer)
-                            true
-                           #> tap (fn ((_, (_, t)), ctxt) => Output.information ("Generating " ^ Pretty.string_of (Syntax.pretty_term ctxt (Thm.prop_of t)) ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks)))))
-                           #> #2)))
-                | _ => I
-            in fn (env_dir, env_tree) =>
-                ( NONE
-                , []
-                , let val name = C_Lex.content_of tok3
+        (return
+         o
+          (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
+              let val map_ctxt = 
+                  case (tok3, toks) of
+                    (C_Lex.Token (_, (C_Lex.Ident, ident)),
+                     [C_Lex.Token (_, (C_Lex.Integer (_, C_Ast.DecRepr0, []), integer))]) =>
+                      C_Env.map_context
+                        (Context.map_theory
+                          (Named_Target.theory_map
+                            (Specification.definition_cmd
+                              NONE
+                              []
+                              []
+                              ((Binding.make ("", Position.none), []), ident ^ " \<equiv> " ^ integer)
+                              true
+                             #> tap (fn ((_, (_, t)), ctxt) => Output.information ("Generating " ^ Pretty.string_of (Syntax.pretty_term ctxt (Thm.prop_of t)) ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks)))))
+                             #> #2)))
+                  | _ => I
+              in 
+                fn (env_dir, env_tree) =>
+                  let val name = C_Lex.content_of tok3
                       val pos = [C_Lex.pos_of tok3]
                       val data = (pos, serial (), toks)
                   in
                     ( Symtab.update (name, data) env_dir
                     , env_tree |> C_Context.markup_directive_define false (C_Ast.Left (data, C_Env_Ext.list_lookup env_dir name)) pos name
                                |> map_ctxt)
-                  end)
-            end
-          | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
-              tap (fn _ => (* not yet implemented *)
-                           warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
-              #> (fn env => (NONE, [], env))
-          | _ => fn env => (NONE, [], env))
+                  end
+              end
+            | C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), SOME (C_Lex.Group1 (_ :: toks_bl, _)), _) =>
+                tap (fn _ => (* not yet implemented *)
+                             warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
+            | _ => I))
        #>
        C_Context.directive_update ("undef", \<^here>)
-        (fn C_Lex.Undef (C_Lex.Group2 (_, _, [tok])) =>
-              (fn (env_dir, env_tree) =>
-                ( NONE
-                , []
-                , let val name = C_Lex.content_of tok
+        (return
+         o
+          (fn C_Lex.Undef (C_Lex.Group2 (_, _, [tok])) =>
+                (fn (env_dir, env_tree) =>
+                  let val name = C_Lex.content_of tok
                       val pos1 = [C_Lex.pos_of tok]
                       val data = Symtab.lookup env_dir name
                   in ( (case data of NONE => env_dir | SOME _ => Symtab.delete name env_dir)
                      , C_Context.markup_directive_define true (C_Ast.Right (pos1, data)) pos1 name env_tree)
-                  end))
-          | _ => fn env => (NONE, [], env)))))
+                  end)
+            | _ => I)))))
 in end
 \<close>
 

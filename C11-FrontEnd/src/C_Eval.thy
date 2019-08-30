@@ -354,15 +354,15 @@ fun fun_decl a v s ctxt =
 
 (* theory data *)
 
-type env_direct = C_Transition.env_directives * C_Env.env_tree
+type env_direct = bool (* internal result for conditional directives: branch skipping *)
+                * (C_Transition.env_directives * C_Env.env_tree)
 
 structure Directives = Generic_Data
   (type T = (Position.T list
              * serial
              * (C_Lex.token_kind_directive
                 -> env_direct
-                -> int option (* result path of conditional directive to choose *)
-                   * C_Transition.antiq_language list (* nested annotations from the input *)
+                -> C_Transition.antiq_language list (* nested annotations from the input *)
                    * env_direct (*NOTE: remove the possibility of returning a too modified env?*)))
             Symtab.table
    val empty = Symtab.empty
@@ -505,18 +505,18 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                   | Right tok =>
                   case tok of
                     C_Lex.Token (_, (C_Lex.Directive dir, _)) =>
-                      (case C_Lex.directive_first_cmd_of dir of
-                         NONE => I
-                       | SOME dir_tok =>
-                         apsnd (C_Env.map_reports_text (append (map (fn tok => ((C_Lex.pos_of tok, Markup.antiquote), "")) (C_Lex.directive_tail_cmds_of dir))))
-                         #>
-                         let val name = C_Lex.content_of dir_tok
-                             val pos1 = [C_Lex.pos_of dir_tok]
-                             val data = Symtab.lookup (Directives.get context) name
-                         in
-                           apsnd (C_Env.map_reports_text (markup_directive_command (C_Ast.Right (pos1, data)) pos1 name))
-                           #> (case data of NONE => I | SOME (_, _, exec) => exec dir #> #3)
-                         end)
+                      pair false
+                      #> fold
+                          (fn dir_tok =>
+                            let val name = C_Lex.content_of dir_tok
+                                val pos1 = [C_Lex.pos_of dir_tok]
+                                val data = Symtab.lookup (Directives.get context) name
+                            in
+                              apsnd (apsnd (C_Env.map_reports_text (markup_directive_command (C_Ast.Right (pos1, data)) pos1 name)))
+                              #> (case data of NONE => I | SOME (_, _, exec) => exec dir #> #2)
+                            end)
+                          (C_Lex.directive_cmds dir)
+                      #> snd
                       #> tap
                            (fn _ =>
                              app (fn C_Lex.Token ((pos, _), (C_Lex.Comment (C_Lex.Comment_formal _), _)) =>
