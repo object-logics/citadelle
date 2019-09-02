@@ -224,14 +224,10 @@ fun c_text name c =
       let val _ = C_Module.eval_in text (SOME ctxt) (c text)
       in #1 (Input.source_content text) end);
 
-fun c_enclose bg en source =
-  C_Lex.@@ ( C_Lex.@@ (C_Lex.read bg, C_Lex.read_source source)
-           , C_Lex.read en);
-
 in
 
 val _ = Theory.setup
- (c_text \<^binding>\<open>C\<close> (c_enclose "" "") #>
+ (c_text \<^binding>\<open>C\<close> (C_Module.c_enclose "" "") #>
   c_text \<^binding>\<open>C_text\<close> (K C_Lex.read_init));
 
 end;

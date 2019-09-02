@@ -242,6 +242,10 @@ fun accept env_lang (_, (ast, _, _)) =
 
 val eval_source = C_Context.eval_source env start err accept
 
+fun c_enclose bg en source =
+  C_Lex.@@ ( C_Lex.@@ (C_Lex.read bg, C_Lex.read_source source)
+           , C_Lex.read en);
+
 fun eval_source' ctxt start_rule =
   let 
     val (key, start) =
@@ -263,6 +267,37 @@ fun eval_source' ctxt start_rule =
             env_lang
             ast))
   end
+
+fun parse_translation l = l |>
+  map
+  (apsnd
+    (fn start_rule => fn ctxt => fn args =>
+      let val msg = (case start_rule of NONE => C_Term.key_default
+                                      | SOME (key, _) => key)
+                    |> Input.source_content |> #1
+          fun err () = raise TERM (msg, args)
+      in
+       case args of
+         [(c as Const (\<^syntax_const>\<open>_constrain\<close>, _)) $ Free (s, _) $ p] =>
+          (case Term_Position.decode_position p of
+            SOME (pos, _) =>
+            c
+            $ eval_source'
+                ctxt
+                start_rule
+                (uncurry
+                  (Input.source false)
+                  let val s0 = Symbol_Pos.explode (s, pos)
+                      val s = Symbol_Pos.cartouche_content s0
+                  in
+                    ( Symbol_Pos.implode s
+                    , case s of [] => Position.no_range
+                              | (_, pos0) :: _ => Position.range (pos0, s0 |> List.last |> snd))
+                  end)
+            $ p
+          | NONE => err ())
+       | _ => err ()
+      end))
 
 fun eval_in text ctxt = C_Context.eval_in ctxt env (start text) err accept
 
@@ -766,40 +801,12 @@ syntax "_C_statement" :: \<open>cartouche_position \<Rightarrow> string\<close> 
 syntax "_C" :: \<open>cartouche_position \<Rightarrow> string\<close> ("\<^C> _")
 
 parse_translation \<open>
-[ (\<^syntax_const>\<open>_C_translation_unit\<close>, SOME C_Module.C_Term.tok_translation_unit)
-, (\<^syntax_const>\<open>_C_external_declaration\<close>, SOME C_Module.C_Term.tok_external_declaration)
-, (\<^syntax_const>\<open>_C_expression\<close>, SOME C_Module.C_Term.tok_expression)
-, (\<^syntax_const>\<open>_C_statement\<close>, SOME C_Module.C_Term.tok_statement)
-, (\<^syntax_const>\<open>_C\<close>, NONE) ]
-|> map
-   (apsnd
-        (fn start_rule => fn ctxt => fn args =>
-          let val msg = (case start_rule of NONE => C_Module.C_Term.key_default
-                                          | SOME (key, _) => key)
-                        |> Input.source_content |> #1
-              fun err () = raise TERM (msg, args)
-          in
-           case args of
-             [(c as Const (\<^syntax_const>\<open>_constrain\<close>, _)) $ Free (s, _) $ p] =>
-              (case Term_Position.decode_position p of
-                SOME (pos, _) =>
-                c
-                $ C_Module.eval_source'
-                    ctxt
-                    start_rule
-                    (uncurry
-                      (Input.source false)
-                      let val s0 = Symbol_Pos.explode (s, pos)
-                          val s = Symbol_Pos.cartouche_content s0
-                      in
-                        ( Symbol_Pos.implode s
-                        , case s of [] => Position.no_range
-                                  | (_, pos0) :: _ => Position.range (pos0, s0 |> List.last |> snd))
-                      end)
-                $ p
-              | NONE => err ())
-           | _ => err ()
-          end))
+C_Module.parse_translation
+  [ (\<^syntax_const>\<open>_C_translation_unit\<close>, SOME C_Module.C_Term.tok_translation_unit)
+  , (\<^syntax_const>\<open>_C_external_declaration\<close>, SOME C_Module.C_Term.tok_external_declaration)
+  , (\<^syntax_const>\<open>_C_expression\<close>, SOME C_Module.C_Term.tok_expression)
+  , (\<^syntax_const>\<open>_C_statement\<close>, SOME C_Module.C_Term.tok_statement)
+  , (\<^syntax_const>\<open>_C\<close>, NONE) ]
 \<close>
 
 end
