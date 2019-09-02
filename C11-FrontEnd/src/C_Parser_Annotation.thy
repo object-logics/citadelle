@@ -1495,11 +1495,10 @@ fun raw_command (name, pos) comment command_parser =
 fun command (name, pos) comment parse =
   raw_command (name, pos) comment (Parser parse);
 
-fun command' (name, pos) comment parse =
-  raw_command0 Keyword.thy_decl (name, pos) comment (Parser parse);
-
 fun command'' kind (name, pos) comment parse =
   raw_command0 kind (name, pos) comment (Parser parse);
+
+val command' = command'' Keyword.thy_decl;
 
 
 
