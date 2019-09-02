@@ -213,11 +213,13 @@ fun map_default f = Context.theory_map (Data_Term.map (Symtab.update (key0_defau
 
 end
 
-fun env context =
-  case Config.get (Context.proof_of context) C_Options.starting_env of
-    "last" => Data_In_Env.get context
+fun env0 ctxt =
+  case Config.get ctxt C_Options.starting_env of
+    "last" => Data_In_Env.get (Context.Proof ctxt)
   | "empty" => C_Env.empty_env_lang
   | s => error ("Unknown option: " ^ s ^ Position.here (Config.pos_of C_Options.starting_env))
+
+val env = env0 o Context.proof_of
 
 fun start source context =
  Input.range_of source
@@ -246,18 +248,19 @@ fun c_enclose bg en source =
   C_Lex.@@ ( C_Lex.@@ (C_Lex.read bg, C_Lex.read_source source)
            , C_Lex.read en);
 
-fun eval_source' ctxt start_rule =
+structure C_Term' =
+struct
+val err = pair Term.dummy oooo err0
+
+fun accept ctxt start_rule =
   let 
     val (key, start) =
       case start_rule of NONE => (C_Term.key_default, start)
                        | SOME (key, start_rule) => (key, fn source => fn _ => start_rule (Input.range_of source))
     val (key, pos) = Input.source_content key
   in
-    C_Context.eval_source
-      env
-      start
-      (pair Term.dummy oooo err0)
-      (fn env_lang => fn (_, (ast, _, _)) =>
+    ( start
+    , fn env_lang => fn (_, (ast, _, _)) =>
         C_Env.map_context'
           (accept0
             (fn context =>
@@ -266,6 +269,13 @@ fun eval_source' ctxt start_rule =
                        | SOME f => fn ast => fn env_lang => f ast env_lang ctxt))
             env_lang
             ast))
+  end
+
+fun eval_in text context env start_rule =
+  let 
+    val (start, accept) = accept (Context.proof_of context) start_rule
+  in
+    C_Context.eval_in (SOME context) env (start text) err accept
   end
 
 fun parse_translation l = l |>
@@ -282,10 +292,8 @@ fun parse_translation l = l |>
           (case Term_Position.decode_position p of
             SOME (pos, _) =>
             c
-            $ eval_source'
-                ctxt
-                start_rule
-                (uncurry
+            $ let val src = 
+                uncurry
                   (Input.source false)
                   let val s0 = Symbol_Pos.explode (s, pos)
                       val s = Symbol_Pos.cartouche_content s0
@@ -293,11 +301,23 @@ fun parse_translation l = l |>
                     ( Symbol_Pos.implode s
                     , case s of [] => Position.no_range
                               | (_, pos0) :: _ => Position.range (pos0, s0 |> List.last |> snd))
-                  end)
+                  end
+              in
+              eval_in
+                src
+                (case Context.get_generic_context () of
+                   NONE => Context.Proof ctxt
+                 | SOME context => Context.mapping I (K ctxt) context)
+                (C_Stack.Data_Lang.get #> (fn NONE => env0 ctxt
+                                            | SOME (_, env_lang) => env_lang))
+                start_rule
+                (c_enclose "" "" src)
+              end
             $ p
           | NONE => err ())
        | _ => err ()
       end))
+end
 
 fun eval_in text ctxt = C_Context.eval_in ctxt env (start text) err accept
 
@@ -461,7 +481,7 @@ fun setup0 f_typ f_val src =
         setup
         (f_typ "C_Stack.stack_data" "C_Stack.stack_data_elem -> C_Env.env_lang -> Context.generic -> Context.generic")
         ("fn context => \
-           \let val (stack, env_lang) = C_Stack.Data_Lang.get context \
+           \let val (stack, env_lang) = C_Stack.Data_Lang.get' context \
            \in " ^ f_val setup "stack" ^ " (stack |> hd) env_lang end context")
         (ML_Lex.read_source src) end
   | SOME rule => 
@@ -472,7 +492,7 @@ fun setup0 f_typ f_val src =
         hook
         (f_typ "C_Stack.stack_data" (C_Grammar_Rule.type_reduce rule ^ " C_Stack.stack_elem -> C_Env.env_lang -> Context.generic -> Context.generic"))
         ("fn context => \
-           \let val (stack, env_lang) = C_Stack.Data_Lang.get context \
+           \let val (stack, env_lang) = C_Stack.Data_Lang.get' context \
            \in " ^ f_val hook "stack" ^ " (stack |> hd |> C_Stack.map_svalue0 C_Grammar_Rule.reduce" ^ Int.toString rule ^ ") env_lang end context")
         (ML_Lex.read_source src)
     end
@@ -801,7 +821,7 @@ syntax "_C_statement" :: \<open>cartouche_position \<Rightarrow> string\<close> 
 syntax "_C" :: \<open>cartouche_position \<Rightarrow> string\<close> ("\<^C> _")
 
 parse_translation \<open>
-C_Module.parse_translation
+C_Module.C_Term'.parse_translation
   [ (\<^syntax_const>\<open>_C_translation_unit\<close>, SOME C_Module.C_Term.tok_translation_unit)
   , (\<^syntax_const>\<open>_C_external_declaration\<close>, SOME C_Module.C_Term.tok_external_declaration)
   , (\<^syntax_const>\<open>_C_expression\<close>, SOME C_Module.C_Term.tok_expression)

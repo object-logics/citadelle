@@ -52,11 +52,18 @@ type stack_data_elem = (LALR_Table.state, C_Grammar.Tokens.svalue0, Position.T) 
 
 fun map_svalue0 f (st, (v, pos1, pos2)) = (st, (f v, pos1, pos2))
 
+structure Data_Lang =
+struct
+val empty' = ([], C_Env.empty_env_lang)
 structure Data_Lang = Generic_Data
-  (type T = stack_data * C_Env.env_lang
-   val empty = ([], C_Env.empty_env_lang)
+  (type T = (stack_data * C_Env.env_lang) option
+   val empty = NONE
    val extend = K empty
    val merge = K empty)
+open Data_Lang
+fun get' context = case get context of NONE => empty' | SOME data => data
+fun setmp data f context = put (get context) (f (put data context))
+end
 
 structure Data_Tree_Args : GENERIC_DATA_ARGS =
 struct
@@ -79,8 +86,8 @@ fun stack_exec0 f {context, reports_text, error_lines} =
      , reports_text = append reports_text' reports_text
      , error_lines = append error_lines' error_lines } end
 
-fun stack_exec env_dir data_put f =
-  stack_exec0 (Data_Lang.put (apsnd (C_Env.map_env_directives (K env_dir)) data_put) #> f)
+fun stack_exec env_dir data_put =
+  stack_exec0 o Data_Lang.setmp (SOME (apsnd (C_Env.map_env_directives (K env_dir)) data_put))
 end
 \<close>
 
@@ -573,8 +580,8 @@ fun eval_source env start err accept source =
 fun eval_source' env start err accept source =
   eval env (start source) err accept (C_Lex.read_source source);
 
-fun eval_in ctxt env start err accept toks =
-  Context.setmp_generic_context (Option.map Context.Proof ctxt)
+fun eval_in o_context env start err accept toks =
+  Context.setmp_generic_context o_context
     (fn () => eval' env start err accept toks) ();
 
 fun expression struct_open range name constraint body ants context = context |>

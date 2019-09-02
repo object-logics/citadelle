@@ -221,7 +221,7 @@ local
 fun c_text name c =
   Thy_Output.antiquotation_verbatim_embedded name (Scan.lift Args.text_input)
     (fn ctxt => fn text =>
-      let val _ = C_Module.eval_in text (SOME ctxt) (c text)
+      let val _ = C_Module.eval_in text (SOME (Context.Proof ctxt)) (c text)
       in #1 (Input.source_content text) end);
 
 in

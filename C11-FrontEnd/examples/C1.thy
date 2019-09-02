@@ -351,7 +351,7 @@ ML\<open>
 local
 fun command dir f_cmd =
   C_Inner_Syntax.command0 
-    (fn src => fn context => f_cmd (C_Stack.Data_Lang.get context |> #2) src context)
+    (fn src => fn context => f_cmd (C_Stack.Data_Lang.get' context |> #2) src context)
     C_Parse.C_source
     dir
 in
@@ -591,13 +591,94 @@ setup \<open>C_Module.C_Term.map_default (fn _ => fn _ => fn _ => @{term "True"}
 
 subsubsection \<open>Validity of context for annotations\<close>
 
-ML \<comment> \<open>Execution of annotations in term (valid context in \<^theory_text>\<open>ML\<close>)\<close> \<open>
+ML \<comment> \<open>Execution of annotations in term possible in (the outermost) \<^theory_text>\<open>ML\<close>\<close> \<open>
 \<^term>\<open> \<^C> \<open>int c = 0; /*@ ML \<open>()\<close> */\<close> \<close>
 \<close>
 
-definition \<comment> \<open>Error while trying to execute annotations (invalid context in \<^theory_text>\<open>definition\<close>)\<close> \<open>
-term = \<^C> \<open>int c = 0; /* @ ML \<open>()\<close> */\<close>
+definition \<comment> \<open>Execution of annotations in term possible in \<^ML_type>\<open>local_theory\<close> commands (such as \<^theory_text>\<open>definition\<close>)\<close> \<open>
+term = \<^C> \<open>int c = 0; /*@ ML \<open>()\<close> */\<close>
 \<close>
+
+subsection \<open>Scopes of Inner and Outer Terms\<close>
+
+ML \<open>
+local
+fun bind scan ((stack1, (to_delay, stack2)), _) =
+  C_Parse.range scan
+  >> (fn (src, range) =>
+      C_Transition.Parsing
+        ( (stack1, stack2)
+        , ( range
+          , C_Transition.Bottom_up
+          , Symtab.empty
+          , to_delay
+          , fn _ => fn context =>
+              ML_Context.exec
+                (tap (fn _ => Syntax.read_term (Context.proof_of context) (Token.inner_syntax_of src)))
+                context)))
+in
+val _ =
+  Theory.setup
+    (   C_Annotation.command'
+          ("term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r", \<^here>)
+          ""
+          (bind (C_Token.syntax' (Parse.token Parse.cartouche)))
+     #> C_Inner_Syntax.command0
+          (C_Inner_Toplevel.keep'' o C_Inner_Isar_Cmd.print_term)
+          (C_Token.syntax' (Scan.succeed [] -- Parse.term))
+          C_Transition.Bottom_up
+          ("term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r", \<^here>))
+end
+\<close>
+
+C \<open>
+int z = z;
+ /*@ C  \<open>//@ term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+     C' \<open>//@ term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+             term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>
+     C  \<open>//@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+     C' \<open>//@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+             term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close> */\<close>
+term(*outer*) \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>
+
+C \<open>
+int z = z;
+ /*@ C  \<open>//@ term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+     C' \<open>//@ term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+             term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>
+     C  \<open>//@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+     C' \<open>//@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+             term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close> */\<close>
+term(*outer*) \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>
+
+declare [[C_starting_env = last]]
+
+C \<open>
+int z = z;
+ /*@ C  \<open>//@ term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+     C' \<open>//@ term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+             term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>
+     C  \<open>//@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+     C' \<open>//@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>\<close>
+             term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close> */\<close>
+term(*outer*) \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>z\<close>\<close>
+
+declare [[C_starting_env = empty]]
+
+C \<comment> \<open>Propagation of report environment while manually composing at ML level\<close> \<open>
+int a;
+int f (int b) {
+int c = 0;
+/*@ \<approx>setup \<open>fn _ => fn _ => fn env =>
+     C' env \<open>int d = a + b + c + d; //@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close> term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close>\<close>
+  #> C      \<open>int d = a + b + c + d; //@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close> term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close>\<close>
+  #> C' env \<open>int d = a + b + c + d; //@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close> term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close>\<close>
+  #> C      \<open>int d = a + b + c + d; //@ term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close> term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close>\<close>
+\<close>
+    term\<^sub>i\<^sub>n\<^sub>n\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close>
+    term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>c\<close> + \<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>d\<close>\<close> */
+int e = a + b + c + d;
+}\<close>
 
 section \<open>Miscellaneous\<close>
 
