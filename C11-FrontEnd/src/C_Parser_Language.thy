@@ -389,7 +389,7 @@ struct
       #global
       "variable"
       (fn cons' => fn def =>
-       fn true => if def then cons' Markup.free else I (*black constant*)
+       fn true => if def then cons' Markup.free else cons' Markup.delimiter (*explicit black color, otherwise the default color of constants might be automatically chosen (especially in term cartouches)*)
         | false => cons' Markup.bound)
 
   val markup_var_bound =
