@@ -52,6 +52,9 @@ end
 
 val C' = C_Module.C'
 
+fun C opt = case opt of NONE => C' (C_Module.env (Context.the_generic_context ()))
+                      | SOME env => C' env
+
 fun C_def dir name _ _ =
   Context.map_theory 
     (C_Inner_Syntax.command0
@@ -75,16 +78,15 @@ val _ = Theory.setup
                                            | _ => error "Illegal symbol")
                          ^ " (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))
 end
+\<close>
 
-fun C opt = case opt of NONE => tap o C_Module.C
-                      | SOME env => C' env
+section \<open>\<close>
 
+ML\<open>
 fun highlight (_, (_, pos1, pos2)) =
   tap (fn _ => Position.reports_text [((Position.range (pos1, pos2)
                                         |> Position.range_position, Markup.intensify), "")])
 \<close>
-
-section \<open>\<close>
 
 C (*NONE*) \<comment> \<open> the command starts with a default empty environment \<close>
 \<open>int f (int a)
@@ -96,7 +98,7 @@ C (*NONE*) \<comment> \<open> the command starts with a default empty environmen
                                                         @ C1\<Down> \<open>//* C2 \<open>int d;\<close>\<close>        \<close>
                       int b = a + b + c + d;\<close>\<close>
         @ \<simeq>setup \<open>fn stack_top => fn env => C NONE \<open>#define int int
-                                                      int b = a + b; //* C2 \<open>int c = b;\<close>\<close>\<close>
+                                                    int b = a + b; //* C2 \<open>int c = b;\<close>\<close>\<close>
           \<simeq>setup \<open>@{C_def \<Up> (* bottom-up *)  C1  }\<close>
           \<simeq>setup \<open>@{C_def \<Down> (* top-down  *) "C1\<Down>"}\<close>
      */
