@@ -80,6 +80,80 @@ val _ = Theory.setup
 end
 \<close>
 
+definition [simplified]: "UINT_MAX \<equiv> (2 :: nat) ^ 32 - 1"
+
+section \<open>\<close>
+
+ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Command\<close>\<close> \<open>
+local
+datatype antiq_hol = Invariant of string (* term *)
+val scan_colon = C_Parse.$$$ ":" >> SOME
+fun command cmd scan0 scan f =
+  C_Annotation.command' cmd "" (K (scan0 -- (scan >> f)
+                                      >> K C_Transition.Never))
+in
+val _ = Theory.setup ((* 1 '@' *)
+                         command ("INVARIANT", \<^here>) scan_colon C_Parse.term Invariant
+                      #> command ("INV", \<^here>) scan_colon C_Parse.term Invariant)
+end
+\<close>
+
+C \<open>
+int sum1(int a)
+{
+  while (a < 10)
+    /*@ @ INV: \<open>\<dots>\<close>
+        @ highlight */
+    { a = a + 1; }
+  return a;
+}\<close>
+
+
+
+C \<open>
+int sum2(int a)
+/*@ ++@ INV: \<open>\<dots>\<close>
+    ++@ highlight */
+{
+  while (a < 10)
+    { a = a + 1; }
+  return a;
+}\<close>
+
+
+
+C (*NONE*) \<comment> \<open>starting environment = empty\<close> \<open>
+int a (int b) { return &a + b + c; }
+/*@ \<simeq>setup \<open>fn stack_top => fn env =>
+            C (SOME env) \<open>int c = &a + b + c;\<close>\<close>
+    \<simeq>setup \<open>fn stack_top => fn env =>
+            C  NONE      \<open>int c = &a + b + c;\<close>\<close>
+    declare [[C_starting_env = last]]
+    C        (*SOME*)    \<open>int c = &a + b + c;\<close>
+*/\<close>
+
+section \<open>\<close>
+
+C \<open>
+#define SQRT_UINT_MAX 65536
+/*@ lemma uint_max_factor [simp]:
+      "UINT_MAX = SQRT_UINT_MAX * SQRT_UINT_MAX - 1"
+    by (clarsimp simp: UINT_MAX_def SQRT_UINT_MAX_def)
+*/\<close>
+
+term SQRT_UINT_MAX
+
+section \<open>\<close>
+
+C \<open>int _;
+/*@ @ C \<open>//@ C1 \<open>int _; //@ @ \<simeq>setup\<Down> \<open>@{C_def \<Up> C2}\<close> \
+                            @ C1  \<open>//* C2 \<open>int _;\<close>\<close>   \
+                            @ C1\<Down> \<open>//* C2 \<open>int _;\<close>\<close>    \<close>\<close>
+    @ C \<open>//* C2 \<open>int _;\<close>                                \<close>
+      \<simeq>setup \<open>@{C_def \<Up> (* bottom-up *)  C1  }\<close>
+      \<simeq>setup \<open>@{C_def \<Down> (* top-down  *) "C1\<Down>"}\<close>
+*/\<close>
+
 section \<open>\<close>
 
 ML\<open>
@@ -93,14 +167,14 @@ C (*NONE*) \<comment> \<open> the command starts with a default empty environmen
   //@ ++& \<simeq>setup \<open>fn stack_top => fn env => highlight stack_top\<close>
   { /*@ @ \<simeq>setup \<open>fn stack_top => fn env =>
                     C (SOME env) (* the command starts with some provided environment *)
-                     \<open>int b = a + b; //@ C1 \<open>int c; //@ @ \<simeq>setup\<Down> \<open>@{C_def \<Up> C2}\<close> \
-                                                        @ C1  \<open>//* C2 \<open>int d;\<close>\<close>        \
-                                                        @ C1\<Down> \<open>//* C2 \<open>int d;\<close>\<close>        \<close>
+                     \<open>int b = a + b; //@ C1' \<open>int c; //@ @ \<simeq>setup\<Down> \<open>@{C_def \<Up> C2'}\<close> \
+                                                         @ C1'  \<open>//* C2' \<open>int d;\<close>\<close>        \
+                                                         @ C1'\<Down> \<open>//* C2' \<open>int d;\<close>\<close>        \<close>
                       int b = a + b + c + d;\<close>\<close>
         @ \<simeq>setup \<open>fn stack_top => fn env => C NONE \<open>#define int int
-                                                    int b = a + b; //* C2 \<open>int c = b;\<close>\<close>\<close>
-          \<simeq>setup \<open>@{C_def \<Up> (* bottom-up *)  C1  }\<close>
-          \<simeq>setup \<open>@{C_def \<Down> (* top-down  *) "C1\<Down>"}\<close>
+                                                    int b = a + b; //* C2' \<open>int c = b;\<close>\<close>\<close>
+          \<simeq>setup \<open>@{C_def \<Up> (* bottom-up *)  C1'  }\<close>
+          \<simeq>setup \<open>@{C_def \<Down> (* top-down  *) "C1'\<Down>"}\<close>
      */
     return a + b + c + d; /* explicit highlighting */ }\<close>
 
