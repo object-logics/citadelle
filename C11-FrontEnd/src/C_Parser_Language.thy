@@ -707,14 +707,14 @@ end
 subsection \<open>Loading the Generic Grammar Simulator\<close>
 
 text \<open> The parser consists of a generic module
-\<^file>\<open>../copied_from_git/mlton/lib/mlyacc-lib/base.sig\<close>, which interprets an
+\<^file>\<open>../../mlton/lib/mlyacc-lib/base.sig\<close>, which interprets an
 automata-like format generated from ML-Yacc. \<close>
 
-ML_file "../copied_from_git/mlton/lib/mlyacc-lib/base.sig"
-ML_file "../copied_from_git/mlton/lib/mlyacc-lib/join.sml"
-ML_file "../copied_from_git/mlton/lib/mlyacc-lib/lrtable.sml"
-ML_file "../copied_from_git/mlton/lib/mlyacc-lib/stream.sml"
-ML_file "../copied_from_git/mlton/lib/mlyacc-lib/parser1.sml"
+ML_file "../../mlton/lib/mlyacc-lib/base.sig"
+ML_file "../../mlton/lib/mlyacc-lib/join.sml"
+ML_file "../../mlton/lib/mlyacc-lib/lrtable.sml"
+ML_file "../../mlton/lib/mlyacc-lib/stream.sml"
+ML_file "../../mlton/lib/mlyacc-lib/parser1.sml"
 
 subsection \<open>Loading the Generated Grammar (SML signature)\<close>
 

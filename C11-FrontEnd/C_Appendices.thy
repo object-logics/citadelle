@@ -134,11 +134,10 @@ end;
 section \<open>Architecture of Isabelle/C\<close>
 
 text \<open>
-\<^dir>\<open>copied_from_git\<close> represents the location of
-external libraries needed by the C parser at run-time. At the time of
-writing, it only contains
-\<^dir>\<open>copied_from_git/mlton\<close>, and more specifically
-\<^dir>\<open>copied_from_git/mlton/lib/mlyacc-lib\<close>. All
+Isabelle/C depends on certain 
+external parsing libraries, such as 
+\<^dir>\<open>../mlton\<close>, and more specifically
+\<^dir>\<open>../mlton/lib/mlyacc-lib\<close>. All
 files in this last folder are solely used by
 \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>. The rest has been copied
 from the original repository of MLton
@@ -196,7 +195,7 @@ subsection \<open>Prerequisites\<close>
 
 text \<open> Even if \<^file>\<open>generated/c_grammar_fun.grm.sig\<close> and
 \<^file>\<open>generated/c_grammar_fun.grm.sml\<close> are files written in ML syntax, we have
-actually modified \<^dir>\<open>copied_from_git/mlton/lib/mlyacc-lib\<close> in such a way that
+actually modified \<^dir>\<open>../mlton/lib/mlyacc-lib\<close> in such a way that
 at run time, the overall loading and execution of \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> will
 mimic all necessary features of the Haskell parser generator Happy
 \<^footnote>\<open>\<^url>\<open>https://www.haskell.org/happy/doc/html/index.html\<close>\<close>,
