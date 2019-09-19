@@ -574,7 +574,7 @@ subsection \<open>General Principles\<close>
 
 subsection \<open>Example: Citadelle\<close> (* HOL-OCL back-end *)
 
-subsection \<open>Example: CLEAN\<close>
+subsection \<open>Example: Clean\<close>
 
 subsection \<open>Example: AutoCorres\<close>
 
