@@ -18,6 +18,8 @@
 
 %%
 
+\newcommand\inputif[1]{\IfFileExists{./#1}{\input{#1}}{}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % fix for package declaration to be at the end
 \usepackage[pdfpagelabels, pageanchor=false, plainpages=false]{hyperref}
@@ -70,7 +72,22 @@ versions).\cite{brucker.ea:featherweight:2014}
 \parindent 0pt\parskip 0.5ex
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\input{session}
+\inputif{1/document/C_Ast.tex}
+\inputif{1/document/C_Lexer.tex}
+\inputif{1/document/C_Environment.tex}
+\inputif{1/document/C_Parser_Annotation.tex}
+\inputif{1/document/C_Parser_Language.tex}
+\inputif{1/document/C_Eval.tex}
+\inputif{1/document/C_Command.tex}
+\inputif{1/document/C_Document.tex}
+\inputif{1/document/C_Main.tex}
+\inputif{2/document/C1.tex}
+\inputif{2/document/C2.tex}
+\inputif{2/document/C3.tex}
+\inputif{2/document/C_paper.tex}
+\inputif{3/document/C_Intro.tex}
+\inputif{3/document/C_Conclusion.tex}
+\inputif{3/document/C_Appendices.tex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

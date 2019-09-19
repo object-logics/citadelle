@@ -39,7 +39,7 @@
    into a unique session. *)
 
 session Isabelle_C = HOL +
-  options [document = pdf, document_output = "generated/part1"]
+  options [document = pdf, document_output = "generated/document/1"]
   theories
     C_Main
   document_files
@@ -47,7 +47,7 @@ session Isabelle_C = HOL +
     "root.bib"
 
 session Isabelle_C_examples = Isabelle_C + (* a standard test suite *)
-  options [document = pdf, document_output = "generated/part2"]
+  options [document = pdf, document_output = "generated/document/2"]
   theories [document = false]
     "~~/src/HOL/ex/Cartouche_Examples" (* LaTeX error in Isabelle2019 *)
   theories
@@ -60,7 +60,7 @@ session Isabelle_C_examples = Isabelle_C + (* a standard test suite *)
     "root.bib"
 
 session Isabelle_C_document = Isabelle_C_examples +
-  options [document = pdf, document_output = "generated/part3"]
+  options [document = pdf, document_output = "generated/document/3"]
   theories
     C_Appendices
   document_files
@@ -70,7 +70,7 @@ session Isabelle_C_document = Isabelle_C_examples +
 session Isabelle_C_all = Isabelle_C_document +
   options [document = pdf, document_output = "generated"]
   (* TODO: find a way to concatenate together PDF in:
-           generated/part1 + generated/part2 + generated/part3 *)
+           generated/document/1 + generated/document/2 + generated/document/3 *)
   document_files
     "root.tex"
     "root.bib"
