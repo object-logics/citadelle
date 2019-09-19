@@ -710,11 +710,72 @@ text \<open> The parser consists of a generic module
 \<^file>\<open>../../mlton/lib/mlyacc-lib/base.sig\<close>, which interprets an
 automata-like format generated from ML-Yacc. \<close>
 
-ML_file "../../mlton/lib/mlyacc-lib/base.sig"
-ML_file "../../mlton/lib/mlyacc-lib/join.sml"
-ML_file "../../mlton/lib/mlyacc-lib/lrtable.sml"
-ML_file "../../mlton/lib/mlyacc-lib/stream.sml"
-ML_file "../../mlton/lib/mlyacc-lib/parser1.sml"
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/document_antiquotations.ML\<close>\<close>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
+(*  Title:      Pure/Thy/document_antiquotations.ML
+    Author:     Makarius
+
+Miscellaneous document antiquotations.
+*)
+\<open>
+structure ML_Document_Antiquotations =
+struct
+
+(* ML text *)
+
+local
+
+fun ml_text name ml =
+  Thy_Output.antiquotation_raw_embedded name (Scan.lift Args.text_input \<comment> \<open>TODO: enable reporting with \<^ML_type>\<open>Token.file\<close> as in \<^ML>\<open>Resources.parse_files\<close>\<close>)
+    (fn ctxt => fn text =>
+      let val file_content =
+            Token.file_source
+              (Command.read_file (Resources.master_directory (Proof_Context.theory_of ctxt))
+                                 Position.none
+                                 (Path.explode (#1 (Input.source_content text))))
+          val _ = (*TODO: avoid multiple file scanning*)
+                  ML_Context.eval_in (SOME ctxt) ML_Compiler.flags Position.none (* \<leftarrow> (optionally) disabling a potential double report*) (ml file_content)
+      in file_content
+         |> Input.source_explode
+         |> Source.of_list
+         |> Source.source
+              Symbol_Pos.stopper
+                (Scan.bulk (Symbol_Pos.scan_comment "" >> (C_Scan.Left o pair true)
+                            || Scan.many1 (Symbol.is_ascii_blank o Symbol_Pos.symbol) >> (C_Scan.Left o pair false)
+                            || Scan.one (not o Symbol_Pos.is_eof) >> C_Scan.Right))
+         |> Source.exhaust
+         |> drop_prefix (fn C_Scan.Left _ => true | _ => false)
+         |> drop_suffix (fn C_Scan.Left (false, _) => true | _ => false)
+         |> maps (fn C_Scan.Left (_, x) => x | C_Scan.Right x => [x])
+         |> Symbol_Pos.implode
+         |> enclose "\n" "\n"
+         |> cartouche
+         |> Thy_Output.output_source ctxt
+         |> Thy_Output.isabelle ctxt
+      end);
+
+fun ml_enclose bg en source =
+  ML_Lex.read bg @ ML_Lex.read_source source @ ML_Lex.read en;
+
+in
+
+val _ = Theory.setup (ml_text \<^binding>\<open>ML_file\<close> (ml_enclose "" ""));
+
+end;
+
+end;
+\<close>
+
+ML_file "../../mlton/lib/mlyacc-lib/base.sig" \<comment>
+\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/base.sig\<close>\<close>
+ML_file "../../mlton/lib/mlyacc-lib/join.sml" \<comment>
+\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/join.sml\<close>\<close>
+ML_file "../../mlton/lib/mlyacc-lib/lrtable.sml" \<comment>
+\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/lrtable.sml\<close>\<close>
+ML_file "../../mlton/lib/mlyacc-lib/stream.sml" \<comment>
+\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/stream.sml\<close>\<close>
+ML_file "../../mlton/lib/mlyacc-lib/parser1.sml" \<comment>
+\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/parser1.sml\<close>\<close>
 
 subsection \<open>Loading the Generated Grammar (SML signature)\<close>
 
