@@ -583,10 +583,10 @@ section \<open>Quick Start (for people more familiar with C than Isabelle)\<clos
 text \<open>
 \<^item> The latest version of Isabelle can be easily retrieved at
 \<^url>\<open>http://isabelle.in.tum.de/\<close>.
-\<^item> Assuming one is working with the 2018 archive version
-\<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2018_app.tar.gz\<close>,
+\<^item> Assuming one is working with the 2019 archive version
+\<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2019_app.tar.gz\<close>,
 the shortest way to start programming in C is to open a new theory file:
-\<open>~/Isabelle2018/bin/isabelle jedit -d . Scratch.thy\<close>, inside the same current directory
+\<open>~/Isabelle2019/bin/isabelle jedit -d . Scratch.thy\<close>, inside the same current directory
 as the one containing \<^file>\<open>C_Main.thy\<close> (designated as
 \<^theory>\<open>Isabelle_C.C_Main\<close> in Isabelle/C).
 \<^item> Then, this following minimal content can be copied there: \<^verbatim>\<open>theory Scratch
@@ -616,11 +616,33 @@ on it to open a new window loading that file. In this situation, it is still pos
 usually allowed (almost everywhere). \<close>
 
 section \<open>Known Limitation and Future Work\<close>
-subsection \<open>The Document Model of the Isabelle/PIDE (applying for Isabelle 2018)\<close>
+subsection \<open>The Document Model of the Isabelle/PIDE (applying for Isabelle 2019)\<close>
 subsubsection \<open>Introduction\<close>
 
-text \<open> At its most basic form, the general syntactic scope of an Isabelle/Isar document can be
-seen as being composed of two syntactic alternations of editing space: fragments of the inner syntax
+text \<open> Embedding C directives in C code has been of common practice for numerous applications:
+as an example of frequently encountered directives, \<open>#include <some_file.c>\<close> is used to
+insert the content of \<open>some_file.c\<close> at the place where it is written. In Isabelle/C, we
+can also write a C code containing directives like \<open>#include\<close>, and generally the PIDE
+reporting of directives is supported to a certain extent. Yet, the dynamic inclusion of arbitrary
+file with \<open>#include\<close> is hurting a certain technological barrier. This is related to how
+the document model of Isabelle 2019 is functioning, but also to the design decisions behind the
+implementation of \<^theory_text>\<open>C\<open> .. \<close>\<close>. Thus, providing a complete
+semantic implementation of \<open>#include\<close> is hard, i.e. without a manual intervention in
+the source of Isabelle 2019. In the next part, we show why in our current implementation of
+Isabelle/C there is no way for user programmed extensions to exploit implicit dependencies between
+sub-documents in pure ML: a sub-document referred to via \<open>#include <some_file>\<close> will
+not lead to a reevaluation of a \<^theory_text>\<open>C\<open> .. \<close>\<close> command whenever
+modified.\<close>
+
+subsubsection \<open>Embedding a language in Isabelle/PIDE\<close>
+
+text \<open> 
+To clarify why the way a language being embedded in Isabelle is influencing the interaction between
+a future parser of the language with the Isabelle's document model, we recall the two ``different''
+ways of embedding a language in Isabelle/PIDE.
+
+At its most basic form, the general syntactic scope of an Isabelle/Isar document can be seen as
+being composed of two syntactic alternations of editing space: fragments of the inner syntax
 language, themselves part of the more general outer syntax (the inner syntax is implemented as an
 atomic entity of the outer language); see
 \<^file>\<open>~~/src/Doc/Isar_Ref/Outer_Syntax.thy\<close>. So strictly speaking, when attempting
@@ -628,46 +650,45 @@ to support a new language \<open>L\<close> in Isabelle, there is always the ques
 estimating which subsets of \<open>L\<close> will be represented in the outer syntax part, and if it
 possibly remains any left subsets to be represented on the more inner (syntactic) part.
 
-However, the general tendency we could observe be convenient for random implementors is to make the
-full language \<open>L\<close> be supported inside the inner syntax allocated space. This is
-particularly relevant for a language \<open>L\<close> satisfying one or more of the following
-properties:
-  \<^item> The language \<open>L\<close> must not conflict with certain ASCII escaping symbols of
-  the outer (syntax) language, including for example \<^verbatim>\<open>"\<close> or
-  \<^verbatim>\<open>`\<close>. 
-  \<^item> \<open>L\<close> is a realistic language, more complex than any combinations of outer
-  named tokens that can be ever covered in terms of expressivity power (where the list of outer
-  named tokens is provided in \<^file>\<open>~~/src/Doc/Isar_Ref/Outer_Syntax.thy\<close>).
-  \<^item> It is preferable of not altering the outer syntax language with too specific and
-  challenging features of \<open>L\<close>. This is particularly true since in Isabelle 2018 there
-  is no way of modifying the outer syntax without in turn making the modifications irremediably
-  happen on the Isabelle source code.
+Generally, to answer this question, there are several criteria to consider:
+  \<^item> Is there any escaping symbols conflicting between \<open>L\<close> and the outer (syntax)
+  language, including for example the ASCII \<^verbatim>\<open>"\<close> or
+  \<^verbatim>\<open>`\<close>?
+  \<^item> Is \<open>L\<close> a realistic language, i.e. more complex than any combinations of
+  outer named tokens that can be ever covered in terms of expressivity power (where the list of
+  outer named tokens is provided in \<^file>\<open>~~/src/Doc/Isar_Ref/Outer_Syntax.thy\<close>)?
+  \<^item> Is it preferable of not altering the outer syntax language with too specific and
+  challenging features of \<open>L\<close>? This is particularly true since in Isabelle 2019, there
+  is no way of modifying the outer syntax without making the modifications irremediably happen on
+  its source code.
 
-With the introduction of cartouches since Isabelle 2014, making the entire language \<open>L\<close>
-be fully supported in the inner syntax part has become all the more
-easy. \<^footnote>\<open>Fortunately for the moment, the languages \<open>L\<close> we have been
-working with do not contain any syntactic tokens similar to cartouche delimiter symbols.\<close>
-However, for the case of the C language, there are actually certain limitations caused by C
-directives (that we are going to point out in the next part). In particular, to solve them, we do
-not see any other better alternatives than modifying the Isabelle source code. \<close>
+For the above reasons, we have come up in Isabelle/C with the choice of making the full C language
+be supported inside the inner syntax allocated space. In particular, this has become all the more
+syntactically easy with the introduction of cartouches since Isabelle
+2014.\<^footnote>\<open>Fortunately, parsing tokens of C do not strongly conflict with cartouche
+delimiter symbols. For example, it should be legal in C to write an opening cartouche symbol in a C
+comment without writing any closing cartouche symbol afterwards. However, this functionality is
+rejected by the parser of Isabelle/C, as it is relying on Isabelle 2019's parser combinator library
+for the lexing part.\<close> However, for the case of the C language, certain C directives like
+\<open>#include\<close> are meant to heavily interact with external files. In particular, resources
+would be best utilized if we were taking advantage of the Isabelle's asynchronous document model for
+such interaction task. Unfortunately, the inner syntax space only has a minimum interaction with the
+document model, compared to the outer syntax one. Otherwise said, be it for experimenting the inner
+syntax layer and see how far it can deal with the document layer, or otherwise reimplementing parts
+of Isabelle/C in the outer syntax layer, the two solutions are conducting to do modifications in the
+Isabelle 2019 source code. \<close>
 
-text \<open> Similar to how the ML language is handled in an Isabelle/Isar document, the
-\<^theory_text>\<open>C\<close> command is implemented by particularly taking a cartouche as
-argument. However some difficulties are happening: in contrast to ML, it is a wide established
-practice in C to write directives in a C file, and use a preprocessor tool to determine the final
-source code to really take in consideration as ``compilation starting point'', or ``prover IDE
-support point''. This actually generates a new challenge for the Isabelle document model, since one
-popular directive is \<^C>\<open>#include <file>\<close> to refer to a specific source code file to
-copy-paste inside the source containing that directive, and to replace it. In an ideal setting,
-end-users would hope to see \<open>file\<close> be automatically loaded and subsequently
-automatically managed, but to our view, making this behavior happen using a native Isabelle 2018
-version appears to be not possible (without touching its source code). The next part is going to
-develop on this limitation in more detail. \<^footnote>\<open>In comparison with the ML language, ML
-antiquotations can also refer to external files, for example in formal comments. Unfortunately, the
-problem is still present in ML: files referred to when using this technique are not loaded in the
-document model.\<close> \<close>
+text \<open> Note that the implementation of \<^theory_text>\<open>C\<close> closely resembles to
+\<^theory_text>\<open>ML\<close>: ML antiquotations can also refer to external files, particularly
+in formal comments. Still, the problem is still present in ML: referred files are not loaded in the
+document model. \<close>
 
 subsubsection \<open>The Document Model\<close>
+
+text \<open> In this part, we explain why for the case of \<^theory_text>\<open>ML_file\<close>, it
+is only the first level of reference which is triggered (e.g., files referred in formal comments in
+the source included by \<^theory_text>\<open>ML_file\<close> behave as
+\<^theory_text>\<open>ML\<close>). \<close>
 
 text \<open> As remarkable feature of the document model, we can cite its capability to manage the
 edition changes on an overall collection of theory documents in an implicit automatic way. Indeed,
