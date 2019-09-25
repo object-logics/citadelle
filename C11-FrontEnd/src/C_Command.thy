@@ -391,7 +391,7 @@ fun return f (env_cond, env) = ([], (env_cond, f env))
 val _ =
   Theory.setup
   (Context.theory_map
-    (C_Context.Directives.map
+    (C_Context0.Directives.map
       (C_Context.directive_update ("define", \<^here>)
         (return
          o

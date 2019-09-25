@@ -91,6 +91,35 @@ fun stack_exec env_dir data_put =
 end
 \<close>
 
+ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_context.ML\<close>\<close>
+(*  Author:     Frédéric Tuong, Université Paris-Saclay *)
+(*  Title:      Pure/ML/ml_context.ML
+    Author:     Makarius
+
+ML context and antiquotations.
+*)
+\<open>
+structure C_Context0 =
+struct
+(* theory data *)
+
+type env_direct = bool (* internal result for conditional directives: branch skipping *)
+                * (C_Transition.env_directives * C_Env.env_tree)
+
+structure Directives = Generic_Data
+  (type T = (Position.T list
+             * serial
+             * (C_Lex.token_kind_directive
+                -> env_direct
+                -> C_Transition.antiq_language list (* nested annotations from the input *)
+                   * env_direct (*NOTE: remove the possibility of returning a too modified env?*)))
+            Symtab.table
+   val empty = Symtab.empty
+   val extend = I
+   val merge = Symtab.join (K #2));
+end
+\<close>
+
 ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Lexer\<close>\<close> \<open>
 structure C_Grammar_Lexer : ARG_LEXER1 =
 struct
@@ -359,24 +388,6 @@ fun fun_decl a v s ctxt =
     fun decl (_: Proof.context) = (env, body);
   in (decl, ctxt') end;
 
-(* theory data *)
-
-type env_direct = bool (* internal result for conditional directives: branch skipping *)
-                * (C_Transition.env_directives * C_Env.env_tree)
-
-structure Directives = Generic_Data
-  (type T = (Position.T list
-             * serial
-             * (C_Lex.token_kind_directive
-                -> env_direct
-                -> C_Transition.antiq_language list (* nested annotations from the input *)
-                   * env_direct (*NOTE: remove the possibility of returning a too modified env?*)))
-            Symtab.table
-   val empty = Symtab.empty
-   val extend = I
-   val merge = Symtab.join (K #2));
-
-
 (* parsing and evaluation *)
 
 local
@@ -517,7 +528,7 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                           (fn dir_tok =>
                             let val name = C_Lex.content_of dir_tok
                                 val pos1 = [C_Lex.pos_of dir_tok]
-                                val data = Symtab.lookup (Directives.get context) name
+                                val data = Symtab.lookup (C_Context0.Directives.get context) name
                             in
                               apsnd (apsnd (C_Env.map_reports_text (markup_directive_command (C_Ast.Right (pos1, data)) pos1 name)))
                               #> (case data of NONE => I | SOME (_, _, exec) => exec dir #> #2)
