@@ -84,12 +84,30 @@ ML\<open> val ((C_Ast.CTranslUnit0 (t,u), v)::R, env) = get_module @{theory};
 
 section \<open>Working with Annotation Commands\<close>
 
-ML\<open>  (* setup for a dummy ensures : the 'Hello World of Annotation Commands *) \<close>
-
+ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Command\<close>\<close> \<open>
+\<comment> \<open>setup for a dummy ensures : the "Hello World" of Annotation Commands\<close>
+local
+datatype antiq_hol = Term of string (* term *)
+val scan_opt_colon = Scan.option (C_Parse.$$$ ":")
+fun command (cmd as (cmd_name, _)) scan0 scan f =
+  C_Annotation.command' cmd "" (fn (_, (cmd_pos, _)) => (scan0 -- (scan >> f)
+                                      >> (fn _ => tap (fn _ => tracing ("\<open>Hello World\<close> reported by \"" ^ cmd_name ^ "\" here" ^ Position.here cmd_pos)) C_Transition.Never)))
+in
+val _ = Theory.setup (   C_Inner_Syntax.command_no_range
+                           (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup \<open>K (K (K I))\<close>)
+                           C_Transition.Bottom_up
+                           ("loop", \<^here>)
+                      #> command ("ensures", \<^here>) scan_opt_colon C_Parse.term Term
+                      #> command ("invariant", \<^here>) scan_opt_colon C_Parse.term Term
+                      #> command ("assigns", \<^here>) scan_opt_colon C_Parse.term Term
+                      #> command ("requires", \<^here>) scan_opt_colon C_Parse.term Term
+                      #> command ("variant", \<^here>) scan_opt_colon C_Parse.term Term)
+end
+\<close>
 
 C\<open>
-/* @ ensures \result >= x && \result >= y;
-  @*/
+/*@ ensures "result >= x && result >= y"
+ */
 
 int max(int x, int y) {
   if (x > y) return x; else return y;
@@ -112,13 +130,13 @@ int sqrt(int a) {
   int tm = 1;
   int sum = 1;
 
-  /* @ loop invariant 1 <= sum <= a+tm;
-    @ loop invariant (i+1)*(i+1) == sum;
-    @ loop invariant tm+(i*i) == sum;
-    @ loop invariant 1<=tm<=sum;
-    @ loop assigns i, tm, sum;
-    @ loop variant a-sum;
-    @*/
+  /*@ loop invariant "1 <= sum <= a+tm"
+      loop invariant "(i+1)*(i+1) == sum"
+      loop invariant "tm+(i*i) == sum"
+      loop invariant "1<=tm<=sum"
+      loop assigns "i, tm, sum"
+      loop variant "a-sum"
+   */
   while (sum <= a) {      
     i++;
     tm = tm + 2;
@@ -130,21 +148,21 @@ int sqrt(int a) {
 \<close>
 
 C\<open>
-/* @ requires n >= 0;
-  @ requires \valid(t+(0..n-1));
-  @ ensures \exists integer i; (0<=i<n && t[i] != 0) <==> \result == 0;
-  @ ensures (\forall integer i; 0<=i<n ==> t[i] == 0) <==> \result == 1;
-  @ assigns \nothing;
-  @*/
+/*@ requires "n >= 0"
+    requires "valid(t+(0..n-1))"
+    ensures "exists integer i; (0<=i<n && t[i] != 0) <==> result == 0"
+    ensures "(forall integer i; 0<=i<n ==> t[i] == 0) <==> result == 1"
+    assigns nothing
+ */
 
 int allzeros(int t[], int n) {
   int k = 0;
 
-  /* @ loop invariant 0 <= k <= n;
-    @ loop invariant \forall integer i; 0<=i<k ==> t[i] == 0;
-    @ loop assigns k;
-    @ loop variant n-k;
-    @*/
+  /*@ loop invariant "0 <= k <= n"
+      loop invariant "forall integer i; 0<=i<k ==> t[i] == 0"
+      loop assigns k
+      loop variant "n-k"
+   */
   while(k < n) {
     if (t[k]) return 0;
     k = k + 1;
@@ -156,19 +174,19 @@ int allzeros(int t[], int n) {
 
 C\<open>
 
-/* @ requires n >= 0;
-  @ requires \valid(t+(0..n-1));
-  @ ensures (\forall integer i; 0<=i<n ==> t[i] != v) <==> \result == -1;
-  @ ensures (\exists integer i; 0<=i<n && t[i] == v) <==> \result == v;
-  @ assigns \nothing;
-  @*/
+/*@ requires "n >= 0"
+    requires "valid(t+(0..n-1))"
+    ensures "(forall integer i; 0<=i<n ==> t[i] != v) <==> result == -1"
+    ensures "(exists integer i; 0<=i<n && t[i] == v) <==> result == v"
+    assigns nothing
+ */
 
 int binarysearch(int t[], int n, int v) {
   int l = 0;
   int u = n-1;
 
-  /* @ loop invariant \false;
-    @*/
+  /*@ loop invariant false
+   */
   while (l <= u) {
     int m = (l + u) / 2;
     if (t[m] < v) {
@@ -184,21 +202,21 @@ int binarysearch(int t[], int n, int v) {
 
 
 C\<open>
-/* @ requires n >= 0;
-  @ requires \valid(t+(0..n-1));
-  @ requires (\forall integer i,j; 0<=i<=j<n ==> t[i] <= t[j]);
-  @ ensures \exists integer i; (0<=i<n && t[i] == x) <==> \result == 1;
-  @ ensures (\forall integer i; 0<=i<n ==> t[i] != x) <==> \result == 0;
-  @ assigns \nothing;
+/*@ requires "n >= 0"
+    requires "valid(t+(0..n-1))"
+    requires "(forall integer i,j; 0<=i<=j<n ==> t[i] <= t[j])"
+    ensures "exists integer i; (0<=i<n && t[i] == x) <==> result == 1"
+    ensures "(forall integer i; 0<=i<n ==> t[i] != x) <==> result == 0"
+    assigns nothing
  */
 
 int linearsearch(int x, int t[], int n) {
   int i = 0;
 
-  /* @ loop invariant 0<=i<=n;  
-    @ loop invariant \forall integer j; 0<=j<i ==> (t[j] != x);
-    @ loop assigns i;
-    @ loop variant n-i;
+  /*@ loop invariant "0<=i<=n"
+      loop invariant "forall integer j; 0<=j<i ==> (t[j] != x)"
+      loop assigns i
+      loop variant "n-i"
    */
   while (i < n) {
     if (t[i] < x) {
