@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter \<open>Example\<close>
+chapter \<open>Example for Annotation Navigation and Context Serialization\<close>
 
 theory C1
   imports Isabelle_C.C_Main
@@ -45,7 +45,7 @@ text \<open> The remainder of the theory assumes a familiarity with the ability 
 ML code in ML as described in \<^file>\<open>~~/src/HOL/ex/ML.thy\<close>, as well as the concept of
 ML antiquotations (\<^file>\<open>~~/src/Doc/Implementation/ML.thy\<close>). \<close>
 
-section \<open>ML-Antiquotations for Debugging\<close>
+section \<open>Setup of ML Antiquotations Displaying the Environment (For Debugging) \<close>
 
 ML\<open>
 fun print_top make_string f _ (_, (value, pos1, pos2)) _ thy =
@@ -90,9 +90,9 @@ setup \<open>ML_Antiquotation.inline @{binding print_stack'}
 
 declare[[C_lexer_trace]]
 
-section \<open>C Annotations\<close>
+section \<open>Introduction to C Annotations: Navigating in the Parsing Stack\<close>
 
-subsection \<open>Actions on the Parsing Stack\<close>
+subsection \<open>Basics\<close>
 
 text \<open> The \<^theory_text>\<open>C\<close> command resembles to
 \<^theory_text>\<open>ML\<close> except that the syntax of the code written inside
@@ -194,6 +194,8 @@ int a = 0; //\
 )})\<close>
 \<close>
 
+subsection \<open>Erroneous Annotations Treated as Regular C Comments\<close>
+
 C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
 int a = 0;
   /*@ \<approx>setup (* Errors: Explicit warning + Explicit markup reporting *)
@@ -204,8 +206,6 @@ int a = 0;
   /** \<approx>setup \<open>fn _ => fn _ => fn _ => I\<close> (* An example of correct syntax accepted as usual *)
    */
 \<close>
-
-subsection \<open>Mixing Together Any Types of Antiquotations\<close>
 
 C \<comment> \<open>Permissive Types of Antiquotations\<close> \<open>
 int a = 0;
@@ -230,6 +230,8 @@ int a = 0;
    */
 \<close>
 
+subsection \<open>Bottom-Up Evaluation vs. Top-Down\<close>
+
 ML\<open>
 structure Example_Data = Generic_Data (type T = string list
                                        val empty = [] val extend = K empty val merge = K empty)
@@ -250,14 +252,15 @@ int b,c,d/*@@ \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x e
 int b,c,d/*@@ \<approx>setup\<Down> \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "6_print_top"\<close> */,e = 0; /*@@ \<approx>setup\<Down> \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "5_print_top"\<close> */
 \<close>
 
-subsection \<open>Reporting of Positions and Contextual Update of Environment\<close>
+section \<open>Reporting of Positions and Contextual Update of Environment\<close>
 
 text \<open>
 To show the content of the parsing environment, the ML antiquotations \<open>print_top'\<close> and \<open>print_stack'\<close>
-will respectively be used instead of \<open>print_top\<close> and \<open>print_stack\<close>.
-\<close>
+will respectively be used instead of \<open>print_top\<close> and \<open>print_stack\<close>. 
+This example suite allows to explore the bindings represented in the C environment 
+and made accessible in PIDE for hovering. \<close>
 
-subsubsection \<open>1\<close>
+subsection \<open>1\<close>
 
 declare [[ML_source_trace = false]]
 declare [[C_lexer_trace = false]]
@@ -320,7 +323,7 @@ int main (enum a *x, ...) /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Gramma
   return zz; }
 \<close>
 
-subsubsection \<open>2\<close>
+subsection \<open>2\<close>
 
 declare [[C_parser_trace = false]]
 
@@ -345,7 +348,7 @@ int b = 7 / (3) * 50
                        ;\<close> \<close> */;
 \<close>
 
-subsubsection \<open>3\<close>
+subsection \<open>3\<close>
 
 ML\<open>
 local
@@ -379,7 +382,7 @@ int f (int a) {
   int c = b + b + b + b + a + a + a + a + a + a;
 } \<close>
 
-subsubsection \<open>4\<close>
+subsection \<open>4\<close>
 
 C \<comment> \<open>Propagation of report environment while manually composing at ML level (with \<open>#>\<close>)\<close>
   \<comment> \<open>In \<open>c1 #> c2\<close>, \<open>c1\<close> and \<open>c2\<close> should not interfere each other.\<close> \<open>
@@ -413,7 +416,7 @@ int e = a + b + c + d;
 }
 \<close>
 
-subsubsection \<open>5\<close>
+subsection \<open>5\<close>
 
 ML\<open>
 structure Data_Out = Generic_Data
@@ -453,7 +456,7 @@ ML\<open>show_env "POSITION 3" (Context.Theory @{theory})\<close>
 
 setup \<open>Context.theory_map (C_Module.Data_Accept.put (fn _ => fn _ => I))\<close>
 
-subsubsection \<open>6\<close>
+subsection \<open>6\<close>
 
 declare [[C_starting_env = last]]
 
@@ -475,7 +478,7 @@ int main3 () { main2 (); }
 
 declare [[C_starting_env = empty]]
 
-subsubsection \<open>7\<close>
+subsection \<open>7\<close>
 
 C \<open>int f (int z);\<close>
 C \<open>int * f (int z);\<close>
@@ -504,7 +507,7 @@ C \<comment> \<open>Old function syntax\<close> \<open>
 f (x) int x; {return x;}
 \<close>
 
-subsection \<open>General commands\<close>
+section \<open>General commands\<close>
 
 locale zz begin definition "z' = ()"
           end
@@ -548,9 +551,9 @@ txt\
 001\<close>)
 \<close>
 
-subsection \<open>Starting Parsing Rule\<close>
+section \<open>Starting Parsing Rule\<close>
 
-subsubsection \<open>Basics\<close>
+subsection \<open>Basics\<close>
 
 C \<comment> \<open>Parameterizing starting rule\<close> \<open>
 /*@
@@ -566,7 +569,7 @@ C \<open>a\<close>
 */
 \<close>
 
-subsubsection \<open>Embedding in inner terms\<close>
+subsection \<open>Embedding in inner terms\<close>
 
 term \<open>\<^C> \<comment> \<open>default behavior of parsing depending on the activated option\<close> \<open>0\<close>\<close>
 term \<open>\<^C>\<^sub>u\<^sub>n\<^sub>i\<^sub>t \<comment> \<open>force the explicit parsing\<close> \<open>f () {while (a) {}; return 0;} int a = 0;\<close>\<close>
@@ -578,7 +581,7 @@ declare [[C_starting_rule = "translation_unit"]]
 
 term \<open>\<^C> \<comment> \<open>default behavior of parsing depending on the current option\<close> \<open>int a = 0;\<close>\<close>
 
-subsubsection \<open>User defined setup of syntax\<close>
+subsection \<open>User defined setup of syntax\<close>
 
 setup \<open>C_Module.C_Term.map_expression (fn _ => fn _ => fn _ => @{term "10 :: nat"})\<close>
 setup \<open>C_Module.C_Term.map_statement (fn _ => fn _ => fn _ => @{term "20 :: nat"})\<close>
@@ -589,7 +592,7 @@ value \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>1\<close> + \<^C>\<^sub
 
 setup \<open>C_Module.C_Term.map_default (fn _ => fn _ => fn _ => @{term "True"})\<close>
 
-subsubsection \<open>Validity of context for annotations\<close>
+subsection \<open>Validity of context for annotations\<close>
 
 ML \<comment> \<open>Execution of annotations in term possible in (the outermost) \<^theory_text>\<open>ML\<close>\<close> \<open>
 \<^term>\<open> \<^C> \<open>int c = 0; /*@ ML \<open>()\<close> */\<close> \<close>
@@ -599,7 +602,7 @@ definition \<comment> \<open>Execution of annotations in term possible in \<^ML_
 term = \<^C> \<open>int c = 0; /*@ ML \<open>()\<close> */\<close>
 \<close>
 
-subsection \<open>Scopes of Inner and Outer Terms\<close>
+section \<open>Scopes of Inner and Outer Terms\<close>
 
 ML \<open>
 local

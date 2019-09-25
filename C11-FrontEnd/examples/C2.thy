@@ -40,6 +40,11 @@ theory C2
   imports Isabelle_C.C_Main
 begin
 
+section \<open>A Simplistic Setup: Parse and Store\<close>
+
+text\<open>The following setup stores the result of the parsed vales just in the environment.\<close>
+
+
 ML\<open>
 structure Data_Out = Generic_Data
   (type T = (C_Grammar_Rule.start_happy * C_Antiquote.antiq C_Env.stream) list
@@ -54,19 +59,32 @@ fun get_module thy =
 
 setup \<open>Context.theory_map (C_Module.Data_Accept.put (fn ast => fn env_lang => Data_Out.map (cons (ast, #stream_ignored env_lang |> rev))))\<close>
 
+
+
+
+
+
+section \<open>Working with Pragmas\<close>
 C\<open>
 
 #include <stdio.h>
 #include /*sdfsdf */ <stdlib.h>
 #define a B
 #define b(C) 
-#pragma
+#pragma   /* just exists syntaxically */
 \<close>
-ML\<open> 
-val ((C_Ast.CTranslUnit0 (t,u), v)::R, env) = get_module @{theory};
-val u = C_Grammar_Rule_Lib.decode u; 
-C_Ast.CTypeSpec0;
-\<close>
+
+
+text\<open>In the following, we retrieve the C11 AST parsed above. \<close>
+ML\<open> val ((C_Ast.CTranslUnit0 (t,u), v)::R, env) = get_module @{theory};
+    val u = C_Grammar_Rule_Lib.decode u; 
+    C_Ast.CTypeSpec0; \<close>
+
+
+
+section \<open>Working with Annotation Commands\<close>
+
+ML\<open>  (* setup for a dummy ensures : the 'Hello World of Annotation Commands *) \<close>
 
 
 C\<open>
@@ -83,6 +101,10 @@ val ((C_Ast.CTranslUnit0 (t,u), v)::R, env) = get_module @{theory};
 val u = C_Grammar_Rule_Lib.decode u
 \<close>
 
+
+section \<open>A Collection Standard Example (No Semantics so far)\<close>
+
+text\<open>This example suite is drawn from Frama-C and used in our GLA - TPs. \<close>
 
 C\<open>
 int sqrt(int a) {
@@ -190,14 +212,9 @@ int linearsearch(int x, int t[], int n) {
 }
 \<close>
 
-ML\<open>
-val p  = @{here};
-open Position;
-ML_Syntax.print_position p;
-writeln it;
-\<close>
 
-section\<open>Some realistic Selection sort with Input and Output\<close>
+section \<open>Some realistic Selection sort with Input and Output\<close>
+
 C\<open>
 #include <stdio.h>
  
@@ -238,7 +255,7 @@ printf("Sorted list in ascending order:\n");
 }
 \<close>
 
-text\<open>A better one:\<close>
+text\<open>A better example implementation:\<close>
 
 C\<open>
 #include <stdio.h>
@@ -307,6 +324,8 @@ void display(int a[],const int size)
     printf("\n");
 }
 \<close>
+
+text\<open>Accessing the underlying C11-AST's via the ML Interface.\<close>
 
 ML\<open>
 local open C_Ast in

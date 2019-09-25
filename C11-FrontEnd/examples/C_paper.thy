@@ -34,18 +34,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter \<open>Example\<close>
+chapter \<open>Examples from the F-IDE Paper\<close>
 
 theory C_paper
   imports Isabelle_C.C_Main
 begin
 
-section \<open>\<close>
+section \<open>Setup\<close>
+
 
 ML\<open>
+
 local
 val command = C_Inner_Syntax.command C_Inner_Isar_Cmd.setup' C_Parse.ML_source
 in
+\<comment> \<open>Annotation Commands Mimicking the \<^theory_text>\<open>setup\<close> command\<close>
 val _ = Theory.setup (   command C_Transition.Bottom_up ("\<simeq>setup", \<^here>)
                       #> command C_Transition.Top_down ("\<simeq>setup\<Down>", \<^here>))
 end
@@ -63,6 +66,8 @@ fun C_def dir name _ _ =
       dir
       name)
 
+
+\<comment> \<open>Defining the ML Antiquotation \<open>C_def\<close> to define on the fly new C annotation commands\<close>
 local
 in
 val _ = Theory.setup
@@ -80,9 +85,10 @@ val _ = Theory.setup
 end
 \<close>
 
+text\<open>The next command is predefined here, so that the example below can later refer to the constant.\<close>
 definition [simplified]: "UINT_MAX \<equiv> (2 :: nat) ^ 32 - 1"
 
-section \<open>\<close>
+section \<open>Defining Annotation Commands\<close>
 
 ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Command\<close>\<close> \<open>
 local
@@ -97,6 +103,9 @@ val _ = Theory.setup ((* 1 '@' *)
                       #> command ("INV", \<^here>) scan_colon C_Parse.term Invariant)
 end
 \<close>
+
+text\<open>Demonstrating the Effect of Annotation Command Context Navigation \<close>
+
 
 C \<open>
 int sum1(int a)
@@ -122,6 +131,7 @@ int sum2(int a)
 
 
 
+
 C (*NONE*) \<comment> \<open>starting environment = empty\<close> \<open>
 int a (int b) { return &a + b + c; }
 /*@ \<simeq>setup \<open>fn stack_top => fn env =>
@@ -132,7 +142,7 @@ int a (int b) { return &a + b + c; }
     C        (*SOME*)    \<open>int c = &a + b + c;\<close>
 */\<close>
 
-section \<open>\<close>
+section \<open>Proofs inside C-Annotations\<close>
 
 C \<open>
 #define SQRT_UINT_MAX 65536
@@ -143,7 +153,7 @@ C \<open>
 
 term SQRT_UINT_MAX
 
-section \<open>\<close>
+section \<open>Scheduling the Effects on the Logical Context\<close>
 
 C \<open>int _;
 /*@ @ C \<open>//@ C1 \<open>int _; //@ @ \<simeq>setup\<Down> \<open>@{C_def \<Up> C2}\<close> \
@@ -154,7 +164,9 @@ C \<open>int _;
       \<simeq>setup \<open>@{C_def \<Down> (* top-down  *) "C1\<Down>"}\<close>
 */\<close>
 
-section \<open>\<close>
+section \<open>As Summary: A Spaghetti Language --- Bon Appetit!\<close>
+
+text\<open>... with the Bonus of a local C-inside-ML-inside-C-inside-Isar ...\<close>
 
 ML\<open>
 fun highlight (_, (_, pos1, pos2)) =
@@ -177,9 +189,5 @@ C (*NONE*) \<comment> \<open> the command starts with a default empty environmen
           \<simeq>setup \<open>@{C_def \<Down> (* top-down  *) "C1'\<Down>"}\<close>
      */
     return a + b + c + d; /* explicit highlighting */ }\<close>
-
-
-declare [[C_parser_trace]]
-C\<open>int f (int a) { return a + b + c + d; } \<close>
 
 end

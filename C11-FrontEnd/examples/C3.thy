@@ -34,11 +34,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter \<open>Example\<close>
+chapter \<open>Example: Floats Exist\<close>
 
 theory C3
   imports Isabelle_C.C_Main
 begin
+
+
 
 C\<open>
 int a;
