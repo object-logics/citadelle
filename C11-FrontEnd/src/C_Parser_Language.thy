@@ -191,6 +191,12 @@ sig
 
   (* Language.C.Parser.ParserMonad *)
   val getNewName : Name monad
+  val shadowTypedef0'''' : string ->
+                           Position.T list ->
+                           C_Env.markup_ident ->
+                           C_Env.env_lang ->
+                           C_Env.env_tree ->
+                           C_Env.env_lang * C_Env.env_tree
   val shadowTypedef0' : C_Ast.CDeclSpec list C_Env.parse_status ->
                         bool ->
                         C_Ast.ident * C_Ast.CDerivedDeclr list ->
@@ -501,15 +507,20 @@ struct
     in ((), env |> C_Env_Ext.map_idents (Symtab.delete_safe name)
                 |> C_Env_Ext.map_tyidents_typedef (Symtab.update (name, data))
                 |> C_Env_Ext.map_reports_text (markup_tvar (Left (data, flat [ look_idents env name, look_tyidents_typedef env name ])) pos1 name)) end
-  fun shadowTypedef0'' ret global (Ident0 (_, i, node), params) env_lang env_tree =
-    let val name = ident_decode i
-        val pos = [decode_error' node |> #1]
-        val data = (pos, serial (), {global = global, params = params, ret = ret})
+  fun shadowTypedef0''' name pos data0 env_lang env_tree =
+    let val data = (pos, serial (), data0)
         val update_id = Symtab.update (name, data)
     in ( env_lang |> C_Env_Ext.map_tyidents'_typedef (Symtab.delete_safe name)
                   |> C_Env_Ext.map_idents' update_id
        , update_id
        , env_tree |> C_Env.map_reports_text (markup_var (Left (data, flat [ look_idents' env_lang name, look_tyidents'_typedef env_lang name ])) pos name)) end
+  fun shadowTypedef0'''' name pos data0 env_lang env_tree =
+    let val (env_lang, _, env_tree) = shadowTypedef0''' name pos data0 env_lang env_tree
+    in ( env_lang, env_tree) end
+  fun shadowTypedef0'' ret global (Ident0 (_, i, node), params) =
+    shadowTypedef0''' (ident_decode i)
+                      [decode_error' node |> #1]
+                      {global = global, params = params, ret = ret}
   fun shadowTypedef0' ret global ident env_lang env_tree =
     let val (env_lang, _, env_tree) = shadowTypedef0'' ret global ident env_lang env_tree 
     in (env_lang, env_tree) end

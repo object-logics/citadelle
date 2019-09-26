@@ -358,7 +358,7 @@ fun command dir f_cmd =
     C_Parse.C_source
     dir
 in
-val _ = Theory.setup (   command C_Env.Bottom_up C' ("C'", \<^here>)
+val _ = Theory.setup (   command C_Inner_Syntax.bottom_up C' ("C'", \<^here>)
                       #> command C_Env.Top_down C' ("C'\<Down>", \<^here>))
 end
 \<close>
@@ -612,7 +612,7 @@ fun bind scan ((stack1, (to_delay, stack2)), _) =
       C_Env.Parsing
         ( (stack1, stack2)
         , ( range
-          , C_Env.Bottom_up
+          , C_Inner_Syntax.bottom_up
               (fn _ => fn context =>
                 ML_Context.exec
                   (tap (fn _ => Syntax.read_term (Context.proof_of context) (Token.inner_syntax_of src)))
@@ -629,7 +629,7 @@ val _ =
      #> C_Inner_Syntax.command0
           (C_Inner_Toplevel.keep'' o C_Inner_Isar_Cmd.print_term)
           (C_Token.syntax' (Scan.succeed [] -- Parse.term))
-          C_Env.Bottom_up
+          C_Inner_Syntax.bottom_up
           ("term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r", \<^here>))
 end
 \<close>

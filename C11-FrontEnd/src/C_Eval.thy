@@ -109,10 +109,13 @@ type env_direct = bool (* internal result for conditional directives: branch ski
 structure Directives = Generic_Data
   (type T = (Position.T list
              * serial
-             * (C_Lex.token_kind_directive
-                -> env_direct
-                -> C_Env.antiq_language list (* nested annotations from the input *)
-                   * env_direct (*NOTE: remove the possibility of returning a too modified env?*)))
+             * ( (* evaluated during lexing phase *)
+                 (C_Lex.token_kind_directive
+                  -> env_direct
+                  -> C_Env.antiq_language list (* nested annotations from the input *)
+                     * env_direct (*NOTE: remove the possibility of returning a too modified env?*))
+               * (* evaluated during parsing phase *)
+                 (C_Lex.token_kind_directive -> C_Env.env_propagation_directive)))
             Symtab.table
    val empty = Symtab.empty
    val extend = I
@@ -146,9 +149,11 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
         if len = 0 then
           I #>>
           (case ml_exec of
-             (_, C_Env.Bottom_up exec, env_dir, _) =>
+             (_, C_Env.Bottom_up (C_Env.Exec_annotation exec), env_dir, _) =>
               (fn arg => C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack, #env_lang arg) (exec NONE))
                                             arg)
+           | (_, C_Env.Bottom_up (C_Env.Exec_directive exec), env_dir, _) =>
+              C_Env.map_env_lang_tree (curry (exec NONE env_dir))
            | ((pos, _), _, _, _) =>
               C_Env_Ext.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos)))
         else
@@ -170,6 +175,21 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
       end)
     l
   #>> C_Env.map_stream_hook (K ls))
+
+fun add_stream_hook (syms_shift, syms, ml_exec) =
+  C_Env.map_stream_hook
+   (fn stream_hook => 
+    case
+       fold (fn _ => fn (eval1, eval2) =>
+           (case eval2 of e2 :: eval2 => (e2, eval2)
+                        | [] => ([], []))
+           |>> (fn e1 => e1 :: eval1))
+         syms_shift
+         ([], stream_hook)
+    of (eval1, eval2) => fold cons
+                              eval1
+                              (case eval2 of e :: es => ((syms_shift, syms, ml_exec) :: e) :: es
+                                           | [] => [[(syms_shift, syms, ml_exec)]]))
 
 fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
   let val (token, arg) = C_Env_Ext.map_stream_lang' (fn [] => (NONE, []) | x :: xs => (SOME x, xs)) arg
@@ -217,27 +237,33 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, false)
              |> fold (fn C_Env.Antiq_stack (_, C_Env.Parsing ((syms_shift, syms), ml_exec)) =>
-                         I #>>
-                           (C_Env.map_stream_hook
-                             (fn stream_hook => 
-                              case
-                                 fold (fn _ => fn (eval1, eval2) =>
-                                     (case eval2 of e2 :: eval2 => (e2, eval2)
-                                                  | [] => ([], []))
-                                     |>> (fn e1 => e1 :: eval1))
-                                   syms_shift
-                                   ([], stream_hook)
-                              of (eval1, eval2) => fold cons
-                                                        eval1
-                                                        (case eval2 of e :: es => ((syms_shift, syms, ml_exec) :: e) :: es
-                                                                     | [] => [[(syms_shift, syms, ml_exec)]])))
+                           I #>> add_stream_hook (syms_shift, syms, ml_exec)
                        | C_Env.Antiq_stack (_, C_Env.Never) => I ##> K true
                        | _ => I)
                      l_antiq
              |> (fn (arg, false) => arg
                   | (arg, true) => C_Env_Ext.map_stream_ignored (cons (Left antiq_raw)) arg))
-     | SOME (Right (tok as C_Lex.Token (_, (C_Lex.Directive _, _)))) =>
-        makeLexer ((stack, stack_ml, stack_pos, stack_tree), C_Env_Ext.map_stream_ignored (cons (Right tok)) arg)
+     | SOME (Right (tok as C_Lex.Token (_, (C_Lex.Directive dir, _)))) =>
+        makeLexer
+          ( (stack, stack_ml, stack_pos, stack_tree)
+          , arg
+            |> let val context = C_Env_Ext.get_context arg
+               in
+                fold (fn dir_tok => 
+                      add_stream_hook
+                        ( []
+                        , []
+                        , ( Position.no_range
+                          , C_Env.Bottom_up (C_Env.Exec_directive
+                                              (dir |> (case Symtab.lookup (C_Context0.Directives.get context)
+                                                                          (C_Lex.content_of dir_tok)
+                                                       of NONE => K (K (K I))
+                                                        | SOME (_, _, (_, exec)) => exec)))
+                           , Symtab.empty
+                           , true)))
+                     (C_Lex.directive_cmds dir)
+               end
+            |> C_Env_Ext.map_stream_ignored (cons (Right tok)))
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
       case tok of 
         C_Lex.String (C_Lex.Encoding_file (SOME err), _) =>
@@ -357,8 +383,10 @@ fun eval env_lang start err accept stream_lang =
               val actual = flat (map rev actual)
           in
             ( (delayed, map (fn x => (stack0, env_lang, x)) actual, rule_output)
-            , fold (fn (_, C_Env.Bottom_up exec, env_dir, _) =>
+            , fold (fn (_, C_Env.Bottom_up (C_Env.Exec_annotation exec), env_dir, _) =>
                        C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack0, env_lang) (exec (SOME rule0)))
+                     | (_, C_Env.Bottom_up (C_Env.Exec_directive exec), env_dir, _) =>
+                       C_Env.map_env_lang_tree (curry (exec (SOME rule0) env_dir))
                      | _ => I)
                    actual
                    arg)
@@ -531,7 +559,7 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                                 val data = Symtab.lookup (C_Context0.Directives.get context) name
                             in
                               apsnd (apsnd (C_Env.map_reports_text (markup_directive_command (C_Ast.Right (pos1, data)) pos1 name)))
-                              #> (case data of NONE => I | SOME (_, _, exec) => exec dir #> #2)
+                              #> (case data of NONE => I | SOME (_, _, (exec, _)) => exec dir #> #2)
                             end)
                           (C_Lex.directive_cmds dir)
                       #> snd

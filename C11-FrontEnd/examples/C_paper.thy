@@ -49,7 +49,7 @@ local
 val command = C_Inner_Syntax.command C_Inner_Isar_Cmd.setup' C_Parse.ML_source
 in
 \<comment> \<open>Annotation Commands Mimicking the \<^theory_text>\<open>setup\<close> command\<close>
-val _ = Theory.setup (   command C_Env.Bottom_up ("\<simeq>setup", \<^here>)
+val _ = Theory.setup (   command C_Inner_Syntax.bottom_up ("\<simeq>setup", \<^here>)
                       #> command C_Env.Top_down ("\<simeq>setup\<Down>", \<^here>))
 end
 
@@ -78,7 +78,7 @@ val _ = Theory.setup
       tap (fn ctxt => Context_Position.reports ctxt [(pos, Markup.keyword1)]) #>
       C_Context.fun_decl
                "cmd" "x" ( "C_def "
-                         ^ (case top_down of "\<Up>" => "C_Env.Bottom_up"
+                         ^ (case top_down of "\<Up>" => "C_Inner_Syntax.bottom_up"
                                            | "\<Down>" => "C_Env.Top_down"
                                            | _ => error "Illegal symbol")
                          ^ " (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))

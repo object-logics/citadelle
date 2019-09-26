@@ -48,15 +48,6 @@ utilities. \<close>
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
 structure C_Env = struct
 
-datatype comment_style = Comment_directive
-                       | Comment_language
-
-datatype env_propagation =
-  Bottom_up (*during parsing*) of (int (*reduce rule number*) option (* NONE: shift action *)
-                    -> Context.generic -> Context.generic)
-| Top_down (*after parsing*) of (int (*reduce rule number*) option (* NONE: shift action *)
-                    -> Context.generic -> Context.generic)
-
 type env_directives = (Position.T list * serial * C_Lex.token list) Symtab.table
 
 (**)
@@ -95,6 +86,23 @@ type env_tree = { context : Context.generic
 type rule_static = (env_tree -> env_lang * env_tree) option
 
 (**)
+
+datatype comment_style = Comment_directive
+                       | Comment_language
+
+type env_propagation_reduce = int (*reduce rule number*) option (* NONE: shift action *)
+
+type env_propagation_ctxt = env_propagation_reduce -> Context.generic -> Context.generic
+
+type env_propagation_directive = env_propagation_reduce -> env_directives -> env_lang * env_tree -> env_lang * env_tree
+
+datatype env_propagation_bottom_up =
+  Exec_annotation of env_propagation_ctxt
+| Exec_directive of env_propagation_directive
+
+datatype env_propagation =
+  Bottom_up (*during parsing*) of env_propagation_bottom_up
+| Top_down (*after parsing*) of env_propagation_ctxt
 
 type eval_node = Position.range
                  * env_propagation
@@ -387,6 +395,7 @@ fun map_reports_text f = C_Env.map_env_tree (C_Env.map_reports_text f)
 
 (**)
 
+fun get_context (t : C_Env.T) = #env_tree t |> #context
 fun get_reports_text (t : C_Env.T) = #env_tree t |> #reports_text
 
 (**)

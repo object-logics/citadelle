@@ -386,13 +386,14 @@ subsubsection \<open>Initialization\<close>
 
 ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 local
+fun directive_update keyword data = C_Context.directive_update keyword (data, K (K (K I)))
 fun return f (env_cond, env) = ([], (env_cond, f env))
 
 val _ =
   Theory.setup
   (Context.theory_map
     (C_Context0.Directives.map
-      (C_Context.directive_update ("define", \<^here>)
+      (directive_update ("define", \<^here>)
         (return
          o
           (fn C_Lex.Define (_, C_Lex.Group1 ([], [tok3]), NONE, C_Lex.Group1 ([], toks)) =>
@@ -428,7 +429,7 @@ val _ =
                              warning ("Ignored functional macro directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
             | _ => I))
        #>
-       C_Context.directive_update ("undef", \<^here>)
+       directive_update ("undef", \<^here>)
         (return
          o
           (fn C_Lex.Undef (C_Lex.Group2 (_, _, [tok])) =>
@@ -549,10 +550,11 @@ fun command_range' f = command_range (K o f)
 fun command_no_range f = command00_no_range (K f) Keyword.thy_decl
 
 fun command0 f = command (K o f)
+val bottom_up = C_Env.Bottom_up o C_Env.Exec_annotation
 fun local_command' spec scan f =
   command (K o (fn (target, arg) => C_Inner_Toplevel.local_theory' target (f arg)))
           (C_Token.syntax' (Parse.opt_target -- scan))
-          C_Env.Bottom_up
+          bottom_up
           spec
 val command0_no_range = command_no_range o K
 
@@ -657,21 +659,21 @@ end
 val opt_modes =
   Scan.optional (\<^keyword>\<open>(\<close> |-- Parse.!!! (Scan.repeat1 Parse.name --| \<^keyword>\<open>)\<close>)) [];
 
-val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Env.Bottom_up ("\<approx>setup", \<^here>)
+val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Inner_Syntax.bottom_up ("\<approx>setup", \<^here>)
                       #> C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup) C_Parse.ML_source C_Env.Top_down ("\<approx>setup\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Parse.ML_source C_Env.Bottom_up ("setup", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Parse.ML_source C_Inner_Syntax.bottom_up ("setup", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup) C_Parse.ML_source C_Env.Top_down ("setup\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Env.Bottom_up ("ML", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Inner_Syntax.bottom_up ("ML", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML) C_Parse.ML_source C_Env.Top_down ("ML\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Env.Bottom_up ("C", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Inner_Syntax.bottom_up ("C", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C) C_Parse.C_source C_Env.Top_down ("C\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.ML NONE) Keyword.thy_load (C_Resources.parse_files "ML_file" --| semi) C_Env.Bottom_up ("ML_file", \<^here>)
+                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.ML NONE) Keyword.thy_load (C_Resources.parse_files "ML_file" --| semi) C_Inner_Syntax.bottom_up ("ML_file", \<^here>)
                       #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.ML NONE) Keyword.thy_load (C_Resources.parse_files "ML_file\<Down>" --| semi) C_Env.Top_down ("ML_file\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C) Keyword.thy_load (C_Resources.parse_files "C_file" --| semi) C_Env.Bottom_up ("C_file", \<^here>)
+                      #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C) Keyword.thy_load (C_Resources.parse_files "C_file" --| semi) C_Inner_Syntax.bottom_up ("C_file", \<^here>)
                       #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C) Keyword.thy_load (C_Resources.parse_files "C_file\<Down>" --| semi) C_Env.Top_down ("C_file\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Env.Bottom_up ("C_export_boot", \<^here>)
+                      #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Inner_Syntax.bottom_up ("C_export_boot", \<^here>)
                       #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot) C_Parse.C_source C_Env.Top_down ("C_export_boot\<Down>", \<^here>)
-                      #> C_Inner_Syntax.command_range' (Context.map_theory o Named_Target.theory_map o C_Module.C_export_file) C_Env.Bottom_up ("C_export_file", \<^here>)
+                      #> C_Inner_Syntax.command_range' (Context.map_theory o Named_Target.theory_map o C_Module.C_export_file) C_Inner_Syntax.bottom_up ("C_export_file", \<^here>)
                       #> C_Inner_Syntax.command_range' (Context.map_theory o Named_Target.theory_map o C_Module.C_export_file) C_Env.Top_down ("C_export_file\<Down>", \<^here>)
                       #> C_Inner_Syntax.command_no_range
                            (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup
@@ -681,7 +683,7 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                                           Position.reports_text [((Position.range (pos1, pos2)
                                                                    |> Position.range_position, Markup.intensify), "")]))
                                | _ => fn _ => fn _ => I\<close>)
-                           C_Env.Bottom_up
+                           C_Inner_Syntax.bottom_up
                            ("highlight", \<^here>)
                       #> theorem ("theorem", \<^here>) false
                       #> theorem ("lemma", \<^here>) false
@@ -700,7 +702,7 @@ val _ = Theory.setup (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory
                       #> C_Inner_Syntax.command0
                           (C_Inner_Toplevel.keep'' o C_Inner_Isar_Cmd.print_term)
                           (C_Token.syntax' (opt_modes -- Parse.term))
-                          C_Env.Bottom_up
+                          C_Inner_Syntax.bottom_up
                           ("term", \<^here>))
 in end
 \<close>

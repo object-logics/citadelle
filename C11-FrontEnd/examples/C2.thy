@@ -59,10 +59,103 @@ fun get_module thy =
 
 setup \<open>Context.theory_map (C_Module.Data_Accept.put (fn ast => fn env_lang => Data_Out.map (cons (ast, #stream_ignored env_lang |> rev))))\<close>
 
+section \<open>Implementing \<open>#include\<close>\<close>
 
+subsection \<open>\<close>
 
+ML \<open>
+structure Directive_include = Generic_Data
+  (type T = (Input.source * C_Env.markup_ident) list Symtab.table
+   val empty = Symtab.empty
+   val extend = K empty
+   val merge = K empty)
+\<close>
 
+ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
+local
+fun return f (env_cond, env) = ([], (env_cond, f env))
 
+val _ =
+  Theory.setup
+  (Context.theory_map
+    (C_Context0.Directives.map
+      (C_Context.directive_update ("include", \<^here>)
+        ( (return o K I)
+        , fn C_Lex.Include (C_Lex.Group2 (toks_bl, _, tok :: _)) =>
+               let
+                 fun exec file (env_lang, env_tree) =
+                   fold
+                     (fn (src, data) => fn (env_lang, env_tree) => 
+                       let val (name, pos) = Input.source_content src
+                       in C_Grammar_Rule_Lib.shadowTypedef0'''' name [pos] data env_lang env_tree end)
+                     (these (Symtab.lookup (Directive_include.get (#context env_tree)) (String.concat file)))
+                     (env_lang, env_tree)
+               in
+                 case tok of
+                   C_Lex.Token (_, (C_Lex.String (_, file), _)) => exec file
+                 | C_Lex.Token (_, (C_Lex.File (_, file), _)) => exec file
+                 | _ => tap (fn _ => (* not yet implemented *)
+                                     warning ("Ignored directive" ^ Position.here (Position.range_position (C_Lex.pos_of tok, C_Lex.end_pos_of (List.last toks_bl)))))
+               end |> K |> K
+           | _ => K (K I)))))
+in end
+\<close>
+
+ML \<open>
+structure Include =
+struct
+fun init name vars =
+  Context.theory_map
+    (Directive_include.map
+      (Symtab.update
+        (name, map (rpair {global = true, params = [], ret = C_Env.Previous_in_stack}) vars)))
+
+fun append name vars =
+  Context.theory_map
+    (Directive_include.map
+      (Symtab.map_default
+        (name, [])
+        (rev o fold (cons o rpair {global = true, params = [], ret = C_Env.Previous_in_stack}) vars o rev)))
+
+val show =
+  Context.theory_map
+    (Directive_include.map
+      (tap
+        (Symtab.dest
+         #>
+          app (fn (fic, vars) =>
+            writeln ("Content of \"" ^ fic ^ "\": " ^ String.concat (map (fn (i, _) => let val (name, pos) = Input.source_content i
+                                                                                       in name ^ Position.here pos ^ " " end)
+                                                                         vars))))))
+end
+\<close>
+
+setup \<open>Include.append "stdio.h" [\<open>printf\<close>, \<open>scanf\<close>]\<close>
+
+subsection \<open>Tests\<close>
+
+C \<open>
+//@ setup \<open>Include.append "tmp" [\<open>b\<close>]\<close>
+#include "tmp"
+int a = b;
+
+\<close>
+
+C \<open>
+int b = 0;
+//@ setup \<open>Include.init "tmp" [\<open>b\<close>]\<close>
+#include "tmp"
+int a = b;
+\<close>
+
+C \<open>
+int c = 0;
+//@ setup \<open>Include.append "tmp" [\<open>c\<close>]\<close>
+//@ setup \<open>Include.append "tmp" [\<open>c\<close>]\<close>
+#include "tmp"
+int a = b + c;
+//@ setup \<open>Include.show\<close>
+\<close>
 
 section \<open>Working with Pragmas\<close>
 C\<open>
@@ -95,7 +188,7 @@ fun command (cmd as (cmd_name, _)) scan0 scan f =
 in
 val _ = Theory.setup (   C_Inner_Syntax.command_no_range
                            (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup \<open>K (K (K I))\<close>)
-                           C_Env.Bottom_up
+                           C_Inner_Syntax.bottom_up
                            ("loop", \<^here>)
                       #> command ("ensures", \<^here>) scan_opt_colon C_Parse.term Term
                       #> command ("invariant", \<^here>) scan_opt_colon C_Parse.term Term
