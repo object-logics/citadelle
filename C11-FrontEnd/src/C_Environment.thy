@@ -51,7 +51,11 @@ structure C_Env = struct
 datatype comment_style = Comment_directive
                        | Comment_language
 
-datatype env_propagation = Bottom_up (*during parsing*) | Top_down (*after parsing*)
+datatype env_propagation =
+  Bottom_up (*during parsing*) of (int (*reduce rule number*) option (* NONE: shift action *)
+                    -> Context.generic -> Context.generic)
+| Top_down (*after parsing*) of (int (*reduce rule number*) option (* NONE: shift action *)
+                    -> Context.generic -> Context.generic)
 
 type env_directives = (Position.T list * serial * C_Lex.token list) Symtab.table
 
@@ -96,8 +100,6 @@ type eval_node = Position.range
                  * env_propagation
                  * env_directives
                  * bool (* true: skip vacuous reduce rules *)
-                 * (int (*reduce rule number*) option (* NONE: shift action *)
-                    -> Context.generic -> Context.generic)
 
 datatype eval_time = Lexing of Position.range * (comment_style -> Context.generic -> Context.generic)
                    | Parsing of (Symbol_Pos.T list (* length = number of tokens to advance *) 

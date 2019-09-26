@@ -787,14 +787,12 @@ ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<
 structure C_Grammar_Rule_Wrap_Overloading = struct
 open C_Grammar_Rule_Lib
 
-val update_env =
- fn C_Env.Bottom_up => (fn f => fn x => fn arg => ((), C_Env.map_env_lang_tree (f x) arg))
-  | C_Env.Top_down => fn f => fn x => pair () ##> (fn arg => C_Env_Ext.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
-
+fun update_env_bottom_up f x arg = ((), C_Env.map_env_lang_tree (f x) arg)
+fun update_env_top_down f x = pair () ##> (fn arg => C_Env_Ext.map_output_env (K (SOME (f x (#env_lang arg)))) arg)
 
 (*type variable (report bound)*)
 
-val specifier3 : (CDeclSpec list) -> unit monad = update_env C_Env.Bottom_up (fn l => fn env_lang => fn env_tree =>
+val specifier3 : (CDeclSpec list) -> unit monad = update_env_bottom_up (fn l => fn env_lang => fn env_tree =>
   ( env_lang
   , fold
       let open C_Ast
@@ -814,7 +812,7 @@ val type_specifier3 : (CDeclSpec list) -> unit monad = specifier3
 
 (*basic variable (report bound)*)
 
-val primary_expression1 : (CExpr) -> unit monad = update_env C_Env.Bottom_up (fn e => fn env_lang => fn env_tree =>
+val primary_expression1 : (CExpr) -> unit monad = update_env_bottom_up (fn e => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_Ast
     in fn CVar0 (Ident0 (_, i, node), _) =>
@@ -831,7 +829,7 @@ val primary_expression1 : (CExpr) -> unit monad = update_env C_Env.Bottom_up (fn
 
 (*basic variable, parameter functions (report bound)*)
 
-val declarator1 : (CDeclrR) -> unit monad = update_env C_Env.Bottom_up (fn d => fn env_lang => fn env_tree =>
+val declarator1 : (CDeclrR) -> unit monad = update_env_bottom_up (fn d => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_Ast
         fun markup markup_var params =
@@ -864,7 +862,7 @@ val declarator1 : (CDeclrR) -> unit monad = update_env C_Env.Bottom_up (fn d => 
 
 (*old style syntax for functions (legacy feature)*)
 
-val external_declaration1 : (CExtDecl) -> unit monad = update_env C_Env.Bottom_up (fn f => fn env_lang => fn env_tree =>
+val external_declaration1 : (CExtDecl) -> unit monad = update_env_bottom_up (fn f => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_Ast
     in fn CFDefExt0 (CFunDef0 (_, _, l, _, node)) => 
@@ -889,7 +887,7 @@ fun report_enum_bound i node env_lang =
 
 local
 val look_tyidents'_enum = C_Env_Ext.list_lookup o C_Env_Ext.get_tyidents'_enum
-val declaration : (CDecl) -> unit monad = update_env C_Env.Bottom_up (fn decl => fn env_lang => fn env_tree =>
+val declaration : (CDecl) -> unit monad = update_env_bottom_up (fn decl => fn env_lang => fn env_tree =>
   let open C_Ast
   in
    fn CDecl0 (l, _, _) =>
@@ -922,7 +920,7 @@ end
 (*(basic) enum, struct, union (report define)*)
 
 local
-val enumerator : ( ( Ident * CExpr Maybe ) ) -> unit monad = update_env C_Env.Bottom_up (fn id => fn env_lang =>
+val enumerator : ( ( Ident * CExpr Maybe ) ) -> unit monad = update_env_bottom_up (fn id => fn env_lang =>
   let open C_Ast
   in
     fn (ident as Ident0 (_, _, node), _) =>
@@ -953,7 +951,7 @@ fun declaration_specifier env_lang =
         | _ => I)
   end
 in
-val declaration_specifier2 : (CDeclSpec list) -> unit monad = update_env C_Env.Bottom_up (fn d => fn env_lang => fn env_tree =>
+val declaration_specifier2 : (CDeclSpec list) -> unit monad = update_env_bottom_up (fn d => fn env_lang => fn env_tree =>
   let open C_Ast
   in
   ( env_lang
@@ -965,7 +963,7 @@ val declaration_specifier2 : (CDeclSpec list) -> unit monad = update_env C_Env.B
   end)
 
 local
-val f_definition : (CFunDef) -> unit monad = update_env C_Env.Bottom_up (fn d => fn env_lang => fn env_tree =>
+val f_definition : (CFunDef) -> unit monad = update_env_bottom_up (fn d => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_Ast
     in
@@ -979,7 +977,7 @@ val nested_function_definition2 = f_definition
 end
 
 local
-val parameter_type_list : ( ( CDecl list * Bool ) ) -> unit monad = update_env C_Env.Bottom_up (fn d => fn env_lang => fn env_tree =>
+val parameter_type_list : ( ( CDecl list * Bool ) ) -> unit monad = update_env_bottom_up (fn d => fn env_lang => fn env_tree =>
   ( env_lang
   , let open C_Ast
     in

@@ -535,13 +535,13 @@ fun command00 f kind scan dir name =
     (fn ((stack1, (to_delay, stack2)), _) =>
       C_Parse.range scan >>
         (fn (src, range) =>
-          C_Env.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f src range))))
+          C_Env.Parsing ((stack1, stack2), (range, dir (f src range), Symtab.empty, to_delay))))
 
 fun command00_no_range f kind dir name =
   C_Annotation.command'' kind name ""
     (fn ((stack1, (to_delay, stack2)), range) =>
       Scan.succeed () >>
-        K (C_Env.Parsing ((stack1, stack2), (range, dir, Symtab.empty, to_delay, f range))))
+        K (C_Env.Parsing ((stack1, stack2), (range, dir (f range), Symtab.empty, to_delay))))
 
 fun command f = command00 (K o f) Keyword.thy_decl
 fun command_range f = command00_no_range f Keyword.thy_decl

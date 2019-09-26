@@ -146,10 +146,10 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
         if len = 0 then
           I #>>
           (case ml_exec of
-             (_, C_Env.Bottom_up, env_dir, _, exec) =>
+             (_, C_Env.Bottom_up exec, env_dir, _) =>
               (fn arg => C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack, #env_lang arg) (exec NONE))
                                             arg)
-           | ((pos, _), _, _, _, _) =>
+           | ((pos, _), _, _, _) =>
               C_Env_Ext.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos)))
         else
           I ##>
@@ -299,7 +299,7 @@ fun exec_tree write msg (Tree ({rule_pos, rule_type}, l_tree)) =
       write msg rule_pos ("REDUCE " ^ Int.toString rule0 ^ " " ^ (if vacuous then "X" else "O")) (SOME (C_Grammar_Rule.string_reduce rule0 ^ " " ^ C_Grammar_Rule.type_reduce rule0))
       #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
       #-> (fn env_lang =>
-            fold (fn (stack0, env_lang0, (_, C_Env.Top_down, env_dir, _, exec)) =>
+            fold (fn (stack0, env_lang0, (_, C_Env.Top_down exec, env_dir, _)) =>
                      C_Stack.stack_exec env_dir (stack0, Option.getOpt (env_lang, env_lang0)) (exec (SOME rule0))
                    | _ => I)
                  rule_antiq)
@@ -351,13 +351,13 @@ fun eval env_lang start err accept stream_lang =
               val env_lang = #env_lang arg
               val (delayed, actual) =
                 if #output_vacuous rule_output
-                then let fun f (_, _, _, to_delay, _) = to_delay
+                then let fun f (_, _, _, to_delay) = to_delay
                      in (map (filter f) pre_ml, map (filter_out f) pre_ml) end
                 else ([], pre_ml)
               val actual = flat (map rev actual)
           in
             ( (delayed, map (fn x => (stack0, env_lang, x)) actual, rule_output)
-            , fold (fn (_, C_Env.Bottom_up, env_dir, _, exec) =>
+            , fold (fn (_, C_Env.Bottom_up exec, env_dir, _) =>
                        C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack0, env_lang) (exec (SOME rule0)))
                      | _ => I)
                    actual
@@ -514,9 +514,9 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                  fn Left (tag, antiq, toks, l_antiq) =>
                       fold_map (fn antiq as (C_Env.Antiq_stack (_, C_Env.Lexing (_, exec)), _) =>
                                      apsnd (C_Stack.stack_exec0 (exec C_Env.Comment_language)) #> pair antiq
-                                 | (C_Env.Antiq_stack (rep, C_Env.Parsing (syms, (range, env1, _, skip, exec))), toks) =>
+                                 | (C_Env.Antiq_stack (rep, C_Env.Parsing (syms, (range, exec, _, skip))), toks) =>
                                      (fn env as (env_dir, _) =>
-                                       ((C_Env.Antiq_stack (rep, C_Env.Parsing (syms, (range, env1, env_dir, skip, exec))), toks), env))
+                                       ((C_Env.Antiq_stack (rep, C_Env.Parsing (syms, (range, exec, env_dir, skip))), toks), env))
                                  | antiq => pair antiq)
                                l_antiq
                       #> apfst (fn l_antiq => Left (tag, antiq, toks, l_antiq))

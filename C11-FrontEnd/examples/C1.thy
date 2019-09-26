@@ -613,12 +613,12 @@ fun bind scan ((stack1, (to_delay, stack2)), _) =
         ( (stack1, stack2)
         , ( range
           , C_Env.Bottom_up
+              (fn _ => fn context =>
+                ML_Context.exec
+                  (tap (fn _ => Syntax.read_term (Context.proof_of context) (Token.inner_syntax_of src)))
+                  context)
           , Symtab.empty
-          , to_delay
-          , fn _ => fn context =>
-              ML_Context.exec
-                (tap (fn _ => Syntax.read_term (Context.proof_of context) (Token.inner_syntax_of src)))
-                context)))
+          , to_delay)))
 in
 val _ =
   Theory.setup
