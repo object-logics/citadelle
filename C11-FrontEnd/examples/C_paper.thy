@@ -49,8 +49,8 @@ local
 val command = C_Inner_Syntax.command C_Inner_Isar_Cmd.setup' C_Parse.ML_source
 in
 \<comment> \<open>Annotation Commands Mimicking the \<^theory_text>\<open>setup\<close> command\<close>
-val _ = Theory.setup (   command C_Transition.Bottom_up ("\<simeq>setup", \<^here>)
-                      #> command C_Transition.Top_down ("\<simeq>setup\<Down>", \<^here>))
+val _ = Theory.setup (   command C_Env.Bottom_up ("\<simeq>setup", \<^here>)
+                      #> command C_Env.Top_down ("\<simeq>setup\<Down>", \<^here>))
 end
 
 val C' = C_Module.C'
@@ -78,8 +78,8 @@ val _ = Theory.setup
       tap (fn ctxt => Context_Position.reports ctxt [(pos, Markup.keyword1)]) #>
       C_Context.fun_decl
                "cmd" "x" ( "C_def "
-                         ^ (case top_down of "\<Up>" => "C_Transition.Bottom_up"
-                                           | "\<Down>" => "C_Transition.Top_down"
+                         ^ (case top_down of "\<Up>" => "C_Env.Bottom_up"
+                                           | "\<Down>" => "C_Env.Top_down"
                                            | _ => error "Illegal symbol")
                          ^ " (\"" ^ name ^ "\", " ^ ML_Syntax.print_position pos ^ ")")))
 end
@@ -96,7 +96,7 @@ datatype antiq_hol = Invariant of string (* term *)
 val scan_colon = C_Parse.$$$ ":" >> SOME
 fun command cmd scan0 scan f =
   C_Annotation.command' cmd "" (K (scan0 -- (scan >> f)
-                                      >> K C_Transition.Never))
+                                      >> K C_Env.Never))
 in
 val _ = Theory.setup ((* 1 '@' *)
                          command ("INVARIANT", \<^here>) scan_colon C_Parse.term Invariant

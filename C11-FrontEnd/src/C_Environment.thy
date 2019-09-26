@@ -40,11 +40,13 @@ theory C_Environment
   imports C_Lexer
 begin
 
-subsection \<open>Types Characterizing Command Actions (Outer and Inner Commands)\<close>
+subsection \<open>Definition of the Environment\<close>
+
+text \<open> The environment comes in two parts: a basic core structure, and a (thin) layer of
+utilities. \<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
-structure C_Transition =
-struct
+structure C_Env = struct
 
 datatype comment_style = Comment_directive
                        | Comment_language
@@ -53,36 +55,8 @@ datatype env_propagation = Bottom_up (*during parsing*) | Top_down (*after parsi
 
 type env_directives = (Position.T list * serial * C_Lex.token list) Symtab.table
 
-type eval_node = Position.range
-                 * env_propagation
-                 * env_directives
-                 * bool (* true: skip vacuous reduce rules *)
-                 * (int (*reduce rule number*) option (* NONE: shift action *)
-                    -> Context.generic -> Context.generic)
+(**)
 
-datatype eval_time = Lexing of Position.range * (comment_style -> Context.generic -> Context.generic)
-                   | Parsing of (Symbol_Pos.T list (* length = number of tokens to advance *) 
-                                 * Symbol_Pos.T list (* length = number of steps back in stack *)) 
-                                 * eval_node
-                   | Never (* to be manually treated by the semantic back-end, and analyzed there *)
-
-datatype antiq_language = Antiq_stack of C_Position.reports_text * eval_time
-                        | Antiq_none of C_Lex.token
-end;
-
-\<close>
-
-text \<open> The key element of \<^ML_structure>\<open>C_Transition\<close> is
-\<^ML_type>\<open>C_Transition.eval_time\<close>, relevant for the generic annotation
-module. \<close>
-
-subsection \<open>Definition of the Environment\<close>
-
-text \<open> The environment comes in two parts: a basic core structure, and a (thin) layer of
-utilities. \<close>
-
-ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
-structure C_Env = struct
 datatype 'a parse_status = Parsed of 'a | Previous_in_stack
 
 type markup_global = bool (*true: global*)
@@ -103,7 +77,7 @@ type env_lang = { var_table : var_table \<comment> \<open>current active table i
                 , scopes : (C_Ast.ident option * var_table) list  \<comment> \<open>parent scope tables\<close>
                 , namesupply : int
                 , stream_ignored : C_Antiquote.antiq stream
-                , env_directives : C_Transition.env_directives }
+                , env_directives : env_directives }
 (* NOTE: The distinction between type variable or identifier can not be solely made
          during the lexing process.
          Another pass on the parsed tree is required. *)
@@ -118,11 +92,33 @@ type rule_static = (env_tree -> env_lang * env_tree) option
 
 (**)
 
+type eval_node = Position.range
+                 * env_propagation
+                 * env_directives
+                 * bool (* true: skip vacuous reduce rules *)
+                 * (int (*reduce rule number*) option (* NONE: shift action *)
+                    -> Context.generic -> Context.generic)
+
+datatype eval_time = Lexing of Position.range * (comment_style -> Context.generic -> Context.generic)
+                   | Parsing of (Symbol_Pos.T list (* length = number of tokens to advance *) 
+                                 * Symbol_Pos.T list (* length = number of steps back in stack *)) 
+                                 * eval_node
+                   | Never (* to be manually treated by the semantic back-end, and analyzed there *)
+
+datatype antiq_language = Antiq_stack of C_Position.reports_text * eval_time
+                        | Antiq_none of C_Lex.token
+
+\<comment> \<open> One of the key element of the structure is
+\<^ML_text>\<open>eval_time\<close>, relevant for the generic annotation
+module. \<close>
+
+(**)
+
 type ('LrTable_state, 'a, 'Position_T) stack_elem0 = 'LrTable_state * ('a * 'Position_T * 'Position_T)
 type ('LrTable_state, 'a, 'Position_T) stack0 = ('LrTable_state, 'a, 'Position_T) stack_elem0 list
 
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce0 = (('LrTable_state, 'svalue0, 'pos) stack0 * env_lang * C_Transition.eval_node) list
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce = int * ('LrTable_state, 'svalue0, 'pos) stack0 * C_Transition.eval_node list list
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce0 = (('LrTable_state, 'svalue0, 'pos) stack0 * env_lang * eval_node) list
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce = int * ('LrTable_state, 'svalue0, 'pos) stack0 * eval_node list list
 type ('LrTable_state, 'svalue0, 'pos) rule_reduce' = int * bool (*vacuous*) * ('LrTable_state, 'svalue0, 'pos) rule_reduce0
 
 datatype ('LrTable_state, 'svalue0, 'pos) rule_type =
@@ -141,7 +137,7 @@ type 'class_Pos rule_output0' = { output_pos : 'class_Pos option
                                 , output_env : rule_static }
 
 type ('LrTable_state, 'svalue0, 'pos) rule_output0 =
-                                 C_Transition.eval_node list list (* delayed *)
+                                 eval_node list list (* delayed *)
                                * ('LrTable_state, 'svalue0, 'pos) rule_reduce0 (* actual *)
                                * ('pos * 'pos) rule_output0'
 
@@ -153,8 +149,8 @@ type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : C_Ast.class_Pos list * int
-         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * C_Transition.eval_node) list list
-         , stream_lang : (C_Antiquote.antiq * C_Transition.antiq_language list) stream }
+         , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_node) list list
+         , stream_lang : (C_Antiquote.antiq * antiq_language list) stream }
 
 (**)
 
@@ -162,7 +158,7 @@ datatype 'a tree = Tree of 'a * 'a tree list
 
 type ('LrTable_state, 'a, 'Position_T) stack' =
      ('LrTable_state, 'a, 'Position_T) stack0
-   * C_Transition.eval_node list list
+   * eval_node list list
    * ('Position_T * 'Position_T) list
    * ('LrTable_state, 'a, 'Position_T) rule_ml tree list
 

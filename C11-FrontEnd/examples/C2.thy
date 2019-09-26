@@ -91,11 +91,11 @@ datatype antiq_hol = Term of string (* term *)
 val scan_opt_colon = Scan.option (C_Parse.$$$ ":")
 fun command (cmd as (cmd_name, _)) scan0 scan f =
   C_Annotation.command' cmd "" (fn (_, (cmd_pos, _)) => (scan0 -- (scan >> f)
-                                      >> (fn _ => tap (fn _ => tracing ("\<open>Hello World\<close> reported by \"" ^ cmd_name ^ "\" here" ^ Position.here cmd_pos)) C_Transition.Never)))
+                                      >> (fn _ => tap (fn _ => tracing ("\<open>Hello World\<close> reported by \"" ^ cmd_name ^ "\" here" ^ Position.here cmd_pos)) C_Env.Never)))
 in
 val _ = Theory.setup (   C_Inner_Syntax.command_no_range
                            (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup \<open>K (K (K I))\<close>)
-                           C_Transition.Bottom_up
+                           C_Env.Bottom_up
                            ("loop", \<^here>)
                       #> command ("ensures", \<^here>) scan_opt_colon C_Parse.term Term
                       #> command ("invariant", \<^here>) scan_opt_colon C_Parse.term Term
