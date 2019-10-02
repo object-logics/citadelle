@@ -192,7 +192,7 @@ fun add_stream_hook (syms_shift, syms, ml_exec) =
                                            | [] => [[(syms_shift, syms, ml_exec)]]))
 
 fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
-  let val (token, arg) = C_Env_Ext.map_stream_lang' (fn [] => (NONE, []) | x :: xs => (SOME x, xs)) arg
+  let val (token, arg) = C_Env_Ext.map_stream_lang' (fn (st, []) => (NONE, (st, [])) | (st, x :: xs) => (SOME x, (st, xs))) arg
       fun return0' f =
         (arg, stack_ml)
         |> advance_hook stack

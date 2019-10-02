@@ -155,12 +155,16 @@ type rule_output = C_Ast.class_Pos rule_output0'
 
 (**)
 
+datatype stream_lang_state = Stream_ident of string * Position.range
+                           | Stream_atomic
+                           | Stream_regular
+
 type T = { env_lang : env_lang
          , env_tree : env_tree
          , rule_output : rule_output
          , rule_input : C_Ast.class_Pos list * int
          , stream_hook : (Symbol_Pos.T list * Symbol_Pos.T list * eval_node) list list
-         , stream_lang : (C_Antiquote.antiq * antiq_language list) stream }
+         , stream_lang : stream_lang_state * (C_Antiquote.antiq * antiq_language list) stream }
 
 (**)
 
@@ -295,11 +299,12 @@ fun make env_lang stream_lang env_tree =
          , rule_output = empty_rule_output
          , rule_input = ([], 0)
          , stream_hook = []
-         , stream_lang = map_filter (fn C_Scan.Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
-                                      | C_Scan.Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
-                                      | C_Scan.Right tok => SOME (C_Scan.Right tok)
-                                      | C_Scan.Left antiq => SOME (C_Scan.Left antiq))
-                                    stream_lang }
+         , stream_lang = ( Stream_regular
+                         , map_filter (fn C_Scan.Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
+                                        | C_Scan.Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
+                                        | C_Scan.Right tok => SOME (C_Scan.Right tok)
+                                        | C_Scan.Left antiq => SOME (C_Scan.Left antiq))
+                                      stream_lang) }
 fun string_of (env_lang : env_lang) = 
   let fun dest0 x f = x |> Symtab.dest |> map f
       fun dest {tyidents, idents} = (dest0 tyidents #1, dest0 idents (fn (i, (_,_,v)) => (i, if #global v then "global" else "local")))
