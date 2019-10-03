@@ -83,13 +83,18 @@ val _ =
         ( (return o K I)
         , fn C_Lex.Include (C_Lex.Group2 (toks_bl, _, tok :: _)) =>
                let
-                 fun exec file (env_lang, env_tree) =
-                   fold
-                     (fn (src, data) => fn (env_lang, env_tree) => 
-                       let val (name, pos) = Input.source_content src
-                       in C_Grammar_Rule_Lib.shadowTypedef0'''' name [pos] data env_lang env_tree end)
-                     (these (Symtab.lookup (Directive_include.get (#context env_tree)) (String.concat file)))
-                     (env_lang, env_tree)
+                 fun exec file =
+                   if exists (fn C_Scan.Left _ => false | C_Scan.Right _ => true) file then
+                     K (error ("Unsupported character" ^ Position.here (Position.range_position (C_Lex.pos_of tok, C_Lex.end_pos_of (List.last toks_bl)))))
+                   else
+                     fn (env_lang, env_tree) =>
+                       fold
+                         (fn (src, data) => fn (env_lang, env_tree) => 
+                           let val (name, pos) = Input.source_content src
+                           in C_Grammar_Rule_Lib.shadowTypedef0'''' name [pos] data env_lang env_tree end)
+                         (these (Symtab.lookup (Directive_include.get (#context env_tree))
+                                               (String.concat (maps (fn C_Scan.Left s => [s] | _ => []) file))))
+                         (env_lang, env_tree)
                in
                  case tok of
                    C_Lex.Token (_, (C_Lex.String (_, file), _)) => exec file
