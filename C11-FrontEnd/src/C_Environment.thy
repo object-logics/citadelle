@@ -155,7 +155,8 @@ type rule_output = C_Ast.class_Pos rule_output0'
 
 (**)
 
-datatype stream_lang_state = Stream_ident of string * Position.range
+datatype stream_lang_state = Stream_ident of Position.range * string
+                           | Stream_string of (Position.range * string) list
                            | Stream_atomic
                            | Stream_regular
 
