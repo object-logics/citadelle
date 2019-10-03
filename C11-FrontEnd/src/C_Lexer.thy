@@ -585,14 +585,17 @@ datatype token_kind_encoding =
  | Encoding_default
  | Encoding_file of string (* error message *) option
 
+type token_string =
+  token_kind_encoding * (Symbol.symbol, Position.range * int \<comment> \<open>exceeding \<^ML>\<open>Char.maxOrd\<close>\<close>) either list
+
 datatype token_kind =
   Keyword | Ident | Type_ident | GnuC | ClangC |
   (**)
-  Char of token_kind_encoding * Symbol.symbol list |
+  Char of token_string |
   Integer of int * C_Ast.CIntRepr * C_Ast.CIntFlag list |
   Float of Symbol_Pos.T list |
-  String of token_kind_encoding * Symbol.symbol list |
-  File of token_kind_encoding * Symbol.symbol list |
+  String of token_string |
+  File of token_string |
   (**)
   Space | Comment of token_kind_comment | Sharp of int |
   (**)
@@ -732,13 +735,24 @@ val token_list_of =
 local
 
 fun warn0 pos l s =
-  if exists (not o Symbol.is_printable) l then
-    app (fn (s, pos) =>
-          if Symbol.is_printable s
-          then ()
-          else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
-                                  (Symbol_Pos.explode (s, pos))
-  else ()
+  ()
+  |> tap
+       (fn _ =>
+        if exists (fn Left s => not (Symbol.is_printable s) | _ => false) l then
+          app (fn (s, pos) =>
+                if Symbol.is_printable s
+                then ()
+                else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
+              (Symbol_Pos.explode (s, pos))
+        else ())
+  |> tap
+       (fn _ =>
+        app (fn Left _ => ()
+              | Right ((pos1, _), n) =>
+                  Output.information ("Out of the supported range (character number " ^ Int.toString n ^ ")" ^ Position.here pos1))
+            l)
+
+
 
 fun unknown pos = Output.information ("Unknown symbol" ^ Position.here pos)
 
@@ -1031,28 +1045,30 @@ val _ = \<comment> \<open>printing a ML function translating code point from \<^
 fun scan_escape s0 =
   let val oct = one' C_Symbol.is_ascii_oct
       val hex = one' Symbol.is_ascii_hex
-      fun read_oct' l = [chr (read_oct (map Symbol_Pos.content l))]
+      fun chr' f l =
+        let val x = f (map Symbol_Pos.content l)
+        in [if x <= Char.maxOrd then Left (chr x) else Right (Symbol_Pos.range (flat l), x)] end
+      val read_oct' = chr' read_oct
+      val read_hex' = chr' read_hex
   in one' (member (op =) (raw_explode (s0 ^ String.concat (map #1 escape_char))))
      >> (fn i =>
-          [case AList.lookup (op =) escape_char (Symbol_Pos.content i) of
-             NONE => s0
-           | SOME c => String.str c])
+          [Left (case AList.lookup (op =) escape_char (Symbol_Pos.content i) of
+                   NONE => s0
+                 | SOME c => String.str c)])
   || oct -- oct -- oct >> (fn ((o1, o2), o3) => read_oct' [o1, o2, o3])
   || oct -- oct >> (fn (o1, o2) => read_oct' [o1, o2])
   || oct >> (read_oct' o single)
   || $$ "x" |-- many1 Symbol.is_ascii_hex
-     >> (fn xs => [chr (read_hex (map (Symbol_Pos.content o single) xs))])
+     >> (read_hex' o map single)
   || $$ "u" |-- hex -- hex -- hex -- hex
-     >> (fn (((x1, x2), x3), x4) =>
-          [chr (read_hex (map Symbol_Pos.content [x1, x2, x3, x4]))])
+     >> (fn (((x1, x2), x3), x4) => read_hex' [x1, x2, x3, x4])
   || $$ "U" |-- hex -- hex -- hex -- hex -- hex -- hex -- hex -- hex
-     >> (fn (((((((x1, x2), x3), x4), x5), x6), x7), x8) =>
-          [chr (read_hex (map Symbol_Pos.content [x1, x2, x3, x4, x5, x6, x7, x8]))])
+     >> (fn (((((((x1, x2), x3), x4), x5), x6), x7), x8) => read_hex' [x1, x2, x3, x4, x5, x6, x7, x8])
   end
 
 fun scan_str s0 =
      Scan.unless newline (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s0 andalso s <> "\\"))
-     >> (fn s => [#1 s])
+     >> (fn s => [Left (#1 s)])
   || Scan.ahead newline |-- !!! "bad newline" Scan.fail
   || $$ "\\" |-- !!! "bad escape character" (scan_escape s0);
 
@@ -1085,7 +1101,7 @@ val scan_file =
   let fun scan !!! s_l s_r =
     Scan.ahead ($$ s_l) |--
           !!!
-          ($$ s_l |-- Scan.repeats (Scan.unless newline (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r) >> (fn s => [#1 s]))) --| $$ s_r)
+          ($$ s_l |-- Scan.repeats (Scan.unless newline (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r) >> (fn s => [Left (#1 s)]))) --| $$ s_r)
   in
      Scan.trace (scan (!!! ("unclosed file literal")) "\"" "\"") >> (fn (s, src) => String (Encoding_file (scan_string' src), s))
   || scan I \<comment> \<open>Due to conflicting symbols, raising \<^ML>\<open>Symbol_Pos.!!!\<close> here will not let a potential
