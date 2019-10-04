@@ -37,7 +37,7 @@
 section \<open>Lexing Support for the Annotation Language (Generic Annotation Format)\<close>
 
 theory C_Lexer_Annotation
-  imports C_Lexer
+  imports C_Lexer_Language
 begin
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/keyword.ML\<close>\<close>

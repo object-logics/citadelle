@@ -37,7 +37,7 @@
 section \<open>Parsing Environment\<close>
 
 theory C_Environment
-  imports C_Lexer C_Ast
+  imports C_Lexer_Language C_Ast
 begin
 
 subsection \<open>Definition of the Environment\<close>

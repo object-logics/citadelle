@@ -36,7 +36,7 @@
 
 section \<open>Lexer Interface\<close>
 
-theory C_Lexer
+theory C_Lexer_Language
   imports Main
 begin
 

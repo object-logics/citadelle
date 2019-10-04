@@ -123,7 +123,7 @@ structure Directives = Generic_Data
 end
 \<close>
 
-ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Lexer\<close>\<close> \<open>
+ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Lexer_Language\<close>\<close> \<open>
 structure C_Grammar_Lexer : ARG_LEXER1 =
 struct
 structure LALR_Lex_Instance =
@@ -310,7 +310,7 @@ end
 
 text \<open> This is where the instancing of the parser functor (from
 \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>) with the lexer (from
-\<^theory>\<open>Isabelle_C.C_Lexer\<close>) actually happens ... \<close>
+\<^theory>\<open>Isabelle_C.C_Lexer_Language\<close>) actually happens ... \<close>
 
 ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Parser_Language\<close>\<close> \<open>
 structure C_Grammar_Parser =

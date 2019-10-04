@@ -184,23 +184,25 @@ section \<open>Case Study: Mapping on the Parsed AST\<close>
 text \<open> In this section, we give a concrete example of a situation where one is interested to
 do some automated transformations on the parsed AST, such as changing the type of every encountered
 variables from \<^C>\<open>int _;\<close> to \<^C>\<open>int _ [];\<close>. The main theory of
-interest here is \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>, where the C grammar is loaded, in
-contrast to \<^theory>\<open>Isabelle_C.C_Lexer\<close> which is only dedicated to build a list of C
-tokens. As another example, \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> also contains the portion
-of the code implementing the report to the user of various characteristics of encountered variables
-during parsing: if a variable is bound or free, or if the declaration of a variable is made in the
-global topmost space or locally declared in a function. \<close>
+interest here is \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>, where the C grammar is
+loaded, in contrast to \<^theory>\<open>Isabelle_C.C_Lexer_Language\<close> which is only dedicated
+to build a list of C tokens. As another example,
+\<^theory>\<open>Isabelle_C.C_Parser_Language\<close> also contains the portion of the code
+implementing the report to the user of various characteristics of encountered variables during
+parsing: if a variable is bound or free, or if the declaration of a variable is made in the global
+topmost space or locally declared in a function. \<close>
 
 subsection \<open>Prerequisites\<close>
 
 text \<open> Even if \<^file>\<open>generated/c_grammar_fun.grm.sig\<close> and
 \<^file>\<open>generated/c_grammar_fun.grm.sml\<close> are files written in ML syntax, we have
-actually modified \<^dir>\<open>../mlton/lib/mlyacc-lib\<close> in such a way that
-at run time, the overall loading and execution of \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> will
-mimic all necessary features of the Haskell parser generator Happy
+actually modified \<^dir>\<open>../mlton/lib/mlyacc-lib\<close> in such a way that at run time, the
+overall loading and execution of \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> will mimic
+all necessary features of the Haskell parser generator Happy
 \<^footnote>\<open>\<^url>\<open>https://www.haskell.org/happy/doc/html/index.html\<close>\<close>,
-including any monadic interactions between the lexing (\<^theory>\<open>Isabelle_C.C_Lexer\<close>) and
-parsing part (\<^theory>\<open>Isabelle_C.C_Parser_Language\<close>).
+including any monadic interactions between the lexing
+(\<^theory>\<open>Isabelle_C.C_Lexer_Language\<close>) and parsing part
+(\<^theory>\<open>Isabelle_C.C_Parser_Language\<close>).
 
 This is why in the remaining part, we will at least assume a mandatory familiarity with Happy (e.g.,
 the reading of ML-Yacc's manual can happen later if wished
