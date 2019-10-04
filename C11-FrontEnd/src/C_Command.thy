@@ -400,7 +400,7 @@ val _ =
               let val map_ctxt = 
                   case (tok3, toks) of
                     (C_Lex.Token ((pos, _), (C_Lex.Ident, ident)),
-                     [C_Lex.Token (_, (C_Lex.Integer (_, C_Ast.DecRepr0, []), integer))]) =>
+                     [C_Lex.Token (_, (C_Lex.Integer (_, C_Lex.Repr_decimal, []), integer))]) =>
                       C_Env.map_context
                         (Context.map_theory
                           (Named_Target.theory_map

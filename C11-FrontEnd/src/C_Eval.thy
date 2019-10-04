@@ -278,8 +278,15 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
               C_Grammar.Tokens.cstr (CString0 (From_string (implode (map (fn Left s => s | Right _ => chr 0) s)), encoding b), pos1, pos2)
            | C_Lex.Integer (i, repr, flag) =>
               C_Grammar.Tokens.cint
-               ( CInteger i repr
-                   (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) => (if flag = flag0 then "1" else bit, flag0)))
+               ( CInteger i (case repr of C_Lex.Repr_decimal => DecRepr0 | C_Lex.Repr_hexadecimal => HexRepr0 | C_Lex.Repr_octal => OctalRepr0)
+                   (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) =>
+                                                           ( if flag0 = (case flag of C_Lex.Flag_unsigned => FlagUnsigned0
+                                                                         | C_Lex.Flag_long => FlagLong0
+                                                                         | C_Lex.Flag_long_long => FlagLongLong0
+                                                                         | C_Lex.Flag_imag => FlagImag0)
+                                                             then "1"
+                                                             else bit
+                                                           , flag0)))
                                          flag
                                          ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
                                     |> map #1)

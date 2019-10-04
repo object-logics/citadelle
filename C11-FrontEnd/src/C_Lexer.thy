@@ -37,7 +37,7 @@
 section \<open>Lexer Interface\<close>
 
 theory C_Lexer
-  imports C_Ast
+  imports Main
 begin
 
 text \<open>
@@ -585,17 +585,26 @@ datatype token_kind_encoding =
  | Encoding_default
  | Encoding_file of string (* error message *) option
 
-type token_string =
+type token_kind_string =
   token_kind_encoding * (Symbol.symbol, Position.range * int \<comment> \<open>exceeding \<^ML>\<open>Char.maxOrd\<close>\<close>) either list
+
+datatype token_kind_int_repr = Repr_decimal
+                             | Repr_hexadecimal
+                             | Repr_octal
+
+datatype token_kind_int_flag = Flag_unsigned
+                             | Flag_long
+                             | Flag_long_long
+                             | Flag_imag
 
 datatype token_kind =
   Keyword | Ident | Type_ident | GnuC | ClangC |
   (**)
-  Char of token_string |
-  Integer of int * C_Ast.CIntRepr * C_Ast.CIntFlag list |
+  Char of token_kind_string |
+  Integer of int * token_kind_int_repr * token_kind_int_flag list |
   Float of Symbol_Pos.T list |
-  String of token_string |
-  File of token_string |
+  String of token_kind_string |
+  File of token_kind_string |
   (**)
   Space | Comment of token_kind_comment | Sharp of int |
   (**)
@@ -927,24 +936,23 @@ val read_hex =
   end
 
 local
-open C_Ast
 val many_digit = many Symbol.is_ascii_digit
 val many1_digit = many1 Symbol.is_ascii_digit
 val many_hex = many Symbol.is_ascii_hex
 val many1_hex = many1 Symbol.is_ascii_hex
 
-val scan_suffix_ll = ($$$ "l" @@@ $$$ "l" || $$$ "L" @@@ $$$ "L") >> K [FlagLongLong]
+val scan_suffix_ll = ($$$ "l" @@@ $$$ "l" || $$$ "L" @@@ $$$ "L") >> K [Flag_long_long]
 fun scan_suffix_gnu flag = ($$$ "i" || $$$ "j") >> K [flag]
 val scan_suffix_int = 
-  let val u = ($$$ "u" || $$$ "U") >> K [FlagUnsigned]
-      val l = ($$$ "l" || $$$ "L") >> K [FlagLong] in
+  let val u = ($$$ "u" || $$$ "U") >> K [Flag_unsigned]
+      val l = ($$$ "l" || $$$ "L") >> K [Flag_long] in
       u @@@ scan_suffix_ll
    || scan_suffix_ll @@@ opt u
    || u @@@ opt l
    || l @@@ opt u
   end
 
-val scan_suffix_gnu_int0 = scan_suffix_gnu FlagImag
+val scan_suffix_gnu_int0 = scan_suffix_gnu Flag_imag
 val scan_suffix_gnu_int = scan_full !!!
                                     (member (op =) (raw_explode "uUlLij"))
                                     "Invalid integer constant suffix"
@@ -963,13 +971,13 @@ val scan_intoct = scan_intgnu ($$ "0" |--
                                  (Scan.max
                                    (fn ((xs2, _, _), (xs1, _, _)) => length xs2 < length xs1)
                                    (many C_Symbol.is_ascii_oct
-                                      >> (fn xs => (xs, read_oct, OctalRepr)))
+                                      >> (fn xs => (xs, read_oct, Repr_octal)))
                                    (many (fn x => x = "0")
-                                      >> (fn xs => (xs, read_dec, DecRepr)))))
+                                      >> (fn xs => (xs, read_dec, Repr_decimal)))))
 val scan_intdec = scan_intgnu (one C_Symbol.is_ascii_digit1 -- many Symbol.is_ascii_digit
-                               >> (fn (x, xs) => (x :: xs, read_dec, DecRepr)))
+                               >> (fn (x, xs) => (x :: xs, read_dec, Repr_decimal)))
 val scan_inthex = scan_intgnu (($$ "0" -- ($$ "x" || $$ "X")) |-- many1_hex
-                               >> (fn xs2 => (xs2, read_hex, HexRepr)))
+                               >> (fn xs2 => (xs2, read_hex, Repr_hexadecimal)))
 
 (**)
 
