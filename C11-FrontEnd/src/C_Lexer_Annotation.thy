@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Lexing Support for the Annotation Language (Generic Annotation Format)\<close>
+section \<open>Annotation Language: Parsing Combinator\<close>
 
 theory C_Lexer_Annotation
   imports C_Lexer_Language

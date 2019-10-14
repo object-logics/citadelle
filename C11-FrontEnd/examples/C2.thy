@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter \<open>Example\<close>
+chapter \<open>Example: A Simple C Program with Directives and Annotations\<close>
 
 theory C2
   imports Isabelle_C.C_Main
@@ -59,9 +59,9 @@ fun get_module thy =
 
 setup \<open>Context.theory_map (C_Module.Data_Accept.put (fn ast => fn env_lang => Data_Out.map (cons (ast, #stream_ignored env_lang |> rev))))\<close>
 
-section \<open>Implementing \<open>#include\<close>\<close>
+section \<open>Example of a Possible Semantics for \<open>#include\<close>\<close>
 
-subsection \<open>\<close>
+subsection \<open>Implementation\<close>
 
 ML \<open>
 structure Directive_include = Generic_Data
@@ -218,7 +218,7 @@ val u = C_Grammar_Rule_Lib.decode u
 \<close>
 
 
-section \<open>A Collection Standard Example (No Semantics so far)\<close>
+section \<open>C Code: Various Examples\<close>
 
 text\<open>This example suite is drawn from Frama-C and used in our GLA - TPs. \<close>
 
@@ -329,7 +329,7 @@ int linearsearch(int x, int t[], int n) {
 \<close>
 
 
-section \<open>Some realistic Selection sort with Input and Output\<close>
+section \<open>C Code: A Sorting Algorithm\<close>
 
 C\<open>
 #include <stdio.h>

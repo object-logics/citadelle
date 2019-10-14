@@ -34,22 +34,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Lexer Interface\<close>
+section \<open>Core Language: Lexing Support, with Filtered Annotations (without Annotation Lexing)\<close>
 
 theory C_Lexer_Language
   imports Main
 begin
 
 text \<open>
-The lexing phase of C closely resembles to that of ML, but its syntax is much complex.
+The part implementing the C lexer might resemble to the implementation of the ML one, but the C
+syntax is much complex: for example, the preprocessing of directives is implemented with several
+parsing layers. Also, we will see that the way antiquotations are handled in C is slightly different
+than in ML (especially in the execution part).
 
-In particular, the next ML structures present in this theory are all aligned with
-\<^file>\<open>~~/src/Pure/ROOT.ML\<close>, and are thus accordingly sorted (except for
-\<^file>\<open>~~/src/Pure/ML/ml_options.ML\<close> which is present here earlier included in the boot process).
+Overall, the next ML structures presented here in this theory are all aligned with
+\<^file>\<open>~~/src/Pure/ROOT.ML\<close>, and are thus accordingly sorted in the same order
+(except for \<^file>\<open>~~/src/Pure/ML/ml_options.ML\<close> which is early included in the boot
+process).
 
-Since the last structure is \<^file>\<open>~~/src/Pure/ML/ml_lex.ML\<close>, this theory document is
-situated in the phase 1 of the bootstrap process, i.e., the part dealing with how to get some C tokens
-from a raw string: \<^ML_type>\<open>Position.T -> string -> 'token list\<close>.
+This theory will stop at \<^file>\<open>~~/src/Pure/ML/ml_lex.ML\<close>. It is basically situated
+in the phase 1 of the bootstrap process (of \<^file>\<open>~~/src/Pure/ROOT.ML\<close>), i.e., the
+part dealing with how to get some C tokens from a raw string:
+\<^ML_text>\<open>Position.T -> string -> token list\<close>.
 \<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/General/scan.ML\<close>\<close> \<open>

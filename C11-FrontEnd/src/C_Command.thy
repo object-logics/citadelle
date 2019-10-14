@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Command Interface Definition\<close>
+section \<open>Interface: Outer Commands\<close>
 
 theory C_Command
   imports C_Eval
@@ -46,7 +46,7 @@ theory C_Command
        and "C_val" :: diag % "ML"
 begin
 
-subsection \<open>Main Module Interface of Commands\<close>
+subsection \<open>Parsing Entry-Point: Error and Acceptance Cases\<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Tools/ghc.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)

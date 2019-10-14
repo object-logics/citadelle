@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter \<open>Example for Annotation Navigation and Context Serialization\<close>
+chapter \<open>Example: Annotation Navigation and Context Serialization\<close>
 
 theory C1
   imports Isabelle_C.C_Main

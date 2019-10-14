@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Parsing Support for the Annotation Language (Generic Annotation Format)\<close>
+section \<open>Annotation Language: Command Parser Registration\<close>
 
 theory C_Parser_Annotation
   imports C_Lexer_Annotation C_Environment

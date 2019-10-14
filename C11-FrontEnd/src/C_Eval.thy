@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Evaluation Context\<close>
+section \<open>Evaluation Scheduling\<close>
 
 theory C_Eval
   imports C_Parser_Language
@@ -403,7 +403,7 @@ fun eval env_lang start err accept stream_lang =
 end
 \<close>
 
-subsection \<open>Full Evaluation Engine (Core Language + Annotation)\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>, \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>\<close>
+subsection \<open>Full Evaluation Engine (Core Language with Annotations)\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>, \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>\<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_context.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
