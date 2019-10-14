@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Theory Documents\<close>
+section \<open>Interface: Ontology Document\<close>
 
 theory C_Document
   imports C_Command
