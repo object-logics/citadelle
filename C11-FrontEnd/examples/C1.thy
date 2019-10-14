@@ -260,7 +260,7 @@ will respectively be used instead of \<open>print_top\<close> and \<open>print_s
 This example suite allows to explore the bindings represented in the C environment 
 and made accessible in PIDE for hovering. \<close>
 
-subsection \<open>1\<close>
+subsection \<open>Reporting: \<open>typedef\<close>, \<open>enum\<close>\<close> (*\<open>struct\<close>*)
 
 declare [[ML_source_trace = false]]
 declare [[C_lexer_trace = false]]
@@ -323,7 +323,7 @@ int main (enum a *x, ...) /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Gramma
   return zz; }
 \<close>
 
-subsection \<open>2\<close>
+subsection \<open>Continuation Calculus with the C Environment: ML\<close>
 
 declare [[C_parser_trace = false]]
 
@@ -348,7 +348,7 @@ int b = 7 / (3) * 50
                        ;\<close> \<close> */;
 \<close>
 
-subsection \<open>3\<close>
+subsection \<open>Continuation Calculus with the C Environment: Outer Commands\<close>
 
 ML\<open>
 local
@@ -382,7 +382,7 @@ int f (int a) {
   int c = b + b + b + b + a + a + a + a + a + a;
 } \<close>
 
-subsection \<open>4\<close>
+subsection \<open>Continuation Calculus with the C Environment: Deep-First Nesting vs Breadth-First Folding\<close>
 
 C \<comment> \<open>Propagation of report environment while manually composing at ML level (with \<open>#>\<close>)\<close>
   \<comment> \<open>In \<open>c1 #> c2\<close>, \<open>c1\<close> and \<open>c2\<close> should not interfere each other.\<close> \<open>
@@ -416,7 +416,7 @@ int e = a + b + c + d;
 }
 \<close>
 
-subsection \<open>5\<close>
+subsection \<open>Continuation Calculus with the C Environment: ML\<close>
 
 ML\<open>
 structure Data_Out = Generic_Data
@@ -456,7 +456,7 @@ ML\<open>show_env "POSITION 3" (Context.Theory @{theory})\<close>
 
 setup \<open>Context.theory_map (C_Module.Data_Accept.put (fn _ => fn _ => I))\<close>
 
-subsection \<open>6\<close>
+subsection \<open>Reporting: Scope of Recursive Functions\<close>
 
 declare [[C_starting_env = last]]
 
@@ -478,7 +478,7 @@ int main3 () { main2 (); }
 
 declare [[C_starting_env = empty]]
 
-subsection \<open>7\<close>
+subsection \<open>Reporting: functions, arrays\<close>
 
 C \<open>int f (int z);\<close>
 C \<open>int * f (int z);\<close>
@@ -507,7 +507,7 @@ C \<comment> \<open>Old function syntax\<close> \<open>
 f (x) int x; {return x;}
 \<close>
 
-section \<open>General commands\<close>
+section \<open>General Isar Commands\<close>
 
 locale zz begin definition "z' = ()"
           end
@@ -569,7 +569,7 @@ C \<open>a\<close>
 */
 \<close>
 
-subsection \<open>Embedding in inner terms\<close>
+subsection \<open>Embedding in Inner Terms\<close>
 
 term \<open>\<^C> \<comment> \<open>default behavior of parsing depending on the activated option\<close> \<open>0\<close>\<close>
 term \<open>\<^C>\<^sub>u\<^sub>n\<^sub>i\<^sub>t \<comment> \<open>force the explicit parsing\<close> \<open>f () {while (a) {}; return 0;} int a = 0;\<close>\<close>
@@ -581,7 +581,7 @@ declare [[C_starting_rule = "translation_unit"]]
 
 term \<open>\<^C> \<comment> \<open>default behavior of parsing depending on the current option\<close> \<open>int a = 0;\<close>\<close>
 
-subsection \<open>User defined setup of syntax\<close>
+subsection \<open>User Defined Setup of Syntax\<close>
 
 setup \<open>C_Module.C_Term.map_expression (fn _ => fn _ => fn _ => @{term "10 :: nat"})\<close>
 setup \<open>C_Module.C_Term.map_statement (fn _ => fn _ => fn _ => @{term "20 :: nat"})\<close>
@@ -592,7 +592,7 @@ value \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>1\<close> + \<^C>\<^sub
 
 setup \<open>C_Module.C_Term.map_default (fn _ => fn _ => fn _ => @{term "True"})\<close>
 
-subsection \<open>Validity of context for annotations\<close>
+subsection \<open>Validity of Context for Annotations\<close>
 
 ML \<comment> \<open>Execution of annotations in term possible in (the outermost) \<^theory_text>\<open>ML\<close>\<close> \<open>
 \<^term>\<open> \<^C> \<open>int c = 0; /*@ ML \<open>()\<close> */\<close> \<close>
