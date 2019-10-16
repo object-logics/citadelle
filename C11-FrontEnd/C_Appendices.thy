@@ -130,6 +130,191 @@ end;
 \<close>
 (*>*)
 
+section \<open>Syntax Commands for Isabelle/C\<close>
+
+subsection \<open>Outer Syntax Commands\<close>
+
+text \<open>
+  \begin{matharray}{rcl}
+    @{command_def "C_file"} & : & \<open>local_theory \<rightarrow> local_theory\<close> \\
+    @{command_def "C"} & : & \<open>local_theory \<rightarrow> local_theory\<close> \\
+    @{command_def "C_export_boot"} & : & \<open>local_theory \<rightarrow> local_theory\<close> \\
+    @{command_def "C_prf"} & : & \<open>proof \<rightarrow> proof\<close> \\
+    @{command_def "C_val"} & : & \<open>any \<rightarrow>\<close> \\
+    @{command_def "C_export_file"} & : & \<open>any \<rightarrow>\<close> \\
+  \end{matharray}
+  \begin{tabular}{rcll}
+    @{attribute_def C_lexer_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
+    @{attribute_def C_parser_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
+    @{attribute_def C_ML_verbose} & : & \<open>attribute\<close> & default \<open>true\<close> \\
+    @{attribute_def C_starting_env} & : & \<open>attribute\<close> & default \<open>empty\<close> \\
+    @{attribute_def C_starting_rule} & : & \<open>attribute\<close> & default \<open>translation_unit\<close> \\
+  \end{tabular}
+
+  \<^rail>\<open>
+    @@{command C_file} @{syntax name} ';'?
+    ;
+    (@@{command C} | @@{command C_export_boot} | @@{command C_prf} |
+      @@{command C_val}) @{syntax text}
+    ;
+    @@{command C_export_file}
+    ;
+  \<close>
+
+  \<^descr> \<^theory_text>\<open>C_file name\<close> resembles to \<^theory_text>\<open>ML_file
+  name\<close>: it reads the given C file, and let any attached semantic back-ends to proceed for
+  further subsequent evaluation. Top-level C bindings are stored within the (global or local) theory
+  context; the initial environment is set by default to be an empty one, or the one returned by a
+  previous \<^theory_text>\<open>C_file\<close> (depending on @{attribute_def C_starting_env}). The
+  entry-point of the grammar taken as initial starting parser is read from @{attribute_def
+    C_starting_rule} (see
+  \<^url>\<open>https://www.haskell.org/happy/doc/html/sec-directives.html#sec-parser-name\<close>).
+  Multiple \<^theory_text>\<open>C_file\<close> commands may be used to build larger C projects if
+  they are all written in a single theory file (existing parent theories are ignored, and not
+  affecting the current working theory).
+
+  \<^descr> \<^theory_text>\<open>C\<close> is similar to
+  \<^theory_text>\<open>C_file\<close>, but evaluates directly the
+  given \<open>text\<close>. Top-level resulting bindings are stored
+  within the (global or local) theory context.
+
+  \<^descr> \<^theory_text>\<open>C_export_boot\<close> is similar to
+  \<^theory_text>\<open>ML_export\<close>, except that the code in
+  input is understood as being processed by
+  \<^theory_text>\<open>C\<close> instead of \<^theory_text>\<open>ML\<close>.
+
+  \<^descr> \<^theory_text>\<open>C_prf\<close> is similar to
+  \<^theory_text>\<open>ML_prf\<close>, except that the code in input
+  is understood as being processed by
+  \<^theory_text>\<open>C\<close> instead of \<^theory_text>\<open>ML\<close>.
+
+  \<^descr> \<^theory_text>\<open>C_val\<close> is similar to
+  \<^theory_text>\<open>ML_val\<close>, except that the code in input
+  is understood as being processed by
+  \<^theory_text>\<open>C\<close> instead of \<^theory_text>\<open>ML\<close>.
+
+  \<^descr> \<^theory_text>\<open>C_export_file\<close> is similar to
+  \<^theory_text>\<open>generate_file fic = \<open>code\<close>
+    export_generated_files fic\<close>, except that
+    \<^item> \<open>code\<close> refers to the dump of all existing previous C code in the current
+    theory (parent theories are ignored),
+    \<^item> and ML antiquotations in \<open>code\<close> are not analyzed by
+    \<^theory_text>\<open>generate_file\<close>. \<close>
+
+text \<open>
+
+  \<^descr> @{attribute C_lexer_trace} indicates whether the list of C
+  tokens associated to the source text should be output (that list is
+  computed during the lexing phase).
+
+  \<^descr> @{attribute C_parser_trace} indicates whether the stack
+  forest of Shift-Reduce node should be output (it is the final stack
+  which is printed, i.e., the one taken as soon as the parsing
+  terminates).
+
+  \<^descr> @{attribute C_ML_verbose} indicates whether nested
+  \<^theory_text>\<open>ML\<close> commands are acting similarly as
+  their default verbose configuration in top-level.
+
+  \<^descr> @{attribute C_starting_env} makes the start of a C
+  command (e.g., \<^theory_text>\<open>C_file\<close>,
+  \<^theory_text>\<open>C\<close>) initialized with the environment of
+  the previous C command if existing.
+
+  \<^descr> @{attribute C_starting_rule} sets which parsing function will be used to parse the next
+  C commands (e.g., \<^theory_text>\<open>C_file\<close>, \<^theory_text>\<open>C\<close>).
+\<close>
+
+subsection \<open>Inner Syntax Commands\<close>
+
+text \<open>
+  \<^rail>\<open>
+    (@@{annotation ML_file} | @@{annotation "ML_file\<Down>"} |
+      @@{annotation C_file} | @@{annotation "C_file\<Down>"}) @{syntax name} ';'?
+    ;
+    (@@{annotation ML} | @@{annotation "ML\<Down>"} |
+      @@{annotation setup} | @@{annotation "setup\<Down>"} |
+      @@{annotation "\<approx>setup"} | @@{annotation "\<approx>setup\<Down>"} |
+      @@{annotation C} | @@{annotation "C\<Down>"} |
+      @@{annotation C_export_boot} | @@{annotation "C_export_boot\<Down>"}) @{syntax text}
+    ;
+    (@@{annotation C_export_file} | @@{annotation "C_export_file\<Down>"} |
+     @@{annotation highlight})
+    ;
+  \<close>
+
+  \<^descr> \<^C_theory_text>\<open>ML_file\<close>, \<^C_theory_text>\<open>C_file\<close>,
+  \<^C_theory_text>\<open>ML\<close>, \<^C_theory_text>\<open>setup\<close>,
+  \<^C_theory_text>\<open>C\<close>, \<^C_theory_text>\<open>C_export_boot\<close>, and
+  \<^C_theory_text>\<open>C_export_file\<close> behave similarly as the respective outer commands
+  \<^theory_text>\<open>ML_file\<close>, \<^theory_text>\<open>C_file\<close>,
+  \<^theory_text>\<open>ML\<close>, \<^theory_text>\<open>setup\<close>,
+  \<^theory_text>\<open>C\<close>, \<^theory_text>\<open>C_export_boot\<close>,
+  \<^theory_text>\<open>C_export_file\<close>.
+
+  \<^descr> \<^C_theory_text>\<open>\<approx>setup \<open>f'\<close>\<close> has the same semantics
+  as \<^C_theory_text>\<open>setup \<open>f\<close>\<close> whenever \<^term>\<open>\<And> stack top
+  env. f' stack top env = f\<close>. In particular, depending on where the annotation
+  \<^C_theory_text>\<open>\<approx>setup \<open>f'\<close>\<close> is located in the C code, the
+  additional values \<open>stack\<close>, \<open>top\<close> and \<open>env\<close> can drastically
+  vary, and then can be possibly used in the body of \<open>f'\<close> for implementing new
+  interactive features (e.g., in contrast to \<open>f\<close>, which by default does not have the
+  possibility to directly use the information provided by \<open>stack\<close>, \<open>top\<close>
+  and \<open>env\<close>).
+
+  \<^descr> \<^C_theory_text>\<open>highlight\<close> changes the background color of the C tokens pointed by the command.
+
+  \<^descr> \<^C_theory_text>\<open>ML_file\<Down>\<close>,
+  \<^C_theory_text>\<open>C_file\<Down>\<close>, \<^C_theory_text>\<open>ML\<Down>\<close>,
+  \<^C_theory_text>\<open>setup\<Down>\<close>,
+  \<^C_theory_text>\<open>\<approx>setup\<Down>\<close>, \<^C_theory_text>\<open>C\<Down>\<close>,
+  \<^C_theory_text>\<open>C_export_boot\<Down>\<close>, and
+  \<^C_theory_text>\<open>C_export_file\<Down>\<close>
+  behave similarly as the respective (above inner) commands
+  \<^C_theory_text>\<open>ML_file\<close>, \<^C_theory_text>\<open>C_file\<close>,
+  \<^C_theory_text>\<open>ML\<close>, \<^C_theory_text>\<open>setup\<close>,
+  \<^C_theory_text>\<open>\<approx>setup\<close>, \<^C_theory_text>\<open>C\<close>,
+  \<^C_theory_text>\<open>C_export_boot\<close>, and \<^C_theory_text>\<open>C_export_file\<close>
+  except that their evaluations happen later.
+\<close>
+
+section \<open>Quick Start (for people more familiar with C than Isabelle)\<close>
+
+text \<open>
+\<^item> The latest version of Isabelle can be easily retrieved at
+\<^url>\<open>http://isabelle.in.tum.de/\<close>.
+\<^item> Assuming one is working with the 2019 archive version
+\<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2019_app.tar.gz\<close>,
+the shortest way to start programming in C is to open a new theory file:
+\<open>~/Isabelle2019/bin/isabelle jedit -d . Scratch.thy\<close>, inside the same current directory
+as the one containing \<^file>\<open>C_Main.thy\<close> (designated as
+\<^theory>\<open>Isabelle_C.C_Main\<close> in Isabelle/C).
+\<^item> Then, this following minimal content can be copied there: \<^verbatim>\<open>theory Scratch
+imports Isabelle_C.C_Main begin C \<open>
+// C code
+\<close> end\<close>
+\<^item> This already enables the support of C11 code inside the special brackets
+``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as ``\<open>\<open>\<close>\<close>''
+for readability reasons.
+\<^item> Finally, writing theorems and proofs along with C code becomes possible inside the special
+C comments \<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> --- newly supported by the
+project. In particular, more detailed documentations on Isabelle (and its outer main syntax) are
+located in the accompanying above archive (for example in
+\<^dir>\<open>~~/src/Doc/Isar_Ref\<close>). \<close>
+
+text \<open> To edit an existing C file, the above approach can be straightforwardly adapted:
+
+\begin{tabular}{c}
+ \<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close> \\
+ becomes replaced by \\
+ \<^verbatim>\<open>C_file\<close> \<^theory_text>\<open>\<open>~/file.c\<close>\<close>
+\end{tabular}
+
+Once done, it remains to press CTRL while hovering the mouse over the file name, followed by a click
+on it to open a new window loading that file. In this situation, it is still possible to write
+\<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> at any position where C comments are
+usually allowed (almost everywhere). \<close>
+
 section \<open>Case Study: Mapping on the Parsed AST\<close>
 
 text \<open> In this section, we give a concrete example of a situation where one is interested to
@@ -372,155 +557,6 @@ sequence of Shift Reduce actions associated to the \<^theory_text>\<open>C\<clos
 interest.
 \<close> 
 
-
-section \<open>Syntax Commands for Isabelle/C\<close>
-
-subsection \<open>Outer Syntax Commands\<close>
-
-text \<open>
-  \begin{matharray}{rcl}
-    @{command_def "C_file"} & : & \<open>local_theory \<rightarrow> local_theory\<close> \\
-    @{command_def "C"} & : & \<open>local_theory \<rightarrow> local_theory\<close> \\
-    @{command_def "C_export_boot"} & : & \<open>local_theory \<rightarrow> local_theory\<close> \\
-    @{command_def "C_prf"} & : & \<open>proof \<rightarrow> proof\<close> \\
-    @{command_def "C_val"} & : & \<open>any \<rightarrow>\<close> \\
-    @{command_def "C_export_file"} & : & \<open>any \<rightarrow>\<close> \\
-  \end{matharray}
-  \begin{tabular}{rcll}
-    @{attribute_def C_lexer_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
-    @{attribute_def C_parser_trace} & : & \<open>attribute\<close> & default \<open>false\<close> \\
-    @{attribute_def C_ML_verbose} & : & \<open>attribute\<close> & default \<open>true\<close> \\
-    @{attribute_def C_starting_env} & : & \<open>attribute\<close> & default \<open>empty\<close> \\
-    @{attribute_def C_starting_rule} & : & \<open>attribute\<close> & default \<open>translation_unit\<close> \\
-  \end{tabular}
-
-  \<^rail>\<open>
-    @@{command C_file} @{syntax name} ';'?
-    ;
-    (@@{command C} | @@{command C_export_boot} | @@{command C_prf} |
-      @@{command C_val}) @{syntax text}
-    ;
-    @@{command C_export_file}
-    ;
-  \<close>
-
-  \<^descr> \<^theory_text>\<open>C_file name\<close> resembles to \<^theory_text>\<open>ML_file
-  name\<close>: it reads the given C file, and let any attached semantic back-ends to proceed for
-  further subsequent evaluation. Top-level C bindings are stored within the (global or local) theory
-  context; the initial environment is set by default to be an empty one, or the one returned by a
-  previous \<^theory_text>\<open>C_file\<close> (depending on @{attribute_def C_starting_env}). The
-  entry-point of the grammar taken as initial starting parser is read from @{attribute_def
-    C_starting_rule} (see
-  \<^url>\<open>https://www.haskell.org/happy/doc/html/sec-directives.html#sec-parser-name\<close>).
-  Multiple \<^theory_text>\<open>C_file\<close> commands may be used to build larger C projects if
-  they are all written in a single theory file (existing parent theories are ignored, and not
-  affecting the current working theory).
-
-  \<^descr> \<^theory_text>\<open>C\<close> is similar to
-  \<^theory_text>\<open>C_file\<close>, but evaluates directly the
-  given \<open>text\<close>. Top-level resulting bindings are stored
-  within the (global or local) theory context.
-
-  \<^descr> \<^theory_text>\<open>C_export_boot\<close> is similar to
-  \<^theory_text>\<open>ML_export\<close>, except that the code in
-  input is understood as being processed by
-  \<^theory_text>\<open>C\<close> instead of \<^theory_text>\<open>ML\<close>.
-
-  \<^descr> \<^theory_text>\<open>C_prf\<close> is similar to
-  \<^theory_text>\<open>ML_prf\<close>, except that the code in input
-  is understood as being processed by
-  \<^theory_text>\<open>C\<close> instead of \<^theory_text>\<open>ML\<close>.
-
-  \<^descr> \<^theory_text>\<open>C_val\<close> is similar to
-  \<^theory_text>\<open>ML_val\<close>, except that the code in input
-  is understood as being processed by
-  \<^theory_text>\<open>C\<close> instead of \<^theory_text>\<open>ML\<close>.
-
-  \<^descr> \<^theory_text>\<open>C_export_file\<close> is similar to
-  \<^theory_text>\<open>generate_file fic = \<open>code\<close>
-    export_generated_files fic\<close>, except that
-    \<^item> \<open>code\<close> refers to the dump of all existing previous C code in the current
-    theory (parent theories are ignored),
-    \<^item> and ML antiquotations in \<open>code\<close> are not analyzed by
-    \<^theory_text>\<open>generate_file\<close>. \<close>
-
-text \<open>
-
-  \<^descr> @{attribute C_lexer_trace} indicates whether the list of C
-  tokens associated to the source text should be output (that list is
-  computed during the lexing phase).
-
-  \<^descr> @{attribute C_parser_trace} indicates whether the stack
-  forest of Shift-Reduce node should be output (it is the final stack
-  which is printed, i.e., the one taken as soon as the parsing
-  terminates).
-
-  \<^descr> @{attribute C_ML_verbose} indicates whether nested
-  \<^theory_text>\<open>ML\<close> commands are acting similarly as
-  their default verbose configuration in top-level.
-
-  \<^descr> @{attribute C_starting_env} makes the start of a C
-  command (e.g., \<^theory_text>\<open>C_file\<close>,
-  \<^theory_text>\<open>C\<close>) initialized with the environment of
-  the previous C command if existing.
-
-  \<^descr> @{attribute C_starting_rule} sets which parsing function will be used to parse the next
-  C commands (e.g., \<^theory_text>\<open>C_file\<close>, \<^theory_text>\<open>C\<close>).
-\<close>
-
-subsection \<open>Inner Syntax Commands\<close>
-
-text \<open>
-  \<^rail>\<open>
-    (@@{annotation ML_file} | @@{annotation "ML_file\<Down>"} |
-      @@{annotation C_file} | @@{annotation "C_file\<Down>"}) @{syntax name} ';'?
-    ;
-    (@@{annotation ML} | @@{annotation "ML\<Down>"} |
-      @@{annotation setup} | @@{annotation "setup\<Down>"} |
-      @@{annotation "\<approx>setup"} | @@{annotation "\<approx>setup\<Down>"} |
-      @@{annotation C} | @@{annotation "C\<Down>"} |
-      @@{annotation C_export_boot} | @@{annotation "C_export_boot\<Down>"}) @{syntax text}
-    ;
-    (@@{annotation C_export_file} | @@{annotation "C_export_file\<Down>"} |
-     @@{annotation highlight})
-    ;
-  \<close>
-
-  \<^descr> \<^C_theory_text>\<open>ML_file\<close>, \<^C_theory_text>\<open>C_file\<close>,
-  \<^C_theory_text>\<open>ML\<close>, \<^C_theory_text>\<open>setup\<close>,
-  \<^C_theory_text>\<open>C\<close>, \<^C_theory_text>\<open>C_export_boot\<close>, and
-  \<^C_theory_text>\<open>C_export_file\<close> behave similarly as the respective outer commands
-  \<^theory_text>\<open>ML_file\<close>, \<^theory_text>\<open>C_file\<close>,
-  \<^theory_text>\<open>ML\<close>, \<^theory_text>\<open>setup\<close>,
-  \<^theory_text>\<open>C\<close>, \<^theory_text>\<open>C_export_boot\<close>,
-  \<^theory_text>\<open>C_export_file\<close>.
-
-  \<^descr> \<^C_theory_text>\<open>\<approx>setup \<open>f'\<close>\<close> has the same semantics
-  as \<^C_theory_text>\<open>setup \<open>f\<close>\<close> whenever \<^term>\<open>\<And> stack top
-  env. f' stack top env = f\<close>. In particular, depending on where the annotation
-  \<^C_theory_text>\<open>\<approx>setup \<open>f'\<close>\<close> is located in the C code, the
-  additional values \<open>stack\<close>, \<open>top\<close> and \<open>env\<close> can drastically
-  vary, and then can be possibly used in the body of \<open>f'\<close> for implementing new
-  interactive features (e.g., in contrast to \<open>f\<close>, which by default does not have the
-  possibility to directly use the information provided by \<open>stack\<close>, \<open>top\<close>
-  and \<open>env\<close>).
-
-  \<^descr> \<^C_theory_text>\<open>highlight\<close> changes the background color of the C tokens pointed by the command.
-
-  \<^descr> \<^C_theory_text>\<open>ML_file\<Down>\<close>,
-  \<^C_theory_text>\<open>C_file\<Down>\<close>, \<^C_theory_text>\<open>ML\<Down>\<close>,
-  \<^C_theory_text>\<open>setup\<Down>\<close>,
-  \<^C_theory_text>\<open>\<approx>setup\<Down>\<close>, \<^C_theory_text>\<open>C\<Down>\<close>,
-  \<^C_theory_text>\<open>C_export_boot\<Down>\<close>, and
-  \<^C_theory_text>\<open>C_export_file\<Down>\<close>
-  behave similarly as the respective (above inner) commands
-  \<^C_theory_text>\<open>ML_file\<close>, \<^C_theory_text>\<open>C_file\<close>,
-  \<^C_theory_text>\<open>ML\<close>, \<^C_theory_text>\<open>setup\<close>,
-  \<^C_theory_text>\<open>\<approx>setup\<close>, \<^C_theory_text>\<open>C\<close>,
-  \<^C_theory_text>\<open>C_export_boot\<close>, and \<^C_theory_text>\<open>C_export_file\<close>
-  except that their evaluations happen later.
-\<close>
-
 section \<open>A Guide to Implement Semantic Back-Ends for Isabelle/C\<close>
 
 subsection \<open>General Principles\<close>
@@ -530,43 +566,6 @@ subsection \<open>Example: Citadelle\<close> (* HOL-OCL back-end *)
 subsection \<open>Example: Clean\<close>
 
 subsection \<open>Example: AutoCorres\<close>
-
-section \<open>Quick Start (for people more familiar with C than Isabelle)\<close>
-
-text \<open>
-\<^item> The latest version of Isabelle can be easily retrieved at
-\<^url>\<open>http://isabelle.in.tum.de/\<close>.
-\<^item> Assuming one is working with the 2019 archive version
-\<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2019_app.tar.gz\<close>,
-the shortest way to start programming in C is to open a new theory file:
-\<open>~/Isabelle2019/bin/isabelle jedit -d . Scratch.thy\<close>, inside the same current directory
-as the one containing \<^file>\<open>C_Main.thy\<close> (designated as
-\<^theory>\<open>Isabelle_C.C_Main\<close> in Isabelle/C).
-\<^item> Then, this following minimal content can be copied there: \<^verbatim>\<open>theory Scratch
-imports Isabelle_C.C_Main begin C \<open>
-// C code
-\<close> end\<close>
-\<^item> This already enables the support of C11 code inside the special brackets
-``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as ``\<open>\<open>\<close>\<close>''
-for readability reasons.
-\<^item> Finally, writing theorems and proofs along with C code becomes possible inside the special
-C comments \<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> --- newly supported by the
-project. In particular, more detailed documentations on Isabelle (and its outer main syntax) are
-located in the accompanying above archive (for example in
-\<^dir>\<open>~~/src/Doc/Isar_Ref\<close>). \<close>
-
-text \<open> To edit an existing C file, the above approach can be straightforwardly adapted:
-
-\begin{tabular}{c}
- \<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close> \\
- becomes replaced by \\
- \<^verbatim>\<open>C_file\<close> \<^theory_text>\<open>\<open>~/file.c\<close>\<close>
-\end{tabular}
-
-Once done, it remains to press CTRL while hovering the mouse over the file name, followed by a click
-on it to open a new window loading that file. In this situation, it is still possible to write
-\<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> at any position where C comments are
-usually allowed (almost everywhere). \<close>
 
 section \<open>Known Limitation and Future Work\<close>
 subsection \<open>The Document Model of the Isabelle/PIDE (applying for Isabelle 2019)\<close>
