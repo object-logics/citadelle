@@ -40,6 +40,18 @@ theory C_Parser_Language
   imports C_Environment
 begin
 
+text \<open>
+Isabelle/C depends on certain 
+external parsing libraries, such as 
+\<^dir>\<open>../../mlton\<close>, and more specifically
+\<^dir>\<open>../../mlton/lib/mlyacc-lib\<close>. All
+files in this last folder are solely used by
+\<^file>\<open>C_Parser_Language.thy\<close>. The rest has been copied
+from the original repository of MLton
+\<^footnote>\<open>\<^url>\<open>https://github.com/MLton/mlton\<close>
+and \<^url>\<open>https://gitlri.lri.fr/ftuong/mlton\<close>\<close>.
+\<close>
+
 subsection \<open>Parsing Library (Including Semantic Functions)\<close>
 
 ML \<comment> \<open>\<^file>\<open>../generated/c_grammar_fun.grm.sml\<close>\<close>
