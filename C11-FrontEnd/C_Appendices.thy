@@ -557,7 +557,7 @@ sequence of Shift Reduce actions associated to the \<^theory_text>\<open>C\<clos
 interest.
 \<close> 
 
-section \<open>Known Limitation and Future Work\<close>
+section \<open>Known Limitations, Troubleshooting\<close>
 subsection \<open>The Document Model of the Isabelle/PIDE (applying for Isabelle 2019)\<close>
 subsubsection \<open>Introduction\<close>
 
@@ -632,15 +632,22 @@ subsubsection \<open>Examples\<close>
 text \<open>
   \<^item> Commands declared as of type \<open>thy_decl\<close> in the theory header are scheduled
   to be executed once. Additionally, they are not tracking the content of file names provided in
-  argument, so a change there will not trigger a reevaluation of the associated command.
+  argument, so a change there will not trigger a reevaluation of the associated command. For
+  example, even if the type of \<^theory_text>\<open>ML_file\<close> is not \<open>thy_decl\<close>,
+  nothing prevents one to set it with \<open>thy_decl\<close> as type. In particular, by doing so,
+  it is no more possible to CTRL-hover-click on the file name written after
+  \<^theory_text>\<open>ML_file\<close>.
   \<^item> To make a command \<open>C\<close> track the content of \<open>file\<close>, whenever the
   file is changing, setting \<open>C\<close> to be of type \<open>thy_load\<close> in the theory
   header is a first step, but not enough. To be effective, \<open>file\<close> must also be loaded,
   by either explicitly opening it, or clicking on its name after the command. Examples of commands
-  in this situation include: \<^theory_text>\<open>external_file\<close>,
-  \<^theory_text>\<open>bibtex_file\<close>, \<^theory_text>\<open>ML_file\<close>.
+  in this situation requiring a preliminary one-time-click include:
+  \<^theory_text>\<open>external_file\<close>, \<^theory_text>\<open>bibtex_file\<close>,
+  \<^theory_text>\<open>ML_file\<close>.
+  Internally, the click is bound to a Scala code invoking a request to make an asynchronous
+  dependency to the newly opened document at ML side.
   \<^item> In terms of recursivity, for the case of a chain of sub-documents of the form
-  (a random theory file containing: \<^theory_text>\<open>C_file \<open>file0.c\<close>\<close>)
+  (a theory file containing: \<^theory_text>\<open>C_file \<open>file0.c\<close>\<close>)
   \<open>\<Longrightarrow>\<close>
   (C file \<^verbatim>\<open>file0.c\<close> containing: \<^C>\<open>#include <file1.c>\<close>)
   \<open>\<Longrightarrow>\<close>
@@ -649,13 +656,31 @@ text \<open>
   (C file \<^verbatim>\<open>file2.c\<close> containing: \<^C>\<open>#include <file3.c>\<close>), we
   ideally expect a modification in \<^verbatim>\<open>file3.c\<close> be taken into account in all
   ancestor files including the initial theory, provoking the associated command of the theory be
-  reevaluated.
-  \<^item> When a theory is depending on other theories (such as \<^theory>\<open>Isabelle_C.C_Eval\<close>
-  depending on \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> and
-  \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>), modifying the list of theories in importation
-  automatically triggers what the user is expecting: for example, the newly added theories are
-  dynamically imported, any change by another external editor makes everything consequently
-  propagated. \<close>
+  reevaluated. However in C, directives resolving might be close to Turing-complete. For instance,
+  one can also include files based on particular conditional situations: \<^C>\<open>#if _
+    #include <file1>
+  #else
+    #include <file2>
+    #include <file3>
+  #endif\<close>
+  \<^item> When a theory is depending on other theories (such as
+  \<^theory>\<open>Isabelle_C.C_Eval\<close> depending on
+  \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> and
+  \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>), modifying the list of theories in
+  importation automatically triggers what the user is expecting: for example, the newly added
+  theories are dynamically imported, any change by another external editor makes everything
+  consequently propagated.
+
+  Following the internal implementation of the document model engine, we basically distinguish two
+  phases of document importation: either at start-up time, or dynamically on user requests. Although
+  the case of start-up time can be handled in pure ML side, the language dedicated to express which
+  Isabelle theory files to import is less powerful than the close-to-Turing-completeness
+  expressivity of C directives. On the other hand, the dynamic importation of files on user requests
+  seems to be performed (at the time of writing) through a too high level ML protocol, mostly called
+  from Scala side. Due to the fact that Isabelle/C is currently implemented in pure ML, a solution
+  also in pure ML would thus sound more natural (although we are not excluding solutions interacting
+  with Scala, as long as the resulting can be implemented in Isabelle, preferably outside of its own
+  source).\<close>
 
 subsection \<open>Parsing Error\<close>
 
