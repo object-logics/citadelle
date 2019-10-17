@@ -34,14 +34,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter \<open>Appendices\<close>
+chapter \<open>Annexes\<close>
 
-(*<*)
 theory C_Appendices
   imports Isabelle_C_examples.C1
           "~~/src/Doc/Isar_Ref/Base"
 begin
 
+(*<*)
 ML \<comment> \<open>\<^file>\<open>~~/src/Doc/antiquote_setup.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Doc/antiquote_setup.ML
@@ -709,6 +709,4 @@ make the error disappear at the position the error is indicated can be detailed 
   if the problem really relies on the grammar, as it was mentioned for the acceptance state.
   \<close>
 
-(*<*)
 end
-(*>*)
