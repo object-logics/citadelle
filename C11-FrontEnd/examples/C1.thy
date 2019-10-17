@@ -41,9 +41,12 @@ theory C1
           "~~/src/HOL/ex/Cartouche_Examples"
 begin
 
-text \<open> The remainder of the theory assumes a familiarity with the ability to recursively nest
-ML code in ML as described in \<^file>\<open>~~/src/HOL/ex/ML.thy\<close>, as well as the concept of
-ML antiquotations (\<^file>\<open>~~/src/Doc/Implementation/ML.thy\<close>). \<close>
+text \<open> Operationally, the \<^theory_text>\<open>C\<close> command might at first sight
+resemble to \<^theory_text>\<open>ML\<close>: for example, the remainder of the theory assumes a
+familiarity with the ability to recursively nest ML code in ML as described in
+\<^file>\<open>~~/src/HOL/ex/ML.thy\<close>, as well as the concept of ML antiquotations
+(\<^file>\<open>~~/src/Doc/Implementation/ML.thy\<close>). However, we will see there are subtle
+differences between the two commands.\<close>
 
 section \<open>Setup of ML Antiquotations Displaying the Environment (For Debugging) \<close>
 
@@ -94,10 +97,12 @@ section \<open>Introduction to C Annotations: Navigating in the Parsing Stack\<c
 
 subsection \<open>Basics\<close>
 
-text \<open> The \<^theory_text>\<open>C\<close> command resembles to
-\<^theory_text>\<open>ML\<close> except that the syntax of the code written inside
-\<^theory_text>\<open>C\<close> is the syntax of C11 (at the time of writing). Additionally, it is
-possible to write commands in C comments, called annotation commands, such as
+text \<open> Since the present theory \<^file>\<open>C1.thy\<close> is depending on
+\<^theory>\<open>Isabelle_C.C_Lexer_Language\<close> and
+\<^theory>\<open>Isabelle_C.C_Parser_Language\<close>, the syntax one is writing in the
+\<^theory_text>\<open>C\<close> command is C11. Additionally, \<^file>\<open>C1.thy\<close> also
+depends on \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>, making it possible to write
+commands in C comments, called annotation commands, such as
 \<^theory_text>\<open>\<approx>setup\<close>. \<close>
 
 C \<comment> \<open>Nesting ML code in C comments\<close> \<open>
@@ -115,10 +120,10 @@ final)
 \<^footnote>\<open>\<^url>\<open>https://en.wikipedia.org/wiki/Shift-reduce_parser\<close>\<close>. \<close>
 
 text \<open>The command \<^theory_text>\<open>\<approx>setup\<close> is similar to the command
-\<^theory_text>\<open>setup\<close> except that it takes a function with additional arguments. These
-arguments are precisely depending on the current parsing state. To better examine these arguments,
-it is convenient to use ML antiquotations (be it for printing, or for doing any regular ML actions
-like PIDE reporting).
+\<^theory_text>\<open>setup\<close> except that the former takes a function with additional
+arguments. These arguments are precisely depending on the current parsing state. To better examine
+these arguments, it is convenient to use ML antiquotations (be it for printing, or for doing any
+regular ML actions like PIDE reporting).
 
 Ultimately, in contrast with \<^theory_text>\<open>setup\<close>, the return type of the
 \<^theory_text>\<open>\<approx>setup\<close> function is not
@@ -323,7 +328,7 @@ int main (enum a *x, ...) /* \<leftarrow>\<comment> \<open>\<^ML>\<open>C_Gramma
   return zz; }
 \<close>
 
-subsection \<open>Continuation Calculus with the C Environment: ML\<close>
+subsection \<open>Continuation Calculus with the C Environment: Presentation in ML\<close>
 
 declare [[C_parser_trace = false]]
 
@@ -348,7 +353,7 @@ int b = 7 / (3) * 50
                        ;\<close> \<close> */;
 \<close>
 
-subsection \<open>Continuation Calculus with the C Environment: Outer Commands\<close>
+subsection \<open>Continuation Calculus with the C Environment: Presentation with Outer Commands\<close>
 
 ML\<open>
 local
@@ -382,7 +387,7 @@ int f (int a) {
   int c = b + b + b + b + a + a + a + a + a + a;
 } \<close>
 
-subsection \<open>Continuation Calculus with the C Environment: Deep-First Nesting vs Breadth-First Folding\<close>
+subsection \<open>Continuation Calculus with the C Environment: Deep-First Nesting vs Breadth-First Folding: Propagation of \<^ML_type>\<open>C_Env.env_lang\<close>\<close>
 
 C \<comment> \<open>Propagation of report environment while manually composing at ML level (with \<open>#>\<close>)\<close>
   \<comment> \<open>In \<open>c1 #> c2\<close>, \<open>c1\<close> and \<open>c2\<close> should not interfere each other.\<close> \<open>
@@ -416,7 +421,7 @@ int e = a + b + c + d;
 }
 \<close>
 
-subsection \<open>Continuation Calculus with the C Environment: ML\<close>
+subsection \<open>Continuation Calculus with the C Environment: Deep-First Nesting vs Breadth-First Folding: Propagation of \<^ML_type>\<open>C_Env.env_tree\<close>\<close>
 
 ML\<open>
 structure Data_Out = Generic_Data
@@ -478,7 +483,7 @@ int main3 () { main2 (); }
 
 declare [[C_starting_env = empty]]
 
-subsection \<open>Reporting: functions, arrays\<close>
+subsection \<open>Reporting: Extensions to Function Types, Array Types\<close>
 
 C \<open>int f (int z);\<close>
 C \<open>int * f (int z);\<close>

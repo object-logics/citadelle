@@ -40,17 +40,13 @@ theory C_Parser_Language
   imports C_Environment
 begin
 
-text \<open>
-Isabelle/C depends on certain 
-external parsing libraries, such as 
-\<^dir>\<open>../../mlton\<close>, and more specifically
-\<^dir>\<open>../../mlton/lib/mlyacc-lib\<close>. All
-files in this last folder are solely used by
-\<^file>\<open>C_Parser_Language.thy\<close>. The rest has been copied
-from the original repository of MLton
-\<^footnote>\<open>\<^url>\<open>https://github.com/MLton/mlton\<close>
-and \<^url>\<open>https://gitlri.lri.fr/ftuong/mlton\<close>\<close>.
-\<close>
+text \<open> As mentioned in \<^theory>\<open>Isabelle_C.C_Ast\<close>, Isabelle/C depends on
+certain external parsing libraries, such as \<^dir>\<open>../../mlton\<close>, and more specifically
+\<^dir>\<open>../../mlton/lib/mlyacc-lib\<close>. Actually, the sole theory making use of the files
+in \<^dir>\<open>../../mlton/lib/mlyacc-lib\<close> is the present
+\<^file>\<open>C_Parser_Language.thy\<close>. (Any remaining files in
+\<^dir>\<open>../../mlton\<close> are not used by Isabelle/C, they come from the original repository
+of MLton: \<^url>\<open>https://github.com/MLton/mlton\<close>). \<close>
 
 subsection \<open>Parsing Library (Including Semantic Functions)\<close>
 
@@ -727,11 +723,7 @@ struct
 end
 \<close>
 
-subsection \<open>Loading the Grammar Simulator\<close>
-
-text \<open> The parser consists of a generic module
-\<^file>\<open>../../mlton/lib/mlyacc-lib/base.sig\<close>, which interprets an
-automata-like format generated from ML-Yacc. \<close>
+subsection \<open>Miscellaneous\<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/document_antiquotations.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
@@ -788,6 +780,12 @@ end;
 
 end;
 \<close>
+
+subsection \<open>Loading the Grammar Simulator\<close>
+
+text \<open> The parser consists of a generic module
+\<^file>\<open>../../mlton/lib/mlyacc-lib/base.sig\<close>, which interprets an
+automata-like format generated from ML-Yacc. \<close>
 
 ML_file "../../mlton/lib/mlyacc-lib/base.sig" \<comment>
 \<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/base.sig\<close>\<close>
