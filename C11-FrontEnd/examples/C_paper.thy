@@ -164,7 +164,7 @@ C \<open>int _;
       \<simeq>setup \<open>@{C_def \<Down> (* top-down  *) "C1\<Down>"}\<close>
 */\<close>
 
-section \<open>As Summary: A Spaghetti Language --- Bon Appetit!\<close>
+section \<open>As Summary: A Spaghetti Language --- Bon Appétit!\<close>
 
 text\<open>... with the Bonus of a local C-inside-ML-inside-C-inside-Isar ...\<close>
 
@@ -189,5 +189,8 @@ C (*NONE*) \<comment> \<open> the command starts with a default empty environmen
           \<simeq>setup \<open>@{C_def \<Down> (* top-down  *) "C1'\<Down>"}\<close>
      */
     return a + b + c + d; /* explicit highlighting */ }\<close>
+
+text \<open> Note that C directives must be propagated in C annotations, even if they are supposed
+to be evaluated before any C code. \<close>
 
 end

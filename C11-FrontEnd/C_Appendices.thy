@@ -132,7 +132,7 @@ end;
 
 section \<open>Syntax Commands for Isabelle/C\<close>
 
-subsection \<open>Outer Syntax Commands\<close>
+subsection \<open>Outer Classical Commands\<close>
 
 text \<open>
   \begin{matharray}{rcl}
@@ -198,8 +198,8 @@ text \<open>
     export_generated_files fic\<close>, except that
     \<^item> \<open>code\<close> refers to the dump of all existing previous C code in the current
     theory (parent theories are ignored),
-    \<^item> and ML antiquotations in \<open>code\<close> are not analyzed by
-    \<^theory_text>\<open>generate_file\<close>. \<close>
+    \<^item> and any ML antiquotations in \<open>code\<close> are not analyzed by
+    \<^theory_text>\<open>generate_file\<close> (in contrast with its default behavior). \<close>
 
 text \<open>
 
@@ -225,7 +225,7 @@ text \<open>
   C commands (e.g., \<^theory_text>\<open>C_file\<close>, \<^theory_text>\<open>C\<close>).
 \<close>
 
-subsection \<open>Inner Syntax Commands\<close>
+subsection \<open>Inner Annotation Commands\<close>
 
 text \<open>
   \<^rail>\<open>
@@ -278,42 +278,42 @@ text \<open>
   except that their evaluations happen later.
 \<close>
 
-section \<open>Quick Start (for people more familiar with C than Isabelle)\<close>
+section \<open>Quick Start (for People More Familiar with C than Isabelle)\<close>
 
 text \<open>
 \<^item> The latest version of Isabelle can be easily retrieved at
 \<^url>\<open>http://isabelle.in.tum.de/\<close>.
-\<^item> Assuming one is working with the 2019 archive version
-\<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2019_app.tar.gz\<close>,
-the shortest way to start programming in C is to open a new theory file:
-\<open>~/Isabelle2019/bin/isabelle jedit -d . Scratch.thy\<close>, inside the same current directory
-as the one containing \<^file>\<open>C_Main.thy\<close> (designated as
-\<^theory>\<open>Isabelle_C.C_Main\<close> in Isabelle/C).
-\<^item> Then, this following minimal content can be copied there: \<^verbatim>\<open>theory Scratch
+\<^item> Assuming one is working with the version 2019
+\<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2019_app.tar.gz\<close>, the shortest way to
+start programming in C is to open a new theory file:
+\<open>$ISABELLE_HOME/bin/isabelle jedit -d $AFP_HOME/thys Scratch.thy\<close>, where
+\<open>$ISABELLE_HOME\<close> is the extracted Isabelle source, and \<open>$AFP_HOME\<close> is the
+downloaded content of \<^url>\<open>https://bitbucket.org/isa-afp/afp-2019\<close>.
+\<^item> Then, this following minimal content can be copied in the newly opened window:
+\<^verbatim>\<open>theory Scratch
 imports Isabelle_C.C_Main begin C \<open>
 // C code
 \<close> end\<close>
-\<^item> This already enables the support of C11 code inside the special brackets
+\<^item> This already enables the support of C code inside the special brackets
 ``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as ``\<open>\<open>\<close>\<close>''
 for readability reasons.
-\<^item> Finally, writing theorems and proofs along with C code becomes possible inside the special
-C comments \<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> --- newly supported by the
-project. In particular, more detailed documentations on Isabelle (and its outer main syntax) are
-located in the accompanying above archive (for example in
-\<^dir>\<open>~~/src/Doc/Isar_Ref\<close>). \<close>
+\<^item> Writing theorems and proofs along with C code becomes possible inside the special C
+comments \<^C>\<open>/*@ (* Isabelle content *) */\<close> --- newly supported by the
+project. Additionally, the complete documentations on Isabelle are located in the accompanying above
+archive (for example in \<^dir>\<open>~~/src/Doc/Isar_Ref\<close>). \<close>
 
-text \<open> To edit an existing C file, the above approach can be straightforwardly adapted:
+text \<open> To edit an existing C file, it suffices to replace:
 
 \begin{tabular}{c}
  \<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close> \\
- becomes replaced by \\
+ by \\
  \<^verbatim>\<open>C_file\<close> \<^theory_text>\<open>\<open>~/file.c\<close>\<close>
 \end{tabular}
 
-Once done, it remains to press CTRL while hovering the mouse over the file name, followed by a click
-on it to open a new window loading that file. In this situation, it is still possible to write
-\<^C>\<open>/*@  (* outer Isabelle content *)  */\<close> at any position where C comments are
-usually allowed (almost everywhere). \<close>
+Once done, one can press a CTRL-like key while hovering the mouse over the file name, then followed
+by a click on it to open a new window loading that file. In this situation, it is still possible to
+write \<^C>\<open>/*@ (* Isabelle content *) */\<close> at any position where C comments are
+usually allowed. \<close>
 
 section \<open>Case Study: Mapping on the Parsed AST\<close>
 
@@ -388,8 +388,8 @@ subsequent modification on the parsing environment \<^theory>\<open>Isabelle_C.C
 Fundamentally, this is feasible because the monadic environment fulfills the property of being
 always properly enriched with declared variable information at any time, because we assume
   \<^item> working with a language where a used variable must be at most declared or redeclared
-  somewhere before its actual used,
-  \<^item> and using a parser scanning tokens uniquely, from left to right, in the same order than
+  somewhere before its actual usage,
+  \<^item> and using a parser scanning tokens uniquely, from left to right, in the same order as
   the execution of rule code actions. \<close>
 
 subsubsection \<open>Example\<close>
@@ -432,11 +432,12 @@ subtree \<open>T2\<close>, it is useful to zoom on the different parsing evaluat
 as make precise when the evaluation of semantic back-ends are starting.
 
 \<^enum> Whereas annotations in Isabelle/C code have the potential of carrying arbitrary ML code (as
-in \<^theory>\<open>Isabelle_C_examples.C1\<close>), the moment when they are effectively evaluated will not be
-discussed here, because to closely follow the semantics of the language in embedding (so C), we
-suppose comments --- comprising annotations --- may not affect any parsed tokens living outside
-comments. So no matter when annotations are scheduled to be future evaluated in Isabelle/C, it will
-be not possible to write a code changing \<open>T1\<close> to \<open>T2\<close> inside annotations.
+in \<^theory>\<open>Isabelle_C_examples.C1\<close>), the moment when they are effectively evaluated
+will not be discussed here, because to closely follow the semantics of the language in embedding (so
+C), we suppose comments --- comprising annotations --- may not affect any parsed tokens living
+outside comments. So no matter when annotations are scheduled to be future evaluated in Isabelle/C,
+the design decision of Isabelle/C is to not let a code do directive-like side-effects in
+annotations, such as changing \<open>T1\<close> to \<open>T2\<close> inside annotations.
 
 \<^enum> To our knowledge, the sole category of code having the capacity to affect incoming stream
 of tokens are directives, which are processed and evaluated before the ``major'' parsing step
@@ -471,9 +472,8 @@ text \<open> Generally, semantic back-ends can be written in full ML starting fr
 \<^ML_type>\<open>C_Ast.CTranslUnit\<close>, but to additionally support formalizing tasks requiring
 to start from an AST defined in Isabelle/HOL, we provide an equivalent AST in HOL in the project,
 such as the one obtained after loading
-\<^file>\<open>../Citadelle/doc/Meta_C_generated.thy\<close> \<^footnote>\<open>from the
-Citadelle project \<^url>\<open>gitlri.lri.fr/ftuong/citadelle-devel\<close>\<close> (In fact, the
-ML AST is just generated from the HOL one.) \<close>
+\<^url>\<open>https://gitlri.lri.fr/ftuong/citadelle-devel/blob/master/doc/Meta_C_generated.thy\<close>.
+(In fact, the ML AST is just generated from the HOL one.) \<close>
 
 
 
@@ -571,20 +571,21 @@ section \<open>Known Limitation and Future Work\<close>
 subsection \<open>The Document Model of the Isabelle/PIDE (applying for Isabelle 2019)\<close>
 subsubsection \<open>Introduction\<close>
 
-text \<open> Embedding C directives in C code has been of common practice for numerous applications:
-as an example of frequently encountered directives, \<open>#include <some_file.c>\<close> is used to
-insert the content of \<open>some_file.c\<close> at the place where it is written. In Isabelle/C, we
-can also write a C code containing directives like \<open>#include\<close>, and generally the PIDE
-reporting of directives is supported to a certain extent. Yet, the dynamic inclusion of arbitrary
-file with \<open>#include\<close> is hurting a certain technological barrier. This is related to how
-the document model of Isabelle 2019 is functioning, but also to the design decisions behind the
+text \<open> Embedding C directives in C code is an act of common practice in numerous applications,
+as well as largely highlighted in the C standard. As an example of frequently encountered
+directives, \<open>#include <some_file.c>\<close> is used to insert the content of
+\<open>some_file.c\<close> at the place where it is written. In Isabelle/C, we can also write a C
+code containing directives like \<open>#include\<close>, and generally the PIDE reporting of
+directives is supported to a certain extent. Yet, the dynamic inclusion of arbitrary file with
+\<open>#include\<close> is hurting a certain technological barrier. This is related to how the
+document model of Isabelle 2019 is functioning, but also to the design decisions behind the
 implementation of \<^theory_text>\<open>C\<open> .. \<close>\<close>. Thus, providing a complete
-semantic implementation of \<open>#include\<close> is hard, i.e. without a manual intervention in
-the source of Isabelle 2019. In the next part, we show why in our current implementation of
-Isabelle/C there is no way for user programmed extensions to exploit implicit dependencies between
-sub-documents in pure ML: a sub-document referred to via \<open>#include <some_file>\<close> will
-not lead to a reevaluation of a \<^theory_text>\<open>C\<open> .. \<close>\<close> command whenever
-modified.\<close>
+semantic implementation of \<open>#include\<close> might be not as evident as usual, if not more
+dangerous, i.e. ``something requiring a manual intervention in the source of Isabelle 2019''. In the
+next part, we show why in our current implementation of Isabelle/C there is no way for user
+programmed extensions to exploit implicit dependencies between sub-documents in pure ML: a
+sub-document referred to via \<open>#include <some_file>\<close> will not lead to a reevaluation of
+a \<^theory_text>\<open>C\<open> .. \<close>\<close> command whenever modified.\<close>
 
 subsubsection \<open>Embedding a language in Isabelle/PIDE\<close>
 
@@ -603,8 +604,8 @@ estimating which subsets of \<open>L\<close> will be represented in the outer sy
 possibly remains any left subsets to be represented on the more inner (syntactic) part.
 
 Generally, to answer this question, there are several criteria to consider:
-  \<^item> Is there any escaping symbols conflicting between \<open>L\<close> and the outer (syntax)
-  language, including for example the ASCII \<^verbatim>\<open>"\<close> or
+  \<^item> Are there any escaping symbols conflicting between \<open>L\<close> and the outer
+  (syntax) language, including for example the ASCII \<^verbatim>\<open>"\<close> or
   \<^verbatim>\<open>`\<close>?
   \<^item> Is \<open>L\<close> a realistic language, i.e. more complex than any combinations of
   outer named tokens that can be ever covered in terms of expressivity power (where the list of
@@ -620,20 +621,21 @@ syntactically easy with the introduction of cartouches since Isabelle
 2014.\<^footnote>\<open>Fortunately, parsing tokens of C do not strongly conflict with cartouche
 delimiter symbols. For example, it should be legal in C to write an opening cartouche symbol in a C
 comment without writing any closing cartouche symbol afterwards. However, this functionality is
-rejected by the parser of Isabelle/C, as it is relying on Isabelle 2019's parser combinator library
-for the lexing part.\<close> However, for the case of the C language, certain C directives like
-\<open>#include\<close> are meant to heavily interact with external files. In particular, resources
-would be best utilized if we were taking advantage of the Isabelle's asynchronous document model for
-such interaction task. Unfortunately, the inner syntax space only has a minimum interaction with the
-document model, compared to the outer syntax one. Otherwise said, be it for experimenting the inner
-syntax layer and see how far it can deal with the document layer, or otherwise reimplementing parts
-of Isabelle/C in the outer syntax layer, the two solutions are conducting to do modifications in the
-Isabelle 2019 source code. \<close>
+implicitly rejected by the parser of Isabelle/C, as it is relying on Isabelle 2019's parser
+combinator library for the lexing part.\<close> However, for the case of the C language, certain C
+directives like \<open>#include\<close> are meant to heavily interact with external files. In
+particular, resources would be best utilized if we were taking advantage of the Isabelle's
+asynchronous document model for such interaction task. Unfortunately, the inner syntax space only
+has a minimum interaction with the document model, compared to the outer syntax one. Otherwise said,
+be it for experimenting the inner syntax layer and see how far it can deal with the document layer,
+or otherwise reimplementing parts of Isabelle/C in the outer syntax layer, the two solutions are
+conducting to do modifications in the Isabelle 2019 source code. \<close>
 
-text \<open> Note that the implementation of \<^theory_text>\<open>C\<close> closely resembles to
-\<^theory_text>\<open>ML\<close>: ML antiquotations can also refer to external files, particularly
-in formal comments. Still, the problem is still present in ML: referred files are not loaded in the
-document model. \<close>
+text \<open> Note that the language embedding space of \<^theory_text>\<open>C\<close> closely
+resembles to how ML sources are delimited within a \<^theory_text>\<open>ML\<close>
+command. Additionally, in ML, one can use antiquotations to also refer to external files
+(particularly in formal comments). Still, the problem is still present in ML: referred files are not
+loaded in the document model. \<close>
 
 subsubsection \<open>The Document Model\<close>
 
@@ -698,12 +700,17 @@ text \<open>
   in this situation include: \<^theory_text>\<open>external_file\<close>,
   \<^theory_text>\<open>bibtex_file\<close>, \<^theory_text>\<open>ML_file\<close>.
   \<^item> In terms of recursivity, for the case of a chain of sub-documents of the form (theory
-  file: \<^theory_text>\<open>C_file\<close>) \<open>\<Longrightarrow>\<close> (C file0:
-  \<^C>\<open>#include <file1.c>\<close>) \<open>\<Longrightarrow>\<close> (C file1:
-  \<^C>\<open>#include <file2.c>\<close>) \<open>\<Longrightarrow>\<close> (C file2:
-  \<^C>\<open>#include <file3.c>\<close>), we ideally expect a modification in
-  \<open>file3.c\<close> be taken into account in all ancestor files including the initial theory,
-  provoking the associated command of the theory be reevaluated.
+  file containing:
+  \<^theory_text>\<open>C_file \<open>#include <file0.c>\<close>\<close>)
+  \<open>\<Longrightarrow>\<close>
+  (C file \<^verbatim>\<open>file0.c\<close> containing: \<^C>\<open>#include <file1.c>\<close>)
+  \<open>\<Longrightarrow>\<close>
+  (C file \<^verbatim>\<open>file1.c\<close> containing: \<^C>\<open>#include <file2.c>\<close>)
+  \<open>\<Longrightarrow>\<close>
+  (C file \<^verbatim>\<open>file2.c\<close> containing: \<^C>\<open>#include <file3.c>\<close>), we
+  ideally expect a modification in \<^verbatim>\<open>file3.c\<close> be taken into account in all
+  ancestor files including the initial theory, provoking the associated command of the theory be
+  reevaluated.
   \<^item> When a theory is depending on other theories (such as \<^theory>\<open>Isabelle_C.C_Eval\<close>
   depending on \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> and
   \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>), modifying the list of theories in importation
@@ -736,7 +743,7 @@ coming afterwards.
 Currently, the default behavior of Isabelle/C is to raise the error defined in
 \<^ML>\<open>C_Module.err\<close> at the very first opportunity \<^footnote>\<open>At the time of
 writing it is: \<^emph>\<open>No matching grammar rule\<close>.\<close>. The possible solutions to
-make the error disappear at the position it is indicating can be detailed as follows:
+make the error disappear at the position the error is indicated can be detailed as follows:
   \<^item> Modifying the C code in input would be a first solution whenever we suspect something is
   making it erroneous (and when we have a reason to believe that the grammar is behaving as it
   should).
