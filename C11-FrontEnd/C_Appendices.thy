@@ -639,9 +639,8 @@ text \<open>
   by either explicitly opening it, or clicking on its name after the command. Examples of commands
   in this situation include: \<^theory_text>\<open>external_file\<close>,
   \<^theory_text>\<open>bibtex_file\<close>, \<^theory_text>\<open>ML_file\<close>.
-  \<^item> In terms of recursivity, for the case of a chain of sub-documents of the form (theory
-  file containing:
-  \<^theory_text>\<open>C_file \<open>#include <file0.c>\<close>\<close>)
+  \<^item> In terms of recursivity, for the case of a chain of sub-documents of the form
+  (a random theory file containing: \<^theory_text>\<open>C_file \<open>file0.c\<close>\<close>)
   \<open>\<Longrightarrow>\<close>
   (C file \<^verbatim>\<open>file0.c\<close> containing: \<^C>\<open>#include <file1.c>\<close>)
   \<open>\<Longrightarrow>\<close>
