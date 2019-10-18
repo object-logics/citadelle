@@ -42,7 +42,7 @@ begin
 
 section \<open>A Simplistic Setup: Parse and Store\<close>
 
-text\<open>The following setup stores the result of the parsed vales just in the environment.\<close>
+text\<open>The following setup just stores the result of the parsed values in the environment.\<close>
 
 
 ML\<open>
@@ -72,7 +72,7 @@ text \<open> The CPP directive \<^C>\<open>#include _\<close> is used to import 
 modules in C. This has the effect that imported identifiers are included in the C environment and,
 as a consequence, appear as constant symbols and not as free variables in the output. \<close>
 
-text \<open> The following structure is an extra mechanism to define the effect of include wrt. to
+text \<open> The following structure is an extra mechanism to define the effect of \<^C>\<open>#include _\<close> wrt. to
 its definition in its environment. \<close>
 
 ML \<open>

@@ -44,9 +44,9 @@ text \<open> As mentioned in \<^theory>\<open>Isabelle_C.C_Ast\<close>, Isabelle
 certain external parsing libraries, such as \<^dir>\<open>../../mlton\<close>, and more specifically
 \<^dir>\<open>../../mlton/lib/mlyacc-lib\<close>. Actually, the sole theory making use of the files
 in \<^dir>\<open>../../mlton/lib/mlyacc-lib\<close> is the present
-\<^file>\<open>C_Parser_Language.thy\<close>. (Any remaining files in
+\<^file>\<open>C_Parser_Language.thy\<close>. (Any other remaining files in
 \<^dir>\<open>../../mlton\<close> are not used by Isabelle/C, they come from the original repository
-of MLton: \<^url>\<open>https://github.com/MLton/mlton\<close>). \<close>
+of MLton: \<^url>\<open>https://github.com/MLton/mlton\<close>.) \<close>
 
 subsection \<open>Parsing Library (Including Semantic Functions)\<close>
 

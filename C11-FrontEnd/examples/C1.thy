@@ -41,12 +41,13 @@ theory C1
           "~~/src/HOL/ex/Cartouche_Examples"
 begin
 
-text \<open> Operationally, the \<^theory_text>\<open>C\<close> command might at first sight
-resemble to \<^theory_text>\<open>ML\<close>: for example, the remainder of the theory assumes a
-familiarity with the ability to recursively nest ML code in ML as described in
-\<^file>\<open>~~/src/HOL/ex/ML.thy\<close>, as well as the concept of ML antiquotations
-(\<^file>\<open>~~/src/Doc/Implementation/ML.thy\<close>). However, we will see there are subtle
-differences between the two commands.\<close>
+text \<open> Operationally, the \<^theory_text>\<open>C\<close> command can be thought of as
+behaving as \<^theory_text>\<open>ML\<close>, where it is for example possible to recursively nest C
+code in C. Generally, the present chapter assumes a familiarity with all advance concepts of ML as
+described in \<^file>\<open>~~/src/HOL/ex/ML.thy\<close>, as well as the concept of ML
+antiquotations (\<^file>\<open>~~/src/Doc/Implementation/ML.thy\<close>). However, even if
+\<^theory_text>\<open>C\<close> might resemble to \<^theory_text>\<open>ML\<close>, we will now see
+in detail that there are actually subtle differences between the two commands.\<close>
 
 section \<open>Setup of ML Antiquotations Displaying the Environment (For Debugging) \<close>
 
@@ -125,7 +126,7 @@ arguments. These arguments are precisely depending on the current parsing state.
 these arguments, it is convenient to use ML antiquotations (be it for printing, or for doing any
 regular ML actions like PIDE reporting).
 
-Ultimately, in contrast with \<^theory_text>\<open>setup\<close>, the return type of the
+Note that, in contrast with \<^theory_text>\<open>setup\<close>, the return type of the
 \<^theory_text>\<open>\<approx>setup\<close> function is not
 \<^ML_type>\<open>theory -> theory\<close> but
 \<^ML_type>\<open>Context.generic -> Context.generic\<close>. \<close>

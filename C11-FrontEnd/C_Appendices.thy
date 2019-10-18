@@ -281,28 +281,36 @@ text \<open>
 section \<open>Quick Start (for People More Familiar with C than Isabelle)\<close>
 
 text \<open>
-\<^item> The latest version of Isabelle can be easily retrieved at
-\<^url>\<open>http://isabelle.in.tum.de/\<close>.
-\<^item> Assuming one is working with the version 2019
+\<^item> Assuming we are working with Isabelle 2019
 \<^url>\<open>http://isabelle.in.tum.de/dist/Isabelle2019_app.tar.gz\<close>, the shortest way to
-start programming in C is to open a new theory file:
-\<open>$ISABELLE_HOME/bin/isabelle jedit -d $AFP_HOME/thys Scratch.thy\<close>, where
-\<open>$ISABELLE_HOME\<close> is the extracted Isabelle source, and \<open>$AFP_HOME\<close> is the
-downloaded content of \<^url>\<open>https://bitbucket.org/isa-afp/afp-2019\<close>.
-\<^item> Then, this following minimal content can be copied in the newly opened window:
-\<^verbatim>\<open>theory Scratch
-imports Isabelle_C.C_Main begin C \<open>
+start programming in C is to open a new theory file with the shell-command:
+
+\<^verbatim>\<open>$ISABELLE_HOME/bin/isabelle jedit -d $AFP_HOME/thys Scratch.thy\<close>
+
+where \<^verbatim>\<open>$ISABELLE_HOME\<close> is the path of the above extracted Isabelle source,
+and \<^verbatim>\<open>$AFP_HOME\<close> is the downloaded content of
+\<^url>\<open>https://bitbucket.org/isa-afp/afp-2019\<close>.\<^footnote>\<open>This folder
+particularly contains the Isabelle/C project, located in
+\<^url>\<open>https://bitbucket.org/isa-afp/afp-2019/src/default/thys/Isabelle_C\<close>. To inspect
+the latest developper version, one can also replace \<^verbatim>\<open>$AFP_HOME/thys\<close> by the
+content downloaded from \<^url>\<open>https://gitlri.lri.fr/ftuong/isabelle_c\<close>.\<close>
+\<^item> The next step is to copy this minimal content inside the newly opened window:
+\<^verbatim>\<open>theory Scratch imports Isabelle_C.C_Main begin C \<open>
 // C code
 \<close> end\<close>
-\<^item> This already enables the support of C code inside the special brackets
-``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as ``\<open>\<open>\<close>\<close>''
-for readability reasons.
-\<^item> Writing theorems and proofs along with C code becomes possible inside the special C
-comments \<^C>\<open>/*@ (* Isabelle content *) */\<close> --- newly supported by the
-project. Additionally, the complete documentations on Isabelle are located in the accompanying above
-archive (for example in \<^dir>\<open>~~/src/Doc/Isar_Ref\<close>). \<close>
+\<^item> \<^emph>\<open>Quod Erat Demonstrandum!\<close> This already enables the support of C code inside the special
+brackets ``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as
+``\<open>\<open>\<close>\<close>'' for readability reasons. \<close>
 
-text \<open> To edit an existing C file, it suffices to replace:
+text \<open> Additionally, Isabelle/C comes with several features that can be alternatively
+explored:
+\<^item> Writing theorems and proofs along with C code becomes possible inside the special C
+comments \<^C>\<open>/*@ (* Isabelle content *) */\<close> --- newly supported by the project. The
+complete documentations on Isabelle can be found in the accompanying above archive (for example in
+\<^dir>\<open>$ISABELLE_HOME/src/Doc/Isar_Ref\<close>).
+
+\<^item> Instead of starting from scratch, existing C files can be opened with Isabelle/C, it
+suffices to replace:
 
 \begin{tabular}{c}
  \<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close> \\
@@ -312,8 +320,8 @@ text \<open> To edit an existing C file, it suffices to replace:
 
 Once done, one can press a CTRL-like key while hovering the mouse over the file name, then followed
 by a click on it to open a new window loading that file. In this situation, it is still possible to
-write \<^C>\<open>/*@ (* Isabelle content *) */\<close> at any position where C comments are
-usually allowed. \<close>
+write \<^C>\<open>/*@ (* Isabelle content *) */\<close> at any position where C comments are usually
+allowed. \<close>
 
 section \<open>Case Study: Mapping on the Parsed AST\<close>
 
