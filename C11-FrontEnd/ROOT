@@ -53,7 +53,6 @@ session Isabelle_C_examples = Isabelle_C + (* a standard test suite *)
   theories
     "examples/C1"
     "examples/C2"
-    "examples/C3"
     "examples/C_paper"
   document_files
     "root.tex"
