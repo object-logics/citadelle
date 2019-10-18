@@ -144,6 +144,8 @@ int a (int b) { return &a + b + c; }
 
 section \<open>Proofs inside C-Annotations\<close>
 
+\<comment> \<open>See also: \<^file>\<open>../../C11-BackEnds/AutoCorres_wrapper/examples/IsPrime_integrated.thy\<close>\<close>
+
 C \<open>
 #define SQRT_UINT_MAX 65536
 /*@ lemma uint_max_factor [simp]:
