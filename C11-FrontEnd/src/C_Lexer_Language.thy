@@ -186,14 +186,17 @@ fun scan_str q err_prefix stop =
 fun scan_strs q err_prefix err_suffix stop =
   Scan.ahead ($$ q) |--
     !!! (fn () => err_prefix ^ "unclosed string literal within " ^ err_suffix)
-      ((Symbol_Pos.scan_pos --| $$$ q) -- (Scan.repeats (scan_str q err_prefix stop) -- ($$$ q |-- Symbol_Pos.scan_pos)));
+      ((Symbol_Pos.scan_pos --| $$$ q)
+       -- (Scan.repeats (scan_str q err_prefix stop) -- ($$$ q |-- Symbol_Pos.scan_pos)));
 
 in
 
 fun scan_string_qq_multi err_prefix stop = scan_strs "\"" err_prefix "the comment delimiter" stop;
 fun scan_string_bq_multi err_prefix stop = scan_strs "`" err_prefix "the comment delimiter" stop;
-fun scan_string_qq_inline err_prefix = scan_strs "\"" err_prefix "the same line" C_Basic_Symbol_Pos.newline;
-fun scan_string_bq_inline err_prefix = scan_strs "`" err_prefix "the same line" C_Basic_Symbol_Pos.newline;
+fun scan_string_qq_inline err_prefix =
+  scan_strs "\"" err_prefix "the same line" C_Basic_Symbol_Pos.newline;
+fun scan_string_bq_inline err_prefix =
+  scan_strs "`" err_prefix "the same line" C_Basic_Symbol_Pos.newline;
 
 end;
 
@@ -218,8 +221,10 @@ fun scan_cartouche err_prefix err_suffix stop =
     !!! (fn () => err_prefix ^ "unclosed text cartouche within " ^ err_suffix)
       (Scan.provide is_none (SOME 0) (scan_cartouche_depth stop));
 
-fun scan_cartouche_multi err_prefix stop = scan_cartouche err_prefix "the comment delimiter" stop;
-fun scan_cartouche_inline err_prefix = scan_cartouche err_prefix "the same line" C_Basic_Symbol_Pos.newline;
+fun scan_cartouche_multi err_prefix stop =
+  scan_cartouche err_prefix "the comment delimiter" stop;
+fun scan_cartouche_inline err_prefix =
+  scan_cartouche err_prefix "the same line" C_Basic_Symbol_Pos.newline;
 
 
 (* C-style comments *)
@@ -296,7 +301,8 @@ val scan_body1' = $$$ "*" @@@ $$$ par_r
 val scan_body2 = Scan.one (fn (s, _) => s <> "*" andalso Symbol.not_eof s) >> single
 
 val scan_antiq_body_multi =
-  Scan.trace (C_Symbol_Pos.scan_string_qq_multi err_prefix scan_body1' || C_Symbol_Pos.scan_string_bq_multi err_prefix scan_body1') >> #2 ||
+  Scan.trace (C_Symbol_Pos.scan_string_qq_multi err_prefix scan_body1' ||
+              C_Symbol_Pos.scan_string_bq_multi err_prefix scan_body1') >> #2 ||
   C_Symbol_Pos.scan_cartouche_multi err_prefix scan_body1' ||
   scan_body1 ||
   scan_body2;
@@ -306,7 +312,8 @@ val scan_antiq_body_multi_recover =
   scan_body2;
 
 val scan_antiq_body_inline =
-  Scan.trace (C_Symbol_Pos.scan_string_qq_inline err_prefix || C_Symbol_Pos.scan_string_bq_inline err_prefix) >> #2 ||
+  Scan.trace (C_Symbol_Pos.scan_string_qq_inline err_prefix ||
+              C_Symbol_Pos.scan_string_bq_inline err_prefix) >> #2 ||
   C_Symbol_Pos.scan_cartouche_inline err_prefix ||
   unless_eof newline;
 
@@ -326,8 +333,10 @@ fun scan_antiq_multi scan =
                          -- Symbol_Pos.scan_pos))
 
 fun scan_antiq_multi_recover scan =
-  Symbol_Pos.scan_pos -- ($$ par_l |-- $$ "*" |-- scan -- Symbol_Pos.scan_pos --
-      (Scan.repeats scan_antiq_body_multi_recover -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos)))
+  Symbol_Pos.scan_pos
+  -- ($$ par_l |-- $$ "*" |-- scan -- Symbol_Pos.scan_pos --
+      (Scan.repeats scan_antiq_body_multi_recover
+       -- Symbol_Pos.scan_pos -- ($$ "*" |-- $$ par_r |-- Symbol_Pos.scan_pos)))
 
 fun scan_antiq_inline scan =
   (Symbol_Pos.scan_pos -- Scan.trace ($$ "/" |-- $$ "/" |-- scan)
@@ -376,8 +385,11 @@ val scan_antiq =
        body_end = []})
 
 val scan_antiq_recover =
-  scan_antiq_multi_recover ($$$ "@" >> K true || scan_body1 >> K false) >> (fn (_, ((explicit, _), _)) => explicit) ||
-  scan_antiq_inline_recover ($$$ "@" >> K true || $$$ "*" >> K false) >> (fn ((((_, explicit), _), _), _) => explicit)
+  scan_antiq_multi_recover ($$$ "@" >> K true || scan_body1 >> K false)
+    >> (fn (_, ((explicit, _), _)) => explicit)
+  ||
+  scan_antiq_inline_recover ($$$ "@" >> K true || $$$ "*" >> K false)
+   >> (fn ((((_, explicit), _), _), _) => explicit)
 
 end;
 
@@ -591,7 +603,8 @@ datatype token_kind_encoding =
  | Encoding_file of string (* error message *) option
 
 type token_kind_string =
-  token_kind_encoding * (Symbol.symbol, Position.range * int \<comment> \<open>exceeding \<^ML>\<open>Char.maxOrd\<close>\<close>) either list
+  token_kind_encoding
+  * (Symbol.symbol, Position.range * int \<comment> \<open>exceeding \<^ML>\<open>Char.maxOrd\<close>\<close>) either list
 
 datatype token_kind_int_repr = Repr_decimal
                              | Repr_hexadecimal
@@ -637,7 +650,8 @@ and token_group = Group1 of token list (* spaces and comments filtered from the 
                              * token list (* spaces and comments filtered from the directive *)
                              * token list (* directive: function *)
                              * token list (* directive: arguments (same line) *))
-                          * (Position.range * token list) (* C code or directive: arguments (following lines) *)
+                          * (Position.range * token list) (* C code or directive:
+                                                               arguments (following lines) *)
 
 and token = Token of Position.range * (token_kind * string);
 
@@ -723,7 +737,8 @@ fun cmp_pos x2 x1 = case Position.distance_of (pos_of x2, pos_of x1) of SOME dis
 fun merge_pos xs = case xs of (xs1, []) => xs1
                             | ([], xs2) => xs2
                             | (x1 :: xs1, x2 :: xs2) =>
-                                let val (x, xs) = (if cmp_pos x2 x1 then (x1, (xs1, x2 :: xs2)) else (x2, (x1 :: xs1, xs2)))
+                                let val (x, xs) = if cmp_pos x2 x1 then (x1, (xs1, x2 :: xs2))
+                                                                   else (x2, (x1 :: xs1, xs2))
                                 in x :: merge_pos xs end
 in
 fun merge_blank toks_bl xs1 xs2 =
@@ -756,14 +771,17 @@ fun warn0 pos l s =
           app (fn (s, pos) =>
                 if Symbol.is_printable s
                 then ()
-                else Output.information ("Not printable character " ^ @{make_string} (ord s, s) ^ Position.here pos))
+                else Output.information ("Not printable character " ^ @{make_string} (ord s, s)
+                                         ^ Position.here pos))
               (Symbol_Pos.explode (s, pos))
         else ())
   |> tap
        (fn _ =>
         app (fn Left _ => ()
               | Right ((pos1, _), n) =>
-                  Output.information ("Out of the supported range (character number " ^ Int.toString n ^ ")" ^ Position.here pos1))
+                  Output.information
+                    ("Out of the supported range (character number " ^ Int.toString n ^ ")"
+                     ^ Position.here pos1))
             l)
 
 
@@ -781,13 +799,18 @@ val warn = fn
   | Token ((pos, _), (String (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
   | Token ((pos, _), (Unknown, _)) => unknown pos
-  | Token (_, (Comment (Comment_suspicious (SOME (explicit, msg, _))), _)) => (if explicit then warning else tracing) msg
+  | Token (_, (Comment (Comment_suspicious (SOME (explicit, msg, _))), _)) =>
+      (if explicit then warning else tracing) msg
   | Token (_, (Directive (kind as Conditional _), _)) => app_directive (token_list_of kind)
   | Token (_, (Directive (Define (_, _, _, Group1 (_, toks4))), _)) => app_directive toks4
   | Token (_, (Directive (Include (Group2 (_, _, toks))), _)) =>
-    (case toks of [Token (_, (String _, _))] => ()
-                | [Token (_, (File _, _))] => ()
-                | _ => Output.information ("Expecting at least and at most one file" ^ Position.here (Position.range_position (pos_of (hd toks), end_pos_of (List.last toks)))))
+    (case toks of
+       [Token (_, (String _, _))] => ()
+     | [Token (_, (File _, _))] => ()
+     | _ => Output.information
+              ("Expecting at least and at most one file"
+               ^ Position.here
+                   (Position.range_position (pos_of (hd toks), end_pos_of (List.last toks)))))
   | _ => ();
 end
 
@@ -831,7 +854,9 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
        :: flat [ maps token_report1 [tok1]
                , maps token_report0 toks2
                , maps token_report0 toks_bl ]
-   | Directive (Define (Group1 (toks_bl1, tok1 :: _), Group1 (toks_bl2, _), toks3, Group1 (toks_bl4, toks4))) =>
+   | Directive
+       (Define
+         (Group1 (toks_bl1, tok1 :: _), Group1 (toks_bl2, _), toks3, Group1 (toks_bl4, toks4))) =>
        let val (toks_bl3, toks3) = case toks3 of SOME (Group1 x) => x | _ => ([], [])
        in ((pos, Markup.antiquoted), "")
          :: ((range_list_of0 toks4 |> #1, Markup.intensify), "")
@@ -873,7 +898,8 @@ fun token_report' escape_directive (tok as Token ((pos, _), (kind, x))) =
         :: flat [ maps token_report1 toks1
                 , maps token_report0 toks2
                 , maps token_report0 toks_bl ]
-   | Comment (Comment_suspicious c) => ((pos, Markup.ML_comment), "") :: (case c of NONE => [] | SOME (_, _, l) => l)
+   | Comment (Comment_suspicious c) => ((pos, Markup.ML_comment), "")
+                                       :: (case c of NONE => [] | SOME (_, _, l) => l)
    | x => [let val (markup, txt) = token_kind_markup0 x in ((pos, markup), txt) end]
 
 and token_report0 tok = token_report' false tok
@@ -1008,7 +1034,8 @@ val scan_floatdec =
        || many1_digit @@@ scan_exppart)
   @@@ opt scan_suffix_gnu_float
 
-val scan_floathex = scan_hex_pref @@@ (scan_hexmant || many1_hex) @@@ scan_signpart "p" "P" @@@ opt scan_suffix_gnu_float
+val scan_floathex = scan_hex_pref @@@ (scan_hexmant || many1_hex)
+                    @@@ scan_signpart "p" "P" @@@ opt scan_suffix_gnu_float
 val scan_floatfail = scan_hex_pref @@@ scan_hexmant
 in
 val scan_int = scan_inthex
@@ -1020,7 +1047,8 @@ val recover_int =
 
 val scan_float = scan_floatdec
               || scan_floathex
-              || scan_floatfail @@@ !!! "Hexadecimal floating constant requires an exponent" Scan.fail
+              || scan_floatfail @@@ !!! "Hexadecimal floating constant requires an exponent"
+                                        Scan.fail
 
 val scan_clangversion = many1_digit @@@ $$$ "." @@@ many1_digit @@@ $$$ "." @@@ many1_digit
 
@@ -1076,11 +1104,13 @@ fun scan_escape s0 =
   || $$ "u" |-- hex -- hex -- hex -- hex
      >> (fn (((x1, x2), x3), x4) => read_hex' [x1, x2, x3, x4])
   || $$ "U" |-- hex -- hex -- hex -- hex -- hex -- hex -- hex -- hex
-     >> (fn (((((((x1, x2), x3), x4), x5), x6), x7), x8) => read_hex' [x1, x2, x3, x4, x5, x6, x7, x8])
+     >> (fn (((((((x1, x2), x3), x4), x5), x6), x7), x8) =>
+          read_hex' [x1, x2, x3, x4, x5, x6, x7, x8])
   end
 
 fun scan_str s0 =
-     Scan.unless newline (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s0 andalso s <> "\\"))
+     Scan.unless newline
+                 (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s0 andalso s <> "\\"))
      >> (fn s => [Left (#1 s)])
   || Scan.ahead newline |-- !!! "bad newline" Scan.fail
   || $$ "\\" |-- !!! "bad escape character" (scan_escape s0);
@@ -1114,9 +1144,15 @@ val scan_file =
   let fun scan !!! s_l s_r =
     Scan.ahead ($$ s_l) |--
           !!!
-          ($$ s_l |-- Scan.repeats (Scan.unless newline (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r) >> (fn s => [Left (#1 s)]))) --| $$ s_r)
+          ($$ s_l
+           |-- Scan.repeats
+                 (Scan.unless newline
+                              (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r)
+                               >> (fn s => [Left (#1 s)])))
+           --| $$ s_r)
   in
-     Scan.trace (scan (!!! ("unclosed file literal")) "\"" "\"") >> (fn (s, src) => String (Encoding_file (scan_string' src), s))
+     Scan.trace (scan (!!! ("unclosed file literal")) "\"" "\"")
+       >> (fn (s, src) => String (Encoding_file (scan_string' src), s))
   || scan I \<comment> \<open>Due to conflicting symbols, raising \<^ML>\<open>Symbol_Pos.!!!\<close> here will not let a potential
                 legal \<^ML>\<open>"<"\<close> symbol be tried and parsed as a \<^emph>\<open>keyword\<close>.\<close>
             "<" ">" >> (fn s => File (Encoding_default, s))
@@ -1141,7 +1177,8 @@ val comments =
        (scan_token C_Antiquote.scan_antiq (Comment o Comment_formal))
        (fn msg => Scan.ahead C_Antiquote.scan_antiq_recover
                   -- C_Symbol_Pos.scan_comment_no_nest err_prefix
-                  >> (fn (explicit, res) => token (Comment (Comment_suspicious (SOME (explicit, msg, [])))) res)
+                  >> (fn (explicit, res) =>
+                       token (Comment (Comment_suspicious (SOME (explicit, msg, [])))) res)
                || Scan.fail_with (fn _ => fn _ => msg))
   || C_Symbol_Pos.scan_comment_no_nest err_prefix >> token (Comment (Comment_suspicious NONE))
 
@@ -1192,7 +1229,11 @@ fun !!! text scan =
 val pos_here_of = Position.here o pos_of
 
 fun one_directive f =
-  Scan.one (fn Token (_, (Directive (Inline (Group1 (_, Token (_, (Sharp 1, _)) :: Token (_, s) :: _))), _)) => f s
+  Scan.one (fn Token (_, (Directive ( Inline (Group1 (_, Token (_, (Sharp 1, _))
+                                                         :: Token (_, s)
+                                                         :: _)))
+                                    , _))
+                 => f s
              | _ => false)
 
 val get_cond = fn Token (pos, (Directive (Inline (Group1 (toks_bl, tok1 :: tok2 :: toks))), _)) =>
@@ -1208,88 +1249,116 @@ val one_else = one_directive (fn (Keyword, "else") => true | _ => false)
 val one_endif = one_directive (fn (Ident, "endif") => true | _ => false)
 
 val not_cond =
-  Scan.unless
-    (one_start_cond || one_elif || one_else || one_endif)
-    (one_not_eof
-     >> (fn Token (pos, ( Directive (Inline (Group1 ( toks_bl
-                                                    , (tok1 as Token (_, (Sharp _, _)))
-                                                      :: (tok2 as Token (_, (Ident, "include")))
-                                                      :: toks)))
-                        , s)) =>
-              Token (pos, ( case toks of [] =>
-                              Error ("Expecting at least one file" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
-                            | _ => Directive (Include (Group2 (toks_bl, [tok1, tok2], toks)))
-                          , s))
-          | Token (pos, ( Directive (Inline (Group1 ( toks_bl
-                                                    , (tok1 as Token (_, (Sharp _, _)))
-                                                      :: (tok2 as Token (_, (Ident, "define")))
-                                                      :: toks)))
-                        , s)) =>
-             let fun define tok3 toks = 
-               case
-                 case toks of
-                   (tok3' as Token (pos, (Keyword, "("(*)*)))) :: toks => 
-                     if Position.offset_of (end_pos_of tok3) = Position.offset_of (pos_of tok3')
-                     then let fun take_prefix' toks_bl toks_acc pos = fn
-                                 (tok1 as Token (_, (Ident, _))) :: (tok2 as Token (pos2, (Keyword, key))) :: toks =>
-                                   if key = ","
-                                   then take_prefix' (tok2 :: toks_bl) (tok1 :: toks_acc) pos2 toks
-                                   else if key = (*( *)")" then Left (rev (tok2 :: toks_bl), rev (tok1 :: toks_acc), toks)
-                                   else Right ("Expecting a colon delimiter or a closing parenthesis" ^ Position.here (#1 pos2))
-                               | Token (pos1, (Ident, _)) :: _ => Right ("Expecting a colon delimiter or a closing parenthesis" ^ Position.here (#2 pos1))
-                               | (tok1 as Token (_, (Keyword, key1))) :: (tok2 as Token (pos2, (Keyword, key2))) :: toks =>
-                                   if key1 = "..." then
-                                     if key2 = (*( *)")" then Left (rev (tok2 :: toks_bl), rev (tok1 :: toks_acc), toks)
-                                     else Right ("Expecting a closing parenthesis" ^ Position.here (#1 pos2))
-                                   else
-                                     Right ("Expecting an identifier or the keyword '...'" ^ Position.here (#2 pos))
-                               | _ => Right ("Expecting an identifier or the keyword '...'" ^ Position.here (#2 pos))
-                          in case
-                              case toks of
-                                (tok2 as Token (_, (Keyword, (*( *)")"))) :: toks => Left ([tok2], [], toks)
-                              | _ => take_prefix' [] [] pos toks
-                             of Left (toks_bl, toks_acc, toks) => Left (SOME (Group1 (tok3' :: toks_bl, toks_acc)), Group1 ([], toks))
-                              | Right x => Right x
-                          end
-                     else Left (NONE, Group1 ([], tok3' :: toks))
-                 | _ => Left (NONE, Group1 ([], toks))
-               of Left (gr1, gr2) =>
-                    Directive (Define (Group1 (toks_bl, [tok1, tok2]), Group1 ([], [tok3]), gr1, gr2))
-                | Right msg => Error (msg, Group2 (toks_bl, [tok1, tok2], tok3 :: toks))
-             in
-               Token (pos, ( case toks of
-                               (tok3 as Token (_, (Ident, _))) :: toks => define tok3 toks
-                             | (tok3 as Token (_, (Keyword, cts))) :: toks =>
-                                 if exists (fn cts0 => cts = cts0) keywords_ident
-                                 then define tok3 toks
-                                 else Error ("Expecting at least one identifier" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
-                             | _ => Error ("Expecting at least one identifier" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
-                           , s))
-             end
-          | Token (pos, ( Directive (Inline (Group1 ( toks_bl
-                                                    , (tok1 as Token (_, (Sharp _, _)))
-                                                      :: (tok2 as Token (_, (Ident, "undef")))
-                                                      :: toks)))
-                        , s)) =>
-              Token (pos, ( case toks of
-                              [Token (_, (Ident, _))] => Directive (Undef (Group2 (toks_bl, [tok1, tok2], toks)))
-                            | [Token (_, (Keyword, cts))] =>
-                                 if exists (fn cts0 => cts = cts0) keywords_ident
-                                 then Directive (Undef (Group2 (toks_bl, [tok1, tok2], toks)))
-                                 else Error ("Expecting at least and at most one identifier" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
-                            | _ => Error ("Expecting at least and at most one identifier" ^ Position.here (end_pos_of tok2), Group2 (toks_bl, [tok1, tok2], toks))
-                          , s))
-          | Token (pos, ( Directive (Inline (Group1 ( toks_bl
-                                                    , (tok1 as Token (_, (Sharp _, _)))
-                                                      :: (tok2 as Token (_, (Integer _, _)))
-                                                      :: (tok3 as Token (_, (String _, _)))
-                                                      :: toks)))
-                        , s)) =>
-              Token (pos, ( if forall is_integer toks then
-                              Directive (Cpp (Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks)))
-                            else Error ("Expecting an integer" ^ Position.here (drop_prefix is_integer toks |> hd |> pos_of), Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks))
-                          , s))
-          | x => x))
+ Scan.unless
+  (one_start_cond || one_elif || one_else || one_endif)
+  (one_not_eof
+   >>
+    (fn Token (pos, ( Directive (Inline (Group1 ( toks_bl
+                                                , (tok1 as Token (_, (Sharp _, _)))
+                                                  :: (tok2 as Token (_, (Ident, "include")))
+                                                  :: toks)))
+                    , s)) =>
+          Token (pos, ( case toks of [] =>
+                          Error ( "Expecting at least one file"
+                                  ^ Position.here (end_pos_of tok2)
+                                , Group2 (toks_bl, [tok1, tok2], toks))
+                        | _ => Directive (Include (Group2 (toks_bl, [tok1, tok2], toks)))
+                      , s))
+      | Token (pos, ( Directive (Inline (Group1 ( toks_bl
+                                                , (tok1 as Token (_, (Sharp _, _)))
+                                                  :: (tok2 as Token (_, (Ident, "define")))
+                                                  :: toks)))
+                    , s)) =>
+         let
+          fun define tok3 toks = 
+           case
+             case toks of
+               (tok3' as Token (pos, (Keyword, "("(*)*)))) :: toks => 
+                 if Position.offset_of (end_pos_of tok3) = Position.offset_of (pos_of tok3')
+                 then
+                  let
+                    fun right msg pos = Right (msg ^ Position.here pos)
+                    fun right1 msg = right msg o #1
+                    fun right2 msg = right msg o #2
+                    fun take_prefix' toks_bl toks_acc pos =
+                     fn
+                       (tok1 as Token (_, (Ident, _)))
+                       :: (tok2 as Token (pos2, (Keyword, key)))
+                       :: toks =>
+                         if key = ","
+                         then take_prefix' (tok2 :: toks_bl) (tok1 :: toks_acc) pos2 toks
+                         else if key = (*( *)")" then
+                           Left (rev (tok2 :: toks_bl), rev (tok1 :: toks_acc), toks)
+                         else
+                           right1 "Expecting a colon delimiter or a closing parenthesis" pos2
+                     | Token (pos1, (Ident, _)) :: _ =>
+                         right2 "Expecting a colon delimiter or a closing parenthesis" pos1
+                     | (tok1 as Token (_, (Keyword, key1)))
+                       :: (tok2 as Token (pos2, (Keyword, key2)))
+                       :: toks =>
+                         if key1 = "..." then
+                           if key2 = (*( *)")"
+                           then Left (rev (tok2 :: toks_bl), rev (tok1 :: toks_acc), toks)
+                           else right1 "Expecting a closing parenthesis" pos2
+                         else right2 "Expecting an identifier or the keyword '...'" pos
+                     | _ => right2 "Expecting an identifier or the keyword '...'" pos
+                  in case
+                      case toks of
+                        (tok2 as Token (_, (Keyword, (*( *)")"))) :: toks => Left ([tok2], [], toks)
+                      | _ => take_prefix' [] [] pos toks
+                     of Left (toks_bl, toks_acc, toks) =>
+                          Left (SOME (Group1 (tok3' :: toks_bl, toks_acc)), Group1 ([], toks))
+                      | Right x => Right x
+                  end
+                 else Left (NONE, Group1 ([], tok3' :: toks))
+             | _ => Left (NONE, Group1 ([], toks))
+           of Left (gr1, gr2) =>
+                Directive (Define (Group1 (toks_bl, [tok1, tok2]), Group1 ([], [tok3]), gr1, gr2))
+            | Right msg => Error (msg, Group2 (toks_bl, [tok1, tok2], tok3 :: toks))
+          fun err () = Error ( "Expecting at least one identifier" ^ Position.here (end_pos_of tok2)
+                             , Group2 (toks_bl, [tok1, tok2], toks))
+         in
+           Token (pos, ( case toks of
+                           (tok3 as Token (_, (Ident, _))) :: toks => define tok3 toks
+                         | (tok3 as Token (_, (Keyword, cts))) :: toks =>
+                             if exists (fn cts0 => cts = cts0) keywords_ident
+                             then define tok3 toks
+                             else err ()
+                         | _ => err ()
+                       , s))
+         end
+      | Token (pos, ( Directive (Inline (Group1 ( toks_bl
+                                                , (tok1 as Token (_, (Sharp _, _)))
+                                                  :: (tok2 as Token (_, (Ident, "undef")))
+                                                  :: toks)))
+                    , s)) =>
+          Token (pos, ( let fun err () = Error ( "Expecting at least and at most one identifier"
+                                                 ^ Position.here (end_pos_of tok2)
+                                               , Group2 (toks_bl, [tok1, tok2], toks))
+                        in
+                          case toks of
+                            [Token (_, (Ident, _))] =>
+                              Directive (Undef (Group2 (toks_bl, [tok1, tok2], toks)))
+                          | [Token (_, (Keyword, cts))] =>
+                              if exists (fn cts0 => cts = cts0) keywords_ident
+                              then Directive (Undef (Group2 (toks_bl, [tok1, tok2], toks)))
+                              else err ()
+                          | _ => err ()
+                        end
+                      , s))
+      | Token (pos, ( Directive (Inline (Group1 ( toks_bl
+                                                , (tok1 as Token (_, (Sharp _, _)))
+                                                  :: (tok2 as Token (_, (Integer _, _)))
+                                                  :: (tok3 as Token (_, (String _, _)))
+                                                  :: toks)))
+                    , s)) =>
+          Token (pos, ( if forall is_integer toks then
+                          Directive (Cpp (Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks)))
+                        else Error ( "Expecting an integer"
+                                     ^ Position.here (drop_prefix is_integer toks |> hd |> pos_of)
+                                   , Group2 (toks_bl, [tok1], tok2 :: tok3 :: toks))
+                      , s))
+      | x => x))
 
 fun scan_cond xs = xs |>
   (one_start_cond -- scan_cond_list
@@ -1332,7 +1401,8 @@ val scan_directive_cond0 =
 
 fun scan_directive_recover msg =
      not_cond
-  || one_not_eof >> (fn tok as Token (pos, (_, s)) => Token (pos, (Error (msg, get_cond tok []), s)))
+  || one_not_eof >>
+       (fn tok as Token (pos, (_, s)) => Token (pos, (Error (msg, get_cond tok []), s)))
 
 in
 
@@ -1379,7 +1449,8 @@ fun reader scan syms =
           val pos2 = Position.advance Symbol.space pos1;
         in [Token (Position.range (pos1, pos2), (Space, Symbol.space))] end;
 
-    val backslash1 = $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ C_Basic_Symbol_Pos.newline
+    val backslash1 =
+          $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ C_Basic_Symbol_Pos.newline
     val backslash2 = Scan.one (not o Symbol_Pos.is_eof)
 
     val input0 =
@@ -1428,7 +1499,10 @@ fun read_source' {language, symbols} scan source =
     |> reader scan
   end;
 
-val read_source = read_source' {language = Markup.language' {name = "C", symbols = false, antiquotes = true}, symbols = true} scan_ml;
+val read_source =
+  read_source' { language =
+                  Markup.language' {name = "C", symbols = false, antiquotes = true}, symbols = true}
+               scan_ml;
 
 end;
 

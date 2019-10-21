@@ -76,7 +76,11 @@ fun clean_name "\<dots>" = "dots"
   | clean_name "_" = "underscore"
   | clean_name "{" = "braceleft"
   | clean_name "}" = "braceright"
-  | clean_name s = s |> translate (fn "_" => "-" | "\<hyphen>" => "-" | "\<approx>" => "symbol-lower-approx" | "\<Down>" => "symbol-upper-down" | c => c);
+  | clean_name s = s |> translate (fn "_" => "-"
+                                    | "\<hyphen>" => "-"
+                                    | "\<approx>" => "symbol-lower-approx"
+                                    | "\<Down>" => "symbol-upper-down"
+                                    | c => c);
 
 
 (* Isabelle/Isar entities (with index) *)

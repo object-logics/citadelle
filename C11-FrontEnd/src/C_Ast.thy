@@ -158,7 +158,11 @@ type CAssignOp = C_Ast.cAssignOp
 type Comment = C_Ast.comment
 (**)
 type 'a Reversed = 'a
-datatype CDeclrR = CDeclrR0 of C_Ast.ident C_Ast.optiona * NodeInfo C_Ast.cDerivedDeclarator list Reversed * NodeInfo C_Ast.cStringLiteral C_Ast.optiona * NodeInfo C_Ast.cAttribute list * NodeInfo
+datatype CDeclrR = CDeclrR0 of C_Ast.ident C_Ast.optiona
+                             * NodeInfo C_Ast.cDerivedDeclarator list Reversed
+                             * NodeInfo C_Ast.cStringLiteral C_Ast.optiona
+                             * NodeInfo C_Ast.cAttribute list
+                             * NodeInfo
 type 'a Maybe = 'a C_Ast.optiona
 datatype 'a Located = Located of 'a * (C_Ast.position * (C_Ast.position * int))
 (**)

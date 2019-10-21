@@ -85,7 +85,8 @@ val _ = Theory.setup
 end
 \<close>
 
-text\<open>The next command is predefined here, so that the example below can later refer to the constant.\<close>
+text \<open> The next command is predefined here, so that the example below can later refer to the
+constant. \<close>
 definition [simplified]: "UINT_MAX \<equiv> (2 :: nat) ^ 32 - 1"
 
 section \<open>Defining Annotation Commands\<close>

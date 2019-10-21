@@ -65,7 +65,8 @@ fun err_dup_command name ps =
 (* command parsers *)
 
 datatype command_parser =
-  Parser of (Symbol_Pos.T list * (bool * Symbol_Pos.T list)) * Position.range -> C_Env.eval_time c_parser;
+  Parser of (Symbol_Pos.T list * (bool * Symbol_Pos.T list)) * Position.range ->
+            C_Env.eval_time c_parser;
 
 datatype command = Command of
  {comment: string,

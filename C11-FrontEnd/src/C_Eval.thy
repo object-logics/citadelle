@@ -41,7 +41,8 @@ theory C_Eval
           C_Parser_Annotation
 begin
 
-subsection \<open>Evaluation Engine for the Core Language\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>\<close>
+subsection \<open>Evaluation Engine for the Core Language\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>:
+                                                        \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>\<close>
 
 ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Environment\<close>\<close> \<open>
 structure C_Stack =
@@ -136,7 +137,8 @@ struct
   type state = C_Grammar.ParserData.LALR_Table.state
 end
 
-type stack = (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) C_Env.stack'
+type stack =
+       (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) C_Env.stack'
 
 fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (arg, stack_ml))
  (fn [] => I | l :: ls =>
@@ -150,12 +152,14 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
           I #>>
           (case ml_exec of
              (_, C_Env.Bottom_up (C_Env.Exec_annotation exec), env_dir, _) =>
-              (fn arg => C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack, #env_lang arg) (exec NONE))
+              (fn arg => C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack, #env_lang arg)
+                                                                        (exec NONE))
                                             arg)
            | (_, C_Env.Bottom_up (C_Env.Exec_directive exec), env_dir, _) =>
               C_Env.map_env_lang_tree (curry (exec NONE env_dir))
            | ((pos, _), _, _, _) =>
-              C_Env_Ext.map_context (fn _ => error ("Style of evaluation not yet implemented" ^ Position.here pos)))
+              C_Env_Ext.map_context (fn _ => error ( "Style of evaluation not yet implemented"
+                                                   ^ Position.here pos)))
         else
           I ##>
           let
@@ -164,11 +168,21 @@ fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (ar
             fn stack_ml =>
               stack_ml
               |> (if length stack_ml <= len then
-                   tap (fn _ => warning ("Maximum depth reached (" ^ Int.toString (len - length stack_ml + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position)))
-                   #> tap (fn _ => warning ("Unevaluated code" ^ Position.here (ml_exec |> #1 |> Position.range_position)))
+                   tap (fn _ => warning ("Maximum depth reached ("
+                                         ^ Int.toString (len - length stack_ml + 1)
+                                         ^ " in excess)"
+                                         ^ Position.here (Symbol_Pos.range syms
+                                                          |> Position.range_position)))
+                   #> tap (fn _ => warning ("Unevaluated code"
+                                            ^ Position.here (ml_exec |> #1
+                                                                     |> Position.range_position)))
                    #> I
                   else if length stack_ml - len <= 2 then
-                   tap (fn _ => warning ("Unevaluated code as the hook is pointing to an internal initial value" ^ Position.here (ml_exec |> #1 |> Position.range_position)))
+                   tap
+                     (fn _ =>
+                       warning ("Unevaluated code\
+                                \ as the hook is pointing to an internal initial value"
+                                ^ Position.here (ml_exec |> #1 |> Position.range_position)))
                    #> I
                   else nth_map len (cons ml_exec))
           end
@@ -192,7 +206,9 @@ fun add_stream_hook (syms_shift, syms, ml_exec) =
                                            | [] => [[(syms_shift, syms, ml_exec)]]))
 
 fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
-  let val (token, arg) = C_Env_Ext.map_stream_lang' (fn (st, []) => (NONE, (st, [])) | (st, x :: xs) => (SOME x, (st, xs))) arg
+  let val (token, arg) = C_Env_Ext.map_stream_lang' (fn (st, []) => (NONE, (st, []))
+                                                      | (st, x :: xs) => (SOME x, (st, xs)))
+                                                    arg
       fun return0' f =
         (arg, stack_ml)
         |> advance_hook stack
@@ -227,7 +243,11 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
               fold (uncurry
                      (fn pos => 
                        fold_rev (fn (syms, _, _) => fn () =>
-                                  let val () = error ("Maximum depth reached (" ^ Int.toString (pos + 1) ^ " in excess)" ^ Position.here (Symbol_Pos.range syms |> Position.range_position))
+                                  let val () = error ("Maximum depth reached ("
+                                                      ^ Int.toString (pos + 1)
+                                                      ^ " in excess)"
+                                                      ^ Position.here (Symbol_Pos.range syms
+                                                                       |> Position.range_position))
                                   in () end)))
                    (map_index I (#stream_hook arg))
                    ()))
@@ -255,8 +275,9 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                         , []
                         , ( Position.no_range
                           , C_Env.Bottom_up (C_Env.Exec_directive
-                                              (dir |> (case Symtab.lookup (C_Context0.Directives.get context)
-                                                                          (C_Lex.content_of dir_tok)
+                                              (dir |> (case Symtab.lookup
+                                                              (C_Context0.Directives.get context)
+                                                              (C_Lex.content_of dir_tok)
                                                        of NONE => K (K (K I))
                                                         | SOME (_, _, (_, exec)) => exec)))
                            , Symtab.empty
@@ -267,29 +288,41 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
      | SOME (Right (C_Lex.Token ((pos1, pos2), (tok, src)))) =>
       case tok of 
         C_Lex.String (C_Lex.Encoding_file (SOME err), _) =>
-        return0' (apfst (C_Env.map_env_tree (C_Env.map_error_lines (cons (err ^ Position.here pos1)))))
+        return0' (apfst
+                   (C_Env.map_env_tree (C_Env.map_error_lines (cons (err ^ Position.here pos1)))))
                  (token_err pos1 pos2 src)
       | _ =>
         return0
           (case tok of
              C_Lex.Char (b, [c]) =>
-              C_Grammar.Tokens.cchar (CChar (From_char_hd (case c of Left c => c | _ => chr 0)) (encoding b), pos1, pos2)
+              C_Grammar.Tokens.cchar
+                (CChar (From_char_hd (case c of Left c => c | _ => chr 0)) (encoding b), pos1, pos2)
            | C_Lex.String (b, s) =>
-              C_Grammar.Tokens.cstr (CString0 (From_string (implode (map (fn Left s => s | Right _ => chr 0) s)), encoding b), pos1, pos2)
+              C_Grammar.Tokens.cstr
+                (CString0 ( From_string ( implode (map (fn Left s => s | Right _ => chr 0) s))
+                                        , encoding b)
+                          , pos1
+                          , pos2)
            | C_Lex.Integer (i, repr, flag) =>
               C_Grammar.Tokens.cint
-               ( CInteger i (case repr of C_Lex.Repr_decimal => DecRepr0 | C_Lex.Repr_hexadecimal => HexRepr0 | C_Lex.Repr_octal => OctalRepr0)
-                   (C_Lex.read_bin (fold (fn flag => map (fn (bit, flag0) =>
-                                                           ( if flag0 = (case flag of C_Lex.Flag_unsigned => FlagUnsigned0
-                                                                         | C_Lex.Flag_long => FlagLong0
-                                                                         | C_Lex.Flag_long_long => FlagLongLong0
-                                                                         | C_Lex.Flag_imag => FlagImag0)
-                                                             then "1"
-                                                             else bit
-                                                           , flag0)))
-                                         flag
-                                         ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev |> map (pair "0"))
-                                    |> map #1)
+               ( CInteger i (case repr of C_Lex.Repr_decimal => DecRepr0
+                                        | C_Lex.Repr_hexadecimal => HexRepr0
+                                        | C_Lex.Repr_octal => OctalRepr0)
+                   (C_Lex.read_bin
+                     (fold (fn flag =>
+                             map (fn (bit, flag0) =>
+                                   ( if flag0 = (case flag of
+                                                   C_Lex.Flag_unsigned => FlagUnsigned0
+                                                 | C_Lex.Flag_long => FlagLong0
+                                                 | C_Lex.Flag_long_long => FlagLongLong0
+                                                 | C_Lex.Flag_imag => FlagImag0)
+                                     then "1"
+                                     else bit
+                                   , flag0)))
+                           flag
+                           ([FlagUnsigned, FlagLong, FlagLongLong, FlagImag] |> rev
+                                                                             |> map (pair "0"))
+                      |> map #1)
                     |> Flags)
                , pos1
                , pos2)
@@ -297,7 +330,10 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
               C_Grammar.Tokens.cfloat (CFloat (From_string (implode (map #1 s))), pos1, pos2)
            | C_Lex.Ident => 
               let val (name, arg) = C_Grammar_Rule_Lib.getNewName arg
-                  val ident0 = C_Grammar_Rule_Lib.mkIdent (C_Grammar_Rule_Lib.posOf' false (pos1, pos2)) src name
+                  val ident0 = C_Grammar_Rule_Lib.mkIdent
+                                 (C_Grammar_Rule_Lib.posOf' false (pos1, pos2))
+                                 src
+                                 name
               in if C_Grammar_Rule_Lib.isTypeIdent src arg then
                    C_Grammar.Tokens.tyident (ident0, pos1, pos2)
                  else
@@ -329,11 +365,17 @@ fun exec_tree write msg (Tree ({rule_pos, rule_type}, l_tree)) =
     Void => write msg rule_pos "VOID" NONE
   | Shift => write msg rule_pos "SHIFT" NONE
   | Reduce (rule_static, (rule0, vacuous, rule_antiq)) =>
-      write msg rule_pos ("REDUCE " ^ Int.toString rule0 ^ " " ^ (if vacuous then "X" else "O")) (SOME (C_Grammar_Rule.string_reduce rule0 ^ " " ^ C_Grammar_Rule.type_reduce rule0))
+      write
+        msg
+        rule_pos
+        ("REDUCE " ^ Int.toString rule0 ^ " " ^ (if vacuous then "X" else "O"))
+        (SOME (C_Grammar_Rule.string_reduce rule0 ^ " " ^ C_Grammar_Rule.type_reduce rule0))
       #> (case rule_static of SOME rule_static => rule_static #>> SOME | NONE => pair NONE)
       #-> (fn env_lang =>
             fold (fn (stack0, env_lang0, (_, C_Env.Top_down exec, env_dir, _)) =>
-                     C_Stack.stack_exec env_dir (stack0, Option.getOpt (env_lang, env_lang0)) (exec (SOME rule0))
+                     C_Stack.stack_exec env_dir
+                                        (stack0, Option.getOpt (env_lang, env_lang0))
+                                        (exec (SOME rule0))
                    | _ => I)
                  rule_antiq)
       #> fold (exec_tree write (msg ^ " ")) l_tree
@@ -341,10 +383,12 @@ fun exec_tree write msg (Tree ({rule_pos, rule_type}, l_tree)) =
 fun exec_tree' l env_tree = env_tree
   |> fold (exec_tree let val ctxt = Context.proof_of (#context env_tree)
                          val write =
-                           if Config.get ctxt C_Options.parser_trace andalso Context_Position.is_visible ctxt
-                              then fn f => tap (tracing o f) else K I
+                           if Config.get ctxt C_Options.parser_trace
+                              andalso Context_Position.is_visible ctxt
+                           then fn f => tap (tracing o f) else K I
                      in fn msg => fn (p1, p2) => fn s1 => fn s2 =>
-                       write (fn _ => msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2 ^ (case s2 of SOME s2 => " " ^ s2 | NONE => ""))
+                       write (fn _ => msg ^ s1 ^ " " ^ Position.here p1 ^ " " ^ Position.here p2
+                                          ^ (case s2 of SOME s2 => " " ^ s2 | NONE => ""))
                      end
                      "")
           l
@@ -358,20 +402,28 @@ fun eval env_lang start err accept stream_lang =
       ( 0
       , uncurry_context (fn (next_pos1, next_pos2) => fn (stack, _, _, stack_tree) => fn env_lang =>
           C_Env.map_reports_text
-            (cons ( ( Position.range_position (case hd stack of (_, (_, pos1, pos2)) => (pos1, pos2))
+            (cons ( ( Position.range_position (case hd stack of (_, (_, pos1, pos2)) =>
+                                                                  (pos1, pos2))
                     , Markup.bad ())
                   , "")
             #> (case rev (tl stack) of
                   _ :: _ :: stack =>
                  append
-                   (map_filter (fn (pos1, pos2) =>
-                                if Position.offset_of pos1 = Position.offset_of pos2
-                                then NONE
-                                else SOME ((Position.range_position (pos1, pos2), Markup.intensify), ""))
-                              ((next_pos1, next_pos2) :: map (fn (_, (_, pos1, pos2)) => (pos1, pos2)) stack))
+                   (map_filter
+                     (fn (pos1, pos2) =>
+                      if Position.offset_of pos1 = Position.offset_of pos2
+                      then NONE
+                      else SOME ((Position.range_position (pos1, pos2), Markup.intensify), ""))
+                     ((next_pos1, next_pos2)
+                      :: map (fn (_, (_, pos1, pos2)) => (pos1, pos2)) stack))
                 | _ => I))
           #> exec_tree' (rev stack_tree)
-          #> err env_lang stack (Position.range_position (case hd stack_tree of Tree ({rule_pos = (rule_pos1, _), ...}, _) => (rule_pos1, next_pos2))))
+          #> err
+               env_lang
+               stack
+               (Position.range_position
+                 (case hd stack_tree of Tree ({rule_pos = (rule_pos1, _), ...}, _) =>
+                                          (rule_pos1, next_pos2))))
       , Position.none
       , start
       , uncurry_context (fn _ => fn (stack, _, _, stack_tree) => fn env_lang =>
@@ -391,7 +443,8 @@ fun eval env_lang start err accept stream_lang =
           in
             ( (delayed, map (fn x => (stack0, env_lang, x)) actual, rule_output)
             , fold (fn (_, C_Env.Bottom_up (C_Env.Exec_annotation exec), env_dir, _) =>
-                       C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack0, env_lang) (exec (SOME rule0)))
+                       C_Env.map_env_tree
+                         (C_Stack.stack_exec env_dir (stack0, env_lang) (exec (SOME rule0)))
                      | (_, C_Env.Bottom_up (C_Env.Exec_directive exec), env_dir, _) =>
                        C_Env.map_env_lang_tree (curry (exec (SOME rule0) env_dir))
                      | _ => I)
@@ -403,7 +456,9 @@ fun eval env_lang start err accept stream_lang =
 end
 \<close>
 
-subsection \<open>Full Evaluation Engine (Core Language with Annotations)\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>: \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>, \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>\<close>
+subsection \<open>Full Evaluation Engine (Core Language with Annotations)\<close> \<comment> \<open>\<^file>\<open>~~/src/Pure/Thy/thy_info.ML\<close>:
+                                                                         \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>,
+                                                                         \<^theory>\<open>Isabelle_C.C_Parser_Annotation\<close>\<close>
 
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/ML/ml_context.ML\<close>\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
@@ -475,7 +530,11 @@ fun markup_directive_command data =
 fun directive_update (name, pos) f tab =
   let val pos = [pos]
       val data = (pos, serial (), f)
-      val _ = Position.reports_text (markup_directive_command (C_Ast.Left (data, C_Env_Ext.list_lookup tab name)) pos name [])
+      val _ = Position.reports_text
+                (markup_directive_command (C_Ast.Left (data, C_Env_Ext.list_lookup tab name))
+                                          pos
+                                          name
+                                          [])
   in Symtab.update (name, data) tab end
 
 fun markup_directive_define in_direct =
@@ -484,7 +543,8 @@ fun markup_directive_define in_direct =
     "directive define"
     (fn cons' => fn def => fn err => 
          (if def orelse in_direct then I else cons' Markup.language_antiquotation)
-      #> (case err of C_Ast.Left _ => I | C_Ast.Right (_, msg, f) => tap (fn _ => Output.information msg) #> f)
+      #> (case err of C_Ast.Left _ => I
+                    | C_Ast.Right (_, msg, f) => tap (fn _ => Output.information msg) #> f)
       #> (if def then cons' Markup.free else if in_direct then I else cons' Markup.antiquote))
 
 fun eval env start err accept (ants, ants_err) {context, reports_text, error_lines} =
@@ -497,13 +557,31 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                  , antiq
                  , l_comm
                  , if forall (fn Right _ => true | _ => false) res then
-                     let val (l_msg, res) = split_list (map_filter (fn Right (msg, l_report, l_tok) => SOME (msg, (l_report, l_tok)) | _ => NONE) res)
+                     let val (l_msg, res) =
+                           split_list (map_filter (fn Right (msg, l_report, l_tok) =>
+                                                      SOME (msg, (l_report, l_tok))
+                                                    | _ => NONE)
+                                                  res)
                          val (l_report, l_tok) = split_list res
-                     in [(C_Env.Antiq_none (C_Lex.Token (pos, ((C_Lex.Comment o C_Lex.Comment_suspicious o SOME) (explicit, cat_lines l_msg, if explicit then flat l_report else []), cts))), l_tok)] end
+                     in [( C_Env.Antiq_none
+                             (C_Lex.Token
+                              (pos, ( (C_Lex.Comment o C_Lex.Comment_suspicious o SOME)
+                                        ( explicit
+                                        , cat_lines l_msg
+                                        , if explicit then flat l_report else [])
+                                    , cts)))
+                         , l_tok)]
+                     end
                    else
                      map (fn Left x => x
                            | Right (msg, l_report, tok) =>
-                               (C_Env.Antiq_none (C_Lex.Token (C_Token.range_of [tok], ((C_Lex.Comment o C_Lex.Comment_suspicious o SOME) (explicit, msg, l_report), C_Token.content_of tok))), [tok]))
+                               (C_Env.Antiq_none
+                                 (C_Lex.Token
+                                   ( C_Token.range_of [tok]
+                                   , ( (C_Lex.Comment o C_Lex.Comment_suspicious o SOME)
+                                         (explicit, msg, l_report)
+                                     , C_Token.content_of tok)))
+                               , [tok]))
                          res)
            end
 
@@ -514,7 +592,10 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
 
       fun map_ants f1 f2 = maps (fn Left x => f1 x | Right tok => f2 tok)
 
-      val ants_none = map_ants (fn (_, _, _, l) => maps (fn (C_Env.Antiq_none x, _) => [x] | _ => []) l) (K []) ants
+      val ants_none =
+            map_ants (fn (_, _, _, l) => maps (fn (C_Env.Antiq_none x, _) => [x] | _ => []) l)
+                     (K [])
+                     ants
 
       val _ = Position.reports (maps (fn Left (_, _, _, [(C_Env.Antiq_none _, _)]) => []
                                        | Left (_, {start, stop, range = (pos, _), ...}, _, _) =>
@@ -524,13 +605,17 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                                              (pos, Markup.language_antiquotation)]
                                        | _ => [])
                                      ants);
-      val _ = Position.reports_text (maps C_Lex.token_report ants_none
-                                     @ maps (fn Left (_, _, _, [(C_Env.Antiq_none _, _)]) => []
-                                              | Left (_, _, l, ls) =>
-                                                  maps (fn (C_Env.Antiq_stack (pos, _), _) => pos | _ => []) ls
-                                                  @ maps (maps (C_Token.reports (C_Thy_Header.get_keywords (Context.theory_of context)))) (l :: map #2 ls)
-                                              | _ => [])
-                                            ants);
+      val _ =
+        Position.reports_text
+          (maps C_Lex.token_report ants_none
+           @ maps (fn Left (_, _, _, [(C_Env.Antiq_none _, _)]) => []
+                    | Left (_, _, l, ls) =>
+                        maps (fn (C_Env.Antiq_stack (pos, _), _) => pos | _ => []) ls
+                        @ maps (maps (C_Token.reports (C_Thy_Header.get_keywords
+                                                        (Context.theory_of context))))
+                               (l :: map #2 ls)
+                    | _ => [])
+                  ants);
       val error_lines = C_Lex.check ants_none error_lines;
 
       val ((ants, {context, reports_text, error_lines}), env) =
@@ -544,16 +629,27 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                       NONE => (Right (Left tok), (env_dir, env_tree))
                     | SOME (data as (_, _, toks)) =>
                           ( Right (Right (pos1, map (C_Lex.set_range range1) toks))
-                          , (env_dir, markup_directive_define false (C_Ast.Right ([pos1], SOME data)) [pos1] name env_tree))
+                          , ( env_dir
+                            , markup_directive_define
+                                false
+                                (C_Ast.Right ([pos1], SOME data))
+                                [pos1]
+                                name
+                                env_tree))
                 in
                  fn Left (tag, antiq, toks, l_antiq) =>
-                      fold_map (fn antiq as (C_Env.Antiq_stack (_, C_Env.Lexing (_, exec)), _) =>
-                                     apsnd (C_Stack.stack_exec0 (exec C_Env.Comment_language)) #> pair antiq
-                                 | (C_Env.Antiq_stack (rep, C_Env.Parsing (syms, (range, exec, _, skip))), toks) =>
-                                     (fn env as (env_dir, _) =>
-                                       ((C_Env.Antiq_stack (rep, C_Env.Parsing (syms, (range, exec, env_dir, skip))), toks), env))
-                                 | antiq => pair antiq)
-                               l_antiq
+                      fold_map
+                       (fn antiq as (C_Env.Antiq_stack (_, C_Env.Lexing (_, exec)), _) =>
+                             apsnd (C_Stack.stack_exec0 (exec C_Env.Comment_language)) #> pair antiq
+                         | (C_Env.Antiq_stack
+                             (rep, C_Env.Parsing (syms, (range, exec, _, skip))), toks) =>
+                             (fn env as (env_dir, _) =>
+                               ( ( C_Env.Antiq_stack
+                                    (rep, C_Env.Parsing (syms, (range, exec, env_dir, skip)))
+                                 , toks)
+                               , env))
+                         | antiq => pair antiq)
+                       l_antiq
                       #> apfst (fn l_antiq => Left (tag, antiq, toks, l_antiq))
                   | Right tok =>
                   case tok of
@@ -565,17 +661,22 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                                 val pos1 = [C_Lex.pos_of dir_tok]
                                 val data = Symtab.lookup (C_Context0.Directives.get context) name
                             in
-                              apsnd (apsnd (C_Env.map_reports_text (markup_directive_command (C_Ast.Right (pos1, data)) pos1 name)))
+                              apsnd (apsnd (C_Env.map_reports_text (markup_directive_command
+                                                                     (C_Ast.Right (pos1, data))
+                                                                     pos1
+                                                                     name)))
                               #> (case data of NONE => I | SOME (_, _, (exec, _)) => exec dir #> #2)
                             end)
                           (C_Lex.directive_cmds dir)
                       #> snd
                       #> tap
                            (fn _ =>
-                             app (fn C_Lex.Token ((pos, _), (C_Lex.Comment (C_Lex.Comment_formal _), _)) =>
+                             app (fn C_Lex.Token ( (pos, _)
+                                                 , (C_Lex.Comment (C_Lex.Comment_formal _), _)) =>
                                      (Position.reports_text [((pos, Markup.ML_comment), "")];
                                       (* not yet implemented *)
-                                      warning ("Ignored annotation in directive" ^ Position.here pos))
+                                      warning ("Ignored annotation in directive"
+                                               ^ Position.here pos))
                                    | _ => ())
                                  (C_Lex.token_list_of dir))
                       #> pair (Right (Left tok))
@@ -584,7 +685,8 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                   | _ => pair (Right (Left tok))
                 end
                 ants
-                (env_dir, {context = context, reports_text = reports_text, error_lines = error_lines})
+                ( env_dir
+                , {context = context, reports_text = reports_text, error_lines = error_lines})
             in ((ants, env_tree), env_dir) end)
           env
 
@@ -592,20 +694,23 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
         map_ants (single o Left o (fn (_, a, _, l) => (a, maps (single o #1) l)))
                  (map Right o (fn Left tok => [tok] | Right (_, toks) => toks))
                  ants
-      val _ = Position.reports_text (maps (fn Right (Left tok) => C_Lex.token_report tok
-                                            | Right (Right (pos, [])) => [((pos, Markup.intensify), "")]
-                                            | _ => [])
-                                          ants);
+      val _ =
+          Position.reports_text (maps (fn Right (Left tok) => C_Lex.token_report tok
+                                        | Right (Right (pos, [])) => [((pos, Markup.intensify), "")]
+                                        | _ => [])
+                                      ants);
       val ctxt = Context.proof_of context
       val () = if Config.get ctxt C_Options.lexer_trace andalso Context_Position.is_visible ctxt
                then print (map_filter (fn Right x => SOME x | _ => NONE) ants_stack)
                else ()
-  in C_Language.eval env
-                     start
-                     err
-                     accept
-                     ants_stack
-                     {context = context, reports_text = reports_text, error_lines = error_lines} end
+  in
+   C_Language.eval env
+                   start
+                   err
+                   accept
+                   ants_stack
+                   {context = context, reports_text = reports_text, error_lines = error_lines}
+  end
 
 
 (* derived versions *)
@@ -631,12 +736,15 @@ fun eval_in o_context env start err accept toks =
     (fn () => eval' env start err accept toks) ();
 
 fun expression struct_open range name constraint body ants context = context |>
-  ML_Context.exec let val verbose = Config.get (Context.proof_of context) C_Options.ML_verbose
-                  in fn () =>
-    ML_Context.eval (ML_Compiler.verbose verbose ML_Compiler.flags) (#1 range)
-     (ML_Lex.read ("Context.put_generic_context (SOME (let open " ^ struct_open ^ " val ") @ ML_Lex.read_set_range range name @
-      ML_Lex.read (": " ^ constraint ^ " =") @ ants @
-      ML_Lex.read ("in " ^ body ^ " end (Context.the_generic_context ())));")) end;
+  ML_Context.exec
+    let val verbose = Config.get (Context.proof_of context) C_Options.ML_verbose
+    in fn () =>
+      ML_Context.eval (ML_Compiler.verbose verbose ML_Compiler.flags) (#1 range)
+       (ML_Lex.read ("Context.put_generic_context (SOME (let open " ^ struct_open ^ " val ") @
+                                                                 ML_Lex.read_set_range range name @
+        ML_Lex.read (": " ^ constraint ^ " =") @ ants @
+        ML_Lex.read ("in " ^ body ^ " end (Context.the_generic_context ())));"))
+    end;
 end
 \<close>
 

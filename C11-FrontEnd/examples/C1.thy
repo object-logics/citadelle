@@ -68,29 +68,43 @@ fun print_top' _ f _ (_, (_, pos1, pos2)) env thy =
 
 fun print_stack s make_string stack _ _ thy =
   let
-    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
+    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ")
+                                ^ Int.toString (length stack - 1) ^ "    +1 ")
     val () = stack
           |> split_list
           |> #2
           |> map_index I
-          |> app (fn (i, (value, pos1, pos2)) => writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
+          |> app (fn (i, (value, pos1, pos2)) =>
+                   writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value
+                            ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
   in thy end
 
 fun print_stack' s _ stack _ env thy =
   let
-    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ") ^ Int.toString (length stack - 1) ^ "    +1 ")
+    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ")
+                                ^ Int.toString (length stack - 1) ^ "    +1 ")
     val () = writeln ("ENV " ^ C_Env.string_of env)
   in thy end
 \<close>
 
 setup \<open>ML_Antiquotation.inline @{binding print_top}
-                               (Args.context >> K ("print_top " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
+                               (Args.context
+                                >> K ("print_top " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
 setup \<open>ML_Antiquotation.inline @{binding print_top'}
-                               (Args.context >> K ("print_top' " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
+                               (Args.context
+                                >> K ("print_top' " ^ ML_Pretty.make_string_fn ^ " I"))\<close>
 setup \<open>ML_Antiquotation.inline @{binding print_stack}
-                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("print_stack " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
+                               (Scan.peek (fn _ => Scan.option Args.text)
+                                >> (fn name => ("print_stack "
+                                                ^ (case name of NONE => "NONE"
+                                                              | SOME s => "(SOME \"" ^ s ^ "\")")
+                                                ^ " " ^ ML_Pretty.make_string_fn)))\<close>
 setup \<open>ML_Antiquotation.inline @{binding print_stack'}
-                               (Scan.peek (fn _ => Scan.option Args.text) >> (fn name => ("print_stack' " ^ (case name of NONE => "NONE" | SOME s => "(SOME \"" ^ s ^ "\")") ^ " " ^ ML_Pretty.make_string_fn)))\<close>
+                               (Scan.peek (fn _ => Scan.option Args.text)
+                                >> (fn name => ("print_stack' "
+                                                ^ (case name of NONE => "NONE"
+                                                              | SOME s => "(SOME \"" ^ s ^ "\")")
+                                                ^ " " ^ ML_Pretty.make_string_fn)))\<close>
 
 declare[[C_lexer_trace]]
 
@@ -136,8 +150,10 @@ int a = (((0
       + 5)))  /*@@ \<approx>setup \<open>fn _ => fn (_, (value, pos1, pos2)) => fn _ => fn context =>
                           let
                             val () = writeln (@{make_string} value)
-                            val () = Position.reports_text [((Position.range (pos1, pos2) 
-                                                              |> Position.range_position, Markup.intensify), "")]
+                            val () = Position.reports_text [( ( Position.range (pos1, pos2)
+                                                                |> Position.range_position
+                                                              , Markup.intensify)
+                                                            , "")]
                           in context end\<close>
                */
       * 4; 
@@ -244,7 +260,8 @@ structure Example_Data = Generic_Data (type T = string list
 fun add_ex s1 s2 =
   Example_Data.map (cons s2)
   #> (fn context => let val () = warning (s1 ^ s2)
-                        val () = app (fn s => writeln ("  Data content: " ^ s)) (Example_Data.get context)
+                        val () = app (fn s => writeln ("  Data content: " ^ s))
+                                     (Example_Data.get context)
                     in context end)
 \<close>
 
@@ -593,7 +610,8 @@ setup \<open>C_Module.C_Term.map_expression (fn _ => fn _ => fn _ => @{term "10 
 setup \<open>C_Module.C_Term.map_statement (fn _ => fn _ => fn _ => @{term "20 :: nat"})\<close>
 value \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>1\<close> + \<^C>\<^sub>s\<^sub>t\<^sub>m\<^sub>t\<open>for (;;);\<close>\<close>
 
-setup \<comment> \<open>redefinition\<close> \<open>C_Module.C_Term.map_expression (fn _ => fn _ => fn _ => @{term "1000 :: nat"})\<close>
+setup \<comment> \<open>redefinition\<close> \<open>C_Module.C_Term.map_expression
+                           (fn _ => fn _ => fn _ => @{term "1000 :: nat"})\<close>
 value \<open>\<^C>\<^sub>e\<^sub>x\<^sub>p\<^sub>r\<open>1\<close> + \<^C>\<^sub>s\<^sub>t\<^sub>m\<^sub>t\<open>for (;;);\<close>\<close>
 
 setup \<open>C_Module.C_Term.map_default (fn _ => fn _ => fn _ => @{term "True"})\<close>
@@ -621,7 +639,8 @@ fun bind scan ((stack1, (to_delay, stack2)), _) =
           , C_Inner_Syntax.bottom_up
               (fn _ => fn context =>
                 ML_Context.exec
-                  (tap (fn _ => Syntax.read_term (Context.proof_of context) (Token.inner_syntax_of src)))
+                  (tap (fn _ => Syntax.read_term (Context.proof_of context)
+                                                 (Token.inner_syntax_of src)))
                   context)
           , Symtab.empty
           , to_delay)))

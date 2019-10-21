@@ -57,10 +57,14 @@ struct
 
 
 val command_kinds =
-  [Keyword.diag, Keyword.document_heading, Keyword.document_body, Keyword.document_raw, Keyword.thy_begin, Keyword.thy_end, Keyword.thy_load, Keyword.thy_decl,
-    Keyword.thy_decl_block, Keyword.thy_defn, Keyword.thy_stmt, Keyword.thy_goal, Keyword.thy_goal_defn, Keyword.thy_goal_stmt, Keyword.qed, Keyword.qed_script,
-    Keyword.qed_block, Keyword.qed_global, Keyword.prf_goal, Keyword.prf_block, Keyword.next_block, Keyword.prf_open, Keyword.prf_close, Keyword.prf_chain,
-    Keyword.prf_decl, Keyword.prf_asm, Keyword.prf_asm_goal, Keyword.prf_script, Keyword.prf_script_goal, Keyword.prf_script_asm_goal];
+  [Keyword.diag, Keyword.document_heading, Keyword.document_body, Keyword.document_raw,
+                             Keyword.thy_begin, Keyword.thy_end, Keyword.thy_load, Keyword.thy_decl,
+    Keyword.thy_decl_block, Keyword.thy_defn, Keyword.thy_stmt, Keyword.thy_goal,
+                      Keyword.thy_goal_defn, Keyword.thy_goal_stmt, Keyword.qed, Keyword.qed_script,
+    Keyword.qed_block, Keyword.qed_global, Keyword.prf_goal, Keyword.prf_block, Keyword.next_block,
+                                             Keyword.prf_open, Keyword.prf_close, Keyword.prf_chain,
+    Keyword.prf_decl, Keyword.prf_asm, Keyword.prf_asm_goal, Keyword.prf_script,
+                                              Keyword.prf_script_goal, Keyword.prf_script_asm_goal];
 
 
 (* specifications *)
@@ -118,17 +122,20 @@ fun merge_keywords
     Symtab.merge (K true) (commands1, commands2));
 
 val add_keywords0 =
-  fold (fn ((name, pos), force_minor, spec as ((kind, _), _)) => map_keywords (fn (minor, major, commands) =>
-    let val extend = Scan.extend_lexicon (Symbol.explode name)
-        fun update spec = Symtab.update (name, spec)
-    in
-      if force_minor then
-        (extend minor, major, update (check_spec pos spec) commands)
-      else if kind = "" orelse kind = Keyword.before_command orelse kind = Keyword.quasi_command then
-        (extend minor, major, commands)
-      else
-        (minor, extend major, update (check_spec pos spec) commands)
-    end));
+  fold
+    (fn ((name, pos), force_minor, spec as ((kind, _), _)) =>
+      map_keywords (fn (minor, major, commands) =>
+        let val extend = Scan.extend_lexicon (Symbol.explode name)
+            fun update spec = Symtab.update (name, spec)
+        in
+          if force_minor then
+            (extend minor, major, update (check_spec pos spec) commands)
+          else if kind = "" orelse kind = Keyword.before_command
+                            orelse kind = Keyword.quasi_command then
+            (extend minor, major, commands)
+          else
+            (minor, extend major, update (check_spec pos spec) commands)
+        end));
 
 val add_keywords = add_keywords0 o map (fn (cmd, spec) => (cmd, false, spec))
 val add_keywords_minor = add_keywords0 o map (fn (cmd, spec) => (cmd, true, spec))
@@ -184,7 +191,10 @@ val is_theory_end = command_category [Keyword.thy_end];
 
 
 val is_proof_asm = command_category [Keyword.prf_asm, Keyword.prf_asm_goal];
-val is_improper = command_category [Keyword.qed_script, Keyword.prf_script, Keyword.prf_script_goal, Keyword.prf_script_asm_goal];
+val is_improper = command_category [ Keyword.qed_script
+                                   , Keyword.prf_script
+                                   , Keyword.prf_script_goal
+                                   , Keyword.prf_script_asm_goal];
 
 
 end;
@@ -335,16 +345,20 @@ fun is_error' (Token (_, (Token.Error msg, _), _)) = SOME msg
   | is_error' _ = NONE;
 
 fun content_of (Token (_, (_, x), _)) = x;
-fun content_of' (Token (_, (_, _), Value (SOME (Source l)))) = map (fn Token ((_, (pos, _)), (_, x), _) => (x, pos)) l
+fun content_of' (Token (_, (_, _), Value (SOME (Source l)))) =
+                    map (fn Token ((_, (pos, _)), (_, x), _) => (x, pos)) l
   | content_of' _ = [];
 
-val is_stack1 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) => forall (fn tok => content_of tok = "+") l
+val is_stack1 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) =>
+                        forall (fn tok => content_of tok = "+") l
                  | _ => false;
 
-val is_stack2 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) => forall (fn tok => content_of tok = "@") l
+val is_stack2 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) =>
+                        forall (fn tok => content_of tok = "@") l
                  | _ => false;
 
-val is_stack3 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) => forall (fn tok => content_of tok = "&") l
+val is_stack3 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) =>
+                        forall (fn tok => content_of tok = "&") l
                  | _ => false;
 
 
@@ -654,7 +668,9 @@ fun token' (mk_value, k) ss =
   if mk_value then
     Token ( (Symbol_Pos.implode ss, Symbol_Pos.range ss)
           , (k, Symbol_Pos.content ss)
-          , Value (SOME (Source (map (fn (s, pos) => Token (("", (pos, Position.none)), (k, s), Slot)) ss))))
+          , Value (SOME (Source (map (fn (s, pos) =>
+                                       Token (("", (pos, Position.none)), (k, s), Slot))
+                                     ss))))
   else
     token k ss;
 
@@ -791,7 +807,8 @@ fun syntax' f =
           explode
             ((case kind of
                 Token.Keyword => Keyword.add_keywords [((x, Position.none), Keyword.no_spec)]
-              | Token.Command => Keyword.add_keywords [((x, Position.none), ((Keyword.thy_decl, []), []))]
+              | Token.Command => Keyword.add_keywords [( (x, Position.none)
+                                                       , ((Keyword.thy_decl, []), []))]
               | _ => I)
                Keyword.empty_keywords)
             pos1
@@ -1177,9 +1194,12 @@ val binder_ =
   $$$ "binder" |-- !!! (mfix -- ($$$ "[" |-- nat --| $$$ "]" -- nat || nat >> (fn n => (n, n))))
     >> (fn (sy, (p, q)) => fn range => Binder (sy, p, q, range));
 
-val infixl_ = $$$ "infixl" |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infixl (sy, p, range)));
-val infixr_ = $$$ "infixr" |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infixr (sy, p, range)));
-val infix_ = $$$ "infix" |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infix (sy, p, range)));
+val infixl_ = $$$ "infixl"
+              |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infixl (sy, p, range)));
+val infixr_ = $$$ "infixr"
+              |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infixr (sy, p, range)));
+val infix_ = $$$ "infix"
+              |-- !!! (mfix -- nat >> (fn (sy, p) => fn range => Infix (sy, p, range)));
 
 val mixfix_body = mixfix_ || structure_ || binder_ || infixl_ || infixr_ || infix_;
 

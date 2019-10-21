@@ -60,7 +60,9 @@ type markup_ident = { global : markup_global
 
 type 'a markup_store = Position.T list * serial * 'a
 
-type var_table = { tyidents : markup_global markup_store Symtab.table (*ident name*) Symtab.table (*internal namespace*)
+type var_table = { tyidents : markup_global markup_store Symtab.table (*ident name*)
+                                                                      Symtab.table (*internal
+                                                                                     namespace*)
                  , idents : markup_ident markup_store Symtab.table (*ident name*) }
 
 type 'antiq_language_list stream = ('antiq_language_list, C_Lex.token) C_Scan.either list
@@ -92,22 +94,22 @@ type env_propagation_reduce = int (*reduce rule number*) option (* NONE: shift a
 
 type env_propagation_ctxt = env_propagation_reduce -> Context.generic -> Context.generic
 
-type env_propagation_directive = env_propagation_reduce -> env_directives -> env_lang * env_tree -> env_lang * env_tree
+type env_propagation_directive =
+       env_propagation_reduce -> env_directives -> env_lang * env_tree -> env_lang * env_tree
 
-datatype env_propagation_bottom_up =
-  Exec_annotation of env_propagation_ctxt
-| Exec_directive of env_propagation_directive
+datatype env_propagation_bottom_up = Exec_annotation of env_propagation_ctxt
+                                   | Exec_directive of env_propagation_directive
 
-datatype env_propagation =
-  Bottom_up (*during parsing*) of env_propagation_bottom_up
-| Top_down (*after parsing*) of env_propagation_ctxt
+datatype env_propagation = Bottom_up (*during parsing*) of env_propagation_bottom_up
+                         | Top_down (*after parsing*) of env_propagation_ctxt
 
 type eval_node = Position.range
                  * env_propagation
                  * env_directives
                  * bool (* true: skip vacuous reduce rules *)
 
-datatype eval_time = Lexing of Position.range * (comment_style -> Context.generic -> Context.generic)
+datatype eval_time = Lexing of Position.range
+                               * (comment_style -> Context.generic -> Context.generic)
                    | Parsing of (Symbol_Pos.T list (* length = number of tokens to advance *) 
                                  * Symbol_Pos.T list (* length = number of steps back in stack *)) 
                                  * eval_node
@@ -122,17 +124,21 @@ module. \<close>
 
 (**)
 
-type ('LrTable_state, 'a, 'Position_T) stack_elem0 = 'LrTable_state * ('a * 'Position_T * 'Position_T)
+type ('LrTable_state, 'a, 'Position_T) stack_elem0 = 'LrTable_state
+                                                     * ('a * 'Position_T * 'Position_T)
 type ('LrTable_state, 'a, 'Position_T) stack0 = ('LrTable_state, 'a, 'Position_T) stack_elem0 list
 
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce0 = (('LrTable_state, 'svalue0, 'pos) stack0 * env_lang * eval_node) list
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce = int * ('LrTable_state, 'svalue0, 'pos) stack0 * eval_node list list
-type ('LrTable_state, 'svalue0, 'pos) rule_reduce' = int * bool (*vacuous*) * ('LrTable_state, 'svalue0, 'pos) rule_reduce0
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce0 =
+       (('LrTable_state, 'svalue0, 'pos) stack0 * env_lang * eval_node) list
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce =
+       int * ('LrTable_state, 'svalue0, 'pos) stack0 * eval_node list list
+type ('LrTable_state, 'svalue0, 'pos) rule_reduce' =
+       int * bool (*vacuous*) * ('LrTable_state, 'svalue0, 'pos) rule_reduce0
 
 datatype ('LrTable_state, 'svalue0, 'pos) rule_type =
-                     Void
-                   | Shift
-                   | Reduce of rule_static * ('LrTable_state, 'svalue0, 'pos) rule_reduce'
+                               Void
+                             | Shift
+                             | Reduce of rule_static * ('LrTable_state, 'svalue0, 'pos) rule_reduce'
 
 type ('LrTable_state, 'svalue0, 'pos) rule_ml =
   { rule_pos : 'pos * 'pos
@@ -145,9 +151,9 @@ type 'class_Pos rule_output0' = { output_pos : 'class_Pos option
                                 , output_env : rule_static }
 
 type ('LrTable_state, 'svalue0, 'pos) rule_output0 =
-                                 eval_node list list (* delayed *)
-                               * ('LrTable_state, 'svalue0, 'pos) rule_reduce0 (* actual *)
-                               * ('pos * 'pos) rule_output0'
+                                         eval_node list list (* delayed *)
+                                       * ('LrTable_state, 'svalue0, 'pos) rule_reduce0 (* actual *)
+                                       * ('pos * 'pos) rule_output0'
 
 type rule_output = C_Ast.class_Pos rule_output0'
 
@@ -178,85 +184,96 @@ type ('LrTable_state, 'a, 'Position_T) stack' =
 (**)
 
 fun map_env_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-                   {env_lang = f env_lang, env_tree = env_tree, rule_output = rule_output, 
-                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
+                     {env_lang = f
+                                 env_lang, env_tree = env_tree, rule_output = rule_output, 
+                      rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
 fun map_env_tree f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-                   {env_lang = env_lang, env_tree = f env_tree, rule_output = rule_output, 
-                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
+                     {env_lang = env_lang, env_tree = f
+                                                      env_tree, rule_output = rule_output, 
+                      rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
 fun map_rule_output f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-                   {env_lang = env_lang, env_tree = env_tree, rule_output = f rule_output, 
-                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
+                     {env_lang = env_lang, env_tree = env_tree, rule_output = f
+                                                                              rule_output,
+                      rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
 fun map_rule_input f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-                   {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
-                    rule_input = f rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
+                     {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
+                      rule_input = f
+                                   rule_input, stream_hook = stream_hook, stream_lang = stream_lang}
 
 fun map_stream_hook f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-                   {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
-                    rule_input = rule_input, stream_hook = f stream_hook, stream_lang = stream_lang}
+                     {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
+                      rule_input = rule_input, stream_hook = f
+                                                             stream_hook, stream_lang = stream_lang}
 
 fun map_stream_lang f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
-                   {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
-                    rule_input = rule_input, stream_hook = stream_hook, stream_lang = f stream_lang}
+                     {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
+                      rule_input = rule_input, stream_hook = stream_hook, stream_lang = f
+                                                                                        stream_lang}
 
 (**)
 
 fun map_output_pos f {output_pos, output_vacuous, output_env} =
-              {output_pos = f output_pos, output_vacuous = output_vacuous, output_env = output_env}
+               {output_pos = f output_pos, output_vacuous = output_vacuous, output_env = output_env}
 
 fun map_output_vacuous f {output_pos, output_vacuous, output_env} =
-              {output_pos = output_pos, output_vacuous = f output_vacuous, output_env = output_env}
+               {output_pos = output_pos, output_vacuous = f output_vacuous, output_env = output_env}
 
 fun map_output_env f {output_pos, output_vacuous, output_env} =
-              {output_pos = output_pos, output_vacuous = output_vacuous, output_env = f output_env}
+               {output_pos = output_pos, output_vacuous = output_vacuous, output_env = f output_env}
 
 (**)
 
 fun map_tyidents f {tyidents, idents} =
-                    {tyidents = f tyidents, idents = idents}
+                                        {tyidents = f tyidents, idents = idents}
 
 fun map_idents f {tyidents, idents} =
-                    {tyidents = tyidents, idents = f idents}
+                                        {tyidents = tyidents, idents = f idents}
 
 (**)
 
 fun map_var_table f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                    {var_table = f var_table, scopes = scopes, namesupply = namesupply, 
-                     stream_ignored = stream_ignored, env_directives = env_directives}
+                                  {var_table = f
+                                               var_table, scopes = scopes, namesupply = namesupply, 
+                                   stream_ignored = stream_ignored, env_directives = env_directives}
 
 fun map_scopes f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                    {var_table = var_table, scopes = f scopes, namesupply = namesupply, 
-                     stream_ignored = stream_ignored, env_directives = env_directives}
+                                  {var_table = var_table, scopes = f
+                                                                   scopes, namesupply = namesupply, 
+                                   stream_ignored = stream_ignored, env_directives = env_directives}
 
 fun map_namesupply f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                    {var_table = var_table, scopes = scopes, namesupply = f namesupply, 
-                     stream_ignored = stream_ignored, env_directives = env_directives}
+                                  {var_table = var_table, scopes = scopes, namesupply = f
+                                                                                        namesupply, 
+                                   stream_ignored = stream_ignored, env_directives = env_directives}
 
 fun map_stream_ignored f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                    {var_table = var_table, scopes = scopes, namesupply = namesupply, 
-                     stream_ignored = f stream_ignored, env_directives = env_directives}
+                                  {var_table = var_table, scopes = scopes, namesupply = namesupply, 
+                                   stream_ignored = f
+                                                    stream_ignored, env_directives = env_directives}
 
 fun map_env_directives f {var_table, scopes, namesupply, stream_ignored, env_directives} =
-                    {var_table = var_table, scopes = scopes, namesupply = namesupply, 
-                     stream_ignored = stream_ignored, env_directives = f env_directives}
+                                  {var_table = var_table, scopes = scopes, namesupply = namesupply, 
+                                   stream_ignored = stream_ignored, env_directives = f
+                                                                                     env_directives}
 
 (**)
 
 fun map_context f {context, reports_text, error_lines} =
-                     {context = f context, reports_text = reports_text, error_lines = error_lines}
+                       {context = f context, reports_text = reports_text, error_lines = error_lines}
 
 fun map_context' f {context, reports_text, error_lines} =
-                  let val (res, context) = f context
-                  in (res, {context = context, reports_text = reports_text, error_lines = error_lines})
-                  end
+              let val (res, context) = f context
+              in (res, {context = context, reports_text = reports_text, error_lines = error_lines})
+              end
 
 fun map_reports_text f {context, reports_text, error_lines} =
-                     {context = context, reports_text = f reports_text, error_lines = error_lines}
+                       {context = context, reports_text = f reports_text, error_lines = error_lines}
 
 fun map_error_lines f {context, reports_text, error_lines} =
-                     {context = context, reports_text = reports_text, error_lines = f error_lines}
+                       {context = context, reports_text = reports_text, error_lines = f error_lines}
 
 (**)
 
@@ -293,22 +310,29 @@ fun empty_env_tree context =
 val empty_rule_output : rule_output = 
         {output_pos = NONE, output_vacuous = true, output_env = NONE}
 fun make env_lang stream_lang env_tree =
-         { env_lang = env_lang
-         , env_tree = env_tree
-         , rule_output = empty_rule_output
-         , rule_input = ([], 0)
-         , stream_hook = []
-         , stream_lang = ( Stream_regular
-                         , map_filter (fn C_Scan.Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
-                                        | C_Scan.Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
-                                        | C_Scan.Right tok => SOME (C_Scan.Right tok)
-                                        | C_Scan.Left antiq => SOME (C_Scan.Left antiq))
-                                      stream_lang) }
+       { env_lang = env_lang
+       , env_tree = env_tree
+       , rule_output = empty_rule_output
+       , rule_input = ([], 0)
+       , stream_hook = []
+       , stream_lang = ( Stream_regular
+                       , map_filter (fn C_Scan.Right (C_Lex.Token (_, (C_Lex.Space, _))) => NONE
+                                      | C_Scan.Right (C_Lex.Token (_, (C_Lex.Comment _, _))) => NONE
+                                      | C_Scan.Right tok => SOME (C_Scan.Right tok)
+                                      | C_Scan.Left antiq => SOME (C_Scan.Left antiq))
+                                    stream_lang) }
 fun string_of (env_lang : env_lang) = 
   let fun dest0 x f = x |> Symtab.dest |> map f
-      fun dest {tyidents, idents} = (dest0 tyidents #1, dest0 idents (fn (i, (_,_,v)) => (i, if #global v then "global" else "local")))
+      fun dest {tyidents, idents} =
+            (dest0 tyidents #1, dest0 idents (fn (i, (_,_,v)) =>
+                                               (i, if #global v then "global" else "local")))
   in \<^make_string> ( ("var_table", dest (#var_table env_lang))
-                 , ("scopes", map (fn (id, i) => (Option.map (fn C_Ast.Ident0 (i, _, _) => C_Ast.meta_of_logic i) id, dest i)) (#scopes env_lang))
+                 , ("scopes", map (fn (id, i) =>
+                                    ( Option.map (fn C_Ast.Ident0 (i, _, _) =>
+                                                   C_Ast.meta_of_logic i)
+                                                 id
+                                    , dest i))
+                                  (#scopes env_lang))
                  , ("namesupply", #namesupply env_lang)
                  , ("stream_ignored", #stream_ignored env_lang)) end
 
@@ -342,9 +366,11 @@ local
 fun map_tyidents' f = C_Env.map_var_table (C_Env.map_tyidents f)
 fun map_tyidents f = C_Env.map_env_lang (map_tyidents' f)
 in
-fun map_tyidents_typedef f = map_tyidents (Symtab.map_default (C_Env.namespace_typedef, Symtab.empty) f)
+fun map_tyidents_typedef f =
+                       map_tyidents (Symtab.map_default (C_Env.namespace_typedef, Symtab.empty) f)
 fun map_tyidents_enum f = map_tyidents (Symtab.map_default (C_Env.namespace_enum, Symtab.empty) f)
-fun map_tyidents'_typedef f = map_tyidents' (Symtab.map_default (C_Env.namespace_typedef, Symtab.empty) f)
+fun map_tyidents'_typedef f =
+                        map_tyidents' (Symtab.map_default (C_Env.namespace_typedef, Symtab.empty) f)
 fun map_tyidents'_enum f = map_tyidents' (Symtab.map_default (C_Env.namespace_enum, Symtab.empty) f)
 end
 fun map_idents' f = C_Env.map_var_table (C_Env.map_idents f)
@@ -407,14 +433,16 @@ fun get_reports_text (t : C_Env.T) = #env_tree t |> #reports_text
 fun map_env_directives' f {var_table, scopes, namesupply, stream_ignored, env_directives} =
   let val (res, env_directives) = f env_directives
   in (res, {var_table = var_table, scopes = scopes, namesupply = namesupply, 
-                      stream_ignored = stream_ignored, env_directives = env_directives}) end
+                      stream_ignored = stream_ignored, env_directives = env_directives})
+  end
 
 (**)
 
 fun map_stream_lang' f {env_lang, env_tree, rule_output, rule_input, stream_hook, stream_lang} =
   let val (res, stream_lang) = f stream_lang
   in (res, {env_lang = env_lang, env_tree = env_tree, rule_output = rule_output, 
-            rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang}) end
+            rule_input = rule_input, stream_hook = stream_hook, stream_lang = stream_lang})
+  end
 
 (**)
 
