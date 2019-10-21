@@ -485,7 +485,8 @@ local open C_Ast in
 val _ = CTranslUnit0
 val ((CTranslUnit0 (t,u), v)::_, _) = get_module @{theory};
 val u = C_Grammar_Rule_Lib.decode u
-val _ = case  u of Left (p1,p2) => writeln (Position.here p1 ^ " " ^ Position.here p2)
+val _ = case u of Left (p1,p2) => writeln (Position.here p1 ^ " " ^ Position.here p2)
+                | Right _ => error "Not expecting that value"
 val CDeclExt0(x1)::_ = t;
 val _ = CDecl0
 end

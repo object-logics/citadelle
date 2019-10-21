@@ -52,37 +52,27 @@ in detail that there are actually subtle differences between the two commands.\<
 section \<open>Setup of ML Antiquotations Displaying the Environment (For Debugging) \<close>
 
 ML\<open>
-fun print_top make_string f _ (_, (value, pos1, pos2)) _ thy =
-  let
-    val () = writeln (make_string value)
-    val () = Position.reports_text [((Position.range (pos1, pos2) 
-                                      |> Position.range_position, Markup.intensify), "")]
-  in f thy end
+fun print_top make_string f _ (_, (value, _, _)) _ = tap (fn _ => writeln (make_string value)) o f
 
-fun print_top' _ f _ (_, (_, pos1, pos2)) env thy =
-  let
-    val () = Position.reports_text [((Position.range (pos1, pos2) 
-                                      |> Position.range_position, Markup.intensify), "")]
-    val () = writeln ("ENV " ^ C_Env.string_of env)
-  in f thy end
+fun print_top' _ f _ _ env = tap (fn _ => writeln ("ENV " ^ C_Env.string_of env)) o f
 
 fun print_stack s make_string stack _ _ thy =
   let
-    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ")
-                                ^ Int.toString (length stack - 1) ^ "    +1 ")
-    val () = stack
-          |> split_list
-          |> #2
-          |> map_index I
-          |> app (fn (i, (value, pos1, pos2)) =>
-                   writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value
-                            ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
+    val () = Output.information ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ")
+                                 ^ Int.toString (length stack - 1) ^ "    +1 ")
+    val () =   stack
+            |> split_list
+            |> #2
+            |> map_index I
+            |> app (fn (i, (value, pos1, pos2)) =>
+                     writeln ("   " ^ Int.toString (length stack - i) ^ " " ^ make_string value
+                              ^ " " ^ Position.here pos1 ^ " " ^ Position.here pos2))
   in thy end
 
 fun print_stack' s _ stack _ env thy =
   let
-    val () = warning ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ")
-                                ^ Int.toString (length stack - 1) ^ "    +1 ")
+    val () = Output.information ("SHIFT  " ^ (case s of NONE => "" | SOME s => "\"" ^ s ^ "\" ")
+                                 ^ Int.toString (length stack - 1) ^ "    +1 ")
     val () = writeln ("ENV " ^ C_Env.string_of env)
   in thy end
 \<close>
@@ -121,7 +111,8 @@ commands in C comments, called annotation commands, such as
 \<^theory_text>\<open>\<approx>setup\<close>. \<close>
 
 C \<comment> \<open>Nesting ML code in C comments\<close> \<open>
-int a = (((0))); /*@ \<approx>setup \<open>@{print_stack}\<close> */
+int a = (((0))); /*@ highlight */
+                 /*@ \<approx>setup \<open>@{print_stack}\<close> */
                  /*@ \<approx>setup \<open>@{print_top}\<close> */
 \<close>
 
@@ -147,14 +138,8 @@ Note that, in contrast with \<^theory_text>\<open>setup\<close>, the return type
 
 C \<comment> \<open>Positional navigation: referring to any previous parsed sub-tree in the stack\<close> \<open>
 int a = (((0
-      + 5)))  /*@@ \<approx>setup \<open>fn _ => fn (_, (value, pos1, pos2)) => fn _ => fn context =>
-                          let
-                            val () = writeln (@{make_string} value)
-                            val () = Position.reports_text [( ( Position.range (pos1, pos2)
-                                                                |> Position.range_position
-                                                              , Markup.intensify)
-                                                            , "")]
-                          in context end\<close>
+      + 5)))  /*@@ \<approx>setup \<open>print_top @{make_string} I\<close>
+                 @ highlight
                */
       * 4; 
 float b = 7 / 3;
@@ -169,16 +154,16 @@ Instead of always referring to the first element of the stack,
 of the \<open>N\<close>-th element.\<close>
 
 C \<comment> \<open>Positional navigation: referring to any previous parsed sub-tree in the stack\<close> \<open>
-int a = (((0 + 5)))  /*@@ \<approx>setup \<open>@{print_top}\<close> */
+int a = (((0 + 5)))  /*@@ highlight */
       * 4;
 
-int a = (((0 + 5)))  /*@& \<approx>setup \<open>@{print_top}\<close> */
+int a = (((0 + 5)))  /*@& highlight */
       * 4;
 
-int a = (((0 + 5)))  /*@@@@@ \<approx>setup \<open>@{print_top}\<close> */
+int a = (((0 + 5)))  /*@@@@@ highlight */
       * 4;
 
-int a = (((0 + 5)))  /*@&&&& \<approx>setup \<open>@{print_top}\<close> */
+int a = (((0 + 5)))  /*@&&&& highlight */
       * 4;
 \<close>
 
@@ -189,7 +174,7 @@ being built).\<close>
 
 C \<comment> \<open>Positional navigation: moving the comment after a number of C token\<close> \<open>
 int b = 7 / (3) * 50;
-/*@+++@@ \<approx>setup \<open>@{print_top}\<close>*/
+/*@+++@@ highlight */
 long long f (int a) {
   while (0) { return 0; }
 }
@@ -259,7 +244,7 @@ structure Example_Data = Generic_Data (type T = string list
                                        val empty = [] val extend = K empty val merge = K empty)
 fun add_ex s1 s2 =
   Example_Data.map (cons s2)
-  #> (fn context => let val () = warning (s1 ^ s2)
+  #> (fn context => let val () = Output.information (s1 ^ s2)
                         val () = app (fn s => writeln ("  Data content: " ^ s))
                                      (Example_Data.get context)
                     in context end)
@@ -271,8 +256,17 @@ declare[[ML_source_trace]]
 declare[[C_parser_trace]]
 
 C \<comment> \<open>Arbitrary interleaving of effects: \<open>\<approx>setup\<close> vs \<open>\<approx>setup\<Down>\<close>\<close> \<open>
-int b,c,d/*@@ \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "3_print_top"\<close> */,e = 0; /*@@ \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "4_print_top"\<close> */
-int b,c,d/*@@ \<approx>setup\<Down> \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "6_print_top"\<close> */,e = 0; /*@@ \<approx>setup\<Down> \<open>fn s => fn x => fn env => @{print_top} s x env #> add_ex "evaluation of " "5_print_top"\<close> */
+int b,c,d/*@@ \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env
+                                                #> add_ex "evaluation of " "3_print_top"\<close>
+          */,e = 0; /*@@
+              \<approx>setup \<open>fn s => fn x => fn env => @{print_top} s x env
+                                                #> add_ex "evaluation of " "4_print_top"\<close> */
+
+int b,c,d/*@@ \<approx>setup\<Down> \<open>fn s => fn x => fn env => @{print_top} s x env
+                                                #> add_ex "evaluation of " "6_print_top"\<close>
+          */,e = 0; /*@@
+              \<approx>setup\<Down> \<open>fn s => fn x => fn env => @{print_top} s x env
+                                                #> add_ex "evaluation of " "5_print_top"\<close> */
 \<close>
 
 section \<open>Reporting of Positions and Contextual Update of Environment\<close>
@@ -290,7 +284,7 @@ declare [[C_lexer_trace = false]]
 
 C \<comment> \<open>Reporting of Positions\<close> \<open>
 typedef int i, j;
-  /*@@ \<approx>setup \<open>@{print_top'}\<close> */ //@ +++++@ \<approx>setup \<open>@{print_top'}\<close>
+  /*@@ \<approx>setup \<open>@{print_top'}\<close> @highlight */ //@ +++++@ \<approx>setup \<open>@{print_top'}\<close> +++++@highlight
 int j = 0;
 typedef int i, j;
 j jj1 = 0;
@@ -449,7 +443,7 @@ structure Data_Out = Generic_Data
    val merge = K empty)
 
 fun show_env0 make_string f msg context =
-  warning ("(" ^ msg ^ ") " ^ make_string (f (Data_Out.get context)))
+  Output.information ("(" ^ msg ^ ") " ^ make_string (f (Data_Out.get context)))
 
 val show_env = tap o show_env0 @{make_string} I
 \<close>
