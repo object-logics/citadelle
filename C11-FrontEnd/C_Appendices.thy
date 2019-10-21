@@ -165,13 +165,12 @@ text \<open>
     ;
   \<close>
 
-  \<^descr> \<^theory_text>\<open>C_file name\<close> resembles to \<^theory_text>\<open>ML_file
-  name\<close>: it reads the given C file, and let any attached semantic back-ends to proceed for
-  further subsequent evaluation. Top-level C bindings are stored within the (global or local) theory
-  context; the initial environment is set by default to be an empty one, or the one returned by a
-  previous \<^theory_text>\<open>C_file\<close> (depending on @{attribute_def C_starting_env}). The
-  entry-point of the grammar taken as initial starting parser is read from @{attribute_def
-    C_starting_rule} (see
+  \<^descr> \<^theory_text>\<open>C_file name\<close> reads the given C file, and let any attached
+  semantic back-ends to proceed for further subsequent evaluation. Top-level C bindings are stored
+  within the (global or local) theory context; the initial environment is set by default to be an
+  empty one, or the one returned by a previous \<^theory_text>\<open>C_file\<close> (depending on
+  @{attribute_def C_starting_env}). The entry-point of the grammar taken as initial starting parser
+  is read from @{attribute_def C_starting_rule} (see
   \<^url>\<open>https://www.haskell.org/happy/doc/html/sec-directives.html#sec-parser-name\<close>).
   Multiple \<^theory_text>\<open>C_file\<close> commands may be used to build larger C projects if
   they are all written in a single theory file (existing parent theories are ignored, and not
@@ -765,7 +764,7 @@ text \<open> In terms of parsing correctness, Isabelle/C provides at least two d
 parse certain liberal extensions out of the C
 standard~\<^footnote>\<open>\<^url>\<open>http://hackage.haskell.org/package/language-c\<close>\<close>;
 \<^item> and another parser accepting C99/C11/C18 code in \<^dir>\<open>../C18-FrontEnd\<close> that
-is close to the C standard while focusing on resolving ambiguities in the
+is close to the C standard while focusing on resolving ambiguities of the
 standard~\<^footnote>\<open>\<^url>\<open>https://github.com/jhjourdan/C11parser\<close>\<close>~\cite{DBLP:journals/toplas/JourdanP17}. \<close>
 
 text \<open> Since the two are not accepting the same range of arbitrary C code (but possibly with a
