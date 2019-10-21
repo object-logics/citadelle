@@ -302,15 +302,20 @@ content downloaded from \<^url>\<open>https://gitlri.lri.fr/ftuong/isabelle_c\<c
 brackets ``\<^verbatim>\<open>\<open>\<close>\<close>'', now depicted as
 ``\<open>\<open>\<close>\<close>'' for readability reasons. \<close>
 
-text \<open> Additionally, Isabelle/C comes with several features that can be alternatively
+text \<open> Additionally, Isabelle/C comes with several functionalities that can be alternatively
 explored:
-\<^item> Writing theorems and proofs along with C code becomes possible inside the special C
-comments \<^C>\<open>/*@ (* Isabelle content *) */\<close> --- newly supported by the project. The
-complete documentations on Isabelle can be found in the accompanying above archive (for example in
-\<^dir>\<open>$ISABELLE_HOME/src/Doc/Isar_Ref\<close>).
+\<^item> To write theorems and proofs along with C code, the special C comment
+\<^C>\<open>/*@ (* Isabelle content *) */\<close> can be used at any position where C comments are
+usually regularly allowed. At the time of writing, not yet all Isabelle commands can be written in C
+comments, and certain proof-solving-command combinations are also not yet implemented --- manual
+registration of commands to retrieve some more or less native user-experience remains possible
+though. Generally, the kind of content one can write in C comments should be arbitrary. The
+exhaustive list of Isabelle commands is provided in the accompanying above archive, for example in
+\<^dir>\<open>$ISABELLE_HOME/src/Doc/Isar_Ref\<close> or
+\<^file>\<open>$ISABELLE_HOME/doc/isar-ref.pdf\<close>.
 
-\<^item> Instead of starting from scratch, existing C files can be opened with Isabelle/C, it
-suffices to replace:
+\<^item> Instead of starting from scratch, any existing C files can also be opened with Isabelle/C,
+it suffices to replace:
 
 \begin{tabular}{c}
  \<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close> \\
@@ -319,9 +324,18 @@ suffices to replace:
 \end{tabular}
 
 Once done, one can press a CTRL-like key while hovering the mouse over the file name, then followed
-by a click on it to open a new window loading that file. In this situation, it is still possible to
-write \<^C>\<open>/*@ (* Isabelle content *) */\<close> at any position where C comments are usually
-allowed. \<close>
+by a click on it to open a new window loading that file. 
+
+\<^item> After writing
+\<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close>, one has either
+the possibility to keep the content as such in the theory file, or use
+\<^verbatim>\<open>C_export_file\<close> to export all previous C content to a ``real'' C file.
+
+In more details, the latter case makes the output window show a message suggesting to click on
+\<open>theory exports\<close>. Clicking on it makes the \<open>File Browser\<close> panel appear
+with the generated C file inside. It is only after loading the C file with a double click, that one
+can use the normal click on \<open>File\<close> and \<open>Save As...\<close> operations to finalize
+the explicit file writing. \<close>
 
 section \<open>Case Study: Mapping on the Parsed AST\<close>
 
@@ -617,16 +631,17 @@ For the above reasons, we have come up in Isabelle/C with the choice of making t
 be supported inside the inner syntax allocated space. In particular, this has become all the more
 syntactically easy with the introduction of cartouches since Isabelle
 2014.\<^footnote>\<open>Fortunately, parsing tokens of C do not strongly conflict with cartouche
-delimiter symbols. For example, it should be legal in C to write an opening cartouche symbol in a C
-comment without writing any closing cartouche symbol afterwards. However, this functionality is
-implicitly rejected by the parser of Isabelle/C, as it is relying on Isabelle 2019's parser
-combinator library for the lexing part.\<close> However, for the case of the C language, certain C
-directives like \<open>#include\<close> are meant to heavily interact with external files. In
-particular, resources would be best utilized if we were taking advantage of the Isabelle's
-asynchronous document model for such interaction task. Unfortunately, the inner syntax space only
-has a minimum interaction with the document model, compared to the outer syntax one. Otherwise said,
-be it for experimenting the inner syntax layer and see how far it can deal with the document layer,
-or otherwise reimplementing parts of Isabelle/C in the outer syntax layer, the two solutions are
+delimiter symbols. For example, it should not be ethically wrong in C to write an opening cartouche
+symbol (possibly in a C comment) without writing any closing cartouche symbol afterwards. However,
+we have not encountered such C code in our tested codebase, and it is a functionality implicitly
+rejected by the current parser of Isabelle/C, as it is relying on Isabelle 2019's parser combinator
+library for the lexing part.\<close> However, for the case of the C language, certain C directives
+like \<open>#include\<close> are meant to heavily interact with external files. In particular,
+resources would be best utilized if we were taking advantage of the Isabelle's asynchronous document
+model for such interaction task. Unfortunately, the inner syntax space only has a minimum
+interaction with the document model, compared to the outer syntax one. Otherwise said, be it for
+experimenting the inner syntax layer and see how far it can deal with the document layer, or
+otherwise reimplementing parts of Isabelle/C in the outer syntax layer, the two solutions are
 conducting to do modifications in the Isabelle 2019 source code. \<close>
 
 text \<open> Note that the language embedding space of \<^theory_text>\<open>C\<close> closely
@@ -690,7 +705,7 @@ text \<open>
   with Scala, as long as the resulting can be implemented in Isabelle, preferably outside of its own
   source).\<close>
 
-subsection \<open>Parsing Error\<close>
+subsection \<open>Parsing Error versus Parsing Correctness\<close>
 
 text \<open> When trying to decide if the next parsing action is a Shift or Reduce action to
 perform, the grammar simulator \<^ML>\<open>LALR_Parser_Eval.parse\<close> can actually decide to do
@@ -740,5 +755,18 @@ make the error disappear at the position the error is indicated can be detailed 
   \<^item> Ultimately, modifying the grammar with new rules cancelling the exception would only work
   if the problem really relies on the grammar, as it was mentioned for the acceptance state.
   \<close>
+
+text \<open> In terms of parsing correctness, Isabelle/C provides at least two different parsers:
+\<^item> a parser limited to C99/C11 code provided in \<^dir>\<open>../C11-FrontEnd\<close> that can
+parse certain liberal extensions out of the C
+standard~\<^footnote>\<open>\<^url>\<open>http://hackage.haskell.org/package/language-c\<close>\<close>;
+\<^item> and another parser accepting C99/C11/C18 code in \<^dir>\<open>../C18-FrontEnd\<close> that
+is close to the C standard while focusing on resolving ambiguities in the
+standard~\<^footnote>\<open>\<^url>\<open>https://github.com/jhjourdan/C11parser\<close>\<close>~\cite{DBLP:journals/toplas/JourdanP17}. \<close>
+
+text \<open> Since the two are not accepting the same range of arbitrary C code (but possibly with a
+certain substantial part in common), we have actually already encountered situations where an error
+is raised by one parser, while a success is happening with the other parser (and
+vice-versa). \<close>
 
 end

@@ -192,7 +192,10 @@ C (*NONE*) \<comment> \<open> the command starts with a default empty environmen
      */
     return a + b + c + d; /* explicit highlighting */ }\<close>
 
-text \<open> Note that C directives must be propagated in C annotations, even if they are supposed
-to be evaluated before any C code. \<close>
+text \<open> Note that in the current design-implementation of Isabelle/C, C directives have a
+propagation side-effect to any occurring subsequent C annotations, even if C directives are supposed
+to be all evaluated before any C code. (Making such effect inexistent would be equally easier to
+implement though, this is what was the default behavior of directives in previous versions of
+Isabelle/C.)\<close>
 
 end
