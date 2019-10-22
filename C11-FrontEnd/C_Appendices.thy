@@ -348,11 +348,11 @@ the possibility to keep the content as such in the theory file, or use
 
 Note that since Isabelle2019, Isabelle uses a virtual file-system. This has the consequence, 
 that some extra operations are needed to export a file generated into the virtual file-system 
-of Isabelle into the ``real'' file-system. First, the \<open>C_export_file\<close> command needs to be 
+of Isabelle into the ``real'' file-system. First, the \<^verbatim>\<open>C_export_file\<close> command needs to be 
 activated leading to a message in the output window. 
 By clicking on \<open>theory exports\<close> in this message, Isabelle opens a \<open>File Browser\<close>
 showing the content of the virtual file-system in the left window. Selecting and opening a generated file 
-in the latter lets jedit display it in a new buffer, which gives the possibility to export this file
+in the latter lets jEdit display it in a new buffer, which gives the possibility to export this file
 via \<open>File\<rightarrow>Save As\<close> into the real file-system.\<close>
 
 section \<open>Case Study: Mapping on the Parsed AST\<close>

@@ -751,19 +751,20 @@ int main () {
 
 section\<open>Exporting C Files to the File-System\<close>
 
-text\<open>From the Isabelle/C - side, the task is easy: Just type :\<close>
+text\<open>From the Isabelle/C side, the task is easy, just type:\<close>
 
 C_export_file
 
-text\<open>... does the trick and generates a file \<^verbatim>\<open>C1.c\<close>. But hold on --- where is it ?
-Well, Isabelle/C uses since version Isabelle2019 a virtual file-system. Exporting 
-from it to the real file-system requires a few mouse-clicks (unfortunately).
+text\<open>... which does the trick and generates a file \<^verbatim>\<open>C1.c\<close>. But hold
+on --- where is it?  Well, Isabelle/C uses since version Isabelle2019 a virtual
+file-system. Exporting from it to the real file-system requires a few mouse-clicks (unfortunately).
 
 So activating the command \<^theory_text>\<open>C_export_file\<close> leads to the output
-``See theory exports "C/64/C1.c"'' (see 
-figure \<^theory_text>\<open>C-export-example.png\<close>), and clicking on the highlighted
-\<^theory_text>\<open>theory exports\<close> lets Isabelle display a part of the virtual file-system (see subwidget left).
-Activating it in the subwidget lets jedit open it as an editable file, which can be exported
-via \<^theory_text>\<open>File->Save As->...\<close> into the real file-system.\<close>
+\<^verbatim>\<open>See theory exports "C/64/C1.c"\<close> (see figure
+\<^verbatim>\<open>C-export-example.png\<close>), and clicking on the highlighted
+\<^verbatim>\<open>theory exports\<close> lets Isabelle display a part of the virtual file-system
+(see subwidget left). Activating it in the subwidget lets jEdit open it as an editable file, which
+can be exported via \<^verbatim>\<open>File->Save As->...\<close> into the real file-system.
+\<close>
 
 end
