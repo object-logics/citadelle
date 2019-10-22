@@ -237,7 +237,7 @@ int a = 0;
    */
 \<close>
 
-subsection \<open>Bottom-Up Evaluation vs. Top-Down\<close>
+subsection \<open>Bottom-Up vs. Top-Down Evaluation\<close>
 
 ML\<open>
 structure Example_Data = Generic_Data (type T = string list

@@ -34,7 +34,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-section \<open>Interface: Outer Commands\<close>
+section \<open>Interface: Inner and Outer Commands\<close>
 
 theory C_Command
   imports C_Eval
@@ -802,7 +802,7 @@ val _ = Theory.setup
 in end
 \<close>
 
-subsection \<open>Definitions of Outer Commands\<close>
+subsection \<open>Definitions of Outer Classical Commands\<close>
 subsubsection \<open>Library\<close>
 (*  Author:     Frédéric Tuong, Université Paris-Saclay *)
 (*  Title:      Pure/Pure.thy

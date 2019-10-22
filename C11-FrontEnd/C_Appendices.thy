@@ -281,6 +281,18 @@ text \<open>
   except that their evaluations happen later.
 \<close>
 
+subsection \<open>Inner Directive Commands\<close>
+
+text \<open>
+  \<^descr> Among the directives provided as predefined in Isabelle/C, we currently have:
+  \<^C>\<open>#define _\<close> and \<^C>\<open>#undef _\<close>. In particular, for the case of
+  \<^C>\<open>#define _\<close>, rewrites are restricted to variable-form macros: support of
+  functional macros is not yet provided.
+  \<^descr> In Isabelle/C, not-yet-defined directives (such as \<^C>\<open>#include _\<close> or
+  \<^C>\<open>#if
+  #endif\<close>, etc.) do not make the parsing fail, but are treated as ``free variable commands''.
+\<close>
+
 section \<open>Quick Start (for People More Familiar with C than Isabelle)\<close>
 
 text \<open>
@@ -767,9 +779,12 @@ standard~\<^footnote>\<open>\<^url>\<open>http://hackage.haskell.org/package/lan
 is close to the C standard while focusing on resolving ambiguities of the
 standard~\<^footnote>\<open>\<^url>\<open>https://github.com/jhjourdan/C11parser\<close>\<close>~\cite{DBLP:journals/toplas/JourdanP17}. \<close>
 
-text \<open> Since the two are not accepting the same range of arbitrary C code (but possibly with a
-certain substantial part in common), we have actually already encountered situations where an error
-is raised by one parser, while a success is happening with the other parser (and
-vice-versa). \<close>
+text \<open> Note that the two parsers are not accepting/rejecting the same range of arbitrary C
+code. We have actually already encountered situations where an error is raised by one parser, while
+a success is happening with the other parser (and vice-versa). Consequently, in front of a C code,
+it can be a good recommendation to try out the parsing with all possible parsers of Isabelle/C. In
+any cases, a failure in one or several activated parsers might not be necessarily harmful: it might
+also indicate that a wrong parser has been selected, or a semantic back-end not yet supporting
+aspects of the C code being parsed. \<close>
 
 end

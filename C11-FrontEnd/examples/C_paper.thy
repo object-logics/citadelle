@@ -40,8 +40,10 @@ theory C_paper
   imports Isabelle_C.C_Main
 begin
 
-section \<open>Setup\<close>
+text \<open> This theory contains the examples presented in F-IDE
+2019~\cite{Tuong-IsabelleC:2019}. \<close>
 
+section \<open>Setup\<close>
 
 ML\<open>
 
