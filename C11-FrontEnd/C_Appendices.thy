@@ -341,16 +341,19 @@ it suffices to replace:
 Once done, one can press a CTRL-like key while hovering the mouse over the file name, then followed
 by a click on it to open a new window loading that file. 
 
-\<^item> After writing
-\<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close>, one has either
+\<^item> After a
+\<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close> command, one has either
 the possibility to keep the content as such in the theory file, or use
-\<^verbatim>\<open>C_export_file\<close> to export all previous C content to a ``real'' C file.
+\<^verbatim>\<open>C_export_file\<close> to export all previous C content into a ``real'' C file.
 
-In more details, the latter case makes the output window show a message suggesting to click on
-\<open>theory exports\<close>. Clicking on it makes the \<open>File Browser\<close> panel appear
-with the generated C file inside. It is only after loading the C file with a double click, that one
-can use the normal click on \<open>File\<close> and \<open>Save As...\<close> operations to finalize
-the explicit file writing. \<close>
+Note that since Isabelle2019, Isabelle uses a virtual file-system. This has the consequence, 
+that some extra operations are needed to export a file generated into the virtual file-system 
+of Isabelle into the ``real'' file-system. First, the \<open>C_export_file\<close> command needs to be 
+activated leading to a message in the output window. 
+By clicking on \<open>theory exports\<close> in this message, Isabelle opens a \<open>File Browser\<close>
+showing the content of the virtual file-system in the left window. Selecting and opening a generated file 
+in the latter lets jedit display it in a new buffer, which gives the possibility to export this file
+via \<open>File\<rightarrow>Save As\<close> into the real file-system.\<close>
 
 section \<open>Case Study: Mapping on the Parsed AST\<close>
 

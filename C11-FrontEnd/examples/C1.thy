@@ -612,12 +612,14 @@ setup \<open>C_Module.C_Term.map_default (fn _ => fn _ => fn _ => @{term "True"}
 
 subsection \<open>Validity of Context for Annotations\<close>
 
+ML \<open>fun fac x = if x = 0 then 1 else x * fac (x - 1)\<close>
+
 ML \<comment> \<open>Execution of annotations in term possible in (the outermost) \<^theory_text>\<open>ML\<close>\<close> \<open>
-\<^term>\<open> \<^C> \<open>int c = 0; /*@ ML \<open>()\<close> */\<close> \<close>
+\<^term>\<open> \<^C> \<open>int c = 0; /*@ ML \<open>fac 100\<close> */\<close> \<close>
 \<close>
 
 definition \<comment> \<open>Execution of annotations in term possible in \<^ML_type>\<open>local_theory\<close> commands (such as \<^theory_text>\<open>definition\<close>)\<close> \<open>
-term = \<^C> \<open>int c = 0; /*@ ML \<open>()\<close> */\<close>
+term = \<^C> \<open>int c = 0; /*@ ML \<open>fac 100\<close> */\<close>
 \<close>
 
 section \<open>Scopes of Inner and Outer Terms\<close>
@@ -746,5 +748,22 @@ int main () {
   printf ("%s", ó\<^url>ò);
 }
 \<close>
+
+section\<open>Exporting C Files to the File-System\<close>
+
+text\<open>From the Isabelle/C - side, the task is easy: Just type :\<close>
+
+C_export_file
+
+text\<open>... does the trick and generates a file \<^verbatim>\<open>C1.c\<close>. But hold on --- where is it ?
+Well, Isabelle/C uses since version Isabelle2019 a virtual file-system. Exporting 
+from it to the real file-system requires a few mouse-clicks (unfortunately).
+
+So activating the command \<^theory_text>\<open>C_export_file\<close> leads to the output
+``See theory exports "C/64/C1.c"'' (see 
+figure \<^theory_text>\<open>C-export-example.png\<close>), and clicking on the highlighted
+\<^theory_text>\<open>theory exports\<close> lets Isabelle display a part of the virtual file-system (see subwidget left).
+Activating it in the subwidget lets jedit open it as an editable file, which can be exported
+via \<^theory_text>\<open>File->Save As->...\<close> into the real file-system.\<close>
 
 end
