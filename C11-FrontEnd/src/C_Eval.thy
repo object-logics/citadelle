@@ -659,13 +659,17 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                           (fn dir_tok =>
                             let val name = C_Lex.content_of dir_tok
                                 val pos1 = [C_Lex.pos_of dir_tok]
-                                val data = Symtab.lookup (C_Context0.Directives.get context) name
                             in
-                              apsnd (apsnd (C_Env.map_reports_text (markup_directive_command
-                                                                     (C_Ast.Right (pos1, data))
-                                                                     pos1
-                                                                     name)))
-                              #> (case data of NONE => I | SOME (_, _, (exec, _)) => exec dir #> #2)
+                              fn env_tree as (_, (_, {context = context, ...})) =>
+                              let val data = Symtab.lookup (C_Context0.Directives.get context) name
+                              in
+                              env_tree
+                              |> apsnd (apsnd (C_Env.map_reports_text (markup_directive_command
+                                                                        (C_Ast.Right (pos1, data))
+                                                                        pos1
+                                                                        name)))
+                              |> (case data of NONE => I | SOME (_, _, (exec, _)) => exec dir #> #2)
+                              end
                             end)
                           (C_Lex.directive_cmds dir)
                       #> snd
