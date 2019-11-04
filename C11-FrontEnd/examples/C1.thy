@@ -368,16 +368,11 @@ int b = 7 / (3) * 50
 subsection \<open>Continuation Calculus with the C Environment: Presentation with Outer Commands\<close>
 
 ML\<open>
-local
-fun command dir f_cmd =
-  C_Inner_Syntax.command0 
-    (fn src => fn context => f_cmd (C_Stack.Data_Lang.get' context |> #2) src context)
-    C_Parse.C_source
-    dir
-in
-val _ = Theory.setup (   command C_Inner_Syntax.bottom_up C' ("C'", \<^here>)
-                      #> command C_Env.Top_down C' ("C'\<Down>", \<^here>))
-end
+val _ = Theory.setup
+          (C_Inner_Syntax.command0 
+            (fn src => fn context => C' (C_Stack.Data_Lang.get' context |> #2) src context)
+            C_Parse.C_source
+            ("C'", \<^here>, \<^here>, \<^here>))
 \<close>
 
 C \<comment> \<open>Nesting C code without propagating the C environment\<close> \<open>
@@ -650,8 +645,7 @@ val _ =
      #> C_Inner_Syntax.command0
           (C_Inner_Toplevel.keep'' o C_Inner_Isar_Cmd.print_term)
           (C_Token.syntax' (Scan.succeed [] -- Parse.term))
-          C_Inner_Syntax.bottom_up
-          ("term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r", \<^here>))
+          ("term\<^sub>o\<^sub>u\<^sub>t\<^sub>e\<^sub>r", \<^here>, \<^here>, \<^here>))
 end
 \<close>
 

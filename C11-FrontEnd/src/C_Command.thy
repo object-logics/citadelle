@@ -572,34 +572,100 @@ end
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/Isar/outer_syntax.ML\<close>\<close> \<open>
 structure C_Inner_Syntax =
 struct
-fun command00 f kind scan dir name =
-  C_Annotation.command'' kind name ""
-    (fn ((stack1, (to_delay, stack2)), _) =>
-      C_Parse.range scan >>
-        (fn (src, range) =>
-          C_Env.Parsing ((stack1, stack2), (range, dir (f src range), Symtab.empty, to_delay))))
+val drop1 = fn C_Scan.Left f => C_Scan.Left (K o f)
+             | C_Scan.Right (f, dir) => C_Scan.Right (K o f, dir)
 
-fun command00_no_range f kind dir name =
-  C_Annotation.command'' kind name ""
-    (fn ((stack1, (to_delay, stack2)), range) =>
-      Scan.succeed () >>
-        K (C_Env.Parsing ((stack1, stack2), (range, dir (f range), Symtab.empty, to_delay))))
+val drop2 = fn C_Scan.Left f => C_Scan.Left (K o K o f)
+             | C_Scan.Right (f, dir) => C_Scan.Right (K o K o f, dir)
 
-fun command f = command00 (K o f) Keyword.thy_decl
-fun command_range f = command00_no_range f Keyword.thy_decl
-fun command_range' f = command_range (K o f)
-fun command_no_range f = command00_no_range (K f) Keyword.thy_decl
-
-fun command0 f = command (K o f)
 val bottom_up = C_Env.Bottom_up o C_Env.Exec_annotation
-fun local_command' spec scan f =
-  command (K o (fn (target, arg) => C_Inner_Toplevel.local_theory' target (f arg)))
-          (C_Token.syntax' (Parse.opt_target -- scan))
-          bottom_up
-          spec
-val command0_no_range = command_no_range o K
 
-fun command0' f = command00 (K o K o f)
+(**)
+
+fun pref_lex name = "#" ^ name
+val pref_bot = I
+fun pref_top name = name ^ "\<Down>"
+
+(**)
+
+fun command2' cmd f (pos_bot, pos_top) =
+  let fun cmd' dir = cmd (C_Scan.Right (f, dir)) Keyword.thy_decl
+  in   cmd' bottom_up (pref_bot, pos_bot)
+    #> cmd' C_Env.Top_down (pref_top, pos_top)
+  end
+
+fun command3' cmd f (pos_lex, pos_bot, pos_top) =
+     cmd (C_Scan.Left f) (pref_lex, pos_lex)
+  #> command2' (K o cmd) f (pos_bot, pos_top)
+
+fun command2 cmd f (name, pos_bot, pos_top) =
+  command2' (fn f => fn kind => fn (name_pref, pos) => cmd f kind (name_pref name, pos))
+            f
+            (pos_bot, pos_top)
+
+fun command3 cmd f (name, pos_lex, pos_bot, pos_top) =
+  command3' (fn f => fn (name_pref, pos) => cmd f (name_pref name, pos))
+            f
+            (pos_lex, pos_bot, pos_top)
+
+(**)
+
+fun command00 f kind scan name =
+  C_Annotation.command'' kind name ""
+    (case f of
+       C_Scan.Left f =>
+        (fn _ =>
+          C_Parse.range scan >>
+            (fn (src, range) =>
+              C_Env.Lexing (range, f src range)))
+     | C_Scan.Right (f, dir) =>
+         fn ((stack1, (to_delay, stack2)), _) =>
+          C_Parse.range scan >>
+            (fn (src, range) =>
+              C_Env.Parsing ((stack1, stack2), (range, dir (f src range), Symtab.empty, to_delay))))
+
+fun command00_no_range f kind name =
+  C_Annotation.command'' kind name ""
+    (case f of
+       C_Scan.Left f =>
+        (fn (_, range) =>
+          Scan.succeed () >>
+            K (C_Env.Lexing (range, f range)))
+     | C_Scan.Right (f, dir) =>
+         fn ((stack1, (to_delay, stack2)), range) =>
+          Scan.succeed () >>
+            K (C_Env.Parsing ((stack1, stack2), (range, dir (f range), Symtab.empty, to_delay))))
+
+(**)
+
+fun command' f = command00 (drop1 f) Keyword.thy_decl
+
+fun command f scan = command2 (fn f => fn kind => command00 f kind scan) (K o f)
+
+fun command_range f = command00_no_range f Keyword.thy_decl
+
+val command_range' = command3 (command_range o drop1)
+
+fun command_no_range' f = command00_no_range (drop1 f) Keyword.thy_decl
+
+fun command_no_range f = command2 command00_no_range (K f)
+
+fun command0 f scan = command3 (fn f => command' (drop1 f) scan) f
+
+fun local_command' (name, pos_lex, pos_bot, pos_top) scan f =
+  command3' (fn f => fn (name_pref, pos) =>
+              command' (drop1 f)
+                       (C_Token.syntax' (Parse.opt_target -- scan name_pref))
+                       (name_pref name, pos))
+            (fn (target, arg) => C_Inner_Toplevel.local_theory' target (f arg))
+            (pos_lex, pos_bot, pos_top)
+
+fun local_command'' spec = local_command' spec o K
+
+val command0_no_range = command_no_range' o drop1
+
+fun command0' f kind scan =
+  command3 (fn f => fn (name, pos) => command00 (drop2 f) kind (scan name) (name, pos)) f
 end
 \<close>
 
@@ -638,9 +704,13 @@ subsubsection \<open>Initialization\<close>
 
 setup \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
 C_Thy_Header.add_keywords_minor
-  [ (("apply", \<^here>), ((Keyword.prf_script, []), ["proof"]))
-  , (("by", \<^here>), ((Keyword.qed, []), ["proof"]))
-  , (("done", \<^here>), ((Keyword.qed_script, []), ["proof"])) ]
+  (maps (fn ((name, pos_lex, pos_bot, pos_top), ty) =>
+          [ ((C_Inner_Syntax.pref_lex name, pos_lex), ty)
+          , ((C_Inner_Syntax.pref_bot name, pos_bot), ty)
+          , ((C_Inner_Syntax.pref_top name, pos_top), ty) ])
+        [ (("apply", \<^here>, \<^here>, \<^here>), ((Keyword.prf_script, []), ["proof"]))
+        , (("by", \<^here>, \<^here>, \<^here>), ((Keyword.qed, []), ["proof"]))
+        , (("done", \<^here>, \<^here>, \<^here>), ((Keyword.qed_script, []), ["proof"])) ])
 \<close>
 
 ML \<comment> \<open>\<^theory>\<open>Pure\<close>\<close> \<open>
@@ -689,12 +759,13 @@ in
 fun theorem spec schematic =
   C_Inner_Syntax.local_command'
     spec
-    ((long_statement || short_statement)
-     -- let val apply = Parse.$$$ "apply" |-- Method.parse
-        in Scan.repeat1 apply -- (Parse.$$$ "done" >> K NONE)
-        || Scan.repeat apply -- (Parse.$$$ "by"
-                                 |-- Method.parse -- Scan.option Method.parse >> SOME)
-        end)
+    (fn name_pref =>
+      (long_statement || short_statement)
+      -- let val apply = Parse.$$$ (name_pref "apply") |-- Method.parse
+         in Scan.repeat1 apply -- (Parse.$$$ (name_pref "done") >> K NONE)
+         || Scan.repeat apply -- (Parse.$$$ (name_pref "by")
+                                  |-- Method.parse -- Scan.option Method.parse >> SOME)
+         end)
     (C_Isar_Cmd.theorem schematic)
 end
 
@@ -704,72 +775,30 @@ val opt_modes =
 val _ = Theory.setup
  (   C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup)
                             C_Parse.ML_source
-                            C_Inner_Syntax.bottom_up
-                            ("\<approx>setup", \<^here>)
-  #> C_Inner_Syntax.command (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup)
-                            C_Parse.ML_source
-                            C_Env.Top_down
-                            ("\<approx>setup\<Down>", \<^here>)
+                            ("\<approx>setup", \<^here>, \<^here>)
   #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup)
                              C_Parse.ML_source
-                             C_Inner_Syntax.bottom_up
-                             ("setup", \<^here>)
-  #> C_Inner_Syntax.command0 (C_Inner_Toplevel.theory o Isar_Cmd.setup)
-                             C_Parse.ML_source
-                             C_Env.Top_down
-                             ("setup\<Down>", \<^here>)
+                             ("setup", \<^here>, \<^here>, \<^here>)
   #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML)
                              C_Parse.ML_source
-                             C_Inner_Syntax.bottom_up
-                             ("ML", \<^here>)
-  #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Isar_Cmd.ML)
-                             C_Parse.ML_source
-                             C_Env.Top_down
-                             ("ML\<Down>", \<^here>)
+                             ("ML", \<^here>, \<^here>, \<^here>)
   #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C)
                              C_Parse.C_source
-                             C_Inner_Syntax.bottom_up
-                             ("C", \<^here>)
-  #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C)
-                             C_Parse.C_source
-                             C_Env.Top_down
-                             ("C\<Down>", \<^here>)
+                             ("C", \<^here>, \<^here>, \<^here>)
   #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.ML NONE)
                               Keyword.thy_load
-                              (C_Resources.parse_files "ML_file" --| semi)
-                              C_Inner_Syntax.bottom_up
-                              ("ML_file", \<^here>)
-  #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.ML NONE)
-                              Keyword.thy_load
-                              (C_Resources.parse_files "ML_file\<Down>" --| semi)
-                              C_Env.Top_down
-                              ("ML_file\<Down>", \<^here>)
+                              (fn name => C_Resources.parse_files name --| semi)
+                              ("ML_file", \<^here>, \<^here>, \<^here>)
   #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C)
                               Keyword.thy_load
-                              (C_Resources.parse_files "C_file" --| semi)
-                              C_Inner_Syntax.bottom_up
-                              ("C_file", \<^here>)
-  #> C_Inner_Syntax.command0' (C_Inner_Toplevel.generic_theory o C_Inner_File.C)
-                              Keyword.thy_load
-                              (C_Resources.parse_files "C_file\<Down>" --| semi)
-                              C_Env.Top_down
-                              ("C_file\<Down>", \<^here>)
+                              (fn name => C_Resources.parse_files name --| semi)
+                              ("C_file", \<^here>, \<^here>, \<^here>)
   #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot)
                              C_Parse.C_source
-                             C_Inner_Syntax.bottom_up
-                             ("C_export_boot", \<^here>)
-  #> C_Inner_Syntax.command0 (C_Inner_Toplevel.generic_theory o C_Module.C_export_boot)
-                             C_Parse.C_source
-                             C_Env.Top_down
-                             ("C_export_boot\<Down>", \<^here>)
+                             ("C_export_boot", \<^here>, \<^here>, \<^here>)
   #> C_Inner_Syntax.command_range'
                              (Context.map_theory o Named_Target.theory_map o C_Module.C_export_file)
-                             C_Inner_Syntax.bottom_up
-                             ("C_export_file", \<^here>)
-  #> C_Inner_Syntax.command_range'
-                             (Context.map_theory o Named_Target.theory_map o C_Module.C_export_file)
-                             C_Env.Top_down
-                             ("C_export_file\<Down>", \<^here>)
+                             ("C_export_file", \<^here>, \<^here>, \<^here>)
   #> C_Inner_Syntax.command_no_range
        (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup
          \<open>fn ((_, (_, pos1, pos2)) :: _) =>
@@ -778,27 +807,25 @@ val _ = Theory.setup
                       Position.reports_text [((Position.range (pos1, pos2)
                                                |> Position.range_position, Markup.intensify), "")]))
            | _ => fn _ => fn _ => I\<close>)
-       C_Inner_Syntax.bottom_up
-       ("highlight", \<^here>)
-  #> theorem ("theorem", \<^here>) false
-  #> theorem ("lemma", \<^here>) false
-  #> theorem ("corollary", \<^here>) false
-  #> theorem ("proposition", \<^here>) false
-  #> theorem ("schematic_goal", \<^here>) true
-  #> C_Inner_Syntax.local_command'
-      ("definition", \<^here>)
+       ("highlight", \<^here>, \<^here>)
+  #> theorem ("theorem", \<^here>, \<^here>, \<^here>) false
+  #> theorem ("lemma", \<^here>, \<^here>, \<^here>) false
+  #> theorem ("corollary", \<^here>, \<^here>, \<^here>) false
+  #> theorem ("proposition", \<^here>, \<^here>, \<^here>) false
+  #> theorem ("schematic_goal", \<^here>, \<^here>, \<^here>) true
+  #> C_Inner_Syntax.local_command''
+      ("definition", \<^here>, \<^here>, \<^here>)
       (Scan.option Parse_Spec.constdecl -- (Parse_Spec.opt_thm_name ":" -- Parse.prop) --
         Parse_Spec.if_assumes -- Parse.for_fixes)
       C_Isar_Cmd.definition
-  #> C_Inner_Syntax.local_command'
-      ("declare", \<^here>)
+  #> C_Inner_Syntax.local_command''
+      ("declare", \<^here>, \<^here>, \<^here>)
       (Parse.and_list1 Parse.thms1 -- Parse.for_fixes)
       C_Isar_Cmd.declare
   #> C_Inner_Syntax.command0
       (C_Inner_Toplevel.keep'' o C_Inner_Isar_Cmd.print_term)
       (C_Token.syntax' (opt_modes -- Parse.term))
-      C_Inner_Syntax.bottom_up
-      ("term", \<^here>))
+      ("term", \<^here>, \<^here>, \<^here>))
 in end
 \<close>
 

@@ -230,8 +230,7 @@ fun command (cmd as (cmd_name, _)) scan0 scan f =
 in
 val _ = Theory.setup (   C_Inner_Syntax.command_no_range
                            (C_Inner_Toplevel.generic_theory oo C_Inner_Isar_Cmd.setup \<open>K (K (K I))\<close>)
-                           C_Inner_Syntax.bottom_up
-                           ("loop", \<^here>)
+                           ("loop", \<^here>, \<^here>)
                       #> command ("ensures", \<^here>) scan_opt_colon C_Parse.term Term
                       #> command ("invariant", \<^here>) scan_opt_colon C_Parse.term Term
                       #> command ("assigns", \<^here>) scan_opt_colon C_Parse.term Term
