@@ -754,7 +754,7 @@ on --- where is it?  Well, Isabelle/C uses since version Isabelle2019 a virtual
 file-system. Exporting from it to the real file-system requires a few mouse-clicks (unfortunately).
 
 So activating the command \<^theory_text>\<open>C_export_file\<close> leads to the output
-\<^verbatim>\<open>See theory exports "C/64/C1.c"\<close> (see figure
+\<^verbatim>\<open>See theory exports "C/*/C1.c"\<close> (see figure
 \<^verbatim>\<open>C-export-example.png\<close>), and clicking on the highlighted
 \<^verbatim>\<open>theory exports\<close> lets Isabelle display a part of the virtual file-system
 (see subwidget left). Activating it in the subwidget lets jEdit open it as an editable file, which

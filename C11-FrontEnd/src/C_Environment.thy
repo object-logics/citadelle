@@ -46,7 +46,9 @@ utilities. \<close>
 ML \<comment> \<open>\<^file>\<open>~~/src/Pure/context.ML\<close>\<close> \<open>
 structure C_Env = struct
 
-type env_directives = (Position.T list * serial * C_Lex.token list) Symtab.table
+type 'a markup_store = Position.T list * serial * 'a
+
+type env_directives = C_Lex.token list markup_store Symtab.table
 
 (**)
 
@@ -57,8 +59,6 @@ type markup_global = bool (*true: global*)
 type markup_ident = { global : markup_global
                     , params : C_Ast.CDerivedDeclr list
                     , ret : C_Ast.CDeclSpec list parse_status }
-
-type 'a markup_store = Position.T list * serial * 'a
 
 type var_table = { tyidents : markup_global markup_store Symtab.table (*ident name*)
                                                                       Symtab.table (*internal
