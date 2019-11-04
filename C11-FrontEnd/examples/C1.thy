@@ -698,6 +698,61 @@ int c = 0;
 int e = a + b + c + d;
 }\<close>
 
+section \<open>Calculation in Directives\<close>
+
+subsection \<open>Annotation Command Classification\<close>
+
+C \<comment> \<open>Lexing category vs. parsing category\<close> \<open>
+int a = 0;
+
+// \<comment> \<open>Category 2: only parsing\<close>
+
+//@   \<approx>setup  \<open>K (K (K I))\<close> (* evaluation at parsing *)
+//@@  \<approx>setup\<Down> \<open>K (K (K I))\<close> (* evaluation at parsing *)
+
+//@   highlight             (* evaluation at parsing *)
+//@@  highlight\<Down>            (* evaluation at parsing *)
+
+// \<comment> \<open>Category 3: with lexing\<close>
+
+//@  #setup  I              (* evaluation at lexing (and directives resolving) *)
+//@   setup  I              (* evaluation at parsing *)
+//@@  setup\<Down> I              (* evaluation at parsing *)
+
+//@  #ML     I              (* evaluation at lexing (and directives resolving) *)
+//@   ML     I              (* evaluation at parsing *)
+//@@  ML\<Down>    I              (* evaluation at parsing *)
+
+//@  #C     \<open>\<close>              (* evaluation at lexing (and directives resolving) *)
+//@   C     \<open>\<close>              (* evaluation at parsing *)
+//@@  C\<Down>    \<open>\<close>              (* evaluation at parsing *)
+\<close>
+
+C \<comment> \<open>Scheduling example\<close> \<open>
+//@+++++   ML  \<open>writeln "2"\<close>
+int a = 0;
+//@@       ML\<Down> \<open>writeln "3"\<close>
+//@       #ML  \<open>writeln "1"\<close>
+\<close>
+
+C \<comment> \<open>Scheduling example\<close> \<open>
+//*  lemma True  by simp
+//* #lemma True #by simp
+//* #lemma True  by simp
+//*  lemma True #by simp
+\<close>
+
+C \<comment> \<open>Scheduling example\<close> \<open> /*@
+lemma \<open>1 = one\<close>
+      \<open>2 = two\<close>
+      \<open>two + one = three\<close>
+by auto
+
+#definition [simp]: \<open>three = 3\<close>
+#definition [simp]: \<open>two   = 2\<close>
+#definition [simp]: \<open>one   = 1\<close>
+*/ \<close>
+
 section \<open>Miscellaneous\<close>
 
 C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>

@@ -454,6 +454,8 @@ fun directive_update_define pos =
                                   (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
         | _ => I))
 in
+val setup_define = Context.theory_map o C_Context0.Directives.map o directive_update_define
+
 val _ =
   Theory.setup
   (Context.theory_map
