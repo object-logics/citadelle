@@ -48,7 +48,13 @@ structure C_Env = struct
 
 type 'a markup_store = Position.T list * serial * 'a
 
-type env_directives = C_Lex.token list markup_store Symtab.table
+type env_directives =
+      (   ( string * Position.range -> Context.generic -> C_Lex.token list * Context.generic
+          , C_Lex.token list)
+        C_Scan.either
+      * (string * Position.range -> Context.generic -> Context.generic))
+    markup_store
+  Symtab.table
 
 (**)
 

@@ -402,7 +402,7 @@ struct
 local
 fun directive_update keyword data = C_Context.directive_update keyword (data, K (K (K I)))
 fun return f (env_cond, env) = ([], (env_cond, f env))
-fun directive_update_define pos =
+fun directive_update_define pos f_toks f_antiq =
   directive_update ("define", pos)
     (return
      o
@@ -434,7 +434,7 @@ fun directive_update_define pos =
             fn (env_dir, env_tree) =>
               let val name = C_Lex.content_of tok3
                   val pos = [C_Lex.pos_of tok3]
-                  val data = (pos, serial (), toks)
+                  val data = (pos, serial (), (C_Scan.Left (f_toks toks), f_antiq))
               in
                 ( Symtab.update (name, data) env_dir
                 , env_tree |> C_Context.markup_directive_define
@@ -454,13 +454,13 @@ fun directive_update_define pos =
                                   (C_Lex.pos_of tok3, C_Lex.end_pos_of (List.last toks_bl)))))
         | _ => I))
 in
-val setup_define = Context.theory_map o C_Context0.Directives.map o directive_update_define
+val setup_define = Context.theory_map o C_Context0.Directives.map ooo directive_update_define
 
 val _ =
   Theory.setup
   (Context.theory_map
     (C_Context0.Directives.map
-      (directive_update_define \<^here>
+      (directive_update_define \<^here> (K o pair) (K I)
        #>
        directive_update ("undef", \<^here>)
         (return

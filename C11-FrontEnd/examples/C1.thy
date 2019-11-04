@@ -753,6 +753,69 @@ by auto
 #definition [simp]: \<open>one   = 1\<close>
 */ \<close>
 
+subsection \<open>Generalizing ML Antiquotations with C Directives\<close>
+
+ML \<open>
+structure Directive_setup_define = Generic_Data
+  (type T = int
+   val empty = 0
+   val extend = K empty
+   val merge = K empty)
+
+fun setup_define1 pos f =
+  C_Directive.setup_define
+    pos
+    (fn toks => fn (name, (pos1, _)) =>
+      tap (fn _ => writeln ("Executing " ^ name ^ Position.here pos1 ^ " (only once)"))
+      #> pair (f toks))
+    (K I)
+
+fun setup_define2 pos = C_Directive.setup_define pos (K o pair)
+\<close>
+
+C \<comment> \<open>General scheme of C antiquotations\<close> \<open>
+/*@
+    #setup \<comment> \<open>Overloading \<open>#define\<close>\<close> \<open>
+      setup_define2
+        \<^here>
+        (fn (name, (pos1, _)) =>
+          op ` Directive_setup_define.get
+          #>> (case name of "f3" => curry op * 152263 | _ => curry op + 1)
+          #>  tap (fn (nb, _) =>
+                    tracing ("Executing antiquotation " ^ name ^ Position.here pos1
+                             ^ " (number = " ^ Int.toString nb ^ ")"))
+          #>  uncurry Directive_setup_define.put)
+    \<close>
+*/
+#define f1
+#define f2 int a = 0;
+#define f3
+        f1
+        f2
+        f1
+        f3
+
+//@ #setup \<comment> \<open>Resetting \<open>#define\<close>\<close> \<open>setup_define2 \<^here> (K I)\<close>
+        f3
+#define f3
+        f3
+\<close>
+
+C \<comment> \<open>Dynamic token computing in \<open>#define\<close>\<close> \<open>
+
+//@ #setup \<open>setup_define1 \<^here> (K [])\<close>
+#define f int a = 0;
+        f f f f
+
+//@ #setup \<open>setup_define1 \<^here> (fn toks => toks @ toks)\<close>
+#define f int b = a;
+        f f
+
+//@ #setup \<open>setup_define1 \<^here> I\<close>
+#define f int a = 0;
+        f f
+\<close>
+
 section \<open>Miscellaneous\<close>
 
 C \<comment> \<open>Antiquotations acting on a parsed-subtree\<close> \<open>

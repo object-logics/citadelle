@@ -627,15 +627,27 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                   fun subst_directive tok (range1 as (pos1, _)) name (env_dir, env_tree) =
                     case Symtab.lookup env_dir name of
                       NONE => (Right (Left tok), (env_dir, env_tree))
-                    | SOME (data as (_, _, toks)) =>
-                          ( Right (Right (pos1, map (C_Lex.set_range range1) toks))
-                          , ( env_dir
-                            , markup_directive_define
-                                false
-                                (C_Ast.Right ([pos1], SOME data))
-                                [pos1]
-                                name
-                                env_tree))
+                    | SOME (data as (_, _, (exec_toks, exec_antiq))) =>
+                        env_tree
+                        |> markup_directive_define
+                            false
+                            (C_Ast.Right ([pos1], SOME data))
+                            [pos1]
+                            name
+                        |> (case exec_toks of
+                              Left exec_toks =>
+                                C_Env.map_context' (exec_toks (name, range1))
+                                #> apfst
+                                     (fn toks =>
+                                       (toks, Symtab.update (name, ( #1 data
+                                                                   , #2 data
+                                                                   , (Right toks, exec_antiq)))
+                                                            env_dir))
+                            | Right toks => pair (toks, env_dir))
+                        ||> C_Env.map_context (exec_antiq (name, range1))
+                        |-> (fn (toks, env_dir) =>
+                              pair (Right (Right (pos1, map (C_Lex.set_range range1) toks)))
+                              o pair env_dir)
                 in
                  fn Left (tag, antiq, toks, l_antiq) =>
                       fold_map
