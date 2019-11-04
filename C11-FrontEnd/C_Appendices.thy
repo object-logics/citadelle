@@ -372,8 +372,8 @@ output window: \<^verbatim>\<open>See theory exports "C/*/*.c"\<close> (see figu
 \<^verbatim>\<open>C-export-example.png\<close>). By clicking on \<open>theory exports\<close> in
 this message, Isabelle opens a \<open>File Browser\<close> showing the content of the virtual
 file-system in the left window. Selecting and opening a generated file in the latter lets jEdit
-display it in a new buffer, which gives the possibility to export this file via \<open>File
-\<rightarrow> Save As\<dots>\<close> into the real file-system. \<close>
+display it in a new buffer, which gives the possibility to export this file via ``\<open>File
+\<rightarrow> Save As\<dots>\<close>'' into the real file-system. \<close>
 
 section \<open>Case Study: Mapping on the Parsed AST\<close>
 
@@ -826,7 +826,7 @@ So activating the command \<^theory_text>\<open>C_export_file\<close> leads to t
 \<^verbatim>\<open>C-export-example.png\<close>), and clicking on the highlighted
 \<^verbatim>\<open>theory exports\<close> lets Isabelle display a part of the virtual file-system
 (see subwidget left). Activating it in the subwidget lets jEdit open it as an editable file, which
-can be exported via \<^verbatim>\<open>File \<rightarrow> Save As\<dots>\<close> into the real
+can be exported via ``\<open>File \<rightarrow> Save As\<dots>\<close>'' into the real
 file-system. \<close>
 
 end
