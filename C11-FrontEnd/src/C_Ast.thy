@@ -76,8 +76,9 @@ files of the Isabelle/C project. It contains among others:
 
   \<^item> \<^file>\<open>../generated/c_grammar_fun.grm.sig\<close> and
   \<^file>\<open>../generated/c_grammar_fun.grm.sml\<close> are the two files generated from
-  \<^file>\<open>../generated/c_grammar_fun.grm\<close> with a modified version of ML-Yacc. This last comes from
-  MLton source in \<^dir>\<open>../../mlton\<close>, see for example \<^dir>\<open>../../mlton/mlyacc\<close>.
+  \<^file>\<open>../generated/c_grammar_fun.grm\<close> with a modified version of ML-Yacc. This
+  last comes from MLton source in \<^dir>\<open>../../src_ext/mlton\<close>, see for example
+  \<^dir>\<open>../../src_ext/mlton/mlyacc\<close>.
 \<close>
 
 text \<open> For the case of \<^file>\<open>../generated/c_ast.ML\<close>, it is actually not

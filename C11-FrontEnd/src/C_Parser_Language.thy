@@ -41,12 +41,12 @@ theory C_Parser_Language
 begin
 
 text \<open> As mentioned in \<^theory>\<open>Isabelle_C.C_Ast\<close>, Isabelle/C depends on
-certain external parsing libraries, such as \<^dir>\<open>../../mlton\<close>, and more specifically
-\<^dir>\<open>../../mlton/lib/mlyacc-lib\<close>. Actually, the sole theory making use of the files
-in \<^dir>\<open>../../mlton/lib/mlyacc-lib\<close> is the present
+certain external parsing libraries, such as \<^dir>\<open>../../src_ext/mlton\<close>, and more
+specifically \<^dir>\<open>../../src_ext/mlton/lib/mlyacc-lib\<close>. Actually, the sole theory
+making use of the files in \<^dir>\<open>../../src_ext/mlton/lib/mlyacc-lib\<close> is the present
 \<^file>\<open>C_Parser_Language.thy\<close>. (Any other remaining files in
-\<^dir>\<open>../../mlton\<close> are not used by Isabelle/C, they come from the original repository
-of MLton: \<^url>\<open>https://github.com/MLton/mlton\<close>.) \<close>
+\<^dir>\<open>../../src_ext/mlton\<close> are not used by Isabelle/C, they come from the original
+repository of MLton: \<^url>\<open>https://github.com/MLton/mlton\<close>.) \<close>
 
 subsection \<open>Parsing Library (Including Semantic Functions)\<close>
 
@@ -855,19 +855,19 @@ end;
 subsection \<open>Loading the Grammar Simulator\<close>
 
 text \<open> The parser consists of a generic module
-\<^file>\<open>../../mlton/lib/mlyacc-lib/base.sig\<close>, which interprets an
+\<^file>\<open>../../src_ext/mlton/lib/mlyacc-lib/base.sig\<close>, which interprets an
 automata-like format generated from ML-Yacc. \<close>
 
-ML_file "../../mlton/lib/mlyacc-lib/base.sig" \<comment>
-\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/base.sig\<close>\<close>
-ML_file "../../mlton/lib/mlyacc-lib/join.sml" \<comment>
-\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/join.sml\<close>\<close>
-ML_file "../../mlton/lib/mlyacc-lib/lrtable.sml" \<comment>
-\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/lrtable.sml\<close>\<close>
-ML_file "../../mlton/lib/mlyacc-lib/stream.sml" \<comment>
-\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/stream.sml\<close>\<close>
-ML_file "../../mlton/lib/mlyacc-lib/parser1.sml" \<comment>
-\<open>\<^ML_file>\<open>../../mlton/lib/mlyacc-lib/parser1.sml\<close>\<close>
+ML_file "../../src_ext/mlton/lib/mlyacc-lib/base.sig" \<comment>
+\<open>\<^ML_file>\<open>../../src_ext/mlton/lib/mlyacc-lib/base.sig\<close>\<close>
+ML_file "../../src_ext/mlton/lib/mlyacc-lib/join.sml" \<comment>
+\<open>\<^ML_file>\<open>../../src_ext/mlton/lib/mlyacc-lib/join.sml\<close>\<close>
+ML_file "../../src_ext/mlton/lib/mlyacc-lib/lrtable.sml" \<comment>
+\<open>\<^ML_file>\<open>../../src_ext/mlton/lib/mlyacc-lib/lrtable.sml\<close>\<close>
+ML_file "../../src_ext/mlton/lib/mlyacc-lib/stream.sml" \<comment>
+\<open>\<^ML_file>\<open>../../src_ext/mlton/lib/mlyacc-lib/stream.sml\<close>\<close>
+ML_file "../../src_ext/mlton/lib/mlyacc-lib/parser1.sml" \<comment>
+\<open>\<^ML_file>\<open>../../src_ext/mlton/lib/mlyacc-lib/parser1.sml\<close>\<close>
 
 subsection \<open>Loading the Generated Grammar (SML signature)\<close>
 

@@ -392,9 +392,9 @@ subsection \<open>Prerequisites\<close>
 
 text \<open> Even if \<^file>\<open>generated/c_grammar_fun.grm.sig\<close> and
 \<^file>\<open>generated/c_grammar_fun.grm.sml\<close> are files written in ML syntax, we have
-actually modified \<^dir>\<open>../mlton/lib/mlyacc-lib\<close> in such a way that at run time, the
-overall loading and execution of \<^theory>\<open>Isabelle_C.C_Parser_Language\<close> will mimic
-all necessary features of the Haskell parser generator Happy
+actually modified \<^dir>\<open>../src_ext/mlton/lib/mlyacc-lib\<close> in such a way that at run
+time, the overall loading and execution of \<^theory>\<open>Isabelle_C.C_Parser_Language\<close>
+will mimic all necessary features of the Haskell parser generator Happy
 \<^footnote>\<open>\<^url>\<open>https://www.haskell.org/happy/doc/html/index.html\<close>\<close>,
 including any monadic interactions between the lexing
 (\<^theory>\<open>Isabelle_C.C_Lexer_Language\<close>) and parsing part
