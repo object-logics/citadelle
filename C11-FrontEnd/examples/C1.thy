@@ -38,7 +38,7 @@ chapter \<open>Example: Annotation Navigation and Context Serialization\<close>
 
 theory C1
   imports Isabelle_C.C_Main
-          "~~/src/HOL/ex/Cartouche_Examples"
+          "HOL-ex.Cartouche_Examples"
 begin
 
 text \<open> Operationally, the \<^theory_text>\<open>C\<close> command can be thought of as
