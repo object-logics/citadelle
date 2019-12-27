@@ -43,8 +43,8 @@ session Isabelle_C = HOL +
   theories
     C_Main
   document_files
-    "root.tex"
     "root.bib"
+    "root.tex"
 
 session Isabelle_C_examples = Isabelle_C + (* a standard test suite *)
   options [document = pdf, document_output = "generated/document/2"]
@@ -57,21 +57,21 @@ session Isabelle_C_examples = Isabelle_C + (* a standard test suite *)
     "examples/C2"
     "examples/C_paper"
   document_files
-    "root.tex"
     "root.bib"
+    "root.tex"
 
 session Isabelle_C_document = Isabelle_C_examples +
   options [document = pdf, document_output = "generated/document/3"]
   theories
     C_Appendices
   document_files
-    "root.tex"
     "root.bib"
+    "root.tex"
 
 session Isabelle_C_all = Isabelle_C_document +
   options [document = pdf, document_output = "generated"]
   (* TODO: find a way to concatenate together PDF in:
            generated/document/1 + generated/document/2 + generated/document/3 *)
   document_files
-    "root.tex"
     "root.bib"
+    "root.tex"

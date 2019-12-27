@@ -364,7 +364,7 @@ by a click on it to open a new window loading that file.
 command, one has either the possibility to keep the content as such in the theory file, or use
 \<^verbatim>\<open>C_export_file\<close> to export all previous C content into a ``real'' C file.
 
-Note that since Isabelle2019, Isabelle uses a virtual file-system. This has the consequence, that
+Note that since Isabelle2019, Isabelle/C uses a virtual file-system. This has the consequence, that
 some extra operations are needed to export a file generated into the virtual file-system of Isabelle
 into the ``real'' file-system. First, the \<^verbatim>\<open>C_export_file\<close> command needs to
 be activated, by putting the cursor on the command. This leads to the following message in the
