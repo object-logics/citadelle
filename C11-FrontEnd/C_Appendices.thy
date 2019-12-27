@@ -358,7 +358,7 @@ it suffices to replace:
 \end{tabular}
 
 Once done, one can press a CTRL-like key while hovering the mouse over the file name, then followed
-by a click on it to open a new window loading that file. 
+by a click on it to open a new window loading that file.
 
 \<^item> After a \<^verbatim>\<open>C\<close> \<^theory_text>\<open>\<open> /* C */ \<close>\<close>
 command, one has either the possibility to keep the content as such in the theory file, or use
@@ -615,7 +615,7 @@ is parsed, it might be helpful to proceed as in \<^theory>\<open>Isabelle_C_exam
 \<^theory_text>\<open>declare[[C_parser_trace]]\<close>. Then, the output window will display the
 sequence of Shift Reduce actions associated to the \<^theory_text>\<open>C\<close> command of
 interest.
-\<close> 
+\<close>
 
 section \<open>Known Limitations, Troubleshooting\<close>
 subsection \<open>The Document Model of the Isabelle/PIDE (applying for Isabelle 2019)\<close>
@@ -639,7 +639,7 @@ a \<^theory_text>\<open>C\<open> .. \<close>\<close> command whenever modified.\
 
 subsubsection \<open>Embedding a language in Isabelle/PIDE\<close>
 
-text \<open> 
+text \<open>
 To clarify why the way a language being embedded in Isabelle is influencing the interaction between
 a future parser of the language with the Isabelle's document model, we recall the two ``different''
 ways of embedding a language in Isabelle/PIDE.
@@ -772,7 +772,7 @@ make the error disappear at the position the error is indicated can be detailed 
   \<^item> Modifying the C code in input would be a first solution whenever we suspect something is
   making it erroneous (and when we have a reason to believe that the grammar is behaving as it
   should).
-  
+
   \<^item> However, we could still get the above error in front of an input where one is usually
   expecting to see not causing a failure. In particular, there are several C features (such as C
   directives) explicitly left for semantic back-ends (pre-) processing, so in general not fully
@@ -789,7 +789,7 @@ make the error disappear at the position the error is indicated can be detailed 
   automation of the preprocessing task (as done in
   \<^file>\<open>../C11-BackEnds/AutoCorres_wrapper/examples/IsPrime_TEC.thy\<close>, where the
   back-end explicitly makes a call to \<open>cpp\<close> at run-time).
-  
+
   \<^item> Ultimately, modifying the grammar with new rules cancelling the exception would only work
   if the problem really relies on the grammar, as it was mentioned for the acceptance state.
   \<close>
