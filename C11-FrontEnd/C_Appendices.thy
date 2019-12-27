@@ -38,7 +38,7 @@ chapter \<open>Annexes\<close>
 
 theory C_Appendices
   imports Isabelle_C_examples.C1
-          "~~/src/Doc/Isar_Ref/Base"
+          Isar_Ref.Base
 begin
 
 (*<*)

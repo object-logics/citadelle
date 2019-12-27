@@ -50,6 +50,7 @@ session Isabelle_C_examples = Isabelle_C + (* a standard test suite *)
   options [document = pdf, document_output = "generated/document/2"]
   sessions
     "HOL-ex"
+    "Isar_Ref"
   theories [document = false]
     "HOL-ex.Cartouche_Examples" (* LaTeX error in Isabelle2019 *)
   theories
