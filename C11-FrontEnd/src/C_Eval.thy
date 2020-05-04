@@ -161,30 +161,25 @@ fun advance0 stack (_, syms_reduce, ml_exec) =
     if len = 0 then
       I #>> advance00 stack ml_exec
     else
-      I ##>
       let
         val len = len - 1
       in
-        fn stack_ml =>
-          stack_ml
-          |> (if length stack_ml <= len then
-               tap (fn _ => warning ("Maximum depth reached ("
-                                     ^ Int.toString (len - length stack_ml + 1)
-                                     ^ " in excess)"
-                                     ^ Position.here (Symbol_Pos.range syms_reduce
-                                                      |> Position.range_position)))
-               #> tap (fn _ => warning ("Unevaluated code"
-                                        ^ Position.here (ml_exec |> #1
-                                                                 |> Position.range_position)))
-               #> I
-              else if length stack_ml - len <= 2 then
-               tap
-                 (fn _ =>
-                   warning ("Unevaluated code\
-                            \ as the hook is pointing to an internal initial value"
-                            ^ Position.here (ml_exec |> #1 |> Position.range_position)))
-               #> I
-              else nth_map len (cons ml_exec))
+        fn (arg, stack_ml) =>
+          if length stack_ml - 2 <= len then
+             ( C_Env.map_stream_hook_excess
+                 (add_stream0 (map_range I (len - length stack_ml + 2), syms_reduce, ml_exec))
+                 arg
+             , stack_ml)
+             |> tap (fn _ => warning ("Navigation out of bounds, "
+                                      ^ (if length stack_ml <= len then "maximum depth"
+                                                                   else "internal value")
+                                      ^ " reached ("
+                                      ^ Int.toString (len - length stack_ml + 3)
+                                      ^ " in excess)"
+                                      ^ Position.here (Symbol_Pos.range syms_reduce
+                                                       |> Position.range_position)))
+          else
+            (arg, nth_map len (cons ml_exec) stack_ml)
       end
   end
 
@@ -246,20 +241,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
   in
     case token
     of NONE => 
-        return0'
-          (tap (fn (arg, _) => 
-              fold (uncurry
-                     (fn pos => 
-                       fold_rev (fn (syms, _, _) => fn () =>
-                                  let val () = error ("Maximum depth reached ("
-                                                      ^ Int.toString (pos + 1)
-                                                      ^ " in excess)"
-                                                      ^ Position.here (Symbol_Pos.range syms
-                                                                       |> Position.range_position))
-                                  in () end)))
-                   (map_index I (#stream_hook arg))
-                   ()))
-          (C_Grammar.Tokens.x25_eof (Position.none, Position.none))
+        return0 (C_Grammar.Tokens.x25_eof (Position.none, Position.none))
      | SOME (Left (antiq_raw, l_antiq)) =>
         makeLexer
           ( (stack, stack_ml, stack_pos, stack_tree)
@@ -401,8 +383,10 @@ fun exec_tree' l env_tree = env_tree
                      "")
           l
 
-fun uncurry_context f pos = uncurry (fn (stack, _, _, stack_tree) =>
-  fn arg => map_env_tree' (f pos stack stack_tree (#env_lang arg)) arg)
+fun uncurry_context f pos = uncurry (fn (stack, stack_ml, stack_pos, stack_tree) =>
+  (* executing stack_tree *)
+   (fn arg => map_env_tree' (f pos stack stack_tree (#env_lang arg)) arg)
+  #> apfst (pair (stack, stack_ml, stack_pos, stack_tree)))
 
 fun eval env_lang start err accept stream_lang =
  make env_lang stream_lang
@@ -460,8 +444,50 @@ fun eval env_lang start err accept stream_lang =
                    actual
                    arg)
           end)
- #> snd
- #> apsnd #env_tree
+ #>
+ (fn (stream, (((stack, stack_ml, stack_pos, stack_tree), user), arg)) =>
+  let
+    fun shift_max acc stream =
+      let val (tok, stream) = C_Grammar_Parser.Stream.get stream
+      in
+        if LALR_Parser_Eval.Token.sameToken (tok, C_Grammar.Tokens.x25_eof (Position.none, Position.none)) then
+          (acc, stream)
+        else
+          shift_max (tok :: acc) stream
+      end
+  
+    (* executing stack_ml *)
+    val arg = fold (fold_rev (C_Hook.advance00 stack)) stack_ml arg
+  
+    (* executing stream_lang *)
+    val (_, (_, ((stack, stack_ml, _, _), arg))) =
+      shift_max [] (stream, ((stack, [[], []], stack_pos, stack_tree), arg))
+  in
+    arg
+    (* executing stream_hook *)
+    |> (fn arg => 
+        fold (uncurry
+              (fn pos => 
+                fold_rev (fn (syms_shift, syms_reduce, ml_exec) =>
+                           tap (fn _ => warning ("Navigation out of bounds,\
+                                                                        \ maximum breadth reached ("
+                                                 ^ Int.toString (pos + 1)
+                                                 ^ " in excess)"
+                                                 ^ Position.here (Symbol_Pos.range syms_shift
+                                                                  |> Position.range_position)))
+                           #> C_Hook.advance0 stack (syms_shift, syms_reduce, ml_exec))))
+             (map_index I (#stream_hook arg))
+             (arg, stack_ml)
+        |> fst)
+  
+    (* executing stream_hook_excess *)
+    |> (fn arg => fold (fold_rev (fn (_, _, ml_exec) => C_Hook.advance00 stack ml_exec))
+                       (#stream_hook_excess arg)
+                       arg)
+  
+    (**)
+    |> pair user o #env_tree
+  end)
 end
 \<close>
 
