@@ -124,6 +124,76 @@ structure Directives = Generic_Data
 end
 \<close>
 
+ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Environment\<close>\<close> \<open>
+structure C_Hook =
+struct
+fun add_stream0 (syms_shift, syms, ml_exec) stream_hook =
+  case
+     fold (fn _ => fn (eval1, eval2) =>
+         (case eval2 of e2 :: eval2 => (e2, eval2)
+                      | [] => ([], []))
+         |>> (fn e1 => e1 :: eval1))
+       syms_shift
+       ([], stream_hook)
+  of (eval1, eval2) => fold cons
+                            eval1
+                            (case eval2 of e :: es => ((syms_shift, syms, ml_exec) :: e) :: es
+                                         | [] => [[(syms_shift, syms, ml_exec)]])
+
+fun advance00 stack ml_exec =
+  case ml_exec of
+    (_, C_Env.Bottom_up (C_Env.Exec_annotation exec), env_dir, _) =>
+     (fn arg => C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack, #env_lang arg) (exec NONE))
+                                   arg)
+  | (_, C_Env.Bottom_up (C_Env.Exec_directive exec), env_dir, _) =>
+     C_Env.map_env_lang_tree (curry (exec NONE env_dir))
+  | ((pos, _), _, _, _) =>
+     C_Env_Ext.map_context (fn _ => error ( "Style of evaluation not yet implemented"
+                                          ^ Position.here pos))
+
+fun advance0 stack (_, syms_reduce, ml_exec) =
+  let
+    val len = length syms_reduce
+  in 
+    if len = 0 then
+      I #>> advance00 stack ml_exec
+    else
+      I ##>
+      let
+        val len = len - 1
+      in
+        fn stack_ml =>
+          stack_ml
+          |> (if length stack_ml <= len then
+               tap (fn _ => warning ("Maximum depth reached ("
+                                     ^ Int.toString (len - length stack_ml + 1)
+                                     ^ " in excess)"
+                                     ^ Position.here (Symbol_Pos.range syms_reduce
+                                                      |> Position.range_position)))
+               #> tap (fn _ => warning ("Unevaluated code"
+                                        ^ Position.here (ml_exec |> #1
+                                                                 |> Position.range_position)))
+               #> I
+              else if length stack_ml - len <= 2 then
+               tap
+                 (fn _ =>
+                   warning ("Unevaluated code\
+                            \ as the hook is pointing to an internal initial value"
+                            ^ Position.here (ml_exec |> #1 |> Position.range_position)))
+               #> I
+              else nth_map len (cons ml_exec))
+      end
+  end
+
+fun advance stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (arg, stack_ml))
+ (fn [] => I
+   | l :: ls => fold_rev (advance0 stack) l #>> C_Env.map_stream_hook (K ls))
+
+fun add_stream exec =
+  C_Env.map_stream_hook (add_stream0 exec)
+end
+\<close>
+
 ML \<comment> \<open>\<^theory>\<open>Isabelle_C.C_Lexer_Language\<close>\<close> \<open>
 structure C_Grammar_Lexer : ARG_LEXER1 =
 struct
@@ -140,83 +210,18 @@ end
 type stack =
        (LALR_Lex_Instance.state, LALR_Lex_Instance.svalue0, LALR_Lex_Instance.pos) C_Env.stack'
 
-fun advance_hook stack = (fn f => fn (arg, stack_ml) => f (#stream_hook arg) (arg, stack_ml))
- (fn [] => I | l :: ls =>
-  I
-  #> fold_rev 
-    (fn (_, syms, ml_exec) =>
-      let
-        val len = length syms
-      in 
-        if len = 0 then
-          I #>>
-          (case ml_exec of
-             (_, C_Env.Bottom_up (C_Env.Exec_annotation exec), env_dir, _) =>
-              (fn arg => C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack, #env_lang arg)
-                                                                        (exec NONE))
-                                            arg)
-           | (_, C_Env.Bottom_up (C_Env.Exec_directive exec), env_dir, _) =>
-              C_Env.map_env_lang_tree (curry (exec NONE env_dir))
-           | ((pos, _), _, _, _) =>
-              C_Env_Ext.map_context (fn _ => error ( "Style of evaluation not yet implemented"
-                                                   ^ Position.here pos)))
-        else
-          I ##>
-          let
-            val len = len - 1
-          in
-            fn stack_ml =>
-              stack_ml
-              |> (if length stack_ml <= len then
-                   tap (fn _ => warning ("Maximum depth reached ("
-                                         ^ Int.toString (len - length stack_ml + 1)
-                                         ^ " in excess)"
-                                         ^ Position.here (Symbol_Pos.range syms
-                                                          |> Position.range_position)))
-                   #> tap (fn _ => warning ("Unevaluated code"
-                                            ^ Position.here (ml_exec |> #1
-                                                                     |> Position.range_position)))
-                   #> I
-                  else if length stack_ml - len <= 2 then
-                   tap
-                     (fn _ =>
-                       warning ("Unevaluated code\
-                                \ as the hook is pointing to an internal initial value"
-                                ^ Position.here (ml_exec |> #1 |> Position.range_position)))
-                   #> I
-                  else nth_map len (cons ml_exec))
-          end
-      end)
-    l
-  #>> C_Env.map_stream_hook (K ls))
-
-fun add_stream_hook (syms_shift, syms, ml_exec) =
-  C_Env.map_stream_hook
-   (fn stream_hook => 
-    case
-       fold (fn _ => fn (eval1, eval2) =>
-           (case eval2 of e2 :: eval2 => (e2, eval2)
-                        | [] => ([], []))
-           |>> (fn e1 => e1 :: eval1))
-         syms_shift
-         ([], stream_hook)
-    of (eval1, eval2) => fold cons
-                              eval1
-                              (case eval2 of e :: es => ((syms_shift, syms, ml_exec) :: e) :: es
-                                           | [] => [[(syms_shift, syms, ml_exec)]]))
-
 fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
   let val (token, arg) = C_Env_Ext.map_stream_lang' (fn (st, []) => (NONE, (st, []))
                                                       | (st, x :: xs) => (SOME x, (st, xs)))
                                                     arg
       fun return0' f =
         (arg, stack_ml)
-        |> advance_hook stack
+        |> C_Hook.advance stack
         |> f
         |> (fn (arg, stack_ml) => rpair ((stack, stack_ml, stack_pos, stack_tree), arg))
-      fun return0 x = \<comment> \<open>Warning: \<open>advance_hook\<close> must not be early evaluated here, as it might
+      fun return0 x = \<comment> \<open>Warning: \<open>C_Hook.advance\<close> must not be early evaluated here, as it might
                                    generate undesirable markup reporting (in annotation commands).\<close>
-                      \<comment> \<open>Todo: Arrange \<open>advance_hook\<close> as a pure function, so that the overall could
+                      \<comment> \<open>Todo: Arrange \<open>C_Hook.advance\<close> as a pure function, so that the overall could
                                 be eta-simplified.\<close>
         return0' I x
       val encoding = fn C_Lex.Encoding_L => true | _ => false
@@ -257,7 +262,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
           ( (stack, stack_ml, stack_pos, stack_tree)
           , (arg, false)
              |> fold (fn C_Env.Antiq_stack (_, C_Env.Parsing ((syms_shift, syms), ml_exec)) =>
-                           I #>> add_stream_hook (syms_shift, syms, ml_exec)
+                           I #>> C_Hook.add_stream (syms_shift, syms, ml_exec)
                        | C_Env.Antiq_stack (_, C_Env.Never) => I ##> K true
                        | _ => I)
                      l_antiq
@@ -270,7 +275,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
             |> let val context = C_Env_Ext.get_context arg
                in
                 fold (fn dir_tok => 
-                      add_stream_hook
+                      C_Hook.add_stream
                         ( []
                         , []
                         , ( Position.no_range
@@ -393,14 +398,15 @@ fun exec_tree' l env_tree = env_tree
                      "")
           l
 
-fun uncurry_context f pos = uncurry (fn x => fn arg => map_env_tree' (f pos x (#env_lang arg)) arg)
+fun uncurry_context f pos = uncurry (fn (stack, _, _, stack_tree) =>
+  fn arg => map_env_tree' (f pos stack stack_tree (#env_lang arg)) arg)
 
 fun eval env_lang start err accept stream_lang =
  make env_lang stream_lang
  #> C_Grammar_Parser.makeLexer
  #> C_Grammar_Parser.parse
       ( 0
-      , uncurry_context (fn (next_pos1, next_pos2) => fn (stack, _, _, stack_tree) => fn env_lang =>
+      , uncurry_context (fn (next_pos1, next_pos2) => fn stack => fn stack_tree => fn env_lang =>
           C_Env.map_reports_text
             (cons ( ( Position.range_position (case hd stack of (_, (_, pos1, pos2)) =>
                                                                   (pos1, pos2))
@@ -426,7 +432,7 @@ fun eval env_lang start err accept stream_lang =
                                           (rule_pos1, next_pos2))))
       , Position.none
       , start
-      , uncurry_context (fn _ => fn (stack, _, _, stack_tree) => fn env_lang =>
+      , uncurry_context (fn _ => fn stack => fn stack_tree => fn env_lang =>
           exec_tree' stack_tree
           #> accept env_lang (stack |> hd |> C_Stack.map_svalue0 C_Grammar_Rule.reduce0))
       , fn (stack, arg) => arg |> map_rule_input (K stack)
