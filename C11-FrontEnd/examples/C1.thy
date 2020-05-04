@@ -269,6 +269,15 @@ int b,c,d/*@@ \<approx>setup\<Down> \<open>fn s => fn x => fn env => @{print_top
                                                 #> add_ex "evaluation of " "5_print_top"\<close> */
 \<close>
 
+subsection \<open>Out of Bound Evaluation for Annotations\<close>
+
+C \<comment> \<open>Bottom-up and top-down\<close> \<open>
+int a = 0 ;
+int     /*@ @    ML \<open>writeln "2"\<close>
+                 ML\<Down>\<open>writeln "1"\<close>  */
+    a = 0;
+\<close>
+
 section \<open>Reporting of Positions and Contextual Update of Environment\<close>
 
 text \<open>

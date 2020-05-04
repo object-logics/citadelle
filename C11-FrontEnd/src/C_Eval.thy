@@ -147,9 +147,12 @@ fun advance00 stack ml_exec =
                                    arg)
   | (_, C_Env.Bottom_up (C_Env.Exec_directive exec), env_dir, _) =>
      C_Env.map_env_lang_tree (curry (exec NONE env_dir))
-  | ((pos, _), _, _, _) =>
-     C_Env_Ext.map_context (fn _ => error ( "Style of evaluation not yet implemented"
-                                          ^ Position.here pos))
+  | ((pos, _), C_Env.Top_down exec, env_dir, _) =>
+     tap (fn _ => warning ("Missing navigation, evaluating as bottom-up style instead of top-down"
+                           ^ Position.here pos))
+     #>
+     (fn arg => C_Env.map_env_tree (C_Stack.stack_exec env_dir (stack, #env_lang arg) (exec NONE))
+                                   arg)
 
 fun advance0 stack (_, syms_reduce, ml_exec) =
   let
