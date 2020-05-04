@@ -143,7 +143,7 @@ int a (int b) { return &a + b + c; }
 
 section \<open>Proofs inside C-Annotations\<close>
 
-\<comment> \<open>See also: \<^file>\<open>../../C11-BackEnds/AutoCorres_wrapper/examples/IsPrime_TEC.thy\<close>\<close>
+\<comment> \<open>See also: \<^file>\<open>../../C11-BackEnds/AutoCorres_wrapper/examples/IsPrime_linear_CCT.thy\<close>\<close>
 
 C \<open>
 #define SQRT_UINT_MAX 65536

@@ -787,7 +787,7 @@ make the error disappear at the position the error is indicated can be detailed 
   \<^file>\<open>../C11-BackEnds/AutoCorres_wrapper/examples/TestSEL4.thy\<close> is already provided as
   preprocessed). Another way would be adding a specific new semantic back-end implementing the
   automation of the preprocessing task (as done in
-  \<^file>\<open>../C11-BackEnds/AutoCorres_wrapper/examples/IsPrime_TEC.thy\<close>, where the
+  \<^file>\<open>../C11-BackEnds/AutoCorres_wrapper/examples/IsPrime_linear_CCT.thy\<close>, where the
   back-end explicitly makes a call to \<open>cpp\<close> at run-time).
 
   \<^item> Ultimately, modifying the grammar with new rules cancelling the exception would only work
