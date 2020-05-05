@@ -115,6 +115,7 @@ local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_examp_d
 local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_examp.print_transition}\<close>
 local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_locale}\<close>
 local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_interp}\<close>
+local_setup \<open>embedding_fun_info_f2 @{const_name Floor2_examp.print_transition_def_state'}\<close>
 local_setup \<open>embedding_fun_info_f1 @{const_name Floor1_ctxt.print_ctxt}\<close>
 local_setup \<open>embedding_fun_info @{const_name print_meta_setup_def_state}\<close>
 local_setup \<open>embedding_fun_info @{const_name print_meta_setup_def_transition}\<close>
@@ -189,7 +190,8 @@ definition "thy_def_transition = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                 | Floor2 \<Rightarrow> Embed_locale
                                               [ section' \<open>Transition (Floor 2)\<close> ]
                                               Floor2_examp.print_transition_locale
-                                              [ Floor2_examp.print_transition_interp ])"
+                                              [ Floor2_examp.print_transition_interp
+                                              , Floor2_examp.print_transition_def_state' ])"
 definition "thy_ctxt = (\<lambda> Floor1 \<Rightarrow> Embed_theories
                                       [ section' \<open>Context (Floor 1)\<close>
                                       , floor1_PRINT_ctxt ]

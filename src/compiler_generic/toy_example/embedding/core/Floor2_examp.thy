@@ -236,4 +236,16 @@ definition "print_transition_interp = get_state (\<lambda> _ _.
     Interpretation n n (print_transition_locale_aux l)
                        (C.by [M.rule (T.thm s)])))"
 
+definition "print_transition_def_state' = get_state (\<lambda> pre post _.
+ (Pair o L.map O'.definition)
+ (L.map
+  (let a = \<lambda>f x. Term_app f [x]
+     ; b = \<lambda>s. Term_basic [s]
+     ; heap = \<open>heap\<close> in
+   (\<lambda>(s, _).
+    Definition (Term_rewrite (b (heap @@ \<open>_\<close> @@ s))
+                \<open>=\<close>
+                (a heap (b (print_examp_def_st_locale_name s @@ \<open>.\<close> @@ s))))))
+  [ pre, post ]))"
+
 end
