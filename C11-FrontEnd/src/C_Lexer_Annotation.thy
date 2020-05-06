@@ -364,13 +364,13 @@ val is_stack3 = fn Token (_, (Token.Sym_Ident, _), Value (SOME (Source l))) =>
 
 (* blanks and newlines -- space tokens obey lines *)
 
-fun is_space (Token (_, (Space, _), _)) = true
+fun is_space (Token (_, (Token.Space, _), _)) = true
   | is_space _ = false;
 
-fun is_blank (Token (_, (Space, x), _)) = not (String.isSuffix "\n" x)
+fun is_blank (Token (_, (Token.Space, x), _)) = not (String.isSuffix "\n" x)
   | is_blank _ = false;
 
-fun is_newline (Token (_, (Space, x), _)) = String.isSuffix "\n" x
+fun is_newline (Token (_, (Token.Space, x), _)) = String.isSuffix "\n" x
   | is_newline _ = false;
 
 
