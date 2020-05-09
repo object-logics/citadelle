@@ -42,7 +42,7 @@
 section\<open>OCL Meta-Model aka. AST definition of OCL (II)\<close>
 
 theory  Meta_UML_extended
-imports "../../compiler_generic/Init"
+imports Isabelle_Meta_Model.Init
 begin
 
 subsection\<open>Type Definition\<close>

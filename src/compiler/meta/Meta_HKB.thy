@@ -39,7 +39,7 @@
 section\<open>Isabelle Meta-Model aka. AST definition of Isabelle\<close>
 
 theory Meta_HKB
-imports "../../compiler_generic/Init"
+imports Isabelle_Meta_Model.Init
 begin
 
 section \<open>Miscellaneous\<close>

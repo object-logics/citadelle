@@ -43,7 +43,7 @@ section\<open>Dynamic Meta Embedding with Reflection\<close>
 
 theory Generator_dynamic_concurrent
 imports FOCL.Printer
-        FOCL.Isabelle_typedecl
+        Isabelle_Meta_Model.Isabelle_typedecl
         "~~/src/HOL/Library/Old_Datatype"
   keywords (* OCL (USE tool) *)
            "Between"

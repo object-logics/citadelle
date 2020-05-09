@@ -72,6 +72,9 @@ session FOCL in "src/uml_ocl" = "HOL-Library" +
   options [document=pdf,document_output=document_generated,
            document_variants="document=noexample,-afp,-annexa",
            show_question_marks = false]
+  sessions
+    OCL
+    Isabelle_Meta_Model
   theories
     UML_OCL
   document_files

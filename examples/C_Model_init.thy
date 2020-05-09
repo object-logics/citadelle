@@ -37,7 +37,7 @@
  ******************************************************************************)
 
 theory C_Model_init
-  imports FOCL.Printer_init
+  imports Isabelle_Meta_Model.Printer_init
           Citadelle.Old_Datatype
 begin
 

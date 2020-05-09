@@ -39,7 +39,7 @@ section\<open>Instantiating the Parser of Haskabelle\<close>
 
 theory  Parser_HKB
 imports Meta_HKB
-        "../../compiler_generic/meta_isabelle/Parser_init"
+        Isabelle_Meta_Model.Parser_init
 begin
 
 subsection\<open>Main\<close>

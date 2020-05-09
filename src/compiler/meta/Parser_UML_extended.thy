@@ -43,7 +43,7 @@ section\<open>Instantiating the Parser of OCL (II)\<close>
 
 theory  Parser_UML_extended
 imports Meta_UML_extended
-        "../../compiler_generic/meta_isabelle/Parser_init"
+        Isabelle_Meta_Model.Parser_init
 begin
 
 subsection\<open>Building Recursors for Records\<close> (* NOTE part to be automated *)

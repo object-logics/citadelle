@@ -42,8 +42,8 @@
 section\<open>OCL Meta-Model aka. AST definition of OCL (I)\<close>
 
 theory  Meta_UML
-imports "../../compiler_generic/meta_isabelle/Meta_Pure"
-        "../Init_rbt"
+imports Isabelle_Meta_Model.Meta_Pure
+        Isabelle_Meta_Model.Init_rbt
 begin
 
 subsection\<open>Type Definition\<close>

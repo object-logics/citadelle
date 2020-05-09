@@ -43,7 +43,7 @@ section\<open>Instantiating the Printer for OCL (I)\<close>
 
 theory  Printer_UML
 imports Meta_UML
-        "../../compiler_generic/meta_isabelle/Printer_Pure"
+        Isabelle_Meta_Model.Printer_Pure
 begin
 
 context Print

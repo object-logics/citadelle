@@ -43,7 +43,7 @@ section\<open>Instantiating the Printer for META\<close>
 
 theory  Printer_META
 imports Parser_META
-        "../../compiler_generic/meta_isabelle/Printer_Isabelle"
+        Isabelle_Meta_Model.Printer_Isabelle
         Printer_UML_extended
 begin
 

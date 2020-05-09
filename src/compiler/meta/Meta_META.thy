@@ -45,7 +45,7 @@ theory  Meta_META
 imports Meta_UML
         Meta_UML_extended
         Meta_HKB
-        "../../compiler_generic/meta_isabelle/Meta_Isabelle"
+        Isabelle_Meta_Model.Meta_Isabelle
 begin
 
 subsection\<open>A Basic Meta-Model\<close>

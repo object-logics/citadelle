@@ -38,7 +38,7 @@
 
 theory C_Model_core
   imports "$HASKABELLE_HOME_USER/default/Prelude"
-          FOCL.UML_Main
+          OCL.UML_Main
           Citadelle.Generator_dynamic_concurrent
           Citadelle_C_init.C_Model_init
 begin
