@@ -132,6 +132,9 @@ session "Max-dirty" = "HOL-Library" (* Note: replacing with FOCL will fail! *) +
 
     "examples/empirical_evaluation/Class_model"
 
+    "src/compiler_misc/Generator_static"
+    "src/compiler_misc/meta/Printer_init"
+
     "doc/Employee_AnalysisModel_UMLPart_generated"
     "doc/Employee_DesignModel_UMLPart_generated"
 
