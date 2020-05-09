@@ -1,4 +1,4 @@
-theory Meta_C_generated imports "FOCL.UML_Main"   "FOCL.Static"   "Citadelle_C_init.C_Model_init" begin
+theory Meta_C_generated imports "OCL.UML_Main"   "FOCL.Static"   "Citadelle_C_init.C_Model_init" begin
 
 (* 1 ************************************ 0 + 0 *)  (* term Floor1_infra.print_infra_enum_synonym *)
 
