@@ -101,24 +101,24 @@ session Citadelle in "src/compiler_citadelle" = FOCL +
     Generator_dynamic_concurrent
     Generator_dynamic_export_testing
 
-session Citadelle_C_init in src = Citadelle +
+session Citadelle_C_init in "src/compiler_citadelle_c/init" = Citadelle +
   theories
-    "../examples/C_Model_init"
+    C_Model_init
 
-session "Citadelle_C_deep-dirty" in src = Citadelle_C_init +
+session "Citadelle_C_deep-dirty" in "src/compiler_citadelle_c/doc" = Citadelle_C_init +
   options [quick_and_dirty]
   theories
-    "../doc/Meta_C_generated"
+    Meta_C_generated
 
-session "Citadelle_C_shallow-dirty" in src = Citadelle_C_init +
+session "Citadelle_C_shallow-dirty" in "src/compiler_citadelle_c/core" = Citadelle_C_init +
   options [quick_and_dirty]
   theories
-    "../examples/C_Model_core"
+    C_Model_core
 
-session "Citadelle_C_model-dirty" in src = "Citadelle_C_shallow-dirty" +
+session "Citadelle_C_model-dirty" in "src/compiler_citadelle_c/ml" = "Citadelle_C_shallow-dirty" +
   options [quick_and_dirty]
   theories
-    "../examples/C_Model_ml"
+    C_Model_ml
 
 (******************************************************)
 
