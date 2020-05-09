@@ -417,10 +417,10 @@ declare [[cartouche_type="Real"]]
 ML{* (*!POKE
 so, the cartouche invocation yields:*)
 val it = [Const ("_constrain" , "_") $ Free ("\<open>-123.23\<close>", "_") $ Free ("<markup>", "_")]: term list
-*}*)
+*}
 
 syntax
   "_ocl_denotation" :: "str_position => string"    ("'_'")
-
+*)
 (*>*)
 end
