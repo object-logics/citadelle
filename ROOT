@@ -95,11 +95,11 @@ session FOCL in "src/uml_ocl" = "HOL-Library" +
     "root.tex"
     "FOCL_Syntax.tex"
 
-session Citadelle in src = FOCL +
+session Citadelle in "src/compiler_citadelle" = FOCL +
   description \<open>Citadelle (Concurrent)\<close>
   theories
-    "compiler/Generator_dynamic_concurrent"
-    "compiler/Generator_dynamic_export_testing"
+    Generator_dynamic_concurrent
+    Generator_dynamic_export_testing
 
 session Citadelle_C_init in src = Citadelle +
   theories

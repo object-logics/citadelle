@@ -41,10 +41,10 @@
 
 section\<open>Dynamic Meta Embedding with Reflection\<close>
 
-theory Generator_dynamic_export_testing
+theory Generator_dynamic_concurrent
 imports FOCL.Printer
         Isabelle_Meta_Model.Isabelle_typedecl
-        "~~/src/HOL/Library/Old_Datatype"
+        "HOL-Library.Old_Datatype"
   keywords (* OCL (USE tool) *)
            "Between"
            "Attributes" "Operations" "Constraints"
@@ -70,7 +70,18 @@ imports FOCL.Printer
            (* Isabelle semantics (parameterizing the semantics of OCL) *)
            "design" "analysis" "oid_start"
 
-       and (* Isabelle syntax *)
+       and (* OCL (USE tool) *)
+           "Enum"
+           "Abstract_class" "Class"
+           "Association" "Composition" "Aggregation"
+           "Abstract_associationclass" "Associationclass"
+           "Context"
+           (* OCL (added) *)
+           "End" "Instance" "BaseType" "State" "Transition" "Tree"
+           (* Haskabelle *)
+           "Haskell" "Haskell_file" "meta_language" "language" "meta_command" "meta_command'"
+
+           (* Isabelle syntax *)
            "generation_syntax"
 
            :: thy_decl
@@ -84,7 +95,7 @@ we basically have two options:
 The generated file can interactively be loaded in Isabelle/jEdit, or saved to the hard disk.
 This mode is called the ``deep exportation'' mode or shortly the ``deep'' mode.
 The aim is to maximally automate the process one is manually performing in
-\<^file>\<open>Generator_static.thy\<close>.
+\<^file>\<open>../compiler/Generator_static.thy\<close>.
 \item On the other hand, it is also possible to directly execute
 in Isabelle/jEdit the generated file from the random access memory.
 This mode corresponds to the ``shallow reflection'' mode or shortly ``shallow'' mode.
@@ -93,25 +104,6 @@ In both modes, the reflection is necessary since the main part used by both
 was defined at Isabelle side.
 As a consequence, experimentations in ``deep'' and ``shallow'' are performed
 without leaving the editing session, in the same as the one the meta-compiler is actually running.\<close>
-
-\<^cancel>\<open>
-apply_code_printing_reflect \<open>
-  val stdout_file = Unsynchronized.ref ""
-\<close> text\<open>This variable is not used in this theory (only in \<^file>\<open>Generator_static.thy\<close>),
-       but needed for well typechecking the reflected SML code.\<close>
-\<close>
-ML \<open>warning "apply_code_printing_reflect must be enabled"\<close>
-
-ML\<open>
-structure Isabelle_Code_Target =
-struct
-fun export_code_cmd all_public raw_cs seris ctxt = warning "Skipping code export"
-end
-structure Code_printing =
-struct
-fun apply_code_printing thy = tap (fn _ => warning "Skipping code printing") thy
-end
-\<close>
 
 code_reflect' open META
    functions (* executing the compiler as monadic combinators for deep and shallow *)
@@ -888,329 +880,10 @@ end
 subsection\<open>Directives of Compilation for Target Languages\<close>
 
 ML\<open>
-structure Deep0 = struct
-
-fun apply_hs_code_identifiers ml_module thy =
-  let fun mod_hs (fic, ml_module) = Code_Symbol.Module (fic, [("Haskell", SOME ml_module)]) in
-  fold (Code_Target.set_identifiers o mod_hs)
-    (map (fn x => (Context.theory_name x, ml_module))
-         (* list of .hs files that will be merged together in "ml_module" *)
-         ( thy
-           :: (* we over-approximate the set of compiler files *)
-              Context.ancestors_of thy)) thy end
-
-structure Export_code_env = struct
-  structure Isabelle = struct
-    val function = "write_file"
-    val argument_main = "main"
-  end
-
-  structure Haskell = struct
-    val function = "Function"
-    val argument = "Argument"
-    val main = "Main"
-    structure Filename = struct
-      fun hs_function ext = function ^ "." ^ ext
-      fun hs_argument ext = argument ^ "." ^ ext
-      fun hs_main ext = main ^ "." ^ ext
-    end
-  end
-
-  structure OCaml = struct
-    val make = "write"
-    structure Filename = struct
-      fun function ext = "function." ^ ext
-      fun argument ext = "argument." ^ ext
-      fun main_fic ext = "main." ^ ext
-      fun makefile ext = make ^ "." ^ ext
-    end
-  end
-
-  structure Scala = struct
-    structure Filename = struct
-      fun function ext = "Function." ^ ext
-      fun argument ext = "Argument." ^ ext
-    end
-  end
-
-  structure SML = struct
-    val main = "Run"
-    structure Filename = struct
-      fun function ext = "Function." ^ ext
-      fun argument ext = "Argument." ^ ext
-      fun stdout ext = "Stdout." ^ ext
-      fun main_fic ext = main ^ "." ^ ext
-    end
-  end
-
-  datatype file_input = File
-                      | Directory
-end
-
-fun compile l cmd =
-  let val (l, rc) = fold (fn cmd => (fn (l, 0) =>
-                                         let val {out, err, rc, ...} = Bash.process cmd in
-                                         ((out, err) :: l, rc) end
-                                     | x => x)) l ([], 0)
-      val l = rev l in
-  if rc = 0 then
-    (l, Isabelle_System.bash_output cmd)
-  else
-    let val () = fold (fn (out, err) => K (warning err; writeln out)) l () in
-    error "Compilation failed"
-    end
-  end
-
-val check =
-  fold (fn (cmd, msg) => fn () =>
-    let val (out, rc) = Isabelle_System.bash_output cmd in
-    if rc = 0 then
-      ()
-    else
-      ( writeln out
-      ; error msg)
-    end)
-
-val compiler = let open Export_code_env in
-  [ let val ml_ext = "hs" in
-    ( "Haskell", ml_ext, Directory, Haskell.Filename.hs_function
-    , check [("ghc --version", "ghc is not installed (required for compiling a Haskell project)")]
-    , (fn mk_fic => fn _ => fn mk_free => fn thy =>
-        File.write (mk_fic ("Main." ^ ml_ext))
-          (String.concatWith "; " [ "import qualified Unsafe.Coerce"
-                         , "import qualified " ^ Haskell.function
-                         , "import qualified " ^ Haskell.argument
-                         , "main :: IO ()"
-                         , "main = " ^ Haskell.function ^ "." ^ Isabelle.function ^
-                           " (Unsafe.Coerce.unsafeCoerce " ^ Haskell.argument ^ "." ^
-                           mk_free (Proof_Context.init_global thy)
-                                   Isabelle.argument_main ([]: (string * string) list) ^
-                           ")"]))
-    , fn tmp_export_code => fn tmp_file =>
-        compile [ "mv " ^ tmp_file ^ "/" ^ Haskell.Filename.hs_argument ml_ext ^ " " ^
-                          Path.implode tmp_export_code
-                , "cd " ^ Path.implode tmp_export_code ^
-                  " && ghc -outputdir _build " ^ Haskell.Filename.hs_main ml_ext ]
-                (Path.implode (Path.append tmp_export_code (Path.make [Haskell.main]))))
-    end
-  , let val ml_ext = "ml" in
-    ( "OCaml", ml_ext, File, OCaml.Filename.function
-    , check [("ocp-build -version", "ocp-build is not installed (required for compiling an OCaml project)")
-            ,("ocamlopt -version", "ocamlopt is not installed (required for compiling an OCaml project)")]
-    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
-        let val () =
-          File.write
-            (mk_fic (OCaml.Filename.makefile "ocp"))
-            (String.concat
-              [ "comp += \"-g\" link += \"-g\" "
-              , "begin generated = true begin library \"nums\" end end "
-              , "begin program \"", OCaml.make, "\" sort = true files = [ \"", OCaml.Filename.function ml_ext
-              , "\" \"", OCaml.Filename.argument ml_ext
-              , "\" \"", OCaml.Filename.main_fic ml_ext
-              , "\" ]"
-              , "requires = [\"nums\"] "
-              , "end" ]) in
-        File.write (mk_fic (OCaml.Filename.main_fic ml_ext))
-          ("let _ = Function." ^ ml_module ^ "." ^ Isabelle.function ^
-           " (Obj.magic (Argument." ^ ml_module ^ "." ^
-           mk_free (Proof_Context.init_global thy)
-                   Isabelle.argument_main
-                   ([]: (string * string) list) ^ "))")
-        end
-    , fn tmp_export_code => fn tmp_file =>
-        compile
-          [ "mv " ^ tmp_file ^ " " ^
-              Path.implode (Path.append tmp_export_code (Path.make [OCaml.Filename.argument ml_ext]))
-          , "cd " ^ Path.implode tmp_export_code ^
-            " && ocp-build -init -scan -no-bytecode 2>&1" ]
-          (Path.implode (Path.append tmp_export_code (Path.make [ "_obuild"
-                                                                , OCaml.make
-                                                                , OCaml.make ^ ".asm"]))))
-    end
-  , let val ml_ext = "scala"
-        val ml_module = Unsynchronized.ref ("", "") in
-    ( "Scala", ml_ext, File, Scala.Filename.function
-    , check [("scala -e 0", "scala is not installed (required for compiling a Scala project)")]
-    , (fn _ => fn ml_mod => fn mk_free => fn thy =>
-        ml_module := (ml_mod, mk_free (Proof_Context.init_global thy)
-                                      Isabelle.argument_main
-                                      ([]: (string * string) list)))
-    , fn tmp_export_code => fn tmp_file =>
-        let val l = File.read_lines (Path.explode tmp_file)
-            val (ml_module, ml_main) = Unsynchronized.! ml_module
-            val () =
-              File.write_list
-               (Path.append tmp_export_code (Path.make [Scala.Filename.argument ml_ext]))
-               (List.map
-                 (fn s => s ^ "\n")
-                 ("object " ^ ml_module ^ " { def main (__ : Array [String]) = " ^
-                  ml_module ^ "." ^ Isabelle.function ^ " (" ^ ml_module ^ "." ^ ml_main ^ ")"
-                  :: l @ ["}"])) in
-        compile []
-          ("scala -nowarn " ^ Path.implode (Path.append tmp_export_code
-                                                        (Path.make [Scala.Filename.argument ml_ext])))
-        end)
-    end
-  , let val ml_ext_thy = "thy"
-        val ml_ext_ml = "ML" in
-    ( "SML", ml_ext_ml, File, SML.Filename.function
-    , check [ let open Path val isa = "isabelle" in
-              ( implode (expand (append (variable "ISABELLE_HOME") (make ["bin", isa]))) ^ " version"
-              , isa ^ " is not installed (required for compiling a SML project)")
-              end ]
-    , fn mk_fic => fn ml_module => fn mk_free => fn thy =>
-         let val esc_star = "*"
-             fun ml l =
-               List.concat
-               [ [ "ML{" ^ esc_star ]
-               , map (fn s => s ^ ";") l
-               , [ esc_star ^ "}"] ]
-             val () =
-               let val fic = mk_fic (SML.Filename.function ml_ext_ml) in
-               (* replace ("\\" ^ "<") by ("\\\060") in 'fic' *)
-               File.write_list fic
-                 (map (fn s =>
-                         (if s = "" then
-                           ""
-                         else
-                           String.concatWith "\\"
-                             (map (fn s =>
-                                     let val l = String.size s in
-                                     if l > 0 andalso String.sub (s,0) = #"<" then
-                                       "\\060" ^ String.substring (s, 1, String.size s - 1)
-                                     else
-                                       s end)
-                                  (String.fields (fn c => c = #"\\") s))) ^ "\n")
-                      (File.read_lines fic))
-               end in
-         File.write_list (mk_fic (SML.Filename.main_fic ml_ext_thy))
-           (map (fn s => s ^ "\n") (List.concat
-             [ [ "theory " ^ SML.main
-               , "imports Main"
-               , "begin"
-               , "declare [[ML_print_depth = 500]]"
-                 (* any large number so that @{make_string} displays all the expression *) ]
-             , ml [ "val stdout_file = Unsynchronized.ref (File.read (Path.make [\"" ^
-                      SML.Filename.stdout ml_ext_ml ^ "\"]))"
-                  , "use \"" ^ SML.Filename.argument ml_ext_ml ^ "\"" ]
-             , ml let val arg = "argument" in
-                  [ "val " ^ arg ^ " = YXML.content_of (@{make_string} (" ^
-                    ml_module ^ "." ^
-                    mk_free (Proof_Context.init_global thy)
-                            Isabelle.argument_main
-                            ([]: (string * string) list) ^ "))"
-                  , "use \"" ^ SML.Filename.function ml_ext_ml ^ "\""
-                  , "ML_Context.eval_source (ML_Compiler.verbose false ML_Compiler.flags) (Input.source false (\"let open " ^
-                      ml_module ^ " in " ^ Isabelle.function ^ " (\" ^ " ^ arg ^
-                      " ^ \") end\") (Position.none, Position.none) )" ]
-                  end
-             , [ "end" ]]))
-         end
-    , fn tmp_export_code => fn tmp_file =>
-        let open Path
-            val stdout_file = Isabelle_System.create_tmp_path "stdout_file" "thy"
-            val () = File.write (append tmp_export_code (make [SML.Filename.stdout ml_ext_ml]))
-                                (implode (expand stdout_file))
-            val (l, (_, exit_st)) =
-              compile
-                [ "mv " ^ tmp_file ^ " " ^ implode (append tmp_export_code
-                                                           (make [SML.Filename.argument ml_ext_ml]))
-                , "cd " ^ implode tmp_export_code ^
-                  " && echo 'use_thy \"" ^ SML.main ^ "\";' | " ^
-                  implode (expand (append (variable "ISABELLE_HOME") (make ["bin", "isabelle"]))) ^
-                  " console" ]
-                "true"
-            val stdout = File.read stdout_file |> (fn s => let val () = File.rm stdout_file in s end)
-        in  (l, (stdout, if List.exists (fn (err, _) =>
-                              List.exists (fn "*** Error" => true | _ => false)
-                                (String.tokens (fn #"\n" => true | _ => false) err)) l then
-                           List.app (fn (out, err) => (warning err; writeln out)) l |> K 1
-                         else exit_st))
-        end)
-    end ]
-end
-
-structure Find = struct
-
-fun find ml_compiler = 
-  case List.find (fn (ml_compiler0, _, _, _, _, _, _) => ml_compiler0 = ml_compiler) compiler of
-    SOME v => v
-  | NONE => error ("Not registered compiler: " ^ ml_compiler)
-
-fun ext ml_compiler = case find ml_compiler of (_, ext, _, _, _, _, _) => ext
-
-fun export_mode ml_compiler = case find ml_compiler of (_, _, mode, _, _, _, _) => mode
-
-fun function ml_compiler = case find ml_compiler of (_, _, _, f, _, _, _) => f
-
-fun check_compil ml_compiler = case find ml_compiler of (_, _, _, _, build, _, _) => build
-
-fun init ml_compiler = case find ml_compiler of (_, _, _, _, _, build, _) => build
-
-fun build ml_compiler = case find ml_compiler of (_, _, _, _, _, _, build) => build
-end
-
-end
-\<close>
-
-ML\<open>
 structure Deep = struct
 
 fun absolute_path thy filename =
   Path.implode (Path.append (Resources.master_directory thy) (Path.explode filename))
-
-fun export_code_tmp_file seris g =
-  fold
-    (fn ((ml_compiler, ml_module), export_arg) => fn f => fn g =>
-      f (fn accu =>
-        let val tmp_name = Context.theory_name \<^theory> in
-        (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
-           Isabelle_System.with_tmp_dir tmp_name
-         else
-           Isabelle_System.with_tmp_file tmp_name (Deep0.Find.ext ml_compiler))
-          (fn filename =>
-             g (((((ml_compiler, ml_module), (Path.implode filename, Position.none)), export_arg) :: accu)))
-        end))
-    seris
-    (fn f => f [])
-    (g o rev)
-
-fun mk_path_export_code tmp_export_code ml_compiler i =
-  Path.append tmp_export_code (Path.make [ml_compiler ^ Int.toString i])
-
-fun export_code_cmd' seris tmp_export_code f_err raw_cs thy =
-  export_code_tmp_file seris
-    (fn seris =>
-      let val mem_scala = List.exists (fn ((("Scala", _), _), _) => true | _ => false) seris
-          val _ = Isabelle_Code_Target.export_code_cmd
-        false
-        (if mem_scala then Deep0.Export_code_env.Isabelle.function :: raw_cs else raw_cs)
-        seris
-        (Proof_Context.init_global
-           let val v = Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.argument thy in
-           if mem_scala then Code_printing.apply_code_printing v else v end) in
-      List_mapi
-        (fn i => fn seri => case seri of (((ml_compiler, _), (filename, _)), _) =>
-          let val (l, (out, err)) =
-                Deep0.Find.build
-                  ml_compiler
-                  (mk_path_export_code tmp_export_code ml_compiler i)
-                  filename
-              val _ = f_err seri err in
-          (l, out)
-          end) seris
-      end)
-
-fun mk_term ctxt s =
-  fst (Scan.pass (Context.Proof ctxt) Args.term (Token.explode0 (Thy_Header.get_keywords' ctxt) s))
-
-fun mk_free ctxt s l =
-  let val t_s = mk_term ctxt s in
-  if Term.is_Free t_s then s else
-    let val l = (s, "") :: l in
-    mk_free ctxt (fst (hd (Term.variant_frees t_s l))) l
-    end
-  end
 
 val list_all_eq = fn [] => true
                    | x0 :: xs => List.all (fn x1 => x0 = x1) xs
@@ -1356,40 +1029,12 @@ fun f_command l_mode =
         | Gen_deep (env, i_deep) =>
            pair (fn thy => Gen_deep (env (Proof_Context.init_global thy), i_deep))
                 o cons
-            (\<^command_keyword>\<open>export_code\<close>, Toplevel'.keep_theory (fn thy =>
+            (\<^command_keyword>\<open>export_code\<close>, Toplevel'.keep_theory (fn _ =>
               let val seri_args' =
-                    List_mapi
-                      (fn i => fn ((ml_compiler, ml_module), export_arg) =>
-                        let val tmp_export_code = Deep.mk_path_export_code (#tmp_export_code i_deep) ml_compiler i
-                            fun mk_fic s = Path.append tmp_export_code (Path.make [s])
-                            val () = Deep0.Find.check_compil ml_compiler ()
-                            val () = Isabelle_System.mkdirs tmp_export_code in
-                        (( ( (ml_compiler, ml_module)
-                           , ( Path.implode (if Deep0.Find.export_mode ml_compiler = Deep0.Export_code_env.Directory then
-                                               tmp_export_code
-                                             else
-                                               mk_fic (Deep0.Find.function ml_compiler (Deep0.Find.ext ml_compiler)))
-                             , Position.none))
-                         , export_arg), mk_fic)
-                        end)
-                      (List.filter (fn (("self", _), _) => false | _ => true) (#seri_args i_deep))
-                  val _ =
-                    case seri_args' of [] => () | _ =>
-                      let val _ =
-                        warning ("After closing Isabelle/jEdit, we may still need to remove this directory (by hand): " ^
-                                 Path.implode (Path.expand (#tmp_export_code i_deep))) in
-                      thy
-                      |> Deep0.apply_hs_code_identifiers Deep0.Export_code_env.Haskell.function
-                      |> Code_printing.apply_code_printing
-                      |> Proof_Context.init_global
-                      |>
-                      Isabelle_Code_Target.export_code_cmd
-                            (List.exists (fn (((("SML", _), _), _), _) => true | _ => false) seri_args')
-                            [Deep0.Export_code_env.Isabelle.function]
-                            (List.map fst seri_args')
-                      end in
-                  List.app (fn ((((ml_compiler, ml_module), _), _), mk_fic) =>
-                    Deep0.Find.init ml_compiler mk_fic ml_module Deep.mk_free thy) seri_args' end)))
+                      List.filter (fn (("self", _), _) => false | _ => true) (#seri_args i_deep)
+              in case seri_args' of [] => () | _ =>
+                      warning ("Ignoring the exportation to target languages")
+              end)))
       l_mode
       [])
     (fn l_mode => fn thy =>
@@ -1437,11 +1082,9 @@ local
   val partition_self = List.partition (fn ((s,_),_) => s = "self")
 in
 
-fun exec_deep0 {output_header_thy, seri_args, filename_thy, tmp_export_code, ...} (env, l_obj) =
+fun exec_deep0 {output_header_thy, seri_args, filename_thy, ...} (env, l_obj) =
 let open Generation_mode
-    val of_arg = META.isabelle_of_compiler_env_config META.isabelle_apply I
-    fun def s = Named_Target.theory_map (snd o Specification.definition_cmd NONE [] [] (Binding.empty_atts, s) false)
-    val (seri_args0, seri_args) = partition_self seri_args
+    val (seri_args0, _) = partition_self seri_args
  in
   fn thy0 =>
   let
@@ -1450,21 +1093,7 @@ let open Generation_mode
                                              From.string
                                              (Option.map (Deep.absolute_path thy0) filename_thy)))
                          env
-    val l = case seri_args of [] => [] | _ =>
-      let val name_main = Deep.mk_free (Proof_Context.init_global thy0)
-                                       Deep0.Export_code_env.Isabelle.argument_main []
-      in thy0
-      |> def (String.concatWith " "
-              (  "(" (* polymorphism weakening needed by export_code *)
-                  ^ name_main ^ " :: (_ \<times> abr_string option) compiler_env_config_scheme)"
-              :: "="
-              :: To_string0 (of_arg env)
-              :: []))
-      |> Deep.export_code_cmd' seri_args
-                               tmp_export_code
-                               (fn (((_, _), (msg, _)), _) => fn err => if err <> 0 then error msg else ())
-                               [name_main]
-      end
+    val l = []
   in
     case seri_args0 of [] => l
     | _ => ([], case (output_header_thy, filename_thy) of
@@ -1762,6 +1391,693 @@ val () = let open Generation_mode in
           |> (fn [] => Toplevel'.keep (fn _ => warning "Nothing performed.") []
                | l => l)))
 end
+\<close>
+
+subsection\<open>Common Parser for OCL\<close>
+
+ML\<open>
+structure USE_parse = struct
+  datatype ('a, 'b) use_context = USE_context_invariant of 'a
+                                | USE_context_pre_post of 'b
+
+  fun optional f = Scan.optional (f >> SOME) NONE
+  val colon = Parse.$$$ ":"
+  fun repeat2 scan = scan ::: Scan.repeat1 scan
+
+  fun xml_unescape s = YXML.content_of s |> Symbol_Pos.explode0 |> Symbol_Pos.implode |> From.string
+
+  fun outer_syntax_commands2 mk_string cmd_spec cmd_descr parser v_true v_false get_all_meta_embed =
+    outer_syntax_commands' mk_string cmd_spec cmd_descr
+      (optional (paren \<^keyword>\<open>shallow\<close>) -- parser)
+      (fn (is_shallow, use) => fn thy =>
+         get_all_meta_embed
+           (if is_shallow = NONE then
+              ( fn s =>
+                  META.T_to_be_parsed ( From.string s
+                                     , xml_unescape s)
+              , v_true)
+            else
+              (From.read_term thy, v_false))
+           use)
+
+  (* *)
+
+  val ident_dot_dot = let val f = Parse.sym_ident >> (fn "\<bullet>" => "\<bullet>" | _ => Scan.fail "Syntax error") in
+                      f -- f end
+  val ident_star = Parse.sym_ident (* "*" *)
+
+  (* *)
+
+  fun natural0 s = case Int.fromString s of SOME i => From.nat i
+                                          | NONE => Scan.fail "Syntax error"
+
+  val natural = Parse.number >> natural0
+
+  val unlimited_natural =  ident_star >> (fn "*" => META.Mult_star
+                                           | "\<infinity>" => META.Mult_infinity
+                                           | _ => Scan.fail "Syntax error")
+                        || Parse.number >> (META.Mult_nat o natural0)
+
+  val term_base =
+       Parse.number >> (META.OclDefInteger o From.string)
+    || Parse.float_number >> (META.OclDefReal o (From.pair From.string From.string o
+         (fn s => case String.tokens (fn #"." => true
+                                       | _ => false) s of [l1,l2] => (l1,l2)
+                                                        | _ => Scan.fail "Syntax error")))
+    || Parse.string >> (META.OclDefString o From.string)
+
+  val multiplicity = parse_l' (unlimited_natural -- optional (ident_dot_dot |-- unlimited_natural))
+
+  fun uml_term x =
+   (   term_base >> META.ShallB_term
+    || Parse.binding >> (META.ShallB_str o From.binding)
+    || \<^keyword>\<open>self\<close> |-- Parse.nat >> (fn n => META.ShallB_self (From.internal_oid n))
+    || paren (Parse.list uml_term) >> (* untyped, corresponds to Set, Sequence or Pair *)
+                                      (* WARNING for Set: we are describing a finite set *)
+                                      META.ShallB_list) x
+
+  val name_object = optional (Parse.list1 Parse.binding --| colon) -- Parse.binding
+
+  val type_object_weak =
+    let val name_object = Parse.binding >> (fn s => (NONE, s)) in
+                    name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
+    let val f = fn (_, s) => META.OclTyCore_pre (From.binding s) in
+    fn (s, l) => META.OclTyObj (f s, map (map f) l)
+    end
+    end
+
+  val type_object = name_object -- Scan.repeat (Parse.$$$ "<" |-- Parse.list1 name_object) >>
+    let val f = fn (_, s) => META.OclTyCore_pre (From.binding s) in
+    fn (s, l) => META.OclTyObj (f s, map (map f) l)
+    end
+
+  val category =
+       multiplicity
+    -- optional (\<^keyword>\<open>Role\<close> |-- Parse.binding)
+    -- Scan.repeat (   \<^keyword>\<open>Ordered\<close> >> K META.Ordered0
+                    || \<^keyword>\<open>Subsets\<close> |-- Parse.binding >> K META.Subsets0
+                    || \<^keyword>\<open>Union\<close> >> K META.Union0
+                    || \<^keyword>\<open>Redefines\<close> |-- Parse.binding >> K META.Redefines0
+                    || \<^keyword>\<open>Derived\<close> -- Parse.$$$ "=" |-- Parse.term >> K META.Derived0
+                    || \<^keyword>\<open>Qualifier\<close> |-- Parse.term >> K META.Qualifier0
+                    || \<^keyword>\<open>Nonunique\<close> >> K META.Nonunique0
+                    || \<^keyword>\<open>Sequence_\<close> >> K META.Sequence) >>
+    (fn ((l_mult, role), l) =>
+       META.Ocl_multiplicity_ext (l_mult, From.option From.binding role, l, ()))
+
+  val type_base =   Parse.reserved "Void" >> K META.OclTy_base_void
+                 || Parse.reserved "Boolean" >> K META.OclTy_base_boolean
+                 || Parse.reserved "Integer" >> K META.OclTy_base_integer
+                 || Parse.reserved "UnlimitedNatural" >> K META.OclTy_base_unlimitednatural
+                 || Parse.reserved "Real" >> K META.OclTy_base_real
+                 || Parse.reserved "String" >> K META.OclTy_base_string
+
+  fun use_type_gen type_object v =
+     ((* collection *)
+      Parse.reserved "Set" |-- use_type >>
+        (fn l => META.OclTy_collection (META.Ocl_multiplicity_ext ([], NONE, [META.Set], ()), l))
+   || Parse.reserved "Sequence" |-- use_type >>
+        (fn l => META.OclTy_collection (META.Ocl_multiplicity_ext ([], NONE, [META.Sequence], ()), l))
+   || category -- use_type >> META.OclTy_collection
+
+      (* pair *)
+   || Parse.reserved "Pair" |--
+      (   use_type -- use_type
+      || Parse.$$$ "(" |-- use_type --| Parse.$$$ "," -- use_type --| Parse.$$$ ")") >> META.OclTy_pair
+
+      (* base *)
+   || type_base
+
+      (* raw HOL *)
+   || Parse.sym_ident (* "\<acute>" *) |-- Parse.typ --| Parse.sym_ident (* "\<acute>" *) >>
+        (META.OclTy_raw o xml_unescape)
+
+      (* object type *)
+   || type_object >> META.OclTy_object
+
+   || ((Parse.$$$ "(" |-- Parse.list (   (Parse.binding --| colon >> (From.option From.binding o SOME))
+                                      -- (   Parse.$$$ "(" |-- use_type --| Parse.$$$ ")"
+                                          || use_type_gen type_object_weak) >> META.OclTy_binding
+                                      ) --| Parse.$$$ ")"
+        >> (fn ty_arg => case rev ty_arg of
+              [] => META.OclTy_base_void
+            | ty_arg => fold (fn x => fn acc => META.OclTy_pair (x, acc))
+                             (tl ty_arg)
+                             (hd ty_arg)))
+       -- optional (colon |-- use_type))
+      >> (fn (ty_arg, ty_out) => case ty_out of NONE => ty_arg
+                                              | SOME ty_out => META.OclTy_arrow (ty_arg, ty_out))
+   || (Parse.$$$ "(" |-- use_type --| Parse.$$$ ")" >> (fn s => META.OclTy_binding (NONE, s)))) v
+  and use_type x = use_type_gen type_object x
+
+  val use_prop =
+   (optional (optional (Parse.binding >> From.binding) --| Parse.$$$ ":") >> (fn NONE => NONE
+                                                                               | SOME x => x))
+   -- Parse.term --| optional (Parse.$$$ ";") >> (fn (n, e) => fn from_expr =>
+                                                  META.OclProp_ctxt (n, from_expr e))
+
+  (* *)
+
+  val association_end =
+       type_object
+    -- category
+    --| optional (Parse.$$$ ";")
+
+  val association = optional \<^keyword>\<open>Between\<close> |-- Scan.optional (repeat2 association_end) []
+
+  val invariant =
+         optional \<^keyword>\<open>Constraints\<close>
+     |-- Scan.optional (\<^keyword>\<open>Existential\<close> >> K true) false
+     --| \<^keyword>\<open>Inv\<close>
+     --  use_prop
+
+  structure Outer_syntax_Association = struct
+    fun make ass_ty l = META.Ocl_association_ext (ass_ty, META.OclAssRel l, ())
+  end
+
+  (* *)
+
+  val context =
+    Scan.repeat
+      ((   optional (\<^keyword>\<open>Operations\<close> || Parse.$$$ "::")
+        |-- Parse.binding
+        -- use_type
+        --| optional (Parse.$$$ "=" |-- Parse.term || Parse.term)
+        -- Scan.repeat
+              (      (\<^keyword>\<open>Pre\<close> || \<^keyword>\<open>Post\<close>)
+                  -- use_prop >> USE_context_pre_post
+               || invariant >> USE_context_invariant)
+        --| optional (Parse.$$$ ";")) >>
+              (fn ((name_fun, ty), expr) => fn from_expr =>
+                META.Ctxt_pp
+                  (META.Ocl_ctxt_pre_post_ext
+                    ( From.binding name_fun
+                    , ty
+                    , From.list (fn USE_context_pre_post (pp, expr) =>
+                                     META.T_pp (if pp = "Pre" then
+                                                  META.OclCtxtPre
+                                                else
+                                                  META.OclCtxtPost, expr from_expr)
+                                 | USE_context_invariant (b, expr) =>
+                                     META.T_invariant (META.T_inv (b, expr from_expr))) expr
+                    , ())))
+       ||
+       invariant >> (fn (b, expr) => fn from_expr => META.Ctxt_inv (META.T_inv (b, expr from_expr))))
+
+  val class =
+        optional \<^keyword>\<open>Attributes\<close>
+    |-- Scan.repeat (Parse.binding --| colon -- use_type
+                     --| optional (Parse.$$$ ";"))
+    -- context
+
+  datatype use_classDefinition = USE_class | USE_class_abstract
+  datatype ('a, 'b) use_classDefinition_content = USE_class_content of 'a | USE_class_synonym of 'b
+
+  structure Outer_syntax_Class = struct
+    fun make from_expr abstract ty_object attribute oper =
+      META.Ocl_class_raw_ext
+        ( ty_object
+        , From.list (From.pair From.binding I) attribute
+        , From.list (fn f => f from_expr) oper
+        , abstract
+        , ())
+  end
+
+  (* *)
+
+  val term_object = parse_l_with (   optional (    Parse.$$$ "("
+                                               |-- Parse.binding
+                                               --| Parse.$$$ ","
+                                               -- Parse.binding
+                                               --| Parse.$$$ ")"
+                                               --| (Parse.sym_ident >> (fn "|=" => Scan.succeed
+                                                                         | _ => Scan.fail "")))
+                                  -- Parse.binding
+                                  -- (    Parse.$$$ "="
+                                      |-- uml_term))
+
+  val list_attr' = term_object >> (fn res => (res, [] : binding list))
+  fun object_cast e =
+    (   annot_ty term_object
+     -- Scan.repeat (    (Parse.sym_ident >> (fn "->" => Scan.succeed
+                                               | "\<leadsto>" => Scan.succeed
+                                               | "\<rightarrow>" => Scan.succeed
+                                               | _ => Scan.fail ""))
+                     |-- (   Parse.reserved "oclAsType"
+                             |-- Parse.$$$ "("
+                             |-- Parse.binding
+                             --| Parse.$$$ ")"
+                          || Parse.binding)) >> (fn ((res, x), l) => (res, rev (x :: l)))) e
+  val object_cast' = object_cast >> (fn (res, l) => (res, rev l))
+
+  fun get_oclinst l =
+    META.OclInstance (map (fn ((name,typ), ((l_attr_with, l_attr), is_cast)) =>
+        let val f = map (fn ((pre_post, attr), data) =>
+                              ( From.option (From.pair From.binding From.binding) pre_post
+                              , ( From.binding attr
+                                , data)))
+            val l_attr =
+              fold
+                (fn b => fn acc => META.OclAttrCast (From.binding b, acc, []))
+                is_cast
+                (META.OclAttrNoCast (f l_attr)) in
+        META.Ocl_instance_single_ext
+          ( From.option From.binding name
+          , From.option From.binding typ
+          , From.option From.binding l_attr_with
+          , l_attr
+          , ()) end) l)
+
+  val parse_instance = (Parse.binding >> SOME)
+                     -- optional (\<^keyword>\<open>::\<close> |-- Parse.binding) --| \<^keyword>\<open>=\<close>
+                     -- (list_attr' || object_cast')
+
+  (* *)
+
+  datatype state_content =
+    ST_l_attr of (binding option * (((binding * binding) option * binding) * META.ocl_data_shallow) list) * binding list
+  | ST_binding of binding
+
+  val state_parse = parse_l' (   object_cast >> ST_l_attr
+                              || Parse.binding >> ST_binding)
+
+  val mk_state =
+    map (fn ST_l_attr l =>
+              META.OclDefCoreAdd
+                (case get_oclinst (map (fn (l_i, l_ty) =>
+                                         ((NONE, SOME (hd l_ty)), (l_i, rev (tl l_ty)))) [l]) of
+                   META.OclInstance [x] => x)
+          | ST_binding b => META.OclDefCoreBinding (From.binding b))
+
+  (* *)
+
+  datatype state_pp_content = ST_PP_l_attr of state_content list
+                            | ST_PP_binding of binding
+
+  val state_pp_parse = state_parse >> ST_PP_l_attr
+                       || Parse.binding >> ST_PP_binding
+
+  val mk_pp_state = fn ST_PP_l_attr l => META.OclDefPPCoreAdd (mk_state l)
+                     | ST_PP_binding s => META.OclDefPPCoreBinding (From.binding s)
+
+  (* *)
+
+  fun optional_b key = Scan.optional (key >> K true) false
+  val haskell_parse =  Scan.optional let fun k x = K (true, From.nat x)
+                                     in   \<^keyword>\<open>datatype_old\<close> >> k 0
+                                       || \<^keyword>\<open>datatype_old_atomic\<close> >> k 1
+                                       || \<^keyword>\<open>datatype_old_atomic_sub\<close> >> k 2 end
+                                     (false, From.nat 0)
+                    -- optional_b \<^keyword>\<open>try_import\<close>
+                    -- optional_b \<^keyword>\<open>only_types\<close>
+                    -- optional_b \<^keyword>\<open>ignore_not_in_scope\<close>
+                    -- optional_b \<^keyword>\<open>abstract_mutual_data_params\<close>
+                    -- optional_b \<^keyword>\<open>concat_modules\<close>
+                    -- Scan.option (\<^keyword>\<open>base_path\<close> |-- Parse.position Parse.path)
+                    -- Scan.optional (parse_l' (Parse.name -- Scan.option ((\<^keyword>\<open>\<rightharpoonup>\<close> || \<^keyword>\<open>=>\<close>) |-- Parse.name))) []
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for a Generic Usage: @{command meta_command}, @{command meta_command'}\<close>
+
+ML\<open>
+local
+  fun outer_syntax_commands'''2 command_keyword meta_command =
+    outer_syntax_commands''' SOME \<^mk_string> command_keyword ""
+      Parse.ML_source
+      (fn source =>
+        get_thy \<^here> (meta_command source #> META.Fold_custom))
+in
+val () = outer_syntax_commands'''2 \<^command_keyword>\<open>meta_command\<close> Bind_META.meta_command
+val () = outer_syntax_commands'''2 \<^command_keyword>\<open>meta_command'\<close> Generation_mode.meta_command
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: @{command Enum}\<close>
+
+ML\<open>
+val () =
+  outer_syntax_commands' \<^mk_string> \<^command_keyword>\<open>Enum\<close> ""
+    (Parse.binding -- parse_l1' Parse.binding)
+    (fn (n1, n2) =>
+      K (META.META_enum (META.OclEnum (From.binding n1, From.list From.binding n2))))
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: (abstract) @{command Class}\<close>
+
+ML\<open>
+local
+  open USE_parse
+
+  fun mk_classDefinition abstract cmd_spec =
+    outer_syntax_commands2 \<^mk_string> cmd_spec "Class generation"
+      (   Parse.binding --| Parse.$$$ "=" -- USE_parse.type_base >> USE_class_synonym
+       ||    type_object
+          -- class >> USE_class_content)
+      (curry META.META_class_raw META.Floor1)
+      (curry META.META_class_raw META.Floor2)
+      (fn (from_expr, META_class_raw) =>
+       fn USE_class_content (ty_object, (attribute, oper)) =>
+            META_class_raw (Outer_syntax_Class.make
+                             from_expr
+                             (abstract = USE_class_abstract)
+                             ty_object
+                             attribute
+                             oper)
+        | USE_class_synonym (n1, n2) =>
+            META.META_class_synonym (META.OclClassSynonym (From.binding n1, n2)))
+in
+val () = mk_classDefinition USE_class \<^command_keyword>\<open>Class\<close>
+val () = mk_classDefinition USE_class_abstract \<^command_keyword>\<open>Abstract_class\<close>
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: @{command Association}, @{command Composition}, @{command Aggregation}\<close>
+
+ML\<open>
+local
+  open USE_parse
+
+  fun mk_associationDefinition ass_ty cmd_spec =
+    outer_syntax_commands' \<^mk_string> cmd_spec ""
+      (   repeat2 association_end
+       ||     optional Parse.binding
+          |-- association)
+      (K o META.META_association o Outer_syntax_Association.make ass_ty)
+in
+val () = mk_associationDefinition META.OclAssTy_association \<^command_keyword>\<open>Association\<close>
+val () = mk_associationDefinition META.OclAssTy_composition \<^command_keyword>\<open>Composition\<close>
+val () = mk_associationDefinition META.OclAssTy_aggregation \<^command_keyword>\<open>Aggregation\<close>
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: (abstract) @{command Associationclass}\<close>
+
+ML\<open>
+
+local
+  open USE_parse
+
+  datatype use_associationClassDefinition = USE_associationclass | USE_associationclass_abstract
+
+  fun mk_associationClassDefinition abstract cmd_spec =
+    outer_syntax_commands2 \<^mk_string> cmd_spec ""
+      (   type_object
+       -- association
+       -- class
+       -- optional (Parse.reserved "aggregation" || Parse.reserved "composition"))
+      (curry META.META_ass_class META.Floor1)
+      (curry META.META_ass_class META.Floor2)
+      (fn (from_expr, META_ass_class) =>
+       fn (((ty_object, l_ass), (attribute, oper)), assty) =>
+          META_ass_class
+            (META.OclAssClass
+              ( Outer_syntax_Association.make
+                  (case assty of SOME "aggregation" => META.OclAssTy_aggregation
+                               | SOME "composition" => META.OclAssTy_composition
+                               | _ => META.OclAssTy_association)
+                  l_ass
+              , Outer_syntax_Class.make
+                  from_expr
+                  (abstract = USE_associationclass_abstract)
+                  ty_object
+                  attribute
+                  oper)))
+in
+val () = mk_associationClassDefinition USE_associationclass \<^command_keyword>\<open>Associationclass\<close>
+val () = mk_associationClassDefinition USE_associationclass_abstract \<^command_keyword>\<open>Abstract_associationclass\<close>
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: @{command Context}\<close>
+
+ML\<open>
+local
+ open USE_parse
+in
+val () =
+  outer_syntax_commands2 \<^mk_string> \<^command_keyword>\<open>Context\<close> ""
+    (optional (Parse.list1 Parse.binding --| colon)
+     -- Parse.binding
+     -- context)
+    (curry META.META_ctxt META.Floor1)
+    (curry META.META_ctxt META.Floor2)
+    (fn (from_expr, META_ctxt) =>
+    (fn ((l_param, name), l) =>
+    META_ctxt
+      (META.Ocl_ctxt_ext
+        ( case l_param of NONE => [] | SOME l => From.list From.binding l
+        , META.OclTyObj (META.OclTyCore_pre (From.binding name), [])
+        , From.list (fn f => f from_expr) l
+        , ()))))
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: @{command End}\<close>
+
+ML\<open>
+val () =
+  outer_syntax_commands'' \<^mk_string> \<^command_keyword>\<open>End\<close> "Class generation"
+    (Scan.optional ( Parse.$$$ "[" -- Parse.reserved "forced" -- Parse.$$$ "]" >> K true
+                    || Parse.$$$ "!" >> K true) false)
+    (fn b =>
+      K (if b then
+           META.Fold_meta (META.META_flush_all META.OclFlushAll)
+         else
+           META.Fold_custom []))
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: @{command BaseType}, @{command Instance}, @{command State}\<close>
+
+ML\<open>
+val () =
+  outer_syntax_commands' \<^mk_string> \<^command_keyword>\<open>BaseType\<close> ""
+    (parse_l' USE_parse.term_base)
+    (K o META.META_def_base_l o META.OclDefBase)
+
+local
+  open USE_parse
+in
+val () =
+  outer_syntax_commands' \<^mk_string> \<^command_keyword>\<open>Instance\<close> ""
+    (Scan.optional (parse_instance -- Scan.repeat (optional \<^keyword>\<open>and\<close> |-- parse_instance) >>
+                                                                        (fn (x, xs) => x :: xs)) [])
+    (K o META.META_instance o get_oclinst)
+
+val () =
+  outer_syntax_commands' \<^mk_string> \<^command_keyword>\<open>State\<close> ""
+    (USE_parse.optional (paren \<^keyword>\<open>shallow\<close>) -- Parse.binding --| \<^keyword>\<open>=\<close>
+     -- state_parse)
+     (fn ((is_shallow, name), l) =>
+      (K o META.META_def_state)
+        ( if is_shallow = NONE then META.Floor1 else META.Floor2
+        , META.OclDefSt (From.binding name, mk_state l)))
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: @{command Transition}\<close>
+
+ML\<open>
+local
+  open USE_parse
+in
+val () =
+  outer_syntax_commands' \<^mk_string> \<^command_keyword>\<open>Transition\<close> ""
+    (USE_parse.optional (paren \<^keyword>\<open>shallow\<close>)
+     -- USE_parse.optional (Parse.binding --| \<^keyword>\<open>=\<close>)
+     -- state_pp_parse
+     -- USE_parse.optional state_pp_parse)
+    (fn (((is_shallow, n), s_pre), s_post) =>
+      (K o META.META_def_transition)
+        ( if is_shallow = NONE then META.Floor1 else META.Floor2
+        , META.OclDefPP ( From.option From.binding n
+                       , mk_pp_state s_pre
+                       , From.option mk_pp_state s_post)))
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for OCL: @{command Tree}\<close>
+
+ML\<open>
+local
+  open USE_parse
+in
+val () =
+  outer_syntax_commands' \<^mk_string> \<^command_keyword>\<open>Tree\<close> ""
+    (natural -- natural)
+    (K o META.META_class_tree o META.OclClassTree)
+end
+\<close>
+
+subsection\<open>Setup of Meta Commands for Haskabelle: @{command Haskell}, @{command Haskell_file}\<close>
+
+ML\<open>
+local
+open META
+in
+type Haskabelle_Data_T = module list * ((Code_Numeral.natural * Code_Numeral.natural) * (abr_string * (abr_string * abr_string) list)) list list
+end
+
+structure Haskabelle_Data = Theory_Data
+  (type T = Haskabelle_Data_T
+   val empty = ([], [])
+   val extend = I
+   val merge = #2)
+
+local
+  fun haskabelle_path hkb_home l = Path.appends (Path.variable hkb_home :: map Path.explode l)
+  val haskabelle_bin = haskabelle_path "HASKABELLE_HOME" ["bin", "haskabelle_bin"]
+  val haskabelle_default = haskabelle_path "HASKABELLE_HOME_USER" ["default"]
+in
+  fun parse meta_parse_shallow meta_parse_imports meta_parse_code meta_parse_functions hsk_name check_dir hsk_str ((((((((old_datatype, try_import), only_types), ignore_not_in_scope), abstract_mutual_data_params), concat_modules), base_path_abs), l_rewrite), (content, pos)) thy =
+    let fun string_of_bool b = if b then "true" else "false"
+        val st =
+          Bash.process
+           (space_implode " "
+             ( [ Path.implode haskabelle_bin
+               , "--internal", Path.implode haskabelle_default
+               , "--export", "false"
+               , "--try-import", string_of_bool try_import
+               , "--only-types", string_of_bool only_types
+               , "--base-path-abs", case base_path_abs of NONE => "" | SOME s => check_dir thy s
+               , "--ignore-not-in-scope", string_of_bool ignore_not_in_scope
+               , "--abstract-mutual-data-params", string_of_bool abstract_mutual_data_params
+               , "--dump-output"
+               , "--meta-parse-shallow", string_of_bool meta_parse_shallow
+               , "--meta-parse-load"] @ map_filter (fn (true, s) => SOME (Bash.string s) | _ => NONE) meta_parse_imports @
+               [ "--meta-parse-imports"] @ map (Bash.string o snd) meta_parse_imports @
+               [ "--meta-parse-code" ] @ map Bash.string (the_list meta_parse_code) @
+               [ "--hsk-name" ] @ the_list hsk_name
+             @ (case
+                  if hsk_str then
+                    ([ Bash.string content ], [])
+                  else
+                    ([], [ Resources'.check_path' (SOME File.check_file) (Proof_Context.init_global thy) Path.current (content, pos) ])
+                of (cts, files) => List.concat [ ["--hsk-contents"], cts, ["--files"], files ])))
+    in
+      if #rc st = 0 then
+        Bind_META.meta_command0 "Haskabelle_Data.put" Haskabelle_Data.get "Haskabelle_Data_T" (Input.string (#out st)) thy
+        |> (fn (l_mod, l_rep) =>
+              let
+                val _ =
+                  List.app
+                    (fn l_rep =>
+                      let fun advance_offset n =
+                            if n = 0 then I
+                            else fn (x :: xs, p) =>
+                                   advance_offset (n - String.size x) (xs, Position.advance x p)
+                          val l_rep =
+                        fold (fn ((offset, end_offset), (markup, prop)) => fn (content, (pos, pos_o), acc) =>
+                                let val offset = To_nat offset
+                                    val end_offset = To_nat end_offset
+                                    val (content, pos0) = advance_offset (offset - pos_o) (content, pos)
+                                    val (content, pos1) = advance_offset (end_offset - offset) (content, pos0)
+                                in ( content
+                                   , (pos1, end_offset)
+                                   , ( Position.range_position (pos0, pos1)
+                                     , (To_string0 markup, map (META.map_prod To_string0 To_string0) prop))
+                                     :: acc)
+                                end)
+                             l_rep
+                             (Symbol.explode content, (Position.advance_offsets 1 pos, 0), [])
+                        |> #3
+                      in Position.reports l_rep end)
+                    l_rep
+              in l_mod |> (fn m => META.IsaUnit ( old_datatype
+                                                , map (META.map_prod From.string (Option.map From.string)) l_rewrite
+                                                , meta_parse_functions
+                                                , From.string (Context.theory_name thy)
+                                                , (m, concat_modules)))
+                       |> META.META_haskell end)
+        |> tap (fn _ => warning (#err st))
+      else
+          let val _ = #terminate st ()
+          in error (if #err st = "" then
+                      "Failed executing the ML process (" ^ Int.toString (#rc st) ^ ")"
+                    else #err st |> String.explode |> trim (fn #"\n" => true | _ => false) |> String.implode) end
+    end
+  val parse' = parse false [] NONE META.Gen_no_apply NONE Resources'.check_dir
+end
+
+local
+  type haskell_parse =
+    (((((((bool * Code_Numeral.natural) * bool) * bool) * bool) * bool) * bool) * (string * Position.T) option)
+    * (string * string option) list
+
+  structure Data_lang = Theory_Data
+    (type T = (haskell_parse * string option * (bool * string) list * string * (META.abr_string -> META.gen_meta)) Name_Space.table
+     val empty = Name_Space.empty_table "meta_language"
+     val extend = I
+     val merge = Name_Space.merge_tables)
+  
+  open USE_parse
+in
+val () =
+  outer_syntax_commands'2 \<^mk_string> \<^command_keyword>\<open>Haskell\<close> ""
+    (haskell_parse -- Parse.position Parse.cartouche)
+    (get_thy \<^here> o parse' true)
+
+val () =
+  outer_syntax_commands'2 \<^mk_string> \<^command_keyword>\<open>Haskell_file\<close> ""
+    (haskell_parse -- Parse.position Parse.path)
+    (get_thy \<^here> o parse' false)
+
+val () =
+  Outer_Syntax.command \<^command_keyword>\<open>meta_language\<close> ""
+    (Parse.binding
+     -- haskell_parse
+     -- Scan.optional
+          (Parse.where_ |-- Parse.$$$ "imports"
+           |-- Parse.!!!
+                 (Scan.repeat1 (Parse.cartouche >> pair false
+                                || Parse.$$$ "("
+                                   |-- Parse.$$$ "load"
+                                   |-- Parse.cartouche --| Parse.$$$ ")" >> pair true))) []
+     --| Parse.where_ --| Parse.$$$ "defines" -- Parse.cartouche
+     -- Scan.optional (    Parse.where_
+                       |-- Parse.$$$ "functions"
+                       |-- let val parse_name = Parse.name >> From.string in
+                                \<^keyword>\<open>meta\<close> |-- parse_name >> (K o META.Gen_apply_sml)
+                             || \<^keyword>\<open>meta_cmd\<close> |-- parse_name >> curry META.Gen_apply_sml_cmd
+                             || parse_name >> (K o META.Gen_apply_hol)
+                           end)
+                      (K META.Gen_no_apply)
+    >> (fn ((((lang, hsk_arg as ((_, base_path), _)), imports), defines), functions) => 
+        let val _ = if exists (fn #"\n" => true | _ => false) (String.explode defines) then
+                      error "Haskell indentation rules are not yet supported"
+                    else ()
+        in Toplevel.theory
+             (fn thy =>
+               Data_lang.map
+                 (#2 o Name_Space.define
+                    (Context.Theory thy)
+                    true
+                    (lang, (hsk_arg, Option.map (Resources'.check_dir thy) base_path, imports, defines, functions)))
+                 thy)
+        end))
+
+val () =
+  outer_syntax_commands'2 \<^mk_string> \<^command_keyword>\<open>language\<close> ""
+    (Scan.optional (\<^keyword>\<open>meta\<close> >> K true) false
+     -- Parse.binding --| Parse.$$$ "::" -- Parse.position Parse.name --| Parse.where_ -- Parse.position Parse.cartouche)
+    (fn (((is_shallow, prog), lang), code) => 
+      get_thy \<^here>
+              (fn thy => 
+                let val (_, (hsk_arg, hsk_path, imports, defines, functions)) =
+                      Name_Space.check (Context.Theory thy) (Data_lang.get thy) lang
+                    val prog' = Binding.name_of prog
+                in parse is_shallow
+                         imports
+                         (SOME defines)
+                         (functions (From.string prog'))
+                         (SOME prog')
+                         (K (K (case hsk_path of NONE => "" | SOME s => s)))
+                         true
+                         (hsk_arg, code)
+                         thy
+                end))
+end
+(*val _ = print_depth 100*)
 \<close>
 
 end
