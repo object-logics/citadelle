@@ -38,7 +38,7 @@
 
 theory C_Model_init
   imports Isabelle_Meta_Model.Printer_init
-          Citadelle.Old_Datatype
+          "HOL-Library.Old_Datatype"
 begin
 
 type_synonym int = integer
