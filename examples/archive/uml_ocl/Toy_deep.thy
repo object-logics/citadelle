@@ -379,11 +379,11 @@ subsection\<open>Designing Class Models (V): Inspection of Generated Files\<clos
 text\<open>
 According to options given to the (first) command @{command generation_syntax} above,
 we retrieve the first generated file in the mentioned directory:
-@{file "../../doc/Employee_DesignModel_UMLPart_generated.thy"}.
+@{file "../../../doc/Employee_DesignModel_UMLPart_generated.thy"}.
 
 Because this file still contains meta-commands, we are here executing again
 a new generating step inside this file, the new result becomes saved in
-@{file "../../doc/Employee_DesignModel_UMLPart_generated_generated.thy"}.
+@{file "../../../doc/Employee_DesignModel_UMLPart_generated_generated.thy"}.
 As remark, in this last file, the dependency to @{theory FOCL.Generator_dynamic_sequential} was
 automatically removed because the meta-compiler has detected the absence of meta-commands
 in the generated content.

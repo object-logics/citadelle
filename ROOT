@@ -122,44 +122,40 @@ session "Citadelle_C_model-dirty" in "src/compiler_citadelle_c/ml" = "Citadelle_
 
 (******************************************************)
 
-session "Max-dirty" in src = "HOL-Library" (* Note: replacing with FOCL will fail! *) +
+session "Max-dirty" = "HOL-Library" (* Note: replacing with FOCL will fail! *) +
   options [quick_and_dirty]
   sessions
     OCL
     FOCL
-    Isabelle_Meta_Model
   theories
-    "../src/basic_types/UML_UnlimitedNatural"
+    "src/basic_types_extra/UML_UnlimitedNatural"
 
-    "../examples/empirical_evaluation/Class_model"
+    "examples/empirical_evaluation/Class_model"
 
-    "../src/compiler/Generator_static"
-    "../src/compiler/meta/Printer_init"
+    "doc/Employee_AnalysisModel_UMLPart_generated"
+    "doc/Employee_DesignModel_UMLPart_generated"
 
-    "../doc/Employee_AnalysisModel_UMLPart_generated"
-    "../doc/Employee_DesignModel_UMLPart_generated"
+    "examples/uml_ocl/Bank_Model"
+    "examples/uml_ocl/Bank_Test_Model"
+    "examples/uml_ocl/Clocks_Lib_Model"
+    (*"examples/Employee_Model/Analysis_generation/Analysis_deep"*)
+    "examples/Employee_Model/Analysis_generation/Analysis_shallow"
+    (*"examples/Employee_Model/Design_generation/Design_deep"*)
+    "examples/Employee_Model/Design_generation/Design_shallow"
+    "examples/uml_ocl/Flight_Model"
+    "examples/uml_ocl/AbstractList"
+    "examples/uml_ocl/LinkedList"
+    (*"examples/uml_ocl/ListRefinement"*)
+    "examples/archive/uml_ocl/Flight_Model_compact"
+    "examples/archive/uml_ocl/Simple_Model"
+    "examples/archive/uml_ocl/Toy_deep"
+    "examples/archive/uml_ocl/Toy_shallow"
 
-    "../examples/Bank_Model"
-    "../examples/Bank_Test_Model"
-    "../examples/Clocks_Lib_Model"
-    (*"../examples/Employee_Model/Analysis_deep"*)
-    "../examples/Employee_Model/Analysis_shallow"
-    (*"../examples/Employee_Model/Design_deep"*)
-    "../examples/Employee_Model/Design_shallow"
-    "../examples/Flight_Model"
-    "../examples/AbstractList"
-    "../examples/LinkedList"
-    (*"../examples/ListRefinement"*)
-    "../examples/archive/Flight_Model_compact"
-    "../examples/archive/Simple_Model"
-    "../examples/archive/Toy_deep"
-    "../examples/archive/Toy_shallow"
+    "src/compiler_misc/Aux_proof"
+    "src/compiler_misc/Aux_tactic"
+    "src/compiler_misc/Aux_text"
+    "src/compiler_misc/Rail"
 
-    "../src/compiler/Aux_proof"
-    "../src/compiler/Aux_tactic"
-    "../src/compiler/Aux_text"
-    "../src/compiler/Rail"
-
-    "../examples/archive/OCL_core_experiments"
-    "../examples/archive/OCL_lib_Gogolla_challenge_naive"
-    "../examples/archive/OCL_lib_Gogolla_challenge_integer"
+    "examples/archive/uml_ocl/OCL_core_experiments"
+    "examples/archive/uml_ocl/OCL_lib_Gogolla_challenge_naive"
+    "examples/archive/uml_ocl/OCL_lib_Gogolla_challenge_integer"
