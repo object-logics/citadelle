@@ -3,7 +3,7 @@ generation_syntax [ deep
                       (generation_semantics [ analysis (*, oid_start 10*) ])
                       skip_export
                       (THEORY Tree_02_01_generated_self)
-                      (IMPORTS ["../../../src/UML_Main", "../../../src/compiler/Static"]
+                      (IMPORTS ["../../../src/uml_main/UML_Main", "../../../src/compiler/Static"]
                                "../../../src/compiler/Generator_dynamic_sequential")
                       SECTION
                       [ in self  ]

@@ -44,7 +44,7 @@
  ******************************************************************************)
 
 theory  UML_Pair
-imports "../UML_PropertyProfiles"
+imports "../uml_main/UML_PropertyProfiles"
 begin
 
 section{* Collection Type Pairs: Operations \label{sec:collection_pairs} *}

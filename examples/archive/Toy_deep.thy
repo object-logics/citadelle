@@ -71,7 +71,7 @@ to see the differences of imported theories, and which ones to manually import
 generation_syntax [ (*deep
                       (generation_semantics [ design (*, oid_start 10*) ])
                       (THEORY Toy_generated)
-                      (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
+                      (IMPORTS ["../src/uml_main/UML_Main", "../src/compiler/Static"]
                                "../src/compiler/Generator_dynamic_sequential")
                       SECTION
                       (*SORRY*) (*no_dirty*)
@@ -89,7 +89,7 @@ generation_syntax
   [ deep
       (generation_semantics [ design ])
       (THEORY Design_generated)
-      (IMPORTS ["../src/UML_Main", "../src/compiler/Static"]
+      (IMPORTS ["../src/uml_main/UML_Main", "../src/compiler/Static"]
                "../src/compiler/Generator_dynamic_sequential")
       SECTION
       (*SORRY*) (*no_dirty*)

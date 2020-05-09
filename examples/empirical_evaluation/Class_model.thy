@@ -86,14 +86,14 @@ definition \<open>print_abr sprintf_int write_file =
                         ,            \<open>                      (generation_semantics [ analysis (*, oid_start 10*) ])\<close>
                         ,            \<open>                      skip_export\<close>
                         , S.flatten [\<open>                      (THEORY \<close>, tree_name, \<open>_generated\<close>, \<open>_\<close>, comp, \<open>)\<close>]
-                        , S.flatten [\<open>                      (IMPORTS ["../../../src/UML_Main", "../../../src/compiler/Static"]\<close>]
+                        , S.flatten [\<open>                      (IMPORTS ["../../../src/uml_main/UML_Main", "../../../src/compiler/Static"]\<close>]
                         , S.flatten [\<open>                               "../../../src/compiler/Generator_dynamic_sequential")\<close>]
                         ,            \<open>                      SECTION\<close>
                         , S.flatten [\<open>                      [ in \<close>, comp, \<open> \<close>, comp2, \<open> ]\<close>]
                         , S.flatten [\<open>                      (output_directory "./doc") ]\<close>] ]
         , S_flatten_n [ \<open>generation_syntax deep flush_all\<close> ])
       , ( (\<open>shallow\<close>, [(\<open>\<close>, \<open>\<close>)])
-        , S.flatten [ \<open>"../../src/UML_Main"\<close>, \<open> \<close>
+        , S.flatten [ \<open>"../../src/uml_main/UML_Main"\<close>, \<open> \<close>
                     , \<open>"../../src/compiler/Static"\<close>  ]
         , \<lambda>_ _. S_flatten_n [ \<open>generation_syntax [ shallow (generation_semantics [ analysis ]) ]\<close> ]
         , \<open>End!\<close>) ]))\<close>

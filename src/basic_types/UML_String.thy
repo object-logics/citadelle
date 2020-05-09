@@ -44,7 +44,7 @@
  ******************************************************************************)
 
 theory  UML_String
-imports "../UML_PropertyProfiles"
+imports "../uml_main/UML_PropertyProfiles"
 begin
 
 section{* Basic Type String: Operations *}

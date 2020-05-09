@@ -46,7 +46,7 @@ session OCL in src = HOL +
            document_variants="annex-a=annexa,-theory,-afp,-noexample,-proof,-ML:document=afp,-annexa,-noexample:outline=-annexa,-noexample,afp,/proof,/ML",
            show_question_marks = false]
   theories
-    "../src/UML_Main"
+    "../src/uml_main/UML_Main"
     "../examples/Employee_Model/Analysis/Analysis_OCL"
     "../examples/Employee_Model/Design/Design_OCL"
   document_files

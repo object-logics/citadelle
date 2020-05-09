@@ -44,7 +44,7 @@
  ******************************************************************************)
 
 theory   UML_OCL
-imports  "UML_Main"
+imports  "uml_main/UML_Main"
          "../examples/archive/Monads" (* NOTE: perform lazily the extraction of generation_syntax
                                          so that dependencies can alternate among theories *)
          "compiler/Static"

@@ -44,7 +44,7 @@
  ******************************************************************************)
 
 theory  UML_Boolean
-imports "../UML_PropertyProfiles"
+imports "../uml_main/UML_PropertyProfiles"
 begin
 
 

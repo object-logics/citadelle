@@ -44,7 +44,7 @@
  ******************************************************************************)
 
 theory  UML_Integer
-imports "../UML_PropertyProfiles"
+imports "../uml_main/UML_PropertyProfiles"
 begin
 
 section{* Basic Type Integer: Operations *}

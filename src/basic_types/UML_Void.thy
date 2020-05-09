@@ -44,7 +44,7 @@
  ******************************************************************************)
 
 theory  UML_Void
-imports "../UML_PropertyProfiles"
+imports "../uml_main/UML_PropertyProfiles"
 begin
 
 section{* Basic Type Void: Operations *}
