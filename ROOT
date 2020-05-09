@@ -40,15 +40,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-session OCL in src = HOL +
+session OCL in "src/uml_main" = HOL +
   description \<open>Featherweight OCL\<close>
   options [document=pdf,document_output=document_generated,
            document_variants="annex-a=annexa,-theory,-afp,-noexample,-proof,-ML:document=afp,-annexa,-noexample:outline=-annexa,-noexample,afp,/proof,/ML",
            show_question_marks = false]
   theories
-    "../src/uml_main/UML_Main"
-    "../examples/Employee_Model/Analysis/Analysis_OCL"
-    "../examples/Employee_Model/Design/Design_OCL"
+    UML_Main
+    "../../examples/Employee_Model/Analysis/Analysis_OCL"
+    "../../examples/Employee_Model/Design/Design_OCL"
   document_files
     "conclusion.tex"
     "figures/AbstractSimpleChair.pdf"
@@ -67,7 +67,7 @@ session OCL in src = HOL +
     "root.tex"
     "FOCL_Syntax.tex"
 
-session FOCL in src = "HOL-Library" +
+session FOCL in "src/uml_ocl" = "HOL-Library" +
   description \<open>Citadelle (Sequential)\<close>
   options [document=pdf,document_output=document_generated,
            document_variants="document=noexample,-afp,-annexa",
@@ -120,9 +120,7 @@ session "Citadelle_C_model-dirty" in src = "Citadelle_C_shallow-dirty" +
 (******************************************************)
 
 session "Max-dirty" in src = "HOL-Library" (* Note: replacing with FOCL will fail! *) +
-  options [quick_and_dirty,document=pdf,document_output=document_generated,
-           document_variants="document=afp,-annexa,-noexample",
-           show_question_marks = false]
+  options [quick_and_dirty]
   sessions
     OCL
     FOCL
@@ -162,20 +160,3 @@ session "Max-dirty" in src = "HOL-Library" (* Note: replacing with FOCL will fai
     "../examples/archive/OCL_core_experiments"
     "../examples/archive/OCL_lib_Gogolla_challenge_naive"
     "../examples/archive/OCL_lib_Gogolla_challenge_integer"
-  document_files
-    "conclusion.tex"
-    "figures/AbstractSimpleChair.pdf"
-    "figures/jedit.png"
-    (*"figures/logo_focl.pdf"*)
-    "figures/pdf.png"
-    "figures/person.png"
-    "figures/pre-post.pdf"
-    "fixme.sty"
-    "hol-ocl-isar.sty"
-    "introduction.tex"
-    "lstisar.sty"
-    "omg.sty"
-    "prooftree.sty"
-    "root.bib"
-    "root.tex"
-    "FOCL_Syntax.tex"
