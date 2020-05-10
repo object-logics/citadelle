@@ -304,7 +304,9 @@ fun apply_tr int trans state =
       let
         val State ((node', pr_ctxt), _, backup) =
           node |> apply (backup_of state)
-            (fn _ => node_presentation (Theory (Context.Theory (Theory.end_theory thy))))
+            (fn _ =>
+              node_presentation
+                (Theory (Context.Theory (tap Thm.expose_theory (Theory.end_theory thy)))))
             (K ());
       in State ((Toplevel, pr_ctxt), get_theory node', backup) end
   | (Keep f, node) =>
@@ -747,6 +749,7 @@ fun future_proofs_enabled estimate st =
   (case try proof_of st of
     NONE => false
   | SOME state =>
+      not (Proofterm.proofs_enabled ()) andalso
       not (Proof.is_relevant state) andalso
        (if can (Proof.assert_bottom true) state
         then Future.proofs_enabled 1

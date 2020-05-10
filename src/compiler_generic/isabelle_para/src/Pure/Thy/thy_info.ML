@@ -10,6 +10,7 @@ sig
   type presentation_context =
     {options: Options.T, file_pos: Position.T, adjust_pos: Position.T -> Position.T,
       segments: Thy_Output.segment list}
+  val adjust_pos_properties: presentation_context -> Position.T -> Properties.T
   val apply_presentation: presentation_context -> theory -> unit
   val add_presentation: (presentation_context -> theory -> unit) -> theory -> theory
   val get_names: unit -> string list
@@ -38,6 +39,9 @@ type presentation_context =
   {options: Options.T, file_pos: Position.T, adjust_pos: Position.T -> Position.T,
     segments: Thy_Output.segment list};
 
+fun adjust_pos_properties (context: presentation_context) pos =
+  Position.offset_properties_of (#adjust_pos context pos) @ Position.id_properties_of pos;
+
 structure Presentation = Theory_Data
 (
   type T = ((presentation_context -> theory -> unit) * stamp) list;
@@ -65,8 +69,9 @@ val _ =
             val latex = Latex.isabelle_body (Context.theory_name thy) body;
             val output = [Latex.output_text latex, Latex.output_positions file_pos latex];
             val _ =
-              if Options.bool options "export_document"
-              then Export.export thy (Path.explode_binding0 "document.tex") output else ();
+              if Options.bool options "export_document" then
+                Export.export thy (Path.explode_binding0 "document.tex") (XML.blob output)
+              else ();
             val _ = if #enabled option then Present.theory_output thy output else ();
           in () end
       end));
@@ -422,7 +427,7 @@ fun load_thy context initiators update_time deps text (name, pos) keywords paren
     Result {theory = theory, exec_id = exec_id, present = present, commit = commit, weight = weight}
   end;
 
-fun check_deps dir name =
+fun check_thy_deps dir name =
   (case lookup_deps name of
     SOME NONE => (true, NONE, Position.none, get_imports name, [])
   | NONE =>
@@ -454,7 +459,7 @@ and require_thy context initiators qualifier dir (s, require_pos) tasks =
         let
           val _ = member (op =) initiators theory_name andalso error (cycle_msg initiators);
 
-          val (current, deps, theory_pos, imports, keywords) = check_deps master_dir theory_name
+          val (current, deps, theory_pos, imports, keywords) = check_thy_deps master_dir theory_name
             handle ERROR msg =>
               cat_error msg
                 ("The error(s) above occurred for theory " ^ quote theory_name ^

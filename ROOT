@@ -45,6 +45,11 @@ session OCL in "src/uml_main" = HOL +
   options [document=pdf,document_output=document_generated,
            document_variants="annex-a=annexa,-theory,-afp,-noexample,-proof,-ML:document=afp,-annexa,-noexample:outline=-annexa,-noexample,afp,/proof,/ML",
            show_question_marks = false]
+  directories
+    "../basic_types"
+    "../collection_types"
+    "../../examples/Employee_Model/Analysis"
+    "../../examples/Employee_Model/Design"
   theories
     UML_Main
     "../../examples/Employee_Model/Analysis/Analysis_OCL"
@@ -75,6 +80,11 @@ session FOCL in "src/uml_ocl" = "HOL-Library" +
   sessions
     OCL
     Isabelle_Meta_Model
+  directories
+    "../../examples/archive/compiler"
+    "../compiler"
+    "../compiler/core"
+    "../compiler/meta"
   theories
     UML_OCL
   document_files
@@ -127,6 +137,16 @@ session "Max-dirty" = "HOL-Library" (* Note: replacing with FOCL will fail! *) +
   sessions
     OCL
     FOCL
+  directories
+    "doc"
+    "examples/Employee_Model/Analysis_generation"
+    "examples/Employee_Model/Design_generation"
+    "examples/archive/uml_ocl"
+    "examples/empirical_evaluation"
+    "examples/uml_ocl"
+    "src/basic_types_extra"
+    "src/compiler_misc"
+    "src/compiler_misc/meta"
   theories
     "src/basic_types_extra/UML_UnlimitedNatural"
 
