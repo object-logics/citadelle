@@ -39,12 +39,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************)
 
-chapter{* Part ... *}
+chapter\<open> Part ...  \<close>
 
 theory   Bank_Test_Model
 imports
   FOCL.UML_OCL
 begin
+
 
 Class Account
 Attributes account_id : Integer
@@ -69,7 +70,26 @@ Association manages
 Class Bank
 Attributes bank_name : String
 
+(*
+Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = []
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n4 :: Person = [ salary = 2900 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n5 :: Person = [ salary = 3500 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n6 :: Person = [ salary = 2500 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ]
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7           = ([ salary = 3200 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n7 ] :: Person) \<rightarrow>oclAsType( OclAny )
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n8 :: OclAny = []
+     and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n9 :: Person = [ salary = 0 ]
+     and X0 :: Person = [ outer_world = [ [ P1 ] ] ]
+     and P1 :: Planet = [ outer_world = [ [ P1 ] , [ self 10 ] ] ]
+
+State \<sigma>\<^sub>1 =
+  [ ([ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 with_only salary = 1000 , boss = self 1 ] :: Person)
+  , ([ X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 with_only salary = 1200 ] :: Person)
+*)
+
 End! (* Bang forces generation of the oo - datatype theory *)
+
 
 Context Bank :: deposit (c : Client, account_id : Integer, amount:Integer)
   Pre  "def": "(\<delta> c) and (\<delta> account_id) and (\<delta> amount)" (* this mimics the syntax : c : Client[1], account_id : Integer[1] *)
@@ -80,6 +100,9 @@ Context Bank :: deposit (c : Client, account_id : Integer, amount:Integer)
             A  = self .managed_accounts@pre ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id))
                                             ->any\<^sub>S\<^sub>e\<^sub>t()
         in  (A' .balance) \<doteq> (A .balance +\<^sub>i\<^sub>n\<^sub>t  amount)"
+  Post frame: "let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and 
+                          ((X .account_id) \<doteq> account_id)) ->any\<^sub>S\<^sub>e\<^sub>t()                   
+               in  ((Set{A} :: \<cdot>Set( \<langle>\<langle>ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>)) ->oclIsModifiedOnly())"
 
 Context Bank :: withdraw (c : Client, account_id : Integer, amount:Integer)
   Pre  "def": "(\<delta> c) and (\<delta> account_id) and (\<delta> amount)" (* this mimics the syntax : c : Client[1], account_id : Integer[1] *)
@@ -92,93 +115,24 @@ Context Bank :: withdraw (c : Client, account_id : Integer, amount:Integer)
             A  = self .managed_accounts@pre ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id))
                                             ->any\<^sub>S\<^sub>e\<^sub>t()
         in  (A' .balance) \<doteq> (A .balance -\<^sub>i\<^sub>n\<^sub>t  amount)"
+  Post frame: "let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and 
+                          ((X .account_id) \<doteq> account_id)) ->any\<^sub>S\<^sub>e\<^sub>t()                   
+               in  ((Set{A} :: \<cdot>Set( \<langle>\<langle>ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>)) ->oclIsModifiedOnly())"
 
 
 Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
   Pre  "(\<delta> c) and (\<delta> account_id)" (* this mimics the syntax : c : Client[1], account_id : Integer[1] *)
   Pre  client_exists: "(self .managed_accounts) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and
                                                               ((X .account_id) \<doteq> account_id))"
-  Post spec: "let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id))
-                                             ->any\<^sub>S\<^sub>e\<^sub>t()
+  Post spec: "let A = self .managed_accounts 
+                           ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id))
+                           ->any\<^sub>S\<^sub>e\<^sub>t()
               in  result \<triangleq> (A .balance)"
   Post frame: "(Set{} :: \<cdot>Set(\<langle>\<langle>ty\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y\<rangle>\<^sub>\<bottom>\<rangle>\<^sub>\<bottom>)) ->oclIsModifiedOnly()"
 
-(* (* from this point, the SORRY flag in UML_OCL.thy
-     (or declare [[quick_and_dirty = true]]) is currently
-   needed for the following to work *)
-lemma emptyFrame: "(\<sigma>,\<sigma>')   \<Turnstile> (Set{}->oclIsModifiedOnly()) \<Longrightarrow> \<sigma> = \<sigma>'"
-sorry
-
-lemma get_balance_is_query :
-assumes  *: "(\<sigma>,\<sigma>')   \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<doteq> d)"
-shows       "\<sigma> = \<sigma>'"
-sorry
-
-lemma dot__withdraw_defined_mono_strong :
-         "\<tau> \<Turnstile> \<upsilon> (W .withdraw(X,Y,Z))
-          \<Longrightarrow> (\<tau> \<Turnstile> \<delta> W) \<and> (\<tau> \<Turnstile> \<delta> X) \<and> (\<tau> \<Turnstile> \<delta> Y) \<and> (\<tau> \<Turnstile> \<delta> Z)"
-sorry
-
-lemma dot__deposit_defined_mono_strong :
-         "\<tau> \<Turnstile> \<upsilon> (W .deposit(X,Y,Z))
-          \<Longrightarrow> (\<tau> \<Turnstile> \<delta> W) \<and> (\<tau> \<Turnstile> \<delta> X) \<and> (\<tau> \<Turnstile> \<delta> Y) \<and> (\<tau> \<Turnstile> \<delta> Z)"
-sorry
-
-lemma dot__get_balance_defined_mono_strong :
-         "\<tau> \<Turnstile> \<upsilon> (W .get_balance(X,Y))
-          \<Longrightarrow> (\<tau> \<Turnstile> \<delta> W) \<and> (\<tau> \<Turnstile> \<delta> X) \<and> (\<tau> \<Turnstile> \<delta> Y)"
-sorry
-
-lemmas [simp,code_unfold] = dot_accessor
-lemma
-assumes const_bank : "const bank"
-assumes const_c : "const c"
-assumes const_a1 : "const a1"
-assumes  *:   "(\<sigma>,\<sigma>')       \<Turnstile> ((bank :: \<cdot>Bank) .get_balance(c , a1) \<doteq> d)"
-and      **:  "(\<sigma>',\<sigma>'')     \<Turnstile>  (bank .deposit(c, a1, a)    \<triangleq> null)"
-and      ***: "(\<sigma>'',\<sigma>''')   \<Turnstile>  (bank .withdraw(c, a1, b)   \<triangleq> null)"
-shows         "\<exists>\<sigma>''''. (\<sigma>''',\<sigma>'''') \<Turnstile> ((bank .get_balance(c , a1)) \<doteq> (d +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b))"
-proof -
-have XXX: "\<And>\<tau> X. \<tau> \<Turnstile>  (X \<triangleq> null) \<Longrightarrow>  \<tau> \<Turnstile>  \<upsilon>(X)"
-          by (metis foundation18 foundation22 valid2 valid_bool_split)
-have YYY:  "\<And>\<tau> X. \<tau> \<Turnstile>  (X \<doteq> d) \<Longrightarrow>  \<tau> \<Turnstile>  \<upsilon>(X)"
-          by (simp add: StrictRefEq\<^sub>I\<^sub>n\<^sub>t\<^sub>e\<^sub>g\<^sub>e\<^sub>r.defargs)
-show "?thesis"
-apply(insert * ** *** )
-(* We get rid of the existential : since this is a query, putting \<sigma>'''' on \<sigma>''' is a good choice. *)
-apply(rule_tac x = "\<sigma>'''" in exI)
-
-(* first phase : we make all implicit definedness and validity knowledge explicit.
-   I e we perform Delta-closure and exploit is_query's. *)
-apply(frule get_balance_is_query, hypsubst)
-apply(frule XXX) back
-apply(drule dot__withdraw_defined_mono_strong, clarify)
-apply(frule XXX)
-apply(drule dot__deposit_defined_mono_strong, clarify)
-apply(frule YYY)
-apply(drule dot__get_balance_defined_mono_strong, clarify)
-apply(frule get_balance_is_query, hypsubst)
 
 
-apply(subst UML_OCL.dot__get_balance_Bank, subst OclValid_def, subst (2) StrongEq_def, subst true_def,
-      simp only: option.inject eq_True Let_def)
-apply(subgoal_tac "(\<sigma>''', \<sigma>'''') \<Turnstile> \<delta> bank \<and> (\<sigma>''', \<sigma>'''') \<Turnstile> \<upsilon> c \<and> (\<sigma>''', \<sigma>'''') \<Turnstile> \<upsilon> a1")
- prefer 2
- apply (meson const_OclValid1 const_OclValid2 const_a1 const_bank const_c)
-apply(simp only: simp_thms if_True)
-
-apply(subst (asm) UML_OCL.dot__get_balance_Bank, subst (asm) OclValid_def, subst (asm) (2) StrongEq_def, subst (asm) true_def,
-      simp only: option.inject eq_True Let_def)
-apply(subgoal_tac "(\<sigma>, \<sigma>') \<Turnstile> \<delta> bank \<and> (\<sigma>, \<sigma>') \<Turnstile> \<upsilon> c \<and> (\<sigma>, \<sigma>') \<Turnstile> \<upsilon> a1")
- prefer 2
- apply (meson const_OclValid1 const_OclValid2 const_a1 const_bank const_c)
-apply(simp only: simp_thms if_True)
-oops
-*)
-
-(* TODO : Use Locales. *)
-
-
+section\<open>A Rudimentary Embedding of val's into the State-Exception Monad\<close>
 find_theorems (100) "dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>"
 find_theorems (100) name:"\<d>\<e>\<p>\<o>\<s>\<i>\<t>"
 
@@ -191,48 +145,157 @@ definition "bind_SE' f1 f2 = bind_SE f1 (f2 o K)"
 
 syntax    (xsymbols)
           "_bind_SE'" :: "[pttrn,('o,'\<sigma>)MON\<^sub>S\<^sub>E,('o','\<sigma>)MON\<^sub>S\<^sub>E] \<Rightarrow> ('o','\<sigma>)MON\<^sub>S\<^sub>E"
-          ("(2 _ \<longleftarrow> _; _)" [5,8,8]8)
+          ("(2 _ ::= _; _)" [5,8,8]8)
 translations
-          "x \<longleftarrow> f; g" == "CONST bind_SE' (CONST val2Mon (f)) (% x . g)"
+          "x ::= f; g" == "CONST bind_SE' (CONST val2Mon (f)) (% x . g)"
 
 lemma get_balanceE :
-assumes 1: "\<sigma> \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r  \<longleftarrow> (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)"
+assumes 1: "\<sigma> \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)"
 and     2: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
                                                 ((X .account_id@pre) \<doteq> a1))"
 and     3: "\<sigma>' = \<sigma>"
-and     4: "(\<sigma>,\<sigma>')\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> a1))
-                                        ->any\<^sub>S\<^sub>e\<^sub>t()
-                    in  result  \<triangleq> (A .balance)) "
+and     4: "(\<sigma>,\<sigma>')\<Turnstile> (let A = self .managed_accounts 
+                               ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> a1))
+                               ->any\<^sub>S\<^sub>e\<^sub>t()
+                     in  result  \<triangleq> (A .balance))"
 shows      "\<sigma>' \<Turnstile>\<^sub>M\<^sub>o\<^sub>n  (M (\<lambda>_. (result (\<sigma>,\<sigma>')))) "
 oops
 
-lemma get_balanceS :
+
+
+(* should be generated automatically from modifiesOnly({}) and the result = ... format
+   of the body *)
+lemma get_balance_detNquery:
+  assumes 1 : "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
+                                                ((X .account_id@pre) \<doteq> a1))"
+  and     2 : "(\<sigma>,\<sigma>)\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner)
+                             \<doteq> c and ((X .account_id) \<doteq> a1))->any\<^sub>S\<^sub>e\<^sub>t()
+                    in  result  \<triangleq> (A .balance)) "
+shows   "(SOME (d, \<sigma>'). (\<sigma>, \<sigma>') \<Turnstile> self .get_balance(c,a1) \<triangleq> (\<lambda>_. d)) = (result (\<sigma>, \<sigma>), \<sigma>)"
+  sorry
+
+lemma get_balance_Symbex :
 assumes 1: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
                                                 ((X .account_id@pre) \<doteq> a1))"
-and     2: "\<sigma>' = \<sigma>"
-and     3: "(\<sigma>,\<sigma>')\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> a1))
-                                        ->any\<^sub>S\<^sub>e\<^sub>t()
+and     2: "(\<sigma>,\<sigma>)\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner)
+                             \<doteq> c and ((X .account_id) \<doteq> a1))->any\<^sub>S\<^sub>e\<^sub>t()
                     in  result  \<triangleq> (A .balance)) "
-shows      "(\<sigma> \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r  \<longleftarrow> (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)) =
-            (\<sigma>' \<Turnstile>\<^sub>M\<^sub>o\<^sub>n  (M (\<lambda>_. (result (\<sigma>,\<sigma>'))))) "
-oops
+shows      "(\<sigma>  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)) =
+            (\<sigma>  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( M (K(result (\<sigma>,\<sigma>)))))"
+proof -
+  have 3: "\<exists>\<sigma>' d. ((\<sigma>, \<sigma>') \<Turnstile> (self .get_balance(c,a1) \<triangleq> d))" sorry (* rephrases 2 on HOL level *)
+  show ?thesis
+      apply(rule trans)
+      unfolding bind_SE'_def
+       apply(rule exec_bind_SE_success)
+      unfolding val2Mon_def
+       apply(simp add: val2Mon_def 3)
+       prefer 2
+      apply(simp add: valid_SE_def unit_SE_def bind_SE_def )
+      using "3" "local.1" "local.2" get_balance_detNquery by blast 
+qed
 
+term "X .get_balance(c , a1)" 
+
+find_theorems name: "get_balance"
+
+term "oid_of c"
+
+thm "val2Mon_def"
+
+find_theorems name:state "heap"
+
+term "X .balance"
+
+term " mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
+
+
+
+definition  upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>b\<^sub>a\<^sub>l\<^sub>a\<^sub>n\<^sub>c\<^sub>e where 
+  "upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>b\<^sub>a\<^sub>l\<^sub>a\<^sub>n\<^sub>c\<^sub>e x f = (case x of mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid aid bal \<Rightarrow> mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid aid (f bal))"
+
+definition  upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>a\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>_\<^sub>i\<^sub>d where 
+           "upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>a\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>_\<^sub>i\<^sub>d x f = (case x of mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid aid bal \<Rightarrow> mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid (f aid) bal)"
+
+term "heap_update"
+(* term "heap_update (\<lambda> oid. upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>b\<^sub>a\<^sub>l\<^sub>a\<^sub>n\<^sub>c\<^sub>e x f) " *)
+                              
+term "r = \<lparr>heap = (heap r)(oid\<mapsto>upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>b\<^sub>a\<^sub>l\<^sub>a\<^sub>n\<^sub>c\<^sub>e x f), assocs = assocs r\<rparr>"
+
+find_theorems "Any"
+
+term "deref_oid\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
+find_theorems "heap"
+
+term "mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid) X Y  "
+find_theorems (170) "mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
+
+find_theorems name:"ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
+
+lemma deposit_Symbex :
+assumes 1: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
+                                                ((X .account_id@pre) \<doteq> account))"
+and     2: "A  = self .managed_accounts@pre 
+                      ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
+                      ->any\<^sub>S\<^sub>e\<^sub>t()"
+and     3: "A_oid = (oid_of)(A(\<sigma>,\<sigma>'))"
+and     4: "bal = ((self .managed_accounts@pre 
+                          ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
+                          ->any\<^sub>S\<^sub>e\<^sub>t()
+                           .balance)(\<sigma>,\<sigma>'))"
+shows      "(\<sigma>  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (self :: \<cdot>Bank) .deposit(c, account, amount) ; M r)) =
+            (\<sigma>  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( M (null)))"
+proof -
+  have 3: "\<exists>\<sigma>' d. (\<sigma>, \<sigma>') \<Turnstile> self .deposit(c, account, amount) \<triangleq> d" sorry (* rephrases 2 on HOL level *)
+  show ?thesis
+      apply(rule trans)
+      unfolding bind_SE'_def
+       apply(rule exec_bind_SE_success)
+      unfolding val2Mon_def
+       apply(simp add: 3)
+       prefer 2
+       apply(simp add: valid_SE_def unit_SE_def bind_SE_def )
+      sledgehammer
+      using "3" "local.1" "local.2" get_balance_detNquery by blast 
+qed
 
 
 lemma valid_sequence:
-assumes client_account_defined : "\<forall> \<sigma> . (\<sigma>\<^sub>0, \<sigma>) \<Turnstile> bank .managed_accounts@pre->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c and (X .account_id@pre \<doteq> a1))"
-shows
-           "\<sigma>\<^sub>0 \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r  \<longleftarrow> (bank :: \<cdot>Bank) .get_balance(c , a1) ;
-                     _  \<longleftarrow> bank .deposit(c, a1, a) ;
-                     _  \<longleftarrow> bank .withdraw(c , a1, b) ;
-                     r' \<longleftarrow> bank .get_balance(c , a1) ;
-                     assert\<^sub>S\<^sub>E (\<lambda>\<sigma>.  ((\<sigma>,\<sigma>) \<Turnstile> (r +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b \<doteq> r'))))"
-(*apply(subst get_balanceS)
-apply(rule client_account_defined[THEN spec])
-apply(rule refl)
-apply(simp only:Let_def)
-apply(rule UML_Logic.StrongEq_L_refl)
-*)
-oops
+  assumes client_account_defined : 
+        "\<forall> \<sigma> . (\<sigma>\<^sub>0, \<sigma>) \<Turnstile> bank .managed_accounts@pre
+                         ->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c and (X .account_id@pre \<doteq> a1))"
+  and     2: "A  = self .managed_accounts@pre 
+                      ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
+                      ->any\<^sub>S\<^sub>e\<^sub>t()"
+  and     3 : "(\<sigma>\<^sub>0, \<sigma>) \<Turnstile> null \<le>\<^sub>i\<^sub>n\<^sub>t A .balance" 
+  shows
+        "\<sigma>\<^sub>0 \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (bank :: \<cdot>Bank) .get_balance(c , a1) ;
+                  _  ::=  bank .deposit(c, a1, a) ;
+                  _  ::=  bank .withdraw(c , a1, b) ;
+                  r' ::=  bank .get_balance(c , a1) ;
+                  assert\<^sub>S\<^sub>E (\<lambda>\<sigma>.  ((\<sigma>,\<sigma>) \<Turnstile> (r +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b \<doteq> r'))))"
+apply(subst get_balance_Symbex)
+  apply(rule client_account_defined[THEN spec],simp only:Let_def,rule UML_Logic.StrongEq_L_refl)
+  sorry
+
+
+lemma valid_sequence2:
+  assumes client_account_defined : 
+        "\<forall> \<sigma> . (\<sigma>\<^sub>0, \<sigma>) \<Turnstile> bank .managed_accounts@pre
+                         ->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c1 and (X .account_id@pre \<doteq> a))"
+  and   "\<forall> \<sigma> . (\<sigma>\<^sub>0, \<sigma>) \<Turnstile> bank .managed_accounts@pre
+                         ->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c3 and (X .account_id@pre \<doteq> b))"
+  shows
+        "\<sigma>\<^sub>0 \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r    ::= (bank :: \<cdot>Bank) .get_balance(c1 , a1) ;
+                  r'   ::=  bank .get_balance(c2 , a3) ;
+                  _    ::=  bank .withdraw(c1 , a1, a) ;
+                  _    ::=  bank .deposit(c2, a3, a) ;
+                  r''  ::=  bank .get_balance(c1 , a1) ;
+                  r''' ::=  bank .get_balance(c2 , a3) ;
+                  assert\<^sub>S\<^sub>E (\<lambda>\<sigma>.  ((\<sigma>,\<sigma>) \<Turnstile> (r +\<^sub>i\<^sub>n\<^sub>t r' \<doteq> r'' +\<^sub>i\<^sub>n\<^sub>t r'''))))"
+  oops
+
+
+
 
 end
