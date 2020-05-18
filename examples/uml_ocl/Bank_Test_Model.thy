@@ -133,8 +133,6 @@ Context Bank :: get_balance (c : Client, account_id : Integer) : Integer
 
 
 section\<open>A Rudimentary Embedding of val's into the State-Exception Monad\<close>
-find_theorems (100) "dot\<g>\<e>\<t>095\<b>\<a>\<l>\<a>\<n>\<c>\<e>"
-find_theorems (100) name:"\<d>\<e>\<p>\<o>\<s>\<i>\<t>"
 
 definition val2Mon :: "('\<sigma>, '\<alpha>::null)val \<Rightarrow>  ('\<alpha>,'\<sigma> state)MON\<^sub>S\<^sub>E"
 where     "val2Mon f \<equiv> (\<lambda>\<sigma>. if \<exists>\<sigma>'. \<exists>d.  ((\<sigma>,\<sigma>') \<Turnstile> (f \<triangleq> d))
@@ -148,6 +146,109 @@ syntax    (xsymbols)
           ("(2 _ ::= _; _)" [5,8,8]8)
 translations
           "x ::= f; g" == "CONST bind_SE' (CONST val2Mon (f)) (% x . g)"
+
+
+
+
+section\<open>Basic State-Management which is Missing\<close>
+text\<open>The data-type package constructs a global, non-extensible type @{typ "\<AA>"} for all objects
+living in the current 00 data universe. In constructs injections and constructors such as 
+@{term "mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<Rightarrow> \<langle>int\<rangle>\<^sub>\<bottom> \<Rightarrow> \<langle>int\<rangle>\<^sub>\<bottom> \<Rightarrow> ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"} and
+@{term "in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t:: ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<Rightarrow> \<AA>"} as well as the universal oid-destructor
+@{term "oid_of:: \<AA>\<Rightarrow>nat"}, and a kind of dereferantiator
+@{term "deref_oid\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"} but overall, the generated infrastructure for
+what is called \<^emph>\<open>level 1 - model\<close> in Brucker and Wolff's 
+\<^emph>\<open>An Extensible Encoding of Object-oriented Data Models in HOL\<close> is rudimentary.
+
+The universe construction is the essential building block for the state construction
+@{typ "\<AA> state"} and the resulting notion of state relations @{typ "(\<AA> state \<times> \<AA> state) set"}.
+\<close>
+
+text\<open>We construct what is missing by hand for the special case \<^verbatim>\<open>Account\<close>. 
+Note that the entire interface is intended for "non-null objects"\<close>
+
+definition is\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: "\<AA> \<Rightarrow> bool" 
+  where   "is\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x = (case x of in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x \<Rightarrow> True 
+                                | in\<^sub>B\<^sub>a\<^sub>n\<^sub>k x  \<Rightarrow> False
+                                | in\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t x \<Rightarrow> False 
+                                | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y x \<Rightarrow> False)"
+(* etc. for Bank, Client, OclAny. *)
+
+definition from\<AA>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: "\<AA> \<Rightarrow> ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t" 
+  where   "from\<AA>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x = (case x of in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x \<Rightarrow> x 
+                                | in\<^sub>B\<^sub>a\<^sub>n\<^sub>k x  \<Rightarrow> undefined
+                                | in\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t x \<Rightarrow> undefined 
+                                | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y x \<Rightarrow> undefined)"
+(* etc. for Bank, Client, OclAny. It should be very easy to generate these
+by just changing the generated datatype definition for @{type "\<AA>"} ... *)
+
+definition dest\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: "ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<Rightarrow> ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<times> \<langle>int\<rangle>\<^sub>\<bottom> \<times> \<langle>int\<rangle>\<^sub>\<bottom>" 
+  where   "dest\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x = (case x of mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x xa xb \<Rightarrow> (x, xa, xb))"
+(* other instances  for Bank, Client, OclAny analogously;
+   this shortcut is pbly not the most necessary. *)
+
+find_theorems "map_option"
+definition  upd_obj\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: "(\<langle>int\<rangle>\<^sub>\<bottom> \<Rightarrow> \<langle>int\<rangle>\<^sub>\<bottom>) \<Rightarrow> (\<langle>int\<rangle>\<^sub>\<bottom> \<Rightarrow> \<langle>int\<rangle>\<^sub>\<bottom>) \<Rightarrow> ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<Rightarrow> ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
+  where    "upd_obj\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t upd\<^sub>1 upd\<^sub>2 x = 
+                  (case ((x::ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t)) of 
+                     mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid aid bal \<Rightarrow> ((mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid (upd\<^sub>1 aid) (upd\<^sub>2 bal))))"
+
+
+
+text\<open>Here is a bit more infrastructure on the object state:\<close>
+consts is_defined_in_state :: "'a:: object \<Rightarrow> ('\<AA> :: object) state \<Rightarrow> bool" (infix "\<triangleleft>" 80)
+
+overloading is_defined_in_state \<equiv> "is_defined_in_state :: (ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t) \<Rightarrow> \<AA> state \<Rightarrow> bool"
+begin
+definition  is_defined_in_state\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t : "(x::ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t) \<triangleleft> (\<sigma>::\<AA> state) = (oid_of x \<in> dom (heap \<sigma>))"
+end
+(* other instances  for Bank, Client, OclAny analogously. *)
+
+definition heap_upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t 
+  where   "heap_upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x upd\<^sub>1 upd\<^sub>2 = 
+                heap_update(\<lambda>\<sigma>.(\<sigma>((oid_of x) \<mapsto> in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t(upd_obj\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t upd\<^sub>1 upd\<^sub>2 x))))"
+
+(* generic heap - theory *)
+lemma heap_upd_commute : 
+     "oid_of x \<noteq> oid_of y \<Longrightarrow> 
+          (heap_update(\<lambda>\<sigma>.(\<sigma>((oid_of x) \<mapsto> E))) o
+          (heap_update(\<lambda>\<sigma>.(\<sigma>((oid_of y) \<mapsto> E'))))) =
+          (heap_update(\<lambda>\<sigma>.(\<sigma>((oid_of y) \<mapsto> E'))) o
+          (heap_update(\<lambda>\<sigma>.(\<sigma>((oid_of x) \<mapsto> E)))))" 
+  apply(rule ext)
+  by (simp add: fun_upd_twist)
+
+lemma heap_upd_idem : 
+     "    (heap_update(\<lambda>\<sigma>.(\<sigma>(x \<mapsto> E))) o
+          (heap_update(\<lambda>\<sigma>.(\<sigma>(x \<mapsto> E'))))) =
+          (heap_update(\<lambda>\<sigma>.(\<sigma>(x \<mapsto> E))))" 
+  by(rule ext, simp add: o_def)
+
+lemma heap_upd_acces1 : 
+     "   heap (heap_update(\<lambda>\<sigma>.(\<sigma>((oid_of x) \<mapsto> E))) \<sigma>) (oid_of x)  =
+         (Some E)" 
+  by auto
+
+lemma heap_upd_acces2 :
+     "oid_of x \<noteq> oid_of y \<Longrightarrow> 
+         heap (heap_update(\<lambda>\<sigma>.(\<sigma>((oid_of x) \<mapsto> E))) \<sigma>) (oid_of y)  =
+         heap \<sigma> (oid_of y)" 
+  by auto
+
+
+text\<open>The @{term "heap_create\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"}-operation creates within the heap of a state a new 
+     @{term "Account"}-object with a fresh @{term "new_id"}. Arguments of the constructor maybe 
+     @{term "null"}, but not @{term "invalid"} by construction (constructors are assumed to be
+     strict).\<close>
+definition heap_create\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t
+  where   "heap_create\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t acc_id bal \<equiv>
+               heap_update(\<lambda>\<sigma>. let new_oid = Max(dom \<sigma>) + 1 
+                               in \<sigma>(new_oid \<mapsto> in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t(mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t new_oid) acc_id bal)))"
+
+
+(* We will also need an add_association and a delete_association. TODO. *)
+
+section\<open>Derived Symbolic Execution Rules\<close>
 
 lemma get_balanceE :
 assumes 1: "\<sigma> \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)"
@@ -195,87 +296,86 @@ proof -
       using "3" "local.1" "local.2" get_balance_detNquery by blast 
 qed
 
-term "X .get_balance(c , a1)" 
 
-find_theorems name: "get_balance"
-
-term "oid_of c"
-
-thm "val2Mon_def"
-
-find_theorems name:state "heap"
-
-term "X .balance"
-
-term " mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
+lemma K_lemma : "K x = (\<lambda>_ . x)"
+  apply(rule ext)
+  by (simp add: K_def)
 
 
-
-definition  upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>b\<^sub>a\<^sub>l\<^sub>a\<^sub>n\<^sub>c\<^sub>e where 
-  "upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>b\<^sub>a\<^sub>l\<^sub>a\<^sub>n\<^sub>c\<^sub>e x f = (case x of mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid aid bal \<Rightarrow> mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid aid (f bal))"
-
-definition  upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>a\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>_\<^sub>i\<^sub>d where 
-           "upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>a\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>_\<^sub>i\<^sub>d x f = (case x of mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid aid bal \<Rightarrow> mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid (f aid) bal)"
-
-term "heap_update"
-(* term "heap_update (\<lambda> oid. upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>b\<^sub>a\<^sub>l\<^sub>a\<^sub>n\<^sub>c\<^sub>e x f) " *)
-                              
-term "r = \<lparr>heap = (heap r)(oid\<mapsto>upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t\<^sub>A\<^sub>T\<^sub>b\<^sub>a\<^sub>l\<^sub>a\<^sub>n\<^sub>c\<^sub>e x f), assocs = assocs r\<rparr>"
-
-find_theorems "Any"
-
-term "deref_oid\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
-find_theorems "heap"
-
-term "mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t oid) X Y  "
-find_theorems (170) "mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
-
-find_theorems name:"ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t"
-
+(* update on simply lifted base types; undefinedness is treated elsewhere *)
 lemma deposit_Symbex :
-assumes 1: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
+assumes 1: "(\<sigma>,X)\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
                                                 ((X .account_id@pre) \<doteq> account))"
 and     2: "A  = self .managed_accounts@pre 
                       ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
                       ->any\<^sub>S\<^sub>e\<^sub>t()"
-and     3: "A_oid = (oid_of)(A(\<sigma>,\<sigma>'))"
-and     4: "bal = ((self .managed_accounts@pre 
-                          ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
-                          ->any\<^sub>S\<^sub>e\<^sub>t()
-                           .balance)(\<sigma>,\<sigma>'))"
-shows      "(\<sigma>  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (self :: \<cdot>Bank) .deposit(c, account, amount) ; M r)) =
-            (\<sigma>  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( M (null)))"
+and     3: "bal = (A .balance)"
+and     4: "\<sigma>' = (heap_upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t((the o the)(A(\<sigma>,\<sigma>))) id ((K o the)((bal +\<^sub>i\<^sub>n\<^sub>t amount)(\<sigma>,\<sigma>))))\<sigma>"
+shows      "(\<sigma>   \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (self :: \<cdot>Bank) .deposit(c, account, amount) ; M r)) =
+            (\<sigma>'  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( M (null)))"
 proof -
-  have 3: "\<exists>\<sigma>' d. (\<sigma>, \<sigma>') \<Turnstile> self .deposit(c, account, amount) \<triangleq> d" sorry (* rephrases 2 on HOL level *)
+  have 5: "\<exists>\<sigma>'. (\<sigma>, \<sigma>') \<Turnstile> self .deposit(c, account, amount) \<triangleq> null" sorry (* rephrases 2 on HOL level *)
+  have 6: "\<exists>\<sigma>' d. (\<sigma>, \<sigma>') \<Turnstile> self .deposit(c, account, amount) \<triangleq> d"  using "5" by blast 
   show ?thesis
       apply(rule trans)
-      unfolding bind_SE'_def
+      unfolding bind_SE'_def            
        apply(rule exec_bind_SE_success)
       unfolding val2Mon_def
-       apply(simp add: 3)
+       apply(simp add: 6)
        prefer 2
-       apply(simp add: valid_SE_def unit_SE_def bind_SE_def )
-      sledgehammer
-      using "3" "local.1" "local.2" get_balance_detNquery by blast 
+      apply(simp add: null_option_def)
+       apply(simp add: valid_SE_def unit_SE_def bind_SE_def null_fun_def K_lemma)
+      sorry (* doable but quite a lot of work *) 
+qed
+
+
+lemma withdraw_Symbex :
+assumes 1: "(\<sigma>,X)\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
+                                                ((X .account_id@pre) \<doteq> account))"
+and     2: "A  = self .managed_accounts@pre 
+                      ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account)) 
+                      ->any\<^sub>S\<^sub>e\<^sub>t()"
+and     3: "bal = (A .balance)"
+and     4: "\<sigma>' = (heap_upd\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t((the o the)(A(\<sigma>,\<sigma>))) id ((K o the)((bal -\<^sub>i\<^sub>n\<^sub>t amount)(\<sigma>,\<sigma>))))\<sigma>"
+shows      "(\<sigma>   \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (self :: \<cdot>Bank) .withdraw(c, account, amount) ; M r)) =
+            (\<sigma>'  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( M (null)))"
+proof -
+  have 5: "\<exists>\<sigma>'. (\<sigma>, \<sigma>') \<Turnstile> self .withdraw(c, account, amount) \<triangleq> null" sorry (* rephrases 2 on HOL level *)
+  have 6: "\<exists>\<sigma>' d. (\<sigma>, \<sigma>') \<Turnstile> self .withdraw(c, account, amount) \<triangleq> d"  using "5" by blast 
+  show ?thesis
+      apply(rule trans)
+      unfolding bind_SE'_def            
+       apply(rule exec_bind_SE_success)
+      unfolding val2Mon_def
+       apply(simp add: 6)
+       prefer 2
+      apply(simp add: null_option_def)
+       apply(simp add: valid_SE_def unit_SE_def bind_SE_def null_fun_def K_lemma)
+      sorry (* doable but quite a lot of work *) 
 qed
 
 
 lemma valid_sequence:
   assumes client_account_defined : 
         "\<forall> \<sigma> . (\<sigma>\<^sub>0, \<sigma>) \<Turnstile> bank .managed_accounts@pre
-                         ->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c and (X .account_id@pre \<doteq> a1))"
-  and     2: "A  = self .managed_accounts@pre 
+                         ->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c and (X .account_id@pre \<doteq> account_id))"
+  and     2: "A  = bank .managed_accounts@pre 
                       ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
                       ->any\<^sub>S\<^sub>e\<^sub>t()"
   and     3 : "(\<sigma>\<^sub>0, \<sigma>) \<Turnstile> null \<le>\<^sub>i\<^sub>n\<^sub>t A .balance" 
   shows
-        "\<sigma>\<^sub>0 \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (bank :: \<cdot>Bank) .get_balance(c , a1) ;
-                  _  ::=  bank .deposit(c, a1, a) ;
-                  _  ::=  bank .withdraw(c , a1, b) ;
-                  r' ::=  bank .get_balance(c , a1) ;
-                  assert\<^sub>S\<^sub>E (\<lambda>\<sigma>.  ((\<sigma>,\<sigma>) \<Turnstile> (r +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b \<doteq> r'))))"
-apply(subst get_balance_Symbex)
-  apply(rule client_account_defined[THEN spec],simp only:Let_def,rule UML_Logic.StrongEq_L_refl)
+        "\<sigma>\<^sub>0 \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (bank :: \<cdot>Bank) .get_balance(c , account_id) ;
+                  _  ::=  bank .deposit(c, account_id, a) ;
+                  _  ::=  bank .withdraw(c, account_id, b) ;
+                  r' ::=  bank .get_balance(c , account_id) ;
+                  assert\<^sub>S\<^sub>E (\<lambda>\<sigma>.  ((\<sigma>,\<sigma>) \<Turnstile> (r +\<^sub>i\<^sub>n\<^sub>t a -\<^sub>i\<^sub>n\<^sub>t b \<doteq> r'))))"  
+  apply(subst get_balance_Symbex)
+      apply(rule client_account_defined[THEN spec],simp only:Let_def,rule UML_Logic.StrongEq_L_refl)
+  apply(subst deposit_Symbex)
+      apply(rule client_account_defined[THEN spec], rule 2,rule refl, rule refl)
+  apply(subst withdraw_Symbex)
+      defer 1
+      apply(rule 2, rule refl)
   sorry
 
 
