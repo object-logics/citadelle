@@ -70,7 +70,24 @@ Association manages
 Class Bank
 Attributes bank_name : String
 
-(*
+
+(* In the JOT Paper we wrote:
+
+nstance c1 :: Client = [ client_id = 101 , name = ’’Alice’’, age = 25 ] and c2 :: Client = [ client_id = 102 , name = ’’Bob’’, age : 17 ] and a1 :: Account = [ id = 2100110, balance = 500 ]
+and a2 :: Account = [ id = 3100500, balance = 20 ]
+and a3 :: Account = [ id = 5010101, balance = 1000 ] and b1 :: Bank = [ bank_name = ’’Banco Fiasco’’ ]
+
+State \<sigma>1 =
+[ ([ c1, c2 ] :: Client),
+  ([ a1 with_only balance = 600, a2, a3 ] :: Account),
+  ([ b1 ] :: Bank)]
+[ b1 associates_to a1,a2,a3 via manages,
+  c1 associates_to a1,a2 via owner, c2 associates_to a3 via owner]
+
+*)
+
+
+(* old stuff.
 Instance X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n1 :: Person = [ salary = 1300 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 :: Person = [ salary = 1800 , boss = X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n2 ]
      and X\<^sub>P\<^sub>e\<^sub>r\<^sub>s\<^sub>o\<^sub>n3 :: Person = []
@@ -181,6 +198,13 @@ definition from\<AA>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: 
                                 | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y x \<Rightarrow> undefined)"
 (* etc. for Bank, Client, OclAny. It should be very easy to generate these
 by just changing the generated datatype definition for @{type "\<AA>"} ... *)
+definition from\<AA>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t :: "\<AA> \<Rightarrow> ty\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t" 
+  where   "from\<AA>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t x = (case x of in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x \<Rightarrow> undefined 
+                                | in\<^sub>B\<^sub>a\<^sub>n\<^sub>k x  \<Rightarrow> undefined
+                                | in\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t x \<Rightarrow> x 
+                                | in\<^sub>O\<^sub>c\<^sub>l\<^sub>A\<^sub>n\<^sub>y x \<Rightarrow> undefined)"
+
+
 
 definition dest\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t :: "ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<Rightarrow> ty\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<times> \<langle>int\<rangle>\<^sub>\<bottom> \<times> \<langle>int\<rangle>\<^sub>\<bottom>" 
   where   "dest\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x = (case x of mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t x xa xb \<Rightarrow> (x, xa, xb))"
@@ -245,6 +269,23 @@ definition heap_create\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t
                heap_update(\<lambda>\<sigma>. let new_oid = Max(dom \<sigma>) + 1 
                                in \<sigma>(new_oid \<mapsto> in\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t(mk\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t (mk\<E>\<X>\<T>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t new_oid) acc_id bal)))"
 
+(* these internal id's are independent from any oid's; they live in their own space so far *)
+definition owner_assoc_id   where "owner_assoc_id   = (0::nat)"
+definition manages_assoc_id where "manages_assoc_id = (Suc 0)"
+
+
+definition get_assoc\<^sub>o\<^sub>w\<^sub>n\<^sub>e\<^sub>r :: "\<AA> state \<Rightarrow> (ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<times> ty\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t) list"
+  where   "get_assoc\<^sub>o\<^sub>w\<^sub>n\<^sub>e\<^sub>r \<sigma> = ((map(\<lambda>assoc . (from\<AA>\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t(the((heap \<sigma>)(assoc!0))),
+                                             from\<AA>\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t(the((heap \<sigma>)(assoc!0)))))) o hd o the o 
+                              (\<lambda>m. m owner_assoc_id) o assocs) \<sigma> "
+
+definition add_assoc\<^sub>o\<^sub>w\<^sub>n\<^sub>e\<^sub>r ::  "ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<Rightarrow> ty\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t \<Rightarrow> \<AA> state \<Rightarrow> \<AA> state"
+  where   "add_assoc\<^sub>o\<^sub>w\<^sub>n\<^sub>e\<^sub>r account client \<sigma> 
+           = assocs_update (\<lambda>m. m(owner_assoc_id \<mapsto> [[[oid_of account, oid_of client]]])) \<sigma>"
+
+definition del_assoc\<^sub>o\<^sub>w\<^sub>n\<^sub>e\<^sub>r ::  "ty\<^sub>A\<^sub>c\<^sub>c\<^sub>o\<^sub>u\<^sub>n\<^sub>t \<Rightarrow> ty\<^sub>C\<^sub>l\<^sub>i\<^sub>e\<^sub>n\<^sub>t \<Rightarrow> \<AA> state \<Rightarrow> \<AA> state"
+  where   "del_assoc\<^sub>o\<^sub>w\<^sub>n\<^sub>e\<^sub>r account client \<sigma> 
+           = assocs_update (\<lambda>m. m(owner_assoc_id \<mapsto> [[[oid_of account, oid_of client]]])) \<sigma>"
 
 (* We will also need an add_association and a delete_association. TODO. *)
 
@@ -270,8 +311,8 @@ lemma get_balance_detNquery:
   assumes 1 : "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
                                                 ((X .account_id@pre) \<doteq> a1))"
   and     2 : "(\<sigma>,\<sigma>)\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner)
-                             \<doteq> c and ((X .account_id) \<doteq> a1))->any\<^sub>S\<^sub>e\<^sub>t()
-                    in  result  \<triangleq> (A .balance)) "
+                               \<doteq> c and ((X .account_id) \<doteq> a1))->any\<^sub>S\<^sub>e\<^sub>t()
+                    in  result \<triangleq> (A .balance)) "
 shows   "(SOME (d, \<sigma>'). (\<sigma>, \<sigma>') \<Turnstile> self .get_balance(c,a1) \<triangleq> (\<lambda>_. d)) = (result (\<sigma>, \<sigma>), \<sigma>)"
   sorry
 
@@ -279,8 +320,9 @@ lemma get_balance_Symbex :
 assumes 1: "(\<sigma>,\<sigma>')\<Turnstile>(self .managed_accounts@pre) ->exists\<^sub>S\<^sub>e\<^sub>t(X | (X .owner@pre) \<doteq> c and
                                                 ((X .account_id@pre) \<doteq> a1))"
 and     2: "(\<sigma>,\<sigma>)\<Turnstile>(let A = self .managed_accounts ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner)
-                             \<doteq> c and ((X .account_id) \<doteq> a1))->any\<^sub>S\<^sub>e\<^sub>t()
-                    in  result  \<triangleq> (A .balance)) "
+                                                                  \<doteq> c and ((X .account_id) \<doteq> a1))
+                                                   ->any\<^sub>S\<^sub>e\<^sub>t()
+                    in  result  \<triangleq> (A .balance))"
 shows      "(\<sigma>  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r ::= (self :: \<cdot>Bank) .get_balance(c , a1) ; M r)) =
             (\<sigma>  \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( M (K(result (\<sigma>,\<sigma>)))))"
 proof -
@@ -358,7 +400,7 @@ qed
 lemma valid_sequence:
   assumes client_account_defined : 
         "\<forall> \<sigma> . (\<sigma>\<^sub>0, \<sigma>) \<Turnstile> bank .managed_accounts@pre
-                         ->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c and (X .account_id@pre \<doteq> account_id))"
+                              ->exists\<^sub>S\<^sub>e\<^sub>t(X|X .owner@pre \<doteq> c and (X .account_id@pre \<doteq> account_id))"
   and     2: "A  = bank .managed_accounts@pre 
                       ->select\<^sub>S\<^sub>e\<^sub>t(X | (X .owner) \<doteq> c and ((X .account_id) \<doteq> account_id)) 
                       ->any\<^sub>S\<^sub>e\<^sub>t()"
@@ -389,7 +431,7 @@ lemma valid_sequence2:
         "\<sigma>\<^sub>0 \<Turnstile>\<^sub>M\<^sub>o\<^sub>n ( r    ::= (bank :: \<cdot>Bank) .get_balance(c1 , a1) ;
                   r'   ::=  bank .get_balance(c2 , a3) ;
                   _    ::=  bank .withdraw(c1 , a1, a) ;
-                  _    ::=  bank .deposit(c2, a3, a) ;
+                  _    ::=  bank .deposit(c2, a3, a)   ;
                   r''  ::=  bank .get_balance(c1 , a1) ;
                   r''' ::=  bank .get_balance(c2 , a3) ;
                   assert\<^sub>S\<^sub>E (\<lambda>\<sigma>.  ((\<sigma>,\<sigma>) \<Turnstile> (r +\<^sub>i\<^sub>n\<^sub>t r' \<doteq> r'' +\<^sub>i\<^sub>n\<^sub>t r'''))))"
