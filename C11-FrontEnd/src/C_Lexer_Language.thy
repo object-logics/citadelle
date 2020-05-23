@@ -604,7 +604,7 @@ datatype token_kind_encoding =
 
 type token_kind_string =
   token_kind_encoding
-  * (Symbol.symbol, Position.range * int \<comment> \<open>exceeding \<^ML>\<open>Char.maxOrd\<close>\<close>) either list
+  * (Symbol_Pos.T, Position.range * int \<comment> \<open>exceeding \<^ML>\<open>Char.maxOrd\<close>\<close>) either list
 
 datatype token_kind_int_repr = Repr_decimal
                              | Repr_hexadecimal
@@ -763,46 +763,42 @@ val token_list_of =
 
 local
 
-fun warn0 pos l s =
-  ()
-  |> tap
-       (fn _ =>
-        if exists (fn Left s => not (Symbol.is_printable s) | _ => false) l then
-          app (fn (s, pos) =>
-                if Symbol.is_printable s
-                then ()
-                else Output.information ("Not printable character " ^ @{make_string} (ord s, s)
-                                         ^ Position.here pos))
-              (Symbol_Pos.explode (s, pos))
-        else ())
-  |> tap
-       (fn _ =>
-        app (fn Left _ => ()
-              | Right ((pos1, _), n) =>
-                  Output.information
-                    ("Out of the supported range (character number " ^ Int.toString n ^ ")"
-                     ^ Position.here pos1))
-            l)
+val warn_string =
+  app (fn Left (s, pos) =>
+            if Symbol.is_printable s then
+              ()
+            else
+              let val ord_s = ord s
+              in
+                Output.information ("Not printable symbol "
+                                    ^ (if chr ord_s = s then @{make_string} (ord_s, s)
+                                                        else @{make_string} s)
+                                    ^ Position.here pos)
+              end
+        | Right ((pos1, _), n) =>
+            Output.information
+              ("Out of the supported range (character number " ^ Int.toString n ^ ")"
+               ^ Position.here pos1))
 
 
 
-fun unknown pos = Output.information ("Unknown symbol" ^ Position.here pos)
+fun warn_unknown pos = Output.information ("Unknown symbol" ^ Position.here pos)
 
-val app_directive =
-      app (fn Token (_, (Error (msg, _), _)) => warning msg
-            | Token ((pos, _), (Unknown, _)) => unknown pos
-            | _ => ())
+val warn_directive =
+  app (fn Token (_, (Error (msg, _), _)) => warning msg
+        | Token ((pos, _), (Unknown, _)) => warn_unknown pos
+        | _ => ())
 
 in
 val warn = fn
-    Token ((pos, _), (Char (_, l), s)) => warn0 pos l s
-  | Token ((pos, _), (String (_, l), s)) => warn0 pos l s
-  | Token ((pos, _), (File (_, l), s)) => warn0 pos l s
-  | Token ((pos, _), (Unknown, _)) => unknown pos
+    Token (_, (Char (_, l), _)) => warn_string l
+  | Token (_, (String (_, l), _)) => warn_string l
+  | Token (_, (File (_, l), _)) => warn_string l
+  | Token ((pos, _), (Unknown, _)) => warn_unknown pos
   | Token (_, (Comment (Comment_suspicious (SOME (explicit, msg, _))), _)) =>
       (if explicit then warning else tracing) msg
-  | Token (_, (Directive (kind as Conditional _), _)) => app_directive (token_list_of kind)
-  | Token (_, (Directive (Define (_, _, _, Group1 (_, toks4))), _)) => app_directive toks4
+  | Token (_, (Directive (kind as Conditional _), _)) => warn_directive (token_list_of kind)
+  | Token (_, (Directive (Define (_, _, _, Group1 (_, toks4))), _)) => warn_directive toks4
   | Token (_, (Directive (Include (Group2 (_, _, toks))), _)) =>
     (case toks of
        [Token (_, (String _, _))] => ()
@@ -1086,16 +1082,19 @@ val _ = \<comment> \<open>printing a ML function translating code point from \<^
 fun scan_escape s0 =
   let val oct = one' C_Symbol.is_ascii_oct
       val hex = one' Symbol.is_ascii_hex
+      val sym_pos = Symbol_Pos.range #> Position.range_position
       fun chr' f l =
         let val x = f (map Symbol_Pos.content l)
-        in [if x <= Char.maxOrd then Left (chr x) else Right (Symbol_Pos.range (flat l), x)] end
+            val l = flat l
+        in [if x <= Char.maxOrd then Left (chr x, sym_pos l) else Right (Symbol_Pos.range l, x)] end
       val read_oct' = chr' read_oct
       val read_hex' = chr' read_hex
   in one' (member (op =) (raw_explode (s0 ^ String.concat (map #1 escape_char))))
      >> (fn i =>
-          [Left (case AList.lookup (op =) escape_char (Symbol_Pos.content i) of
-                   NONE => s0
-                 | SOME c => String.str c)])
+          [Left (( case AList.lookup (op =) escape_char (Symbol_Pos.content i) of
+                     NONE => s0
+                   | SOME c => String.str c)
+                 , sym_pos i)])
   || oct -- oct -- oct >> (fn ((o1, o2), o3) => read_oct' [o1, o2, o3])
   || oct -- oct >> (fn (o1, o2) => read_oct' [o1, o2])
   || oct >> (read_oct' o single)
@@ -1111,7 +1110,7 @@ fun scan_escape s0 =
 fun scan_str s0 =
      Scan.unless newline
                  (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s0 andalso s <> "\\"))
-     >> (fn s => [Left (#1 s)])
+     >> (single o Left)
   || Scan.ahead newline |-- !!! "bad newline" Scan.fail
   || $$ "\\" |-- !!! "bad escape character" (scan_escape s0);
 
@@ -1148,7 +1147,7 @@ val scan_file =
            |-- Scan.repeats
                  (Scan.unless newline
                               (Scan.one (fn (s, _) => Symbol.not_eof s andalso s <> s_r)
-                               >> (fn s => [Left (#1 s)])))
+                               >> (single o Left)))
            --| $$ s_r)
   in
      Scan.trace (scan (!!! ("unclosed file literal")) "\"" "\"")

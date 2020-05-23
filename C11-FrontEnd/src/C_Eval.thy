@@ -286,10 +286,10 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
           (case tok of
              C_Lex.Char (b, [c]) =>
               C_Grammar.Tokens.cchar
-                (CChar (From_char_hd (case c of Left c => c | _ => chr 0)) (encoding b), pos1, pos2)
+                (CChar (From_char_hd (case c of Left (c, _) => c | _ => chr 0)) (encoding b), pos1, pos2)
            | C_Lex.String (b, s) =>
               C_Grammar.Tokens.cstr
-                (CString0 ( From_string ( implode (map (fn Left s => s | Right _ => chr 0) s))
+                (CString0 ( From_string ( implode (map (fn Left (s, _) => s | Right _ => chr 0) s))
                                         , encoding b)
                           , pos1
                           , pos2)
