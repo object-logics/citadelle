@@ -95,9 +95,13 @@ fun is_ascii_letdig s =
 fun is_ascii_identifier s =
   size s > 0 andalso forall_string is_ascii_letdig s;
 
-val is_ascii_blank_no_line =
-  fn " " => true | "\t" => true | "\^K" => true | "\f" => true
-    | _ => false;
+val ascii_blank_no_line =
+  [ ([" "], NONE)
+  , (["\t", "\^K", "\f"], SOME "Space symbol")
+  , (["\194\160"], SOME "Non-standard space symbol") ]
+
+fun is_ascii_blank_no_line s =
+  exists (#1 #> exists (curry op = s)) ascii_blank_no_line
 end
 \<close>
 
@@ -624,7 +628,7 @@ datatype token_kind =
   String of token_kind_string |
   File of token_kind_string |
   (**)
-  Space | Comment of token_kind_comment | Sharp of int |
+  Space of (string * Symbol_Pos.T) option list | Comment of token_kind_comment | Sharp of int |
   (**)
   Unknown | Error of string * token_group | Directive of token_kind_directive | EOF
 
@@ -785,7 +789,10 @@ val warn_string =
               ("Out of the supported range (character number " ^ Int.toString n ^ ")"
                ^ Position.here pos1))
 
-
+val warn_space =
+  app (fn SOME (msg, (s, pos)) =>
+            Output.information (msg ^ " " ^ @{make_string} s ^ Position.here pos)
+        | _ => ())
 
 fun warn_unknown pos = Output.information ("Unknown symbol" ^ Position.here pos)
 
@@ -800,6 +807,7 @@ val warn = fn
   | Token (_, (Char (_, l), _)) => warn_string l
   | Token (_, (String (_, l), _)) => warn_string l
   | Token (_, (File (_, l), _)) => warn_string l
+  | Token (_, (Space l, _)) => warn_space l
   | Token ((pos, _), (Unknown, _)) => warn_unknown pos
   | Token (_, (Comment (Comment_suspicious (SOME (explicit, msg, _))), _)) =>
       (if explicit then warning else tracing) msg
@@ -921,7 +929,14 @@ fun !!! msg = Symbol_Pos.!!! (fn () => err_prefix ^ msg);
 
 fun !!!! msg = C_Symbol_Pos.!!!! (fn () => err_prefix ^ msg);
 
-val many1_blanks_no_line = many1 C_Symbol.is_ascii_blank_no_line
+val many1_blanks_no_line =
+  Scan.repeat1
+    (one C_Symbol.is_ascii_blank_no_line
+     >> (fn (s, pos) => 
+          List.find (#1 #> exists (curry op = s)) C_Symbol.ascii_blank_no_line
+          |> the
+          |> #2
+          |> Option.map (rpair (s, pos))))
 
 (* identifiers *)
 
@@ -1213,14 +1228,14 @@ val scan_sharp1 = $$$ "#"
 val scan_sharp2 = $$$ "#" @@@ $$$ "#"
 
 val scan_directive =
-  let val f_filter = fn Token (_, (Space, _)) => true
+  let val f_filter = fn Token (_, (Space _, _)) => true
                       | Token (_, (Comment _, _)) => true
                       | Token (_, (Error _, _)) => true
                       | _ => false
       val sharp1 = scan_sharp1 >> token (Sharp 1)
   in    (sharp1 >> single)
     @@@ Scan.repeat (   scan_token scan_file I
-                     || scan_fragment (many1_blanks_no_line >> token Space)
+                     || scan_fragment (scan_token many1_blanks_no_line Space)
                                       comments
                                       (scan_sharp2 >> token (Sharp 2) || sharp1)
                                       I)
@@ -1432,8 +1447,8 @@ val scan_ml =
     let
       fun non_blanks st scan = scan >> pair st 
       fun scan_frag st =
-        scan_fragment (   C_Basic_Symbol_Pos.newline >> token Space >> pair true
-                       || many1_blanks_no_line >> token Space >> pair st)
+        scan_fragment (   scan_token (C_Basic_Symbol_Pos.newline >> K [NONE]) Space >> pair true
+                       || scan_token many1_blanks_no_line Space >> pair st)
                       (non_blanks st comments)
                       ((scan_sharp2 || scan_sharp1) >> token Keyword)
                       (non_blanks false)
@@ -1459,7 +1474,7 @@ fun reader scan syms =
         let
           val pos1 = List.last syms |-> Position.advance;
           val pos2 = Position.advance Symbol.space pos1;
-        in [Token (Position.range (pos1, pos2), (Space, Symbol.space))] end;
+        in [Token (Position.range (pos1, pos2), (Space [NONE], Symbol.space))] end;
 
     val backslash1 =
           $$$ "\\" @@@ many C_Symbol.is_ascii_blank_no_line @@@ C_Basic_Symbol_Pos.newline
