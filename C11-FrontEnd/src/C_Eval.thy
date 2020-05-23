@@ -318,7 +318,7 @@ fun makeLexer ((stack, stack_ml, stack_pos, stack_tree), arg) =
                , pos2)
            | C_Lex.Float s =>
               C_Grammar.Tokens.cfloat (CFloat (From_string (implode (map #1 s))), pos1, pos2)
-           | C_Lex.Ident => 
+           | C_Lex.Ident _ => 
               let val (name, arg) = C_Grammar_Rule_Lib.getNewName arg
                   val ident0 = C_Grammar_Rule_Lib.mkIdent
                                  (C_Grammar_Rule_Lib.posOf' false (pos1, pos2))
@@ -732,7 +732,7 @@ fun eval env start err accept (ants, ants_err) {context, reports_text, error_lin
                                  (C_Lex.token_list_of dir))
                       #> pair (Right (Left tok))
                   | C_Lex.Token (pos, (C_Lex.Keyword, cts)) => subst_directive tok pos cts
-                  | C_Lex.Token (pos, (C_Lex.Ident, cts)) => subst_directive tok pos cts
+                  | C_Lex.Token (pos, (C_Lex.Ident _, cts)) => subst_directive tok pos cts
                   | _ => pair (Right (Left tok))
                 end
                 ants

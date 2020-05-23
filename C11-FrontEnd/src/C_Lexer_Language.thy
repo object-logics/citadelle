@@ -616,7 +616,7 @@ datatype token_kind_int_flag = Flag_unsigned
                              | Flag_imag
 
 datatype token_kind =
-  Keyword | Ident | Type_ident | GnuC | ClangC |
+  Keyword | Ident of (Symbol_Pos.T list, Symbol_Pos.T) either list | Type_ident | GnuC | ClangC |
   (**)
   Char of token_kind_string |
   Integer of int * token_kind_int_repr * token_kind_int_flag list |
@@ -707,7 +707,7 @@ val directive_cmds = fn
 fun is_keyword (Token (_, (Keyword, _))) = true
   | is_keyword _ = false;
 
-fun is_ident (Token (_, (Ident, _))) = true
+fun is_ident (Token (_, (Ident _, _))) = true
   | is_ident _ = false;
 
 fun is_integer (Token (_, (Integer _, _))) = true
@@ -763,6 +763,11 @@ val token_list_of =
 
 local
 
+fun warn_utf8 s pos =
+  Output.information ("UTF-8 " ^ @{make_string} s ^ Position.here pos)
+
+val warn_ident = app (fn Right (s, pos) => warn_utf8 s pos | _ => ())
+
 val warn_string =
   app (fn Left (s, pos) =>
             if Symbol.is_printable s then
@@ -791,7 +796,8 @@ val warn_directive =
 
 in
 val warn = fn
-    Token (_, (Char (_, l), _)) => warn_string l
+    Token (_, (Ident l, _)) => warn_ident l
+  | Token (_, (Char (_, l), _)) => warn_string l
   | Token (_, (String (_, l), _)) => warn_string l
   | Token (_, (File (_, l), _)) => warn_string l
   | Token ((pos, _), (Unknown, _)) => warn_unknown pos
@@ -919,19 +925,26 @@ val many1_blanks_no_line = many1 C_Symbol.is_ascii_blank_no_line
 
 (* identifiers *)
 
+local
+fun left x = [Left x]
+fun right x = [Right x]
+in
 val scan_ident_sym =
   let val hex = one' Symbol.is_ascii_hex
-  in   one' C_Symbol.is_identletter
-    || $$$ "\\" @@@ $$$ "u" @@@ hex @@@ hex @@@ hex @@@ hex
-    || $$$ "\\" @@@ $$$ "U" @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex
-    || one' Symbol.is_symbolic
-    || one' Symbol.is_control
-    || one' Symbol.is_utf8
+  in   one' C_Symbol.is_identletter >> left
+    || $$$ "\\" @@@ $$$ "u" @@@ hex @@@ hex @@@ hex @@@ hex >> left
+    || $$$ "\\" @@@ $$$ "U" @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex @@@ hex >> left
+    || one' Symbol.is_symbolic >> left
+    || one' Symbol.is_control >> left
+    || one Symbol.is_utf8 >> right
   end
   
 val scan_ident =
       scan_ident_sym
-  @@@ Scan.repeats (scan_ident_sym || one' Symbol.is_ascii_digit);
+  @@@ Scan.repeats (scan_ident_sym || one' Symbol.is_ascii_digit >> left);
+
+val scan_ident' = scan_ident >> maps (fn Left s => s | Right c => [c]);
+end
 
 val keywords_ident =
   map_filter
@@ -1191,7 +1204,7 @@ fun scan_fragment blanks comments sharps non_blanks =
                                     (   scan_clangversion >> token ClangC
                                      || scan_token scan_float Float
                                      || scan_token scan_int Integer
-                                     || scan_ident >> token Ident))
+                                     || scan_token scan_ident Ident))
   || non_blanks (Scan.one (Symbol.is_printable o #1) >> single >> token Unknown)
 
 (* scan tokens, directive part *)
@@ -1240,12 +1253,12 @@ val get_cond = fn Token (pos, (Directive (Inline (Group1 (toks_bl, tok1 :: tok2 
                 | _ => error "Inline directive expected"
 
 val one_start_cond = one_directive (fn (Keyword, "if") => true
-                                     | (Ident, "ifdef") => true
-                                     | (Ident, "ifndef") => true
+                                     | (Ident _, "ifdef") => true
+                                     | (Ident _, "ifndef") => true
                                      | _ => false)
-val one_elif = one_directive (fn (Ident, "elif") => true | _ => false)
+val one_elif = one_directive (fn (Ident _, "elif") => true | _ => false)
 val one_else = one_directive (fn (Keyword, "else") => true | _ => false)
-val one_endif = one_directive (fn (Ident, "endif") => true | _ => false)
+val one_endif = one_directive (fn (Ident _, "endif") => true | _ => false)
 
 val not_cond =
  Scan.unless
@@ -1254,7 +1267,7 @@ val not_cond =
    >>
     (fn Token (pos, ( Directive (Inline (Group1 ( toks_bl
                                                 , (tok1 as Token (_, (Sharp _, _)))
-                                                  :: (tok2 as Token (_, (Ident, "include")))
+                                                  :: (tok2 as Token (_, (Ident _, "include")))
                                                   :: toks)))
                     , s)) =>
           Token (pos, ( case toks of [] =>
@@ -1265,7 +1278,7 @@ val not_cond =
                       , s))
       | Token (pos, ( Directive (Inline (Group1 ( toks_bl
                                                 , (tok1 as Token (_, (Sharp _, _)))
-                                                  :: (tok2 as Token (_, (Ident, "define")))
+                                                  :: (tok2 as Token (_, (Ident _, "define")))
                                                   :: toks)))
                     , s)) =>
          let
@@ -1281,7 +1294,7 @@ val not_cond =
                     fun right2 msg = right msg o #2
                     fun take_prefix' toks_bl toks_acc pos =
                      fn
-                       (tok1 as Token (_, (Ident, _)))
+                       (tok1 as Token (_, (Ident _, _)))
                        :: (tok2 as Token (pos2, (Keyword, key)))
                        :: toks =>
                          if key = ","
@@ -1290,7 +1303,7 @@ val not_cond =
                            Left (rev (tok2 :: toks_bl), rev (tok1 :: toks_acc), toks)
                          else
                            right1 "Expecting a colon delimiter or a closing parenthesis" pos2
-                     | Token (pos1, (Ident, _)) :: _ =>
+                     | Token (pos1, (Ident _, _)) :: _ =>
                          right2 "Expecting a colon delimiter or a closing parenthesis" pos1
                      | (tok1 as Token (_, (Keyword, key1)))
                        :: (tok2 as Token (pos2, (Keyword, key2)))
@@ -1318,7 +1331,7 @@ val not_cond =
                              , Group2 (toks_bl, [tok1, tok2], toks))
          in
            Token (pos, ( case toks of
-                           (tok3 as Token (_, (Ident, _))) :: toks => define tok3 toks
+                           (tok3 as Token (_, (Ident _, _))) :: toks => define tok3 toks
                          | (tok3 as Token (_, (Keyword, cts))) :: toks =>
                              if exists (fn cts0 => cts = cts0) keywords_ident
                              then define tok3 toks
@@ -1328,7 +1341,7 @@ val not_cond =
          end
       | Token (pos, ( Directive (Inline (Group1 ( toks_bl
                                                 , (tok1 as Token (_, (Sharp _, _)))
-                                                  :: (tok2 as Token (_, (Ident, "undef")))
+                                                  :: (tok2 as Token (_, (Ident _, "undef")))
                                                   :: toks)))
                     , s)) =>
           Token (pos, ( let fun err () = Error ( "Expecting at least and at most one identifier"
@@ -1336,7 +1349,7 @@ val not_cond =
                                                , Group2 (toks_bl, [tok1, tok2], toks))
                         in
                           case toks of
-                            [Token (_, (Ident, _))] =>
+                            [Token (_, (Ident _, _))] =>
                               Directive (Undef (Group2 (toks_bl, [tok1, tok2], toks)))
                           | [Token (_, (Keyword, cts))] =>
                               if exists (fn cts0 => cts = cts0) keywords_ident
