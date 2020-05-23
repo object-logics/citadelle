@@ -774,7 +774,9 @@ val warn_ident = app (fn Right (s, pos) => warn_utf8 s pos | _ => ())
 
 val warn_string =
   app (fn Left (s, pos) =>
-            if Symbol.is_printable s then
+            if Symbol.is_utf8 s then
+              warn_utf8 s pos
+            else if Symbol.is_printable s then
               ()
             else
               let val ord_s = ord s
